@@ -6,17 +6,22 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
-import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura.getSpot
-import net.ccbluex.liquidbounce.utils.aiming.PointTracker
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
-import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
+import net.ccbluex.liquidbounce.utils.aiming.RotationTarget
+import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.features.MovementCorrection
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.combat.TargetTracker
 import net.ccbluex.liquidbounce.utils.entity.squaredBoxedDistanceTo
 import net.ccbluex.liquidbounce.utils.inventory.*
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
+import net.ccbluex.liquidbounce.utils.math.component1
+import net.ccbluex.liquidbounce.utils.math.component2
+import net.ccbluex.liquidbounce.utils.math.component3
+import net.ccbluex.liquidbounce.utils.math.minus
 import net.minecraft.item.Items
+import kotlin.math.atan2
+import kotlin.math.sqrt
 
 private var fireworkCooldown = 750L
 
@@ -29,14 +34,14 @@ private var fireworkCooldown = 750L
  * @author sqlerrorthing
  * @see ModuleKillaura.rotations
  */
-@Suppress("MagicNumber", "NOTHING_TO_INLINE", "Unused", "UnusedPrivateProperty")
+@Suppress("MagicNumber", "Unused", "UnusedPrivateProperty")
 object ModuleElytraTarget : ClientModule("ElytraTarget", Category.COMBAT) {
     private val autoFirework = tree(object : ToggleableConfigurable(this, "AutoFirework", true) {
         val extraDistance by float("ExtraDistance", 50f, 5f..100f, suffix = "m")
         val slotResetDelay by intRange("SlotResetDelay", 0..0, 0..20, "ticks")
     })
 
-    private val rotations = tree(RotationsConfigurable(this, MovementCorrection.STRICT))
+    private val look by boolean("Look", false)
     private val targetTracker = tree(TargetTracker())
 
     override val running: Boolean
@@ -60,16 +65,37 @@ object ModuleElytraTarget : ClientModule("ElytraTarget", Category.COMBAT) {
                 continue
             }
 
-            val spot = getSpot(target, range.toDouble(), PointTracker.AimSituation.FOR_NOW, false) ?: continue
-            val (rotation, vec) = spot
+            val (x, y, z) = target.eyePos - player.pos
+
+            val rotation = Rotation(
+                (Math.toDegrees(atan2(z, x)) - 90).toFloat(),
+                (-Math.toDegrees(atan2(y, sqrt(x * x + z * z)))).toFloat()
+            ).normalize()
+
+            val correction = if (look) {
+                MovementCorrection.CHANGE_LOOK
+            } else {
+                MovementCorrection.STRICT
+            }
 
             targetTracker.target = target
             RotationManager.setRotationTarget(
-                rotations.toAimPlan(
-                    rotation,
-                    vec,
-                    target,
-                    considerInventory = true
+                /*
+                 * Don't use the RotationConfigurable because I need to superfast rotations.
+                 * Without any setting and angle smoothing
+                 */
+                plan = RotationTarget(
+                    rotation = rotation,
+                    vec3d = rotation.directionVector,
+                    entity = target,
+                    angleSmooth = null,
+                    slowStart = null,
+                    failFocus = null,
+                    shortStop = null,
+                    ticksUntilReset = 1,
+                    resetThreshold = 1f,
+                    considerInventory = true,
+                    movementCorrection = correction
                 ),
                 priority = Priority.IMPORTANT_FOR_USAGE_3,
                 provider = this

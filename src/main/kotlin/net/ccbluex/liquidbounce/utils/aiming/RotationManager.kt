@@ -162,6 +162,7 @@ object RotationManager : EventListener {
             val diff = rotation.angleTo(playerRotation)
 
             if (aimPlan == null && (activeRotationTarget.movementCorrection == MovementCorrection.CHANGE_LOOK
+                    || activeRotationTarget.angleSmooth == null
                     || diff <= activeRotationTarget.resetThreshold)) {
                 currentRotation?.let { currentRotation ->
                     player.yaw = player.withFixedYaw(currentRotation)
