@@ -371,7 +371,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
                 continue
             }
 
-            val spot = getSpot(target, range.toDouble(), situation, rotations.aimThroughWalls) ?: continue
+            val spot = getSpot(target, range.toDouble(), situation) ?: continue
 
             val ticks = rotations.howLongToReach(spot.rotation)
             if (rotations.rotationTimingMode == SNAP && !clickScheduler.isClickOnNextTick(ticks.coerceAtLeast(1))
@@ -424,11 +424,10 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
      *
      *  @return The best spot to attack the entity
      */
-    fun getSpot(
+    private fun getSpot(
         entity: LivingEntity,
         range: Double,
-        situation: PointTracker.AimSituation,
-        aimThroughWalls: Boolean
+        situation: PointTracker.AimSituation
     ): RotationWithVector? {
         val point = pointTracker.gatherPoint(
             entity,
@@ -460,7 +459,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
             rotationPreference = rotationPreference
         )
 
-        return if (spot == null && aimThroughWalls) {
+        return if (spot == null && rotations.aimThroughWalls) {
             val throughSpot = raytraceBox(
                 eyes, point.cutOffBox,
                 // Since [range] is squared, we need to square root
