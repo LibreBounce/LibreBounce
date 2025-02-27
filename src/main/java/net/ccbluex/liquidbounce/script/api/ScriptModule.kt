@@ -11,6 +11,7 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.config.Value
+import net.ccbluex.liquidbounce.utils.extensions.toLowerCamelCase
 
 class ScriptModule(name: String, category: Category, description: String, private val moduleObject: JSObject)
     : Module(name, category, forcedDescription = description) {
@@ -35,9 +36,7 @@ class ScriptModule(name: String, category: Category, description: String, privat
             _tag = moduleObject.getMember("tag") as String
 
         ALL_EVENT_CLASSES.forEach { eventClass ->
-            val eventName = StringBuilder(eventClass.simpleName.removeSuffix("Event")).apply {
-                this[0] = this[0].lowercaseChar()
-            }.toString()
+            val eventName = eventClass.simpleName.removeSuffix("Event").toLowerCamelCase()
 
             EventManager.registerEventHook(eventClass, EventHook(this) {
                 callEvent(eventName, it)

@@ -37,6 +37,4 @@ inline fun <reified T : Event> Listenable.handler(
     always: Boolean = false,
     priority: Byte = 0,
     crossinline action: suspend CoroutineScope.(T) -> Unit
-) {
-    handler<T>(always, priority) { launchSequence(dispatcher, always) { action(it) } }
-}
+) = handler<T>(always, priority) { launchSequence(dispatcher, always) { action(it) } }
