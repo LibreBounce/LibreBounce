@@ -233,7 +233,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
 
         // Determine if we should attack the target or someone else
         val rotation = if (rotations.rotationTimingMode == ON_TICK) {
-            getSpot(target, range.toDouble(), PointTracker.AimSituation.FOR_NOW, rotations.aimThroughWalls)?.rotation
+            getSpot(target, range.toDouble(), PointTracker.AimSituation.FOR_NOW)?.rotation
                 ?: RotationManager.currentRotation ?: player.rotation
         } else {
             RotationManager.currentRotation ?: player.rotation
