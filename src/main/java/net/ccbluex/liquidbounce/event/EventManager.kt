@@ -39,10 +39,12 @@ private fun List<EventHook<*>>.findIndexByPriority(item: EventHook<*>): Int {
  */
 object EventManager : CoroutineScope by CoroutineScope(SupervisorJob()) {
     private val registry = ALL_EVENT_CLASSES.associateWithTo(IdentityHashMap(ALL_EVENT_CLASSES.size)) {
+        // All handlers are initialized at startup (main thread)
         ArrayList<EventHook<in Event>>()
     }
 
     private val terminateHooks = ALL_EVENT_CLASSES.associateWithTo(IdentityHashMap(ALL_EVENT_CLASSES.size)) {
+        // Terminate event hooks might be added from other threads
         PriorityBlockingQueue<EventHook<in Event>>(11, Comparator.comparingInt { -it.priority })
     }
 
