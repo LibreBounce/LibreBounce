@@ -158,7 +158,9 @@ object EventManager : CoroutineScope by CoroutineScope(SupervisorJob()) {
         with(terminateHooks[event.javaClass]!!.iterator()) {
             while (hasNext()) {
                 val hook = next()
-                hook.processEvent(event)
+                if (hook.isActive) {
+                    hook.processEvent(event)
+                }
                 remove()
             }
         }
