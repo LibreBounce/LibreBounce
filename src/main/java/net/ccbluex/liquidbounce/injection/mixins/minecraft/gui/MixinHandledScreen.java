@@ -79,7 +79,7 @@ public abstract class MixinHandledScreen<T extends ScreenHandler> extends MixinS
         if (matchingItemScrollerMoveConditions(mouseX, mouseY)) {
             this.quickMovingStack = slot.hasStack() ? slot.getStack().copy() : ItemStack.EMPTY;
 
-            ModuleItemScroller.getClickMode().getAction().invoke(slot, (callbackSlot, slotId, mouseButton, actionType) -> {
+            ModuleItemScroller.getClickMode().getAction().invoke(this.handler, slot, (callbackSlot, slotId, mouseButton, actionType) -> {
                 this.onMouseClick(callbackSlot, slotId, mouseButton, actionType);
                 return Unit.INSTANCE;
             });
