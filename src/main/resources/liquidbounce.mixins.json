@@ -40,6 +40,7 @@
     "minecraft.entity.MixinLivingEntityCompatibility",
     "minecraft.entity.MixinPlayerEntity",
     "minecraft.entity.MixinPlayerEntityAccessor",
+    "minecraft.entity.projectile.MixinFireworkRocketEntity",
     "minecraft.entity.projectile.MixinFishingBobberEntity",
     "minecraft.fluid.MixinFlowableFluid",
     "minecraft.gui.MixinBossBarHud",

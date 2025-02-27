@@ -169,9 +169,8 @@ public abstract class MixinLivingEntity extends MixinEntity {
      */
     @ModifyExpressionValue(method = "jump", at = @At(value = "NEW", target = "(DDD)Lnet/minecraft/util/math/Vec3d;"))
     private Vec3d hookFixRotation(Vec3d original) {
-        var rotationManager = RotationManager.INSTANCE;
-        var rotation = rotationManager.getCurrentRotation();
-        var configurable = rotationManager.getActiveRotationTarget();
+        var rotation = RotationManager.getCurrentRotation();
+        var configurable = RotationManager.getActiveRotationTarget();
 
         if ((Object) this != MinecraftClient.getInstance().player) {
             return original;
@@ -245,9 +244,8 @@ public abstract class MixinLivingEntity extends MixinEntity {
             return original;
         }
 
-        var rotationManager = RotationManager.INSTANCE;
-        var rotation = rotationManager.getCurrentRotation();
-        var configurable = rotationManager.getActiveRotationTarget();
+        var rotation = RotationManager.getCurrentRotation();
+        var configurable = RotationManager.getActiveRotationTarget();
 
         if (rotation == null || configurable == null || configurable.getMovementCorrection() == MovementCorrection.OFF) {
             return original;
@@ -265,9 +263,8 @@ public abstract class MixinLivingEntity extends MixinEntity {
             return original;
         }
 
-        var rotationManager = RotationManager.INSTANCE;
-        var rotation = rotationManager.getCurrentRotation();
-        var configurable = rotationManager.getActiveRotationTarget();
+        var rotation = RotationManager.getCurrentRotation();
+        var configurable = RotationManager.getActiveRotationTarget();
 
         if (rotation == null || configurable == null || configurable.getMovementCorrection() == MovementCorrection.OFF) {
             return original;
