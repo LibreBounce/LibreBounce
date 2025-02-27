@@ -6,6 +6,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
 import net.ccbluex.liquidbounce.event.*
+import net.ccbluex.liquidbounce.event.async.loopSequence
 import net.ccbluex.liquidbounce.event.async.waitTicks
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
@@ -72,13 +73,13 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
         thePlayer.stepHeight = 0.6F
     }
 
-    val onUpdate = loopHandler {
+    val onUpdate = loopSequence {
         val mode = mode
-        val thePlayer = mc.thePlayer ?: return@loopHandler
+        val thePlayer = mc.thePlayer ?: return@loopSequence
 
-        if (thePlayer.isOnLadder || thePlayer.isInLiquid || thePlayer.isInWeb) return@loopHandler
+        if (thePlayer.isOnLadder || thePlayer.isInLiquid || thePlayer.isInWeb) return@loopSequence
 
-        if (!thePlayer.isMoving) return@loopHandler
+        if (!thePlayer.isMoving) return@loopSequence
 
         // Motion steps
         when (mode) {
@@ -94,7 +95,7 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
 
                     if (!couldStep() || chest.isNotEmpty()) {
                         mc.timer.timerSpeed = 1f
-                        return@loopHandler
+                        return@loopSequence
                     }
 
                     fakeJump()

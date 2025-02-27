@@ -6,8 +6,8 @@
 package net.ccbluex.liquidbounce.features.module.modules.world
 
 import net.ccbluex.liquidbounce.event.Render3DEvent
+import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.loopHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.attack.CPSCounter
@@ -80,12 +80,12 @@ object BedDefender : Module("BedDefender", Category.WORLD) {
         bedBottomPositions.clear()
     }
 
-    val onUpdate = loopHandler {
-        val player = mc.thePlayer ?: return@loopHandler
-        val world = mc.theWorld ?: return@loopHandler
+    val onUpdate = handler<UpdateEvent> {
+        val player = mc.thePlayer ?: return@handler
+        val world = mc.theWorld ?: return@handler
 
         if (onSneakOnly && !mc.gameSettings.keyBindSneak.isKeyDown) {
-            return@loopHandler
+            return@handler
         }
 
         val radius = 4
@@ -120,12 +120,12 @@ object BedDefender : Module("BedDefender", Category.WORLD) {
         addDefenceBlocks(bedBottomPositions)
 
         if (defenceBlocks.isNotEmpty()) {
-            val playerPos = player.position ?: return@loopHandler
+            val playerPos = player.position ?: return@handler
             val pos = if (scannerMode == "Nearest") defenceBlocks.minByOrNull { it.distanceSq(playerPos) }
-                ?: return@loopHandler else defenceBlocks.random()
+                ?: return@handler else defenceBlocks.random()
             val blockPos = BlockPos(pos.x.toDouble(), pos.y - player.eyeHeight + 1.5, pos.z.toDouble())
             val rotation = RotationUtils.toRotation(blockPos.center, false, player)
-            val raytrace = performBlockRaytrace(rotation, mc.playerController.blockReachDistance) ?: return@loopHandler
+            val raytrace = performBlockRaytrace(rotation, mc.playerController.blockReachDistance) ?: return@handler
 
             if (options.rotationsActive) {
                 setTargetRotation(rotation, options, if (options.keepRotation) options.resetTicks else 1)
@@ -134,7 +134,7 @@ object BedDefender : Module("BedDefender", Category.WORLD) {
             blockPosition = blockPos
 
             if (timerCounter.hasTimePassed(placeDelay)) {
-                if (!isPlaceablePos(blockPos)) return@loopHandler
+                if (!isPlaceablePos(blockPos)) return@handler
 
                 when (autoSneak.lowercase()) {
                     "normal" -> mc.gameSettings.keyBindSneak.pressed = false

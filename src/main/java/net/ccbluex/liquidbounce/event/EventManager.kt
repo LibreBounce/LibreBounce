@@ -9,8 +9,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import net.ccbluex.liquidbounce.event.async.LoopManager
 import net.ccbluex.liquidbounce.event.async.TickScheduler
+import net.ccbluex.liquidbounce.event.async.loopSequence
 import net.ccbluex.liquidbounce.event.async.waitTicks
 import net.ccbluex.liquidbounce.utils.client.ClientUtils
 import java.util.*
@@ -56,10 +56,8 @@ object EventManager : CoroutineScope by CoroutineScope(SupervisorJob()) {
     private val jobs = CopyOnWriteArrayList<AsyncTask>()
 
     init {
-        LoopManager
-        TickScheduler
-
-        LoopManager.loopHandler {
+        TickScheduler.loopSequence {
+            // Cancel async tasks
             jobs.removeIf { !it.owner.isActive || !it.job.isActive }
             waitTicks(1)
         }

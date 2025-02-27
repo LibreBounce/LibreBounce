@@ -9,7 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import net.ccbluex.liquidbounce.config.Configurable
 import net.ccbluex.liquidbounce.event.Listenable
-import net.ccbluex.liquidbounce.event.loopHandler
+import net.ccbluex.liquidbounce.event.async.loopSequence
 import net.ccbluex.liquidbounce.features.module.modules.combat.AutoArmor
 import net.ccbluex.liquidbounce.features.module.modules.player.InventoryCleaner
 import net.ccbluex.liquidbounce.features.module.modules.world.ChestStealer
@@ -77,7 +77,7 @@ object InventoryManager : Configurable("InventoryManager"), MinecraftInstance, L
     val passedPostInventoryCloseDelay
         get() = System.currentTimeMillis() - timeSinceClosedInventory >= postInventoryCloseDelayValue.get()
 
-    private val managerLoop = loopHandler(dispatcher = Dispatchers.Default, priority = 100) {
+    private val managerLoop = loopSequence(dispatcher = Dispatchers.Default) {
         /**
          * ChestStealer actions
          */
@@ -94,7 +94,7 @@ object InventoryManager : Configurable("InventoryManager"), MinecraftInstance, L
         // Don't wait for NoMove not to be violated, check if there is anything to equip from hotbar and such by looping again
         if (!canClickInventory() || (invOpenValue.get() && mc.currentScreen !is GuiInventory)) {
             delay(50)
-            return@loopHandler
+            return@loopSequence
         }
 
         canCloseInventory = false
@@ -122,7 +122,7 @@ object InventoryManager : Configurable("InventoryManager"), MinecraftInstance, L
         val action = closingAction
         if (action == null) {
             delay(50)
-            return@loopHandler
+            return@loopSequence
         }
 
         // Prepare for closing the inventory

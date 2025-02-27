@@ -58,7 +58,7 @@ object HUD : Module("HUD", Category.RENDER, gameDetecting = false, defaultState 
         hud.render(false)
     }
 
-    val onUpdate = loopHandler {
+    val onUpdate = handler<UpdateEvent> {
         hud.update()
     }
 

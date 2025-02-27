@@ -6,6 +6,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.world.scaffolds
 
 import net.ccbluex.liquidbounce.event.*
+import net.ccbluex.liquidbounce.event.async.loopSequence
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.attack.CPSCounter
@@ -291,10 +292,10 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
     }
 
     // Events
-    val onUpdate = loopHandler {
-        val player = mc.thePlayer ?: return@loopHandler
+    val onUpdate = loopSequence {
+        val player = mc.thePlayer ?: return@loopSequence
 
-        if (mc.playerController.currentGameType == WorldSettings.GameType.SPECTATOR) return@loopHandler
+        if (mc.playerController.currentGameType == WorldSettings.GameType.SPECTATOR) return@loopSequence
 
         mc.timer.timerSpeed = timer
 

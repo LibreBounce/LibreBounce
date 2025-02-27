@@ -6,6 +6,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
 import net.ccbluex.liquidbounce.event.*
+import net.ccbluex.liquidbounce.event.async.loopSequence
 import net.ccbluex.liquidbounce.event.async.waitTicks
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
@@ -224,7 +225,7 @@ object Fly : Module("Fly", Category.MOVEMENT, Keyboard.KEY_F) {
         modeModule.onTick()
     }
 
-    val onTick1 = loopHandler {
+    val onTick1 = loopSequence {
         if (mode == "Fireball" && wasFired) {
             waitTicks(2)
             state = false
