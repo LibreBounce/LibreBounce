@@ -4,7 +4,7 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 
 /**
- * Fast item management in inventory
+ * Quick item movement
  *
  * @author sqlerrorthing
  */
