@@ -1,5 +1,6 @@
 package net.ccbluex.liquidbounce.injection.mixins.minecraft.gui;
 
+import kotlin.Unit;
 import net.ccbluex.liquidbounce.features.module.modules.misc.ModuleItemScroller;
 import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleInventoryMove;
 import net.ccbluex.liquidbounce.utils.client.Chronometer;
@@ -21,6 +22,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(HandledScreen.class)
 public abstract class MixinHandledScreen<T extends ScreenHandler> extends MixinScreen {
@@ -68,25 +70,20 @@ public abstract class MixinHandledScreen<T extends ScreenHandler> extends MixinS
 
     @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/ingame/HandledScreen;drawSlots(Lnet/minecraft/client/gui/DrawContext;)V", shift = At.Shift.AFTER))
     private void hookDrawSlot(DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
-        if (!ModuleItemScroller.INSTANCE.getRunning()) {
-            return;
-        }
-
         var cursorStack = this.handler.getCursorStack();
         var slot = getSlotAt(mouseX, mouseY);
-        var handle = this.client.getWindow().getHandle();
-
         if (!cursorStack.isEmpty() || slot == null) {
             return;
         }
 
-        if ((InputUtil.isKeyPressed(handle, GLFW.GLFW_KEY_LEFT_SHIFT)
-            || InputUtil.isKeyPressed(handle, GLFW.GLFW_KEY_RIGHT_SHIFT))
-            && GLFW.glfwGetMouseButton(handle, GLFW.GLFW_MOUSE_BUTTON_1) == GLFW.GLFW_PRESS
-            && chronometer.hasAtLeastElapsed(ModuleItemScroller.getDelay())
-        ) {
+        if (matchingItemScrollerMoveConditions(mouseX, mouseY)) {
             this.quickMovingStack = slot.hasStack() ? slot.getStack().copy() : ItemStack.EMPTY;
-            this.onMouseClick(slot, slot.id, GLFW.GLFW_MOUSE_BUTTON_LEFT, SlotActionType.QUICK_MOVE);
+
+            ModuleItemScroller.getClickMode().getAction().invoke(slot, (callbackSlot, slotId, mouseButton, actionType) -> {
+                this.onMouseClick(callbackSlot, slotId, mouseButton, actionType);
+                return Unit.INSTANCE;
+            });
+
             this.cancelNextRelease = true;
 
             this.lastClickedSlot = slot;
@@ -97,4 +94,26 @@ public abstract class MixinHandledScreen<T extends ScreenHandler> extends MixinS
         }
     }
 
+    @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
+    private void hookMouseClicked(double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> cir) {
+        /*
+         * We move the item by itself, we don't need this action by Minecraft
+         */
+        if (matchingItemScrollerMoveConditions((int) mouseX, (int) mouseY)) {
+            cir.cancel();
+        }
+    }
+
+    @Unique
+    private boolean matchingItemScrollerMoveConditions(int mouseX, int mouseY) {
+        var handle = this.client.getWindow().getHandle();
+
+        return ((InputUtil.isKeyPressed(handle, GLFW.GLFW_KEY_LEFT_SHIFT)
+                || InputUtil.isKeyPressed(handle, GLFW.GLFW_KEY_RIGHT_SHIFT))
+                && getSlotAt(mouseX, mouseY) != null
+                && !this.handler.getCursorStack().isEmpty()
+                && ModuleItemScroller.INSTANCE.getRunning()
+                && GLFW.glfwGetMouseButton(handle, GLFW.GLFW_MOUSE_BUTTON_1) == GLFW.GLFW_PRESS
+                && chronometer.hasAtLeastElapsed(ModuleItemScroller.getDelay()));
+    }
 }
