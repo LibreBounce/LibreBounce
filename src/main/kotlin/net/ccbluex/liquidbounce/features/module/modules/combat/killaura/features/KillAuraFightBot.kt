@@ -25,7 +25,7 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKi
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura.targetTracker
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
 import net.ccbluex.liquidbounce.render.engine.Color4b
-import net.ccbluex.liquidbounce.utils.aiming.Rotation
+import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
 import net.ccbluex.liquidbounce.utils.entity.box
 import net.ccbluex.liquidbounce.utils.entity.rotation
 import net.ccbluex.liquidbounce.utils.math.times
@@ -57,7 +57,7 @@ data class CombatTarget(
  */
 object KillAuraFightBot : NavigationBaseConfigurable<CombatContext>(ModuleKillAura, "FightBot", false) {
 
-    private val opponentRange by float("OpponentRange", 3f, 0.1f..5f)
+    private val opponentRange by float("OpponentRange", 3f, 0.1f..10f)
     private val dangerousYawDiff by float("DangerousYaw", 55f, 0f..90f, suffix = "°")
     private val runawayOnCooldown by boolean("RunawayOnCooldown", true)
 
@@ -157,7 +157,7 @@ object KillAuraFightBot : NavigationBaseConfigurable<CombatContext>(ModuleKillAu
         return (-180..180 step 45)
             .mapNotNull { yaw ->
                 val rotation = Rotation(yaw = yaw.toFloat(), pitch = 0.0F)
-                val position = leaderPosition.add(rotation.rotationVec * LeaderFollower.radius.toDouble())
+                val position = leaderPosition.add(rotation.directionVector * LeaderFollower.radius.toDouble())
                 ModuleDebug.debugGeometry(
                     this,
                     "Possible Position $yaw",
@@ -170,20 +170,20 @@ object KillAuraFightBot : NavigationBaseConfigurable<CombatContext>(ModuleKillAu
 
     private fun calculateRunawayPosition(context: CombatContext, combatTarget: CombatTarget): Vec3d {
         return context.playerPosition.add(
-            combatTarget.requiredTargetRotation.rotationVec * combatTarget.range.toDouble()
+            combatTarget.requiredTargetRotation.directionVector * combatTarget.range.toDouble()
         )
     }
 
     private fun calculateAttackPosition(context: CombatContext, combatTarget: CombatTarget): Vec3d {
         val target = combatTarget.entity
         val targetLookPosition = target.pos.add(
-            combatTarget.targetRotation.rotationVec * combatTarget.range.toDouble()
+            combatTarget.targetRotation.directionVector * combatTarget.range.toDouble()
         )
 
         return (-180..180 step 10)
             .mapNotNull { yaw ->
                 val rotation = Rotation(yaw = yaw.toFloat(), pitch = 0.0F)
-                val position = target.pos.add(rotation.rotationVec * combatTarget.range.toDouble())
+                val position = target.pos.add(rotation.directionVector * combatTarget.range.toDouble())
 
                 val isInAngle = rotation.angleTo(combatTarget.targetRotation) <= dangerousYawDiff
                 ModuleDebug.debugGeometry(

@@ -1,11 +1,13 @@
-package net.ccbluex.liquidbounce.utils.aiming
+package net.ccbluex.liquidbounce.utils.aiming.features
 
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
-import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.FIRST_PRIORITY
+import net.ccbluex.liquidbounce.utils.aiming.RotationManager
+import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
+import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
 import net.ccbluex.liquidbounce.utils.kotlin.random
 import kotlin.random.Random
 
@@ -40,21 +42,21 @@ class FailFocus(owner: EventListener? = null)
     private var shiftRotation = Rotation(0f, 0f)
 
     val isInFailState: Boolean
-        get() = enabled && ticksElapsed < currentTransitionInDuration
+        get() = running && ticksElapsed < currentTransitionInDuration
 
     @Suppress("unused")
-    private val gameTick = handler<GameTickEvent>(priority = FIRST_PRIORITY) {
+    private val gameTick = handler<GameTickEvent>(priority = EventPriorityConvention.FIRST_PRIORITY) {
         // Fail rate
         val chance = (0f..100f).random()
         if (failRate > chance) {
             currentTransitionInDuration = transitionInDuration.random()
-            val yawShift = if (Random.nextBoolean()) {
+            val yawShift = if (Random.Default.nextBoolean()) {
                 strengthHorizontal.random().toFloat()
             } else {
                 -strengthHorizontal.random().toFloat()
             }
 
-            val pitchShift = if (Random.nextBoolean()) {
+            val pitchShift = if (Random.Default.nextBoolean()) {
                 strengthVertical.random().toFloat()
             } else {
                 -strengthVertical.random().toFloat()

@@ -38,7 +38,7 @@ import net.minecraft.text.Text
 import net.minecraft.util.Formatting
 
 object ModuleLiquidChat : ClientModule("LiquidChat", Category.CLIENT, hide = true, state = true,
-    aliases = arrayOf("GlobalChat")) {
+    aliases = arrayOf("GlobalChat", "IRC")) {
 
     private var jwtToken by text("JwtToken", "")
 

@@ -27,6 +27,7 @@ import io.netty.handler.codec.http.HttpMethod
 import net.ccbluex.liquidbounce.config.AutoConfig
 import net.ccbluex.liquidbounce.config.ConfigSystem
 import net.ccbluex.liquidbounce.config.gson.interopGson
+import net.ccbluex.liquidbounce.config.gson.util.emptyJsonObject
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.ModuleManager
@@ -103,7 +104,7 @@ fun postPanic(requestObject: RequestObject): FullHttpResponse {
             }
         }
     }
-    return httpOk(JsonObject())
+    return httpOk(emptyJsonObject())
 }
 
 data class ModuleRequest(val name: String) {
@@ -126,7 +127,7 @@ data class ModuleRequest(val name: String) {
                 logger.error("Failed to toggle module $name", it)
             }
         }
-        return httpOk(JsonObject())
+        return httpOk(emptyJsonObject())
     }
 
     fun acceptGetSettingsRequest(): FullHttpResponse {
@@ -142,7 +143,7 @@ data class ModuleRequest(val name: String) {
         }
 
         ConfigSystem.storeConfigurable(modulesConfigurable)
-        return httpOk(JsonObject())
+        return httpOk(emptyJsonObject())
     }
 
 }

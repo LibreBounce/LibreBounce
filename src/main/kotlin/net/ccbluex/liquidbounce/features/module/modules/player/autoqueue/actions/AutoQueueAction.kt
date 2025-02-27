@@ -15,22 +15,18 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
+ *
+ *
  */
-package net.ccbluex.liquidbounce.utils.aiming
+package net.ccbluex.liquidbounce.features.module.modules.player.autoqueue.actions
 
-import net.ccbluex.liquidbounce.utils.aiming.RotationUtil.angleDifference
-import net.minecraft.client.network.ClientPlayerEntity
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.event.Sequence
+import net.ccbluex.liquidbounce.features.module.modules.player.autoqueue.presets.AutoQueueCustom.triggers
 
-fun ClientPlayerEntity.setRotation(rotation: Rotation) {
-    rotation.normalize().let { normalizedRotation ->
-        prevPitch = pitch
-        prevYaw = yaw
-        renderYaw = yaw
-        lastRenderYaw = yaw
-
-        yaw = normalizedRotation.yaw
-        pitch = normalizedRotation.pitch
-    }
+abstract class AutoQueueAction(name: String) : Choice(name) {
+    override val parent: ChoiceConfigurable<*>
+        get() = triggers
+    abstract suspend fun execute(sequence: Sequence)
 }
-
-fun ClientPlayerEntity.withFixedYaw(rotation: Rotation) = rotation.yaw + angleDifference(yaw, rotation.yaw)

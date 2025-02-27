@@ -29,7 +29,7 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.tpaura.modes.ASta
 import net.ccbluex.liquidbounce.features.module.modules.combat.tpaura.modes.ImmediateMode
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
-import net.ccbluex.liquidbounce.utils.clicking.ClickScheduler
+import net.ccbluex.liquidbounce.utils.clicking.Clicker
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.combat.TargetPriority
 import net.ccbluex.liquidbounce.utils.combat.TargetSelector
@@ -43,7 +43,7 @@ object ModuleTpAura : ClientModule("TpAura", Category.COMBAT, disableOnQuit = tr
 
     private val attackRange by float("AttackRange", 4.2f, 3f..5f)
 
-    val clickScheduler = tree(ClickScheduler(this, true))
+    val clicker = tree(Clicker(this, true))
     val mode = choices("Mode", AStarMode, arrayOf(AStarMode, ImmediateMode))
     val targetSelector = tree(TargetSelector(TargetPriority.HURT_TIME))
 
@@ -54,7 +54,7 @@ object ModuleTpAura : ClientModule("TpAura", Category.COMBAT, disableOnQuit = tr
     private val attackRepeatable = tickHandler {
         val position = desyncPlayerPosition ?: player.pos
 
-        clickScheduler.clicks {
+        clicker.clicks {
             val enemy = targetSelector.targets().firstOrNull {
                 it.squaredBoxedDistanceTo(position) <= attackRange * attackRange
             } ?: return@clicks false

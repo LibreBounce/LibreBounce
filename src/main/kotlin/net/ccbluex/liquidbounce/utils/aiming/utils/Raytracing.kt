@@ -16,8 +16,10 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.utils.aiming
+package net.ccbluex.liquidbounce.utils.aiming.utils
 
+import net.ccbluex.liquidbounce.utils.aiming.RotationManager
+import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.client.world
@@ -62,7 +64,7 @@ fun raytraceEntity(
     val entity = mc.cameraEntity ?: return null
 
     val cameraVec = entity.eyePos
-    val rotationVec = rotation.rotationVec
+    val rotationVec = rotation.directionVector
 
     val vec3d3 = cameraVec.add(rotationVec.x * range, rotationVec.y * range, rotationVec.z * range)
     val box = entity.boundingBox.stretch(rotationVec.multiply(range)).expand(1.0, 1.0, 1.0)
@@ -89,7 +91,7 @@ fun raytraceBlock(
     val entity: Entity = mc.cameraEntity ?: return null
 
     val start = entity.eyePos
-    val rotationVec = rotation.rotationVec
+    val rotationVec = rotation.directionVector
 
     val end = start.add(rotationVec.x * range, rotationVec.y * range, rotationVec.z * range)
 
@@ -112,7 +114,7 @@ fun raycast(
         range = range,
         includeFluids = includeFluids,
         start = player.getCameraPosVec(tickDelta),
-        direction = rotation.rotationVec
+        direction = rotation.directionVector
     )
 }
 
@@ -167,7 +169,7 @@ fun facingEnemy(
     wallsRange: Double,
 ): Boolean {
     val cameraVec = fromEntity.eyePos
-    val rotationVec = rotation.rotationVec
+    val rotationVec = rotation.directionVector
 
     val rangeSquared = range.sq()
     val wallsRangeSquared = wallsRange.sq()

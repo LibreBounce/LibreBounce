@@ -22,9 +22,8 @@ import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.config.types.RangedValue
 import net.ccbluex.liquidbounce.config.types.ValueType.*
-import net.ccbluex.liquidbounce.utils.aiming.RotationUtil
-import net.ccbluex.liquidbounce.utils.client.player
-import net.ccbluex.liquidbounce.utils.client.world
+import net.ccbluex.liquidbounce.utils.aiming.utils.RotationUtil
+import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.entity.getActualHealth
 import net.ccbluex.liquidbounce.utils.entity.squaredBoxedDistanceTo
 import net.ccbluex.liquidbounce.utils.math.sq
@@ -37,8 +36,11 @@ import net.minecraft.entity.player.PlayerEntity
  */
 class TargetTracker(
     defaultPriority: TargetPriority = TargetPriority.HEALTH,
-    range: RangedValue<*>? = null
-) : TargetSelector(defaultPriority, range) {
+    rangeValue: RangedValueProvider = NoneRangedValueProvider
+) : TargetSelector(defaultPriority, rangeValue) {
+
+    constructor(defaultPriority: TargetPriority = TargetPriority.HEALTH, range: RangedValue<*>) :
+        this(defaultPriority, DummyRangedValueProvider(range))
 
     var target: LivingEntity? = null
 
@@ -75,11 +77,15 @@ class TargetTracker(
 
 open class TargetSelector(
     defaultPriority: TargetPriority = TargetPriority.HEALTH,
-    val range: RangedValue<*>? = null
+    rangeValue: RangedValueProvider = NoneRangedValueProvider
 ) : Configurable("Target") {
+
+    constructor(defaultPriority: TargetPriority = TargetPriority.HEALTH, range: RangedValue<*>) :
+        this(defaultPriority, DummyRangedValueProvider(range))
 
     var closestSquaredEnemyDistance: Double = 0.0
 
+    private val range = rangeValue.register(this)
     private val fov by float("FOV", 180f, 0f..180f)
     private val hurtTime by int("HurtTime", 10, 0..10)
     private val priority by enumChoice("Priority", defaultPriority)

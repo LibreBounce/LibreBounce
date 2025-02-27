@@ -39,7 +39,6 @@ import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.inGame
 import net.ccbluex.liquidbounce.utils.client.markAsError
 import net.ccbluex.liquidbounce.utils.entity.RenderedEntities
-import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.screen.DisconnectedScreen
 
 /**
@@ -67,14 +66,11 @@ object ModuleHud : ClientModule("HUD", Category.RENDER, state = true, hide = tru
     }
 
     val isBlurable
-        get() = blur && !(mc.options.hudHidden && mc.currentScreen == null) &&
-            // Only blur on Windows and Linux - Mac seems to have issues with it
-            // TODO: fix blur on macOS
-            !MinecraftClient.IS_SYSTEM_MAC
+        get() = blur && !(mc.options.hudHidden && mc.currentScreen == null)
 
     init {
-        tree(Configurable("In-built", components as MutableList<Value<*>>))
-        tree(Configurable("Custom", customComponents as MutableList<Value<*>>))
+        tree(Configurable("In-built", value = components as MutableList<Value<*>>))
+        tree(Configurable("Custom", value = customComponents as MutableList<Value<*>>))
     }
 
     @Suppress("unused")

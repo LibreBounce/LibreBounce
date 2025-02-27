@@ -38,7 +38,7 @@ object ModuleProjectileAimbot : ClientModule("ProjectileAimbot", Category.COMBAT
             SituationalProjectileAngleCalculator.calculateAngleForEntity(trajectory, target)
         } ?: return@tickHandler
 
-        RotationManager.aimAt(
+        RotationManager.setRotationTarget(
             rotation,
             considerInventory = false,
             rotations,

@@ -20,6 +20,7 @@ package net.ccbluex.liquidbounce.injection.mixins.minecraft.render;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.GameRenderEvent;
@@ -33,9 +34,9 @@ import net.ccbluex.liquidbounce.features.module.modules.world.ModuleLiquidPlace;
 import net.ccbluex.liquidbounce.interfaces.LightmapTextureManagerAddition;
 import net.ccbluex.liquidbounce.render.engine.UiRenderer;
 import net.ccbluex.liquidbounce.render.shader.shaders.OutlineEffectShader;
-import net.ccbluex.liquidbounce.utils.aiming.RaytracingExtensionsKt;
-import net.ccbluex.liquidbounce.utils.aiming.Rotation;
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager;
+import net.ccbluex.liquidbounce.utils.aiming.data.Rotation;
+import net.ccbluex.liquidbounce.utils.aiming.utils.RaytracingKt;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ChatScreen;
@@ -59,7 +60,10 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArgs;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 @Mixin(GameRenderer.class)
 public abstract class MixinGameRenderer {
@@ -111,7 +115,7 @@ public abstract class MixinGameRenderer {
             rotation = cameraRotation;
         }
 
-        return RaytracingExtensionsKt.raycast(rotation, Math.max(blockInteractionRange, entityInteractionRange),
+        return RaytracingKt.raycast(rotation, Math.max(blockInteractionRange, entityInteractionRange),
                 ModuleLiquidPlace.INSTANCE.getRunning(), tickDelta);
     }
 
@@ -122,7 +126,7 @@ public abstract class MixinGameRenderer {
         }
 
         var rotation = RotationManager.INSTANCE.getCurrentRotation();
-        return rotation != null ? rotation.getRotationVec() : original;
+        return rotation != null ? rotation.getDirectionVector() : original;
     }
 
     /**
@@ -283,6 +287,16 @@ public abstract class MixinGameRenderer {
         }
 
         return original;
+    }
+
+    @ModifyArgs(
+            method = "getBasicProjectionMatrix",
+            at = @At(value = "INVOKE", target = "Lorg/joml/Matrix4f;perspective(FFFF)Lorg/joml/Matrix4f;")
+    )
+    private void hookBasicProjectionMatrix(Args args) {
+        if (ModuleAspect.INSTANCE.getRunning()) {
+            args.set(1, (float) args.get(1) / ModuleAspect.getRatioMultiplier());
+        }
     }
 
 }
