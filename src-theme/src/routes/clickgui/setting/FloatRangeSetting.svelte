@@ -19,9 +19,7 @@
     onMount(() => {
         let step = 0.01;
 
-        if (cSetting.range.to >= 1000) {
-            step = 1.0;
-        } else if (cSetting.range.to >= 100) {
+        if (cSetting.range.to > 100) {
             step = 0.1;
         } else if (cSetting.range.to <= 0.1) {
             step = 0.0001;
