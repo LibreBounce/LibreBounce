@@ -1,5 +1,6 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
+import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.RotationUpdateEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -20,10 +21,16 @@ import net.ccbluex.liquidbounce.utils.math.component2
 import net.ccbluex.liquidbounce.utils.math.component3
 import net.ccbluex.liquidbounce.utils.math.minus
 import net.minecraft.item.Items
+import net.minecraft.network.packet.c2s.play.PlayerInteractItemC2SPacket
+import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket
 import kotlin.math.atan2
 import kotlin.math.sqrt
 
-private var fireworkCooldown = 750L
+/**
+ * Initial firework cooldown
+ */
+@Suppress("MagicNumber")
+private var fireworkCooldown = 750
 
 /**
  * Выбирает цель и летит за ней на элитре.
@@ -39,6 +46,8 @@ object ModuleElytraTarget : ClientModule("ElytraTarget", Category.COMBAT) {
     private val autoFirework = tree(object : ToggleableConfigurable(this, "AutoFirework", true) {
         val extraDistance by float("ExtraDistance", 50f, 5f..100f, suffix = "m")
         val slotResetDelay by intRange("SlotResetDelay", 0..0, 0..20, "ticks")
+        val cooldown by intRange("Cooldown", 8..10, 1..50, "ticks")
+        val useMode by enumChoice("UseMode", FireworkUseMode.PACKET)
     })
 
     private val look by boolean("Look", false)
@@ -109,29 +118,53 @@ object ModuleElytraTarget : ClientModule("ElytraTarget", Category.COMBAT) {
 
     @Suppress("unused")
     private val autoFireworkHandler = tickHandler {
-        val target = targetTracker.target ?: return@tickHandler
+        val target = targetTracker.target
+            ?.takeIf { autoFirework.enabled } ?: return@tickHandler
 
-        if (!autoFirework.enabled) {
-            return@tickHandler
-        }
-
-        if (fireworkChronometer.hasElapsed(fireworkCooldown)) {
+        if (fireworkChronometer.hasElapsed((fireworkCooldown * 50).toLong())) {
             val slot = fireworkSlot ?: return@tickHandler
-            useHotbarSlotOrOffhand(slot, autoFirework.slotResetDelay.random())
-
+            autoFirework.useMode.useFireworkSlot(slot, autoFirework.slotResetDelay.random())
             fireworkChronometer.reset()
         }
 
         val distance = autoFirework.extraDistance
 
         fireworkCooldown = if (target.squaredBoxedDistanceTo(player) > distance * distance) {
-            300
+            autoFirework.cooldown.max()
         } else {
-            200
+            autoFirework.cooldown.min()
         }
     }
 
     override fun disable() {
         targetTracker.reset()
+    }
+
+    private enum class FireworkUseMode(
+        override val choiceName: String,
+        val useFireworkSlot: (HotbarItemSlot, Int) -> Unit
+    ) : NamedChoice {
+        NORMAL("Normal", { slot, resetDelay ->
+            useHotbarSlotOrOffhand(slot, resetDelay)
+        }),
+        PACKET("Packet", { slot, _ ->
+            with (player.inventory.selectedSlot) {
+                val slotUpdateFlag = slot !is OffHandSlot && slot.hotbarSlotForServer != this
+
+                if (slotUpdateFlag) {
+                    player.inventory.selectedSlot = 0
+                    network.sendPacket(UpdateSelectedSlotC2SPacket(slot.hotbarSlotForServer))
+                }
+
+                interaction.sendSequencedPacket(world) { sequence ->
+                    PlayerInteractItemC2SPacket(slot.useHand, sequence, player.yaw, player.pitch)
+                }
+
+                if (slotUpdateFlag) {
+                    player.inventory.selectedSlot = this
+                    network.sendPacket(UpdateSelectedSlotC2SPacket(slot.hotbarSlotForServer))
+                }
+            }
+        })
     }
 }
