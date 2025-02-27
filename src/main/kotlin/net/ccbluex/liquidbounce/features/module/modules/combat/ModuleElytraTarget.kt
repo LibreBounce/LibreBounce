@@ -44,10 +44,10 @@ private var fireworkCooldown = 750
 @Suppress("MagicNumber", "Unused", "UnusedPrivateProperty")
 object ModuleElytraTarget : ClientModule("ElytraTarget", Category.COMBAT) {
     private val autoFirework = tree(object : ToggleableConfigurable(this, "AutoFirework", true) {
+        val useMode by enumChoice("UseMode", FireworkUseMode.PACKET)
         val extraDistance by float("ExtraDistance", 50f, 5f..100f, suffix = "m")
         val slotResetDelay by intRange("SlotResetDelay", 0..0, 0..20, "ticks")
         val cooldown by intRange("Cooldown", 8..10, 1..50, "ticks")
-        val useMode by enumChoice("UseMode", FireworkUseMode.PACKET)
     })
 
     private val look by boolean("Look", false)
