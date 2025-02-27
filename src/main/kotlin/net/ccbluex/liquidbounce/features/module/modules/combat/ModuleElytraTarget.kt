@@ -16,15 +16,9 @@ import net.ccbluex.liquidbounce.utils.combat.TargetTracker
 import net.ccbluex.liquidbounce.utils.entity.squaredBoxedDistanceTo
 import net.ccbluex.liquidbounce.utils.inventory.*
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
-import net.ccbluex.liquidbounce.utils.math.component1
-import net.ccbluex.liquidbounce.utils.math.component2
-import net.ccbluex.liquidbounce.utils.math.component3
-import net.ccbluex.liquidbounce.utils.math.minus
 import net.minecraft.item.Items
 import net.minecraft.network.packet.c2s.play.PlayerInteractItemC2SPacket
 import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket
-import kotlin.math.atan2
-import kotlin.math.sqrt
 
 /**
  * Initial firework cooldown
@@ -33,13 +27,12 @@ import kotlin.math.sqrt
 private var fireworkCooldown = 750
 
 /**
- * Выбирает цель и летит за ней на элитре.
- * Работает в паре с киллаурой
+ * Following the target on elytra.
+ * Works with [ModuleKillAura] together
  *
  * https://youtu.be/1wa8uKH_apY?si=H84DmdQ2HtvArIPZ
  *
  * @author sqlerrorthing
- * @see ModuleKillaura.rotations
  */
 @Suppress("MagicNumber", "Unused", "UnusedPrivateProperty")
 object ModuleElytraTarget : ClientModule("ElytraTarget", Category.COMBAT) {
@@ -74,12 +67,7 @@ object ModuleElytraTarget : ClientModule("ElytraTarget", Category.COMBAT) {
                 continue
             }
 
-            val (x, y, z) = target.eyePos - player.pos
-
-            val rotation = Rotation(
-                (Math.toDegrees(atan2(z, x)) - 90).toFloat(),
-                (-Math.toDegrees(atan2(y, sqrt(x * x + z * z)))).toFloat()
-            ).normalize()
+            val rotation = Rotation.lookingAt(player.pos, target.eyePos)
 
             val correction = if (look) {
                 MovementCorrection.CHANGE_LOOK
