@@ -119,8 +119,7 @@ object InventoryManager : Configurable("InventoryManager"), MinecraftInstance, L
 
         // Stores which action should be executed to close open inventory or simulated inventory
         // If no clicks were scheduled throughout any iteration (canCloseInventory == false), then it is null, to prevent closing inventory all the time
-        val action = closingAction
-        if (action == null) {
+        val action = closingAction ?: run {
             delay(50)
             return@loopSequence
         }
@@ -130,11 +129,11 @@ object InventoryManager : Configurable("InventoryManager"), MinecraftInstance, L
 
         // Try to search through inventory one more time, only close when no actions were scheduled in current iteration
         if (!hasScheduledInLastLoop) {
-            action.invoke()
+            action.run()
         }
     }
 
-    private val closingAction: (() -> Unit)?
+    private val closingAction: Runnable?
         get() = when {
             // Check if any click was scheduled since inventory got open
             !canCloseInventory -> null
@@ -144,11 +143,11 @@ object InventoryManager : Configurable("InventoryManager"), MinecraftInstance, L
 
             // Check if open inventory should be closed
             mc.currentScreen is GuiInventory && invOpenValue.get() && autoCloseValue.get() ->
-                ({ mc.thePlayer?.closeScreen() })
+                Runnable { mc.thePlayer?.closeScreen() }
 
             // Check if simulated inventory should be closed
             mc.currentScreen !is GuiInventory && simulateInventoryValue.get() && serverOpenInventory ->
-                ({ serverOpenInventory = false })
+                Runnable { serverOpenInventory = false }
 
             else -> null
         }
