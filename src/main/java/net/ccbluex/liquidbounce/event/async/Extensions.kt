@@ -13,7 +13,6 @@ import net.ccbluex.liquidbounce.event.Event
 import net.ccbluex.liquidbounce.event.EventHook
 import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.Listenable
-import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
@@ -69,9 +68,7 @@ suspend inline fun <reified E : Event> waitNext(priority: Byte = 0): E =
     suspendCoroutine { cont ->
         EventManager.registerTerminateEventHook(
             E::class.java,
-            EventHook.Blocking(TickScheduler, always = true, priority) {
-                cont.resume(it)
-            }
+            EventHook(TickScheduler, always = true, priority, cont::resume)
         )
     }
 
@@ -101,12 +98,13 @@ suspend inline fun waitConditional(
  */
 fun Listenable.launchSequence(
     dispatcher: CoroutineDispatcher = Dispatchers.Unconfined,
+    always: Boolean = false,
     body: suspend CoroutineScope.() -> Unit
 ) {
     val job = EventManager.launch(dispatcher, block = body)
 
     TickScheduler.schedule {
-        if (!this@launchSequence.handleEvents()) {
+        if (!always && !this@launchSequence.handleEvents()) {
             job.cancel()
             true
         } else {
@@ -121,12 +119,13 @@ fun Listenable.launchSequence(
  */
 fun Listenable.loopSequence(
     dispatcher: CoroutineDispatcher = Dispatchers.Unconfined,
+    always: Boolean = false,
     body: suspend CoroutineScope.() -> Unit
 ) {
     var job = EventManager.launch(dispatcher, block = body)
 
     TickScheduler.schedule {
-        if (!this@loopSequence.handleEvents()) {
+        if (!always && !this@loopSequence.handleEvents()) {
             job.cancel()
             true
         } else {

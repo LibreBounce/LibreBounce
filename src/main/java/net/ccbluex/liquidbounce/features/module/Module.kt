@@ -7,7 +7,6 @@ package net.ccbluex.liquidbounce.features.module
 
 import net.ccbluex.liquidbounce.LiquidBounce.isStarting
 import net.ccbluex.liquidbounce.config.Configurable
-import net.ccbluex.liquidbounce.event.EventManager.cancelAsyncJobs
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.features.module.modules.misc.GameDetector
 import net.ccbluex.liquidbounce.file.FileManager.modulesConfig
@@ -134,7 +133,6 @@ open class Module(
 
                 if (canBeEnabled) field = true
             } else {
-                cancelAsyncJobs()
                 onDisable()
                 field = false
             }

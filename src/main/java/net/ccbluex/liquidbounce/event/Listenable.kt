@@ -7,6 +7,7 @@ package net.ccbluex.liquidbounce.event
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import net.ccbluex.liquidbounce.event.async.launchSequence
 
 interface Listenable {
     fun handleEvents(): Boolean = parent?.handleEvents() ?: true
@@ -28,14 +29,14 @@ inline fun <reified T : Event> Listenable.handler(
     priority: Byte = 0,
     noinline action: (T) -> Unit
 ) {
-    EventManager.registerEventHook(T::class.java, EventHook.Blocking(this, always, priority, action))
+    EventManager.registerEventHook(T::class.java, EventHook(this, always, priority, action))
 }
 
 inline fun <reified T : Event> Listenable.handler(
     dispatcher: CoroutineDispatcher,
     always: Boolean = false,
     priority: Byte = 0,
-    noinline action: suspend CoroutineScope.(T) -> Unit
+    crossinline action: suspend CoroutineScope.(T) -> Unit
 ) {
-    EventManager.registerEventHook(T::class.java, EventHook.Async(this, dispatcher, always, priority, action))
+    handler<T>(always, priority) { launchSequence(dispatcher, always) { action(it) } }
 }

@@ -6,15 +6,10 @@
 package net.ccbluex.liquidbounce.event
 
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
 import net.ccbluex.liquidbounce.event.async.TickScheduler
-import net.ccbluex.liquidbounce.event.async.loopSequence
-import net.ccbluex.liquidbounce.event.async.waitTicks
 import net.ccbluex.liquidbounce.utils.client.ClientUtils
 import java.util.*
-import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.PriorityBlockingQueue
 
 /**
@@ -51,43 +46,12 @@ object EventManager : CoroutineScope by CoroutineScope(SupervisorJob()) {
         PriorityBlockingQueue<EventHook<in Event>>(11, Comparator.comparingInt { -it.priority })
     }
 
-    private class AsyncTask(val owner: EventHook<*>, val job: Job)
-
-    private val jobs = CopyOnWriteArrayList<AsyncTask>()
-
     init {
-        TickScheduler.loopSequence {
-            // Cancel async tasks
-            jobs.removeIf { !it.owner.isActive || !it.job.isActive }
-            waitTicks(1)
-        }
-    }
-
-    fun Listenable.cancelAsyncJobs() {
-        jobs.removeIf {
-            if (it.owner.owner === this) {
-                it.job.cancel()
-                true
-            } else {
-                false
-            }
-        }
+        TickScheduler
     }
 
     fun <T : Event> unregisterEventHook(eventClass: Class<out T>, eventHook: EventHook<in T>): Boolean =
-        if (registry[eventClass]!!.remove(eventHook) || terminateHooks[eventClass]!!.remove(eventHook)) {
-            jobs.removeIf {
-                if (it.owner === eventHook) {
-                    it.job.cancel()
-                    true
-                } else {
-                    false
-                }
-            }
-            true
-        } else {
-            false
-        }
+        registry[eventClass]!!.remove(eventHook) || terminateHooks[eventClass]!!.remove(eventHook)
 
     fun <T : Event> registerEventHook(eventClass: Class<out T>, eventHook: EventHook<T>): EventHook<T> {
         val container = registry[eventClass] ?: error("Unsupported Event type: ${eventClass.simpleName}")
@@ -128,25 +92,10 @@ object EventManager : CoroutineScope by CoroutineScope(SupervisorJob()) {
         if (!this.isActive)
             return
 
-        when (this) {
-            is EventHook.Blocking -> {
-                try {
-                    action(event)
-                } catch (e: Exception) {
-                    ClientUtils.LOGGER.error("Exception during call event (blocking)", e)
-                }
-            }
-
-            is EventHook.Async -> {
-                val job = launch(dispatcher) {
-                    try {
-                        action(this, event)
-                    } catch (e: Exception) {
-                        ClientUtils.LOGGER.error("Exception during call event (async)", e)
-                    }
-                }
-                jobs += AsyncTask(this, job)
-            }
+        try {
+            action(event)
+        } catch (e: Exception) {
+            ClientUtils.LOGGER.error("Exception during call event (blocking)", e)
         }
     }
 

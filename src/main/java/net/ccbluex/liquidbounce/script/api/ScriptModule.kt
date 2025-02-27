@@ -39,8 +39,8 @@ class ScriptModule(name: String, category: Category, description: String, privat
                 this[0] = this[0].lowercaseChar()
             }.toString()
 
-            EventManager.registerEventHook(eventClass, EventHook.Blocking(this) {
-                callEvent(eventName)
+            EventManager.registerEventHook(eventClass, EventHook(this) {
+                callEvent(eventName, it)
             })
         }
     }
@@ -60,16 +60,16 @@ class ScriptModule(name: String, category: Category, description: String, privat
         events[eventName] = handler
     }
 
-    override fun onEnable() = callEvent("enable")
+    override fun onEnable() = callEvent("enable", null)
 
-    override fun onDisable() = callEvent("disable")
+    override fun onDisable() = callEvent("disable", null)
 
     /**
      * Calls the handler of a registered event.
      * @param eventName Name of the event to be called.
      * @param payload Event data passed to the handler function.
      */
-    private fun callEvent(eventName: String, payload: Any? = null) {
+    private fun callEvent(eventName: String, payload: Any?) {
         try {
             events[eventName]?.call(moduleObject, payload)
         } catch (throwable: Throwable) {
