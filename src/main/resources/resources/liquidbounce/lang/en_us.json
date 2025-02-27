@@ -440,6 +440,7 @@
   "liquidbounce.module.eagle.description": "Automatically sneaks at the edge of a block",
   "liquidbounce.module.elytraRecast.description": "Recasts elytra while holding jump key.",
   "liquidbounce.module.elytraFly.description": "Makes controlling an elytra easier.",
+  "liquidbounce.module.elytraTarget.description": "Following the target on elytra.",
   "liquidbounce.module.targets.description": "Allows you to manage which entities are considered to be your target.",
   "liquidbounce.module.esp.description": "Highlights all targets allowing you to see them through walls.",
   "liquidbounce.module.fakeLag.description": "Holds back packets so as to prevent you from being hit by an enemy.",

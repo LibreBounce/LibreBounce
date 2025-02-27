@@ -354,6 +354,7 @@
   "liquidbounce.module.airJump.description": "Позволяет прыгать в воздухе.",
   "liquidbounce.module.animations.description": "Позволяет изменять многие игровые анимации.",
   "liquidbounce.module.antiAFK.description": "Предотвращает отключение за AFK, имитируя движение.",
+  "liquidbounce.module.elytraTarget.description": "Преследует цель на элитре.",
   "liquidbounce.module.antiBlind.description": "Защищает вас от потенциально раздражающих экранных эффектов, блокирующих обзор.",
   "liquidbounce.module.antiBot.description": "Обнаруживает ботов, сделанными «Античитом», и не позволяет атаковать их.",
   "liquidbounce.module.antiBounce.description": "Предотвращает подпрыгивание на блоках.",
