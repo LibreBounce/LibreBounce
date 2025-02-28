@@ -3,13 +3,17 @@ package net.ccbluex.liquidbounce.features.module.modules.combat.elytratarget
 import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.features.anglesmooth.AngleSmooth
 import net.minecraft.entity.Entity
+import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Vec3d
+import kotlin.math.abs
+import kotlin.math.cos
+import kotlin.math.sin
+
+private const val BASE_YAW_SPEED = 45.0f
+private const val BASE_PITCH_SPEED = 35.0f
 
 @Suppress("MagicNumber")
 internal object ElytraAdaptiveSmooth : AngleSmooth {
-    /**
-     * TODO: apply smoothing
-     */
     override fun limitAngleChange(
         factorModifier: Float,
         currentRotation: Rotation,
@@ -17,6 +21,52 @@ internal object ElytraAdaptiveSmooth : AngleSmooth {
         vec3d: Vec3d?,
         entity: Entity?
     ): Rotation {
-        return targetRotation
+        val delta = currentRotation.rotationDeltaTo(targetRotation)
+
+        val (deltaYaw, deltaPitch) = delta
+        val difference = delta.length()
+
+        val currentTime = System.currentTimeMillis()
+
+        val shouldBoost = sin(currentTime / 300.0) > 0.8
+        val isTargetBehind = abs(deltaYaw) > 90.0f
+
+        val speedMultiplier = if (shouldBoost) {
+            2.0f
+        } else {
+            1.2f
+        }
+
+        val smoothBoost = if (shouldBoost) {
+            (sin((currentTime % 360) / 300.0f * Math.PI) * 0.8f + 1.2f).toFloat()
+        } else {
+            1.2f
+        }
+
+        val backTargetMultiplier = if (isTargetBehind) {
+            (2.2f * sin(currentTime / 150.0) * 0.2 + 1.0).toFloat()
+        } else {
+            1.2f
+        }
+
+        val speed = speedMultiplier * smoothBoost
+
+        val yawSpeed = BASE_YAW_SPEED * speed * backTargetMultiplier
+        val pitchSpeed = BASE_PITCH_SPEED * speed
+
+        val microAdjustment = (sin(currentTime / 80.0) * 0.08 + cos(currentTime / 120.0) * 0.05).toFloat()
+
+        var moveYaw = MathHelper.clamp(deltaYaw, -yawSpeed, yawSpeed)
+        var movePitch = MathHelper.clamp(deltaPitch, -pitchSpeed, pitchSpeed)
+
+        if (difference < 5.0f) {
+            moveYaw += microAdjustment * 0.2f
+            movePitch += microAdjustment * 0.8f
+        }
+
+        return Rotation(
+            currentRotation.yaw + moveYaw,
+            MathHelper.clamp(currentRotation.pitch + movePitch, -90.0f, 90.0f),
+        )
     }
 }
