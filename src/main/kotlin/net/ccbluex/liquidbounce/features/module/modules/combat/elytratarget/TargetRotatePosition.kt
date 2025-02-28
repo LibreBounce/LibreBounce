@@ -5,7 +5,7 @@ import net.minecraft.entity.LivingEntity
 import net.minecraft.util.math.Vec3d
 
 @Suppress("unused")
-internal enum class TargetPosition(
+internal enum class TargetRotatePosition(
     override val choiceName: String,
     val position: (LivingEntity) -> Vec3d
 ) : NamedChoice {
