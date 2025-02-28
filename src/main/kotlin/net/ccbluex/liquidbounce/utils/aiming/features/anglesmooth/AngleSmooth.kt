@@ -15,9 +15,4 @@ interface AngleSmooth {
         vec3d: Vec3d? = null,
         entity: Entity? = null
     ): Rotation
-
-    fun howLongToReach(
-        currentRotation: Rotation,
-        targetRotation: Rotation
-    ): Int
 }

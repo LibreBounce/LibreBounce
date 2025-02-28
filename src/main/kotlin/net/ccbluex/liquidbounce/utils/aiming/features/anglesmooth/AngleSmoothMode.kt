@@ -22,8 +22,14 @@
 package net.ccbluex.liquidbounce.utils.aiming.features.anglesmooth
 
 import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
 
 /**
  * An [AngleSmooth]'er, but as choice
  */
-abstract class AngleSmoothMode(name: String) : Choice(name), AngleSmooth
+abstract class AngleSmoothMode(name: String) : Choice(name), AngleSmooth {
+    abstract fun howLongToReach(
+        currentRotation: Rotation,
+        targetRotation: Rotation
+    ): Int
+}
