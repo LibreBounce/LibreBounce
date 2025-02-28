@@ -67,7 +67,7 @@ object ModuleElytraTarget : ClientModule("ElytraTarget", Category.COMBAT) {
                 continue
             }
 
-            val rotation = Rotation.lookingAt(player.pos, target.eyePos)
+            val rotation = Rotation.lookingAt(player.pos, target.eyePos, wrapDegrees = false)
 
             val correction = if (look) {
                 MovementCorrection.CHANGE_LOOK
