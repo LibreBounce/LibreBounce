@@ -28,11 +28,14 @@ import kotlin.coroutines.RestrictsSuspension
  */
 object TickScheduler : Listenable, MinecraftInstance {
 
-    private val schedules = arrayListOf<BooleanSupplier>()
+    private val currentTickTasks = arrayListOf<BooleanSupplier>()
+    private val nextTickTasks = arrayListOf<BooleanSupplier>()
 
     init {
         handler<GameTickEvent>(priority = Byte.MAX_VALUE) {
-            schedules.removeIf { it.asBoolean }
+            currentTickTasks.removeIf { it.asBoolean }
+            currentTickTasks += nextTickTasks
+            nextTickTasks.clear()
         }
     }
 
@@ -42,10 +45,7 @@ object TickScheduler : Listenable, MinecraftInstance {
      * @param breakLoop Stop tick the body when it returns `true`
      */
     fun schedule(breakLoop: BooleanSupplier) {
-        if (mc.isCallingFromMinecraftThread) {
-            schedules += breakLoop
-        } else {
-            mc.addScheduledTask { schedules += breakLoop }
-        }
+        // Prevent modification in removeIf (Continuation.resume)
+        mc.addScheduledTask { nextTickTasks += breakLoop }
     }
 }
