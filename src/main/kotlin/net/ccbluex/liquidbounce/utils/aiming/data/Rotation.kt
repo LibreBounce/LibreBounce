@@ -38,29 +38,19 @@ data class Rotation(
     companion object {
         val ZERO = Rotation(0f, 0f)
 
-        fun lookingAt(point: Vec3d, from: Vec3d, wrapDegrees: Boolean = true): Rotation {
-            return fromRotationVec(point.subtract(from), wrapDegrees)
+        fun lookingAt(point: Vec3d, from: Vec3d): Rotation {
+            return fromRotationVec(point.subtract(from))
         }
 
-        fun fromRotationVec(lookVec: Vec3d, wrapDegrees: Boolean = true): Rotation {
+        fun fromRotationVec(lookVec: Vec3d): Rotation {
             val diffX = lookVec.x
             val diffY = lookVec.y
             val diffZ = lookVec.z
 
-            val yaw = Math.toDegrees(atan2(diffZ, diffX)).toFloat() - 90f
-            val pitch = (-Math.toDegrees(atan2(diffY, sqrt(diffX * diffX + diffZ * diffZ)))).toFloat()
-
-            return if (wrapDegrees) {
-                Rotation(
-                    MathHelper.wrapDegrees(yaw),
-                    MathHelper.wrapDegrees(pitch),
-                )
-            } else {
-                Rotation(
-                    yaw,
-                    pitch
-                )
-            }
+            return Rotation(
+                MathHelper.wrapDegrees(Math.toDegrees(atan2(diffZ, diffX)).toFloat() - 90f),
+                MathHelper.wrapDegrees((-Math.toDegrees(atan2(diffY, sqrt(diffX * diffX + diffZ * diffZ)))).toFloat())
+            )
         }
     }
 
