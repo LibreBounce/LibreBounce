@@ -14,6 +14,22 @@ private const val BASE_PITCH_SPEED = 35.0f
 
 @Suppress("MagicNumber")
 internal object ElytraAdaptiveSmooth : AngleSmooth {
+
+    /**
+     * # Sorry, but im TOO LAZY to translate this shit.
+     *
+     * Адаптивно сглаживает угол, но в то же время
+     * позволяет хорошо работать с [ModuleKillAura].
+     *
+     * Киллаура может просто не бить лол из-за "особых" настроек
+     * в виде обязательного убеждения в том, что мы навились на цель.
+     *
+     * Хорошо поворачивается и работает.
+     *
+     * Применимо только (и для него сделано) к [ElytraTarget]
+     *
+     * #### Пожалуйста, не используйте это ГДЕ-ЛИБО ЕЩЕ
+     */
     override fun limitAngleChange(
         factorModifier: Float,
         currentRotation: Rotation,
