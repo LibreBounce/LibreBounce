@@ -35,8 +35,6 @@ object ModuleElytraTarget : ClientModule("ElytraTarget", Category.COMBAT) {
     internal val targetTracker = tree(TargetTracker())
 
     private val look by boolean("Look", false)
-    private val smartHeight by boolean("SmartHeight", false)
-    private val predict by boolean("PredictMovement", true)
     private val autoDistance by boolean("AutoDistance", true)
 
     init {
@@ -96,17 +94,7 @@ object ModuleElytraTarget : ClientModule("ElytraTarget", Category.COMBAT) {
     }
 
     private fun calculateRotation(target: LivingEntity): Rotation {
-        var targetPos = if (predict) {
-            rotateAt.position(target).add(target.velocity * 2.0)
-        } else {
-            rotateAt.position(target)
-        } + randomDirectionVector * 4.0
-
-        if (smartHeight) {
-            (player.y - target.y).takeIf { it < 5 }?.let {
-                targetPos = targetPos.add(0.0, 5 - it, 0.0)
-            }
-        }
+        var targetPos = rotateAt.position(target) + randomDirectionVector * 4.0
 
         if (autoDistance) {
             val direction = (targetPos - player.pos).normalize()
