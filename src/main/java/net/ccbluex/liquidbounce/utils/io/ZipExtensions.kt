@@ -27,7 +27,7 @@ fun File.extractZipTo(outputFolder: File) {
                 newFile.mkdirs()
             } else {
                 newFile.parentFile.mkdirs()
-                zis.copyTo(newFile.outputStream())
+                newFile.outputStream().use { zis.copyTo(it) }
             }
         }
     }
