@@ -140,7 +140,7 @@ object ModuleElytraTarget : ClientModule("ElytraTarget", Category.COMBAT) {
                 val slotUpdateFlag = slot !is OffHandSlot && slot.hotbarSlotForServer != this
 
                 if (slotUpdateFlag) {
-                    player.inventory.selectedSlot = 0
+                    player.inventory.selectedSlot = slot.hotbarSlotForServer
                     network.sendPacket(UpdateSelectedSlotC2SPacket(slot.hotbarSlotForServer))
                 }
 
