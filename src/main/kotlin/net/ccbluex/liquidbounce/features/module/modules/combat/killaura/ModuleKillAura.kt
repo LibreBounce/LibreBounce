@@ -129,7 +129,15 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
 
     // Bypass techniques
     internal val raycast by enumChoice("Raycast", TRACE_ALL)
-    private val criticalsMode by enumChoice("Criticals", CriticalsMode.SMART)
+
+    private val criticals by enumChoice("Criticals", CriticalsMode.SMART)
+
+    private val criticalsMode get() = if (ModuleElytraTarget.running) {
+        CriticalsMode.IGNORE
+    } else {
+        criticals
+    }
+
     private val keepSprint by boolean("KeepSprint", true)
     private val attackShielding by boolean("AttackShielding", false)
     private val requiresClick by boolean("RequiresClick", false)
@@ -233,7 +241,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         }
 
         // Determine if we should attack the target or someone else
-        val rotation = if (rotations.rotationTimingMode == ON_TICK || ModuleElytraTarget.running) {
+        val rotation = if (rotations.rotationTimingMode == ON_TICK) {
             getSpot(target, range.toDouble(), PointTracker.AimSituation.FOR_NOW)?.rotation
                 ?: RotationManager.currentRotation ?: player.rotation
         } else {

@@ -82,7 +82,7 @@ object ModuleElytraTarget : ClientModule("ElytraTarget", Category.COMBAT) {
                         considerInventory = true,
                         movementCorrection = correction
                     ),
-                    priority = Priority.IMPORTANT_FOR_USAGE_3,
+                    priority = Priority.IMPORTANT_FOR_USAGE_1,
                     provider = this
                 )
             }
