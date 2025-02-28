@@ -49,7 +49,7 @@ object BlockESP : Module("BlockESP", Category.RENDER) {
             return@loopSequence
         }
 
-        val (x, y, z) = mc.thePlayer.eyes
+        val (x, y, z) = mc.thePlayer?.eyes ?: return@loopSequence
         val radiusSq = radius * radius
 
         posList.removeIf {

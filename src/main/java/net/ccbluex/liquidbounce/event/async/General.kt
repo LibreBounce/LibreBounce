@@ -6,9 +6,9 @@
 package net.ccbluex.liquidbounce.event.async
 
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCoroutine
 
 
 /**
@@ -19,7 +19,7 @@ import kotlin.coroutines.suspendCoroutine
  */
 suspend inline fun waitUntil(
     crossinline condition: () -> Boolean
-): Int = suspendCoroutine { cont ->
+): Int = suspendCancellableCoroutine { cont ->
     var waitingTick = 0
     TickScheduler.schedule {
         waitingTick++

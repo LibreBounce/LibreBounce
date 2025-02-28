@@ -97,13 +97,11 @@ object EventManager : CoroutineScope by CoroutineScope(SupervisorJob()) {
         try {
             action(event)
         } catch (e: Exception) {
-            ClientUtils.LOGGER.error("Exception during call event (blocking)", e)
+            ClientUtils.LOGGER.error("Exception during processing event", e)
         }
     }
 
     fun <T : Event> call(event: T): T {
-        val hooks = registry[event.javaClass]!!
-
         with(terminateHooks[event.javaClass]!!.iterator()) {
             while (hasNext()) {
                 val hook = next()
@@ -111,6 +109,8 @@ object EventManager : CoroutineScope by CoroutineScope(SupervisorJob()) {
                 hook.processEvent(event)
             }
         }
+
+        val hooks = registry[event.javaClass]!!
 
         hooks.forEach {
             it.processEvent(event)

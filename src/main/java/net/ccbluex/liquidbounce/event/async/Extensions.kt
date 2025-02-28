@@ -5,16 +5,11 @@
  */
 package net.ccbluex.liquidbounce.event.async
 
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import net.ccbluex.liquidbounce.event.Event
-import net.ccbluex.liquidbounce.event.EventHook
-import net.ccbluex.liquidbounce.event.EventManager
-import net.ccbluex.liquidbounce.event.Listenable
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.filter
+import net.ccbluex.liquidbounce.event.*
 import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 
 /**
@@ -37,7 +32,7 @@ inline fun <reified E : Event> Listenable.takeNext(
  */
 suspend inline fun <reified E : Event> Listenable.waitNext(
     priority: Byte = 0
-): E = suspendCoroutine { cont ->
+): E = suspendCancellableCoroutine { cont ->
     takeNext(priority, cont::resume)
 }
 
@@ -91,15 +86,11 @@ fun Listenable.loopSequence(
 ) {
     var job = EventManager.launch(dispatcher, block = body)
 
-    TickScheduler.schedule {
+    handler<GameTickEvent>(priority = Byte.MAX_VALUE, always = true) {
         if (!always && !this@loopSequence.handleEvents()) {
             job.cancel()
-            true
-        } else {
-            if (job.isCompleted) {
-                job = EventManager.launch(dispatcher, block = body)
-            }
-            false
+        } else if (!job.isActive) {
+            job = EventManager.launch(dispatcher, block = body)
         }
     }
 }
