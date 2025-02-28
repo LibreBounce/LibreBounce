@@ -18,7 +18,7 @@ private typealias ClickAction = (handler: ScreenHandler, slot: Slot, callback: M
  */
 object ModuleItemScroller : ClientModule("ItemScroller", Category.MISC) {
     @JvmStatic
-    val clickMode by enumChoice("ClickMode", ClickMode.SWAP)
+    val clickMode by enumChoice("ClickMode", ClickMode.QUICK_MOVE)
 
     @JvmStatic
     @Suppress("MagicNumber")
@@ -32,13 +32,5 @@ enum class ClickMode(
 ) : NamedChoice {
     QUICK_MOVE("QuickMove", { _, slot, callback ->
         callback(slot, slot.id, GLFW.GLFW_MOUSE_BUTTON_LEFT, SlotActionType.QUICK_MOVE)
-    }),
-
-    /**
-        TODO: calculate an empty (air) slot
-            & swap current slot with an empty (air) slot
-     */
-    SWAP("Swap", { handler, slot, callback ->
-        QUICK_MOVE.action(handler, slot, callback)
     })
 }
