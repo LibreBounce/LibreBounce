@@ -58,19 +58,45 @@ suspend fun waitTicks(ticks: Int) {
 }
 
 /**
- * Wait next event of given type.
+ * Take next event instance of given type and run [handler] with it.
+ */
+inline fun <reified E : Event> Listenable.takeNext(
+    priority: Byte = 0,
+    noinline handler: (E) -> Unit
+) = EventManager.registerTerminateEventHook(
+    E::class.java,
+    EventHook(this, always = false, priority, handler)
+)
+
+/**
+ * Wait next event instance of given type.
  *
  * Note: This might change thread context
  *
  * @return the event instance
  */
-suspend inline fun <reified E : Event> waitNext(priority: Byte = 0): E =
+suspend inline fun <reified E : Event> Listenable.waitNext(priority: Byte = 0): E =
     suspendCoroutine { cont ->
-        EventManager.registerTerminateEventHook(
-            E::class.java,
-            EventHook(TickScheduler, always = true, priority, cont::resume)
-        )
+        takeNext(priority, cont::resume)
     }
+
+/**
+ * Wait next event instance of given type which matches [predicate].
+ *
+ * @return the event instance
+ */
+suspend inline fun <reified E : Event> Listenable.waitNext(
+    priority: Byte = 0,
+    crossinline predicate: (E) -> Boolean
+): E {
+    var next: E
+    while (true) {
+        next = waitNext(priority)
+        if (predicate(next)) {
+            return next
+        }
+    }
+}
 
 /**
  * Waits until the fixed amount of [ticks] ran out or the [callback] returns true.
