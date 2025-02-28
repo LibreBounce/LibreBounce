@@ -6,8 +6,6 @@
 package net.ccbluex.liquidbounce.event.async
 
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.filter
 import net.ccbluex.liquidbounce.event.*
 import kotlin.coroutines.resume
 

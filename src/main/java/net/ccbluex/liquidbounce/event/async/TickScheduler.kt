@@ -6,10 +6,13 @@
 package net.ccbluex.liquidbounce.event.async
 
 import kotlinx.coroutines.Dispatchers
-import net.ccbluex.liquidbounce.event.*
+import net.ccbluex.liquidbounce.event.GameTickEvent
+import net.ccbluex.liquidbounce.event.Listenable
+import net.ccbluex.liquidbounce.event.PacketEvent
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import java.util.function.BooleanSupplier
-import kotlin.coroutines.*
+import kotlin.coroutines.RestrictsSuspension
 
 /**
  * This manager is for suspend tick functions.
