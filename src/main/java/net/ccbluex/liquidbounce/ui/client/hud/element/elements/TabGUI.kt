@@ -24,7 +24,6 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.withClipping
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowShader
 import net.minecraft.client.gui.FontRenderer
-import net.minecraft.util.ResourceLocation
 import org.lwjgl.input.Keyboard
 import org.lwjgl.opengl.GL11.glColor4f
 import java.awt.Color
@@ -244,7 +243,7 @@ class TabGUI(x: Double = 16.0, y: Double = 43.0) : Element("TabGUI", x = x, y = 
                         iconSideX.first + 2
                     }
 
-                    val resource = ResourceLocation("liquidbounce/tabgui/${tab.category.displayName.lowercase()}.png")
+                    val resource = tab.category.iconResourceLocation
 
                     val iconY = y - 1
 

@@ -10,6 +10,7 @@ import net.ccbluex.liquidbounce.utils.client.ClientUtils
 import net.ccbluex.liquidbounce.utils.io.flipSafely
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
+import org.lwjgl.opengl.Display
 import java.io.IOException
 import java.io.InputStream
 import java.nio.ByteBuffer
@@ -18,6 +19,15 @@ import javax.imageio.ImageIO
 
 @SideOnly(Side.CLIENT)
 object IconUtils {
+
+    @JvmStatic
+    fun initLwjglIcon(): Boolean {
+        favicon?.let {
+            Display.setIcon(it)
+            return true
+        }
+        return false
+    }
 
     val favicon by lazy {
         IconUtils::class.java.runCatching {

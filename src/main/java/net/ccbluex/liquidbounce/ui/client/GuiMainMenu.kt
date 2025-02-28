@@ -15,6 +15,8 @@ import net.ccbluex.liquidbounce.lang.translationMenu
 import net.ccbluex.liquidbounce.ui.client.altmanager.GuiAltManager
 import net.ccbluex.liquidbounce.ui.client.fontmanager.GuiFontManager
 import net.ccbluex.liquidbounce.ui.font.Fonts
+import net.ccbluex.liquidbounce.utils.client.JavaVersion
+import net.ccbluex.liquidbounce.utils.client.javaVersion
 import net.ccbluex.liquidbounce.utils.io.MiscUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedBorderRect
 import net.ccbluex.liquidbounce.utils.ui.AbstractScreen
@@ -37,16 +39,22 @@ class GuiMainMenu : AbstractScreen() {
         private var popupOnce = false
         var lastWarningTime: Long? = null
         private val warningInterval = TimeUnit.DAYS.toMillis(7)
+
+        fun shouldShowWarning() = lastWarningTime == null || Instant.now().toEpochMilli() - lastWarningTime!! > warningInterval
     }
 
     init {
         if (!popupOnce) {
-            if (FileManager.firstStart) {
-                showWelcomePopup()
-            } else if (hasUpdate()) {
-                showUpdatePopup()
-            } else if (lastWarningTime == null || Instant.now().toEpochMilli() - lastWarningTime!! > warningInterval) {
-                showDiscontinuedWarning()
+            javaVersion?.let {
+                when {
+                    it.major == 1 && it.minor == 8 && it.update < 100 -> showOutdatedJava8Warning()
+                    it.major > 8 -> showJava11Warning()
+                }
+            }
+            when {
+                FileManager.firstStart -> showWelcomePopup()
+                hasUpdate() -> showUpdatePopup()
+                shouldShowWarning() -> showDiscontinuedWarning()
             }
             popupOnce = true
         }
@@ -76,32 +84,28 @@ class GuiMainMenu : AbstractScreen() {
     }
 
     private fun showWelcomePopup() {
-        popup = PopupScreen(
-            "§a§lWelcome!",
-            """
-        §eThank you for downloading and installing §bLiquidBounce§e!
-
-        §6Here is some information you might find useful:§r
-        §a- §fClickGUI:§r Press §7[RightShift]§f to open ClickGUI.
-        §a- §fRight-click modules with a '+' to edit.
-        §a- §fHover over a module to see its description.
-
-        §6Important Commands:§r
-        §a- §f.bind <module> <key> / .bind <module> none
-        §a- §f.config load <name> / .config list
-
-        §bNeed help? Contact us!§r
-        - §fYouTube: §9https://youtube.com/ccbluex
-        - §fTwitter: §9https://twitter.com/ccbluex
-        - §fForum: §9https://forums.ccbluex.net/
-        """.trimIndent(),
-            listOf(
-                ButtonData("§aOK") { }
-            ),
-            {
-                popup = null
-            }
-        )
+        popup = PopupScreen {
+            title("§a§lWelcome!")
+            message("""
+                §eThank you for downloading and installing §bLiquidBounce§e!
+        
+                §6Here is some information you might find useful:§r
+                §a- §fClickGUI:§r Press §7[RightShift]§f to open ClickGUI.
+                §a- §fRight-click modules with a '+' to edit.
+                §a- §fHover over a module to see its description.
+        
+                §6Important Commands:§r
+                §a- §f.bind <module> <key> / .bind <module> none
+                §a- §f.config load <name> / .config list
+        
+                §bNeed help? Contact us!§r
+                - §fYouTube: §9https://youtube.com/ccbluex
+                - §fTwitter: §9https://twitter.com/ccbluex
+                - §fForum: §9https://forums.ccbluex.net/
+            """.trimIndent())
+            button("§aOK")
+            onClose { popup = null }
+        }
     }
 
     private fun showUpdatePopup() {
@@ -114,63 +118,87 @@ class GuiMainMenu : AbstractScreen() {
         val newestVersionDate = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(newestVersion.date)
         val formattedNewestDate = dateFormatter.format(newestVersionDate)
 
-        val updateMessage = """
-        §eA new $updateType of LiquidBounce is available!
-
-        - ${if (isReleaseBuild) "§aVersion" else "§aBuild ID"}:§r ${if (isReleaseBuild) newestVersion.lbVersion else newestVersion.buildId}
-        - §aMinecraft Version:§r ${newestVersion.mcVersion}
-        - §aBranch:§r ${newestVersion.branch}
-        - §aDate:§r $formattedNewestDate
-
-        §6Changes:§r
-        ${newestVersion.message}
-
-        §bUpgrade now to enjoy the latest features and improvements!§r
-    """.trimIndent()
-
-        popup = PopupScreen(
-            "§bNew Update Available!",
-            updateMessage,
-            listOf(
-                ButtonData("§aDownload") { MiscUtils.showURL(newestVersion.url) }
-            ),
-            {
-                popup = null
-            }
-        )
+        popup = PopupScreen {
+            title("§bNew Update Available!")
+            message("""
+                §eA new $updateType of LiquidBounce is available!
+        
+                - ${if (isReleaseBuild) "§aVersion" else "§aBuild ID"}:§r ${if (isReleaseBuild) newestVersion.lbVersion else newestVersion.buildId}
+                - §aMinecraft Version:§r ${newestVersion.mcVersion}
+                - §aBranch:§r ${newestVersion.branch}
+                - §aDate:§r $formattedNewestDate
+        
+                §6Changes:§r
+                ${newestVersion.message}
+        
+                §bUpgrade now to enjoy the latest features and improvements!§r
+            """.trimIndent())
+            ButtonData("§aDownload") { MiscUtils.showURL(newestVersion.url) }
+            onClose { popup = null }
+        }
     }
 
     private fun showDiscontinuedWarning() {
-        popup = PopupScreen(
-            "§c§lUnsupported version",
-            """
-        §6§lThis version is discontinued and unsupported.§r
+        popup = PopupScreen {
+            title("§c§lUnsupported version")
+            message("""
+                §6§lThis version is discontinued and unsupported.§r
+                
+                §eWe strongly recommend switching to §bLiquidBounce Nextgen§e, 
+                which offers the following benefits:
+                
+                §a- §fSupports all Minecraft versions from §71.7§f to §71.21+§f.
+                §a- §fFrequent updates with the latest bypasses and features.
+                §a- §fActive development and official support.
+                §a- §fImproved performance and compatibility.
+                
+                §cWhy upgrade?§r
+                - No new bypasses or features will be introduced in this version.
+                - Auto config support will not be actively maintained.
+                - Unofficial forks of this version are discouraged as they lack the full feature set of Nextgen and cannot be trusted.
         
-        §eWe strongly recommend switching to §bLiquidBounce Nextgen§e, 
-        which offers the following benefits:
-        
-        §a- §fSupports all Minecraft versions from §71.7§f to §71.21+§f.
-        §a- §fFrequent updates with the latest bypasses and features.
-        §a- §fActive development and official support.
-        §a- §fImproved performance and compatibility.
-        
-        §cWhy upgrade?§r
-        - No new bypasses or features will be introduced in this version.
-        - Auto config support will not be actively maintained.
-        - Unofficial forks of this version are discouraged as they lack the full feature set of Nextgen and cannot be trusted.
-
-        §9Upgrade to LiquidBounce Nextgen today for a better experience!§r
-        """.trimIndent(),
-            listOf(
-                ButtonData("§aDownload Nextgen") { MiscUtils.showURL("https://liquidbounce.net/download") },
-                ButtonData("§eInstallation Tutorial") { MiscUtils.showURL("https://www.youtube.com/watch?v=i_r1i4m-NZc") }
-            )
-        ) {
-            popup = null
-            lastWarningTime = Instant.now().toEpochMilli()
-            FileManager.saveConfig(valuesConfig)
+                §9Upgrade to LiquidBounce Nextgen today for a better experience!§r
+            """.trimIndent())
+            button("§aDownload Nextgen") { MiscUtils.showURL("https://liquidbounce.net/download") }
+            button("§eInstallation Tutorial") { MiscUtils.showURL("https://www.youtube.com/watch?v=i_r1i4m-NZc") }
+            onClose {
+                popup = null
+                lastWarningTime = Instant.now().toEpochMilli()
+                FileManager.saveConfig(valuesConfig)
+            }
         }
     }
+
+    private fun showOutdatedJava8Warning() {
+        popup = PopupScreen {
+            title("§c§lOutdated Java Runtime Environment")
+            message("""
+                §6§lYou are using an outdated version of Java 8 (${javaVersion!!.raw}).§r
+                
+                §fThis might cause unexpected §c§lBUGS§f.
+                Please update it to 8u101+, or get a new one from the Internet.
+            """.trimIndent())
+            button("§aDownload Java") { MiscUtils.showURL(JavaVersion.DOWNLOAD_PAGE) }
+            button("§eI realized")
+            onClose { popup = null }
+        }
+    }
+
+    private fun showJava11Warning() {
+        popup = PopupScreen {
+            title("§c§lInappropriate Java Runtime Environment")
+            message("""
+                §6§lThis version of $CLIENT_NAME is designed for Java 8 environment.§r
+                
+                §fHigher versions of Java might cause bug or crash.
+                You can get JRE 8 from the Internet.
+            """.trimIndent())
+            button("§aDownload Java") { MiscUtils.showURL(JavaVersion.DOWNLOAD_PAGE) }
+            button("§eI realized")
+            onClose { popup = null }
+        }
+    }
+
 
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
         drawBackground(0)

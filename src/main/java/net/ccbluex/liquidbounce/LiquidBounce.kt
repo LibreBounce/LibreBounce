@@ -44,7 +44,6 @@ import net.ccbluex.liquidbounce.utils.client.ClassUtils.hasForge
 import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.client.ClientUtils.disableFastRender
 import net.ccbluex.liquidbounce.utils.client.PacketUtils
-import net.ccbluex.liquidbounce.utils.client.checkJavaVersion
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils
 import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar
@@ -117,7 +116,7 @@ object LiquidBounce {
      */
     fun preload(): Future<*> {
 
-        checkJavaVersion()
+        net.ccbluex.liquidbounce.utils.client.javaVersion
 
         // Change theme of Swing
         UIManager.setLookAndFeel(FlatMacLightLaf())

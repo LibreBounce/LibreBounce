@@ -32,7 +32,6 @@ import net.ccbluex.liquidbounce.utils.render.shader.shaders.GradientShader
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowFontShader
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowShader
 import net.minecraft.client.renderer.GlStateManager.resetColor
-import net.minecraft.util.ResourceLocation
 import java.awt.Color
 
 /**
@@ -585,8 +584,7 @@ class Arraylist(
                         -module.slide - 2 + width + if (rectMode == "Right") 0 else 2
                     }
 
-                    val resource =
-                        ResourceLocation("liquidbounce/tabgui/${module.category.displayName.lowercase()}.png")
+                    val resource = module.category.iconResourceLocation
 
                     if (iconShadows) {
                         drawImage(resource, side + xDistance, yPos + yDistance, 12, 12, shadowColor)

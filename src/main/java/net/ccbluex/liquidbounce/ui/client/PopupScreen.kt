@@ -1,5 +1,6 @@
 package net.ccbluex.liquidbounce.ui.client
 
+import net.ccbluex.liquidbounce.ui.client.PopupScreen.Builder
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.minecraft.client.Minecraft
@@ -8,14 +9,46 @@ import net.minecraft.client.gui.ScaledResolution
 import org.lwjgl.opengl.GL11
 import java.awt.Color
 
-data class ButtonData(val text: String, val action: () -> Unit)
+data class ButtonData(val text: String, val action: Runnable)
+
+inline fun PopupScreen(builderAction: Builder.() -> Unit) = Builder().apply(builderAction).build()
 
 class PopupScreen(
     private val title: String,
     private val message: String,
     private val buttons: List<ButtonData>,
-    private val onClose: () -> Unit
+    private val onClose: Runnable
 ) {
+    class Builder {
+        private var title: String? = null
+        private var message: String? = null
+        private val buttons = mutableListOf<ButtonData>()
+        private var onClose: Runnable = Runnable {}
+
+        fun title(title: String): Builder = apply {
+            this.title = title
+        }
+
+        fun message(message: String): Builder = apply {
+            this.message = message
+        }
+
+        fun button(text: String, action: Runnable = Runnable {}): Builder = apply {
+            this.buttons += ButtonData(text, action)
+        }
+
+        fun onClose(onClose: Runnable): Builder = apply {
+            this.onClose = onClose
+        }
+
+        fun build(): PopupScreen {
+            requireNotNull(title) { "title should be not null" }
+            requireNotNull(message) { "message should be not null" }
+
+            return PopupScreen(title!!, message!!, buttons, onClose)
+        }
+    }
+
     private val backgroundColor = Color(32, 32, 32, 220).rgb
     private val borderColor = Color(64, 64, 64, 255).rgb
     private val buttonColor = Color(48, 48, 48, 255).rgb
@@ -41,7 +74,7 @@ class PopupScreen(
 
     private fun wrapText(text: String, maxWidth: Int): List<String> {
         val lines = mutableListOf<String>()
-        val paragraphs = text.split("\n")
+        val paragraphs = text.lineSequence()
 
         for (paragraph in paragraphs) {
             if (paragraph.isBlank()) {
@@ -249,7 +282,7 @@ class PopupScreen(
     fun mouseClicked(mouseX: Int, mouseY: Int, mouseButton: Int) {
         dismissButtonRect?.let { rect ->
             if (mouseX >= rect.x && mouseX <= rect.x + rect.width && mouseY >= rect.y && mouseY <= rect.y + rect.height) {
-                onClose()
+                onClose.run()
                 return
             }
         }
@@ -257,8 +290,8 @@ class PopupScreen(
         for (i in buttons.indices) {
             val rect = buttonRects[i]
             if (mouseX >= rect.x && mouseX <= rect.x + rect.width && mouseY >= rect.y && mouseY <= rect.y + rect.height) {
-                buttons[i].action()
-                onClose()
+                buttons[i].action.run()
+                onClose.run()
                 return
             }
         }
