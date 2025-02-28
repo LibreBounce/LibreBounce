@@ -279,7 +279,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
 
         // Check if our target is in range, otherwise deal with auto block
         if (!isFacingEnemy) {
-            if (KillAuraAutoBlock.onScanRange) {
+            if (KillAuraAutoBlock.enabled && KillAuraAutoBlock.onScanRange) {
                 KillAuraAutoBlock.startBlocking()
                 return
             }
