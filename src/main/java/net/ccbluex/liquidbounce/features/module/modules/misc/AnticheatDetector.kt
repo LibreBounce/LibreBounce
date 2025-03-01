@@ -16,6 +16,7 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.minecraft.network.play.server.S01PacketJoinGame
 import net.minecraft.network.play.server.S32PacketConfirmTransaction
+import net.ccbluex.liquidbounce.utils.client.ServerUtils.remoteIp
 
 object AnticheatDetector : Module("AnticheatDetector", Category.MISC) {
     private val debug by boolean("Debug", true)
@@ -24,67 +25,41 @@ object AnticheatDetector : Module("AnticheatDetector", Category.MISC) {
     private var ticksPassed = 0
 
     val onPacket = handler<PacketEvent> { event ->
-        when (val packet = event.packet) {
+        when (event.packet) {
             is S32PacketConfirmTransaction -> {
-                if (check) {
-                    actionNumbers.add(packet.actionNumber.toInt())
-
-                    if (debug) {
-                        chat("ID: ${packet.actionNumber}")
-                    }
-
-                    if (actionNumbers.size >= 5) {
-                        analyzeActionNumbers()
-                        check = false
-                    }
-                    ticksPassed = 0
-                }
+                if (check) handleTransaction(event.packet.actionNumber.toInt())
             }
-
-            is S01PacketJoinGame -> {
-                reset()
-                check = true
-            }
+            is S01PacketJoinGame -> reset().also { check = true }
         }
     }
 
     val onTick = handler<GameTickEvent> {
-        if (check) ticksPassed++
-        if (ticksPassed > 40 && check) {
-            hud.addNotification(Notification.informative(this, "§3No Anticheat present.", 3000L))
-            check = false
-            actionNumbers.clear()
+        if (check && ticksPassed++ > 40) {
+            notify("None").also { reset() }
         }
     }
 
-    override fun onEnable() {
-        reset()
+    private fun handleTransaction(action: Int) {
+        actionNumbers.add(action).also { if (debug) chat("ID: $action") }
+        ticksPassed = 0
+        if (actionNumbers.size >= 5) analyzeActionNumbers()
     }
 
     private fun analyzeActionNumbers() {
-        if (actionNumbers.size < 3) {
-            return
-        }
-
-        val differences = mutableListOf<Int>()
-        for (i in 1 until actionNumbers.size) {
-            differences.add(actionNumbers[i] - actionNumbers[i - 1])
-        }
-
-        val allSame = differences.all { it == differences[0] }
-        if (allSame) {
-            val step = differences[0]
-            val first = actionNumbers.first()
-
-            val detectedAC = when (step) {
+        val diffs = actionNumbers.windowed(2) { it[1] - it[0] }
+        val first = actionNumbers.first()
+        
+        when {
+            remoteIp.lowercase().equals("hypixel.net", true) -> notify("Watchdog")
+            
+            diffs.all { it == diffs.first() } -> when (diffs.first()) {
+                
                 1 -> when (first) {
                     in -23772..-23762 -> "Vulcan"
-                    in 95..105 -> "Matrix"
-                    in -20005..-19995 -> "Matrix"
+                    in 95..105, in -20005..-19995 -> "Matrix"
                     in -32773..-32762 -> "Grizzly"
                     else -> "Verus"
                 }
-
                 -1 -> when {
                     first in -8287..-8280 -> "Errata"
                     first < -3000 -> "Intave"
@@ -92,52 +67,36 @@ object AnticheatDetector : Module("AnticheatDetector", Category.MISC) {
                     first in -3000..-2995 -> "Karhu"
                     else -> "Polar"
                 }
-
                 else -> null
-            }
-
-            detectedAC?.let {
-                hud.addNotification(Notification.informative(this, "§3Anticheat detected: §a${it}", 3000L))
-                actionNumbers.clear()
-                return
-            }
+            }?.let { notify("$it") }
+            
+            actionNumbers.take(2).let { it[0] == it[1] } 
+                && actionNumbers.drop(2).windowed(2).all { it[1] - it[0] == 1 } 
+                -> notify("Verus")
+            
+            diffs.take(2).let { it[0] >= 100 && it[1] == -1 } 
+                && diffs.drop(2).all { it == -1 } 
+                -> notify("Polar")
+            
+            actionNumbers.first() < -3000 && actionNumbers.any { it == 0 } 
+                -> notify("Intave")
+            
+            actionNumbers.take(3) == listOf(-30767, -30766, -25767) 
+                && actionNumbers.drop(3).windowed(2).all { it[1] - it[0] == 1 } 
+                -> notify("Old Vulcan")
+            
+            else -> notify("Unknown").also { if (debug) logNumbers() }
         }
+        reset()
+    }
 
-        // Polar
-        if (differences.size >= 2) {
-            val firstDiff = differences[0]
-            val secondDiff = differences[1]
-            val remainingDiffs = differences.drop(2)
+    private fun notify(message: String) = hud.addNotification(
+        Notification.informative(this, "Anticheat detected: $message", 3000L)
+    )
 
-            if (firstDiff >= 100 && secondDiff == -1 && remainingDiffs.all { it == -1 }) {
-                hud.addNotification(Notification.informative(this, "§3Anticheat detected: §aPolar", 3000L))
-                actionNumbers.clear()
-                return
-            }
-        }
-
-        // Intave zero handling
-        val firstAction = actionNumbers.firstOrNull()
-        if (firstAction != null && firstAction < -3000 && actionNumbers.any { it == 0 }) {
-            hud.addNotification(Notification.informative(this, "§3Anticheat detected: §aIntave", 3000L))
-            actionNumbers.clear()
-            return
-        }
-
-        // Old Vulcan
-        if (actionNumbers.take(3) == listOf(-30767, -30766, -25767) &&
-            actionNumbers.drop(3).zipWithNext().all { (prev, curr) -> curr - prev == 1 }) {
-            hud.addNotification(Notification.informative(this, "§3Anticheat detected: §aOld Vulcan", 3000L))
-            actionNumbers.clear()
-            return
-        }
-
-        hud.addNotification(Notification.informative(this, "§3Anticheat detected: §aUnknown", 3000L))
-        if (debug) {
-            chat("§3Action Numbers: ${actionNumbers.joinToString()}")
-            chat("§3Differences: ${differences.joinToString()}")
-        }
-        actionNumbers.clear()
+    private fun logNumbers() {
+        chat("Action Numbers: ${actionNumbers.joinToString()}")
+        chat("Differences: ${actionNumbers.windowed(2) { it[1] - it[0] }.joinToString()}")
     }
 
     private fun reset() {
@@ -145,4 +104,6 @@ object AnticheatDetector : Module("AnticheatDetector", Category.MISC) {
         ticksPassed = 0
         check = false
     }
+
+    override fun onEnable() = reset()
 }
