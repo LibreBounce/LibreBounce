@@ -36,15 +36,19 @@ class ScriptAsyncUtil(
 ) {
 
     companion object TickScheduler : EventListener {
-        private val schedules = arrayListOf<BooleanSupplier>()
+
+        private val currentTickTasks = arrayListOf<BooleanSupplier>()
+        private val nextTickTasks = arrayListOf<BooleanSupplier>()
 
         @Suppress("unused")
         private val tickHandler = handler<GameTickEvent>(priority = FIRST_PRIORITY) {
-            schedules.removeIf { it.asBoolean }
+            currentTickTasks.removeIf { it.asBoolean }
+            currentTickTasks += nextTickTasks
+            nextTickTasks.clear()
         }
 
         private fun schedule(breakLoop: BooleanSupplier) {
-            mc.execute { schedules += breakLoop }
+            mc.execute { nextTickTasks += breakLoop }
         }
     }
 
