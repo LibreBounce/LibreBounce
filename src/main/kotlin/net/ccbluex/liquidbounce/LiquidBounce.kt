@@ -19,11 +19,10 @@
  */
 package net.ccbluex.liquidbounce
 
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
-import net.ccbluex.liquidbounce.api.core.withScope
+import net.ccbluex.liquidbounce.api.core.scope
 import net.ccbluex.liquidbounce.api.models.auth.ClientAccount
 import net.ccbluex.liquidbounce.api.services.client.ClientUpdate.gitInfo
 import net.ccbluex.liquidbounce.api.services.client.ClientUpdate.update
@@ -34,6 +33,7 @@ import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.ClientShutdownEvent
 import net.ccbluex.liquidbounce.event.events.ClientStartEvent
+import net.ccbluex.liquidbounce.event.events.ScreenEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.Reconnect
 import net.ccbluex.liquidbounce.features.command.CommandManager
@@ -51,6 +51,8 @@ import net.ccbluex.liquidbounce.integration.IntegrationListener
 import net.ccbluex.liquidbounce.integration.browser.BrowserManager
 import net.ccbluex.liquidbounce.integration.interop.ClientInteropServer
 import net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.game.ActiveServerList
+import net.ccbluex.liquidbounce.integration.task.TaskManager
+import net.ccbluex.liquidbounce.integration.task.TaskProgressScreen
 import net.ccbluex.liquidbounce.integration.theme.ThemeManager
 import net.ccbluex.liquidbounce.integration.theme.component.ComponentOverlay
 import net.ccbluex.liquidbounce.lang.LanguageManager
@@ -63,10 +65,10 @@ import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.block.ChunkScanner
 import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.combat.CombatManager
-import net.ccbluex.liquidbounce.utils.combat.combatTargetsConfigurable
 import net.ccbluex.liquidbounce.utils.entity.RenderedEntities
 import net.ccbluex.liquidbounce.utils.input.InputTracker
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
+import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.FIRST_PRIORITY
 import net.ccbluex.liquidbounce.utils.mappings.EnvironmentRemapper
 import net.ccbluex.liquidbounce.utils.render.WorldToScreen
 import net.minecraft.resource.ReloadableResourceManagerImpl
@@ -113,7 +115,160 @@ object LiquidBounce : EventListener {
      */
     val logger = LogManager.getLogger(CLIENT_NAME)!!
 
-    var tasks: List<Deferred<*>>? = null
+    var taskManager: TaskManager? = null
+
+    var isInitialized = false
+        private set
+
+    private fun initializeClient() {
+        if (isInitialized) {
+            return
+        }
+
+        isInitialized = true
+
+        // Config
+        ConfigSystem
+
+        // Utility
+        RenderedEntities
+        ChunkScanner
+        InputTracker
+
+        // Feature managers
+        ModuleManager
+        CommandManager
+        ProxyManager
+        AccountManager
+
+        // Script system
+        EnvironmentRemapper
+        ScriptManager
+
+        // Utility managers
+        RotationManager
+        PacketQueueManager
+        InteractionTracker
+        CombatManager
+        FriendManager
+        InventoryManager
+        WorldToScreen
+        Reconnect
+        ActiveServerList
+        ConfigSystem.root(ClientItemGroups)
+        ConfigSystem.root(LanguageManager)
+        ConfigSystem.root(ClientAccountManager)
+        ConfigSystem.root(SpooferManager)
+        PostRotationExecutor
+        TpsObserver
+
+        // Register commands and modules
+        CommandManager.registerInbuilt()
+        ModuleManager.registerInbuilt()
+
+        // Load user scripts
+        ScriptManager.loadAll()
+
+        val tasks = listOf(
+            scope.async {
+                // Load translations
+                LanguageManager.loadDefault()
+            },
+            scope.async {
+                val update = update ?: return@async
+                logger.info("[Update] Update available: $clientVersion -> ${update.lbVersion}")
+            },
+            scope.async {
+                // Load cosmetics
+                CosmeticService.refreshCarriers(force = true) {
+                    logger.info("Successfully loaded ${CosmeticService.carriers.size} cosmetics carriers.")
+                }
+            },
+            scope.async {
+                // Download player heads
+                heads
+            },
+            scope.async {
+                // Load configs
+                configs
+            },
+            scope.async {
+                // IPC configuration
+                ipcConfiguration
+            },
+            scope.async {
+                IpInfoApi.original
+            },
+            scope.async {
+                if (ClientAccountManager.clientAccount != ClientAccount.EMPTY_ACCOUNT) {
+                    runCatching {
+                        ClientAccountManager.clientAccount.renew()
+                    }.onFailure {
+                        logger.error("Failed to renew client account token.", it)
+                        ClientAccountManager.clientAccount = ClientAccount.EMPTY_ACCOUNT
+                    }.onSuccess {
+                        logger.info("Successfully renewed client account token.")
+                        ConfigSystem.storeConfigurable(ClientAccountManager)
+                    }
+                }
+            }
+        )
+
+        runBlocking {
+            tasks.awaitAll()
+        }
+
+        // Load theme and component overlay
+        ThemeManager
+        BrowserManager
+
+        // Start Interop Server
+        ClientInteropServer.start()
+
+        IntegrationListener
+
+        taskManager = TaskManager(scope).apply {
+            launch("MCEF", BrowserManager::initBrowser)
+        }
+
+        FontManager
+        ComponentOverlay.insertComponents()
+
+        // Queue fonts of all themes
+        // TODO: Will be removed with PR #3884 as it is not needed anymore
+        ThemeManager.themesFolder.listFiles()
+            ?.filter { file -> file.isDirectory }
+            ?.forEach { file ->
+                runCatching {
+                    val assetsFolder = File(file, "assets")
+                    if (!assetsFolder.exists()) {
+                        return@forEach
+                    }
+
+                    FontManager.queueFolder(assetsFolder)
+                }.onFailure {
+                    logger.error("Failed to queue fonts from theme '${file.name}'.", it)
+                }
+            }
+
+        // Load fonts
+        val duration = measureTime {
+            FontManager.createGlyphManager()
+        }
+        logger.info("Completed loading fonts in ${duration.inWholeMilliseconds} ms.")
+        logger.info("Fonts: [ ${FontManager.fontFaces.joinToString { face -> face.name }} ]")
+
+        ItemImageAtlas
+
+        if (HAS_AMD_VEGA_APU) {
+            logger.info("AMD Vega iGPU detected, enabling different line smooth handling. " +
+                "If you believe this is a mistake, please create an issue at " +
+                "https://github.com/CCBlueX/LiquidBounce/issues.")
+        }
+
+        // Load all configurations
+        ConfigSystem.loadAll()
+    }
 
     /**
      * Should be executed to start the client.
@@ -122,125 +277,39 @@ object LiquidBounce : EventListener {
     private val startHandler = handler<ClientStartEvent> {
         runCatching {
             logger.info("Launching $CLIENT_NAME v$clientVersion by $CLIENT_AUTHOR")
-
-            // Load mappings
-            EnvironmentRemapper
-
-            // Load translations
-            LanguageManager.loadDefault()
-
-            // Initialize client features
-            EventManager
-
-            // Config
-            ConfigSystem
-            combatTargetsConfigurable
-
-            RenderedEntities
-            ChunkScanner
-            InputTracker
-
-            // Features
-            ModuleManager
-            CommandManager
-            ScriptManager
-            RotationManager
-            PacketQueueManager
-            InteractionTracker
-            CombatManager
-            FriendManager
-            ProxyManager
-            AccountManager
-            InventoryManager
-            WorldToScreen
-            Reconnect
-            ActiveServerList
-            ConfigSystem.root(ClientItemGroups)
-            ConfigSystem.root(LanguageManager)
-            ConfigSystem.root(ClientAccountManager)
-            ConfigSystem.root(SpooferManager)
-            BrowserManager
-            FontManager
-            PostRotationExecutor
-            TpsObserver
-
-            // Register commands and modules
-            CommandManager.registerInbuilt()
-            ModuleManager.registerInbuilt()
-
-            // Load user scripts
-            ScriptManager.loadAll()
-
-            // Load theme and component overlay
-            ThemeManager
-            ComponentOverlay.insertComponents()
-
-            // Load config system from disk
-            ConfigSystem.loadAll()
-
-            // Netty WebSocket
-            ClientInteropServer.start()
-
-            // Initialize browser
+            // Print client information
+            logger.info("Client Version: $clientVersion ($clientCommit)")
+            logger.info("Client Branch: $clientBranch")
+            logger.info("Operating System: ${System.getProperty("os.name")} (${System.getProperty("os.version")})")
+            logger.info("Java Version: ${System.getProperty("java.version")}")
+            logger.info("Screen Resolution: ${mc.window.width}x${mc.window.height}")
             logger.info("Refresh Rate: ${mc.window.refreshRate} Hz")
 
-            IntegrationListener
-            BrowserManager.initBrowser()
-
-            // Start IO tasks
-            withScope {
-                tasks = listOf(
-                    async {
-                        val update = update ?: return@async
-                        logger.info("[Update] Update available: $clientVersion -> ${update.lbVersion}")
-                    },
-                    async { ipcConfiguration },
-                    async { IpInfoApi.original },
-                    async {
-                        if (ClientAccountManager.clientAccount != ClientAccount.EMPTY_ACCOUNT) {
-                            runCatching {
-                                ClientAccountManager.clientAccount.renew()
-                            }.onFailure {
-                                logger.error("Failed to renew client account token.", it)
-                                ClientAccountManager.clientAccount = ClientAccount.EMPTY_ACCOUNT
-                            }.onSuccess {
-                                logger.info("Successfully renewed client account token.")
-                                ConfigSystem.storeConfigurable(ClientAccountManager)
-                            }
-                        }
-                    },
-                    async {
-                        CosmeticService.refreshCarriers(force = true) {
-                            logger.info("Successfully loaded ${CosmeticService.carriers.size} cosmetics carriers.")
-                        }
-                    },
-                    async { heads },
-                    async { configs }
-                )
-            }
+            // Initialize event manager
+            EventManager
 
             // Register resource reloader
             val resourceManager = mc.resourceManager
-            val clientResourceReloader = ClientResourceReloader()
+            val clientInitializer = ClientInitializer()
             if (resourceManager is ReloadableResourceManagerImpl) {
-                resourceManager.registerReloader(clientResourceReloader)
+                resourceManager.registerReloader(clientInitializer)
             } else {
                 logger.warn("Failed to register resource reloader!")
 
                 // Run resource reloader directly as fallback
-                clientResourceReloader.reload(resourceManager)
+                clientInitializer.reload(resourceManager)
             }
-
-            ItemImageAtlas
-
-            if (HAS_AMD_VEGA_APU) {
-                logger.info("AMD Vega iGPU detected, enabling different line smooth handling. " +
-                    "If you believe this is a mistake, please create an issue at " +
-                    "https://github.com/CCBlueX/LiquidBounce/issues.")
-            }
-        }.onSuccess {
-            logger.info("Successfully loaded client!")
         }.onFailure(ErrorHandler::fatal)
+    }
+
+    @Suppress("unused")
+    private val screenHandler = handler<ScreenEvent>(priority = FIRST_PRIORITY) { event ->
+        val taskManager = taskManager ?: return@handler
+
+        if (!taskManager.isCompleted && event.screen !is TaskProgressScreen) {
+            event.cancelEvent()
+            mc.setScreen(TaskProgressScreen("Loading Required Libraries", taskManager))
+        }
     }
 
     /**
@@ -252,40 +321,11 @@ object LiquidBounce : EventListener {
      * @see SynchronousResourceReloader
      * @see ResourceReloader
      */
-    class ClientResourceReloader : SynchronousResourceReloader {
-
+    class ClientInitializer : SynchronousResourceReloader {
         override fun reload(manager: ResourceManager) {
-            runCatching {
-                // Queue fonts of all themes
-                // TODO: Will be removed with PR #3884 as it is not needed anymore
-                ThemeManager.themesFolder.listFiles()
-                    ?.filter { file -> file.isDirectory }
-                    ?.forEach { file ->
-                        runCatching {
-                            val assetsFolder = File(file, "assets")
-                            if (!assetsFolder.exists()) {
-                                return@forEach
-                            }
-
-                            FontManager.queueFolder(assetsFolder)
-                        }.onFailure {
-                            logger.error("Failed to queue fonts from theme '${file.name}'.", it)
-                        }
-                    }
-
-                // Load fonts
-                val duration = measureTime {
-                    FontManager.createGlyphManager()
-                }
-
-                logger.info("Completed loading fonts in ${duration.inWholeMilliseconds} ms.")
-                logger.info("Fonts: [ ${FontManager.fontFaces.joinToString { face -> face.name }} ]")
+            runCatching(::initializeClient).onSuccess {
+                logger.info("$CLIENT_NAME has been successfully initialized.")
             }.onFailure(ErrorHandler::fatal)
-
-            runBlocking {
-                tasks?.awaitAll()
-                tasks = null
-            }
         }
     }
 

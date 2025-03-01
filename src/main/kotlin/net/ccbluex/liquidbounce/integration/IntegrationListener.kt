@@ -19,17 +19,17 @@
  */
 package net.ccbluex.liquidbounce.integration
 
-import com.mojang.blaze3d.systems.RenderSystem
-import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.EventManager
-import net.ccbluex.liquidbounce.event.events.*
+import net.ccbluex.liquidbounce.event.events.BrowserReadyEvent
+import net.ccbluex.liquidbounce.event.events.ScreenEvent
+import net.ccbluex.liquidbounce.event.events.VirtualScreenEvent
+import net.ccbluex.liquidbounce.event.events.WorldChangeEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.misc.HideAppearance
 import net.ccbluex.liquidbounce.integration.browser.BrowserManager
 import net.ccbluex.liquidbounce.integration.theme.Theme
 import net.ccbluex.liquidbounce.integration.theme.ThemeManager
-import net.ccbluex.liquidbounce.mcef.progress.MCEFProgressMenu
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.utils.client.mc
@@ -174,13 +174,6 @@ object IntegrationListener : EventListener {
         }
     }
 
-    @Suppress("unused")
-    val screenRefresher = handler<GameTickEvent> {
-        if (browserIsReady && mc.currentScreen !is MCEFProgressMenu) {
-            handleCurrentScreen(mc.currentScreen)
-        }
-    }
-
     /**
      * Refresh integration browser when we change worlds, this can also mean we disconnect from a server
      * and go back to the main menu.
@@ -197,18 +190,7 @@ object IntegrationListener : EventListener {
 
                 false
             }
-            !browserIsReady -> {
-                return if (screen !is MCEFProgressMenu) {
-                    RenderSystem.recordRenderCall {
-                        mc.setScreen(MCEFProgressMenu(LiquidBounce.CLIENT_NAME))
-                    }
-
-                    true
-                } else {
-                    false
-                }
-            }
-            screen is VrScreen -> false
+            !browserIsReady || screen is VrScreen -> false
             else -> {
                 // Are we currently playing the game?
                 if (mc.world != null && screen == null) {
