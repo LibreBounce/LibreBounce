@@ -57,7 +57,7 @@ data class CombatTarget(
  */
 object KillAuraFightBot : NavigationBaseConfigurable<CombatContext>(ModuleKillAura, "FightBot", false) {
 
-    private val opponentRange by float("OpponentRange", 3f, 0.1f..5f)
+    private val opponentRange by float("OpponentRange", 3f, 0.1f..10f)
     private val dangerousYawDiff by float("DangerousYaw", 55f, 0f..90f, suffix = "°")
     private val runawayOnCooldown by boolean("RunawayOnCooldown", true)
 

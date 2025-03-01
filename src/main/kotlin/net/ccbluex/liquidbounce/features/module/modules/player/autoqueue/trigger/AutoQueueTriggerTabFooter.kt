@@ -15,19 +15,25 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
+ *
+ *
  */
-package net.ccbluex.liquidbounce.features.module.modules.player.autoqueue
 
-import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.ClientModule
-import net.ccbluex.liquidbounce.features.module.modules.player.autoqueue.presets.AutoQueueCustom
-import net.ccbluex.liquidbounce.features.module.modules.player.autoqueue.presets.AutoQueueGommeDuels
-import net.ccbluex.liquidbounce.features.module.modules.player.autoqueue.presets.AutoQueueHypixelSW
+package net.ccbluex.liquidbounce.features.module.modules.player.autoqueue.trigger
 
-object ModuleAutoQueue : ClientModule("AutoQueue", Category.PLAYER, aliases = arrayOf("AutoPlay")) {
-    val presets = choices("Presets", AutoQueueHypixelSW, arrayOf(
-        AutoQueueHypixelSW,
-        AutoQueueGommeDuels,
-        AutoQueueCustom
-    )).apply(::tagBy)
+import net.ccbluex.liquidbounce.utils.client.convertToString
+
+/**
+ * Can be used for different server that use paper to join a game
+ */
+object AutoQueueTriggerTabFooter : AutoQueueTrigger("TabFooter") {
+
+    private val text by text("Text", "Duels")
+
+    override val isTriggered: Boolean
+        get() {
+            val playerListHeader = mc.inGameHud?.playerListHud?.footer ?: return false
+            return playerListHeader.convertToString().contains(text)
+        }
+
 }

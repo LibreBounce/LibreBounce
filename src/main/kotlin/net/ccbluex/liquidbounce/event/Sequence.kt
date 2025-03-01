@@ -75,17 +75,20 @@ object SequenceManager : EventListener {
 
 }
 
+@Suppress("TooManyFunctions")
 open class Sequence(val owner: EventListener, val handler: SuspendableHandler) {
     private var coroutine: Job
 
     open fun cancel() {
         coroutine.cancel()
+        cancellationTask?.run()
         SequenceManager.sequences -= this@Sequence
     }
 
     private var continuation: Continuation<Unit>? = null
     private var elapsedTicks = 0
     private var totalTicks = IntSupplier { 0 }
+    private var cancellationTask: Runnable? = null
 
     init {
         // Note: It is important that this is in the constructor and NOT in the variable declaration, because
@@ -115,6 +118,13 @@ open class Sequence(val owner: EventListener, val handler: SuspendableHandler) {
             this.continuation = null
             continuation.resume(Unit)
         }
+    }
+
+    /**
+     * Adds a task to be executed when the sequence is cancelled.
+     */
+    fun onCancellation(task: Runnable) {
+        cancellationTask = task
     }
 
     /**

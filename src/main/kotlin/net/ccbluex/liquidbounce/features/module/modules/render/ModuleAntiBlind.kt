@@ -26,7 +26,7 @@ import net.ccbluex.liquidbounce.features.module.ClientModule
  *
  * Protects you from potentially annoying screen effects that block your view.
  */
-object ModuleAntiBlind : ClientModule("AntiBlind", Category.RENDER) {
+object ModuleAntiBlind : ClientModule("AntiBlind", Category.RENDER, aliases = arrayOf("NoRender")) {
     val antiBlind by boolean("DisableBlindingEffect", true)
     val antiDarkness by boolean("DisableDarknessEffect", true)
     val antiNausea by boolean("DisableNauseaEffect", true)
