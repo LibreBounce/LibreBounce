@@ -281,7 +281,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         // Are we actually facing the [chosenEntity]
         val isFacingEnemy = facingEnemy(toEntity = chosenEntity, rotation = rotation,
             range = range.toDouble(),
-            wallsRange = wallRange.toDouble())
+            wallsRange = wallRange.toDouble()) || ModuleElytraTarget.canIgnoreKillAuraRotations
 
         ModuleDebug.debugParameter(ModuleKillAura, "isFacingEnemy", isFacingEnemy)
         ModuleDebug.debugParameter(ModuleKillAura, "Rotation", rotation)
@@ -310,7 +310,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
 
         ModuleDebug.debugParameter(ModuleKillAura, "Good-Rotation", rotation)
 
-        // Attack enemy according to the attack scheduler
+        // Attack enemy, according to the attack scheduler
         if (clickScheduler.isGoingToClick && checkIfReadyToAttack(chosenEntity)) {
             prepareAttackEnvironment(rotation) {
                 clickScheduler.clicks {
@@ -392,16 +392,18 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
             val (rotation, vec) = spot
 
             targetTracker.target = target
-            RotationManager.setRotationTarget(
-                rotations.toAimPlan(
-                    rotation,
-                    vec,
-                    target,
-                    considerInventory = !ignoreOpenInventory
-                ),
-                priority = Priority.IMPORTANT_FOR_USAGE_2,
-                provider = this@ModuleKillAura
-            )
+            if (!ModuleElytraTarget.canIgnoreKillAuraRotations) {
+                RotationManager.setRotationTarget(
+                    rotations.toAimPlan(
+                        rotation,
+                        vec,
+                        target,
+                        considerInventory = !ignoreOpenInventory
+                    ),
+                    priority = Priority.IMPORTANT_FOR_USAGE_2,
+                    provider = this@ModuleKillAura
+                )
+            }
             return
         }
         targetTracker.reset()
@@ -410,14 +412,16 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         if (KillAuraFightBot.enabled) {
             targetTracker.selectFirst()
 
-            RotationManager.setRotationTarget(
-                rotations.toAimPlan(
-                    KillAuraFightBot.getMovementRotation(),
-                    considerInventory = !ignoreOpenInventory
-                ),
-                priority = Priority.IMPORTANT_FOR_USAGE_2,
-                provider = this@ModuleKillAura
-            )
+            if (!ModuleElytraTarget.canIgnoreKillAuraRotations) {
+                RotationManager.setRotationTarget(
+                    rotations.toAimPlan(
+                        KillAuraFightBot.getMovementRotation(),
+                        considerInventory = !ignoreOpenInventory
+                    ),
+                    priority = Priority.IMPORTANT_FOR_USAGE_2,
+                    provider = this@ModuleKillAura
+                )
+            }
         }
     }
 

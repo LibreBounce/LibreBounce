@@ -31,11 +31,16 @@ private const val IDEAL_DISTANCE = 10
  */
 @Suppress("MagicNumber")
 object ModuleElytraTarget : ClientModule("ElytraTarget", Category.COMBAT) {
-    private val rotateAt by enumChoice("RotateAt", TargetRotatePosition.EYES)
     internal val targetTracker = tree(TargetTracker())
 
-    private val look by boolean("Look", false)
-    private val autoDistance by boolean("AutoDistance", true)
+    private val rotations = tree(object : ElytraRotationsAndAngleSmooth() {
+        val rotateAt by enumChoice("RotateAt", TargetRotatePosition.EYES)
+        val ignoreKillAura by boolean("IgnoreKillAuraRotation", false)
+        val look by boolean("Look", false)
+        val autoDistance by boolean("AutoDistance", true)
+    })
+
+    val canIgnoreKillAuraRotations get() = running && rotations.ignoreKillAura
 
     init {
         tree(AutoFirework)
@@ -56,7 +61,7 @@ object ModuleElytraTarget : ClientModule("ElytraTarget", Category.COMBAT) {
     @Suppress("unused")
     private val targetUpdate = handler<RotationUpdateEvent> {
         for (target in targetTracker.targets()) {
-            val correction = if (look) {
+            val correction = if (rotations.look) {
                 MovementCorrection.CHANGE_LOOK
             } else {
                 MovementCorrection.STRICT
@@ -73,7 +78,7 @@ object ModuleElytraTarget : ClientModule("ElytraTarget", Category.COMBAT) {
                         rotation = it,
                         vec3d = it.directionVector,
                         entity = target,
-                        angleSmooth = ElytraAdaptiveSmooth,
+                        angleSmooth = rotations,
                         slowStart = null,
                         failFocus = null,
                         shortStop = null,
@@ -94,9 +99,9 @@ object ModuleElytraTarget : ClientModule("ElytraTarget", Category.COMBAT) {
     }
 
     private fun calculateRotation(target: LivingEntity): Rotation {
-        var targetPos = rotateAt.position(target) + randomDirectionVector * 4.0
+        var targetPos = rotations.rotateAt.position(target) + randomDirectionVector * 4.0
 
-        if (autoDistance) {
+        if (rotations.autoDistance) {
             val direction = (targetPos - player.pos).normalize()
             val distance = player.pos.squaredDistanceTo(direction)
 

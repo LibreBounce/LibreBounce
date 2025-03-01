@@ -1,5 +1,6 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat.elytratarget
 
+import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.features.anglesmooth.AngleSmooth
 import net.minecraft.entity.Entity
@@ -13,7 +14,20 @@ private const val BASE_YAW_SPEED = 45.0f
 private const val BASE_PITCH_SPEED = 35.0f
 
 @Suppress("MagicNumber")
-internal object ElytraAdaptiveSmooth : AngleSmooth {
+internal open class ElytraRotationsAndAngleSmooth : Configurable("Rotations"), AngleSmooth {
+    private val sharpRotations by boolean("Sharp", false)
+
+    private inline val baseYawSpeed: Float get() = if (sharpRotations) {
+        BASE_YAW_SPEED * 1.5f
+    } else {
+        BASE_YAW_SPEED
+    }
+
+    private inline val basePitchSpeed: Float get() = if (sharpRotations) {
+        BASE_PITCH_SPEED * 1.5f
+    } else {
+        BASE_PITCH_SPEED
+    }
 
     /**
      * # Sorry, but im TOO LAZY to translate this shit.
@@ -67,8 +81,8 @@ internal object ElytraAdaptiveSmooth : AngleSmooth {
 
         val speed = speedMultiplier * smoothBoost
 
-        val yawSpeed = BASE_YAW_SPEED * speed * backTargetMultiplier
-        val pitchSpeed = BASE_PITCH_SPEED * speed
+        val yawSpeed = baseYawSpeed * speed * backTargetMultiplier
+        val pitchSpeed = basePitchSpeed * speed
 
         val microAdjustment = (sin(currentTime / 80.0) * 0.08 + cos(currentTime / 120.0) * 0.05).toFloat()
 
