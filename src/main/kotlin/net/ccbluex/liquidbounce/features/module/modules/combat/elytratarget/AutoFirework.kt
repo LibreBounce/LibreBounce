@@ -36,6 +36,9 @@ internal object AutoFirework : ToggleableConfigurable(ModuleElytraTarget, "AutoF
     private val syncCooldownWithKillAura by boolean("SyncCooldownWithKillAura", false)
     private val cooldown by intRange("Cooldown", 8..10, 1..50, "ticks")
 
+    private inline val cooldownReached: Boolean
+        get() = fireworkChronometer.hasElapsed((fireworkCooldown * MILLISECONDS_PER_TICK).toLong())
+
     private suspend inline fun Sequence.canUseFirework(): Boolean {
         if (!KillAura.running || !syncCooldownWithKillAura) {
             return true
@@ -63,15 +66,14 @@ internal object AutoFirework : ToggleableConfigurable(ModuleElytraTarget, "AutoF
     private val autoFireworkHandler = tickHandler {
         val target = targetTracker.target ?: return@tickHandler
 
-        if (fireworkChronometer.hasElapsed((fireworkCooldown * MILLISECONDS_PER_TICK).toLong()) && canUseFirework()) {
-            val slot = fireworkSlot ?: return@tickHandler
-            useMode.useFireworkSlot(slot, slotResetDelay.random())
-            fireworkChronometer.reset()
+        if (cooldownReached && canUseFirework()) {
+            fireworkSlot?.let {
+                useMode.useFireworkSlot(it, slotResetDelay.random())
+                fireworkChronometer.reset()
+            }
         }
 
-        val distance = extraDistance
-
-        fireworkCooldown = if (target.squaredBoxedDistanceTo(player) > distance * distance) {
+        fireworkCooldown = if (target.squaredBoxedDistanceTo(player) > extraDistance * extraDistance) {
             cooldown.max()
         } else {
             cooldown.min()
