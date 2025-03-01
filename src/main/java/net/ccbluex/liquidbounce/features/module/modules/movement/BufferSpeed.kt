@@ -155,7 +155,7 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT) {
             }
             legitHop = true
 
-            if (headBlock && blockPos.up(2).block == Blocks.air) {
+            if (headBlock && blockPos.up(2).block != Blocks.air) {
                 boost(headBlockBoost)
                 return@handler
             }
