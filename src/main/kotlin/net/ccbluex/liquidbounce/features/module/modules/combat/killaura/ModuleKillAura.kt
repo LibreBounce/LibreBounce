@@ -542,10 +542,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
     }
 
     val shouldBlockSprinting
-        get() = !player.isOnGround &&
-            criticalsSelectionMode != CriticalsSelectionMode.IGNORE &&
-            targetTracker.target != null &&
-            clickScheduler.isClickOnNextTick(1)
+        get() = criticalsSelectionMode.shouldStopSprinting(clickScheduler, targetTracker.target)
 
     @Suppress("unused")
     private val sprintHandler = handler<SprintEvent> { event ->

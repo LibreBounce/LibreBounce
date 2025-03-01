@@ -30,6 +30,7 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.modes.*
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.ModuleFly
 import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalk.ModuleLiquidWalk
 import net.ccbluex.liquidbounce.utils.block.collideBlockIntersects
+import net.ccbluex.liquidbounce.utils.clicking.Clicker
 import net.ccbluex.liquidbounce.utils.combat.findEnemy
 import net.ccbluex.liquidbounce.utils.entity.box
 import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.CRITICAL_MODIFICATION
@@ -174,6 +175,21 @@ object ModuleCriticals : ClientModule("Criticals", Category.COMBAT) {
                 SMART -> !shouldWaitForCrit(target, ignoreState = true)
                 ALWAYS -> wouldDoCriticalHit()
             }
+        }
+
+        fun shouldStopSprinting(clicker: Clicker<*>, target: Entity?): Boolean {
+            // If we don't care about critical hits we don't have to stop sprinting.
+            if (this == IGNORE) {
+                return false
+            }
+
+            // On ground, we cannot do critical hits anyway.
+            if (player.isOnGround) {
+                return false
+            }
+
+            // If we are about to do a critical hit, we should stop sprinting.
+            return target != null && clicker.isClickOnNextTick(1)
         }
 
     }

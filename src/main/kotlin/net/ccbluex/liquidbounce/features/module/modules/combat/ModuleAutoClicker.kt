@@ -21,6 +21,8 @@ package net.ccbluex.liquidbounce.features.module.modules.combat
 import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.Sequence
+import net.ccbluex.liquidbounce.event.events.SprintEvent
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
@@ -122,6 +124,20 @@ object ModuleAutoClicker : ClientModule("AutoClicker", Category.COMBAT, aliases 
                 }
 
                 Use.IGNORE -> false
+            }
+        }
+
+        @Suppress("unused")
+        private val sprintHandler = handler<SprintEvent> { event ->
+            if (event.source == SprintEvent.Source.MOVEMENT_TICK || event.source == SprintEvent.Source.INPUT) {
+                if (!attack || !isOnObjective() || !isWeaponSelected()) {
+                    return@handler
+                }
+
+                val target = mc.crosshairTarget as? EntityHitResult ?: return@handler
+                if (criticalsSelectionMode.shouldStopSprinting(clicker, target.entity)) {
+                    event.sprint = false
+                }
             }
         }
 
