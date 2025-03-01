@@ -54,7 +54,7 @@ object HideAppearance : EventListener {
 
     /**
      * These mods will be removed from ModMenu.
-     * When [isHidingNow] is tru
+     * When [isHidingNow] is true
      * Or added, if [isHidingNow] is false
      *
      * Because we don't know about the [Mod] container on each mod in this list
