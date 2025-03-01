@@ -34,6 +34,8 @@ import net.minecraftforge.fml.relauncher.SideOnly
 import java.awt.Color
 import kotlin.math.abs
 import kotlin.math.roundToInt
+import net.ccbluex.liquidbounce.utils.extensions.component1
+import net.ccbluex.liquidbounce.utils.extensions.component2
 
 @SideOnly(Side.CLIENT)
 object NullStyle : Style() {
