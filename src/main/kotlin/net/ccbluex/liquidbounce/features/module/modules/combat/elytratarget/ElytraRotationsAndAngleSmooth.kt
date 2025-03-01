@@ -1,9 +1,22 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat.elytratarget
 
 import net.ccbluex.liquidbounce.config.types.Configurable
+import net.ccbluex.liquidbounce.event.EventListener
+import net.ccbluex.liquidbounce.event.events.RotationUpdateEvent
+import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.features.module.modules.combat.elytratarget.ModuleElytraTarget.targetTracker
+import net.ccbluex.liquidbounce.utils.aiming.RotationManager
+import net.ccbluex.liquidbounce.utils.aiming.RotationTarget
 import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
+import net.ccbluex.liquidbounce.utils.aiming.features.MovementCorrection
 import net.ccbluex.liquidbounce.utils.aiming.features.anglesmooth.AngleSmooth
+import net.ccbluex.liquidbounce.utils.client.player
+import net.ccbluex.liquidbounce.utils.kotlin.Priority
+import net.ccbluex.liquidbounce.utils.math.minus
+import net.ccbluex.liquidbounce.utils.math.plus
+import net.ccbluex.liquidbounce.utils.math.times
 import net.minecraft.entity.Entity
+import net.minecraft.entity.LivingEntity
 import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Vec3d
 import kotlin.math.abs
@@ -12,10 +25,18 @@ import kotlin.math.sin
 
 private const val BASE_YAW_SPEED = 45.0f
 private const val BASE_PITCH_SPEED = 35.0f
+private const val IDEAL_DISTANCE = 10
 
 @Suppress("MagicNumber")
-internal open class ElytraRotationsAndAngleSmooth : Configurable("Rotations"), AngleSmooth {
+internal object ElytraRotationsAndAngleSmooth : Configurable("Rotations"), AngleSmooth, EventListener {
     private val sharpRotations by boolean("Sharp", false)
+    internal val ignoreKillAura by boolean("IgnoreKillAuraRotation", false)
+    internal val look by boolean("Look", false)
+    private val autoDistance by boolean("AutoDistance", true)
+    private val rotateAt by enumChoice("RotateAt", TargetRotatePosition.EYES)
+    private val prediction by enumChoice("Predicate", TargetEntityMovementPredicate.NONE)
+
+    override fun parent() = ModuleElytraTarget
 
     private inline val baseYawSpeed: Float get() = if (sharpRotations) {
         BASE_YAW_SPEED * 1.5f
@@ -28,6 +49,15 @@ internal open class ElytraRotationsAndAngleSmooth : Configurable("Rotations"), A
     } else {
         BASE_PITCH_SPEED
     }
+
+    private inline val randomDirectionVector
+        get() = with (System.currentTimeMillis() / 1000.0) {
+            Vec3d(
+                sin(this * 1.8) * 0.04 + (Math.random() - 0.5) * 0.02,
+                sin(this * 2.2) * 0.03 + (Math.random() - 0.5) * 0.015,
+                cos(this * 1.8) * 0.04 + (Math.random() - 0.5) * 0.02,
+            )
+        }
 
     /**
      * # Sorry, but im TOO LAZY to translate this shit.
@@ -98,5 +128,58 @@ internal open class ElytraRotationsAndAngleSmooth : Configurable("Rotations"), A
             currentRotation.yaw + moveYaw,
             MathHelper.clamp(currentRotation.pitch + movePitch, -90.0f, 90.0f),
         )
+    }
+
+    @Suppress("unused")
+    private val targetUpdate = handler<RotationUpdateEvent> {
+        val target = targetTracker.selectFirst { potentialTarget ->
+            player.canSee(potentialTarget)
+        } ?: return@handler
+
+        val correction = if (look) {
+            MovementCorrection.CHANGE_LOOK
+        } else {
+            MovementCorrection.STRICT
+        }
+
+        calculateRotation(target).let {
+            RotationManager.setRotationTarget(
+                /*
+                 * Don't use the RotationConfigurable because I need to superfast rotations.
+                 * Without any setting and angle smoothing
+                 */
+                plan = RotationTarget(
+                    rotation = it,
+                    vec3d = it.directionVector,
+                    entity = target,
+                    angleSmooth = ElytraRotationsAndAngleSmooth,
+                    slowStart = null,
+                    failFocus = null,
+                    shortStop = null,
+                    ticksUntilReset = 1,
+                    resetThreshold = 1f,
+                    considerInventory = true,
+                    movementCorrection = correction
+                ),
+                priority = Priority.IMPORTANT_FOR_USAGE_3,
+                provider = ModuleElytraTarget
+            )
+        }
+    }
+
+    @Suppress("NOTHING_TO_INLINE")
+    private inline fun calculateRotation(target: LivingEntity): Rotation {
+        var targetPos = prediction.testPosition(target, rotateAt.position(target)) + randomDirectionVector * 4.0
+
+        if (autoDistance) {
+            val direction = (targetPos - player.pos).normalize()
+            val distance = player.pos.squaredDistanceTo(direction)
+
+            if (distance < IDEAL_DISTANCE * IDEAL_DISTANCE) {
+                targetPos -= direction * (IDEAL_DISTANCE - distance)
+            }
+        }
+
+        return Rotation.lookingAt(targetPos, player.pos)
     }
 }
