@@ -29,7 +29,7 @@ private const val IDEAL_DISTANCE = 10
  *
  * @author sqlerrorthing
  */
-@Suppress("MagicNumber", "Unused", "UnusedPrivateProperty")
+@Suppress("MagicNumber")
 object ModuleElytraTarget : ClientModule("ElytraTarget", Category.COMBAT) {
     private val rotateAt by enumChoice("RotateAt", TargetRotatePosition.EYES)
     internal val targetTracker = tree(TargetTracker())
