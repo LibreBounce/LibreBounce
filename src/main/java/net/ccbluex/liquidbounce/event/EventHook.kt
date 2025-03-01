@@ -7,27 +7,29 @@ package net.ccbluex.liquidbounce.event
 
 import net.ccbluex.liquidbounce.utils.client.ClientUtils
 
-class EventHook<T : Event>(
+class EventHook<T : Event, R>(
     val owner: Listenable,
     val always: Boolean = false,
     val priority: Byte = 0,
-    val action: (T) -> Unit
+    private val action: (T) -> R
 ) {
     val isActive: Boolean
         get() = this.owner.handleEvents() || this.always
 
-    internal fun processEvent(event: T) {
+    internal fun processEvent(event: T): R? {
         if (!this.isActive)
-            return
+            return null
 
         try {
-            action(event)
+            return action(event)
         } catch (e: Exception) {
             ClientUtils.LOGGER.error(
                 "Exception during processing event, owner=${owner.javaClass.simpleName}, event=$event",
                 e
             )
         }
+
+        return null
     }
 
     override fun toString(): String {

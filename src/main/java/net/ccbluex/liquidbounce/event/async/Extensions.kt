@@ -11,48 +11,34 @@ import kotlin.coroutines.resume
 
 
 /**
- * Take next event instance of given type and run [handler] with it.
- */
-inline fun <reified E : Event> Listenable.takeNext(
-    priority: Byte = 0,
-    noinline handler: (E) -> Unit
-) {
-    EventManager.registerTerminateEventHook(
-        E::class.java,
-        EventHook(this, always = false, priority, handler)
-    )
-}
-
-/**
- * Wait next event instance of given type.
+ * Wait next event instance of given type which matches [predicate].
  *
  * Note: This might change thread context
  *
- * @return the event instance
- */
-suspend inline fun <reified E : Event> Listenable.waitNext(
-    priority: Byte = 0
-): E = suspendCancellableCoroutine { cont ->
-    takeNext(priority, cont::resume)
-}
-
-/**
- * Wait next event instance of given type which matches [predicate].
+ * TODO: KNOWN BUG: following code will trigger exception:
+ * ```
+ * waitNext<PacketEvent>()
+ * ...
+ * sendPacket(...) // triggerEvents = true
+ * ```
  *
  * @return the event instance
  */
 suspend inline fun <reified E : Event> Listenable.waitNext(
     priority: Byte = 0,
-    crossinline predicate: (E) -> Boolean
-): E {
-    var next: E
-    while (true) {
-        next = waitNext(priority)
-        if (predicate(next)) {
-            break
+    crossinline predicate: (E) -> Boolean = { true }
+): E = suspendCancellableCoroutine { cont ->
+    EventManager.registerTerminateEventHook(
+        E::class.java,
+        EventHook(this, always = false, priority) {
+            if (predicate(it)) {
+                cont.resume(it)
+                true
+            } else {
+                false
+            }
         }
-    }
-    return next
+    )
 }
 
 /**
