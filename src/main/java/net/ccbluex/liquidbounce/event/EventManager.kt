@@ -8,8 +8,9 @@ package net.ccbluex.liquidbounce.event
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import net.ccbluex.liquidbounce.event.async.TickScheduler
-import net.ccbluex.liquidbounce.utils.client.ClientUtils
 import java.util.*
+import java.util.concurrent.CopyOnWriteArraySet
+import java.util.concurrent.PriorityBlockingQueue
 
 /**
  * @see List.binarySearchBy
@@ -50,13 +51,13 @@ object EventManager : CoroutineScope by CoroutineScope(SupervisorJob()) {
      * so we use the class of Event as the lock
      */
     private val terminateHooks = createEventMap {
-        PriorityQueue<EventHook<in Event>>(11, Comparator.comparingInt { -it.priority })
+        PriorityBlockingQueue<EventHook<in Event>>(11, Comparator.comparingInt { -it.priority })
     }
 
     /**
      * Prevent [ConcurrentModificationException]
      */
-    private val incomingTerminateHooks = createEventMap { ArrayList<EventHook<in Event>>() }
+    private val incomingTerminateHooks = createEventMap { CopyOnWriteArraySet<EventHook<in Event>>() }
 
     init {
         TickScheduler
@@ -69,21 +70,20 @@ object EventManager : CoroutineScope by CoroutineScope(SupervisorJob()) {
                     || incomingTerminateHooks[eventClass]!!.remove(eventHook)
         }
 
+    // Only called from main thread
     fun <T : Event> registerEventHook(eventClass: Class<out T>, eventHook: EventHook<T>): EventHook<T> {
         val container = registry[eventClass] ?: error("Unsupported Event type: ${eventClass.simpleName}")
 
         eventHook as EventHook<in Event>
 
-        synchronized(eventClass) {
-            check(eventHook !in container) {
-                "The EventHook of ${eventHook.owner} has already been registered"
-            }
-
-            val insertIndex = container.findIndexByPriority(eventHook).let {
-                if (it < 0) it.inv() else it
-            }
-            container.add(insertIndex, eventHook)
+        check(eventHook !in container) {
+            "The EventHook of ${eventHook.owner} has already been registered"
         }
+
+        val insertIndex = container.findIndexByPriority(eventHook).let {
+            if (it < 0) it.inv() else it
+        }
+        container.add(insertIndex, eventHook)
 
         return eventHook
     }
@@ -93,30 +93,15 @@ object EventManager : CoroutineScope by CoroutineScope(SupervisorJob()) {
 
         eventHook as EventHook<in Event>
 
-        synchronized(eventClass) {
-            check(eventHook !in container) {
-                "The EventHook of ${eventHook.owner} has already been registered"
-            }
-
-            container.add(eventHook)
+        if (!container.add(eventHook)) {
+            error("The EventHook of ${eventHook.owner} has already been registered")
         }
 
         return eventHook
     }
 
-    private fun <T : Event> EventHook<T>.processEvent(event: T) {
-        if (!this.isActive)
-            return
-
-        try {
-            action(event)
-        } catch (e: Exception) {
-            ClientUtils.LOGGER.error("Exception during processing event", e)
-        }
-    }
-
     fun <T : Event> call(event: T): T {
-        val eventClass = event.javaClass
+        val eventClass = event::class.java
 
         synchronized(eventClass) {
             // Process terminate event hooks
@@ -141,7 +126,7 @@ object EventManager : CoroutineScope by CoroutineScope(SupervisorJob()) {
     }
 
     fun <T : Event> call(event: T, listener: Listenable): T {
-        val eventClass = event.javaClass
+        val eventClass = event::class.java
 
         synchronized(eventClass) {
             // Process terminate event hooks
@@ -165,7 +150,7 @@ object EventManager : CoroutineScope by CoroutineScope(SupervisorJob()) {
             }
         }
 
-        val hooks = registry[event.javaClass]!!
+        val hooks = registry[eventClass]!!
 
         hooks.forEach {
             if (it.owner === listener) {
