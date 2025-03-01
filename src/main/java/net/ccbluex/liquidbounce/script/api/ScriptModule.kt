@@ -24,6 +24,8 @@ class ScriptModule(name: String, category: Category, description: String, privat
      */
     val settings = linkedMapOf<String, Value<*>>()
 
+    private val eventHooks: Map<Class<out Event>, EventHook<in Event>>
+
     init {
         if (moduleObject.hasMember("settings")) {
             val settings = moduleObject.getMember("settings") as JSObject
@@ -35,12 +37,11 @@ class ScriptModule(name: String, category: Category, description: String, privat
         if (moduleObject.hasMember("tag"))
             _tag = moduleObject.getMember("tag") as String
 
-        ALL_EVENT_CLASSES.forEach { eventClass ->
+        eventHooks = createEventMap { eventClass ->
             val eventName = eventClass.simpleName.removeSuffix("Event").toLowerCamelCase()
-
-            EventManager.registerEventHook(eventClass, EventHook(this) {
-                callEvent(eventName, it)
-            })
+            EventHook<Event>(this) { callEvent(eventName, it) }.also {
+                EventManager.registerEventHook(eventClass, it)
+            }
         }
     }
 
@@ -62,6 +63,10 @@ class ScriptModule(name: String, category: Category, description: String, privat
     override fun onEnable() = callEvent("enable", null)
 
     override fun onDisable() = callEvent("disable", null)
+
+    override fun onUnregister() {
+        this.eventHooks.forEach(EventManager::unregisterEventHook)
+    }
 
     /**
      * Calls the handler of a registered event.

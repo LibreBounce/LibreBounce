@@ -17,11 +17,6 @@ interface Listenable {
 
     val parent: Listenable?
         get() = null
-
-    fun unregister() {
-        EventManager.unregisterListener(this)
-        subListeners.forEach { it.unregister() }
-    }
 }
 
 inline fun <reified T : Event> Listenable.handler(

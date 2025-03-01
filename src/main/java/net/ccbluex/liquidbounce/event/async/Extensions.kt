@@ -16,10 +16,12 @@ import kotlin.coroutines.resume
 inline fun <reified E : Event> Listenable.takeNext(
     priority: Byte = 0,
     noinline handler: (E) -> Unit
-) = EventManager.registerTerminateEventHook(
-    E::class.java,
-    EventHook(this, always = false, priority, handler)
-)
+) {
+    EventManager.registerTerminateEventHook(
+        E::class.java,
+        EventHook(this, always = false, priority, handler)
+    )
+}
 
 /**
  * Wait next event instance of given type.
@@ -44,12 +46,10 @@ suspend inline fun <reified E : Event> Listenable.waitNext(
     crossinline predicate: (E) -> Boolean
 ): E {
     var next: E
-    while (true) {
+    do {
         next = waitNext(priority)
-        if (predicate(next)) {
-            return next
-        }
-    }
+    } while (!predicate(next))
+    return next
 }
 
 /**

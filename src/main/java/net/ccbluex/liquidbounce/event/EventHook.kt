@@ -13,4 +13,8 @@ class EventHook<T : Event>(
 ) {
     val isActive: Boolean
         get() = this.owner.handleEvents() || this.always
+
+    override fun toString(): String {
+        return "EventHook{owner=$owner, always=$always, priority=$priority, action=$action}"
+    }
 }
