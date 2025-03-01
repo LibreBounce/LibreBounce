@@ -18,7 +18,6 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification.Comp
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.client.ClientUtils
 import net.ccbluex.liquidbounce.utils.extensions.lerpWith
-import net.ccbluex.liquidbounce.utils.kotlin.removeEach
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.withAlpha
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.deltaTime
@@ -58,7 +57,7 @@ class Notifications(
 
         maxTextLength = maxOf(100, notifications.maxOfOrNull { it.textLength } ?: 0)
 
-        notifications.removeEach { notification ->
+        notifications.removeIf { notification ->
             if (notification != exampleNotification) {
                 notification.y = (notification.y..verticalOffset).lerpWith(RenderUtils.deltaTimeNormalized())
             }

@@ -17,13 +17,14 @@ import net.ccbluex.liquidbounce.utils.extensions.component2
 import net.minecraft.client.gui.ScaledResolution
 import org.lwjgl.opengl.GL11.*
 import java.util.*
+import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.math.max
 import kotlin.math.min
 
 object HUD : MinecraftInstance {
 
     val elements = mutableListOf<Element>()
-    val notifications = mutableListOf<Notification>()
+    val notifications = CopyOnWriteArrayList<Notification>()
 
     private val ALL_ELEMENT_CLASSES = arrayOf(
         Armor::class.java,

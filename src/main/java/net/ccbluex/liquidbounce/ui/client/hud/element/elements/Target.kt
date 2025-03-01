@@ -53,8 +53,7 @@ class Target : Element("Target") {
 
     private val roundHealthBarShape by boolean("RoundHealthBarShape", true)
 
-    private val borderMode by choices("Border-ColorMode", arrayOf("Custom", "Rainbow"), "Custom")
-    private val borderColor by color("Border-Color", Color.BLACK) { borderMode == "Custom" }
+    private val borderColor by color("Border-Color", Color.BLACK)
 
     private val textColor by color("TextColor", Color.WHITE)
 
