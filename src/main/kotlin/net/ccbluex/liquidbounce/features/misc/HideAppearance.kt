@@ -19,7 +19,6 @@
 package net.ccbluex.liquidbounce.features.misc
 
 import com.mojang.blaze3d.systems.RenderSystem
-import com.terraformersmc.modmenu.ModMenu
 import com.terraformersmc.modmenu.util.mod.Mod
 import net.ccbluex.liquidbounce.config.ConfigSystem
 import net.ccbluex.liquidbounce.event.EventListener
@@ -33,6 +32,7 @@ import net.ccbluex.liquidbounce.integration.IntegrationListener
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.client.inGame
 import net.ccbluex.liquidbounce.utils.client.mc
+import net.ccbluex.liquidbounce.utils.client.modmenu.ModMenuCompatibility
 import net.fabricmc.loader.impl.FabricLoaderImpl
 import net.minecraft.SharedConstants
 import net.minecraft.client.util.Icons
@@ -75,14 +75,12 @@ object HideAppearance : EventListener {
             if (modMenuPresent) {
                 if (value) {
                     for (id in modContainersToHide.keys) {
-                        modContainersToHide[id] = ModMenu.MODS.remove(id)
-                        ModMenu.ROOT_MODS.remove(id)
+                        modContainersToHide[id] = ModMenuCompatibility.INSTANCE.removeModUnchecked(id)
                     }
                 } else {
                     for ((id, container) in modContainersToHide) {
                         container?.let {
-                            ModMenu.ROOT_MODS[id] = container
-                            ModMenu.MODS[id] = container
+                            ModMenuCompatibility.INSTANCE.addModUnchecked(id, container)
                         }
                     }
                 }
