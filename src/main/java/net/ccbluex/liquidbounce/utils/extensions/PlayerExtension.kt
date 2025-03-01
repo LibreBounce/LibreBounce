@@ -8,6 +8,7 @@ package net.ccbluex.liquidbounce.utils.extensions
 import net.ccbluex.liquidbounce.file.FileManager.friendsConfig
 import net.ccbluex.liquidbounce.injection.implementations.IMixinEntity
 import net.ccbluex.liquidbounce.utils.attack.CPSCounter
+import net.ccbluex.liquidbounce.utils.block.set
 import net.ccbluex.liquidbounce.utils.block.state
 import net.ccbluex.liquidbounce.utils.block.toVec
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance.Companion.mc
@@ -50,9 +51,10 @@ fun EntityPlayerSP.isNearEdge(threshold: Float): Boolean {
     val playerPos = Vec3(posX, posY, posZ)
     val blockPos = BlockPos(playerPos)
 
+    val mutable = BlockPos.MutableBlockPos()
     for (x in -3..3) {
         for (z in -3..3) {
-            val checkPos = blockPos.add(x, -1, z)
+            val checkPos = mutable.set(blockPos, x, -1, z)
             if (worldObj.isAirBlock(checkPos)) {
                 val checkPosCenter = Vec3(checkPos.x + 0.5, checkPos.y.toDouble(), checkPos.z + 0.5)
                 val distance = playerPos.distanceTo(checkPosCenter)
@@ -310,7 +312,7 @@ fun EntityPlayerSP.tryJump() {
     }
 }
 
-fun EntityPlayerSP.attackEntityWithModifiedSprint(
+inline fun EntityPlayerSP.attackEntityWithModifiedSprint(
     entity: Entity, affectMovementBySprint: Boolean? = null, swing: () -> Unit
 ) {
     swing()

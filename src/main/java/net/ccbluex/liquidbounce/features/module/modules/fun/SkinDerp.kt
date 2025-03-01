@@ -6,7 +6,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.`fun`
 
 import kotlinx.coroutines.delay
-import net.ccbluex.liquidbounce.event.loopHandler
+import net.ccbluex.liquidbounce.event.async.loopSequence
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.minecraft.entity.player.EnumPlayerModelParts
@@ -43,7 +43,7 @@ object SkinDerp : Module("SkinDerp", Category.FUN, subjective = true) {
         super.onDisable()
     }
 
-    val onUpdate = loopHandler {
+    val onUpdate = loopSequence {
         if (hat)
             mc.gameSettings.setModelPartEnabled(EnumPlayerModelParts.HAT, nextBoolean())
         if (jacket)

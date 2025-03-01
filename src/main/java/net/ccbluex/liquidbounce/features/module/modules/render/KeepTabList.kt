@@ -5,15 +5,16 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.event.loopHandler
+import net.ccbluex.liquidbounce.event.UpdateEvent
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.minecraft.client.settings.GameSettings
 
 object KeepTabList : Module("KeepTabList", Category.RENDER, gameDetecting = false) {
 
-    val onUpdate = loopHandler {
-        if (mc.thePlayer == null || mc.theWorld == null) return@loopHandler
+    val onUpdate = handler<UpdateEvent> {
+        if (mc.thePlayer == null || mc.theWorld == null) return@handler
 
         mc.gameSettings.keyBindPlayerList.pressed = true
     }

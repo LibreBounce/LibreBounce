@@ -6,8 +6,8 @@
 package net.ccbluex.liquidbounce.features.module.modules.render
 
 import net.ccbluex.liquidbounce.event.Render3DEvent
+import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.loopHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.block.material
@@ -338,8 +338,8 @@ object Projectiles : Module("Projectiles", Category.RENDER, gameDetecting = fals
         glPopAttrib()
     }
 
-    val onUpdate = loopHandler {
-        val world = mc.theWorld ?: return@loopHandler
+    val onUpdate = handler<UpdateEvent> {
+        val world = mc.theWorld ?: return@handler
 
         val currentTime = System.currentTimeMillis()
 

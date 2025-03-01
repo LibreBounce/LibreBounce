@@ -7,11 +7,10 @@ package net.ccbluex.liquidbounce.features.module.modules.misc
 
 import kotlinx.coroutines.delay
 import net.ccbluex.liquidbounce.event.PacketEvent
+import net.ccbluex.liquidbounce.event.async.loopSequence
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.loopHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomDelay
 import net.minecraft.network.play.client.C01PacketChatMessage
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
@@ -36,11 +35,11 @@ object AtAllProvider :
         super.onDisable()
     }
 
-    val onUpdate = loopHandler {
+    val onUpdate = loopSequence {
         lock.withLock {
             if (sendQueue.isEmpty()) {
                 if (!retry || retryQueue.isEmpty())
-                    return@loopHandler
+                    return@loopSequence
                 else
                     sendQueue += retryQueue
             }

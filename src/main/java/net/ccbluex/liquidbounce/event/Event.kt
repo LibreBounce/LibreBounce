@@ -5,9 +5,9 @@
  */
 package net.ccbluex.liquidbounce.event
 
-open class Event
+abstract class Event
 
-open class CancellableEvent : Event() {
+abstract class CancellableEvent : Event() {
 
     /**
      * Let you know if the event is cancelled
@@ -19,6 +19,8 @@ open class CancellableEvent : Event() {
 
     /**
      * Allows you to cancel an event
+     *
+     * Note: It doesn't make sense to cancel a event within async handlers
      */
     fun cancelEvent() {
         isCancelled = true

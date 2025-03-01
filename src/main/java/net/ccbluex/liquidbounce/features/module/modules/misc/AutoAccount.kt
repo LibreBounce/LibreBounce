@@ -2,11 +2,10 @@ package net.ccbluex.liquidbounce.features.module.modules.misc
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import me.liuli.elixir.account.CrackedAccount
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.event.EventManager.call
+import net.ccbluex.liquidbounce.event.async.launchSequence
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.file.FileManager.accountsConfig
@@ -15,7 +14,6 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
 import net.ccbluex.liquidbounce.utils.client.ServerUtils
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.randomAccount
-import net.ccbluex.liquidbounce.utils.kotlin.SharedScopes
 import net.minecraft.network.play.server.S02PacketChat
 import net.minecraft.network.play.server.S40PacketDisconnect
 import net.minecraft.network.play.server.S45PacketTitle
@@ -96,19 +94,17 @@ object AutoAccount :
         // Log in to account with a random name, optionally save it
         changeAccount()
 
-        SharedScopes.IO.launch {
+        launchSequence(Dispatchers.Main) {
             delay(sendDelay.random().toLong())
-            withContext(Dispatchers.Main) {
-                // connectToLastServer needs thread with OpenGL context
-                ServerUtils.connectToLastServer()
-            }
+            // connectToLastServer needs thread with OpenGL context
+            ServerUtils.connectToLastServer()
         }
     }
 
     private fun respond(msg: String) = when {
         register && "/reg" in msg -> {
             addNotification(Notification.informative(this, "Trying to register."))
-            SharedScopes.IO.launch {
+            launchSequence(Dispatchers.IO) {
                 delay(sendDelay.random().toLong())
                 mc.thePlayer.sendChatMessage("/register $password $password")
             }
@@ -117,7 +113,7 @@ object AutoAccount :
 
         login && "/log" in msg -> {
             addNotification(Notification.informative(this, "Trying to log in."))
-            SharedScopes.IO.launch {
+            launchSequence(Dispatchers.IO) {
                 delay(sendDelay.random().toLong())
                 mc.thePlayer.sendChatMessage("/login $password")
             }

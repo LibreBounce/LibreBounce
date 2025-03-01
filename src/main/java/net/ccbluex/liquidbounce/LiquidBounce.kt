@@ -57,7 +57,6 @@ import net.ccbluex.liquidbounce.utils.render.MiniMapRegister
 import net.ccbluex.liquidbounce.utils.render.shader.Background
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils
 import net.ccbluex.liquidbounce.utils.timing.TickedActions
-import net.ccbluex.liquidbounce.utils.timing.WaitMsUtils
 import net.ccbluex.liquidbounce.utils.timing.WaitTickUtils
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Future
@@ -180,7 +179,6 @@ object LiquidBounce {
             BPSUtils
             WaitTickUtils
             SilentHotbar
-            WaitMsUtils
             BlinkUtils
 
             // Load settings

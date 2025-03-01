@@ -5,7 +5,8 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player
 
-import net.ccbluex.liquidbounce.event.loopHandler
+import net.ccbluex.liquidbounce.event.UpdateEvent
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
@@ -15,11 +16,11 @@ object AutoFish : Module("AutoFish", Category.PLAYER, subjective = true, gameDet
 
     private val rodOutTimer = MSTimer()
 
-    val onUpdate = loopHandler {
+    val onUpdate = handler<UpdateEvent> {
         val thePlayer = mc.thePlayer
 
         if (thePlayer?.heldItem == null || mc.thePlayer.heldItem.item !is ItemFishingRod)
-            return@loopHandler
+            return@handler
 
         val fishEntity = thePlayer.fishEntity
 

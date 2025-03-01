@@ -7,8 +7,8 @@ package net.ccbluex.liquidbounce.features.command.commands
 
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.Render2DEvent
+import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.loopHandler
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.utils.extensions.component1
 import net.ccbluex.liquidbounce.utils.extensions.component2
@@ -55,10 +55,10 @@ object TacoCommand : Command("taco"), Listenable {
             running = -64f
     }
 
-    val onUpdate = loopHandler {
+    val onUpdate = handler<UpdateEvent> {
         if (!tacoToggle) {
             image = 0
-            return@loopHandler
+            return@handler
         }
 
         image++

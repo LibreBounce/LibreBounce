@@ -5,7 +5,8 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.world
 
-import net.ccbluex.liquidbounce.event.loopHandler
+import net.ccbluex.liquidbounce.event.UpdateEvent
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 
@@ -13,7 +14,7 @@ object FastBreak : Module("FastBreak", Category.WORLD) {
 
     private val breakDamage by float("BreakDamage", 0.8F, 0.1F..1F)
 
-    val onUpdate = loopHandler {
+    val onUpdate = handler<UpdateEvent> {
         mc.playerController.blockHitDelay = 0
 
         if (mc.playerController.curBlockDamageMP > breakDamage)

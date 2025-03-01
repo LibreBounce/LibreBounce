@@ -12,8 +12,8 @@ import kotlinx.coroutines.sync.withLock
 import net.ccbluex.liquidbounce.chat.Client
 import net.ccbluex.liquidbounce.chat.packet.packets.*
 import net.ccbluex.liquidbounce.event.SessionUpdateEvent
+import net.ccbluex.liquidbounce.event.async.loopSequence
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.loopHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
@@ -161,8 +161,8 @@ object LiquidChat : Module(
         connect()
     }
 
-    val onUpdate = loopHandler(dispatcher = Dispatchers.IO) {
-        if (client.isConnected()) return@loopHandler
+    val onUpdate = loopSequence(dispatcher = Dispatchers.IO) {
+        if (client.isConnected()) return@loopSequence
 
         connect()
 

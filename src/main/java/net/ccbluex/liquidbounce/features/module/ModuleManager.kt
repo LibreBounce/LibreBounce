@@ -5,7 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module
 
-import net.ccbluex.liquidbounce.event.EventManager.unregisterListener
 import net.ccbluex.liquidbounce.event.KeyEvent
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.handler
@@ -242,7 +241,7 @@ object ModuleManager : Listenable, Collection<Module> by MODULE_REGISTRY {
      */
     fun unregisterModule(module: Module) {
         MODULE_REGISTRY.remove(module)
-        unregisterListener(module)
+        module.onUnregister()
     }
 
     /**
