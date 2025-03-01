@@ -133,7 +133,7 @@ class GuiMainMenu : AbstractScreen() {
         
                 §bUpgrade now to enjoy the latest features and improvements!§r
             """.trimIndent())
-            ButtonData("§aDownload") { MiscUtils.showURL(newestVersion.url) }
+            button("§aDownload") { MiscUtils.showURL(newestVersion.url) }
             onClose { popup = null }
         }
     }
