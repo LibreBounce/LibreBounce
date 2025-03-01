@@ -454,6 +454,7 @@
   "liquidbounce.module.damageParticles.description": "Показывает изменения здоровья сущностей.",
   "liquidbounce.module.dankBobbing.description": "Увеличивает эффект покачивания.",
   "liquidbounce.module.debug.description": "Представляет интерес только для разработчиков.",
+  "liquidbounce.module.extendedFirework.description": "Увеличивает ускорение от феерверков",
   "liquidbounce.module.debugRecorder.description": "Представляет интерес только для разработчиков.",
   "liquidbounce.module.derp.description": "Заставляет других игроков видеть вас так, как если бы вы вращали головой во все стороны",
   "liquidbounce.module.disabler.description": "Отключает определенные анти-читы.",

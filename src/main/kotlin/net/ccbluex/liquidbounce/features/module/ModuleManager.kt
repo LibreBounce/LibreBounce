@@ -219,6 +219,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleAntiReducedDebugInfo,
             ModuleAntiHunger,
             ModuleClip,
+            ModuleExtendedFirework,
             ModuleResetVL,
             ModuleDamage,
             ModuleDisabler,
