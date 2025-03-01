@@ -3,7 +3,6 @@ package net.ccbluex.liquidbounce.features.module.modules.combat.elytratarget
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.Sequence
 import net.ccbluex.liquidbounce.event.tickHandler
-import net.ccbluex.liquidbounce.features.module.modules.combat.elytratarget.ModuleElytraTarget.targetTracker
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.entity.squaredBoxedDistanceTo
 import net.ccbluex.liquidbounce.utils.inventory.OffHandSlot
@@ -64,7 +63,7 @@ internal object AutoFirework : ToggleableConfigurable(ModuleElytraTarget, "AutoF
 
     @Suppress("unused")
     private val autoFireworkHandler = tickHandler {
-        val target = targetTracker.target ?: return@tickHandler
+        val target = ModuleElytraTarget.target ?: return@tickHandler
 
         if (cooldownReached && canUseFirework()) {
             fireworkSlot?.let {
