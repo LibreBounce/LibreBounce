@@ -7,39 +7,7 @@ package net.ccbluex.liquidbounce.event.async
 
 import kotlinx.coroutines.*
 import net.ccbluex.liquidbounce.event.*
-import kotlin.coroutines.resume
 
-
-/**
- * Wait next event instance of given type which matches [predicate].
- *
- * Note: This might change thread context
- *
- * TODO: KNOWN BUG: following code will trigger exception:
- * ```
- * waitNext<PacketEvent>()
- * ...
- * sendPacket(...) // triggerEvents = true
- * ```
- *
- * @return the event instance
- */
-suspend inline fun <reified E : Event> Listenable.waitNext(
-    priority: Byte = 0,
-    crossinline predicate: (E) -> Boolean = { true }
-): E = suspendCancellableCoroutine { cont ->
-    EventManager.registerTerminateEventHook(
-        E::class.java,
-        EventHook(this, always = false, priority) {
-            if (predicate(it)) {
-                cont.resume(it)
-                true
-            } else {
-                false
-            }
-        }
-    )
-}
 
 /**
  * Start a tick sequence job for given [Listenable]

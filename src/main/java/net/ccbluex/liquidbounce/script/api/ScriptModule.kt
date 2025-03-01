@@ -24,7 +24,7 @@ class ScriptModule(name: String, category: Category, description: String, privat
      */
     val settings = linkedMapOf<String, Value<*>>()
 
-    private val eventHooks: Map<Class<out Event>, EventHook<in Event, Unit>>
+    private val eventHooks: Map<Class<out Event>, EventHook<in Event>>
 
     init {
         if (moduleObject.hasMember("settings")) {
@@ -39,7 +39,7 @@ class ScriptModule(name: String, category: Category, description: String, privat
 
         eventHooks = createEventMap { eventClass ->
             val eventName = eventClass.simpleName.removeSuffix("Event").toLowerCamelCase()
-            EventHook<Event, Unit>(this) { callEvent(eventName, it) }.also {
+            EventHook<Event>(this) { callEvent(eventName, it) }.also {
                 EventManager.registerEventHook(eventClass, it)
             }
         }

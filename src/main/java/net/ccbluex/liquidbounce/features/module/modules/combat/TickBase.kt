@@ -7,7 +7,6 @@ package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import kotlinx.coroutines.Dispatchers
 import net.ccbluex.liquidbounce.event.*
-import net.ccbluex.liquidbounce.event.async.waitNext
 import net.ccbluex.liquidbounce.event.async.waitTicks
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
@@ -17,7 +16,6 @@ import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils
 import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
-import net.ccbluex.liquidbounce.utils.timing.WaitTickUtils
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.network.play.server.S08PacketPlayerPosLook
 import net.minecraft.util.Vec3
@@ -69,6 +67,14 @@ object TickBase : Module("TickBase", Category.COMBAT) {
         }
     }
 
+    private var modificationFlag = false
+    val onGameLoop = handler<GameLoopEvent> {
+        if (modificationFlag) {
+            modificationFlag = false
+            duringTickModification = false
+        }
+    }
+
     val onGameTick = handler<GameTickEvent>(dispatcher = Dispatchers.Main, priority = 1) {
         val player = mc.thePlayer ?: return@handler
 
@@ -117,14 +123,12 @@ object TickBase : Module("TickBase", Category.COMBAT) {
                 ticksToSkip = skipTicks
                 waitTicks(skipTicks)
                 tick()
-                waitNext<GameLoopEvent>()
-                duringTickModification = false
+                modificationFlag = true
             } else {
                 tick()
                 ticksToSkip = skipTicks
                 waitTicks(skipTicks)
-                waitNext<GameLoopEvent>()
-                duringTickModification = false
+                modificationFlag = true
             }
         }
     }
