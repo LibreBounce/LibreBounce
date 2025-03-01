@@ -29,16 +29,22 @@ object AutoArmorSaveArmor : ToggleableConfigurable(ModuleAutoArmor, "SaveArmor",
      */
     @Suppress("unused")
     private val armorAutoSaveHandler = tickHandler {
-        if (player.isCreative || player.isSpectator) {
-            return@tickHandler
-        }
+        val conditions = booleanArrayOf(
+            // Module checks
+            ModuleAutoArmor.running,
+            AutoArmorSaveArmor.enabled,
 
-        if (!ModuleAutoArmor.running || !AutoArmorSaveArmor.enabled) {
-            return@tickHandler
-        }
+            // Game modes
+            !player.isSpectator,
+            !player.isCreative,
 
-        // the module will save armor automatically if open inventory isn't required
-        if (!ModuleAutoArmor.inventoryConstraints.requiresOpenInventory || !autoOpen) {
+            // The module will automatically save armor if opening the inventory isn't required.
+            ModuleAutoArmor.inventoryConstraints.requiresOpenInventory,
+            autoOpen
+        )
+
+        // All conditions must be met for this feature to work.
+        if (conditions.any { it == false }) {
             return@tickHandler
         }
 

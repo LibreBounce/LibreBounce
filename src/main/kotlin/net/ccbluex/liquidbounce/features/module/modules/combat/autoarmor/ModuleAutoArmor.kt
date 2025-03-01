@@ -53,7 +53,7 @@ object ModuleAutoArmor : ClientModule("AutoArmor", Category.COMBAT) {
 
     @Suppress("unused")
     private val scheduleHandler = handler<ScheduleInventoryActionEvent> { event ->
-        if (player.isCreative || player.isSpectator) {
+        if (player.isSpectator) {
             return@handler
         }
 
