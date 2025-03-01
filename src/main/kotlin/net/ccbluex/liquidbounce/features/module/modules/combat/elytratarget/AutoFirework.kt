@@ -55,7 +55,6 @@ internal object AutoFirework : ToggleableConfigurable(ModuleElytraTarget, "AutoF
             return true
         }
 
-
         /*
          * The Killaura is ready to perform the click.
          * We can use the firework on the next tick.

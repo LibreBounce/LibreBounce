@@ -10,7 +10,6 @@ import net.ccbluex.liquidbounce.utils.combat.TargetTracker
 import net.ccbluex.liquidbounce.utils.render.WorldTargetRenderer
 import net.minecraft.entity.LivingEntity
 
-
 /**
  * Following the target on elytra.
  * Works with [ModuleKillAura] together
@@ -29,6 +28,8 @@ object ModuleElytraTarget : ClientModule("ElytraTarget", Category.COMBAT) {
     }
 
     private val targetRenderer = tree(WorldTargetRenderer(this))
+
+    private val safe by boolean("Safe", false)
 
     val canIgnoreKillAuraRotations get() =
         running
@@ -60,8 +61,12 @@ object ModuleElytraTarget : ClientModule("ElytraTarget", Category.COMBAT) {
     private val targetUpdateHandler = tickHandler {
         targetTracker.reset()
         targetTracker.selectFirst { potentialTarget ->
-            net.ccbluex.liquidbounce.utils.client.player.canSee(potentialTarget)
-        } ?: return@tickHandler
+            player.canSee(potentialTarget)
+        }
+
+        if (safe && !world.isSpaceEmpty(player.boundingBox.offset(player.velocity))) {
+            player.addVelocity(0.0, 0.1, 0.0)
+        }
     }
 
     override fun disable() {
