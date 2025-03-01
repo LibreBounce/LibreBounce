@@ -2,6 +2,7 @@ package net.ccbluex.liquidbounce.features.module.modules.combat.elytratarget
 
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
@@ -20,7 +21,7 @@ import net.minecraft.entity.LivingEntity
  */
 @Suppress("MagicNumber")
 object ModuleElytraTarget : ClientModule("ElytraTarget", Category.COMBAT) {
-    internal val targetTracker = tree(TargetTracker())
+    private val targetTracker = tree(TargetTracker())
 
     init {
         tree(ElytraRotationsAndAngleSmooth)
@@ -42,6 +43,8 @@ object ModuleElytraTarget : ClientModule("ElytraTarget", Category.COMBAT) {
     override val running: Boolean
         get() = super.running && player.isGliding
 
+    internal val target get() = targetTracker.target
+
     @Suppress("unused")
     private val renderTargetHandler = handler<WorldRenderEvent> { event ->
         val target = targetTracker.target
@@ -51,6 +54,13 @@ object ModuleElytraTarget : ClientModule("ElytraTarget", Category.COMBAT) {
         renderEnvironmentForWorld(event.matrixStack) {
             targetRenderer.render(this, target, event.partialTicks)
         }
+    }
+
+    @Suppress("unused")
+    private val targetUpdateHandler = tickHandler {
+        targetTracker.selectFirst { potentialTarget ->
+            net.ccbluex.liquidbounce.utils.client.player.canSee(potentialTarget)
+        } ?: return@tickHandler
     }
 
     override fun disable() {
