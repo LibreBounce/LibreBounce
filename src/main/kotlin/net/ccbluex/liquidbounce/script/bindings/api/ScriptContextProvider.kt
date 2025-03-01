@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentHashMap
  */
 object ScriptContextProvider {
 
-    private val sharedStorage = ConcurrentHashMap<String, Any>()
+    private val localStorage = ConcurrentHashMap<String, Any>()
 
     internal fun setupContext(bindings: Value) = bindings.apply {
         // Class bindings
@@ -61,8 +61,7 @@ object ScriptContextProvider {
         putMember("UnsafeThread", ScriptUnsafeThread)
 
         // Global variables
-        putMember("localStorage", ConcurrentHashMap<String, Any>()) // Script scope
-        putMember("sharedStorage", sharedStorage) // Client scope
+        putMember("localStorage", localStorage) // Script scope
     }
 
 }
