@@ -46,9 +46,12 @@ suspend inline fun <reified E : Event> Listenable.waitNext(
     crossinline predicate: (E) -> Boolean
 ): E {
     var next: E
-    do {
+    while (true) {
         next = waitNext(priority)
-    } while (!predicate(next))
+        if (predicate(next)) {
+            break
+        }
+    }
     return next
 }
 
