@@ -9,6 +9,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import net.ccbluex.liquidbounce.event.async.TickScheduler
 import java.util.*
+import java.util.concurrent.CopyOnWriteArrayList
 
 /**
  * @see List.binarySearchBy
@@ -42,7 +43,7 @@ object EventManager : CoroutineScope by CoroutineScope(SupervisorJob()) {
     /**
      * All normal handlers (except of scripts) should be initialized at startup on the main thread
      */
-    private val registry = createEventMap { ArrayList<EventHook<in Event>>() }
+    private val registry = createEventMap { CopyOnWriteArrayList<EventHook<in Event>>() }
 
     init {
         TickScheduler
