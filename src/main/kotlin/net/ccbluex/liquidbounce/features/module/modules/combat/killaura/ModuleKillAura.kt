@@ -394,18 +394,16 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
             val (rotation, vec) = spot
 
             targetTracker.target = target
-            if (!ModuleElytraTarget.canIgnoreKillAuraRotations) {
-                RotationManager.setRotationTarget(
-                    rotations.toAimPlan(
-                        rotation,
-                        vec,
-                        target,
-                        considerInventory = !ignoreOpenInventory
-                    ),
-                    priority = Priority.IMPORTANT_FOR_USAGE_2,
-                    provider = this@ModuleKillAura
-                )
-            }
+            RotationManager.setRotationTarget(
+                rotations.toAimPlan(
+                    rotation,
+                    vec,
+                    target,
+                    considerInventory = !ignoreOpenInventory
+                ),
+                priority = Priority.IMPORTANT_FOR_USAGE_2,
+                provider = this@ModuleKillAura
+            )
             return
         }
         targetTracker.reset()
@@ -414,16 +412,14 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         if (KillAuraFightBot.enabled) {
             targetTracker.selectFirst()
 
-            if (!ModuleElytraTarget.canIgnoreKillAuraRotations) {
-                RotationManager.setRotationTarget(
-                    rotations.toAimPlan(
-                        KillAuraFightBot.getMovementRotation(),
-                        considerInventory = !ignoreOpenInventory
-                    ),
-                    priority = Priority.IMPORTANT_FOR_USAGE_2,
-                    provider = this@ModuleKillAura
-                )
-            }
+            RotationManager.setRotationTarget(
+                rotations.toAimPlan(
+                    KillAuraFightBot.getMovementRotation(),
+                    considerInventory = !ignoreOpenInventory
+                ),
+                priority = Priority.IMPORTANT_FOR_USAGE_2,
+                provider = this@ModuleKillAura
+            )
         }
     }
 
