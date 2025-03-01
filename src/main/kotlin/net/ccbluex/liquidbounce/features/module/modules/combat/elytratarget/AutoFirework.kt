@@ -4,12 +4,12 @@ import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.Sequence
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.combat.elytratarget.ModuleElytraTarget.targetTracker
-import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.entity.squaredBoxedDistanceTo
 import net.ccbluex.liquidbounce.utils.inventory.OffHandSlot
 import net.ccbluex.liquidbounce.utils.inventory.Slots
 import net.minecraft.item.Items
+import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura as KillAura
 
 private const val MILLISECONDS_PER_TICK = 50
 
@@ -37,7 +37,7 @@ internal object AutoFirework : ToggleableConfigurable(ModuleElytraTarget, "AutoF
     private val cooldown by intRange("Cooldown", 8..10, 1..50, "ticks")
 
     private suspend inline fun Sequence.canUseFirework(): Boolean {
-        if (!ModuleKillAura.running || !syncCooldownWithKillAura) {
+        if (!KillAura.running || !syncCooldownWithKillAura) {
             return true
         }
 
@@ -46,7 +46,12 @@ internal object AutoFirework : ToggleableConfigurable(ModuleElytraTarget, "AutoF
          * We can use the firework on the next tick.
          * After killaura performed the click
          */
-        return if (ModuleKillAura.clickScheduler.isGoingToClick) {
+        return if (
+            KillAura.clickScheduler.isGoingToClick &&
+            KillAura.targetTracker.target
+                ?.squaredBoxedDistanceTo(player)
+                ?.takeIf { it <= KillAura.range * KillAura.range } != null
+        ) {
             waitTicks(1)
             true
         } else {
