@@ -16,8 +16,6 @@ import net.ccbluex.liquidbounce.ui.client.clickgui.style.Style
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts.fontSemibold35
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlockName
-import net.ccbluex.liquidbounce.utils.extensions.component1
-import net.ccbluex.liquidbounce.utils.extensions.component2
 import net.ccbluex.liquidbounce.utils.extensions.lerpWith
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.blendColors
@@ -39,7 +37,27 @@ import kotlin.math.roundToInt
 
 @SideOnly(Side.CLIENT)
 object NullStyle : Style() {
-    private fun getNegatedColor() = guiColor.inv()
+    
+    private fun getTextColor(): Int {
+        val color = Color(guiColor)
+        val brightness = (0.299 * color.red + 0.587 * color.green + 0.114 * color.blue) / 255.0
+        
+        val transitionStart = 0.5
+        val transitionEnd = 0.7
+        val rgb = when {
+            // For darker colors, use white
+            brightness < transitionStart -> 255
+            // For lighter colors, use black
+            brightness > transitionEnd -> 0
+            // For colors in the transition zone, smoothly blend from white to black
+            else -> {
+                val transitionProgress = (brightness - transitionStart) / (transitionEnd - transitionStart)
+                (255 * (1.0 - transitionProgress)).toInt()
+            }
+        }
+        
+        return Color(rgb, rgb, rgb).rgb
+    }
     override fun drawPanel(mouseX: Int, mouseY: Int, panel: Panel) {
         drawRect(panel.x - 3, panel.y, panel.x + panel.width + 3, panel.y + 19, guiColor)
 
@@ -48,7 +66,7 @@ object NullStyle : Style() {
         )
 
         val xPos = panel.x - (fontSemibold35.getStringWidth("§f" + StringUtils.stripControlCodes(panel.name)) - 100) / 2
-        fontSemibold35.drawString(panel.name, xPos, panel.y + 6, getNegatedColor())
+        fontSemibold35.drawString(panel.name, xPos, panel.y + 6, getTextColor())
     }
 
     override fun drawHoverText(mouseX: Int, mouseY: Int, text: String) {
@@ -65,7 +83,7 @@ object NullStyle : Style() {
 
         drawRect(x + 9, y, x + width, y + height, guiColor)
         lines.forEachIndexed { index, text ->
-            fontSemibold35.drawString(text, x + 12, y + 3 + (fontSemibold35.fontHeight) * index, getNegatedColor())
+            fontSemibold35.drawString(text, x + 12, y + 3 + (fontSemibold35.fontHeight) * index, getTextColor())
         }
     }
 
