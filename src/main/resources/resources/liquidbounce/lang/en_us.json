@@ -491,7 +491,7 @@
   "liquidbounce.module.hud.description": "Shows an in-game overlay with various useful tools.",
   "liquidbounce.module.hud.messages.hidingAppearance": "The client appearance is currently hidden. Use '.client appearance show' to re-enable it.",
   "liquidbounce.module.autoTrap.description": "Automatically sets targets on fire or traps them in cobwebs.",
-  "liquidbounce.module.fullTrap.description": "Traps enemies in blocks.",
+  "liquidbounce.module.blockTrap.description": "Traps enemies in blocks.",
   "liquidbounce.module.extinguish.description": "Automatically extinguishes yourself when on fire.",
   "liquidbounce.module.inventoryCleaner.description": "Automatically sorts your inventory and drops unnecessary items.",
   "liquidbounce.module.inventoryMove.description": "Allows you to walk while an inventory is opened.",

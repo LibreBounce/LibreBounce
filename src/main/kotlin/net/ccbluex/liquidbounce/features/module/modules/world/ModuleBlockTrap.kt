@@ -25,6 +25,7 @@ import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
+import net.ccbluex.liquidbounce.features.module.modules.world.ModuleBlockTrap.floor
 import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
 import net.ccbluex.liquidbounce.utils.block.placer.BlockPlacer
 import net.ccbluex.liquidbounce.utils.block.placer.placeInstantOnBlockUpdate
@@ -43,13 +44,13 @@ import kotlin.math.max
 import kotlin.math.min
 
 /**
- * Module FullTrap
+ * Module BlockTrap
  *
  * Traps enemies in blocks.
  *
  * @author ccetl
  */
-object ModuleFullTrap : ClientModule("FullTrap", Category.WORLD) {
+object ModuleBlockTrap : ClientModule("BlockTrap", Category.WORLD) {
 
     /**
      * Places two blocks above the target's head so that they can't mine the block and at the same time tower up to
