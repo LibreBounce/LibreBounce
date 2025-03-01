@@ -51,7 +51,7 @@ object LiquidBounceStyle : Style() {
         )
 
         val xPos = panel.x - (fontSemibold35.getStringWidth(StringUtils.stripControlCodes(panel.name)) - 100) / 2
-        fontSemibold35.drawString(panel.name, xPos, panel.y + 7, Color.WHITE.rgb)
+        fontSemibold35.drawString(panel.name, xPos, panel.y + 6, Color.WHITE.rgb)
 
         if (panel.scrollbar && panel.fade > 0) {
             drawRect(panel.x - 2, panel.y + 21, panel.x, panel.y + 16 + panel.fade, Color.DARK_GRAY.rgb)
