@@ -80,7 +80,7 @@ object HideAppearance : EventListener {
                 } else {
                     for ((id, container) in modContainersToHide) {
                         container?.let {
-                            ModMenuCompatibility.INSTANCE.addModUnchecked(id, container)
+                            ModMenuCompatibility.INSTANCE.addModUnchecked(id, it)
                         }
                     }
                 }
