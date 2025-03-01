@@ -61,7 +61,7 @@ object HideAppearance : EventListener {
      * We set the default value is null.
      * And we'll provide the value after first removing the mod
      */
-    private val hidedModsContainer: MutableMap<String, Mod?> = arrayOf(
+    private val modContainersToHide: MutableMap<String, Mod?> = arrayOf(
         "liquidbounce", "mcef"
     ).associateWith { null }.toMutableMap()
 
@@ -74,12 +74,12 @@ object HideAppearance : EventListener {
 
             if (modMenuPresent) {
                 if (value) {
-                    for (id in hidedModsContainer.keys) {
-                        hidedModsContainer[id] = ModMenu.MODS.remove(id)
+                    for (id in modContainersToHide.keys) {
+                        modContainersToHide[id] = ModMenu.MODS.remove(id)
                         ModMenu.ROOT_MODS.remove(id)
                     }
                 } else {
-                    for ((id, container) in hidedModsContainer) {
+                    for ((id, container) in modContainersToHide) {
                         container?.let {
                             ModMenu.ROOT_MODS[id] = container
                             ModMenu.MODS[id] = container
