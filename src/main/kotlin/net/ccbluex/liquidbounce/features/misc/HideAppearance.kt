@@ -19,6 +19,8 @@
 package net.ccbluex.liquidbounce.features.misc
 
 import com.mojang.blaze3d.systems.RenderSystem
+import com.terraformersmc.modmenu.ModMenu
+import com.terraformersmc.modmenu.util.mod.Mod
 import net.ccbluex.liquidbounce.config.ConfigSystem
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.EventManager
@@ -38,6 +40,11 @@ import org.lwjgl.glfw.GLFW
 import java.lang.Thread.sleep
 import kotlin.concurrent.thread
 
+private val modMenuPresent = runCatching {
+    Class.forName("com.terraformersmc.modmenu.ModMenu")
+    true
+}.getOrDefault(false)
+
 /**
  * Hides client appearance
  *
@@ -45,13 +52,43 @@ import kotlin.concurrent.thread
  */
 object HideAppearance : EventListener {
 
+    /**
+     * These mods will be removed from ModMenu.
+     * When [isHidingNow] is tru
+     * Or added, if [isHidingNow] is false
+     *
+     * Because we don't know about the [Mod] container on each mod in this list
+     * We set the default value is null.
+     * And we'll provide the value after first removing the mod
+     */
+    private val hidedModsContainer: MutableMap<String, Mod?> = arrayOf(
+        "liquidbounce", "mcef"
+    ).associateWith { null }.toMutableMap()
+
     private val shiftChronometer = Chronometer()
 
     var isHidingNow = false
         set(value) {
             field = value
             RenderSystem.recordRenderCall(::updateClient)
+
+            if (modMenuPresent) {
+                if (value) {
+                    for (id in hidedModsContainer.keys) {
+                        hidedModsContainer[id] = ModMenu.MODS.remove(id)
+                        ModMenu.ROOT_MODS.remove(id)
+                    }
+                } else {
+                    for ((id, container) in hidedModsContainer) {
+                        container?.let {
+                            ModMenu.ROOT_MODS[id] = container
+                            ModMenu.MODS[id] = container
+                        }
+                    }
+                }
+            }
         }
+
     var isDestructed = false
 
     private fun updateClient() {
