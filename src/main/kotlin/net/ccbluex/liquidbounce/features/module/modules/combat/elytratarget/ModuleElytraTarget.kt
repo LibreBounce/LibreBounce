@@ -29,7 +29,7 @@ object ModuleElytraTarget : ClientModule("ElytraTarget", Category.COMBAT) {
 
     private val targetRenderer = tree(WorldTargetRenderer(this))
 
-    private val safe by boolean("Safe", false)
+    private val safe by boolean("Safe", true)
 
     val canIgnoreKillAuraRotations get() =
         running
