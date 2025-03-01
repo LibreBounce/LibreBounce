@@ -487,7 +487,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
             InventoryManager.isInventoryOpen || mc.currentScreen is GenericContainerScreen
         val missCooldown = considerMissCooldown && mc.attackCooldown > 0
 
-        return criticalHit && shielding &&
+        return (criticalHit || ModuleElytraTarget.running) && shielding &&
             !(isInInventoryScreen && !ignoreOpenInventory && !simulateInventoryClosing) && !missCooldown
     }
 
@@ -545,8 +545,9 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         }
     }
 
-    val shouldBlockSprinting
-        get() = criticalsSelectionMode.shouldStopSprinting(clickScheduler, targetTracker.target)
+    val shouldBlockSprinting get() =
+        !ModuleElytraTarget.running
+        && criticalsSelectionMode.shouldStopSprinting(clickScheduler, targetTracker.target)
 
     @Suppress("unused")
     private val sprintHandler = handler<SprintEvent> { event ->
