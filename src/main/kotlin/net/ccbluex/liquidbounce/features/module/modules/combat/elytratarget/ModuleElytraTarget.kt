@@ -58,6 +58,7 @@ object ModuleElytraTarget : ClientModule("ElytraTarget", Category.COMBAT) {
 
     @Suppress("unused")
     private val targetUpdateHandler = tickHandler {
+        targetTracker.reset()
         targetTracker.selectFirst { potentialTarget ->
             net.ccbluex.liquidbounce.utils.client.player.canSee(potentialTarget)
         } ?: return@tickHandler

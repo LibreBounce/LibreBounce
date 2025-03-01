@@ -41,22 +41,27 @@ internal object AutoFirework : ToggleableConfigurable(ModuleElytraTarget, "AutoF
     private inline val cooldownReached: Boolean
         get() = fireworkChronometer.hasElapsed((fireworkCooldown * MILLISECONDS_PER_TICK).toLong())
 
+    @Suppress("ComplexCondition")
     private suspend inline fun Sequence.canUseFirework(): Boolean {
-        if (!KillAura.running || !syncCooldownWithKillAura) {
+        if (!KillAura.running
+            || !syncCooldownWithKillAura
+            || (
+                KillAura.clickScheduler.isGoingToClick
+                && KillAura.targetTracker.target
+                    ?.squaredBoxedDistanceTo(player)
+                    ?.takeIf { it >= KillAura.range * KillAura.range } != null
+                )
+        ) {
             return true
         }
+
 
         /*
          * The Killaura is ready to perform the click.
          * We can use the firework on the next tick.
          * After killaura performed the click
          */
-        return if (
-            KillAura.clickScheduler.isGoingToClick &&
-            KillAura.targetTracker.target
-                ?.squaredBoxedDistanceTo(player)
-                ?.takeIf { it <= KillAura.range * KillAura.range } != null
-        ) {
+        return if (KillAura.clickScheduler.isGoingToClick) {
             waitTicks(1)
             true
         } else {
