@@ -18,9 +18,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 public class MixinItem {
 
     /**
-     * Rotation modification injections. Replaces actual rotation with the last known server rotation (instead of current rotation) to synchronize placements client-side.
-     * <p>
-     * NOTE: Placement functions MUST use [serverRotation] in order to guarantee synchronization.
+     * Rotation modification injections. Replaces actual rotation with the current rotation to synchronize placements client-side.
      */
     @Redirect(method = "getMovingObjectPositionFromPlayer", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/player/EntityPlayer;rotationYaw:F"))
     private float hookCurrentRotationYaw(EntityPlayer instance) {
@@ -30,7 +28,7 @@ public class MixinItem {
             return instance.rotationYaw;
         }
 
-        return RotationUtils.INSTANCE.getServerRotation().getYaw();
+        return rotation.getYaw();
     }
 
     @Redirect(method = "getMovingObjectPositionFromPlayer", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/player/EntityPlayer;rotationPitch:F"))
@@ -41,6 +39,6 @@ public class MixinItem {
             return instance.rotationPitch;
         }
 
-        return RotationUtils.INSTANCE.getServerRotation().getPitch();
+        return rotation.getPitch();
     }
 }
