@@ -34,10 +34,10 @@ object ModuleElytraTarget : ClientModule("ElytraTarget", Category.COMBAT) {
     internal val targetTracker = tree(TargetTracker())
 
     private val rotations = tree(object : ElytraRotationsAndAngleSmooth() {
-        val rotateAt by enumChoice("RotateAt", TargetRotatePosition.EYES)
         val ignoreKillAura by boolean("IgnoreKillAuraRotation", false)
         val look by boolean("Look", false)
         val autoDistance by boolean("AutoDistance", true)
+        val rotateAt by enumChoice("RotateAt", TargetRotatePosition.EYES)
     })
 
     val canIgnoreKillAuraRotations get() = running && rotations.ignoreKillAura
@@ -60,42 +60,39 @@ object ModuleElytraTarget : ClientModule("ElytraTarget", Category.COMBAT) {
 
     @Suppress("unused")
     private val targetUpdate = handler<RotationUpdateEvent> {
-        for (target in targetTracker.targets()) {
-            val correction = if (rotations.look) {
-                MovementCorrection.CHANGE_LOOK
-            } else {
-                MovementCorrection.STRICT
-            }
+        val target = targetTracker.selectFirst { potentialTarget ->
+            player.canSee(potentialTarget)
+        } ?: return@handler
 
-            targetTracker.target = target
-            calculateRotation(target).let {
-                RotationManager.setRotationTarget(
-                    /*
-                     * Don't use the RotationConfigurable because I need to superfast rotations.
-                     * Without any setting and angle smoothing
-                     */
-                    plan = RotationTarget(
-                        rotation = it,
-                        vec3d = it.directionVector,
-                        entity = target,
-                        angleSmooth = rotations,
-                        slowStart = null,
-                        failFocus = null,
-                        shortStop = null,
-                        ticksUntilReset = 1,
-                        resetThreshold = 1f,
-                        considerInventory = true,
-                        movementCorrection = correction
-                    ),
-                    priority = Priority.IMPORTANT_FOR_USAGE_1,
-                    provider = this
-                )
-            }
-
-            return@handler
+        val correction = if (rotations.look) {
+            MovementCorrection.CHANGE_LOOK
+        } else {
+            MovementCorrection.STRICT
         }
 
-        targetTracker.reset()
+        calculateRotation(target).let {
+            RotationManager.setRotationTarget(
+                /*
+                 * Don't use the RotationConfigurable because I need to superfast rotations.
+                 * Without any setting and angle smoothing
+                 */
+                plan = RotationTarget(
+                    rotation = it,
+                    vec3d = it.directionVector,
+                    entity = target,
+                    angleSmooth = rotations,
+                    slowStart = null,
+                    failFocus = null,
+                    shortStop = null,
+                    ticksUntilReset = 1,
+                    resetThreshold = 1f,
+                    considerInventory = true,
+                    movementCorrection = correction
+                ),
+                priority = Priority.IMPORTANT_FOR_USAGE_1,
+                provider = this
+            )
+        }
     }
 
     private fun calculateRotation(target: LivingEntity): Rotation {
