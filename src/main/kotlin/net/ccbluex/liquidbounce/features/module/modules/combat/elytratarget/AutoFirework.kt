@@ -35,6 +35,9 @@ internal object AutoFirework : ToggleableConfigurable(ModuleElytraTarget, "AutoF
     private val syncCooldownWithKillAura by boolean("SyncCooldownWithKillAura", false)
     private val cooldown by intRange("Cooldown", 8..10, 1..50, "ticks")
 
+    override val running: Boolean
+        get() = super.running && ModuleElytraTarget.target != null
+
     private inline val cooldownReached: Boolean
         get() = fireworkChronometer.hasElapsed((fireworkCooldown * MILLISECONDS_PER_TICK).toLong())
 
