@@ -174,8 +174,10 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
     }
 
     private fun renderTarget(matrixStack: MatrixStack, partialTicks: Float) {
-        if (!targetRenderer.enabled) return
-        val target = targetTracker.target ?: return
+        val target = targetTracker.target
+            ?.takeIf { targetRenderer.enabled }
+            ?.takeIf { !ModuleElytraTarget.isSameTargetRendering(it) }
+            ?: return
 
         renderEnvironmentForWorld(matrixStack) {
             targetRenderer.render(this, target, partialTicks)

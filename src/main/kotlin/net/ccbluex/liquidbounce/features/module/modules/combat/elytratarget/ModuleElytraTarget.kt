@@ -1,9 +1,11 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat.elytratarget
 
 import net.ccbluex.liquidbounce.event.events.RotationUpdateEvent
+import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
+import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationTarget
 import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
@@ -14,6 +16,7 @@ import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.math.minus
 import net.ccbluex.liquidbounce.utils.math.plus
 import net.ccbluex.liquidbounce.utils.math.times
+import net.ccbluex.liquidbounce.utils.render.WorldTargetRenderer
 import net.minecraft.entity.LivingEntity
 import net.minecraft.util.math.Vec3d
 import kotlin.math.cos
@@ -32,6 +35,7 @@ private const val IDEAL_DISTANCE = 10
 @Suppress("MagicNumber")
 object ModuleElytraTarget : ClientModule("ElytraTarget", Category.COMBAT) {
     internal val targetTracker = tree(TargetTracker())
+    private val targetRenderer = tree(WorldTargetRenderer(this))
 
     private val rotations = tree(object : ElytraRotationsAndAngleSmooth() {
         val ignoreKillAura by boolean("IgnoreKillAuraRotation", false)
@@ -40,7 +44,15 @@ object ModuleElytraTarget : ClientModule("ElytraTarget", Category.COMBAT) {
         val rotateAt by enumChoice("RotateAt", TargetRotatePosition.EYES)
     })
 
-    val canIgnoreKillAuraRotations get() = running && rotations.ignoreKillAura
+    val canIgnoreKillAuraRotations get() =
+        running
+        && rotations.ignoreKillAura
+
+    fun isSameTargetRendering(target: LivingEntity) =
+        running
+        && targetRenderer.enabled
+        && targetTracker.target
+            ?.takeIf { it == target } != null
 
     init {
         tree(AutoFirework)
@@ -57,6 +69,17 @@ object ModuleElytraTarget : ClientModule("ElytraTarget", Category.COMBAT) {
                 cos(this * 1.8) * 0.04 + (Math.random() - 0.5) * 0.02,
             )
         }
+
+    @Suppress("unused")
+    private val renderTargetHandler = handler<WorldRenderEvent> { event ->
+        val target = targetTracker.target
+            ?.takeIf { targetRenderer.enabled }
+            ?: return@handler
+
+        renderEnvironmentForWorld(event.matrixStack) {
+            targetRenderer.render(this, target, event.partialTicks)
+        }
+    }
 
     @Suppress("unused")
     private val targetUpdate = handler<RotationUpdateEvent> {
