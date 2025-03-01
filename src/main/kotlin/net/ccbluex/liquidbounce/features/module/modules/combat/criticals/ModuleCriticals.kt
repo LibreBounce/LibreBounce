@@ -159,6 +159,25 @@ object ModuleCriticals : ClientModule("Criticals", Category.COMBAT) {
         tree(VisualsConfigurable)
     }
 
+    /**
+     * The Criticals selection mode
+     */
+    enum class CriticalsSelectionMode(override val choiceName: String) : NamedChoice {
+
+        SMART("Smart"),
+        IGNORE("Ignore"),
+        ALWAYS("Always");
+
+        fun isCriticalHit(target: Entity): Boolean {
+            return when (this) {
+                IGNORE -> true
+                SMART -> !shouldWaitForCrit(target, ignoreState = true)
+                ALWAYS -> wouldDoCriticalHit()
+            }
+        }
+
+    }
+
     fun shouldWaitForCrit(target: Entity, ignoreState: Boolean = false) = when {
         CriticalsBlink.running && CriticalsBlink.isInState -> false
         else -> CriticalsJump.shouldWaitForCrit(target, ignoreState)

@@ -30,7 +30,7 @@ import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleAutoWeapon
-import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals
+import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals.CriticalsSelectionMode
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura.KillAuraClicker.considerMissCooldown
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura.RaycastMode.*
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura.RotationTimingMode.ON_TICK
@@ -127,7 +127,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
 
     // Bypass techniques
     internal val raycast by enumChoice("Raycast", TRACE_ALL)
-    private val criticalsMode by enumChoice("Criticals", CriticalsMode.SMART)
+    private val criticalsSelectionMode by enumChoice("Criticals", CriticalsSelectionMode.SMART)
     private val keepSprint by boolean("KeepSprint", true)
     private val attackShielding by boolean("AttackShielding", false)
     private val requiresClick by boolean("RequiresClick", false)
@@ -476,18 +476,14 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
     }
 
     private fun checkIfReadyToAttack(choosenEntity: Entity): Boolean {
-        val critical = when (criticalsMode) {
-            CriticalsMode.IGNORE -> true
-            CriticalsMode.SMART -> !ModuleCriticals.shouldWaitForCrit(choosenEntity, ignoreState = true)
-            CriticalsMode.ALWAYS -> ModuleCriticals.wouldDoCriticalHit()
-        }
+        val criticalHit = criticalsSelectionMode.isCriticalHit(choosenEntity)
         val shielding = attackShielding || choosenEntity !is PlayerEntity || player.mainHandStack.item is AxeItem ||
             !choosenEntity.wouldBlockHit(player)
         val isInInventoryScreen =
             InventoryManager.isInventoryOpen || mc.currentScreen is GenericContainerScreen
         val missCooldown = considerMissCooldown && mc.attackCooldown > 0
 
-        return critical && shielding &&
+        return criticalHit && shielding &&
             !(isInInventoryScreen && !ignoreOpenInventory && !simulateInventoryClosing) && !missCooldown
     }
 
@@ -547,7 +543,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
 
     val shouldBlockSprinting
         get() = !player.isOnGround &&
-            criticalsMode != CriticalsMode.IGNORE &&
+            criticalsSelectionMode != CriticalsSelectionMode.IGNORE &&
             targetTracker.target != null &&
             clickScheduler.isClickOnNextTick(1)
 
@@ -569,12 +565,6 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         TRACE_NONE("None"),
         TRACE_ONLYENEMY("Enemy"),
         TRACE_ALL("All")
-    }
-
-    enum class CriticalsMode(override val choiceName: String) : NamedChoice {
-        SMART("Smart"),
-        IGNORE("Ignore"),
-        ALWAYS("Always")
     }
 
 }
