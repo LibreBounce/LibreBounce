@@ -23,7 +23,7 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.ccbluex.liquidbounce.common.ClientLogoTexture;
-import net.ccbluex.liquidbounce.common.CustomRenderPhase;
+import net.ccbluex.liquidbounce.common.RenderLayerExtensions;
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.ScreenRenderEvent;
 import net.ccbluex.liquidbounce.features.misc.HideAppearance;
@@ -95,7 +95,7 @@ public class MixinSplashOverlay {
 
         // TODO: Draw as SVG instead of PNG
         context.drawTexture(
-                CustomRenderPhase::getTextureBilinear,
+                RenderLayerExtensions::getSmoothTextureLayer,
                 ClientLogoTexture.CLIENT_LOGO,
                 x,
                 y,
