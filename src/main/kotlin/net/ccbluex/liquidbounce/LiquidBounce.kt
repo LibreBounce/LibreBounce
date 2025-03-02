@@ -176,7 +176,9 @@ object LiquidBounce : EventListener {
 
         // Script system
         EnvironmentRemapper
-        ScriptManager
+        runCatching(ScriptManager::initializeEngine).onFailure { error ->
+            logger.error("[ScriptAPI] Failed to initialize script engine.", error)
+        }
 
         // Utility managers
         RotationManager
@@ -206,7 +208,9 @@ object LiquidBounce : EventListener {
         ModuleManager.registerInbuilt()
 
         // Load user scripts
-        ScriptManager.loadAll()
+        runCatching(ScriptManager::loadAll).onFailure { error ->
+            logger.error("ScriptManager was unable to load scripts.", error)
+        }
     }
 
     /**
