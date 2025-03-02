@@ -24,6 +24,13 @@ A free mixin-based injection hacked-client for Minecraft using Minecraft Forge, 
 >
 > — Izuna, Founder
 
+> "With this being the final release of Legacy, I’m grateful for how much this client has progressed.
+> It has not only improved significantly over the previous version but also helped me grow as a developer, pushing me to learn and do better.
+> I’d like to thank the CCBlueX team for their client support throughout this journey and @mems01 for his help during the development."
+>
+> — EclipsesDev, Lead Community Maintainer
+
+
 > "This is the final Legacy version, meaning that the development continuation by the community (me and @EclipsesDev) is coming to a stop, permanently.
 > I am proud to have reached this moment and this far with this client's development as it taught me new things everyday.
 > I thank the CCBlueX team for allowing me in the first place to continue the development of this client, and @EclipsesDev for helping me do so.
