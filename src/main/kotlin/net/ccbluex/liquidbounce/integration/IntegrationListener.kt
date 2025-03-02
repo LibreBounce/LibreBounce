@@ -21,10 +21,7 @@ package net.ccbluex.liquidbounce.integration
 
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.EventManager
-import net.ccbluex.liquidbounce.event.events.BrowserReadyEvent
-import net.ccbluex.liquidbounce.event.events.ScreenEvent
-import net.ccbluex.liquidbounce.event.events.VirtualScreenEvent
-import net.ccbluex.liquidbounce.event.events.WorldChangeEvent
+import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.misc.HideAppearance
 import net.ccbluex.liquidbounce.integration.browser.BrowserManager
@@ -165,12 +162,19 @@ object IntegrationListener : EventListener {
      * Handle opening new screens
      */
     @Suppress("unused")
-    val screenHandler = handler<ScreenEvent> { event ->
+    private val screenHandler = handler<ScreenEvent> { event ->
         // Set to default GLFW cursor
         GLFW.glfwSetCursor(mc.window.handle, standardCursor)
 
         if (handleCurrentScreen(event.screen)) {
             event.cancelEvent()
+        }
+    }
+
+    @Suppress("unused")
+    private val screenRefresher = handler<GameTickEvent> {
+        if (browserIsReady) {
+            handleCurrentScreen(mc.currentScreen)
         }
     }
 
