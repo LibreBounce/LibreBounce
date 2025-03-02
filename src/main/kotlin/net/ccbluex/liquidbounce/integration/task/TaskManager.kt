@@ -22,7 +22,6 @@
 package net.ccbluex.liquidbounce.integration.task
 
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import net.ccbluex.liquidbounce.integration.task.type.Task
@@ -62,9 +61,9 @@ class TaskManager(private val scope: CoroutineScope) {
     fun <T> launch(
         taskName: String,
         action: suspend (Task) -> T
-    ): Deferred<T> {
+    ): Task {
         val task = createTask(taskName)
-        return scope.async {
+        scope.async {
             task.job = coroutineContext[Job]
             task.progress = 0f
 
@@ -72,6 +71,7 @@ class TaskManager(private val scope: CoroutineScope) {
             complete(taskName)
             result
         }
+        return task
     }
 
     /**

@@ -288,16 +288,22 @@ object LiquidBounce : EventListener {
 
         // Start Interop Server
         ClientInteropServer.start()
-
         IntegrationListener
 
         taskManager = TaskManager(scope).apply {
-            launch("MCEF", BrowserManager::initBrowser)
+            // Either immediately starts browser or spawns a task to request browser dependencies,
+            // and then starts the browser through render thread.
+            BrowserManager.makeDependenciesAvailable(this)
+
+            // Initialize deep learning engine as task, because we cannot know if DJL will request
+            // resources from the internet.
             launch("Deep Learning") { task ->
                 runCatching {
                     DeepLearningEngine.init(task)
                     ModelHolster.load()
                 }.onFailure { exception ->
+                    // LiquidBounce can still run without deep learning,
+                    // and we don't want to crash the client if it fails.
                     logger.info("Failed to initialize deep learning.", exception)
                 }
             }
@@ -332,7 +338,7 @@ object LiquidBounce : EventListener {
         ConfigSystem.storeAll()
 
         // Shutdown browser as last step
-        BrowserManager.shutdownBrowser()
+        BrowserManager.stopBrowser()
     }
 
     /**

@@ -21,7 +21,7 @@ package net.ccbluex.liquidbounce.integration.browser.supports
 import net.ccbluex.liquidbounce.integration.browser.BrowserType
 import net.ccbluex.liquidbounce.integration.browser.supports.tab.ITab
 import net.ccbluex.liquidbounce.integration.browser.supports.tab.TabPosition
-import net.ccbluex.liquidbounce.integration.task.type.Task
+import net.ccbluex.liquidbounce.integration.task.TaskManager
 
 /**
  * The browser interface which is used to create tabs and manage the browser backend.
@@ -29,11 +29,11 @@ import net.ccbluex.liquidbounce.integration.task.type.Task
  */
 interface IBrowser {
 
-    fun makeDependenciesAvailable(task: Task)
+    fun makeDependenciesAvailable(taskManager: TaskManager, whenAvailable: () -> Unit)
 
-    fun initBrowserBackend()
+    fun startBrowser()
 
-    fun shutdownBrowserBackend()
+    fun stopBrowser()
 
     fun isInitialized(): Boolean
 
