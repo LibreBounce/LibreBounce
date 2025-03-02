@@ -4,6 +4,7 @@ import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.RotationUpdateEvent
 import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.features.module.modules.combat.elytratarget.prediction.TargetEntityMovementPrediction
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationTarget
 import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
@@ -33,7 +34,7 @@ internal object ElytraRotationsAndAngleSmooth : Configurable("Rotations"), Angle
     internal val look by boolean("Look", false)
     private val autoDistance by boolean("AutoDistance", true)
     private val rotateAt by enumChoice("RotateAt", TargetRotatePosition.EYES)
-    private val prediction by enumChoice("Predicate", TargetEntityMovementPredicate.NONE)
+    private val prediction = tree(TargetEntityMovementPrediction)
 
     override val running: Boolean
         get() = super.running && ModuleElytraTarget.target != null
