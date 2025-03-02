@@ -58,6 +58,15 @@ inline operator fun Vec3d.times(scalar: Double): Vec3d {
     return this.multiply(scalar)
 }
 
+inline fun Vec3d.interpolate(start: Vec3d, multiple: Double) =
+    Vec3d(
+        this.x.interpolate(start.x, multiple),
+        this.y.interpolate(start.y, multiple),
+        this.z.interpolate(start.z, multiple),
+    )
+
+inline fun Double.interpolate(old: Double, scale: Double) = old + (this - old) * scale
+
 inline fun Vec3d.copy(x: Double = this.x, y: Double = this.y, z: Double = this.z) = Vec3d(x, y, z)
 
 inline operator fun Vec3d.component1(): Double = this.x

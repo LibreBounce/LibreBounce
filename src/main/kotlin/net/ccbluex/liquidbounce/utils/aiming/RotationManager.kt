@@ -59,6 +59,7 @@ object RotationManager : EventListener {
         get() = rotationTargetHandler.getActiveRequestValue()
     private var rotationTargetHandler = RequestHandler<RotationTarget>()
 
+    @JvmStatic
     val activeRotationTarget: RotationTarget?
         get() = rotationTarget ?: previousRotationTarget
     private var previousRotationTarget: RotationTarget? = null
@@ -66,6 +67,7 @@ object RotationManager : EventListener {
     /**
      * The rotation we want to aim at. This DOES NOT mean that the server already received this rotation.
      */
+    @JvmStatic
     var currentRotation: Rotation? = null
         set(value) {
             previousRotation = if (value == null) {
@@ -127,6 +129,8 @@ object RotationManager : EventListener {
         )
     }
 
+    var ticksSinceChange = 0
+
     /**
      * Update current rotation to a new rotation step
      */
@@ -135,6 +139,8 @@ object RotationManager : EventListener {
         val activeRotationTarget = this.activeRotationTarget ?: return
         val playerRotation = player.rotation
 
+        ticksSinceChange++
+
         val aimPlan = this.rotationTarget
         if (aimPlan != null) {
             val enemyChange = aimPlan.entity != null && aimPlan.entity != previousRotationTarget?.entity &&
@@ -142,8 +148,11 @@ object RotationManager : EventListener {
             val triggerNoChange = triggerNoDifference && aimPlan.slowStart?.onZeroRotationDifference == true
 
             if (triggerNoChange || enemyChange) {
+                ticksSinceChange = 0
                 aimPlan.slowStart.onTrigger()
             }
+        } else {
+            ticksSinceChange = 0
         }
 
         // Prevents any rotation changes when inventory is opened
@@ -160,6 +169,7 @@ object RotationManager : EventListener {
             val diff = rotation.angleTo(playerRotation)
 
             if (aimPlan == null && (activeRotationTarget.movementCorrection == MovementCorrection.CHANGE_LOOK
+                    || activeRotationTarget.angleSmooth == null
                     || diff <= activeRotationTarget.resetThreshold)) {
                 currentRotation?.let { currentRotation ->
                     player.yaw = player.withFixedYaw(currentRotation)

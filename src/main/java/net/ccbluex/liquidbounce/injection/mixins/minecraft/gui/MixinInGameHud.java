@@ -28,7 +28,7 @@ import net.ccbluex.liquidbounce.features.module.modules.render.ModuleFreeCam;
 import net.ccbluex.liquidbounce.integration.theme.component.ComponentOverlay;
 import net.ccbluex.liquidbounce.integration.theme.component.FeatureTweak;
 import net.ccbluex.liquidbounce.integration.theme.component.types.IntegratedComponent;
-import net.ccbluex.liquidbounce.render.engine.UiRenderer;
+import net.ccbluex.liquidbounce.render.engine.BlurEffectRenderer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.InGameHud;
@@ -76,7 +76,7 @@ public abstract class MixinInGameHud {
      */
     @Inject(method = "renderMainHud", at = @At("HEAD"))
     private void hookRenderEventStart(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
-        UiRenderer.INSTANCE.startUIOverlayDrawing(context, tickCounter.getTickDelta(false));
+        BlurEffectRenderer.INSTANCE.startOverlayDrawing(context, tickCounter.getTickDelta(false));
 
         // Draw after overlay event
         var component = ComponentOverlay.getComponentWithTweak(FeatureTweak.TWEAK_HOTBAR);

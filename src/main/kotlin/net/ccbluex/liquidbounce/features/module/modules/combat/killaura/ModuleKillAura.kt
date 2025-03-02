@@ -30,7 +30,8 @@ import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleAutoWeapon
-import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals
+import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals.CriticalsSelectionMode
+import net.ccbluex.liquidbounce.features.module.modules.combat.elytratarget.ModuleElytraTarget
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura.KillAuraClicker.considerMissCooldown
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura.RaycastMode.*
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura.RotationTimingMode.ON_TICK
@@ -123,11 +124,12 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         val rotationTimingMode by enumChoice("RotationTiming", RotationTimingMode.NORMAL)
         val aimThroughWalls by boolean("ThroughWalls", false)
     })
+
     private val pointTracker = tree(PointTracker())
 
     // Bypass techniques
     internal val raycast by enumChoice("Raycast", TRACE_ALL)
-    private val criticalsMode by enumChoice("Criticals", CriticalsMode.SMART)
+    private val criticalsSelectionMode by enumChoice("Criticals", CriticalsSelectionMode.SMART)
     private val keepSprint by boolean("KeepSprint", true)
     private val attackShielding by boolean("AttackShielding", false)
     private val requiresClick by boolean("RequiresClick", false)
@@ -164,8 +166,10 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
     }
 
     private fun renderTarget(matrixStack: MatrixStack, partialTicks: Float) {
-        if (!targetRenderer.enabled) return
-        val target = targetTracker.target ?: return
+        val target = targetTracker.target
+            ?.takeIf { targetRenderer.enabled }
+            ?.takeIf { !ModuleElytraTarget.isSameTargetRendering(it) }
+            ?: return
 
         renderEnvironmentForWorld(matrixStack) {
             targetRenderer.render(this, target, partialTicks)
@@ -271,7 +275,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         // Are we actually facing the [chosenEntity]
         val isFacingEnemy = facingEnemy(toEntity = chosenEntity, rotation = rotation,
             range = range.toDouble(),
-            wallsRange = wallRange.toDouble())
+            wallsRange = wallRange.toDouble()) || ModuleElytraTarget.canIgnoreKillAuraRotations
 
         ModuleDebug.debugParameter(ModuleKillAura, "isFacingEnemy", isFacingEnemy)
         ModuleDebug.debugParameter(ModuleKillAura, "Rotation", rotation)
@@ -279,7 +283,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
 
         // Check if our target is in range, otherwise deal with auto block
         if (!isFacingEnemy) {
-            if (KillAuraAutoBlock.onScanRange) {
+            if (KillAuraAutoBlock.enabled && KillAuraAutoBlock.onScanRange) {
                 KillAuraAutoBlock.startBlocking()
                 return
             }
@@ -300,7 +304,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
 
         ModuleDebug.debugParameter(ModuleKillAura, "Good-Rotation", rotation)
 
-        // Attack enemy according to the attack scheduler
+        // Attack enemy, according to the attack scheduler
         if (clickScheduler.isGoingToClick && checkIfReadyToAttack(chosenEntity)) {
             prepareAttackEnvironment(rotation) {
                 clickScheduler.clicks {
@@ -476,18 +480,14 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
     }
 
     private fun checkIfReadyToAttack(choosenEntity: Entity): Boolean {
-        val critical = when (criticalsMode) {
-            CriticalsMode.IGNORE -> true
-            CriticalsMode.SMART -> !ModuleCriticals.shouldWaitForCrit(choosenEntity, ignoreState = true)
-            CriticalsMode.ALWAYS -> ModuleCriticals.wouldDoCriticalHit()
-        }
+        val criticalHit = criticalsSelectionMode.isCriticalHit(choosenEntity)
         val shielding = attackShielding || choosenEntity !is PlayerEntity || player.mainHandStack.item is AxeItem ||
             !choosenEntity.wouldBlockHit(player)
         val isInInventoryScreen =
             InventoryManager.isInventoryOpen || mc.currentScreen is GenericContainerScreen
         val missCooldown = considerMissCooldown && mc.attackCooldown > 0
 
-        return critical && shielding &&
+        return (criticalHit || ModuleElytraTarget.running) && shielding &&
             !(isInInventoryScreen && !ignoreOpenInventory && !simulateInventoryClosing) && !missCooldown
     }
 
@@ -545,11 +545,9 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         }
     }
 
-    val shouldBlockSprinting
-        get() = !player.isOnGround &&
-            criticalsMode != CriticalsMode.IGNORE &&
-            targetTracker.target != null &&
-            clickScheduler.isClickOnNextTick(1)
+    val shouldBlockSprinting get() =
+        !ModuleElytraTarget.running
+        && criticalsSelectionMode.shouldStopSprinting(clickScheduler, targetTracker.target)
 
     @Suppress("unused")
     private val sprintHandler = handler<SprintEvent> { event ->
@@ -569,12 +567,6 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         TRACE_NONE("None"),
         TRACE_ONLYENEMY("Enemy"),
         TRACE_ALL("All")
-    }
-
-    enum class CriticalsMode(override val choiceName: String) : NamedChoice {
-        SMART("Smart"),
-        IGNORE("Ignore"),
-        ALWAYS("Always")
     }
 
 }

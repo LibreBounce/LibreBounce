@@ -8,6 +8,7 @@
   "client": [
     "authlib.MixinMinecraftClient",
     "blaze3d.MixinRenderSystem",
+    "djl.MixinUtils",
     "lithium.MixinChunkAwareBlockCollisionSweeper",
     "minecraft.block.MixinBlock",
     "minecraft.block.MixinBlockCollisionSpliterator",
@@ -40,6 +41,7 @@
     "minecraft.entity.MixinLivingEntityCompatibility",
     "minecraft.entity.MixinPlayerEntity",
     "minecraft.entity.MixinPlayerEntityAccessor",
+    "minecraft.entity.projectile.MixinFireworkRocketEntity",
     "minecraft.entity.projectile.MixinFishingBobberEntity",
     "minecraft.fluid.MixinFlowableFluid",
     "minecraft.gui.MixinBossBarHud",

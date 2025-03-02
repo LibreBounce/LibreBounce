@@ -24,7 +24,6 @@ import net.ccbluex.liquidbounce.utils.block.isBlockedByEntities
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.collection.Filter
 import net.ccbluex.liquidbounce.utils.math.sq
-import net.minecraft.block.Blocks
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
 import java.util.*
@@ -42,8 +41,8 @@ class SupportFeature(val placer: BlockPlacer) : ToggleableConfigurable(placer, "
     val delay by int("Delay", 500, 0..1000, "ms")
 
     // what block helping blocks can be, by default just "trash blocks", meaning very common blocks
-    val filter by enumChoice("Filter", Filter.WHITELIST)
-    val blocks by blocks("Blocks", hashSetOf(Blocks.COBBLESTONE, Blocks.DIRT, Blocks.NETHERRACK))
+    val filter by enumChoice("Filter", Filter.BLACKLIST)
+    val blocks by blocks("Blocks", hashSetOf())
 
     // we don't have to consistently search, every once in a while is okay, see `delay`
     val chronometer = Chronometer()

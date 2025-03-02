@@ -35,6 +35,7 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.aimbot.ModuleAuto
 import net.ccbluex.liquidbounce.features.module.modules.combat.autoarmor.ModuleAutoArmor
 import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals
 import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.ModuleCrystalAura
+import net.ccbluex.liquidbounce.features.module.modules.combat.elytratarget.ModuleElytraTarget
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
 import net.ccbluex.liquidbounce.features.module.modules.combat.tpaura.ModuleTpAura
 import net.ccbluex.liquidbounce.features.module.modules.combat.velocity.ModuleVelocity
@@ -218,6 +219,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleAntiReducedDebugInfo,
             ModuleAntiHunger,
             ModuleClip,
+            ModuleExtendedFirework,
             ModuleResetVL,
             ModuleDamage,
             ModuleDisabler,
@@ -253,6 +255,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleAntiBot,
             ModuleBetterTab,
             ModuleBetterChat,
+            ModuleElytraTarget,
             ModuleMiddleClickAction,
             ModuleInventoryTracker,
             ModuleNameProtect,
@@ -337,6 +340,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleCameraClip,
             ModuleClickGui,
             ModuleDamageParticles,
+            ModuleParticles,
             ModuleESP,
             ModuleFreeCam,
             ModuleFreeLook,
@@ -387,6 +391,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleFastPlace,
             ModuleFucker,
             ModuleAutoTrap,
+            ModuleBlockTrap,
             ModuleNoSlowBreak,
             ModuleLiquidPlace,
             ModuleProjectilePuncher,

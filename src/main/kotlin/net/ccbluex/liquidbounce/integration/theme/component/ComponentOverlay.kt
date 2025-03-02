@@ -52,7 +52,7 @@ object ComponentOverlay : EventListener {
             .find { it.enabled && it.tweaks.contains(tweak) }
     }
 
-    fun insertComponents() {
+    fun insertDefaultComponents() {
         val componentList = ThemeManager.activeTheme.parseComponents()
 
         // todo: fix custom components being removed

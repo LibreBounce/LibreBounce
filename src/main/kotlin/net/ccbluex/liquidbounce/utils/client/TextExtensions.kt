@@ -191,7 +191,7 @@ fun Int.formatAsTime(): String {
     }
 }
 
-fun Long.formatBytesAsSize(): String {
+fun Long.formatAsCapacity(): String {
     val bytes = this.toDouble()
     val kilobytes = bytes / 1024
     val megabytes = kilobytes / 1024

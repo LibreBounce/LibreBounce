@@ -24,7 +24,7 @@ import net.ccbluex.liquidbounce.common.GlobalFramebuffer
 import net.ccbluex.liquidbounce.event.EventManager.callEvent
 import net.ccbluex.liquidbounce.event.events.OverlayRenderEvent
 import net.ccbluex.liquidbounce.features.module.MinecraftShortcuts
-import net.ccbluex.liquidbounce.features.module.modules.render.ModuleHud.isBlurable
+import net.ccbluex.liquidbounce.features.module.modules.render.ModuleHud.isBlurEffectActive
 import net.ccbluex.liquidbounce.render.shader.BlitShader
 import net.ccbluex.liquidbounce.render.shader.UniformProvider
 import net.ccbluex.liquidbounce.render.ui.ItemImageAtlas
@@ -38,9 +38,9 @@ import org.lwjgl.opengl.GL13
 import org.lwjgl.opengl.GL20
 import kotlin.math.sin
 
-object UiRenderer : MinecraftShortcuts {
+object BlurEffectRenderer : MinecraftShortcuts {
 
-    private object UiBlurShader : BlitShader(
+    private object BlurShader : BlitShader(
         resourceToString("/resources/liquidbounce/shaders/sobel.vert"),
         resourceToString("/resources/liquidbounce/shaders/blur/ui_blur.frag"),
         arrayOf(
@@ -85,7 +85,8 @@ object UiRenderer : MinecraftShortcuts {
         fb
     }
 
-    val OUTLINE_TARGET = RenderPhase.Target("overlay_target", {
+    @JvmStatic
+    val outlineTarget = RenderPhase.Target("overlay_target", {
         if (isDrawingHudFramebuffer) {
             overlayFramebuffer.beginWrite(true)
         }
@@ -118,10 +119,10 @@ object UiRenderer : MinecraftShortcuts {
         return (this.getBlurRadiusFactor() * 20.0F).coerceIn(5.0F..20.0F)
     }
 
-    fun startUIOverlayDrawing(context: DrawContext, tickDelta: Float) {
+    fun startOverlayDrawing(context: DrawContext, tickDelta: Float) {
         ItemImageAtlas.updateAtlas(context)
 
-        if (isBlurable) {
+        if (isBlurEffectActive) {
             this.isDrawingHudFramebuffer = true
 
             this.overlayFramebuffer.clear()
@@ -132,7 +133,7 @@ object UiRenderer : MinecraftShortcuts {
         callEvent(OverlayRenderEvent(context, tickDelta))
     }
 
-    fun endUIOverlayDrawing() {
+    fun endOverlayDrawing() {
         if (!this.isDrawingHudFramebuffer) {
             return
         }
@@ -159,7 +160,7 @@ object UiRenderer : MinecraftShortcuts {
 
         mc.framebuffer.beginWrite(false)
 
-        UiBlurShader.blit()
+        BlurShader.blit()
 
         RenderSystem.enableBlend()
         RenderSystem.blendFunc(GlStateManager.SrcFactor.ONE, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA)

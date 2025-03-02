@@ -21,13 +21,16 @@ package net.ccbluex.liquidbounce.features.module.modules.combat
 import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.Sequence
+import net.ccbluex.liquidbounce.event.events.SprintEvent
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
-import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals
+import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals.CriticalsSelectionMode
 import net.ccbluex.liquidbounce.utils.clicking.Clicker
 import net.ccbluex.liquidbounce.utils.combat.shouldBeAttacked
 import net.minecraft.client.option.KeyBinding
+import net.minecraft.entity.Entity
 import net.minecraft.item.AxeItem
 import net.minecraft.item.BlockItem
 import net.minecraft.item.SwordItem
@@ -49,6 +52,7 @@ object ModuleAutoClicker : ClientModule("AutoClicker", Category.COMBAT, aliases 
         private val objectiveType by enumChoice("Objective", ObjectiveType.ANY)
         private val onItemUse by enumChoice("OnItemUse", Use.WAIT)
         private val weapon by enumChoice("Weapon", Weapon.ANY)
+        private val criticalsSelectionMode by enumChoice("Criticals", CriticalsSelectionMode.SMART)
         private val delayPostStopUse by int("DelayPostStopUse", 0, 0..20, "ticks")
 
         enum class ObjectiveType(override val choiceName: String) : NamedChoice {
@@ -93,6 +97,10 @@ object ModuleAutoClicker : ClientModule("AutoClicker", Category.COMBAT, aliases 
             }
         }
 
+        fun isCriticalHit(entity: Entity): Boolean {
+            return criticalsSelectionMode.isCriticalHit(entity)
+        }
+
         suspend fun Sequence.encounterItemUse(): Boolean {
             return when (onItemUse) {
                 Use.WAIT -> {
@@ -119,6 +127,20 @@ object ModuleAutoClicker : ClientModule("AutoClicker", Category.COMBAT, aliases 
             }
         }
 
+        @Suppress("unused")
+        private val sprintHandler = handler<SprintEvent> { event ->
+            if (event.source == SprintEvent.Source.MOVEMENT_TICK || event.source == SprintEvent.Source.INPUT) {
+                if (!attack || !isOnObjective() || !isWeaponSelected()) {
+                    return@handler
+                }
+
+                val target = mc.crosshairTarget as? EntityHitResult ?: return@handler
+                if (criticalsSelectionMode.shouldStopSprinting(clicker, target.entity)) {
+                    event.sprint = false
+                }
+            }
+        }
+
     }
 
     object Right : ToggleableConfigurable(this, "Use", false) {
@@ -141,6 +163,7 @@ object ModuleAutoClicker : ClientModule("AutoClicker", Category.COMBAT, aliases 
     val use: Boolean
         get() = mc.options.useKey.isPressed || Right.requiresNoInput
 
+    @Suppress("unused")
     val tickHandler = tickHandler {
         Left.run {
             if (!enabled || !attack || !isWeaponSelected() || !isOnObjective()) {
@@ -153,11 +176,10 @@ object ModuleAutoClicker : ClientModule("AutoClicker", Category.COMBAT, aliases 
             }
 
             val crosshairTarget = mc.crosshairTarget
-
             if (crosshairTarget is EntityHitResult) {
                 ModuleAutoWeapon.prepare(crosshairTarget.entity)
 
-                if (ModuleCriticals.shouldWaitForCrit(crosshairTarget.entity)) {
+                if (!isCriticalHit(crosshairTarget.entity)) {
                     return@run
                 }
             }
