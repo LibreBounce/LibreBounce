@@ -24,6 +24,7 @@ package net.ccbluex.liquidbounce.integration.task
 import net.ccbluex.liquidbounce.integration.browser.BrowserManager
 import net.ccbluex.liquidbounce.integration.task.type.ResourceTask
 import net.ccbluex.liquidbounce.integration.task.type.Task
+import net.ccbluex.liquidbounce.utils.client.formatAsCapacity
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.gui.screen.Screen
@@ -31,8 +32,6 @@ import net.minecraft.client.gui.screen.TitleScreen
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting
 import java.text.DecimalFormat
-import kotlin.math.ln
-import kotlin.math.pow
 
 /**
  * Screen that displays TaskManager progress
@@ -134,7 +133,7 @@ class TaskProgressScreen(
         val total = calculateTotalSpeed(tasks)
 
         return if (total > 0) {
-            " (${formatBytes(total)}/s)"
+            " (${total.formatAsCapacity()}/s)"
         } else {
             ""
         }
@@ -146,16 +145,6 @@ class TaskProgressScreen(
         }.sumOf { task ->
             ((task as? ResourceTask)?.speed ?: 0L) + calculateTotalSpeed(task.subTasks.values.toList())
         }
-    }
-
-    /**
-     * Formats bytes to human-readable format
-     */
-    fun formatBytes(bytes: Long): String {
-        if (bytes < 1024) return "$bytes B"
-        val exp = (ln(bytes.toDouble()) / ln(1024.0)).toInt()
-        val pre = "KMGTPE"[exp - 1]
-        return String.format("%.1f %sB", bytes / 1024.0.pow(exp.toDouble()), pre)
     }
 
     override fun tick() {

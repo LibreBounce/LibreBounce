@@ -29,7 +29,7 @@ import net.ccbluex.liquidbounce.integration.task.type.Task
 import net.ccbluex.liquidbounce.mcef.MCEF
 import net.ccbluex.liquidbounce.mcef.listeners.MCEFProgressListener
 import net.ccbluex.liquidbounce.utils.client.ErrorHandler
-import net.ccbluex.liquidbounce.utils.client.formatBytesAsSize
+import net.ccbluex.liquidbounce.utils.client.formatAsCapacity
 import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.utils.kotlin.sortedInsert
 import net.ccbluex.liquidbounce.utils.validation.HashValidator
@@ -156,7 +156,7 @@ class JcefBrowser : IBrowser, EventListener {
                 logger.error("Failed to clean up old JCEF cache directories", it)
             }.onSuccess { size ->
                 if (size > 0) {
-                    logger.info("Cleaned up ${size.formatBytesAsSize()} JCEF cache directories")
+                    logger.info("Cleaned up ${size.formatAsCapacity()} JCEF cache directories")
                 }
             }
         }
