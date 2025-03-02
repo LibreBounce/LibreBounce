@@ -29,7 +29,7 @@ private val fireworkChronometer = Chronometer()
 
 @Suppress("MagicNumber")
 internal object AutoFirework : ToggleableConfigurable(ModuleElytraTarget, "AutoFirework", true) {
-    private val useMode by enumChoice("UseMode", FireworkUseMode.PACKET)
+    private val useMode by enumChoice("UseMode", FireworkUseMode.NORMAL)
     private val extraDistance by float("ExtraDistance", 50f, 5f..100f, suffix = "m")
     private val slotResetDelay by intRange("SlotResetDelay", 0..0, 0..20, "ticks")
     private val syncCooldownWithKillAura by boolean("SyncCooldownWithKillAura", false)
