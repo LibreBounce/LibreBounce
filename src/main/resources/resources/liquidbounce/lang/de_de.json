@@ -638,6 +638,7 @@
   "liquidbounce.module.voidEsp.description": "Markiert alle Positionen, die Void sein könnten.",
   "liquidbounce.module.blockIn.description": "Baut Blöcke um dich herum, um dich zu schützen.",
   "liquidbounce.module.blockIn.messages.filled": "Fertig!",
+  "liquidbounce.module.blockTrap.description": "Baut Gegner mit Blöcken ein.",
   "liquidbounce.module.blockIn.messages.positionChanged": "Deine Position hat sich geändert!",
   "liquidbounce.module.packetMine.messages.noVfp": "Wähle eine andere Wechselmethode aus oder installier ViaFabricPlus!"
 }

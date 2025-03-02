@@ -170,7 +170,6 @@ export interface PersistentStorageItem {
 
 export interface VirtualScreen {
     name: string;
-    showingSplash: boolean;
 }
 
 export interface Scoreboard {

@@ -19,23 +19,22 @@
  */
 package net.ccbluex.liquidbounce
 
-import kotlinx.coroutines.Deferred
+import com.mojang.blaze3d.systems.RenderSystem
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
-import net.ccbluex.liquidbounce.api.core.withScope
+import net.ccbluex.liquidbounce.api.core.scope
 import net.ccbluex.liquidbounce.api.models.auth.ClientAccount
 import net.ccbluex.liquidbounce.api.services.client.ClientUpdate.gitInfo
 import net.ccbluex.liquidbounce.api.services.client.ClientUpdate.update
 import net.ccbluex.liquidbounce.api.thirdparty.IpInfoApi
 import net.ccbluex.liquidbounce.config.AutoConfig.configs
 import net.ccbluex.liquidbounce.config.ConfigSystem
-import net.ccbluex.liquidbounce.deeplearn.DeepLearningEngine
-import net.ccbluex.liquidbounce.deeplearn.ModelHolster
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.ClientShutdownEvent
 import net.ccbluex.liquidbounce.event.events.ClientStartEvent
+import net.ccbluex.liquidbounce.event.events.ScreenEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.Reconnect
 import net.ccbluex.liquidbounce.features.command.CommandManager
@@ -53,6 +52,8 @@ import net.ccbluex.liquidbounce.integration.IntegrationListener
 import net.ccbluex.liquidbounce.integration.browser.BrowserManager
 import net.ccbluex.liquidbounce.integration.interop.ClientInteropServer
 import net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.game.ActiveServerList
+import net.ccbluex.liquidbounce.integration.task.TaskManager
+import net.ccbluex.liquidbounce.integration.task.TaskProgressScreen
 import net.ccbluex.liquidbounce.integration.theme.ThemeManager
 import net.ccbluex.liquidbounce.integration.theme.component.ComponentOverlay
 import net.ccbluex.liquidbounce.lang.LanguageManager
@@ -65,10 +66,10 @@ import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.block.ChunkScanner
 import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.combat.CombatManager
-import net.ccbluex.liquidbounce.utils.combat.combatTargetsConfigurable
 import net.ccbluex.liquidbounce.utils.entity.RenderedEntities
 import net.ccbluex.liquidbounce.utils.input.InputTracker
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
+import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.FIRST_PRIORITY
 import net.ccbluex.liquidbounce.utils.mappings.EnvironmentRemapper
 import net.ccbluex.liquidbounce.utils.render.WorldToScreen
 import net.minecraft.resource.ReloadableResourceManagerImpl
@@ -78,6 +79,8 @@ import net.minecraft.resource.SynchronousResourceReloader
 import org.apache.logging.log4j.LogManager
 import java.io.File
 import kotlin.time.measureTime
+import net.ccbluex.liquidbounce.deeplearn.DeepLearningEngine
+import net.ccbluex.liquidbounce.deeplearn.ModelHolster
 
 /**
  * LiquidBounce
@@ -108,162 +111,154 @@ object LiquidBounce : EventListener {
      */
     const val IN_DEVELOPMENT = true
 
-    val isIntegrationTesting = !System.getenv("TENACC_TEST_PROVIDER").isNullOrBlank()
-
     /**
      * Client logger to print out console messages
      */
     val logger = LogManager.getLogger(CLIENT_NAME)!!
 
-    var tasks: List<Deferred<*>>? = null
+    var taskManager: TaskManager? = null
+
+    var isInitialized = false
+        private set
 
     /**
-     * Should be executed to start the client.
+     * Initializes the client, called when
+     * we reached the last stage of the splash screen.
+     *
+     * The thread should be the main render thread.
      */
-    @Suppress("unused")
-    private val startHandler = handler<ClientStartEvent> {
-        runCatching {
-            logger.info("Launching $CLIENT_NAME v$clientVersion by $CLIENT_AUTHOR")
+    private fun initializeClient() {
+        if (isInitialized) {
+            return
+        }
+        isInitialized = true
 
-            // Load mappings
-            EnvironmentRemapper
+        // Ensure we are on the render thread
+        RenderSystem.assertOnRenderThread()
 
-            // Load translations
-            LanguageManager.loadDefault()
+        // Initialize managers and features
+        initializeManagers()
+        initializeFeatures()
+        initializeResources()
+        prepareGuiStage()
 
-            // Initialize client features
-            EventManager
+        // Register shutdown hook in case [ClientShutdownEvent] is not called
+        Runtime.getRuntime().addShutdownHook(Thread(::shutdownClient))
 
-            // Config
-            ConfigSystem
-            combatTargetsConfigurable
+        // Check for AMD Vega iGPU
+        if (HAS_AMD_VEGA_APU) {
+            logger.info("AMD Vega iGPU detected, enabling different line smooth handling. " +
+                "If you believe this is a mistake, please create an issue at " +
+                "https://github.com/CCBlueX/LiquidBounce/issues.")
+        }
 
-            RenderedEntities
-            ChunkScanner
-            InputTracker
-
-            // Features
-            ModuleManager
-            CommandManager
-            ScriptManager
-            RotationManager
-            PacketQueueManager
-            InteractionTracker
-            CombatManager
-            FriendManager
-            ProxyManager
-            AccountManager
-            InventoryManager
-            WorldToScreen
-            Reconnect
-            ActiveServerList
-            ConfigSystem.root(ClientItemGroups)
-            ConfigSystem.root(LanguageManager)
-            ConfigSystem.root(ClientAccountManager)
-            ConfigSystem.root(SpooferManager)
-            BrowserManager
-            FontManager
-            PostRotationExecutor
-            TpsObserver
-
-            // Register commands and modules
-            CommandManager.registerInbuilt()
-            ModuleManager.registerInbuilt()
-
-            // Load user scripts
-            ScriptManager.loadAll()
-
-            // Load theme and component overlay
-            ThemeManager
-            ComponentOverlay.insertComponents()
-
-            // Netty WebSocket
-            ClientInteropServer.start()
-
-            // Initialize browser
-            logger.info("Refresh Rate: ${mc.window.refreshRate} Hz")
-            IntegrationListener
-            BrowserManager.initBrowser()
-
-            // Start IO tasks
-            withScope {
-                tasks = listOf(
-                    async {
-                        val update = update ?: return@async
-                        logger.info("[Update] Update available: $clientVersion -> ${update.lbVersion}")
-                    },
-                    async { ipcConfiguration },
-                    async { IpInfoApi.original },
-                    async {
-                        if (ClientAccountManager.clientAccount != ClientAccount.EMPTY_ACCOUNT) {
-                            runCatching {
-                                ClientAccountManager.clientAccount.renew()
-                            }.onFailure {
-                                logger.error("Failed to renew client account token.", it)
-                                ClientAccountManager.clientAccount = ClientAccount.EMPTY_ACCOUNT
-                            }.onSuccess {
-                                logger.info("Successfully renewed client account token.")
-                                ConfigSystem.storeConfigurable(ClientAccountManager)
-                            }
-                        }
-                    },
-                    async {
-                        CosmeticService.refreshCarriers(force = true) {
-                            logger.info("Successfully loaded ${CosmeticService.carriers.size} cosmetics carriers.")
-                        }
-                    },
-                    async { heads },
-                    async { configs },
-                    async {
-                        runCatching {
-                            DeepLearningEngine.init()
-                            ModelHolster.load()
-                        }.onFailure { exception ->
-                            logger.info("Failed to initialize deep learning.", exception)
-                        }
-                    }
-                )
-            }
-
-            // Register resource reloader
-            val resourceManager = mc.resourceManager
-            val clientResourceReloader = ClientResourceReloader()
-            if (resourceManager is ReloadableResourceManagerImpl) {
-                resourceManager.registerReloader(clientResourceReloader)
-            } else {
-                logger.warn("Failed to register resource reloader!")
-
-                // Run resource reloader directly as fallback
-                clientResourceReloader.reload(resourceManager)
-            }
-
-            ItemImageAtlas
-
-            if (HAS_AMD_VEGA_APU) {
-                logger.info("AMD Vega iGPU detected, enabling different line smooth handling. " +
-                    "If you believe this is a mistake, please create an issue at " +
-                    "https://github.com/CCBlueX/LiquidBounce/issues.")
-            }
-        }.onSuccess {
-            logger.info("Successfully loaded client!")
-        }.onFailure(ErrorHandler::fatal)
+        // Load all configurations
+        ConfigSystem.loadAll()
     }
 
     /**
-     * Resource reloader which is executed on client start and reload.
-     * This is used to run async tasks without blocking the main thread.
-     *
-     * For now this is only used to check for updates and request additional information from the internet.
-     *
-     * @see SynchronousResourceReloader
-     * @see ResourceReloader
+     * Initializes managers for Event Listener registration.
      */
-    class ClientResourceReloader : SynchronousResourceReloader {
+    private fun initializeManagers() {
+        // Config
+        ConfigSystem
 
-        override fun reload(manager: ResourceManager) {
-            runCatching {
-                // Queue fonts of all themes
-                // TODO: Will be removed with PR #3884 as it is not needed anymore
+        // Utility
+        RenderedEntities
+        ChunkScanner
+        InputTracker
+
+        // Feature managers
+        ModuleManager
+        CommandManager
+        ProxyManager
+        AccountManager
+
+        // Script system
+        EnvironmentRemapper
+        ScriptManager
+
+        // Utility managers
+        RotationManager
+        PacketQueueManager
+        InteractionTracker
+        CombatManager
+        FriendManager
+        InventoryManager
+        WorldToScreen
+        Reconnect
+        ActiveServerList
+        ConfigSystem.root(ClientItemGroups)
+        ConfigSystem.root(LanguageManager)
+        ConfigSystem.root(ClientAccountManager)
+        ConfigSystem.root(SpooferManager)
+        PostRotationExecutor
+        TpsObserver
+        ItemImageAtlas
+    }
+
+    /**
+     * Initializes in-built and script features.
+     */
+    private fun initializeFeatures() {
+        // Register commands and modules
+        CommandManager.registerInbuilt()
+        ModuleManager.registerInbuilt()
+
+        // Load user scripts
+        ScriptManager.loadAll()
+    }
+
+    /**
+     * Simultaneously initializes resources
+     * such as translations, cosmetics, player heads, configs and so on,
+     * which do not rely on the main thread.
+     */
+    private fun initializeResources() = runBlocking {
+        listOf(
+            scope.async {
+                // Load translations
+                LanguageManager.loadDefault()
+            },
+            scope.async {
+                val update = update ?: return@async
+                logger.info("[Update] Update available: $clientVersion -> ${update.lbVersion}")
+            },
+            scope.async {
+                // Load cosmetics
+                CosmeticService.refreshCarriers(force = true) {
+                    logger.info("Successfully loaded ${CosmeticService.carriers.size} cosmetics carriers.")
+                }
+            },
+            scope.async {
+                // Download player heads
+                heads
+            },
+            scope.async {
+                // Load configs
+                configs
+            },
+            scope.async {
+                // IPC configuration
+                ipcConfiguration
+            },
+            scope.async {
+                IpInfoApi.original
+            },
+            scope.async {
+                if (ClientAccountManager.clientAccount != ClientAccount.EMPTY_ACCOUNT) {
+                    runCatching {
+                        ClientAccountManager.clientAccount.renew()
+                    }.onFailure {
+                        logger.error("Failed to renew client account token.", it)
+                        ClientAccountManager.clientAccount = ClientAccount.EMPTY_ACCOUNT
+                    }.onSuccess {
+                        logger.info("Successfully renewed client account token.")
+                        ConfigSystem.storeConfigurable(ClientAccountManager)
+                    }
+                }
+            },
+            scope.async {
                 ThemeManager.themesFolder.listFiles()
                     ?.filter { file -> file.isDirectory }
                     ?.forEach { file ->
@@ -278,23 +273,124 @@ object LiquidBounce : EventListener {
                             logger.error("Failed to queue fonts from theme '${file.name}'.", it)
                         }
                     }
-
-                // Load fonts
-                val duration = measureTime {
-                    FontManager.createGlyphManager()
-                }
-
-                logger.info("Completed loading fonts in ${duration.inWholeMilliseconds} ms.")
-                logger.info("Fonts: [ ${FontManager.fontFaces.joinToString { face -> face.name }} ]")
-            }.onFailure(ErrorHandler::fatal)
-
-            runBlocking {
-                tasks?.awaitAll()
-                tasks = null
             }
+        ).awaitAll()
+    }
 
-            // Load config system from disk
-            ConfigSystem.loadAll()
+    /**
+     * Prepares the GUI stage of the client.
+     * This will load [ThemeManager], as well as the [BrowserManager] and [ClientInteropServer].
+     */
+    private fun prepareGuiStage() {
+        // Load theme and component overlay
+        ThemeManager
+        BrowserManager
+
+        // Start Interop Server
+        ClientInteropServer.start()
+
+        IntegrationListener
+
+        taskManager = TaskManager(scope).apply {
+            launch("MCEF", BrowserManager::initBrowser)
+            launch("Deep Learning") {
+                runCatching {
+                    DeepLearningEngine.init()
+                    ModelHolster.load()
+                }.onFailure { exception ->
+                    logger.info("Failed to initialize deep learning.", exception)
+                }
+            }
+        }
+
+        // Prepare glyph manager
+        val duration = measureTime {
+            FontManager.createGlyphManager()
+        }
+        logger.info("Completed loading fonts in ${duration.inWholeMilliseconds} ms.")
+        logger.info("Fonts: [ ${FontManager.fontFaces.joinToString { face -> face.name }} ]")
+
+        // Insert default components on HUD
+        ComponentOverlay.insertDefaultComponents()
+    }
+
+    /**
+     * Shuts down the client. This will save all configurations and stop all running tasks.
+     */
+    private fun shutdownClient() {
+        if (!isInitialized) {
+            return
+        }
+        isInitialized = false
+        logger.info("Shutting down client...")
+
+        // Unregister all event listener and stop all running tasks
+        ChunkScanner.ChunkScannerThread.stopThread()
+        EventManager.unregisterAll()
+
+        // Save all configurations
+        ConfigSystem.storeAll()
+
+        // Shutdown browser as last step
+        BrowserManager.shutdownBrowser()
+    }
+
+    /**
+     * Should be executed to start the client.
+     */
+    @Suppress("unused")
+    private val startHandler = handler<ClientStartEvent> {
+        runCatching {
+            logger.info("Launching $CLIENT_NAME v$clientVersion by $CLIENT_AUTHOR")
+            // Print client information
+            logger.info("Client Version: $clientVersion ($clientCommit)")
+            logger.info("Client Branch: $clientBranch")
+            logger.info("Operating System: ${System.getProperty("os.name")} (${System.getProperty("os.version")})")
+            logger.info("Java Version: ${System.getProperty("java.version")}")
+            logger.info("Screen Resolution: ${mc.window.width}x${mc.window.height}")
+            logger.info("Refresh Rate: ${mc.window.refreshRate} Hz")
+
+            // Initialize event manager
+            EventManager
+
+            // Register resource reloader
+            val resourceManager = mc.resourceManager
+            val clientInitializer = ClientInitializer()
+            if (resourceManager is ReloadableResourceManagerImpl) {
+                resourceManager.registerReloader(clientInitializer)
+            } else {
+                logger.warn("Failed to register resource reloader!")
+
+                // Run resource reloader directly as fallback
+                clientInitializer.reload(resourceManager)
+            }
+        }.onFailure(ErrorHandler::fatal)
+    }
+
+    @Suppress("unused")
+    private val screenHandler = handler<ScreenEvent>(priority = FIRST_PRIORITY) { event ->
+        val taskManager = taskManager ?: return@handler
+
+        if (!taskManager.isCompleted && event.screen !is TaskProgressScreen) {
+            event.cancelEvent()
+            mc.setScreen(TaskProgressScreen("Loading Required Libraries", taskManager))
+        }
+    }
+
+    /**
+     * Resource reloader which is executed on client start and reload.
+     * This is used to run async tasks without blocking the main thread.
+     *
+     * For now this is only used to check for updates and request additional information from the internet.
+     *
+     * @see SynchronousResourceReloader
+     * @see ResourceReloader
+     */
+    class ClientInitializer : SynchronousResourceReloader {
+        override fun reload(manager: ResourceManager) {
+            runCatching(::initializeClient).onSuccess {
+                logger.info("$CLIENT_NAME has been successfully initialized.")
+            }.onFailure(ErrorHandler::fatal)
         }
     }
 
@@ -303,13 +399,8 @@ object LiquidBounce : EventListener {
      */
     @Suppress("unused")
     private val shutdownHandler = handler<ClientShutdownEvent> {
-        logger.info("Shutting down client...")
-
-        ConfigSystem.storeAll()
-        ChunkScanner.ChunkScannerThread.stopThread()
-
-        // Shutdown browser as last step
-        BrowserManager.shutdownBrowser()
+        shutdownClient()
     }
+
 
 }

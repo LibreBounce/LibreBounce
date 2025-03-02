@@ -18,6 +18,7 @@
  */
 package net.ccbluex.liquidbounce.integration.browser
 
+import com.mojang.blaze3d.systems.RenderSystem
 import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.event.EventManager
@@ -25,6 +26,7 @@ import net.ccbluex.liquidbounce.event.events.BrowserReadyEvent
 import net.ccbluex.liquidbounce.integration.browser.supports.IBrowser
 import net.ccbluex.liquidbounce.integration.browser.supports.JcefBrowser
 import net.ccbluex.liquidbounce.integration.interop.persistant.PersistentLocalStorage
+import net.ccbluex.liquidbounce.integration.task.type.Task
 import net.ccbluex.liquidbounce.utils.client.ErrorHandler
 import net.ccbluex.liquidbounce.utils.client.logger
 
@@ -57,11 +59,14 @@ object BrowserManager : Configurable("browser") {
     /**
      * Initializes the browser.
      */
-    fun initBrowser() {
+    fun initBrowser(task: Task) {
         val browser = browserType.getBrowser().apply { browser = this }
 
         // Be aware, this will block the execution of the client until the browser dependencies are available.
-        browser.makeDependenciesAvailable {
+        browser.makeDependenciesAvailable(task)
+
+        // Call the browser ready event
+        RenderSystem.recordRenderCall {
             runCatching {
                 // Initialize the browser backend
                 browser.initBrowserBackend()

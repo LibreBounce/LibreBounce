@@ -84,7 +84,7 @@ object ThemeManager : Configurable("theme") {
             field = value
 
             // Update components
-            ComponentOverlay.insertComponents()
+            ComponentOverlay.insertDefaultComponents()
 
             // Update integration browser
             IntegrationListener.updateIntegrationBrowser()
@@ -248,7 +248,7 @@ class Theme(val name: String) : Closeable {
         }
 
         val image = NativeImageBackedTexture(readBackgroundImage() ?: return false)
-        loadedBackgroundImage = Identifier.of("liquidbounce-theme-bg-${name.lowercase()}")
+        loadedBackgroundImage = Identifier.of("liquidbounce", "theme-bg-${name.lowercase()}")
         mc.textureManager.registerTexture(loadedBackgroundImage, image)
         logger.info("Loaded background image for theme $name")
         return true

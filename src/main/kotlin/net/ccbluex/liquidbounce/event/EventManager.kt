@@ -105,8 +105,6 @@ val ALL_EVENT_CLASSES: Array<KClass<out Event>> = arrayOf(
     FpsChangeEvent::class,
     ClientPlayerDataEvent::class,
     RotationUpdateEvent::class,
-    SplashOverlayEvent::class,
-    SplashProgressEvent::class,
     RefreshArrayListEvent::class,
     BrowserReadyEvent::class,
     ServerConnectEvent::class,

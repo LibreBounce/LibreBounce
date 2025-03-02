@@ -25,7 +25,7 @@ import net.ccbluex.liquidbounce.utils.client.asText
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.minecraft.client.gui.screen.Screen
 
-class VrScreen(
+class VirtualDisplayScreen(
     private val screenType: VirtualScreenType,
     private val theme: Theme = ThemeManager.route(screenType).theme,
     val originalScreen: Screen? = null,

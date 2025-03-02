@@ -116,8 +116,10 @@ dependencies {
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
     modImplementation "net.fabricmc:fabric-language-kotlin:${project.fabric_kotlin_version}"
 
+    // Mod menu
+    modImplementation "com.terraformersmc:modmenu:${project.mod_menu_version}"
+
     // Recommended mods (on IDE)
-    modRuntimeOnly "com.terraformersmc:modmenu:${project.mod_menu_version}"
     modImplementation "maven.modrinth:sodium:${project.sodium_version}"
     modImplementation "maven.modrinth:lithium:${project.lithium_version}"
 
