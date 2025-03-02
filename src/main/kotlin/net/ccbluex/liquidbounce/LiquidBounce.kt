@@ -140,6 +140,9 @@ object LiquidBounce : EventListener {
         initializeResources()
         prepareGuiStage()
 
+        // Register shutdown hook in case [ClientShutdownEvent] is not called
+        Runtime.getRuntime().addShutdownHook(Thread(::shutdownClient))
+
         // Check for AMD Vega iGPU
         if (HAS_AMD_VEGA_APU) {
             logger.info("AMD Vega iGPU detected, enabling different line smooth handling. " +
@@ -302,6 +305,27 @@ object LiquidBounce : EventListener {
     }
 
     /**
+     * Shuts down the client. This will save all configurations and stop all running tasks.
+     */
+    private fun shutdownClient() {
+        if (!isInitialized) {
+            return
+        }
+        isInitialized = false
+        logger.info("Shutting down client...")
+
+        // Unregister all event listener and stop all running tasks
+        ChunkScanner.ChunkScannerThread.stopThread()
+        EventManager.unregisterAll()
+
+        // Save all configurations
+        ConfigSystem.storeAll()
+
+        // Shutdown browser as last step
+        BrowserManager.shutdownBrowser()
+    }
+
+    /**
      * Should be executed to start the client.
      */
     @Suppress("unused")
@@ -365,13 +389,8 @@ object LiquidBounce : EventListener {
      */
     @Suppress("unused")
     private val shutdownHandler = handler<ClientShutdownEvent> {
-        logger.info("Shutting down client...")
-
-        ConfigSystem.storeAll()
-        ChunkScanner.ChunkScannerThread.stopThread()
-
-        // Shutdown browser as last step
-        BrowserManager.shutdownBrowser()
+        shutdownClient()
     }
+
 
 }
