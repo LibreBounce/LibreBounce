@@ -10,6 +10,6 @@ import net.minecraft.util.math.Vec3d
 internal object VelocityPrediction : PredictionMode("Velocity") {
     private val multiplier by floatRange("Multiplier", 1f..1.1f, 0.5f..2f)
 
-    override fun test(target: LivingEntity, targetPosition: Vec3d) =
+    override fun predictPosition(target: LivingEntity, targetPosition: Vec3d) =
         targetPosition + target.velocity * multiplier.random()
 }

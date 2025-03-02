@@ -11,5 +11,5 @@ internal sealed class PredictionMode(
     override val parent: ChoiceConfigurable<*>
         get() = TargetEntityMovementPrediction.mode
 
-    abstract fun test(target: LivingEntity, targetPosition: Vec3d): Vec3d
+    abstract fun predictPosition(target: LivingEntity, targetPosition: Vec3d): Vec3d
 }

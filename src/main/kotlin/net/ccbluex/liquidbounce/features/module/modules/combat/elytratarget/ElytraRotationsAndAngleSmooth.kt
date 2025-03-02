@@ -170,7 +170,7 @@ internal object ElytraRotationsAndAngleSmooth : Configurable("Rotations"), Angle
 
     @Suppress("NOTHING_TO_INLINE")
     private inline fun calculateRotation(target: LivingEntity): Rotation {
-        var targetPos = prediction.testPosition(target, rotateAt.position(target)) + randomDirectionVector * 4.0
+        var targetPos = prediction.predictPosition(target, rotateAt.position(target)) + randomDirectionVector * 4.0
 
         if (autoDistance) {
             val direction = (targetPos - player.pos).normalize()
