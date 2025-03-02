@@ -1,9 +1,9 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat.autoarmor
 
+import net.ccbluex.liquidbounce.features.module.modules.combat.autoarmor.ModuleAutoArmor.UseHotbar
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.Sequence
 import net.ccbluex.liquidbounce.event.tickHandler
-import net.ccbluex.liquidbounce.utils.client.isNewerThanOrEqual1_19_4
 import net.ccbluex.liquidbounce.utils.inventory.HotbarItemSlot
 import net.ccbluex.liquidbounce.utils.item.durability
 import net.ccbluex.liquidbounce.utils.item.type
@@ -83,8 +83,11 @@ object AutoArmorSaveArmor : ToggleableConfigurable(ModuleAutoArmor, "SaveArmor",
             .filterNotNull()
             .filter { !it.isAlreadyEquipped && it.itemSlot.itemStack.item is ArmorItem }
 
-        val hasAnyHotBarReplacement = ModuleAutoArmor.useHotbar && isNewerThanOrEqual1_19_4 &&
+        val hasAnyHotBarReplacement = booleanArrayOf(
+            UseHotbar.enabled,
+            UseHotbar.canReplaceEquippedArmor,
             armorToEquipWithSlots.any { it.itemSlot is HotbarItemSlot }
+        ).all { it }
 
         // the new pieces from the hotbar have a higher priority
         // due to the replacement speed (it's much faster, it makes sense to replace them first),

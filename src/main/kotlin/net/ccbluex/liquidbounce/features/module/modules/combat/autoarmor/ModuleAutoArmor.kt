@@ -18,12 +18,12 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat.autoarmor
 
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.ScheduleInventoryActionEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.combat.autoarmor.AutoArmorSaveArmor.durabilityThreshold
-import net.ccbluex.liquidbounce.utils.client.isNewerThanOrEqual1_19_4
 import net.ccbluex.liquidbounce.utils.inventory.ArmorItemSlot
 import net.ccbluex.liquidbounce.utils.inventory.HotbarItemSlot
 import net.ccbluex.liquidbounce.utils.inventory.*
@@ -45,9 +45,15 @@ object ModuleAutoArmor : ClientModule("AutoArmor", Category.COMBAT) {
      * Should the module use the hotbar to equip armor pieces?
      * If disabled, it will only use inventory moves.
      */
-    val useHotbar by boolean("Hotbar", true)
+    object UseHotbar : ToggleableConfigurable(this, "Hotbar", true) {
+        /**
+         * Defines whether the [UseHotbar] option supports the new mechanic from MC 1.19.4+.
+         */
+        val canReplaceEquippedArmor by boolean("CanReplaceEquippedArmor", false)
+    }
 
     init {
+        tree(UseHotbar)
         tree(AutoArmorSaveArmor)
     }
 
@@ -107,8 +113,11 @@ object ModuleAutoArmor : ClientModule("AutoArmor", Category.COMBAT) {
         val inventorySlot = armorPiece.itemSlot
         val armorPieceSlot = if (isInArmorSlot) ArmorItemSlot(armorPiece.entitySlotId) else inventorySlot
 
-        val canTryHotbarMove = (!isInArmorSlot || isNewerThanOrEqual1_19_4)
-            && useHotbar && !InventoryManager.isInventoryOpen
+        val canTryHotbarMove = booleanArrayOf(
+            UseHotbar.enabled,
+            !InventoryManager.isInventoryOpen,
+            (!isInArmorSlot || UseHotbar.canReplaceEquippedArmor)
+        ).all { it }
 
         if (inventorySlot is HotbarItemSlot && canTryHotbarMove) {
             return UseInventoryAction(inventorySlot)
