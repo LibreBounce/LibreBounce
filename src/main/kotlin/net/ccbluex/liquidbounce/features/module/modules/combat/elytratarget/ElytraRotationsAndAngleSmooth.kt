@@ -32,8 +32,8 @@ internal object ElytraRotationsAndAngleSmooth : Configurable("Rotations"), Angle
     internal val ignoreKillAura by boolean("IgnoreKillAuraRotation", false)
     internal val look by boolean("Look", false)
     private val autoDistance by boolean("AutoDistance", true)
-    private val rotateAt by enumChoice("RotateAt", TargetRotatePosition.EYES)
     private val prediction = tree(TargetEntityMovementPrediction)
+    private val rotateAt by enumChoice("RotateAt", TargetRotatePosition.EYES)
 
     override val running: Boolean
         get() = super.running && ModuleElytraTarget.target != null
