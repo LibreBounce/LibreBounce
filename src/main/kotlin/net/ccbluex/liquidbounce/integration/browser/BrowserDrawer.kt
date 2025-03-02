@@ -38,7 +38,12 @@ class BrowserDrawer(val browser: () -> IBrowser?) : EventListener {
 
     @Suppress("unused")
     private val gameRenderHandler = handler<GameRenderEvent> {
-        browser()?.drawGlobally()
+        val browser = browser() ?: return@handler
+        if (!browser.isInitialized()) {
+            return@handler
+        }
+
+        browser.drawGlobally()
 
         for (tab in tabs) {
             tab.drawn = false
@@ -46,9 +51,9 @@ class BrowserDrawer(val browser: () -> IBrowser?) : EventListener {
     }
 
     @Suppress("unused")
-    private val windowResizeHandler = handler<FrameBufferResizeEvent> { ev ->
+    private val windowResizeHandler = handler<FrameBufferResizeEvent> { event ->
         for (tab in tabs) {
-            tab.resize(ev.width, ev.height)
+            tab.resize(event.width, event.height)
         }
     }
 
