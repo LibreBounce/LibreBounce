@@ -389,6 +389,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleFastPlace,
             ModuleFucker,
             ModuleAutoTrap,
+            ModuleBlockTrap,
             ModuleNoSlowBreak,
             ModuleLiquidPlace,
             ModuleProjectilePuncher,

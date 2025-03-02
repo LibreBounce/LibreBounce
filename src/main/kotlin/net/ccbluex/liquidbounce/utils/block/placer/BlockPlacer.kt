@@ -142,7 +142,7 @@ class BlockPlacer(
             return@handler
         }
 
-        if (blocks.isEmpty) {
+        if (blocks.isEmpty()) {
             return@handler
         }
 
@@ -366,7 +366,7 @@ class BlockPlacer(
         }
 
         val raycast = raycast(range = range.toDouble(), rotation = rotation)
-        return raycast != null && raycast.type == HitResult.Type.BLOCK && raycast.blockPos == pos
+        return raycast.type == HitResult.Type.BLOCK && raycast.blockPos == pos
     }
 
     /**

@@ -26,29 +26,23 @@ import net.ccbluex.liquidbounce.features.command.commands.ingame.CommandCenter
 import net.ccbluex.liquidbounce.features.command.commands.ingame.CommandCenter.CenterHandlerState
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
-import net.ccbluex.liquidbounce.utils.block.*
+import net.ccbluex.liquidbounce.utils.block.DIRECTIONS_EXCLUDING_UP
+import net.ccbluex.liquidbounce.utils.block.getBlockingEntities
+import net.ccbluex.liquidbounce.utils.block.isBlockedByEntitiesReturnCrystal
 import net.ccbluex.liquidbounce.utils.block.placer.BlockPlacer
 import net.ccbluex.liquidbounce.utils.block.placer.CrystalDestroyFeature
-import net.ccbluex.liquidbounce.utils.block.placer.NoRotationMode
-import net.ccbluex.liquidbounce.utils.block.targetfinding.*
+import net.ccbluex.liquidbounce.utils.block.placer.placeInstantOnBlockUpdate
 import net.ccbluex.liquidbounce.utils.collection.Filter
 import net.ccbluex.liquidbounce.utils.collection.getSlot
 import net.ccbluex.liquidbounce.utils.entity.getFeetBlockPos
 import net.ccbluex.liquidbounce.utils.entity.isInHole
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
-import net.minecraft.block.BlockState
 import net.minecraft.block.Blocks
 import net.minecraft.entity.Entity
 import net.minecraft.entity.decoration.EndCrystalEntity
-import net.minecraft.item.ItemStack
-import net.minecraft.item.Items
-import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
-import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket
-import net.minecraft.network.packet.s2c.play.ChunkDeltaUpdateS2CPacket
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Box
 import net.minecraft.util.math.Direction
-import net.minecraft.util.math.Vec3i
 import org.joml.Vector2d
 import kotlin.math.abs
 import kotlin.math.ceil
@@ -351,59 +345,16 @@ object ModuleSurround : ClientModule("Surround", Category.WORLD, disableOnQuit =
             return@handler
         }
 
-        when (val packet = it.packet) {
-            is BlockUpdateS2CPacket -> placeInstant(packet.pos, packet.state)
-            is ChunkDeltaUpdateS2CPacket -> {
-                packet.visitUpdates { pos, state -> placeInstant(null, state, pos as BlockPos.Mutable) }
-            }
-        }
+        placer.placeInstantOnBlockUpdate(it)
     }
 
-    private fun placeInstant(blockPos: BlockPos?, state: BlockState, blockPos1: BlockPos.Mutable? = null) {
-        val pos = blockPos ?: blockPos1!!
-        val irrelevantPacket = !state.isReplaceable || pos !in placer.blocks
-
-        val rotationMode = placer.rotationMode.activeChoice
-        if (irrelevantPacket || rotationMode !is NoRotationMode || pos.isBlockedByEntities()) {
-            return
-        }
-
-        val searchOptions = BlockPlacementTargetFindingOptions(
-            BlockOffsetOptions(
-                listOf(Vec3i.ZERO),
-                BlockPlacementTargetFindingOptions.PRIORITIZE_LEAST_BLOCK_DISTANCE,
-            ),
-            FaceHandlingOptions(CenterTargetPositionFactory, considerFacingAwayFaces = placer.wallRange > 0),
-            stackToPlaceWith = ItemStack(Items.SANDSTONE),
-            PlayerLocationOnPlacement(position = player.pos, pose = player.pose),
-        )
-
-        val placementTarget = findBestBlockPlacementTarget(pos, searchOptions) ?: return
-
-        // Check if we can reach the target
-        if (!placer.canReach(placementTarget.interactedBlockPos, placementTarget.rotation)) {
-            return
-        }
-
-        if (placementTarget.interactedBlockPos.getBlock().isInteractable(
-                placementTarget.interactedBlockPos.getState()
-            )
-        ) {
-            return
-        }
-
-        if (rotationMode.send) {
-            val rotation = placementTarget.rotation.normalize()
-            network.sendPacket(
-                PlayerMoveC2SPacket.LookAndOnGround(rotation.yaw, rotation.pitch, player.isOnGround,
-                    player.horizontalCollision)
-            )
-        }
-
-        placer.doPlacement(false, blockPos ?: blockPos1!!.toImmutable(), placementTarget)
-    }
-
-    private fun getEntitySurround(entity: Entity, list: HashSet<BlockPos>, blocked: HashSet<BlockPos>, y: Double) {
+    fun getEntitySurround(
+        entity: Entity,
+        list: HashSet<BlockPos>,
+        blocked: HashSet<BlockPos>,
+        y: Double,
+        down: Boolean = false
+    ) {
         val bb = entity.boundingBox
 
         val maxX = getMax(bb, Direction.Axis.X)
@@ -417,8 +368,9 @@ object ModuleSurround : ClientModule("Surround", Category.WORLD, disableOnQuit =
 
         blocked.addAll(hole)
 
+        val directions = if (down) DIRECTIONS_EXCLUDING_UP else Direction.HORIZONTAL
         hole.forEach {
-            Direction.HORIZONTAL.forEach { direction ->
+            directions.forEach { direction ->
                 val pos = it.offset(direction)
 
                 if (it !in blocked) {
