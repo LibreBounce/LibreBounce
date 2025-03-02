@@ -16,11 +16,13 @@ import net.ccbluex.liquidbounce.render.WorldRenderEnvironment
 import net.ccbluex.liquidbounce.render.drawCustomMesh
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
+import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.utils.canSeePointFrom
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.client.registerAsDynamicImageFromClientResources
 import net.ccbluex.liquidbounce.utils.client.world
 import net.ccbluex.liquidbounce.utils.combat.shouldBeShown
+import net.ccbluex.liquidbounce.utils.entity.rotation
 import net.ccbluex.liquidbounce.utils.kotlin.random
 import net.ccbluex.liquidbounce.utils.kotlin.randomDouble
 import net.ccbluex.liquidbounce.utils.math.interpolate
@@ -36,12 +38,15 @@ import org.joml.Quaternionf
 import kotlin.math.max
 
 /**
- * Particles - красивые частички в мире.
+ * Particles
+ *
+ * Displays particles when attacking an entity.
  *
  * @author sqlerrorthing
  */
 @Suppress("MagicNumber")
 object ModuleParticles : ClientModule("Particles", category = Category.RENDER) {
+
     val particleSize by float("Size", 1f, 0.5f..2f)
     val speed by float("Speed", 1f, 0.5f..2f)
     private val count by intRange("Count", 2..10, 2..30, "particles")
@@ -54,21 +59,17 @@ object ModuleParticles : ClientModule("Particles", category = Category.RENDER) {
 
     @Suppress("unused")
     private val attackEvent = handler<AttackEntityEvent> { event ->
-        if (!event.entity.shouldBeShown()
-            || !chronometer.hasElapsed(230)
-            || event.isCancelled
-        ) {
+        if (!event.entity.shouldBeShown() || !chronometer.hasElapsed(230) || event.isCancelled) {
             return@handler
         }
 
         chronometer.reset()
 
-        val center = with (event.entity) {
-            boundingBox.center
-        }
+        val directionVector = (RotationManager.currentRotation ?: player.rotation).directionVector
+        val pos = player.eyePos.add(directionVector * player.distanceTo(event.entity).toDouble())
 
         repeat(count.random()) { _ ->
-            particles.add(Particle(center))
+            particles.add(Particle(pos))
         }
     }
 

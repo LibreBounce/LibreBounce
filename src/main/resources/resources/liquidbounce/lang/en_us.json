@@ -398,6 +398,7 @@
   "liquidbounce.module.antiStaff.messages.staffsLoaded": "%s staff member loaded for %s.",
   "liquidbounce.module.antiStaff.messages.vanishClear": "No vanished player was found.",
   "liquidbounce.module.attackEffects.description": "Displays an effect when attacking an entity.",
+  "liquidbounce.module.particles.description": "Displays particles when attacking an entity.",
   "liquidbounce.module.autoAccount.description": "Automatically authenticates you on cracked servers.",
   "liquidbounce.module.autoArmor.description": "Automatically equips the best armor in your inventory.",
   "liquidbounce.module.autoArmor.value.delay.description": "Time to wait between equipping multiple items.",
