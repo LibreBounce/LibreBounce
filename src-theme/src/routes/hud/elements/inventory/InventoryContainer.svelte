@@ -21,11 +21,11 @@
   @import "../../../../colors";
 
   .container {
-    background-color: rgba($hotbar-base-color, 0.34);
+    background-color: rgba($hotbar-base-color, 0.5);
     padding: 4px;
-    border-radius: 4px;
+    border-radius: 5px;
     display: grid;
-    grid-template-columns: repeat(9, minmax(0, 1fr));
+    grid-template-columns: repeat(9, 1fr);
     gap: 0.5rem;
   }
 </style>

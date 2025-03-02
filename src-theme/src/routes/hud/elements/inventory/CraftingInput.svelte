@@ -11,7 +11,7 @@
     });
 </script>
 
-<div class="container" style="grid-template-columns: repeat({Math.floor(Math.sqrt(stacks.length))}, minmax(0, 1fr))">
+<div class="container">
     {#each stacks as stack (stack)}
         <ItemStackView {stack}/>
     {/each}
@@ -21,9 +21,10 @@
   @import "../../../../colors";
 
   .container {
-    background-color: rgba($hotbar-base-color, 0.34);
+    background-color: rgba($hotbar-base-color, 0.5);
+    grid-template-columns: repeat(2, 1fr);
     padding: 4px;
-    border-radius: 4px;
+    border-radius: 5px;
     display: grid;
     gap: 0.5rem;
   }

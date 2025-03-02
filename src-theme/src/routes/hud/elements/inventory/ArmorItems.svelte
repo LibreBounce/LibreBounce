@@ -18,7 +18,6 @@
 </div>
 
 <style lang="scss">
-
   .armor-items {
     position: relative;
     display: flex;
