@@ -28,8 +28,15 @@ object ModuleElytraTarget : ClientModule("ElytraTarget", Category.COMBAT) {
     }
 
     private val targetRenderer = tree(WorldTargetRenderer(this))
-
     private val safe by boolean("Safe", true)
+    private val alwaysGlide by boolean("AlwaysGlide", false)
+
+    @JvmStatic
+    @get:JvmName("canAlwaysGlide")
+    val canAlwaysGlide get() =
+        running
+        && alwaysGlide
+        && target != null
 
     val canIgnoreKillAuraRotations get() =
         running

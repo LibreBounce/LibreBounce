@@ -23,6 +23,7 @@ import net.ccbluex.liquidbounce.config.types.NoneChoice;
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.PlayerAfterJumpEvent;
 import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent;
+import net.ccbluex.liquidbounce.features.module.modules.combat.elytratarget.ModuleElytraTarget;
 import net.ccbluex.liquidbounce.features.module.modules.movement.*;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleAntiBlind;
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold;
@@ -273,4 +274,8 @@ public abstract class MixinLivingEntity extends MixinEntity {
         return rotation.getDirectionVector();
     }
 
+    @ModifyExpressionValue(method = "tickGliding", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;canGlide()Z"))
+    private boolean hookCanGlideInTickGliding(boolean original) {
+        return ModuleElytraTarget.canAlwaysGlide() || original;
+    }
 }
