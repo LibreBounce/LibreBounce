@@ -62,19 +62,11 @@ internal object ElytraRotationsAndAngleSmooth : Configurable("Rotations"), Angle
         }
 
     /**
-     * # Sorry, but im TOO LAZY to translate this shit.
+     * Adaptively smooths the angle, but at the same time
+     * Allows it to work well with [ModuleKillAura] and [ignoreKillAura].
      *
-     * Адаптивно сглаживает угол, но в то же время
-     * позволяет хорошо работать с [ModuleKillAura].
-     *
-     * Киллаура может просто не бить лол из-за "особых" настроек
-     * в виде обязательного убеждения в том, что мы навились на цель.
-     *
-     * Хорошо поворачивается и работает.
-     *
-     * Применимо только (и для него сделано) к [ElytraTarget]
-     *
-     * #### Пожалуйста, не используйте это ГДЕ-ЛИБО ЕЩЕ
+     * Please do not use this ANYWHERE ELSE
+     * This is only for [ModuleElytraTarget]
      */
     override fun limitAngleChange(
         factorModifier: Float,
