@@ -19,6 +19,8 @@
  */
 package net.ccbluex.liquidbounce.integration
 
+import com.mojang.blaze3d.systems.RenderSystem
+import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.*
@@ -27,6 +29,7 @@ import net.ccbluex.liquidbounce.features.misc.HideAppearance
 import net.ccbluex.liquidbounce.integration.browser.BrowserManager
 import net.ccbluex.liquidbounce.integration.theme.Theme
 import net.ccbluex.liquidbounce.integration.theme.ThemeManager
+import net.ccbluex.liquidbounce.mcef.progress.MCEFProgressMenu
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.utils.client.mc
@@ -147,14 +150,14 @@ object IntegrationListener : EventListener {
 
         logger.info(
             "Reloading integration browser ${clientJcef.javaClass.simpleName} " +
-                    "to ${ThemeManager.route()}"
+                "to ${ThemeManager.route()}"
         )
         ThemeManager.updateImmediate(clientJcef, momentaryVirtualScreen?.type)
     }
 
     fun restoreOriginalScreen() {
-        if (mc.currentScreen is VrScreen) {
-            mc.setScreen((mc.currentScreen as VrScreen).originalScreen)
+        if (mc.currentScreen is VirtualDisplayScreen) {
+            mc.setScreen((mc.currentScreen as VirtualDisplayScreen).originalScreen)
         }
     }
 
@@ -173,7 +176,7 @@ object IntegrationListener : EventListener {
 
     @Suppress("unused")
     private val screenRefresher = handler<GameTickEvent> {
-        if (browserIsReady) {
+        if (browserIsReady && mc.currentScreen !is MCEFProgressMenu) {
             handleCurrentScreen(mc.currentScreen)
         }
     }
@@ -189,12 +192,12 @@ object IntegrationListener : EventListener {
 
     private fun handleCurrentScreen(screen: Screen?): Boolean {
         return when {
-            screen !is VrScreen && HideAppearance.isHidingNow -> {
+            screen !is VirtualDisplayScreen && HideAppearance.isHidingNow -> {
                 virtualClose()
 
                 false
             }
-            !browserIsReady || screen is VrScreen -> false
+            !browserIsReady || screen is VirtualDisplayScreen -> false
             else -> {
                 // Are we currently playing the game?
                 if (mc.world != null && screen == null) {
@@ -234,7 +237,7 @@ object IntegrationListener : EventListener {
 
         return when {
             theme.doesSupport(name) -> {
-                mc.setScreen(VrScreen(virtualScreenType, theme, originalScreen = virtScreen))
+                mc.setScreen(VirtualDisplayScreen(virtualScreenType, theme, originalScreen = virtScreen))
 
                 true
             }
