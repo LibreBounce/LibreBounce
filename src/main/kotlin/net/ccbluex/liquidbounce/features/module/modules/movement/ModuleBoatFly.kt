@@ -47,21 +47,21 @@ object ModuleBoatFly : ClientModule("BoatFly", Category.MOVEMENT) {
         if (player.vehicle is BoatEntity) {
             val boat = player.vehicle as BoatEntity
 
-            // Get player input for movement
+         
             val moveInput = client.options.forwardKey.isPressed ||
                 client.options.backKey.isPressed ||
                 client.options.leftKey.isPressed ||
                 client.options.rightKey.isPressed
 
-            // Calculate target horizontal speed
+          
             val targetSpeed = if (moveInput) forwardBackSpeed.toDouble() * BASE_SPEED else 0.0
 
-            // Get current horizontal speed of the boat
+           
             val currentVelX = boat.velocity.x
             val currentVelZ = boat.velocity.z
             val currentSpeed = Math.sqrt(currentVelX * currentVelX + currentVelZ * currentVelZ)
 
-            // Calculate new speed based on target and current speed
+          
             var newSpeed = when {
                 targetSpeed == 0.0 -> 0.0
                 currentSpeed == 0.0 -> targetSpeed
@@ -77,17 +77,17 @@ object ModuleBoatFly : ClientModule("BoatFly", Category.MOVEMENT) {
                 Pair(0.0, 0.0)
             }
 
-            // Handle vertical movement for MotFly (up/down control)
+            
             var newVelY = boat.velocity.y
 
             if (player.isOnGround) {
-                // Player is on the ground, no vertical movement.
+              
                 newVelY = boat.velocity.y
             } else if (player.isSneaking) {
-                // Sneak to decrease height
+         
                 newVelY = -VERTICAL_SPEED
             } else if (client.options.jumpKey.isPressed) {
-                // Jump to increase height
+      
                 newVelY = VERTICAL_SPEED
             }
 
@@ -97,23 +97,17 @@ object ModuleBoatFly : ClientModule("BoatFly", Category.MOVEMENT) {
 
                     val blockBelow = world.getBlockState(boat.blockPos.down())
 
-                    // 如果船下方没有水和空气，船应能够上升并保持在空中
                     if (!blockBelow.isOf(Blocks.WATER) && !blockBelow.isAir) {
                         if (player.isSneaking) {
-                            // 按住 Shift 键让船下降
                             newVelY = -VERTICAL_SPEED
                         } else if (client.options.jumpKey.isPressed) {
-                            // 按下跳跃键让船上升
                             newVelY = VERTICAL_SPEED
                         } else {
-                            // 当没有输入跳跃键时，船会保持在当前位置
                             newVelY = boat.velocity.y
                         }
 
-                        // 设置船的垂直速度为新的速度，保持船在空中的高度
                         boat.setVelocity(newVelX, newVelY, newVelZ)
                     } else {
-                        // 当船下方是水或空气时，继续正常运动
                         boat.setVelocity(newVelX, boat.velocity.y, newVelZ)
                     }
                 }
@@ -121,11 +115,8 @@ object ModuleBoatFly : ClientModule("BoatFly", Category.MOVEMENT) {
 
                 Mode.INWATER -> {
                     boat.setVelocity(newVelX, newVelY, newVelZ)
-
-                    // 在水中时，继续保持船在水面上，避免被拉回
                     val blockBelow = world.getBlockState(boat.blockPos.down())
                     if (!blockBelow.isOf(Blocks.WATER)) {
-                        // 当船下方没有水时，保持船的当前高度，避免被拉入地面
                         boat.setVelocity(newVelX, 0.0, newVelZ)
                     }
                     val world = boat.world
@@ -139,21 +130,16 @@ object ModuleBoatFly : ClientModule("BoatFly", Category.MOVEMENT) {
                     val velocity = Vec3d(newVelX, newVelY, newVelZ)
 
                     if (isSinglePlayer) {
-                        // 如果是单人模式，直接更新船的位置
                         boat.updatePosition(boat.x + newVelX, boat.y + newVelY, boat.z + newVelZ)
                     } else {
-                        // 如果是多人模式，发送速度更新包
                         val entityMovePacket = EntityVelocityUpdateS2CPacket(boat.id, velocity)
                         client.networkHandler?.sendPacket(entityMovePacket)
                     }
 
-                    // 防止船被拉入地面
                     val blockBelow = world.getBlockState(boat.blockPos.down())
                     if (!blockBelow.isOf(Blocks.WATER) && !blockBelow.isAir) {
-                        // 当船下方没有水和空气时，保持船的当前高度，避免被拉入地面
-                        boat.setVelocity(newVelX, 0.0, newVelZ)  // 设置垂直速度为0，保持船的位置
+                        boat.setVelocity(newVelX, 0.0, newVelZ)  
                     } else {
-                        // 当船下方有水或空气时，保持正常运动
                         boat.setVelocity(newVelX, boat.velocity.y, newVelZ)
                     }
                 }
