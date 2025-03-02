@@ -129,6 +129,8 @@ object RotationManager : EventListener {
         )
     }
 
+    var ticksSinceChange = 0
+
     /**
      * Update current rotation to a new rotation step
      */
@@ -137,6 +139,8 @@ object RotationManager : EventListener {
         val activeRotationTarget = this.activeRotationTarget ?: return
         val playerRotation = player.rotation
 
+        ticksSinceChange++
+
         val aimPlan = this.rotationTarget
         if (aimPlan != null) {
             val enemyChange = aimPlan.entity != null && aimPlan.entity != previousRotationTarget?.entity &&
@@ -144,8 +148,11 @@ object RotationManager : EventListener {
             val triggerNoChange = triggerNoDifference && aimPlan.slowStart?.onZeroRotationDifference == true
 
             if (triggerNoChange || enemyChange) {
+                ticksSinceChange = 0
                 aimPlan.slowStart.onTrigger()
             }
+        } else {
+            ticksSinceChange = 0
         }
 
         // Prevents any rotation changes when inventory is opened
