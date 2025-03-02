@@ -28,6 +28,9 @@ import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.READ_FINAL_
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.util.Identifier
 
+/**
+ * Draws any kind of [IBrowser] to the Minecraft screen.
+ */
 class BrowserDrawer(val browser: () -> IBrowser?) : EventListener {
 
     private val tabs

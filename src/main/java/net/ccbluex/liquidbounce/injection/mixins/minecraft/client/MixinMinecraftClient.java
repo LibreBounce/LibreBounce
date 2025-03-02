@@ -32,7 +32,7 @@ import net.ccbluex.liquidbounce.features.module.modules.misc.ModuleMiddleClickAc
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleClickGui;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleXRay;
 import net.ccbluex.liquidbounce.integration.BrowserScreen;
-import net.ccbluex.liquidbounce.integration.VrScreen;
+import net.ccbluex.liquidbounce.integration.VirtualDisplayScreen;
 import net.ccbluex.liquidbounce.render.engine.RenderingFlags;
 import net.ccbluex.liquidbounce.utils.client.vfp.VfpCompatibility;
 import net.ccbluex.liquidbounce.utils.combat.CombatManager;
@@ -357,7 +357,7 @@ public abstract class MixinMinecraftClient {
     private boolean injectFixAttackCooldownOnVirtualBrowserScreen(MinecraftClient instance, int value) {
         // Do not reset attack cooldown when we are in the vr/browser screen, as this poses an
         // unintended modification to the attack cooldown, which is not intended.
-        return !(this.currentScreen instanceof BrowserScreen || this.currentScreen instanceof VrScreen ||
+        return !(this.currentScreen instanceof BrowserScreen || this.currentScreen instanceof VirtualDisplayScreen ||
                 this.currentScreen instanceof ModuleClickGui.ClickScreen);
     }
 

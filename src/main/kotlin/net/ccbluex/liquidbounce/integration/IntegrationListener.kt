@@ -156,8 +156,8 @@ object IntegrationListener : EventListener {
     }
 
     fun restoreOriginalScreen() {
-        if (mc.currentScreen is VrScreen) {
-            mc.setScreen((mc.currentScreen as VrScreen).originalScreen)
+        if (mc.currentScreen is VirtualDisplayScreen) {
+            mc.setScreen((mc.currentScreen as VirtualDisplayScreen).originalScreen)
         }
     }
 
@@ -192,7 +192,7 @@ object IntegrationListener : EventListener {
 
     private fun handleCurrentScreen(screen: Screen?): Boolean {
         return when {
-            screen !is VrScreen && HideAppearance.isHidingNow -> {
+            screen !is VirtualDisplayScreen && HideAppearance.isHidingNow -> {
                 virtualClose()
 
                 false
@@ -208,7 +208,7 @@ object IntegrationListener : EventListener {
                     false
                 }
             }
-            screen is VrScreen -> false
+            screen is VirtualDisplayScreen -> false
             else -> {
                 // Are we currently playing the game?
                 if (mc.world != null && screen == null) {
@@ -248,7 +248,7 @@ object IntegrationListener : EventListener {
 
         return when {
             theme.doesSupport(name) -> {
-                mc.setScreen(VrScreen(virtualScreenType, theme, originalScreen = virtScreen))
+                mc.setScreen(VirtualDisplayScreen(virtualScreenType, theme, originalScreen = virtScreen))
 
                 true
             }
