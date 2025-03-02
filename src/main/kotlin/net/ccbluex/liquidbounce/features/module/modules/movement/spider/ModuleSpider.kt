@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,10 +19,11 @@
 package net.ccbluex.liquidbounce.features.module.modules.movement.spider
 
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.modules.movement.spider.modes.*
+import net.ccbluex.liquidbounce.features.module.ClientModule
+import net.ccbluex.liquidbounce.features.module.modules.movement.spider.modes.SpiderVanilla
+import net.ccbluex.liquidbounce.features.module.modules.movement.spider.modes.SpiderVulcan288
 
-object ModuleSpider : Module("Spider", Category.MOVEMENT, aliases = arrayOf("WallClimb")) {
+object ModuleSpider : ClientModule("Spider", Category.MOVEMENT, aliases = arrayOf("WallClimb")) {
 
     init {
         enableLock()

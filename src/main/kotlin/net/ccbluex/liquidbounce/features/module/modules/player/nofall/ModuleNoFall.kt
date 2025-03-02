@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,9 +19,10 @@
 package net.ccbluex.liquidbounce.features.module.modules.player.nofall
 
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.player.nofall.modes.*
 import net.minecraft.entity.EntityPose
+import net.minecraft.item.Items
 
 /**
  * NoFall module
@@ -29,13 +30,14 @@ import net.minecraft.entity.EntityPose
  * Protects you from taking fall damage.
  */
 
-object ModuleNoFall : Module("NoFall", Category.PLAYER) {
+object ModuleNoFall : ClientModule("NoFall", Category.PLAYER) {
 
     internal val modes = choices(
         "Mode", NoFallSpoofGround, arrayOf(
             NoFallSpoofGround,
             NoFallNoGround,
             NoFallPacket,
+            NoFallPacketJump,
             NoFallMLG,
             NoFallRettungsplatform,
             NoFallSpartan524Flag,
@@ -43,40 +45,43 @@ object ModuleNoFall : Module("NoFall", Category.PLAYER) {
             NoFallVulcanTP,
             NoFallVerus,
             NoFallForceJump,
+            NoFallCancel,
             NoFallBlink,
-            NoFallHoplite,
             NoFallHypixelPacket,
             NoFallHypixel,
         )
-    )
+    ).apply(::tagBy)
 
-    private var duringFallFlying by boolean("DuringFallFlying", false)
+    private var notWhileGliding by boolean("NotWhileGliding", true)
+    private var notWithMace by boolean("NotWithMace", true)
 
-    init {
-        tagBy(this.modes)
-    }
+    override val running: Boolean
+        get() {
+            if (!super.running) {
+                return false
+            }
 
-    override fun handleEvents(): Boolean {
-        if (!super.handleEvents()) {
-            return false
+            // In creative mode, we don't need to reduce fall damage
+            if (player.isCreative || player.isSpectator) {
+                return false
+            }
+
+            // Check if we are invulnerable or flying
+            if (player.abilities.invulnerable || player.abilities.flying) {
+                return false
+            }
+
+            // With Elytra - we don't want to reduce fall damage.
+            if (notWhileGliding && player.isGliding && player.isInPose(EntityPose.GLIDING)) {
+                return false
+            }
+
+            // Check if we are holding a mace
+            if (notWithMace && player.mainHandStack.item == Items.MACE) {
+                return false
+            }
+
+            return true
         }
-
-        // In creative mode, we don't need to reduce fall damage
-        if (player.isCreative || player.isSpectator) {
-            return false
-        }
-
-        // Check if we are invulnerable or flying
-        if (player.abilities.invulnerable || player.abilities.flying) {
-            return false
-        }
-
-        // With Elytra - we don't want to reduce fall damage.
-        if (!duringFallFlying && player.isFallFlying && player.isInPose(EntityPose.FALL_FLYING)) {
-            return false
-        }
-
-        return true
-    }
 
 }

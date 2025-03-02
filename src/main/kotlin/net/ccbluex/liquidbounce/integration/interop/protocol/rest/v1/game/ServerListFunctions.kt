@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,18 +23,18 @@ package net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.game
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder
 import com.google.gson.JsonArray
-import com.google.gson.JsonObject
 import com.mojang.blaze3d.systems.RenderSystem
 import io.netty.handler.codec.http.FullHttpResponse
-import net.ccbluex.liquidbounce.event.Listenable
+import net.ccbluex.liquidbounce.config.gson.interopGson
+import net.ccbluex.liquidbounce.config.gson.serializer.minecraft.ResourcePolicy
+import net.ccbluex.liquidbounce.config.gson.util.emptyJsonObject
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.utils.client.logger
-import net.ccbluex.liquidbounce.utils.client.mc
-import net.ccbluex.liquidbounce.integration.interop.protocol.ResourcePolicy
-import net.ccbluex.liquidbounce.integration.interop.protocol.protocolGson
 import net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.game.ActiveServerList.pingThemAll
 import net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.game.ActiveServerList.serverList
+import net.ccbluex.liquidbounce.utils.client.logger
+import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.netty.http.model.RequestObject
 import net.ccbluex.netty.http.util.httpForbidden
 import net.ccbluex.netty.http.util.httpInternalServerError
@@ -63,7 +63,7 @@ fun getServers(requestObject: RequestObject) = runCatching {
 
     val servers = JsonArray()
     serverList.toList().forEachIndexed { id, serverInfo ->
-        val json = protocolGson.toJsonTree(serverInfo)
+        val json = interopGson.toJsonTree(serverInfo)
 
         if (!json.isJsonObject) {
             logger.warn("Failed to convert serverInfo to json")
@@ -91,7 +91,7 @@ fun postConnect(requestObject: RequestObject): FullHttpResponse {
     RenderSystem.recordRenderCall {
         ConnectScreen.connect(MultiplayerScreen(TitleScreen()), mc, serverAddress, serverInfo, false, null)
     }
-    return httpOk(JsonObject())
+    return httpOk(emptyJsonObject())
 }
 
 // PUT /api/v1/client/servers/add
@@ -112,7 +112,7 @@ fun putAddServer(requestObject: RequestObject): FullHttpResponse {
     serverList.add(serverInfo, false)
     serverList.saveFile()
 
-    return httpOk(JsonObject())
+    return httpOk(emptyJsonObject())
 }
 
 // DELETE /api/v1/client/servers/remove
@@ -125,7 +125,7 @@ fun deleteServer(requestObject: RequestObject): FullHttpResponse {
     serverList.remove(serverInfo)
     serverList.saveFile()
 
-    return httpOk(JsonObject())
+    return httpOk(emptyJsonObject())
 }
 
 // PUT /api/v1/client/servers/edit
@@ -147,7 +147,7 @@ fun putEditServer(requestObject: RequestObject): FullHttpResponse {
     }
     serverList.saveFile()
 
-    return httpOk(JsonObject())
+    return httpOk(emptyJsonObject())
 }
 
 // POST /api/v1/client/servers/swap
@@ -158,7 +158,7 @@ fun postSwapServers(requestObject: RequestObject): FullHttpResponse {
 
     serverList.swapEntries(serverSwapRequest.from, serverSwapRequest.to)
     serverList.saveFile()
-    return httpOk(JsonObject())
+    return httpOk(emptyJsonObject())
 }
 
 // POST /api/v1/client/servers/order
@@ -173,10 +173,10 @@ fun postOrderServers(requestObject: RequestObject): FullHttpResponse {
         }
     serverList.saveFile()
 
-    return httpOk(JsonObject())
+    return httpOk(emptyJsonObject())
 }
 
-object ActiveServerList : Listenable {
+object ActiveServerList : EventListener {
 
     internal var serverList = ServerList(mc).apply { loadFile() }
 
@@ -227,11 +227,12 @@ object ActiveServerList : Listenable {
         }
     }
 
-    val tickHandler = handler<GameTickEvent> {
+    @Suppress("unused")
+    private val tickHandler = handler<GameTickEvent> {
         serverListPinger.tick()
     }
 
-    override fun handleEvents() = true
+    override val running = true
 
 }
 

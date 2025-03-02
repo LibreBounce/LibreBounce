@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,26 +18,25 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.once
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.player.ModuleAntiAFK.CustomMode.Rotate.angle
 import net.ccbluex.liquidbounce.features.module.modules.player.ModuleAntiAFK.CustomMode.Rotate.ignoreOpenInventory
 import net.ccbluex.liquidbounce.features.module.modules.player.ModuleAntiAFK.CustomMode.Rotate.rotationsConfigurable
-import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold
-import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
-import net.ccbluex.liquidbounce.utils.client.EventScheduler
+import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
+import net.ccbluex.liquidbounce.utils.kotlin.random
 import net.ccbluex.liquidbounce.utils.movement.DirectionalInput
 import net.minecraft.util.Hand
-import org.apache.commons.lang3.RandomUtils
 import kotlin.random.Random
 
 /**
@@ -46,7 +45,7 @@ import kotlin.random.Random
  * Prevents you from being kicked for AFK.
  */
 
-object ModuleAntiAFK : Module("AntiAFK", Category.PLAYER) {
+object ModuleAntiAFK : ClientModule("AntiAFK", Category.PLAYER) {
 
     private val modes = choices(
         "Mode", RandomMode, arrayOf(
@@ -60,7 +59,7 @@ object ModuleAntiAFK : Module("AntiAFK", Category.PLAYER) {
             get() = modes
 
         @Suppress("unused")
-        val repeatable = repeatable {
+        val repeatable = tickHandler {
             waitTicks(10)
             player.yaw += 180f
         }
@@ -82,11 +81,11 @@ object ModuleAntiAFK : Module("AntiAFK", Category.PLAYER) {
         var randomDirection = DirectionalInput.NONE
 
         @Suppress("unused")
-        val repeatable = repeatable {
-            when (RandomUtils.nextInt(0, 6)) {
+        val repeatable = tickHandler {
+            when (Random.nextInt(0, 6)) {
                 0 -> {
-                    EventScheduler.schedule<MovementInputEvent>(ModuleScaffold) {
-                        it.jumping = true
+                    once<MovementInputEvent> { event ->
+                        event.jump = true
                     }
                 }
 
@@ -109,15 +108,15 @@ object ModuleAntiAFK : Module("AntiAFK", Category.PLAYER) {
                 }
 
                 3 -> {
-                    player.inventory.selectedSlot = RandomUtils.nextInt(0, 9)
+                    player.inventory.selectedSlot = Random.nextInt(0, 9)
                 }
 
                 4 -> {
-                    player.yaw += RandomUtils.nextFloat(0f, 360f) - 180f
+                    player.yaw += (-180f..180f).random().toFloat()
                 }
 
                 5 -> {
-                    player.pitch = (RandomUtils.nextFloat(0f, 10f) - 5f + player.pitch).coerceIn(-90f, 90f)
+                    player.pitch = ((-5f..5f).random().toFloat() + player.pitch).coerceIn(-90f, 90f)
                 }
             }
             waitTicks((4..7).random())
@@ -155,7 +154,7 @@ object ModuleAntiAFK : Module("AntiAFK", Category.PLAYER) {
         val move by boolean("Move", true)
 
         @Suppress("unused")
-        val swingRepeatable = repeatable {
+        val swingRepeatable = tickHandler {
             if (Swing.enabled && !player.handSwinging) {
                 waitTicks(Swing.delay)
                 player.swingHand(Hand.MAIN_HAND)
@@ -163,14 +162,14 @@ object ModuleAntiAFK : Module("AntiAFK", Category.PLAYER) {
         }
 
         @Suppress("unused")
-        val repeatable = repeatable {
+        val repeatable = tickHandler {
             if (move) {
                 mc.options.forwardKey.isPressed = true
             }
 
             if (jump && player.isOnGround) {
-                EventScheduler.schedule<MovementInputEvent>(ModuleScaffold) {
-                    it.jumping = true
+                once<MovementInputEvent> { event ->
+                    event.jump = true
                 }
             }
 
@@ -178,7 +177,7 @@ object ModuleAntiAFK : Module("AntiAFK", Category.PLAYER) {
                 waitTicks(Rotate.delay)
                 val currentRotation = RotationManager.serverRotation
                 val pitchRandomization = Random.nextDouble(-5.0, 5.0).toFloat()
-                RotationManager.aimAt(
+                RotationManager.setRotationTarget(
                     Rotation(
                         currentRotation.yaw + angle, (currentRotation.pitch + pitchRandomization).coerceIn(-90f, 90f)
                     ), ignoreOpenInventory, rotationsConfigurable, Priority.IMPORTANT_FOR_USAGE_1, ModuleAntiAFK

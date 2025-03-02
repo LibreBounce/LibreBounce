@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,23 +18,25 @@
  */
 package net.ccbluex.liquidbounce.event
 
-import com.google.common.collect.Lists
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.utils.client.logger
+import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.FIRST_PRIORITY
+import java.util.concurrent.CopyOnWriteArrayList
+import java.util.function.BooleanSupplier
+import java.util.function.IntSupplier
 import kotlin.coroutines.Continuation
+import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-typealias SuspendableHandler<T> = suspend Sequence<T>.(T) -> Unit
+typealias SuspendableEventHandler<T> = suspend Sequence.(T) -> Unit
+typealias SuspendableHandler = suspend Sequence.() -> Unit
 
-object SequenceManager : Listenable {
+object SequenceManager : EventListener {
 
     // Running sequences
-    internal val sequences = Lists.newCopyOnWriteArrayList<Sequence<*>>()
+    internal val sequences = CopyOnWriteArrayList<Sequence>()
 
     /**
      * Tick sequences
@@ -44,10 +46,10 @@ object SequenceManager : Listenable {
      * in the same tick
      */
     @Suppress("unused")
-    val tickSequences = handler<GameTickEvent>(priority = 1000) {
+    val tickSequences = handler<GameTickEvent>(priority = FIRST_PRIORITY) {
         for (sequence in sequences) {
             // Prevent modules handling events when not supposed to
-            if (!sequence.owner.handleEvents()) {
+            if (!sequence.owner.running) {
                 sequence.cancel()
                 continue
             }
@@ -56,20 +58,37 @@ object SequenceManager : Listenable {
         }
     }
 
+    /**
+     * Cancels all sequences associated with an event listener.
+     * This is called when a module is disabled to ensure no sequences continue running.
+     */
+    fun cancelAllSequences(owner: EventListener) {
+        sequences.removeAll { sequence ->
+            if (sequence.owner == owner) {
+                sequence.cancel()
+                true
+            } else {
+                false
+            }
+        }
+    }
+
 }
 
-open class Sequence<T : Event>(val owner: Listenable, val handler: SuspendableHandler<T>, protected val event: T) {
-
+@Suppress("TooManyFunctions")
+open class Sequence(val owner: EventListener, val handler: SuspendableHandler) {
     private var coroutine: Job
 
     open fun cancel() {
         coroutine.cancel()
+        cancellationTask?.run()
         SequenceManager.sequences -= this@Sequence
     }
 
     private var continuation: Continuation<Unit>? = null
     private var elapsedTicks = 0
-    private var totalTicks: () -> Int = { 0 }
+    private var totalTicks = IntSupplier { 0 }
+    private var cancellationTask: Runnable? = null
 
     init {
         // Note: It is important that this is in the constructor and NOT in the variable declaration, because
@@ -84,9 +103,9 @@ open class Sequence<T : Event>(val owner: Listenable, val handler: SuspendableHa
     }
 
     internal open suspend fun coroutineRun() {
-        if (owner.handleEvents()) {
+        if (owner.running) {
             runCatching {
-                handler(event)
+                handler()
             }.onFailure {
                 logger.error("Exception occurred during subroutine", it)
             }
@@ -94,30 +113,42 @@ open class Sequence<T : Event>(val owner: Listenable, val handler: SuspendableHa
     }
 
     internal fun tick() {
-        if (++this.elapsedTicks >= this.totalTicks()) {
-            this.continuation?.resume(Unit)
+        if (++this.elapsedTicks >= this.totalTicks.asInt) {
+            val continuation = this.continuation ?: return
+            this.continuation = null
+            continuation.resume(Unit)
         }
+    }
+
+    /**
+     * Adds a task to be executed when the sequence is cancelled.
+     */
+    fun onCancellation(task: Runnable) {
+        cancellationTask = task
     }
 
     /**
      * Waits until the [case] is true, then continues. Checks every tick.
      */
-    suspend fun waitUntil(case: () -> Boolean) {
-        while (!case()) {
+    suspend fun waitUntil(case: BooleanSupplier): Int {
+        var ticks = 0
+        while (!case.asBoolean) {
             sync()
+            ticks++
         }
+        return ticks
     }
 
     /**
      * Waits until the fixed amount of ticks ran out or the [breakLoop] says to continue.
      */
-    suspend fun waitConditional(ticks: Int, breakLoop: () -> Boolean = { false }): Boolean {
+    suspend fun waitConditional(ticks: Int, breakLoop: BooleanSupplier = BooleanSupplier { false }): Boolean {
         // Don't wait if ticks is 0
         if (ticks == 0) {
             return true
         }
 
-        wait { if (breakLoop()) 0 else ticks }
+        wait { if (breakLoop.asBoolean) 0 else ticks }
 
         return elapsedTicks >= ticks
     }
@@ -150,7 +181,7 @@ open class Sequence<T : Event>(val owner: Listenable, val handler: SuspendableHa
     /**
      * Waits for the amount of ticks that is retrieved via [ticksToWait]
      */
-    private suspend fun wait(ticksToWait: () -> Int) {
+    private suspend fun wait(ticksToWait: IntSupplier) {
         elapsedTicks = 0
         totalTicks = ticksToWait
 
@@ -163,19 +194,28 @@ open class Sequence<T : Event>(val owner: Listenable, val handler: SuspendableHa
      */
     internal suspend fun sync() = wait { 0 }
 
+    /**
+     * Start a task with given context, and wait for its completion.
+     * @see withContext
+     */
+    @OptIn(ExperimentalCoroutinesApi::class)
+    suspend fun <T> waitFor(context: CoroutineContext, block: suspend CoroutineScope.() -> T): T {
+        // Set parent job as `this.coroutine`
+        val deferred = CoroutineScope(coroutine + context).async(context, block = block)
+        // Use `waitUntil` to avoid duplicated resumption
+        this.waitUntil { deferred.isCompleted }
+        return deferred.getCompleted()
+    }
+
 }
 
-class DummyEvent : Event()
-
-class RepeatingSequence(owner: Listenable, handler: SuspendableHandler<DummyEvent>)
-    : Sequence<DummyEvent>(owner, handler, DummyEvent()) {
-
+class TickSequence(owner: EventListener, handler: SuspendableHandler) : Sequence(owner, handler) {
     private var continueLoop = true
 
     override suspend fun coroutineRun() {
         sync()
 
-        while (continueLoop && owner.handleEvents()) {
+        while (continueLoop && owner.running) {
             super.coroutineRun()
             sync()
         }

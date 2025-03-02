@@ -1,32 +1,54 @@
+/*
+ * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
+ *
+ * Copyright (c) 2015 - 2025 CCBlueX
+ *
+ * LiquidBounce is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * LiquidBounce is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
+ */
 package net.ccbluex.liquidbounce.features.module.modules.world
 
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
-import net.ccbluex.liquidbounce.event.events.SimulatedTickEvent
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
+import net.ccbluex.liquidbounce.event.events.RotationUpdateEvent
+import net.ccbluex.liquidbounce.event.events.WorldChangeEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.player.nofall.ModuleNoFall
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
-import net.ccbluex.liquidbounce.utils.aiming.raycast
+import net.ccbluex.liquidbounce.utils.aiming.utils.raycast
 import net.ccbluex.liquidbounce.utils.block.doPlacement
-import net.ccbluex.liquidbounce.utils.block.targetfinding.BlockPlacementTargetFindingOptions
-import net.ccbluex.liquidbounce.utils.block.targetfinding.CenterTargetPositionFactory
-import net.ccbluex.liquidbounce.utils.block.targetfinding.PlacementPlan
-import net.ccbluex.liquidbounce.utils.block.targetfinding.findBestBlockPlacementTarget
+import net.ccbluex.liquidbounce.utils.block.targetfinding.*
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.client.SilentHotbar
 import net.ccbluex.liquidbounce.utils.combat.CombatManager
 import net.ccbluex.liquidbounce.utils.entity.PlayerSimulationCache
-import net.ccbluex.liquidbounce.utils.inventory.Hotbar
+import net.ccbluex.liquidbounce.utils.inventory.Slots
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.math.toBlockPos
+import net.minecraft.entity.effect.StatusEffects
 import net.minecraft.item.Items
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3i
 
-object ModuleExtinguish: Module("Extinguish", Category.WORLD) {
+/**
+ * Module Extinguish
+ *
+ * Automatically extinguishes yourself when you're burning.
+ */
+object ModuleExtinguish: ClientModule("Extinguish", Category.WORLD) {
 
     private val cooldown by float("Cooldown", 1.0F, 0.0F..20.0F, "s")
     private val notDuringCombat by boolean("NotDuringCombat", true)
@@ -48,19 +70,34 @@ object ModuleExtinguish: Module("Extinguish", Category.WORLD) {
     private var lastExtinguishPos: BlockPos? = null
     private val lastAttemptTimer = Chronometer()
 
-    val tickMovementHandler = handler<SimulatedTickEvent> {
+    override fun enable() {
+        currentTarget = null
+    }
+
+    @Suppress("unused")
+    private val rotationUpdateHandler = handler<RotationUpdateEvent> {
+        // we can't place water in the nether
+        if (world.dimension.ultrawarm) {
+            return@handler
+        }
+
         this.currentTarget = null
 
         val target = findAction() ?: return@handler
 
         this.currentTarget = target
 
-        RotationManager.aimAt(
+        RotationManager.setRotationTarget(
             target.placementTarget.rotation,
             configurable = rotationsConfigurable,
             priority = Priority.IMPORTANT_FOR_PLAYER_LIFE,
             provider = ModuleNoFall
         )
+    }
+
+    @Suppress("unused")
+    private val worldChangeHandler = handler<WorldChangeEvent> {
+        currentTarget = null
     }
 
     private fun findAction(): PlacementPlan? {
@@ -70,7 +107,8 @@ object ModuleExtinguish: Module("Extinguish", Category.WORLD) {
         if (lastExtinguishPos != null && lastAttemptTimer.hasElapsed(pickupSpanEnd)) {
             lastExtinguishPos = null
         }
-        if (notDuringCombat && CombatManager.isInCombat) {
+
+        if (player.hasStatusEffect(StatusEffects.FIRE_RESISTANCE) || (notDuringCombat && CombatManager.isInCombat)) {
             return null
         }
 
@@ -89,13 +127,14 @@ object ModuleExtinguish: Module("Extinguish", Category.WORLD) {
         return planExtinguishing()
     }
 
-    val repeatable = repeatable {
-        val target = currentTarget ?: return@repeatable
+    @Suppress("unused")
+    private val tickHandler = tickHandler {
+        val target = currentTarget ?: return@tickHandler
 
-        val rayTraceResult = raycast() ?: return@repeatable
+        val rayTraceResult = raycast()
 
         if (!target.doesCorrespondTo(rayTraceResult)) {
-            return@repeatable
+            return@tickHandler
         }
 
         SilentHotbar.selectSlotSilently(this, target.hotbarItemSlot.hotbarSlotForServer, 1)
@@ -113,7 +152,7 @@ object ModuleExtinguish: Module("Extinguish", Category.WORLD) {
     }
 
     private fun planExtinguishing(): PlacementPlan? {
-        val waterBucketSlot = Hotbar.findClosestItem(Items.WATER_BUCKET) ?: return null
+        val waterBucketSlot = Slots.Hotbar.findClosestItem(Items.WATER_BUCKET) ?: return null
 
         val simulation = PlayerSimulationCache.getSimulationForLocalPlayer()
 
@@ -124,11 +163,13 @@ object ModuleExtinguish: Module("Extinguish", Category.WORLD) {
         val playerPos = frameOnGround.pos.toBlockPos()
 
         val options = BlockPlacementTargetFindingOptions(
-            listOf(Vec3i(0, 0, 0)),
-            waterBucketSlot.itemStack,
-            CenterTargetPositionFactory,
-            BlockPlacementTargetFindingOptions.PRIORITIZE_LEAST_BLOCK_DISTANCE,
-            frameOnGround.pos
+            BlockOffsetOptions(
+                listOf(Vec3i.ZERO),
+                BlockPlacementTargetFindingOptions.PRIORITIZE_LEAST_BLOCK_DISTANCE,
+            ),
+            FaceHandlingOptions(CenterTargetPositionFactory),
+            stackToPlaceWith = waterBucketSlot.itemStack,
+            PlayerLocationOnPlacement(position = frameOnGround.pos),
         )
 
         val bestPlacementPlan = findBestBlockPlacementTarget(playerPos, options) ?: return null
@@ -137,14 +178,16 @@ object ModuleExtinguish: Module("Extinguish", Category.WORLD) {
     }
 
     private fun planPickup(blockPos: BlockPos): PlacementPlan? {
-        val bucket = Hotbar.findClosestItem(Items.BUCKET) ?: return null
+        val bucket = Slots.Hotbar.findClosestItem(Items.BUCKET) ?: return null
 
         val options = BlockPlacementTargetFindingOptions(
-            listOf(Vec3i(0, 0, 0)),
-            bucket.itemStack,
-            CenterTargetPositionFactory,
-            BlockPlacementTargetFindingOptions.PRIORITIZE_LEAST_BLOCK_DISTANCE,
-            player.pos
+            BlockOffsetOptions(
+                listOf(Vec3i.ZERO),
+                BlockPlacementTargetFindingOptions.PRIORITIZE_LEAST_BLOCK_DISTANCE,
+            ),
+            FaceHandlingOptions(CenterTargetPositionFactory),
+            stackToPlaceWith = bucket.itemStack,
+            PlayerLocationOnPlacement(position = player.pos),
         )
 
         val bestPlacementPlan = findBestBlockPlacementTarget(blockPos, options) ?: return null

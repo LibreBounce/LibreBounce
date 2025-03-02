@@ -3,10 +3,10 @@
         addProxyFromClipboard,
         checkProxy,
         connectToProxy as connectToProxyRest,
+        deleteScreen,
         disconnectFromProxy as disconnectFromProxyRest,
         getCurrentProxy,
         getProxies,
-        openScreen,
         removeProxy as removeProxyRest,
         setProxyFavorite,
     } from "../../../integration/rest.js";
@@ -105,11 +105,6 @@
     }
 
     async function connectToProxy(id: number) {
-        notification.set({
-            title: "ProxyManager",
-            message: "Connecting to proxy...",
-            error: false
-        });
         await connectToProxyRest(id);
         notification.set({
             title: "ProxyManager",
@@ -206,10 +201,10 @@
     <EditProxyModal bind:visible={editProxyModalVisible} id={currentEditProxy.id}
                     host={currentEditProxy.host}
                     port={currentEditProxy.port}
+                    forwardAuthentication={currentEditProxy.forwardAuthentication}
                     username={currentEditProxy.credentials?.username ?? ""}
                     password={currentEditProxy.credentials?.password ?? ""}
-                    requiresAuthentication={currentEditProxy.credentials !== undefined}
-                    on:proxyEdit={refreshProxies}/>
+                    requiresAuthentication={currentEditProxy.credentials !== undefined}/>
 {/if}
 <Menu>
     <OptionBar>
@@ -259,7 +254,7 @@
         </ButtonContainer>
 
         <ButtonContainer>
-            <IconTextButton icon="icon-back.svg" title="Back" on:click={() => openScreen("title")}/>
+            <IconTextButton icon="icon-back.svg" title="Back" on:click={() => deleteScreen()}/>
         </ButtonContainer>
     </BottomButtonWrapper>
 </Menu>

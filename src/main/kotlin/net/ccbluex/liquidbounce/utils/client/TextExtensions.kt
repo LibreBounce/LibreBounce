@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
+@file:Suppress("TooManyFunctions")
+
 package net.ccbluex.liquidbounce.utils.client
 
 import net.minecraft.nbt.NbtString
@@ -119,7 +121,7 @@ fun String.translateColorCodes(): String {
 
     val chars = toCharArray()
     for (i in 0 until chars.size - 1) {
-        if (chars[i] == '&' && charset.contains(chars[i + 1], true)) {
+        if (chars[i] == '&' && charset.contains(chars[i + 1])) {
             chars[i] = '§'
             chars[i + 1] = chars[i + 1].lowercaseChar()
         }
@@ -128,11 +130,10 @@ fun String.translateColorCodes(): String {
     return String(chars)
 }
 
-fun String.toLowerCamelCase() = this.replaceFirst(this.toCharArray()[0], this.toCharArray()[0].lowercaseChar())
+fun String.toLowerCamelCase() = this.replaceFirst(this[0], this[0].lowercaseChar())
 
 fun String.dropPort(): String {
-    val parts = this.split(":")
-    return parts[0]
+    return this.substringBefore(':')
 }
 
 /**
@@ -155,11 +156,11 @@ fun String.rootDomain(): String {
     }
 
     // Check if domain ends with dot, if so, remove it
-    if (domain.endsWith(".")) {
+    if (domain.endsWith('.')) {
         domain = domain.dropLast(1)
     }
 
-    val parts = domain.split(".")
+    val parts = domain.split('.')
     if (parts.size <= 2) {
         // Already a root domain
         return domain
@@ -182,6 +183,22 @@ fun Int.formatAsTime(): String {
         hours > 0 -> "${hours}h ${minutes % 60}m ${seconds % 60}s"
         minutes > 0 -> "${minutes}m ${seconds % 60}s"
         else -> "${seconds}s"
+    }
+}
+
+fun Long.formatAsCapacity(): String {
+    val bytes = this.toDouble()
+    val kilobytes = bytes / 1024
+    val megabytes = kilobytes / 1024
+    val gigabytes = megabytes / 1024
+    val terabytes = gigabytes / 1024
+
+    return when {
+        terabytes >= 1 -> "%.2f TB".format(terabytes)
+        gigabytes >= 1 -> "%.2f GB".format(gigabytes)
+        megabytes >= 1 -> "%.2f MB".format(megabytes)
+        kilobytes >= 1 -> "%.2f KB".format(kilobytes)
+        else -> "%.2f B".format(bytes)
     }
 }
 

@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,16 +16,17 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
+@file:Suppress("TooManyFunctions")
+
 package net.ccbluex.liquidbounce.utils.client
 
 import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
 import net.ccbluex.liquidbounce.features.command.Command
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.interfaces.ClientTextColorAdditions
 import net.minecraft.client.MinecraftClient
-import net.minecraft.client.util.InputUtil
 import net.minecraft.text.MutableText
 import net.minecraft.text.Text
 import net.minecraft.text.TextColor
@@ -33,13 +34,12 @@ import net.minecraft.util.Formatting
 import net.minecraft.util.Util
 import org.apache.commons.lang3.StringUtils
 import org.apache.logging.log4j.Logger
-import org.lwjgl.glfw.GLFW
 
 val logger: Logger
     get() = LiquidBounce.logger
 
 val inGame: Boolean
-    get() = MinecraftClient.getInstance()?.let { mc -> mc.player != null && mc.world != null } ?: false
+    get() = MinecraftClient.getInstance()?.let { mc -> mc.player != null && mc.world != null } == true
 
 // Chat formatting
 private val clientPrefix = Text.empty()
@@ -61,7 +61,13 @@ fun variable(text: MutableText) = text.styled { it.withColor(Formatting.GOLD) }
 
 fun variable(text: String) = text.asText().styled { it.withColor(Formatting.GOLD) }
 
+fun highlight(text: MutableText) = text.styled { it.withColor(Formatting.DARK_PURPLE) }
+
+fun highlight(text: String) = text.asText().styled { it.withColor(Formatting.DARK_PURPLE) }
+
 fun warning(text: MutableText) = text.styled { it.withColor(Formatting.YELLOW) }
+
+fun warning(text: String) = text.asText().styled { it.withColor(Formatting.YELLOW) }
 
 fun markAsError(text: String) = text.asText().styled { it.withColor(Formatting.RED) }
 
@@ -105,7 +111,7 @@ data class MessageMetadata(
     replaceWith = ReplaceWith("chat(*texts, metadata = MessageMetadata(prefix = prefix))")
 )
 fun chat(vararg texts: Text, prefix: Boolean) {
-    chat(*texts, metadata =  MessageMetadata(prefix = prefix))
+    chat(texts = texts, metadata = MessageMetadata(prefix = prefix))
 }
 
 /**
@@ -129,11 +135,11 @@ fun chat(vararg texts: Text, metadata: MessageMetadata = defaultMessageMetadata)
     chatHud.addMessage(literalText, metadata.id, metadata.count)
 }
 
-fun chat(text: Text, module: Module) = chat(text, metadata = MessageMetadata(id = "${module.name}#info"))
+fun chat(text: Text, module: ClientModule) = chat(text, metadata = MessageMetadata(id = "M${module.name}#info"))
 
-fun chat(text: Text, command: Command) = chat(text, metadata = MessageMetadata(id = "${command.name}#info"))
+fun chat(text: Text, command: Command) = chat(text, metadata = MessageMetadata(id = "C${command.name}#info"))
 
-fun chat(text: String, module: Module) = chat(text.asText(), module)
+fun chat(text: String, module: ClientModule) = chat(text.asText(), module)
 
 fun chat(text: String, command: Command) = chat(text.asText(), command)
 

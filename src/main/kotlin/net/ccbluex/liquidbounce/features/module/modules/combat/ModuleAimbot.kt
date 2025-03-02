@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,23 +18,31 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.MouseRotationEvent
-import net.ccbluex.liquidbounce.event.events.SimulatedTickEvent
+import net.ccbluex.liquidbounce.event.events.RotationUpdateEvent
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
-import net.ccbluex.liquidbounce.utils.aiming.*
-import net.ccbluex.liquidbounce.utils.aiming.anglesmooth.*
+import net.ccbluex.liquidbounce.utils.aiming.PointTracker
+import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
+import net.ccbluex.liquidbounce.utils.aiming.data.RotationWithVector
+import net.ccbluex.liquidbounce.utils.aiming.features.SlowStart
+import net.ccbluex.liquidbounce.utils.aiming.features.anglesmooth.LinearAngleSmoothMode
+import net.ccbluex.liquidbounce.utils.aiming.features.anglesmooth.SigmoidAngleSmoothMode
+import net.ccbluex.liquidbounce.utils.aiming.preference.LeastDifferencePreference
+import net.ccbluex.liquidbounce.utils.aiming.utils.raytraceBox
+import net.ccbluex.liquidbounce.utils.aiming.utils.setRotation
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.client.Timer
-import net.ccbluex.liquidbounce.utils.combat.PriorityEnum
+import net.ccbluex.liquidbounce.utils.combat.TargetPriority
 import net.ccbluex.liquidbounce.utils.combat.TargetTracker
-import net.ccbluex.liquidbounce.utils.entity.boxedDistanceTo
 import net.ccbluex.liquidbounce.utils.entity.rotation
+import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
 import net.ccbluex.liquidbounce.utils.render.WorldTargetRenderer
+import net.minecraft.client.gui.screen.ingame.HandledScreen
 import net.minecraft.entity.Entity
 import net.minecraft.util.math.MathHelper
 
@@ -43,9 +51,9 @@ import net.minecraft.util.math.MathHelper
  *
  * Automatically faces selected entities around you.
  */
-object ModuleAimbot : Module("Aimbot", Category.COMBAT, aliases = arrayOf("AimAssist", "AutoAim")) {
+object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf("AimAssist", "AutoAim")) {
 
-    private val range by float("Range", 4.2f, 1f..8f)
+    private val range = float("Range", 4.2f, 1f..8f)
 
     private object OnClick : ToggleableConfigurable(this, "OnClick", false) {
         val delayUntilStop by int("DelayUntilStop", 3, 0..10, "ticks")
@@ -55,42 +63,41 @@ object ModuleAimbot : Module("Aimbot", Category.COMBAT, aliases = arrayOf("AimAs
         tree(OnClick)
     }
 
-    private val targetTracker = tree(TargetTracker(PriorityEnum.DIRECTION))
+    val targetTracker = tree(TargetTracker(TargetPriority.DIRECTION, range = range))
     private val targetRenderer = tree(WorldTargetRenderer(this))
     private val pointTracker = tree(PointTracker())
     private val clickTimer = Chronometer()
 
-    private var angleSmooth = choices<AngleSmoothMode>(this, "AngleSmooth", { it.choices[0] }, {
+    private var angleSmooth = choices(this, "AngleSmooth") {
         arrayOf(
-            NoneAngleSmoothMode(it),
             LinearAngleSmoothMode(it),
-            BezierAngleSmoothMode(it),
-            SigmoidAngleSmoothMode(it),
-            ConditionalLinearAngleSmoothMode(it),
-            AccelerationSmoothMode(it)
+            SigmoidAngleSmoothMode(it)
         )
-    })
+    }
 
-    private var slowStart = tree(SlowStart(this))
+    private val slowStart = tree(SlowStart(this))
+
+    private val ignoreOpenScreen by boolean("IgnoreOpenScreen", false)
+    private val ignoreOpenContainer by boolean("IgnoreOpenContainer", false)
 
     private var targetRotation: Rotation? = null
     private var playerRotation: Rotation? = null
 
-    val tickHandler = handler<SimulatedTickEvent> { _ ->
-        this.targetTracker.validateLock { target -> target.boxedDistanceTo(player) <= range }
-        this.playerRotation = player.rotation
+    @Suppress("unused")
+    private val tickHandler = handler<RotationUpdateEvent> { _ ->
+        playerRotation = player.rotation
 
         if (mc.options.attackKey.isPressed) {
             clickTimer.reset()
         }
 
         if (OnClick.enabled && (clickTimer.hasElapsed(OnClick.delayUntilStop * 50L)
-                || !mc.options.attackKey.isPressed && ModuleAutoClicker.enabled)) {
-            this.targetRotation = null
+        || !mc.options.attackKey.isPressed && ModuleAutoClicker.running)) {
+            targetRotation = null
             return@handler
         }
 
-        this.targetRotation = findNextTargetRotation()?.let { (target, rotation) ->
+        targetRotation = findNextTargetRotation()?.let { (target, rotation) ->
             angleSmooth.activeChoice.limitAngleChange(
                 slowStart.rotationFactor,
                 player.rotation,
@@ -99,20 +106,30 @@ object ModuleAimbot : Module("Aimbot", Category.COMBAT, aliases = arrayOf("AimAs
                 target
             )
         }
+
+        // Update Auto Weapon
+        ModuleAutoWeapon.prepare(targetTracker.target)
     }
 
     override fun disable() {
-        targetTracker.cleanup()
-        super.disable()
+        targetTracker.reset()
     }
 
     val renderHandler = handler<WorldRenderEvent> { event ->
         val matrixStack = event.matrixStack
         val partialTicks = event.partialTicks
-        val target = targetTracker.lockedOnTarget ?: return@handler
+        val target = targetTracker.target ?: return@handler
 
         renderEnvironmentForWorld(matrixStack) {
             targetRenderer.render(this, target, partialTicks)
+        }
+
+        if (!ignoreOpenScreen && mc.currentScreen != null) {
+            return@handler
+        }
+
+        if (!ignoreOpenContainer && (InventoryManager.isInventoryOpen || mc.currentScreen is HandledScreen<*>)) {
+            return@handler
         }
 
         val currentRotation = playerRotation ?: return@handler
@@ -124,7 +141,7 @@ object ModuleAimbot : Module("Aimbot", Category.COMBAT, aliases = arrayOf("AimAs
                 currentRotation.pitch + (rotation.pitch - currentRotation.pitch) * (timerSpeed * partialTicks)
             )
 
-            player.applyRotation(interpolatedRotation)
+            player.setRotation(interpolatedRotation)
         }
     }
 
@@ -145,36 +162,31 @@ object ModuleAimbot : Module("Aimbot", Category.COMBAT, aliases = arrayOf("AimAs
         }
     }
 
-    private fun findNextTargetRotation(): Pair<Entity, VecRotation>? {
-        for (target in targetTracker.enemies()) {
-            if (target.boxedDistanceTo(player) > range) {
-                continue
-            }
-
-            val (fromPoint, toPoint, box, cutOffBox) = pointTracker.gatherPoint(target,
-                PointTracker.AimSituation.FOR_NOW)
-
-            val rotationPreference = LeastDifferencePreference(player.rotation, toPoint)
+    private fun findNextTargetRotation(): Pair<Entity, RotationWithVector>? {
+        for (target in targetTracker.targets()) {
+            val pointOnHitbox = pointTracker.gatherPoint(target, PointTracker.AimSituation.FOR_NOW)
+            val rotationPreference = LeastDifferencePreference(player.rotation, pointOnHitbox.toPoint)
 
             val spot = raytraceBox(
-                fromPoint,
-                cutOffBox,
-                range = range.toDouble(),
+                pointOnHitbox.fromPoint,
+                pointOnHitbox.cutOffBox,
+                range = targetTracker.maxRange.toDouble(),
                 wallsRange = 0.0,
                 rotationPreference = rotationPreference
             ) ?: raytraceBox(
-                fromPoint, box, range = range.toDouble(),
+                pointOnHitbox.fromPoint, pointOnHitbox.box, range = targetTracker.maxRange.toDouble(),
                 wallsRange = 0.0,
                 rotationPreference = rotationPreference
             ) ?: continue
 
-            if (targetTracker.lockedOnTarget != target) {
+            if (target != targetTracker.target) {
                 slowStart.onTrigger()
             }
-            targetTracker.lock(target)
+            targetTracker.target = target
             return target to spot
         }
 
+        targetTracker.reset()
         return null
     }
 

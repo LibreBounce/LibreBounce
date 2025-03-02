@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,10 +20,13 @@ package net.ccbluex.liquidbounce.features.command.commands.client
 
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.features.command.CommandException
+import net.ccbluex.liquidbounce.features.command.CommandFactory
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.ModuleManager
+import net.ccbluex.liquidbounce.features.module.modules.render.ModuleClickGui
+import net.ccbluex.liquidbounce.utils.client.MessageMetadata
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.regular
 
@@ -32,16 +35,17 @@ import net.ccbluex.liquidbounce.utils.client.regular
  *
  * Allows you to set the value of a specific module.
  */
-object CommandValue {
+object CommandValue : CommandFactory {
 
-    fun createCommand(): Command {
+    @Suppress("SwallowedException", "LongMethod")
+    override fun createCommand(): Command {
         return CommandBuilder
             .begin("value")
             .parameter(
                 ParameterBuilder
-                    .begin<Module>("moduleName")
+                    .begin<ClientModule>("moduleName")
                     .verifiedBy(ParameterBuilder.MODULE_VALIDATOR)
-                    .autocompletedWith(ModuleManager::autoComplete)
+                    .autocompletedWith { begin, _ -> ModuleManager.autoComplete(begin) }
                     .required()
                     .build()
             )
@@ -64,12 +68,25 @@ object CommandValue {
                 ParameterBuilder
                     .begin<String>("value")
                     .verifiedBy(ParameterBuilder.STRING_VALIDATOR)
-                    .useMinecraftAutoCompletion()
+                    .autocompletedWith { begin, args ->
+                        val moduleName = args.getOrNull(1) ?: return@autocompletedWith emptyList()
+                        val module = ModuleManager.find {
+                            it.name.equals(moduleName, true)
+                        } ?: return@autocompletedWith emptyList()
+
+                        val valueName = args.getOrNull(2) ?: return@autocompletedWith emptyList()
+                        val value = module.getContainedValuesRecursively().firstOrNull {
+                            it.name.equals(valueName, true)
+                        } ?: return@autocompletedWith emptyList()
+
+                        val options = value.valueType.completer.possible(value)
+                        options.filter { it.startsWith(begin, true) }
+                    }
                     .required()
                     .build()
             )
             .handler { command, args ->
-                val module = args[0] as Module
+                val module = args[0] as ClientModule
                 val valueName = args[1] as String
                 val valueString = args[2] as String
 
@@ -79,12 +96,17 @@ object CommandValue {
 
                 try {
                     value.setByString(valueString)
+                    ModuleClickGui.reloadView()
                 } catch (e: Exception) {
                     throw CommandException(command.result("valueError", valueName, e.message ?: ""))
                 }
 
-                chat(regular(command.result("success")))
+                chat(
+                    regular(command.result("success")),
+                    metadata = MessageMetadata(id = "CValue#success${module.name}")
+                )
             }
             .build()
     }
+
 }

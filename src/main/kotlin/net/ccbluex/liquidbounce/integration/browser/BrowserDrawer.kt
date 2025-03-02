@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,28 +18,32 @@
  */
 package net.ccbluex.liquidbounce.integration.browser
 
-import com.mojang.blaze3d.platform.GlStateManager
-import com.mojang.blaze3d.systems.RenderSystem
-import net.ccbluex.liquidbounce.event.Listenable
+import net.ccbluex.liquidbounce.common.RenderLayerExtensions
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.utils.client.mc
-import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
 import net.ccbluex.liquidbounce.integration.browser.supports.IBrowser
-import net.minecraft.client.render.BufferRenderer.drawWithGlobalProgram
-import net.minecraft.client.render.GameRenderer
-import net.minecraft.client.render.Tessellator
-import net.minecraft.client.render.VertexFormat
-import net.minecraft.client.render.VertexFormats
+import net.ccbluex.liquidbounce.utils.client.mc
+import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.READ_FINAL_STATE
+import net.minecraft.client.gui.DrawContext
+import net.minecraft.util.Identifier
 
-class BrowserDrawer(val browser: () -> IBrowser?) : Listenable {
+/**
+ * Draws any kind of [IBrowser] to the Minecraft screen.
+ */
+class BrowserDrawer(val browser: () -> IBrowser?) : EventListener {
 
     private val tabs
         get() = browser()?.getTabs() ?: emptyList()
 
     @Suppress("unused")
-    val preRenderHandler = handler<GameRenderEvent> {
-        browser()?.drawGlobally()
+    private val gameRenderHandler = handler<GameRenderEvent> {
+        val browser = browser() ?: return@handler
+        if (!browser.isInitialized()) {
+            return@handler
+        }
+
+        browser.drawGlobally()
 
         for (tab in tabs) {
             tab.drawn = false
@@ -47,16 +51,16 @@ class BrowserDrawer(val browser: () -> IBrowser?) : Listenable {
     }
 
     @Suppress("unused")
-    val windowResizeWHandler = handler<FrameBufferResizeEvent> { ev ->
+    private val windowResizeHandler = handler<FrameBufferResizeEvent> { event ->
         for (tab in tabs) {
-            tab.resize(ev.width, ev.height)
+            tab.resize(event.width, event.height)
         }
     }
 
     @Suppress("unused")
-    val onScreenRender = handler<ScreenRenderEvent> {
+    private val screenRenderHandler = handler<ScreenRenderEvent>(priority = READ_FINAL_STATE) { event ->
         for (tab in tabs) {
-            if (tab.drawn) {
+            if (tab.drawn || !tab.visible) {
                 continue
             }
 
@@ -66,7 +70,7 @@ class BrowserDrawer(val browser: () -> IBrowser?) : Listenable {
             val w = tab.position.width.toFloat() / scaleFactor
             val h = tab.position.height.toFloat() / scaleFactor
 
-            renderTexture(x, y, w, h, tab.getTexture())
+            renderTexture(event.context, tab.getTexture(), x, y, w, h)
             tab.drawn = true
         }
     }
@@ -74,12 +78,12 @@ class BrowserDrawer(val browser: () -> IBrowser?) : Listenable {
     private var shouldReload = false
 
     @Suppress("unused")
-    val onReload = handler<ResourceReloadEvent> {
+    private val resourceReloadHandler = handler<ResourceReloadEvent> {
         shouldReload = true
     }
 
     @Suppress("unused")
-    val onOverlayRender = handler<OverlayRenderEvent>(priority = EventPriorityConvention.READ_FINAL_STATE) {
+    private val overlayRenderHandler = handler<OverlayRenderEvent>(priority = READ_FINAL_STATE) {
         if (this.shouldReload) {
             for (tab in tabs) {
                 tab.forceReload()
@@ -89,7 +93,7 @@ class BrowserDrawer(val browser: () -> IBrowser?) : Listenable {
         }
 
         for (tab in tabs) {
-            if (tab.drawn) {
+            if (tab.drawn || !tab.visible) {
                 continue
             }
 
@@ -103,36 +107,24 @@ class BrowserDrawer(val browser: () -> IBrowser?) : Listenable {
             val w = tab.position.width.toFloat() / scaleFactor
             val h = tab.position.height.toFloat() / scaleFactor
 
-            renderTexture(x, y, w, h, tab.getTexture())
+            renderTexture(it.context, tab.getTexture(), x, y, w, h)
             tab.drawn = true
         }
     }
 
-    private fun renderTexture(x: Float, y: Float, width: Float, height: Float, texture: Int) {
-        RenderSystem.disableDepthTest()
-        RenderSystem.enableBlend()
-        RenderSystem.blendFunc(GlStateManager.SrcFactor.ONE, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA)
-        RenderSystem.setShader { GameRenderer.getPositionTexColorProgram() }
-        RenderSystem.setShaderTexture(0, texture)
-        val tessellator = Tessellator.getInstance()
-        val buffer = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR)
-        buffer.vertex(x, y + height, 0.0f)
-            .texture(0.0f, 1.0f)
-            .color(255, 255, 255, 255)
-        buffer.vertex(x + width, y + height, 0.0f)
-            .texture(1.0f, 1.0f)
-            .color(255, 255, 255, 255)
-        buffer.vertex(x + width, y, 0.0f)
-            .texture(1.0f, 0.0f)
-            .color(255, 255, 255, 255)
-        buffer.vertex(x, y, 0.0f)
-            .texture(0.0f, 0.0f)
-            .color(255, 255, 255, 255)
-        drawWithGlobalProgram(buffer.end())
-        RenderSystem.setShaderTexture(0, 0)
-        RenderSystem.enableDepthTest()
-        RenderSystem.defaultBlendFunc()
-        RenderSystem.enableBlend()
+    @Suppress("LongParameterList")
+    private fun renderTexture(
+        context: DrawContext,
+        texture: Identifier,
+        x: Float,
+        y: Float,
+        width: Float,
+        height: Float
+    ) {
+        context.drawTexture(
+            RenderLayerExtensions::getBlurredTextureLayer, texture, x.toInt(), y.toInt(), 0f, 0f, width.toInt(),
+            height.toInt(), width.toInt(), height.toInt()
+        )
     }
 
 }

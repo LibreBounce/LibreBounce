@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,19 +18,18 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.client.MovePacketType
 import net.ccbluex.liquidbounce.utils.client.Timer
 import net.ccbluex.liquidbounce.utils.entity.moving
 import net.ccbluex.liquidbounce.utils.item.isConsumable
-import net.ccbluex.liquidbounce.utils.item.isFood
-import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
+import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.CRITICAL_MODIFICATION
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.movement.DirectionalInput
 import net.minecraft.entity.effect.StatusEffects
@@ -42,7 +41,7 @@ import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
  * Allows you to use items faster.
  */
 
-object ModuleFastUse : Module("FastUse", Category.PLAYER) {
+object ModuleFastUse : ClientModule("FastUse", Category.PLAYER, aliases = arrayOf("FastEat")) {
 
     private val modes = choices("Mode", Immediate, arrayOf(Immediate, ItemUseTime)).apply { tagBy(this) }
 
@@ -86,7 +85,7 @@ object ModuleFastUse : Module("FastUse", Category.PLAYER) {
         }
 
     @Suppress("unused")
-    val movementInputHandler = handler<MovementInputEvent>(priority = EventPriorityConvention.FIRST_PRIORITY) { event ->
+    private val movementInputHandler = handler<MovementInputEvent>(priority = CRITICAL_MODIFICATION) { event ->
         if (mc.options.useKey.isPressed && stopInput) {
             event.directionalInput = DirectionalInput.NONE
         }
@@ -108,7 +107,7 @@ object ModuleFastUse : Module("FastUse", Category.PLAYER) {
         val speed by int("Speed", 20, 1..35, "packets")
 
         @Suppress("unused")
-        val repeatable = repeatable {
+        val repeatable = tickHandler {
             if (accelerateNow) {
                 Timer.requestTimerSpeed(
                     timer, Priority.IMPORTANT_FOR_USAGE_1, ModuleFastUse,
@@ -134,7 +133,7 @@ object ModuleFastUse : Module("FastUse", Category.PLAYER) {
         val speed by int("Speed", 20, 1..35, "packets")
 
         @Suppress("unused")
-        val repeatable = repeatable {
+        val repeatable = tickHandler {
             if (accelerateNow && player.itemUseTime >= consumeTime) {
                 repeat(speed) {
                     network.sendPacket(packetType.generatePacket())

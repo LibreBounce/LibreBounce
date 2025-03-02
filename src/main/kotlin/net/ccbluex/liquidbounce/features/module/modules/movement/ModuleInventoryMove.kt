@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,21 +18,29 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
-import net.ccbluex.liquidbounce.event.events.NotificationEvent
-import net.ccbluex.liquidbounce.event.events.ScreenEvent
+import net.ccbluex.liquidbounce.config.types.NamedChoice
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
+import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.utils.client.Chronometer
-import net.ccbluex.liquidbounce.utils.client.formatAsTime
-import net.ccbluex.liquidbounce.utils.client.notification
+import net.ccbluex.liquidbounce.features.module.ClientModule
+import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleInventoryMove.Behaviour.NORMAL
+import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleInventoryMove.Behaviour.SAFE
+import net.ccbluex.liquidbounce.features.module.modules.render.ModuleClickGui.isInSearchBar
+import net.ccbluex.liquidbounce.utils.client.*
+import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.isInventoryOpenServerSide
+import net.ccbluex.liquidbounce.utils.inventory.closeInventorySilently
+import net.ccbluex.liquidbounce.utils.inventory.isInInventoryScreen
+import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.minecraft.client.gui.screen.ChatScreen
 import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen
 import net.minecraft.client.gui.screen.ingame.HandledScreen
+import net.minecraft.client.gui.screen.ingame.InventoryScreen
 import net.minecraft.client.option.KeyBinding
 import net.minecraft.item.ItemGroups
+import net.minecraft.network.packet.c2s.play.*
+import org.lwjgl.glfw.GLFW.GLFW_RELEASE
 
 /**
  * InventoryMove module
@@ -40,12 +48,40 @@ import net.minecraft.item.ItemGroups
  * Allows you to walk while an inventory is opened.
  */
 
-object ModuleInventoryMove : Module("InventoryMove", Category.MOVEMENT) {
+object ModuleInventoryMove : ClientModule("InventoryMove", Category.MOVEMENT) {
 
-    private val undetectable by boolean("Undetectable", false)
+    private val behavior by enumChoice("Behavior", NORMAL)
+
+    enum class Behaviour(override val choiceName: String) : NamedChoice {
+        NORMAL("Normal"),
+        SAFE("Safe"), // disable clicks while moving
+        UNDETECTABLE("Undetectable"), // stop in inventory
+    }
+
     private val passthroughSneak by boolean("PassthroughSneak", false)
 
-    object Blink : ToggleableConfigurable(this,"Blink", false) {
+    // states of movement keys, using mc.options.<key>.isPressed doesn't work for some reason
+    private val movementKeys = mc.options.run {
+        arrayOf(forwardKey, leftKey, backKey, rightKey, jumpKey, sneakKey).associateWith { false }.toMutableMap()
+    }
+
+    val cancelClicks
+        get() = behavior == SAFE && movementKeys.any { (key, pressed) -> pressed && shouldHandleInputs(key) }
+
+    private object TimerFeature : ToggleableConfigurable(this, "Timer", false) {
+
+        private val speed by float("Speed", 1.0f, 0.1f..2.0f)
+
+        @Suppress("unused")
+        private val tickHandler = tickHandler {
+            if (mc.currentScreen is HandledScreen<*>) {
+                Timer.requestTimerSpeed(speed, Priority.IMPORTANT_FOR_USAGE_2, ModuleInventoryMove)
+            }
+        }
+
+    }
+
+    private object BlinkFeature : ToggleableConfigurable(this,"Blink", false) {
 
         /**
          * After reaching this time, we will close the inventory and blink.
@@ -54,10 +90,25 @@ object ModuleInventoryMove : Module("InventoryMove", Category.MOVEMENT) {
 
         private val chronometer = Chronometer()
 
-        fun shouldLag() = ModuleInventoryMove.enabled && this.enabled && mc.currentScreen is HandledScreen<*>
+        @Suppress("unused")
+        private val fakeLagHandler = handler<QueuePacketEvent> { event ->
+            val packet = event.packet
 
-        val screenHandler = handler<ScreenEvent> {
-            if (it.screen is HandledScreen<*>) {
+            if (mc.currentScreen is HandledScreen<*> && event.origin == TransferOrigin.SEND) {
+                event.action = when (packet) {
+                    is ClickSlotC2SPacket,
+                    is ButtonClickC2SPacket,
+                    is CreativeInventoryActionC2SPacket,
+                    is SlotChangedStateC2SPacket,
+                    is CloseHandledScreenC2SPacket -> PacketQueueManager.Action.PASS
+                    else -> PacketQueueManager.Action.QUEUE
+                }
+            }
+        }
+
+        @Suppress("unused")
+        val screenHandler = handler<ScreenEvent> { event ->
+            if (event.screen is HandledScreen<*>) {
                 chronometer.reset()
 
                 notification("InventoryMove", message("blinkStart", maximumTime.formatAsTime()),
@@ -65,8 +116,9 @@ object ModuleInventoryMove : Module("InventoryMove", Category.MOVEMENT) {
             }
         }
 
-        val repeatable = repeatable {
-            if (shouldLag() && chronometer.hasElapsed(maximumTime.toLong())) {
+        @Suppress("unused")
+        private val tickHandler = tickHandler {
+            if (mc.currentScreen is HandledScreen<*> && chronometer.hasElapsed(maximumTime.toLong())) {
                 player.closeHandledScreen()
                 notification("InventoryMove", message("blinkEnd"), NotificationEvent.Severity.INFO)
             }
@@ -75,11 +127,14 @@ object ModuleInventoryMove : Module("InventoryMove", Category.MOVEMENT) {
     }
 
     init {
-        tree(Blink)
+        tree(TimerFeature)
+        tree(BlinkFeature)
     }
 
     fun shouldHandleInputs(keyBinding: KeyBinding): Boolean {
-        if (!enabled || mc.currentScreen is ChatScreen || isInCreativeSearchField()) {
+        val screen = mc.currentScreen ?: return true
+
+        if (!running || screen is ChatScreen || isInCreativeSearchField() || isInSearchBar) {
             return false
         }
 
@@ -88,7 +143,19 @@ object ModuleInventoryMove : Module("InventoryMove", Category.MOVEMENT) {
         }
 
         // If we are in a handled screen, we should handle the inputs only if the undetectable option is not enabled
-        return !undetectable || mc.currentScreen !is HandledScreen<*>
+        return behavior == NORMAL || screen !is HandledScreen<*>
+            || behavior == SAFE && screen is InventoryScreen
+    }
+
+    @Suppress("unused")
+    val keyHandler = handler<KeyboardKeyEvent> { event ->
+        val key = movementKeys.keys.find { it.matchesKey(event.keyCode, event.scanCode) } ?: return@handler
+        val pressed = shouldHandleInputs(key) && event.action != GLFW_RELEASE
+        movementKeys[key] = pressed
+
+        if (behavior == SAFE && isInInventoryScreen && isInventoryOpenServerSide && pressed) {
+            closeInventorySilently()
+        }
     }
 
     /**

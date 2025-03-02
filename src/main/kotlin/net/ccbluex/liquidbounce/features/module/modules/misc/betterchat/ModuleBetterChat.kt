@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,12 +18,12 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.misc.betterchat
 
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.KeyboardKeyEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.command.CommandManager
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.minecraft.client.gui.screen.ChatScreen
 import net.minecraft.client.gui.screen.DeathScreen
 
@@ -32,7 +32,7 @@ import net.minecraft.client.gui.screen.DeathScreen
  *
  * Quality of life improvements to the in-game chat.
  */
-object ModuleBetterChat : Module("BetterChat", Category.MISC, aliases = arrayOf("AntiSpam")) {
+object ModuleBetterChat : ClientModule("BetterChat", Category.MISC, aliases = arrayOf("AntiSpam")) {
 
     val infiniteLength by boolean("Infinite", true)
     val antiClear by boolean("AntiClear", true)
@@ -66,7 +66,16 @@ object ModuleBetterChat : Module("BetterChat", Category.MISC, aliases = arrayOf(
     private val forceUnicodeChat by boolean("ForceUnicodeChat", false)
 
     init {
-        tree(AntiSpam)
+        treeAll(
+            AntiSpam,
+            Copy
+        )
+    }
+
+
+    object Copy : ToggleableConfigurable(this, "Copy", true) {
+        val notification by boolean("Notificate", true)
+        val highlight by boolean("Highlight", true)
     }
 
     var antiChatClearPaused = false
@@ -91,7 +100,7 @@ object ModuleBetterChat : Module("BetterChat", Category.MISC, aliases = arrayOf(
     }
 
     fun modifyMessage(content: String): String {
-        if (!enabled) {
+        if (!running) {
             return content
         }
 

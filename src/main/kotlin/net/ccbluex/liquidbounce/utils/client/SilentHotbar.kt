@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,14 +18,16 @@
  */
 package net.ccbluex.liquidbounce.utils.client
 
-import net.ccbluex.liquidbounce.event.Listenable
+import net.ccbluex.liquidbounce.event.EventListener
+import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
+import net.ccbluex.liquidbounce.event.events.SelectHotbarSlotSilentlyEvent
 import net.ccbluex.liquidbounce.event.handler
 
 /**
  * Manages things like [Scaffold]'s silent mode. Not thread safe, please only use this on the main-thread of minecraft
  */
-object SilentHotbar : Listenable {
+object SilentHotbar : EventListener {
 
     private var hotbarState: SilentHotbarState? = null
     private var ticksSinceLastUpdate: Int = 0
@@ -40,6 +42,11 @@ object SilentHotbar : Listenable {
         get() = hotbarState?.clientsideSlot ?: mc.player?.inventory?.selectedSlot ?: 0
 
     fun selectSlotSilently(requester: Any?, slot: Int, ticksUntilReset: Int = 20) {
+        val event = EventManager.callEvent(SelectHotbarSlotSilentlyEvent(requester, slot))
+        if (event.isCancelled) {
+            return
+        }
+
         hotbarState = SilentHotbarState(slot, requester, ticksUntilReset, clientsideSlot)
         ticksSinceLastUpdate = 0
     }
@@ -57,7 +64,8 @@ object SilentHotbar : Listenable {
      */
     fun isSlotModifiedBy(requester: Any?) = hotbarState?.requester == requester
 
-    val tickHandler = handler<GameTickEvent>(priority = 1001) {
+    @Suppress("unused")
+    private val tickHandler = handler<GameTickEvent>(priority = 1001) {
         val hotbarState = hotbarState ?: return@handler
 
         if (ticksSinceLastUpdate >= hotbarState.ticksUntilReset) {

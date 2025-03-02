@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,14 +18,14 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.EventState
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.events.PlayerNetworkMovementTickEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.entity.moving
 import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket
 
@@ -34,7 +34,7 @@ import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket
  *
  * Automatically sneaks all the time.
  */
-object ModuleSneak : Module("Sneak", Category.MOVEMENT) {
+object ModuleSneak : ClientModule("Sneak", Category.MOVEMENT) {
 
     var modes = choices("Mode", Vanilla, arrayOf(Legit, Vanilla, Switch)).apply { tagBy(this) }
     var notDuringMove by boolean("NotDuringMove", false)
@@ -45,13 +45,13 @@ object ModuleSneak : Module("Sneak", Category.MOVEMENT) {
             get() = modes
 
         @Suppress("unused")
-        val inputHandler = handler<MovementInputEvent> {
+        private val inputHandler = handler<MovementInputEvent> { event ->
             if (player.moving && notDuringMove) {
                 return@handler
             }
 
             // Temporarily override sneaking
-            it.sneaking = true
+            event.sneak = true
         }
 
     }

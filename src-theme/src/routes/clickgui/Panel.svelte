@@ -3,12 +3,18 @@
     import type {Module as TModule} from "../../integration/types";
     import {listen} from "../../integration/ws";
     import Module from "./Module.svelte";
-    import type {ToggleModuleEvent} from "../../integration/events";
+    import type {ModuleToggleEvent} from "../../integration/events";
     import {fly} from "svelte/transition";
     import {quintOut} from "svelte/easing";
-    import {highlightModuleName, maxPanelZIndex} from "./clickgui_store";
+    import {
+        gridSize,
+        highlightModuleName,
+        maxPanelZIndex,
+        scaleFactor,
+        showGrid,
+        snappingEnabled
+    } from "./clickgui_store";
     import {setItem} from "../../integration/persistent_storage";
-    import {scaleFactor} from "./clickgui_store";
 
     export let category: string;
     export let modules: TModule[];
@@ -20,9 +26,14 @@
     let renderedModules: TModule[] = [];
 
     let moving = false;
-    let prevX = 0;
-    let prevY = 0;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    let scrollPositionSaveTimeout: number | undefined;
+
     const panelConfig = loadPanelConfig();
+
+    let ignoreGrid = false;
 
     interface PanelConfig {
         top: number;
@@ -81,27 +92,34 @@
         panelConfig.top = clamp(panelConfig.top, 0, document.documentElement.clientHeight * (2 / $scaleFactor) - panelElement.offsetHeight);
     }
 
-    function onMouseDown() {
-        moving = true;
+    function onMouseDown(e: MouseEvent) {
+        if (e.button !== 0 && e.button !== 1) return;
 
+        moving = true;
+        offsetX = e.clientX * (2 / $scaleFactor) - panelConfig.left;
+        offsetY = e.clientY * (2 / $scaleFactor) - panelConfig.top;
         panelConfig.zIndex = ++$maxPanelZIndex;
+        $showGrid = $snappingEnabled;
     }
 
     function onMouseMove(e: MouseEvent) {
         if (moving) {
-            panelConfig.left += (e.screenX - prevX) * (2 / $scaleFactor);
-            panelConfig.top += (e.screenY - prevY) * (2 / $scaleFactor);
+            const newLeft = (e.clientX * (2 / $scaleFactor) - offsetX);
+            const newTop = (e.clientY * (2 / $scaleFactor) - offsetY);
+
+            panelConfig.left = snapToGrid(newLeft);
+            panelConfig.top = snapToGrid(newTop);
+
+            fixPosition();
         }
-
-        prevX = e.screenX;
-        prevY = e.screenY;
-
-        fixPosition();
-        savePanelConfig();
     }
 
     function onMouseUp() {
+        if (moving) {
+            savePanelConfig();
+        }
         moving = false;
+        $showGrid = false;
     }
 
     function toggleExpanded() {
@@ -121,12 +139,18 @@
 
     function handleModulesScroll() {
         panelConfig.scrollTop = modulesElement.scrollTop;
-        savePanelConfig();
+
+        if (scrollPositionSaveTimeout !== undefined) {
+            clearTimeout(scrollPositionSaveTimeout);
+        }
+        scrollPositionSaveTimeout = setTimeout(() => {
+            savePanelConfig();
+        }, 500)
     }
 
-    highlightModuleName.subscribe(() => {
+    highlightModuleName.subscribe((name) => {
         const highlightModule = modules.find(
-            (m) => m.name === $highlightModuleName,
+            (m) => m.name === name,
         );
         if (highlightModule) {
             panelConfig.zIndex = ++$maxPanelZIndex;
@@ -136,7 +160,7 @@
         }
     });
 
-    listen("toggleModule", (e: ToggleModuleEvent) => {
+    listen("moduleToggle", (e: ModuleToggleEvent) => {
         const moduleName = e.moduleName;
         const moduleEnabled = e.enabled;
 
@@ -162,9 +186,27 @@
             })
         }, 500);
     });
+
+    function handleKeydown(e: KeyboardEvent) {
+        if (e.key === "Shift") {
+            ignoreGrid = true;
+        }
+    }
+
+    function handleKeyup(e: KeyboardEvent) {
+        if (e.key === "Shift") {
+            ignoreGrid = false;
+        }
+    }
+
+    function snapToGrid(value: number): number {
+        if (ignoreGrid || !$snappingEnabled) return value;
+
+        return Math.round(value / $gridSize) * $gridSize;
+    }
 </script>
 
-<svelte:window on:mouseup={onMouseUp} on:mousemove={onMouseMove}/>
+<svelte:window on:mouseup={onMouseUp} on:mousemove={onMouseMove} on:keydown={handleKeydown} on:keyup={handleKeyup}/>
 
 <div
         class="panel"
@@ -186,6 +228,7 @@
         />
         <span class="category">{category}</span>
 
+        <!-- svelte-ignore a11y_consider_explicit_label -->
         <button class="expand-toggle" on:click={toggleExpanded}>
             <div class="icon" class:expanded={panelConfig.expanded}></div>
         </button>
@@ -199,7 +242,7 @@
 </div>
 
 <style lang="scss">
-  @import "../../colors.scss";
+  @use "../../colors.scss" as *;
 
   .panel {
     border-radius: 5px;
@@ -208,6 +251,8 @@
     overflow: hidden;
     box-shadow: 0 0 10px rgba($clickgui-base-color, 0.5);
     will-change: transform;
+    transition: none;
+    user-select: none;
   }
 
   .title {

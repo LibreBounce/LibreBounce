@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,8 +19,9 @@
 package net.ccbluex.liquidbounce.event
 
 import net.ccbluex.liquidbounce.event.events.*
-import net.ccbluex.liquidbounce.utils.client.EventScheduler
+import net.ccbluex.liquidbounce.features.misc.HideAppearance.isDestructed
 import net.ccbluex.liquidbounce.utils.client.logger
+import net.ccbluex.liquidbounce.utils.kotlin.sortedInsert
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.reflect.KClass
 
@@ -29,6 +30,7 @@ import kotlin.reflect.KClass
  */
 val ALL_EVENT_CLASSES: Array<KClass<out Event>> = arrayOf(
     GameTickEvent::class,
+    GameRenderTaskQueueEvent::class,
     BlockChangeEvent::class,
     ChunkLoadEvent::class,
     ChunkDeltaUpdateEvent::class,
@@ -47,10 +49,12 @@ val ALL_EVENT_CLASSES: Array<KClass<out Event>> = arrayOf(
     KeyboardCharEvent::class,
     InputHandleEvent::class,
     MovementInputEvent::class,
+    SprintEvent::class,
     KeyEvent::class,
     MouseRotationEvent::class,
     KeybindChangeEvent::class,
-    AttackEvent::class,
+    KeybindIsPressedEvent::class,
+    AttackEntityEvent::class,
     SessionEvent::class,
     ScreenEvent::class,
     ChatSendEvent::class,
@@ -69,7 +73,6 @@ val ALL_EVENT_CLASSES: Array<KClass<out Event>> = arrayOf(
     PlayerNetworkMovementTickEvent::class,
     PlayerPushOutEvent::class,
     PlayerMoveEvent::class,
-    RotatedMovementInputEvent::class,
     PlayerJumpEvent::class,
     PlayerAfterJumpEvent::class,
     PlayerUseMultiplier::class,
@@ -86,8 +89,10 @@ val ALL_EVENT_CLASSES: Array<KClass<out Event>> = arrayOf(
     PacketEvent::class,
     ClientStartEvent::class,
     ClientShutdownEvent::class,
+    ClientLanguageChangedEvent::class,
     ValueChangedEvent::class,
-    ToggleModuleEvent::class,
+    ModuleActivationEvent::class,
+    ModuleToggleEvent::class,
     NotificationEvent::class,
     ClientChatStateChange::class,
     ClientChatMessageEvent::class,
@@ -100,9 +105,7 @@ val ALL_EVENT_CLASSES: Array<KClass<out Event>> = arrayOf(
     VirtualScreenEvent::class,
     FpsChangeEvent::class,
     ClientPlayerDataEvent::class,
-    SimulatedTickEvent::class,
-    SplashOverlayEvent::class,
-    SplashProgressEvent::class,
+    RotationUpdateEvent::class,
     RefreshArrayListEvent::class,
     BrowserReadyEvent::class,
     ServerConnectEvent::class,
@@ -119,12 +122,21 @@ val ALL_EVENT_CLASSES: Array<KClass<out Event>> = arrayOf(
     DrawOutlinesEvent::class,
     OverlayMessageEvent::class,
     ScheduleInventoryActionEvent::class,
+    SelectHotbarSlotSilentlyEvent::class,
     SpaceSeperatedNamesChangeEvent::class,
     ClickGuiScaleChangeEvent::class,
     BrowserUrlChangeEvent::class,
     TagEntityEvent::class,
     MouseScrollInHotbarEvent::class,
-    PlayerFluidCollisionCheckEvent::class
+    PlayerFluidCollisionCheckEvent::class,
+    PlayerSneakMultiplier::class,
+    PerspectiveEvent::class,
+    ItemLoreQueryEvent::class,
+    PlayerEquipmentChangeEvent::class,
+    ClickGuiValueChangeEvent::class,
+    BlockAttackEvent::class,
+    QueuePacketEvent::class,
+    MinecraftAutoJumpEvent::class
 )
 
 /**
@@ -142,7 +154,7 @@ object EventManager {
     /**
      * Used by handler methods
      */
-    fun <T : Event> registerEventHook(eventClass: Class<out Event>, eventHook: EventHook<T>) {
+    fun <T : Event> registerEventHook(eventClass: Class<out Event>, eventHook: EventHook<T>): EventHook<T> {
         val handlers = registry[eventClass]
             ?: error("The event '${eventClass.name}' is not registered in Events.kt::ALL_EVENT_CLASSES.")
 
@@ -150,10 +162,11 @@ object EventManager {
         val hook = eventHook as EventHook<in Event>
 
         if (!handlers.contains(hook)) {
-            handlers.add(hook)
-
-            handlers.sortByDescending { it.priority }
+            // `handlers` is sorted descending by EventHook.priority
+            handlers.sortedInsert(hook) { -it.priority }
         }
+
+        return eventHook
     }
 
     /**
@@ -163,16 +176,9 @@ object EventManager {
         registry[eventClass]?.remove(eventHook as EventHook<in Event>)
     }
 
-    /**
-     * Unregisters event handlers.
-     */
-    fun unregisterEventHooks(eventClass: Class<out Event>, hooks: ArrayList<EventHook<in Event>>) {
-        registry[eventClass]?.removeAll(hooks.toSet())
-    }
-
-    fun unregisterEventHandler(eventHandler: Listenable) {
+    fun unregisterEventHandler(eventListener: EventListener) {
         registry.values.forEach {
-            it.removeIf { it.handlerClass == eventHandler }
+            it.removeIf { it.handlerClass == eventListener }
         }
     }
 
@@ -188,12 +194,14 @@ object EventManager {
      * @param event to call
      */
     fun <T : Event> callEvent(event: T): T {
+        if (isDestructed) {
+            return event
+        }
+
         val target = registry[event.javaClass] ?: return event
 
         for (eventHook in target) {
-            EventScheduler.process(event)
-
-            if (!eventHook.ignoresCondition && !eventHook.handlerClass.handleEvents()) {
+            if (!eventHook.handlerClass.running) {
                 continue
             }
 

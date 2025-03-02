@@ -7,6 +7,8 @@ import type {
     Component,
     ConfigurableSetting,
     GameWindow,
+    GeneratorResult,
+    HitResult,
     MinecraftKeybind,
     Module,
     PersistentStorageItem,
@@ -30,6 +32,13 @@ export async function getModules(): Promise<Module[]> {
     return data;
 }
 
+export async function getModule(name: string): Promise<Module> {
+    const response = await fetch(`${API_BASE}/client/module/${name}`);
+    const data = await response.json();
+
+    return data;
+}
+
 export async function getModuleSettings(name: string): Promise<ConfigurableSetting> {
     const searchParams = new URLSearchParams({name});
 
@@ -43,6 +52,23 @@ export async function setModuleSettings(name: string, settings: ConfigurableSett
     const searchParams = new URLSearchParams({name});
 
     await fetch(`${API_BASE}/client/modules/settings?${searchParams.toString()}`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(settings)
+    });
+}
+
+export async function getSpooferSettings(): Promise<ConfigurableSetting> {
+    const response = await fetch(`${API_BASE}/client/spoofer`);
+    const data = await response.json();
+
+    return data;
+}
+
+export async function setSpooferSettings(settings: ConfigurableSetting) {
+    await fetch(`${API_BASE}/client/spoofer`, {
         method: "PUT",
         headers: {
             "Content-Type": "application/json"
@@ -105,6 +131,13 @@ export async function getPlayerData(): Promise<PlayerData> {
     return data;
 }
 
+export async function getCrosshairData(): Promise<HitResult> {
+    const response = await fetch(`${API_BASE}/client/crosshair`);
+    const data: HitResult = await response.json();
+
+    return data;
+}
+
 export async function getPrintableKeyName(key: string): Promise<PrintableKey> {
     const searchParams = new URLSearchParams({key});
 
@@ -158,6 +191,12 @@ export async function openScreen(name: string) {
             "Content-Type": "application/json"
         },
         body: JSON.stringify({name})
+    });
+}
+
+export async function deleteScreen() {
+    await fetch(`${API_BASE}/client/screen`, {
+        method: "DELETE"
     });
 }
 
@@ -455,23 +494,23 @@ export async function setProxyFavorite(id: number, favorite: boolean) {
     }
 }
 
-export async function addProxy(host: string, port: number, username: string, password: string) {
+export async function addProxy(host: string, port: number, username: string, password: string, forwardAuthentication: boolean) {
     await fetch(`${API_BASE}/client/proxies/add`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({host, port, username, password})
+        body: JSON.stringify({host, port, username, password,forwardAuthentication})
     });
 }
 
-export async function editProxy(id: number, host: string, port: number, username: string, password: string) {
+export async function editProxy(id: number, host: string, port: number, username: string, password: string, forwardAuthentication: boolean) {
     await fetch(`${API_BASE}/client/proxies/edit`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({id, host, port, username, password})
+        body: JSON.stringify({id, host, port, username, password, forwardAuthentication})
     })
 }
 
@@ -583,5 +622,24 @@ export async function browserForceReload() {
 export async function browserClose() {
     await fetch(`${API_BASE}/client/browser/close`, {
         method: "POST",
+    });
+}
+
+export async function randomUsername(): Promise<string> {
+    let response = await fetch(`${API_BASE}/client/account/random-name`, {
+        method: "POST",
+    });
+    let data: GeneratorResult = await response.json();
+
+    return data.name;
+}
+
+export async function setTyping(typing: boolean) {
+    await fetch(`${API_BASE}/client/typing`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({typing})
     });
 }

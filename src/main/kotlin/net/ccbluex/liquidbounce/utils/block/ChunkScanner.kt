@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,50 +18,55 @@
  */
 package net.ccbluex.liquidbounce.utils.block
 
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
-import net.ccbluex.liquidbounce.event.Listenable
+import kotlinx.coroutines.flow.MutableSharedFlow
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.features.module.MinecraftShortcuts
 import net.ccbluex.liquidbounce.utils.client.logger
-import net.ccbluex.liquidbounce.utils.client.mc
+import net.ccbluex.liquidbounce.utils.kotlin.getValue
 import net.minecraft.block.BlockState
 import net.minecraft.util.math.BlockPos
+import net.minecraft.util.math.ChunkPos
 import net.minecraft.world.chunk.WorldChunk
 import java.util.concurrent.CopyOnWriteArrayList
-import kotlin.coroutines.cancellation.CancellationException
 
-object ChunkScanner : Listenable {
+object ChunkScanner : EventListener, MinecraftShortcuts {
+
+    init {
+        ChunkScannerThread
+    }
+
     private val subscribers = CopyOnWriteArrayList<BlockChangeSubscriber>()
 
-    private val loadedChunks = hashSetOf<ChunkLocation>()
+    private val loadedChunks = LongOpenHashSet()
 
     @Suppress("unused")
-    val chunkLoadHandler = handler<ChunkLoadEvent> { event ->
-        val chunk = mc.world!!.getChunk(event.x, event.z)
+    private val chunkLoadHandler = handler<ChunkLoadEvent> { event ->
+        val chunk = world.getChunk(event.x, event.z)
 
         ChunkScannerThread.enqueueChunkUpdate(ChunkScannerThread.UpdateRequest.ChunkUpdateRequest(chunk))
 
-        this.loadedChunks.add(ChunkLocation(event.x, event.z))
+        this.loadedChunks.add(ChunkPos.toLong(event.x, event.z))
     }
 
     @Suppress("unused")
-    val chunkDeltaUpdateHandler = handler<ChunkDeltaUpdateEvent> { event ->
-        val chunk = mc.world!!.getChunk(event.x, event.z)
+    private val chunkDeltaUpdateHandler = handler<ChunkDeltaUpdateEvent> { event ->
+        val chunk = world.getChunk(event.x, event.z)
         ChunkScannerThread.enqueueChunkUpdate(ChunkScannerThread.UpdateRequest.ChunkUpdateRequest(chunk))
     }
 
     @Suppress("unused")
-    val chunkUnloadHandler = handler<ChunkUnloadEvent> { event ->
+    private val chunkUnloadHandler = handler<ChunkUnloadEvent> { event ->
         ChunkScannerThread.enqueueChunkUpdate(ChunkScannerThread.UpdateRequest.ChunkUnloadRequest(event.x, event.z))
 
-        this.loadedChunks.remove(ChunkLocation(event.x, event.z))
+        this.loadedChunks.remove(ChunkPos.toLong(event.x, event.z))
     }
 
     @Suppress("unused")
-    val blockChangeEvent = handler<BlockChangeEvent> { event ->
+    private val blockChangeEvent = handler<BlockChangeEvent> { event ->
         ChunkScannerThread.enqueueChunkUpdate(
             ChunkScannerThread.UpdateRequest.BlockUpdateEvent(
                 event.blockPos,
@@ -71,7 +76,8 @@ object ChunkScanner : Listenable {
     }
 
     @Suppress("unused")
-    val disconnectHandler = handler<DisconnectEvent> {
+    private val worldChangeHandler = handler<WorldChangeEvent> {
+        ChunkScannerThread.cancelCurrentJobs()
         subscribers.forEach(BlockChangeSubscriber::clearAllChunks)
         loadedChunks.clear()
     }
@@ -87,16 +93,19 @@ object ChunkScanner : Listenable {
 
         logger.debug("Scanning ${this.loadedChunks.size} chunks for ${newSubscriber.javaClass.simpleName}")
 
-        for (loadedChunk in this.loadedChunks) {
-            ChunkScannerThread.enqueueChunkUpdate(
-                ChunkScannerThread.UpdateRequest.ChunkUpdateRequest(
-                    world.getChunk(
-                        loadedChunk.x,
-                        loadedChunk.z
-                    ),
-                    newSubscriber
+        with(this.loadedChunks.longIterator()) {
+            while (hasNext()) {
+                val longChunkPos = nextLong()
+                ChunkScannerThread.enqueueChunkUpdate(
+                    ChunkScannerThread.UpdateRequest.ChunkUpdateRequest(
+                        world.getChunk(
+                            ChunkPos.getPackedX(longChunkPos),
+                            ChunkPos.getPackedZ(longChunkPos)
+                        ),
+                        newSubscriber
+                    )
                 )
-            )
+            }
         }
     }
 
@@ -106,49 +115,55 @@ object ChunkScanner : Listenable {
     }
 
     object ChunkScannerThread {
-        private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
-        private const val CHANNEL_CAPACITY = 800
+        /**
+         * When the first request comes in, the dispatcher and the scope will be initialized,
+         * and its parallelism cannot be modified
+         */
+        private val dispatcher = Dispatchers.Default
+            .limitedParallelism((Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(2))
 
-        private var chunkUpdateChannel = Channel<UpdateRequest>(capacity = CHANNEL_CAPACITY)
+        /**
+         * The parent job for the current client world.
+         * All children will be cancelled on [WorldChangeEvent].
+         */
+        private val worldJob = SupervisorJob()
 
-        private val channelRestartMutex = Mutex()
+        private val scope = CoroutineScope(dispatcher + worldJob)
 
-        init {
-            scope.launch {
-                var retrying = 0
-                while (true) {
+        private val eventFlow = MutableSharedFlow<UpdateRequest>()
+
+        /**
+         * Shared cache for [scope]
+         */
+        private val mutable by ThreadLocal.withInitial(BlockPos::Mutable)
+
+        /**
+         * A standalone [Job] to dispatch all [UpdateRequest] from [eventFlow]
+         */
+        private val collectorJob = scope.launch(Job()) {
+            eventFlow.collect { chunkUpdate ->
+                // Discard current request when world is null
+                if (mc.world == null) {
+                    delay(50L)
+                    return@collect
+                }
+
+                // Process the update request
+                launch {
                     try {
-                        val chunkUpdate = chunkUpdateChannel.receive()
-
-                        if (mc.world == null) {
-                            // reset Channel
-                            channelRestartMutex.withLock {
-                                chunkUpdateChannel.cancel()
-                                chunkUpdateChannel = Channel(capacity = CHANNEL_CAPACITY)
-                            }
-                            // max delay = 30s (1s, 2s, 4s, ...)
-                            delay((1000L shl retrying++).coerceAtMost(30000L))
-                            continue
-                        }
-
-                        retrying = 0
-
                         when (chunkUpdate) {
                             is UpdateRequest.ChunkUpdateRequest -> scanChunk(chunkUpdate)
-                            is UpdateRequest.ChunkUnloadRequest -> removeMarkedBlocksFromChunk(
-                                chunkUpdate.x,
-                                chunkUpdate.z
-                            )
+
+                            is UpdateRequest.ChunkUnloadRequest -> subscribers.forEach {
+                                it.clearChunk(chunkUpdate.x, chunkUpdate.z)
+                            }
 
                             is UpdateRequest.BlockUpdateEvent -> subscribers.forEach {
                                 it.recordBlock(chunkUpdate.blockPos, chunkUpdate.newState, cleared = false)
                             }
                         }
-                    } catch (e: CancellationException) {
-                        break // end loop if job has been canceled
                     } catch (e: Throwable) {
-                        retrying++
                         logger.warn("Chunk update error", e)
                     }
                 }
@@ -157,10 +172,15 @@ object ChunkScanner : Listenable {
 
         fun enqueueChunkUpdate(request: UpdateRequest) {
             scope.launch {
-                channelRestartMutex.withLock {
-                    chunkUpdateChannel.send(request)
-                }
+                eventFlow.emit(request)
             }
+        }
+
+        /**
+         * Cancel all existing enqueue(emit) jobs and scanner jobs
+         */
+        fun cancelCurrentJobs() {
+            worldJob.cancelChildren()
         }
 
         /**
@@ -173,34 +193,46 @@ object ChunkScanner : Listenable {
                 return
             }
 
+            val start = System.nanoTime()
+
             val currentSubscriber = request.singleSubscriber?.let { listOf(it) } ?: subscribers
 
-            currentSubscriber.map {
-                scope.launch {
-                    it.chunkUpdate(request.chunk.pos.x, request.chunk.pos.z)
-                }
-            }.joinAll()
+            when (currentSubscriber.size) {
+                0 -> return
+                1 -> currentSubscriber.first().chunkUpdate(chunk.pos.x, chunk.pos.z)
+                else -> currentSubscriber.map {
+                    scope.launch { it.chunkUpdate(chunk.pos.x, chunk.pos.z) }
+                }.joinAll()
+            }
 
             // Contains all subscriber that want recordBlock called on a chunk update
-            val subscribersForRecordBlock = currentSubscriber.filter { it.shouldCallRecordBlockOnChunkUpdate }
+            val subscribersForRecordBlock = currentSubscriber.filter {
+                it.shouldCallRecordBlockOnChunkUpdate
+            }.toTypedArray()
 
             if (subscribersForRecordBlock.isEmpty()) {
                 return
             }
 
-            val start = System.nanoTime()
+            val startX = chunk.pos.startX
+            val startZ = chunk.pos.startZ
 
-            (0 until chunk.height).map { y ->
+            /**
+             * @see WorldChunk.getBlockState
+             */
+            (0..chunk.highestNonEmptySection).map { sectionIndex ->
                 scope.launch {
-                    val pos = BlockPos.Mutable(chunk.pos.startX, y + chunk.bottomY, chunk.pos.startZ)
-                    repeat(16) {
-                        repeat(16) {
-                            val blockState = chunk.getBlockState(pos)
-                            subscribersForRecordBlock.forEach { it.recordBlock(pos, blockState, cleared = true) }
-                            pos.z++
+                    val section = chunk.getSection(sectionIndex)
+                    for (sectionY in 0..15) {
+                        // index == (y >> 4) - (bottomY >> 4)
+                        val y = (sectionIndex + (chunk.bottomY shr 4)) shl 4 or sectionY
+                        for (x in 0..15) {
+                            for (z in 0..15) {
+                                val blockState = section.getBlockState(x, sectionY, z)
+                                val pos = mutable.set(startX or x, y, startZ or z)
+                                subscribersForRecordBlock.forEach { it.recordBlock(pos, blockState, cleared = true) }
+                            }
                         }
-                        pos.z = chunk.pos.startZ
-                        pos.x++
                     }
                 }
             }.joinAll()
@@ -208,25 +240,19 @@ object ChunkScanner : Listenable {
             logger.debug("Scanning chunk (${chunk.pos.x}, ${chunk.pos.z}) took ${(System.nanoTime() - start) / 1000}us")
         }
 
-        private fun removeMarkedBlocksFromChunk(x: Int, z: Int) {
-            subscribers.forEach { it.clearChunk(x, z) }
-        }
-
         fun stopThread() {
-            scope.cancel()
-            chunkUpdateChannel.close()
+            worldJob.cancel()
+            collectorJob.cancel()
+            logger.info("Stopped Chunk Scanner Thread!")
         }
 
         sealed interface UpdateRequest {
-            @JvmRecord
-            data class ChunkUpdateRequest(val chunk: WorldChunk, val singleSubscriber: BlockChangeSubscriber? = null) :
+            class ChunkUpdateRequest(val chunk: WorldChunk, val singleSubscriber: BlockChangeSubscriber? = null) :
                 UpdateRequest
 
-            @JvmRecord
-            data class ChunkUnloadRequest(val x: Int, val z: Int) : UpdateRequest
+            class ChunkUnloadRequest(val x: Int, val z: Int) : UpdateRequest
 
-            @JvmRecord
-            data class BlockUpdateEvent(val blockPos: BlockPos, val newState: BlockState) : UpdateRequest
+            class BlockUpdateEvent(val blockPos: BlockPos, val newState: BlockState) : UpdateRequest
         }
     }
 
@@ -248,13 +274,11 @@ object ChunkScanner : Listenable {
         fun recordBlock(pos: BlockPos, state: BlockState, cleared: Boolean)
 
         /**
-         * Is called when a chunk is loaded or entirely updated.
+         * Is called when a chunk is initially loaded or entirely updated.
          */
         fun chunkUpdate(x: Int, z: Int)
         fun clearChunk(x: Int, z: Int)
         fun clearAllChunks()
     }
 
-    @JvmRecord
-    data class ChunkLocation(val x: Int, val z: Int)
 }

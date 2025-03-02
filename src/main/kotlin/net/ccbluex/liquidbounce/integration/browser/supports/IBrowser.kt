@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@ package net.ccbluex.liquidbounce.integration.browser.supports
 import net.ccbluex.liquidbounce.integration.browser.BrowserType
 import net.ccbluex.liquidbounce.integration.browser.supports.tab.ITab
 import net.ccbluex.liquidbounce.integration.browser.supports.tab.TabPosition
+import net.ccbluex.liquidbounce.integration.task.TaskManager
 
 /**
  * The browser interface which is used to create tabs and manage the browser backend.
@@ -28,11 +29,11 @@ import net.ccbluex.liquidbounce.integration.browser.supports.tab.TabPosition
  */
 interface IBrowser {
 
-    fun makeDependenciesAvailable(whenAvailable: () -> Unit)
+    fun makeDependenciesAvailable(taskManager: TaskManager, whenAvailable: () -> Unit)
 
-    fun initBrowserBackend()
+    fun startBrowser()
 
-    fun shutdownBrowserBackend()
+    fun stopBrowser()
 
     fun isInitialized(): Boolean
 

@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,17 +18,25 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.misc.antibot.modes
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
-import net.ccbluex.liquidbounce.config.ToggleableConfigurable
-import net.ccbluex.liquidbounce.event.events.AttackEvent
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.NamedChoice
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
+import net.ccbluex.liquidbounce.event.events.AttackEntityEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
-import net.ccbluex.liquidbounce.event.events.WorldChangeEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.ModuleAntiBot
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.ModuleAntiBot.isADuplicate
+import net.ccbluex.liquidbounce.utils.item.material
+import net.ccbluex.liquidbounce.utils.math.sq
 import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.item.ArmorItem
+import net.minecraft.item.Item
+import net.minecraft.item.equipment.ArmorMaterials
+import net.minecraft.item.equipment.EquipmentType
 import net.minecraft.network.packet.s2c.play.EntitiesDestroyS2CPacket
 import net.minecraft.network.packet.s2c.play.EntityAnimationS2CPacket
 import net.minecraft.network.packet.s2c.play.EntityAttributesS2CPacket
@@ -42,11 +50,6 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
 
     private object InvalidGround : ToggleableConfigurable(ModuleAntiBot, "InvalidGround", true) {
         val vlToConsiderAsBot by int("VLToConsiderAsBot", 10, 1..50, "flags")
-    }
-
-    init {
-        tree(InvalidGround)
-        tree(AlwaysInRadius)
     }
 
     private val duplicate by boolean("Duplicate", false)
@@ -64,25 +67,103 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
         val alwaysInRadiusRange by float("AlwaysInRadiusRange", 20f, 5f..30f)
     }
 
-    private val flyingSet = mutableMapOf<Int, Int>()
-    private val hitListSet = hashSetOf<Int>()
-    private val notAlwaysInRadiusSet = hashSetOf<Int>()
+    // LivingTime in 1.8.9
+    private object Age : ToggleableConfigurable(ModuleAntiBot, "Age", false) {
+        val minimum by int("Minimum", 20, 0..120, "ticks")
+    }
 
-    private val swungSet = hashSetOf<Int>()
-    private val crittedSet = hashSetOf<Int>()
-    private val attributesSet = mutableListOf<Int>()
+    private object Armor : ToggleableConfigurable(ModuleAntiBot, "ArmorMaterial", false) {
 
-    val repeatable = repeatable {
+        private class ArmorConfigurable(
+            name: String, val equipmentType: EquipmentType
+        ) : ToggleableConfigurable(this, name, false) {
+
+            private val materialValues = mapOf(
+                null to boolean("Nothing", true),
+                ArmorMaterials.LEATHER to boolean("Leather", true),
+                ArmorMaterials.GOLD to boolean("Gold", true),
+                ArmorMaterials.CHAIN to boolean("Chain", true),
+                ArmorMaterials.IRON to boolean("Iron", true),
+                ArmorMaterials.DIAMOND to boolean("Diamond", true),
+                ArmorMaterials.NETHERITE to boolean("Netherite", true)
+            )
+
+            fun isValid(item: Item): Boolean {
+                // TURTLE_SCUTE or ARMADILLO_SCUTE -> valid
+                return materialValues[(item as? ArmorItem)?.material()]?.get() ?: true
+            }
+        }
+
+        private val values = arrayOf(
+            ArmorConfigurable("Boots", EquipmentType.BOOTS),
+            ArmorConfigurable("Leggings", EquipmentType.LEGGINGS),
+            ArmorConfigurable("Chestplate", EquipmentType.CHESTPLATE),
+            ArmorConfigurable("Helmet", EquipmentType.HELMET),
+        ).also { it.reversedArray().onEach(::tree) }
+
+        fun isValid(entity: PlayerEntity): Boolean {
+            return entity.armorItems.withIndex().all { (index, armor) ->
+                values[index].let { !it.enabled || it.isValid(armor.item) }
+            }
+        }
+    }
+
+    init {
+        tree(InvalidGround)
+        tree(AlwaysInRadius)
+        tree(Age)
+        tree(Armor)
+    }
+
+    private val flyingSet = Int2IntOpenHashMap()
+    private val hitListSet = IntOpenHashSet()
+    private val notAlwaysInRadiusSet = IntOpenHashSet()
+
+    private val swungSet = IntOpenHashSet()
+    private val crittedSet = IntOpenHashSet()
+    private val attributesSet = IntOpenHashSet()
+    private val ageSet = IntOpenHashSet()
+
+    private val armorSet = IntOpenHashSet()
+
+    val repeatable = tickHandler {
+        val rangeSquared = AlwaysInRadius.alwaysInRadiusRange.sq()
         for (entity in world.players) {
-            if (player.distanceTo(entity) > AlwaysInRadius.alwaysInRadiusRange) {
+            if (player.squaredDistanceTo(entity) > rangeSquared) {
                 notAlwaysInRadiusSet.add(entity.id)
+            }
+
+            if (entity.age < Age.minimum) {
+                ageSet.add(entity.id)
+            }
+
+            if (Armor.enabled && !Armor.isValid(entity)) {
+                armorSet.add(entity.id)
+            }
+        }
+
+        with(ageSet.intIterator()) {
+            while (hasNext()) {
+                val entity = world.getEntityById(nextInt())
+                if (entity == null || entity.age >= Age.minimum) {
+                    remove()
+                }
+            }
+        }
+
+        with(armorSet.intIterator()) {
+            while (hasNext()) {
+                val entity = world.getEntityById(nextInt()) as? PlayerEntity
+                if (entity == null || Armor.isValid(entity)) {
+                    remove()
+                }
             }
         }
     }
 
     @Suppress("unused")
-    private val attackHandler = handler<AttackEvent> {
-        hitListSet.add(it.enemy.id)
+    private val attackHandler = handler<AttackEntityEvent> {
+        hitListSet.add(it.entity.id)
     }
 
     @Suppress("unused")
@@ -94,21 +175,23 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
                 }
 
                 val entity = packet.getEntity(world) ?: return@handler
+                val id = entity.id
+                val currentValue = flyingSet.getOrDefault(id, 0)
                 if (entity.isOnGround && entity.prevY != entity.y) {
-                    flyingSet[entity.id] = flyingSet.getOrDefault(entity.id, 0) + 1
-                } else if (!entity.isOnGround && flyingSet.getOrDefault(entity.id, 0) > 0) {
-                    val newVL = flyingSet.getOrDefault(entity.id, 0) / 2
+                    flyingSet.put(id, currentValue + 1)
+                } else if (!entity.isOnGround && currentValue > 0) {
+                    val newVL = currentValue / 2
 
                     if (newVL <= 0) {
-                        flyingSet -= entity.id
+                        flyingSet.remove(id)
                     } else {
-                        flyingSet[entity.id] = newVL
+                        flyingSet.put(id, newVL)
                     }
                 }
             }
 
             is EntityAttributesS2CPacket -> {
-                attributesSet += packet.entityId
+                attributesSet.add(packet.entityId)
             }
 
             is EntityAnimationS2CPacket -> {
@@ -116,19 +199,24 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
 
                 if (animationId == EntityAnimationS2CPacket.SWING_MAIN_HAND ||
                     animationId == EntityAnimationS2CPacket.SWING_OFF_HAND) {
-                    swungSet += packet.entityId
+                    swungSet.add(packet.entityId)
                 } else if (animationId == EntityAnimationS2CPacket.CRIT ||
                     animationId == EntityAnimationS2CPacket.ENCHANTED_HIT) {
-                    crittedSet += packet.entityId
+                    crittedSet.add(packet.entityId)
                 }
             }
 
             is EntitiesDestroyS2CPacket -> {
-                for (entityId in packet.entityIds) {
-                    attributesSet -= entityId
-                    flyingSet -= entityId
-                    hitListSet -= entityId
-                    notAlwaysInRadiusSet -= entityId
+                with(packet.entityIds.intIterator()) {
+                    while (hasNext()) {
+                        val entityId = nextInt()
+                        attributesSet.remove(entityId)
+                        flyingSet.remove(entityId)
+                        hitListSet.remove(entityId)
+                        notAlwaysInRadiusSet.remove(entityId)
+                        ageSet.remove(entityId)
+                        armorSet.remove(entityId)
+                    }
                 }
             }
         }
@@ -140,37 +228,38 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
         return flyingSet.getOrDefault(player.id, 0) >= InvalidGround.vlToConsiderAsBot
     }
 
+    private const val VALID_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_"
+
     private fun hasIllegalName(player: PlayerEntity): Boolean {
-        val validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_"
         val name = player.nameForScoreboard
 
         if (name.length < 3 || name.length > 16) {
             return true
         }
 
-        val result = name.indices.find { !validChars.contains(name[it]) }
-
-        return result != null
+        return name.any { it !in VALID_CHARS }
     }
 
     @Suppress("all")
     private fun meetsCustomConditions(player: PlayerEntity): Boolean {
-        val noGameMode = noGameMode && network.getPlayerListEntry(player.uuid)?.gameMode == null
-        val invalidGround = InvalidGround.enabled && hasInvalidGround(player)
-        val fakeId = fakeEntityID && (player.id < 0 || player.id >= 1E+9)
-        val isADuplicate = duplicate && isADuplicate(player.gameProfile)
-        val illegalName = illegalName && hasIllegalName(player)
-        val illegalPitch = illegalPitch && abs(player.pitch) > 90
-        val alwaysInRadius = AlwaysInRadius.enabled && !notAlwaysInRadiusSet.contains(player.id)
-        val needHit = needHit && !hitListSet.contains(player.id)
-        val health = health && player.health > 20f
-        val swung = swung && !swungSet.contains(player.id)
-        val critted = critted && !crittedSet.contains(player.id)
-        val attributes = attributes && !attributesSet.contains(player.id)
-
-        return noGameMode || invalidGround || fakeId || isADuplicate
-            || illegalName || illegalPitch || alwaysInRadius || needHit || health
-            || swung || critted || attributes
+        val playerId = player.id
+        return when {
+            noGameMode && network.getPlayerListEntry(player.uuid)?.gameMode == null -> true
+            InvalidGround.enabled && hasInvalidGround(player) -> true
+            fakeEntityID && (playerId < 0 || playerId >= 1E+9) -> true
+            duplicate && isADuplicate(player.gameProfile) -> true
+            illegalName && hasIllegalName(player) -> true
+            illegalPitch && abs(player.pitch) > 90 -> true
+            AlwaysInRadius.enabled && !notAlwaysInRadiusSet.contains(playerId) -> true
+            Age.enabled && ageSet.contains(playerId) -> true
+            Armor.enabled && armorSet.contains(playerId) -> true
+            needHit && !hitListSet.contains(playerId) -> true
+            health && player.health > 20f -> true
+            swung && !swungSet.contains(playerId) -> true
+            critted && !crittedSet.contains(playerId) -> true
+            attributes && !attributesSet.contains(playerId) -> true
+            else -> false
+        }
     }
 
     override fun isBot(entity: PlayerEntity): Boolean {
@@ -184,5 +273,7 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
         swungSet.clear()
         crittedSet.clear()
         attributesSet.clear()
+        ageSet.clear()
+        armorSet.clear()
     }
 }

@@ -27,12 +27,20 @@ export type ModuleSetting =
     | ColorSetting
     | TextSetting
     | TextArraySetting
-    | BindSetting;
+    | BindSetting
+    | VectorSetting
+    | KeySetting;
 
 export interface BlocksSetting {
     valueType: string;
     name: string;
     value: string[];
+}
+
+export interface KeySetting {
+    valueType: string;
+    name: string;
+    value: string;
 }
 
 export interface BindSetting {
@@ -52,6 +60,12 @@ export interface TextSetting {
     valueType: string;
     name: string;
     value: string;
+}
+
+export interface VectorSetting {
+    valueType: string;
+    name: string;
+    value: Vec3;
 }
 
 export interface TextArraySetting {
@@ -156,7 +170,6 @@ export interface PersistentStorageItem {
 
 export interface VirtualScreen {
     name: string;
-    showingSplash: boolean;
 }
 
 export interface Scoreboard {
@@ -171,6 +184,7 @@ export interface PlayerData {
     username: string;
     uuid: string;
     position: Vec3;
+    blockPosition: Vec3;
     velocity: Vec3;
     selectedSlot: number;
     gameMode: string;
@@ -309,6 +323,7 @@ export interface Proxy {
     id: number;
     host: string;
     port: number;
+    forwardAuthentication: boolean;
     favorite: boolean;
     credentials: {
         username: string;
@@ -353,10 +368,9 @@ export interface ClientInfo {
 }
 
 export interface ClientUpdate {
-    updateAvailable: boolean;
     development: boolean;
     commit: string;
-    newestVersion: {
+    update: {
         buildId: number | undefined;
         commitId: string | undefined;
         branch: string | undefined;
@@ -366,9 +380,35 @@ export interface ClientUpdate {
         date: string;
         message: string;
         url: string;
-    }
+    } | undefined;
 }
 
 export interface Browser {
     url: string
+}
+
+export interface HitResult {
+    type: "block" | "entity" | "miss";
+    pos: Vec3;
+}
+
+export interface BlockHitResult extends HitResult {
+    blockPos: Vec3;
+    side: string;
+    isInsideBlock: boolean;
+}
+
+export interface EntityHitResult extends HitResult {
+    entityName: string;
+    entityType: string;
+    entityPos: Vec3;
+}
+
+export interface GeneratorResult {
+    name: string;
+}
+
+export interface Screen {
+    class: string,
+    title: string,
 }

@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,30 +22,35 @@ package net.ccbluex.liquidbounce.integration.theme
 import com.google.gson.JsonArray
 import com.google.gson.annotations.SerializedName
 import com.mojang.blaze3d.systems.RenderSystem
+import kotlinx.coroutines.runBlocking
 import net.ccbluex.liquidbounce.config.ConfigSystem
-import net.ccbluex.liquidbounce.config.Configurable
-import net.ccbluex.liquidbounce.config.util.decode
+import net.ccbluex.liquidbounce.config.gson.util.decode
+import net.ccbluex.liquidbounce.config.types.Configurable
+import net.ccbluex.liquidbounce.features.module.modules.render.ModuleClickGui
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleHud
-import net.ccbluex.liquidbounce.render.shader.Shader
+import net.ccbluex.liquidbounce.integration.IntegrationListener
+import net.ccbluex.liquidbounce.integration.VirtualScreenType
+import net.ccbluex.liquidbounce.integration.browser.BrowserManager
+import net.ccbluex.liquidbounce.integration.browser.supports.tab.ITab
+import net.ccbluex.liquidbounce.integration.interop.ClientInteropServer
+import net.ccbluex.liquidbounce.integration.theme.component.Component
+import net.ccbluex.liquidbounce.integration.theme.component.ComponentOverlay
+import net.ccbluex.liquidbounce.integration.theme.component.ComponentType
+import net.ccbluex.liquidbounce.render.shader.CanvasShader
 import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.io.extractZip
 import net.ccbluex.liquidbounce.utils.io.resource
 import net.ccbluex.liquidbounce.utils.io.resourceToString
+import net.ccbluex.liquidbounce.utils.math.Vec2i
 import net.ccbluex.liquidbounce.utils.render.refreshRate
-import net.ccbluex.liquidbounce.integration.browser.BrowserManager
-import net.ccbluex.liquidbounce.integration.browser.supports.tab.ITab
-import net.ccbluex.liquidbounce.integration.IntegrationHandler
-import net.ccbluex.liquidbounce.integration.VirtualScreenType
-import net.ccbluex.liquidbounce.integration.interop.ClientInteropServer
-import net.ccbluex.liquidbounce.integration.theme.component.Component
-import net.ccbluex.liquidbounce.integration.theme.component.ComponentOverlay
-import net.ccbluex.liquidbounce.integration.theme.component.ComponentType
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.gui.screen.ChatScreen
+import net.minecraft.client.render.RenderLayer
 import net.minecraft.client.texture.NativeImage
 import net.minecraft.client.texture.NativeImageBackedTexture
 import net.minecraft.util.Identifier
+import java.io.Closeable
 import java.io.File
 
 object ThemeManager : Configurable("theme") {
@@ -72,18 +77,22 @@ object ThemeManager : Configurable("theme") {
                 return
             }
 
+            if (field != defaultTheme) {
+                activeTheme.close()
+            }
+
             field = value
 
             // Update components
-            ComponentOverlay.insertComponents()
+            ComponentOverlay.insertDefaultComponents()
 
             // Update integration browser
-            IntegrationHandler.updateIntegrationBrowser()
-            ModuleHud.refresh()
+            IntegrationListener.updateIntegrationBrowser()
+            ModuleHud.reopen()
+            ModuleClickGui.restartView()
         }
 
-    private val takesInputHandler: () -> Boolean
-        get() = { mc.currentScreen != null && mc.currentScreen !is ChatScreen }
+    private val takesInputHandler: () -> Boolean = { mc.currentScreen != null && mc.currentScreen !is ChatScreen }
 
     init {
         ConfigSystem.root(this)
@@ -101,9 +110,15 @@ object ThemeManager : Configurable("theme") {
      * Open [ITab] with the given [VirtualScreenType] and mark as static if [markAsStatic] is true.
      * This tab will be locked to the highest refresh rate since it is input aware.
      */
-    fun openInputAwareImmediate(virtualScreenType: VirtualScreenType? = null, markAsStatic: Boolean = false): ITab =
-        BrowserManager.browser?.createInputAwareTab(route(virtualScreenType, markAsStatic).url, frameRate = refreshRate,
-            takesInput = takesInputHandler) ?: error("Browser is not initialized")
+    fun openInputAwareImmediate(
+        virtualScreenType: VirtualScreenType? = null,
+        markAsStatic: Boolean = false,
+        takesInput: () -> Boolean = takesInputHandler
+    ): ITab = BrowserManager.browser?.createInputAwareTab(
+        route(virtualScreenType, markAsStatic).url,
+        frameRate = refreshRate,
+        takesInput = takesInput
+    ) ?: error("Browser is not initialized")
 
     fun updateImmediate(tab: ITab?, virtualScreenType: VirtualScreenType? = null, markAsStatic: Boolean = false) =
         tab?.loadUrl(route(virtualScreenType, markAsStatic).url)
@@ -135,19 +150,30 @@ object ThemeManager : Configurable("theme") {
         }
     }
 
-    fun drawBackground(context: DrawContext, width: Int, height: Int, mouseX: Int, mouseY: Int, delta: Float): Boolean {
+    fun drawBackground(context: DrawContext, width: Int, height: Int, mousePos: Vec2i, delta: Float): Boolean {
         if (shaderEnabled) {
             val shader = activeTheme.compiledShaderBackground ?: defaultTheme.compiledShaderBackground
 
             if (shader != null) {
-                shader.draw(mouseX, mouseY, width, height, delta)
+                shader.draw(mousePos.x, mousePos.y, delta)
                 return true
             }
         }
 
         val image = activeTheme.loadedBackgroundImage ?: defaultTheme.loadedBackgroundImage
         if (image != null) {
-            context.drawTexture(image, 0, 0, 0f, 0f, width, height, width, height)
+            context.drawTexture(
+                RenderLayer::getGuiTextured,
+                image,
+                0,
+                0,
+                0f,
+                0f,
+                width,
+                height,
+                width,
+                height
+            )
             return true
         }
 
@@ -164,7 +190,7 @@ object ThemeManager : Configurable("theme") {
 
 }
 
-class Theme(val name: String) {
+class Theme(val name: String) : Closeable {
 
     private val folder = File(ThemeManager.themesFolder, name)
 
@@ -180,7 +206,7 @@ class Theme(val name: String) {
             error("Theme $name does not contain a metadata file")
         }
 
-        decode<ThemeMetadata>(metadataFile.readText())
+        decode<ThemeMetadata>(metadataFile.inputStream())
     }
 
     val exists: Boolean
@@ -193,7 +219,7 @@ class Theme(val name: String) {
         get() = File(folder, "background.frag")
     private val backgroundImage: File
         get() = File(folder, "background.png")
-    var compiledShaderBackground: Shader? = null
+    var compiledShaderBackground: CanvasShader? = null
         private set
     var loadedBackgroundImage: Identifier? = null
         private set
@@ -204,7 +230,7 @@ class Theme(val name: String) {
         }
 
         readShaderBackground()?.let { shaderBackground ->
-            compiledShaderBackground = Shader(resourceToString("/assets/liquidbounce/shaders/vertex.vert"),
+            compiledShaderBackground = CanvasShader(resourceToString("/resources/liquidbounce/shaders/vertex.vert"),
                 shaderBackground)
             logger.info("Compiled background shader for theme $name")
             return true
@@ -222,7 +248,8 @@ class Theme(val name: String) {
         }
 
         val image = NativeImageBackedTexture(readBackgroundImage() ?: return false)
-        loadedBackgroundImage = mc.textureManager.registerDynamicTexture("liquidbounce-theme-bg-$name", image)
+        loadedBackgroundImage = Identifier.of("liquidbounce", "theme-bg-${name.lowercase()}")
+        mc.textureManager.registerTexture(loadedBackgroundImage, image)
         logger.info("Loaded background image for theme $name")
         return true
     }
@@ -271,17 +298,23 @@ class Theme(val name: String) {
         return componentList
     }
 
+    override fun close() {
+        mc.textureManager.destroyTexture(loadedBackgroundImage)
+    }
+
     companion object {
 
         fun defaults() = runCatching {
             val folder = ThemeManager.themesFolder.resolve("default")
-            val stream = resource("/assets/liquidbounce/default_theme.zip")
+            val stream = resource("/resources/liquidbounce/default_theme.zip")
 
             if (folder.exists()) {
                 folder.deleteRecursively()
             }
 
-            extractZip(stream, folder)
+            runBlocking {
+                extractZip(stream, folder)
+            }
             folder.deleteOnExit()
 
             Theme("default")

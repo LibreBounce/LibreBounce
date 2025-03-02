@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,8 @@ import com.mojang.blaze3d.systems.RenderSystem
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.engine.UV2f
 import net.ccbluex.liquidbounce.render.engine.Vec3
-import net.minecraft.client.gl.ShaderProgram
+import net.minecraft.client.gl.ShaderProgramKey
+import net.minecraft.client.gl.ShaderProgramKeys
 import net.minecraft.client.render.*
 import net.minecraft.client.render.VertexFormat.DrawMode
 import net.minecraft.util.math.Box
@@ -106,7 +107,7 @@ class RenderBufferBuilder<I : VertexInputType>(
     fun draw() {
         val built = buffer.endNullable() ?: return
 
-        RenderSystem.setShader { vertexFormat.shaderProgram }
+        RenderSystem.setShader(vertexFormat.shaderProgram)
 
         BufferRenderer.drawWithGlobalProgram(built)
         tesselator.clear()
@@ -267,7 +268,7 @@ fun RenderEnvironment.drawSolidBox(consumer: VertexConsumer, box: Box, color: Co
 
     // Draw the vertices of the box
     box.vertexPositions().forEach { (x, y, z) ->
-        consumer.vertex(matrix, x, y, z).color(color.toRGBA())
+        consumer.vertex(matrix, x, y, z).color(color.toARGB())
     }
 }
 
@@ -285,16 +286,16 @@ fun RenderBufferBuilder<VertexInputType.PosTexColor>.drawQuad(
     with(buffer) {
         vertex(matrix, pos1.x.toFloat(), pos2.y.toFloat(), pos1.z.toFloat())
             .texture(uv1.u, uv2.v)
-            .color(color.toRGBA())
+            .color(color.toARGB())
         vertex(matrix, pos2.x.toFloat(), pos2.y.toFloat(), pos2.z.toFloat())
             .texture(uv2.u, uv2.v)
-            .color(color.toRGBA())
+            .color(color.toARGB())
         vertex(matrix, pos2.x.toFloat(), pos1.y.toFloat(), pos2.z.toFloat())
             .texture(uv2.u, uv1.v)
-            .color(color.toRGBA())
+            .color(color.toARGB())
         vertex(matrix, pos1.x.toFloat(), pos1.y.toFloat(), pos1.z.toFloat())
             .texture(uv1.u, uv1.v)
-            .color(color.toRGBA())
+            .color(color.toARGB())
     }
 }
 
@@ -347,33 +348,34 @@ fun RenderBufferBuilder<VertexInputType.PosColor>.drawLine(
 
     // Draw the vertices of the box
     with(buffer) {
-        vertex(matrix, pos1.x, pos1.y, pos1.z).color(color.toRGBA())
-        vertex(matrix, pos2.x, pos2.y, pos2.z).color(color.toRGBA())
+        vertex(matrix, pos1.x, pos1.y, pos1.z).color(color.toARGB())
+        vertex(matrix, pos2.x, pos2.y, pos2.z).color(color.toARGB())
     }
 }
 
 sealed class VertexInputType {
     abstract val vertexFormat: VertexFormat
-    abstract val shaderProgram: ShaderProgram
+    abstract val shaderProgram: ShaderProgramKey
 
     object Pos : VertexInputType() {
         override val vertexFormat: VertexFormat
             get() = VertexFormats.POSITION
-        override val shaderProgram: ShaderProgram
-            get() = GameRenderer.getPositionProgram()!!
+        override val shaderProgram: ShaderProgramKey
+            get() = ShaderProgramKeys.POSITION
     }
 
     object PosColor : VertexInputType() {
         override val vertexFormat: VertexFormat
             get() = VertexFormats.POSITION_COLOR
-        override val shaderProgram: ShaderProgram
-            get() = GameRenderer.getPositionColorProgram()!!
+        override val shaderProgram: ShaderProgramKey
+            get() = ShaderProgramKeys.POSITION_COLOR
     }
 
     object PosTexColor : VertexInputType() {
         override val vertexFormat: VertexFormat
             get() = VertexFormats.POSITION_TEXTURE_COLOR
-        override val shaderProgram: ShaderProgram
-            get() = GameRenderer.getPositionTexColorProgram()!!
+        override val shaderProgram: ShaderProgramKey
+            get() = ShaderProgramKeys.POSITION_TEX_COLOR
     }
+
 }

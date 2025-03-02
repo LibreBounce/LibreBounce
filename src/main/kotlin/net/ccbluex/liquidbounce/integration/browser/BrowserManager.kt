@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,15 +18,16 @@
  */
 package net.ccbluex.liquidbounce.integration.browser
 
-import net.ccbluex.liquidbounce.config.Configurable
-import net.ccbluex.liquidbounce.config.NamedChoice
+import com.mojang.blaze3d.systems.RenderSystem
+import net.ccbluex.liquidbounce.config.types.Configurable
+import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.BrowserReadyEvent
-import net.ccbluex.liquidbounce.utils.client.ErrorHandler
-import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.integration.browser.supports.IBrowser
 import net.ccbluex.liquidbounce.integration.browser.supports.JcefBrowser
 import net.ccbluex.liquidbounce.integration.interop.persistant.PersistentLocalStorage
+import net.ccbluex.liquidbounce.integration.task.TaskManager
+import net.ccbluex.liquidbounce.utils.client.logger
 
 object BrowserManager : Configurable("browser") {
 
@@ -55,27 +56,36 @@ object BrowserManager : Configurable("browser") {
     }
 
     /**
-     * Initializes the browser.
+     * Makes the browser dependencies available and initializes the browser
+     * when the dependencies are available.
      */
-    fun initBrowser() {
+    fun makeDependenciesAvailable(taskManager: TaskManager) {
         val browser = browserType.getBrowser().apply { browser = this }
 
-        // Be aware, this will block the execution of the client until the browser dependencies are available.
-        browser.makeDependenciesAvailable {
-            runCatching {
-                // Initialize the browser backend
-                browser.initBrowserBackend()
+        browser.makeDependenciesAvailable(taskManager, ::startBrowser)
+    }
 
-                EventManager.callEvent(BrowserReadyEvent(browser))
-            }.onFailure(ErrorHandler::fatal)
-        }
+    /**
+     * Initializes the browser.
+     */
+    fun startBrowser() {
+        // Ensure that the browser is available
+        val browser = browser ?: throw BrowserException("Browser is not available.")
+        logger.info("Initializing browser...")
+
+        // Ensure that the browser is started on the render thread
+        RenderSystem.assertOnRenderThread()
+
+        browser.startBrowser()
+        EventManager.callEvent(BrowserReadyEvent(browser))
+        logger.info("Successfully initialized browser.")
     }
 
     /**
      * Shuts down the browser.
      */
-    fun shutdownBrowser() = runCatching {
-        browser?.shutdownBrowserBackend()
+    fun stopBrowser() = runCatching {
+        browser?.stopBrowser()
         browser = null
     }.onFailure {
         logger.error("Failed to shutdown browser.", it)
@@ -86,9 +96,7 @@ object BrowserManager : Configurable("browser") {
 }
 
 enum class BrowserType(override val choiceName: String, val getBrowser: () -> IBrowser) : NamedChoice {
-    JCEF("jcef", {
-        JcefBrowser()
-    }),
+    JCEF("jcef", ::JcefBrowser),
     ULTRALIGHT("ultralight", {
         throw BrowserManager.BrowserException("Ultralight is not supported yet.")
     })

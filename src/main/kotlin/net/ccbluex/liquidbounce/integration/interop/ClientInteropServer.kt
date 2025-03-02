@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,10 +22,10 @@ package net.ccbluex.liquidbounce.integration.interop
 import com.google.gson.JsonObject
 import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.config.ConfigSystem
+import net.ccbluex.liquidbounce.integration.interop.protocol.event.SocketEventListener
+import net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.registerInteropFunctions
 import net.ccbluex.liquidbounce.utils.client.ErrorHandler
 import net.ccbluex.liquidbounce.utils.client.logger
-import net.ccbluex.liquidbounce.integration.interop.protocol.event.SocketEventHandler
-import net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.registerInteropFunctions
 import net.ccbluex.netty.http.HttpServer
 import net.ccbluex.netty.http.middleware.CorsMiddleware
 import net.ccbluex.netty.http.model.RequestObject
@@ -41,7 +41,7 @@ import kotlin.concurrent.thread
 object ClientInteropServer {
 
     internal var httpServer = HttpServer()
-    private var socketEventHandler = SocketEventHandler()
+    private var socketEventHandler = SocketEventListener()
 
     private const val DEFAULT_PORT = 15000
 
@@ -50,8 +50,9 @@ object ClientInteropServer {
             logger.info("Default port unavailable. Falling back to random port.")
             (15001..17000).random()
         }
-    } catch (e: Exception) {
+    } catch (expected: Exception) {
         logger.info("Default port $DEFAULT_PORT available.")
+
         DEFAULT_PORT
     }
     val url = "http://127.0.0.1:$port"

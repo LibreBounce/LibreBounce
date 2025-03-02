@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,14 +18,14 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.`fun`
 
-import net.ccbluex.liquidbounce.config.Choice
-import net.ccbluex.liquidbounce.config.ChoiceConfigurable
-import net.ccbluex.liquidbounce.event.repeatable
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.utils.aiming.Rotation
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
+import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.kotlin.random
 
@@ -34,11 +34,11 @@ import net.ccbluex.liquidbounce.utils.kotlin.random
  *
  * Makes it look as if you were derping around.
  */
-object ModuleDerp : Module("Derp", Category.FUN) {
+object ModuleDerp : ClientModule("Derp", Category.FUN) {
 
-    private val yawMode = choices("Yaw", YawSpin,
+    private val yawMode = choices("Yaw", YawRandom,
         arrayOf(YawStatic, YawOffset, YawRandom, YawJitter, YawSpin))
-    private val pitchMode = choices("Pitch", PitchStatic,
+    private val pitchMode = choices("Pitch", PitchRandom,
         arrayOf(PitchStatic, PitchOffset, PitchRandom))
     private val safePitch by boolean("SafePitch", true)
     private val notDuringSprint by boolean("NotDuringSprint", true)
@@ -46,13 +46,13 @@ object ModuleDerp : Module("Derp", Category.FUN) {
     // DO NOT USE TREE TO MAKE SURE THAT THE ROTATIONS ARE NOT CHANGED
     private val rotationsConfigurable = RotationsConfigurable(this)
 
-    val repeatable = repeatable {
+    val repeatable = tickHandler {
         if (notDuringSprint && (mc.options.sprintKey.isPressed || player.isSprinting)) {
-            return@repeatable
+            return@tickHandler
         }
 
-        val yaw = (yawMode.activeChoice as YawChoice).yaw
-        val pitch = (pitchMode.activeChoice as PitchChoice).pitch.let {
+        val yaw = yawMode.activeChoice.yaw
+        val pitch = pitchMode.activeChoice.pitch.let {
             if (safePitch) {
                 it.coerceIn(-90f..90f)
             } else {
@@ -60,7 +60,7 @@ object ModuleDerp : Module("Derp", Category.FUN) {
             }
         }
 
-        RotationManager.aimAt(rotationsConfigurable.toAimPlan(Rotation(yaw, pitch)), Priority.NOT_IMPORTANT,
+        RotationManager.setRotationTarget(rotationsConfigurable.toAimPlan(Rotation(yaw, pitch)), Priority.NOT_IMPORTANT,
             this@ModuleDerp)
     }
 
@@ -96,7 +96,7 @@ object ModuleDerp : Module("Derp", Category.FUN) {
         val yawBackwardTicks by int("BackwardTicks", 2, 0..100, "ticks")
 
         @Suppress("unused")
-        val repeatable = repeatable {
+        val repeatable = tickHandler {
             repeat(yawForwardTicks) {
                 yaw = player.yaw
                 waitTicks(1)
@@ -117,7 +117,7 @@ object ModuleDerp : Module("Derp", Category.FUN) {
         val yawSpinSpeed by int("Speed", 50, -70..70, "°/tick")
 
         @Suppress("unused")
-        val repeatable = repeatable {
+        val repeatable = tickHandler {
             yaw += yawSpinSpeed
             waitTicks(1)
         }

@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,9 +25,17 @@ import com.google.gson.GsonBuilder
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.api.core.HttpClient
+import net.ccbluex.liquidbounce.api.core.HttpMethod
+import net.ccbluex.liquidbounce.api.core.asForm
+import net.ccbluex.liquidbounce.api.core.parse
 import net.ccbluex.liquidbounce.config.AutoConfig.serializeAutoConfig
 import net.ccbluex.liquidbounce.config.ConfigSystem
+import net.ccbluex.liquidbounce.config.gson.publicGson
+import net.ccbluex.liquidbounce.features.command.CommandFactory
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.module.ModuleManager
 import net.ccbluex.liquidbounce.lang.LanguageManager
@@ -36,7 +44,6 @@ import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.client.usesViaFabricPlus
 import net.ccbluex.liquidbounce.utils.combat.combatTargetsConfigurable
-import net.ccbluex.liquidbounce.utils.io.HttpClient
 import net.minecraft.SharedConstants
 import net.minecraft.text.ClickEvent
 import net.minecraft.text.Text
@@ -52,10 +59,10 @@ import java.io.StringWriter
  * This command will create a JSON file with all the information
  * and send it to the CCBlueX Paste API.
  */
-object CommandDebug {
+object CommandDebug : CommandFactory {
 
-    fun createCommand() = CommandBuilder.begin("debug")
-        .handler { _, args ->
+    override fun createCommand() = CommandBuilder.begin("debug")
+        .handler { _, _ ->
             chat("§7Collecting debug information...")
 
             val autoConfig = StringWriter().use { writer ->
@@ -138,24 +145,23 @@ object CommandDebug {
         addProperty("config", autoConfigPaste)
 
         add("activeModules", JsonArray().apply {
-            ModuleManager.filter { it.enabled }.forEach { module ->
+            ModuleManager.filter { it.running }.forEach { module ->
                 add(JsonPrimitive(module.name))
             }
         })
 
         add("scripts", JsonArray().apply {
-            ScriptManager.loadedScripts.forEach { script ->
+            ScriptManager.scripts.forEach { script ->
                 add(JsonObject().apply {
                     addProperty("name", script.scriptName)
                     addProperty("version", script.scriptVersion)
                     addProperty("author", script.scriptAuthors.joinToString(", "))
-                    addProperty("path", script.scriptFile.path)
+                    addProperty("path", script.file.path)
                 })
             }
         })
 
-        add("enemies", ConfigSystem.serializeConfigurable(combatTargetsConfigurable,
-            ConfigSystem.clientGson))
+        add("enemies", ConfigSystem.serializeConfigurable(combatTargetsConfigurable, publicGson))
     }
 
     /**
@@ -164,7 +170,10 @@ object CommandDebug {
      */
     private fun uploadToPaste(content: String): String {
         val form = "content=$content"
-        return HttpClient.postForm("https://paste.ccbluex.net/api.php", form)
+        return runBlocking(Dispatchers.IO) {
+            HttpClient.request("https://paste.ccbluex.net/api.php", HttpMethod.POST, body = form.asForm())
+                .parse<String>()
+        }
     }
 
 }

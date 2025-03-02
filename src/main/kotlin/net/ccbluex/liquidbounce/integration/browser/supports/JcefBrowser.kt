@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,17 +19,26 @@
 package net.ccbluex.liquidbounce.integration.browser.supports
 
 import com.mojang.blaze3d.systems.RenderSystem
+import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.api.core.HttpClient
 import net.ccbluex.liquidbounce.config.ConfigSystem
-import net.ccbluex.liquidbounce.event.Listenable
-import net.ccbluex.liquidbounce.mcef.MCEF
-import net.ccbluex.liquidbounce.utils.client.ErrorHandler
-import net.ccbluex.liquidbounce.utils.client.logger
-import net.ccbluex.liquidbounce.utils.io.HttpClient
-import net.ccbluex.liquidbounce.utils.validation.HashValidator
+import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.integration.browser.BrowserType
 import net.ccbluex.liquidbounce.integration.browser.supports.tab.JcefTab
 import net.ccbluex.liquidbounce.integration.browser.supports.tab.TabPosition
-import kotlin.concurrent.thread
+import net.ccbluex.liquidbounce.integration.task.MCEFProgressForwarder
+import net.ccbluex.liquidbounce.integration.task.TaskManager
+import net.ccbluex.liquidbounce.mcef.MCEF
+import net.ccbluex.liquidbounce.utils.client.ErrorHandler
+import net.ccbluex.liquidbounce.utils.client.formatAsCapacity
+import net.ccbluex.liquidbounce.utils.client.logger
+import net.ccbluex.liquidbounce.utils.kotlin.sortedInsert
+import net.ccbluex.liquidbounce.utils.validation.HashValidator
+
+/**
+ * The time threshold for cleaning up old cache directories.
+ */
+private const val CACHE_CLEANUP_THRESHOLD = 1000 * 60 * 60 * 24 * 7 // 7 days
 
 /**
  * Uses a modified fork of the JCEF library browser backend made for Minecraft.
@@ -41,14 +50,18 @@ import kotlin.concurrent.thread
  *
  * @author 1zuna <marco@ccbluex.net>
  */
-class JcefBrowser : IBrowser, Listenable {
+@Suppress("TooManyFunctions")
+class JcefBrowser : IBrowser, EventListener {
 
     private val mcefFolder = ConfigSystem.rootFolder.resolve("mcef")
     private val librariesFolder = mcefFolder.resolve("libraries")
     private val cacheFolder = mcefFolder.resolve("cache")
     private val tabs = mutableListOf<JcefTab>()
 
-    override fun makeDependenciesAvailable(whenAvailable: () -> Unit) {
+    override fun makeDependenciesAvailable(taskManager: TaskManager, whenAvailable: () -> Unit) {
+        // Clean up old cache directories
+        cleanup()
+
         if (!MCEF.INSTANCE.isInitialized) {
             MCEF.INSTANCE.settings.apply {
                 // Uses a natural user agent to prevent websites from blocking the browser
@@ -60,10 +73,33 @@ class JcefBrowser : IBrowser, Listenable {
             }
 
             val resourceManager = MCEF.INSTANCE.newResourceManager()
+
+            // Check if system is compatible with MCEF (JCEF)
+            if (!resourceManager.isSystemCompatible) {
+                ErrorHandler.fatal("""
+                    LiquidBounce Nextgen could not start because your system is not compatible.
+
+                    What you need:
+                    - A 64-bit computer
+                    - Windows 10 or newer, macOS 10.15 or newer, or a Linux system
+
+                    What to do:
+                    - Please update your operating system to a newer version.
+
+                    Information:
+                    OS: ${System.getProperty("os.name")} (${System.getProperty("os.arch")})
+                    Java: ${System.getProperty("java.version")}
+                    Client Version: ${LiquidBounce.clientVersion} (${LiquidBounce.clientCommit})
+                """.trimIndent())
+                return
+            }
+
             HashValidator.validateFolder(resourceManager.commitDirectory)
 
             if (resourceManager.requiresDownload()) {
-                thread(name = "mcef-downloader") {
+                taskManager.launch("MCEF") { task ->
+                    resourceManager.registerProgressListener(MCEFProgressForwarder(task))
+
                     runCatching {
                         resourceManager.downloadJcef()
                         RenderSystem.recordRenderCall(whenAvailable)
@@ -75,13 +111,48 @@ class JcefBrowser : IBrowser, Listenable {
         }
     }
 
-    override fun initBrowserBackend() {
+    /**
+     * Cleans up old cache directories.
+     *
+     * TODO: Check if we have an active PID using the cache directory, if so, check if the LiquidBounce
+     *   process attached to the JCEF PID is still running or not. If not, we could kill the JCEF process
+     *   and clean up the cache directory.
+     */
+    fun cleanup() {
+        if (cacheFolder.exists()) {
+            runCatching {
+                cacheFolder.listFiles()
+                    ?.filter { file ->
+                        file.isDirectory && System.currentTimeMillis() - file.lastModified() > CACHE_CLEANUP_THRESHOLD
+                    }
+                    ?.sumOf { file ->
+                        try {
+                            val fileSize = file.walkTopDown().sumOf { uFile -> uFile.length() }
+                            file.deleteRecursively()
+                            fileSize
+                        } catch (e: Exception) {
+                            logger.error("Failed to clean up old cache directory", e)
+                            0
+                        }
+                    } ?: 0
+            }.onFailure {
+                // Not a big deal, not fatal.
+                logger.error("Failed to clean up old JCEF cache directories", it)
+            }.onSuccess { size ->
+                if (size > 0) {
+                    logger.info("Cleaned up ${size.formatAsCapacity()} JCEF cache directories")
+                }
+            }
+        }
+    }
+
+    override fun startBrowser() {
         if (!MCEF.INSTANCE.isInitialized) {
             MCEF.INSTANCE.initialize()
         }
     }
 
-    override fun shutdownBrowserBackend() {
+    override fun stopBrowser() {
         MCEF.INSTANCE.shutdown()
         MCEF.INSTANCE.settings.cacheDirectory?.deleteRecursively()
     }
@@ -89,31 +160,19 @@ class JcefBrowser : IBrowser, Listenable {
     override fun isInitialized() = MCEF.INSTANCE.isInitialized
 
     override fun createTab(url: String, position: TabPosition, frameRate: Int) =
-        JcefTab(this, url, position, frameRate) { false }.apply {
-            synchronized(tabs) {
-                tabs += this
-
-                // Sort tabs by preferOnTop
-                tabs.sortBy { it.preferOnTop }
-            }
-        }
+        JcefTab(this, url, position, frameRate) { false }.apply(::addTab)
 
     override fun createInputAwareTab(url: String, position: TabPosition, frameRate: Int, takesInput: () -> Boolean) =
-        JcefTab(this, url, position, frameRate, takesInput = takesInput).apply {
-            synchronized(tabs) {
-                tabs += this
+        JcefTab(this, url, position, frameRate, takesInput = takesInput).apply(::addTab)
 
-                // Sort tabs by preferOnTop
-                tabs.sortBy { it.preferOnTop }
-            }
-        }
+    override fun getTabs(): List<JcefTab> = tabs
 
-    override fun getTabs() = tabs
+    private fun addTab(tab: JcefTab) {
+        tabs.sortedInsert(tab, JcefTab::preferOnTop)
+    }
 
     internal fun removeTab(tab: JcefTab) {
-        synchronized(tabs) {
-            tabs.remove(tab)
-        }
+        tabs.remove(tab)
     }
 
     override fun getBrowserType() = BrowserType.JCEF

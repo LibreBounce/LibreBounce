@@ -1,7 +1,7 @@
 /*
  * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
  *
- * Copyright (c) 2015 - 2024 CCBlueX
+ * Copyright (c) 2015 - 2025 CCBlueX
  *
  * LiquidBounce is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,30 +19,30 @@
 
 package net.ccbluex.liquidbounce.features.command.builder
 
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.ModuleManager
 import net.ccbluex.liquidbounce.utils.client.world
-import net.minecraft.enchantment.Enchantments
 import net.minecraft.registry.Registries
 import net.minecraft.registry.RegistryKeys
 
-fun blockParameter(name: String = "block") =
-    ParameterBuilder
+fun blockParameter(name: String = "block"): ParameterBuilder<String> {
+    return ParameterBuilder
         .begin<String>(name)
         .verifiedBy(ParameterBuilder.STRING_VALIDATOR)
-        .autocompletedWith { begin ->
+        .autocompletedWith { _, _ ->
             Registries.BLOCK.map {
                 it.translationKey
                     .removePrefix("block.")
                     .replace('.', ':')
             }
         }
+}
 
-fun itemParameter(name: String = "item") =
-    ParameterBuilder
+fun itemParameter(name: String = "item"): ParameterBuilder<String> {
+    return ParameterBuilder
         .begin<String>(name)
         .verifiedBy(ParameterBuilder.STRING_VALIDATOR)
-        .autocompletedWith { begin ->
+        .autocompletedWith { _, _ ->
             Registries.ITEM.map {
                 it.translationKey
                     .removePrefix("item.")
@@ -50,27 +50,40 @@ fun itemParameter(name: String = "item") =
                     .replace('.', ':')
             }
         }
+}
 
-fun enchantmentParameter(name: String = "enchantment") =
-    ParameterBuilder
+fun enchantmentParameter(name: String = "enchantment"): ParameterBuilder<String> {
+    return ParameterBuilder
         .begin<String>(name)
         .verifiedBy(ParameterBuilder.STRING_VALIDATOR)
-        .autocompletedWith { begin ->
-            world.registryManager.get(RegistryKeys.ENCHANTMENT).indexedEntries.map {
+        .autocompletedWith { _, _ ->
+            world.registryManager.getOrThrow(RegistryKeys.ENCHANTMENT).indexedEntries.map {
                 it.idAsString
             }
         }
-fun pageParameter(name: String = "page") =
-    ParameterBuilder
+}
+
+fun pageParameter(name: String = "page"): ParameterBuilder<Int> {
+    return ParameterBuilder
         .begin<Int>(name)
         .verifiedBy(ParameterBuilder.POSITIVE_INTEGER_VALIDATOR)
+}
 
-fun moduleParameter(name: String = "module", validator: (Module) -> Boolean = { true }) =
-    ParameterBuilder
+fun moduleParameter(
+    name: String = "module",
+    validator: (ClientModule) -> Boolean = { true }
+): ParameterBuilder<String> {
+    return ParameterBuilder
         .begin<String>(name)
         .verifiedBy(ParameterBuilder.STRING_VALIDATOR)
-        .autocompletedWith { begin, args ->
-            ModuleManager.autoComplete(begin, args, validator = validator)
-        }
+        .autocompletedWith { begin, _ -> ModuleManager.autoComplete(begin, validator = validator) }
+}
+
+fun playerParameter(name: String = "playerName"): ParameterBuilder<String> {
+    return ParameterBuilder
+        .begin<String>(name)
+        .verifiedBy(ParameterBuilder.STRING_VALIDATOR)
+        .useMinecraftAutoCompletion()
+}
 
 
