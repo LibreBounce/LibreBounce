@@ -34,7 +34,7 @@ internal enum class FireworkUseMode(
 
             if (slotUpdateFlag) {
                 player.inventory.selectedSlot = this
-                network.sendPacket(UpdateSelectedSlotC2SPacket(slot.hotbarSlotForServer))
+                network.sendPacket(UpdateSelectedSlotC2SPacket(this))
             }
         }
     })
