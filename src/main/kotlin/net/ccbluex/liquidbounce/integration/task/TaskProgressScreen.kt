@@ -24,6 +24,7 @@ package net.ccbluex.liquidbounce.integration.task
 import net.ccbluex.liquidbounce.integration.browser.BrowserManager
 import net.ccbluex.liquidbounce.integration.task.type.ResourceTask
 import net.ccbluex.liquidbounce.integration.task.type.Task
+import net.ccbluex.liquidbounce.utils.client.asText
 import net.ccbluex.liquidbounce.utils.client.formatAsCapacity
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.minecraft.client.gui.DrawContext
@@ -31,6 +32,7 @@ import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.gui.screen.TitleScreen
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting
+import net.minecraft.util.math.ColorHelper
 import java.text.DecimalFormat
 
 /**
@@ -48,38 +50,12 @@ class TaskProgressScreen(
         val cx = width / 2.0
         val cy = height / 2.0
 
-        val progressBarHeight = 14.0
-        val progressBarWidth = width / 3.0
+        val progressBarWidth = width / 1.5
 
         val poseStack = context.matrices
 
-        // Draw progress bar
-        poseStack.push()
-        poseStack.translate(cx, cy, 0.0)
-        poseStack.translate(-progressBarWidth / 2.0, -progressBarHeight / 2.0, 0.0)
-
-        // Bar border
-        context.fill(
-            0, 0,
-            progressBarWidth.toInt(), progressBarHeight.toInt(),
-            -1
-        )
-
-        // Bar background
-        context.fill(
-            2, 2,
-            (progressBarWidth - 2).toInt(), (progressBarHeight - 2).toInt(),
-            -16777215
-        )
-
-        // Progress bar fill
+        // Progress
         val progress = taskManager.progress
-        context.fill(
-            4, 4,
-            ((progressBarWidth - 4) * progress).toInt(), (progressBarHeight - 4).toInt(),
-            -1
-        )
-        poseStack.pop()
         val textLines = getTaskLines(progress)
 
         // Draw text
@@ -89,7 +65,7 @@ class TaskProgressScreen(
         // Draw title
         context.drawText(
             textRenderer,
-            Formatting.GOLD.toString() + title.string,
+            title.string.asText().formatted(Formatting.GOLD),
             (cx - textRenderer.getWidth(title.string) / 2).toInt(),
             yOffset,
             0xFFFFFF,
@@ -110,18 +86,45 @@ class TaskProgressScreen(
             )
             yOffset += textRenderer.fontHeight + 2
         }
+
+        var progressBarHeight = 14
+
+        // Draw progress bar
+        poseStack.push()
+        poseStack.translate(cx, yOffset.toDouble() + 18.0, 0.0)
+        poseStack.translate(-progressBarWidth / 2.0, -progressBarHeight / 2.0, 0.0)
+
+        // Bar border
+        context.fill(
+            0, 0,
+            progressBarWidth.toInt(), progressBarHeight.toInt(),
+            -1
+        )
+
+        // Bar background
+        context.fill(
+            2, 2,
+            (progressBarWidth - 2).toInt(), (progressBarHeight - 2).toInt(),
+            ColorHelper.getArgb(255, 24, 26, 27)
+        )
+
+        context.fill(
+            4, 4,
+            ((progressBarWidth - 4) * progress).toInt(), (progressBarHeight - 4).toInt(),
+            -1
+        )
+        poseStack.pop()
     }
 
-    private fun getTaskLines(progress: Float): List<String> {
-        // Get active tasks for display
+    private fun getTaskLines(progress: Float): List<Text> {
         val activeTasks = taskManager.getActiveTasks()
         val speed = formatTotalSpeed(activeTasks)
 
         // Prepare text to display
-        val textLines = mutableListOf<String>()
-        textLines.add("${percentFormat.format(progress * 100)}%$speed")
+        val textLines = mutableListOf<Text>()
+        textLines.add("Total: ${percentFormat.format(progress * 100)}%$speed".asText())
+        textLines.add(Text.empty())
 
-        // Add active task names
         activeTasks.take(3).forEach { task ->
             textLines.add(buildString {
                 append(task.name)
@@ -129,12 +132,11 @@ class TaskProgressScreen(
                 append(percentFormat.format(task.progress * 100))
                 append("%")
                 append(formatTotalSpeed(listOf(task)))
-            })
+            }.asText().formatted(Formatting.GRAY))
         }
 
-        // Show additional tasks count if more than 3
         if (activeTasks.size > 3) {
-            textLines.add("... and ${activeTasks.size - 3} more tasks")
+            textLines.add("... and ${activeTasks.size - 3} more tasks".asText().formatted(Formatting.GRAY))
         }
         return textLines
     }

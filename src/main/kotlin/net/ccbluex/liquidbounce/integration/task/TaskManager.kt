@@ -69,18 +69,13 @@ class TaskManager(private val scope: CoroutineScope) {
             task.progress = 0f
 
             val result = action(task)
-
-            // Check if all subtasks are completed
-            if (task.areAllSubTasksCompleted()) {
-                complete(taskName)
-            }
-
+            complete(taskName)
             result
         }
     }
 
     /**
-     * Marks a task as completed
+     * Marks a task as completed. This will also mark all subtasks as completed.
      */
     fun complete(taskName: String) {
         if (taskName.isEmpty()) {
@@ -88,11 +83,9 @@ class TaskManager(private val scope: CoroutineScope) {
         }
 
         tasks[taskName]?.let { task ->
-            // If it has subtasks, check if all subtasks are completed
-            if (!task.areAllSubTasksCompleted()) {
-                task.isCompleted = false
-                task.progress = task.calculateProgress()
-                return
+            for (subTask in task.subTasks.values) {
+                subTask.progress = 1.0f
+                subTask.isCompleted = true
             }
 
             task.progress = 1.0f

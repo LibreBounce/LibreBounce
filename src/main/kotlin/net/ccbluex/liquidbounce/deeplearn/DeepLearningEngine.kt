@@ -24,6 +24,7 @@ import ai.djl.engine.Engine
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ccbluex.liquidbounce.config.ConfigSystem.rootFolder
+import net.ccbluex.liquidbounce.integration.task.type.Task
 import net.ccbluex.liquidbounce.utils.client.logger
 import java.util.*
 
@@ -58,6 +59,9 @@ object DeepLearningEngine {
         ModelHolster
     }
 
+    @JvmStatic
+    var task: Task? = null
+
     /**
      * DJL will automatically download engine libraries, as soon we call [Engine.getInstance()],
      * for the platform we are running on.
@@ -66,7 +70,9 @@ object DeepLearningEngine {
      * as we want to make sure that the libraries are downloaded
      * before we try to load any models.
      */
-    suspend fun init() {
+    suspend fun init(task: Task) {
+        this.task = task
+
         logger.info("[DeepLearning] Initializing engine...")
         val engine = withContext(Dispatchers.IO) {
             Engine.getInstance()
@@ -75,7 +81,9 @@ object DeepLearningEngine {
         val version = engine.version
         val deviceType = engine.defaultDevice().deviceType.uppercase(Locale.ENGLISH)
         logger.info("[DeepLearning] Using engine $name $version on $deviceType.")
+
         isInitialized = true
+        this.task = null
     }
 
 }
