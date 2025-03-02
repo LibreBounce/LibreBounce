@@ -116,8 +116,10 @@ class BrowserDrawer(val browser: () -> IBrowser?) : EventListener {
         width: Float,
         height: Float
     ) {
-        context.drawTexture(RenderLayerExtensions::getBlurredTextureLayer, texture, x.toInt(), y.toInt(), 0f, 0f, width.toInt(),
-            height.toInt(), width.toInt(), height.toInt())
+        context.drawTexture(
+            RenderLayerExtensions::getBlurredTextureLayer, texture, x.toInt(), y.toInt(), 0f, 0f, width.toInt(),
+            height.toInt(), width.toInt(), height.toInt()
+        )
     }
 
 }
