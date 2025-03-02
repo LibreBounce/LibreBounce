@@ -22,6 +22,7 @@ import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
+import net.ccbluex.liquidbounce.features.module.modules.movement.elytrafly.modes.ElytraFlyModeBounce
 import net.ccbluex.liquidbounce.features.module.modules.movement.elytrafly.modes.ElytraFlyModeStatic
 import net.ccbluex.liquidbounce.features.module.modules.movement.elytrafly.modes.ElytraFlyModeVanilla
 import net.ccbluex.liquidbounce.utils.entity.moving
@@ -58,9 +59,10 @@ object ModuleElytraFly : ClientModule("ElytraFly", Category.MOVEMENT) {
      */
     private val durabilityExploit by boolean("DurabilityExploit", false)
 
-    internal val modes = choices("Mode", ElytraFlyModeStatic, arrayOf(
+    val modes = choices("Mode", ElytraFlyModeStatic, arrayOf(
         ElytraFlyModeStatic,
-        ElytraFlyModeVanilla
+        ElytraFlyModeVanilla,
+        ElytraFlyModeBounce
     ))
 
     private var needsToRestart = false
@@ -74,12 +76,14 @@ object ModuleElytraFly : ClientModule("ElytraFly", Category.MOVEMENT) {
     }
 
     // checks and start logic
-    @Suppress("unused")
+    @Suppress("unused", "ComplexCondition")
     private val tickHandler = tickHandler {
         if (shouldNotOperate()) {
             needsToRestart = false
             return@tickHandler
         }
+
+        val activeChoice = modes.activeChoice
 
         val stop = mc.options.sneakKey.isPressed && instantStop && player.isOnGround || notInFluid && player.isInFluid
         if (stop && player.isGliding) {
@@ -91,7 +95,6 @@ object ModuleElytraFly : ClientModule("ElytraFly", Category.MOVEMENT) {
 
         if (player.isGliding) {
             // we're already flying, yay
-            val activeChoice = modes.activeChoice
             if (Speed.enabled) {
                 activeChoice.onTick()
             }
@@ -102,7 +105,13 @@ object ModuleElytraFly : ClientModule("ElytraFly", Category.MOVEMENT) {
                 network.sendPacket(ClientCommandC2SPacket(player, ClientCommandC2SPacket.Mode.START_FALL_FLYING))
                 needsToRestart = true
             }
-        } else if (player.input.playerInput.jump && player.velocity.y != 0.0 && instantStart || needsToRestart) {
+        } else if (
+            !activeChoice.autoControlFlyStart
+            && player.input.playerInput.jump
+            && player.velocity.y != 0.0
+            && instantStart
+            || needsToRestart
+        ) {
             // If the player has an elytra and wants to fly instead
 
             // Jump must be off due to abnormal speed boosts
@@ -112,6 +121,7 @@ object ModuleElytraFly : ClientModule("ElytraFly", Category.MOVEMENT) {
         }
     }
 
+    @Suppress("ReturnCount")
     fun shouldNotOperate(): Boolean {
         if (player.vehicle != null) {
             return true
