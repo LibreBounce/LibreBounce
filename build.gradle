@@ -68,9 +68,10 @@ final excludeProvidedLibs = {
     exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib"
 
     exclude group: "com.google.code.gson", module: "gson"
-
+    exclude group: "net.java.dev.jna", module: "jna"
     exclude group: "commons-codec", module: "commons-codec"
     exclude group: "commons-io", module: "commons-io"
+    exclude group: "org.apache.commons", module: "commons-compress"
     exclude group: "org.apache.commons", module: "commons-lang3"
     exclude group: "org.apache.logging.log4j", module: "log4j-core"
     exclude group: "org.apache.logging.log4j", module: "log4j-api"
