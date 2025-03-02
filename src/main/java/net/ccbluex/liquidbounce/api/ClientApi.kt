@@ -1,6 +1,6 @@
 package net.ccbluex.liquidbounce.api
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.utils.io.DEFAULT_AGENT
 import net.ccbluex.liquidbounce.utils.io.applyBypassHttps
 import net.ccbluex.liquidbounce.utils.io.decodeJson
 import net.ccbluex.liquidbounce.utils.io.get
@@ -16,12 +16,6 @@ private const val HARD_CODED_BRANCH = "legacy"
 
 private const val API_V1_ENDPOINT = "https://api.liquidbounce.net/api/v1"
 
-/**
- * User agent
- * LiquidBounce/<version> (<commit>, <branch>, <build-type>, <platform>)
- */
-private val ENDPOINT_AGENT =
-    "${LiquidBounce.CLIENT_NAME}/${LiquidBounce.clientVersionText} (${LiquidBounce.clientCommit}, ${LiquidBounce.clientBranch}, ${if (LiquidBounce.IN_DEV) "dev" else "release"}, ${System.getProperty("os.name")})"
 
 /**
  * Session token
@@ -37,7 +31,6 @@ private val client = OkHttpClient.Builder()
     .addInterceptor { chain ->
         val original = chain.request()
         val request: Request = original.newBuilder()
-            .header("User-Agent", ENDPOINT_AGENT)
             .header("X-Session-Token", SESSION_TOKEN)
             .build()
 
