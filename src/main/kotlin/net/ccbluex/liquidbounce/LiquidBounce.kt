@@ -109,8 +109,6 @@ object LiquidBounce : EventListener {
      */
     const val IN_DEVELOPMENT = true
 
-    val isIntegrationTesting = !System.getenv("TENACC_TEST_PROVIDER").isNullOrBlank()
-
     /**
      * Client logger to print out console messages
      */
