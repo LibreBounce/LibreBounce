@@ -85,7 +85,7 @@ public class MixinSplashOverlay {
         int screenWidth = context.getScaledWindowWidth();
         int screenHeight = context.getScaledWindowHeight();
 
-        float scaleFactor = Math.min(screenWidth * 0.5f / ClientLogoTexture.WIDTH, screenHeight * 0.35f / ClientLogoTexture.HEIGHT);
+        float scaleFactor = Math.min(screenWidth * 0.4f / ClientLogoTexture.WIDTH, screenHeight * 0.25f / ClientLogoTexture.HEIGHT);
 
         int displayWidth = (int)(ClientLogoTexture.WIDTH * scaleFactor);
         int displayHeight = (int)(ClientLogoTexture.HEIGHT * scaleFactor);
