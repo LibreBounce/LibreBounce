@@ -1,14 +1,16 @@
-package net.ccbluex.liquidbounce.features.module.modules.combat.elytratarget.prediction
+package net.ccbluex.liquidbounce.features.module.modules.combat.elytratarget
 
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
-import net.ccbluex.liquidbounce.features.module.modules.combat.elytratarget.ElytraRotationsAndAngleSmooth
+import net.ccbluex.liquidbounce.utils.kotlin.random
+import net.ccbluex.liquidbounce.utils.math.plus
+import net.ccbluex.liquidbounce.utils.math.times
 import net.minecraft.entity.LivingEntity
 import net.minecraft.util.math.Vec3d
 
-@Suppress("MaxLineLength")
+@Suppress("MaxLineLength", "MagicNumber")
 internal object TargetEntityMovementPrediction : ToggleableConfigurable(ElytraRotationsAndAngleSmooth, "Prediction", true) {
     private val glidingOnly by boolean("GlidingOnly", true)
-    internal val mode = choices(this, "Mode", VelocityPrediction, arrayOf(VelocityPrediction))
+    private val multiplier by floatRange("Multiplier", 1f..1.1f, 0.5f..2f)
 
     fun predictPosition(
         target: LivingEntity,
@@ -16,6 +18,6 @@ internal object TargetEntityMovementPrediction : ToggleableConfigurable(ElytraRo
     ) = if (!enabled || (glidingOnly && !target.isGliding)) {
         targetPosition
     } else {
-        mode.activeChoice.predictPosition(target, targetPosition)
+        targetPosition + target.velocity * multiplier.random()
     }
 }
