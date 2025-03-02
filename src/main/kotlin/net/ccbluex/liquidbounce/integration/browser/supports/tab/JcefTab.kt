@@ -43,6 +43,7 @@ class JcefTab(
                 value.height.coerceAtLeast(1)
             )
         }
+    override var visible = true
 
     private val mcefBrowser: MCEFBrowser = MCEF.INSTANCE.createBrowser(
         url,

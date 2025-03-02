@@ -21,6 +21,7 @@ package net.ccbluex.liquidbounce.features.module.modules.render
 import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.config.types.Value
 import net.ccbluex.liquidbounce.event.EventManager
+import net.ccbluex.liquidbounce.event.events.DisconnectEvent
 import net.ccbluex.liquidbounce.event.events.ScreenEvent
 import net.ccbluex.liquidbounce.event.events.SpaceSeperatedNamesChangeEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -40,6 +41,7 @@ import net.ccbluex.liquidbounce.utils.client.inGame
 import net.ccbluex.liquidbounce.utils.client.markAsError
 import net.ccbluex.liquidbounce.utils.entity.RenderedEntities
 import net.minecraft.client.gui.screen.DisconnectedScreen
+import net.minecraft.client.gui.screen.DownloadingTerrainScreen
 
 /**
  * Module HUD
@@ -59,13 +61,12 @@ object ModuleHud : ClientModule("HUD", Category.RENDER, state = true, hide = tru
 
     private val blur by boolean("Blur", true)
     @Suppress("unused")
-    private val spaceSeperatedNames by boolean("SpaceSeperatedNames", true).onChange {
-        EventManager.callEvent(SpaceSeperatedNamesChangeEvent(it))
-
-        it
+    private val spaceSeperatedNames by boolean("SpaceSeperatedNames", true).onChange { state ->
+        EventManager.callEvent(SpaceSeperatedNamesChangeEvent(state))
+        state
     }
 
-    val isBlurable
+    val isBlurEffectActive
         get() = blur && !(mc.options.hudHidden && mc.currentScreen == null)
 
     init {
@@ -73,30 +74,12 @@ object ModuleHud : ClientModule("HUD", Category.RENDER, state = true, hide = tru
         tree(Configurable("Custom", value = customComponents as MutableList<Value<*>>))
     }
 
-    @Suppress("unused")
-    private val screenHandler = handler<ScreenEvent> {
-        if (!running || !inGame || it.screen is DisconnectedScreen || isHidingNow) {
-            browserTab?.closeTab()
-            browserTab = null
-        } else if (browserTab == null) {
-            browserTab = ThemeManager.openImmediate(VirtualScreenType.HUD, true)
-        }
-    }
-
-    fun refresh() {
-        // Should not happen, but in-case there is already a tab open, close it
-        browserTab?.closeTab()
-
-        // Create a new tab and open it
-        browserTab = ThemeManager.openImmediate(VirtualScreenType.HUD, true)
-    }
-
     override fun enable() {
         if (isHidingNow) {
             chat(markAsError(message("hidingAppearance")))
         }
 
-        refresh()
+        open()
 
         // Minimap
         RenderedEntities.subscribe(this)
@@ -112,6 +95,42 @@ object ModuleHud : ClientModule("HUD", Category.RENDER, state = true, hide = tru
         RenderedEntities.unsubscribe(this)
         ChunkScanner.unsubscribe(ChunkRenderer.MinimapChunkUpdateSubscriber)
         ChunkRenderer.unloadEverything()
+    }
+
+    @Suppress("unused")
+    private val screenHandler = handler<ScreenEvent> { event ->
+        // Close the tab when the HUD is not running, is hiding now, or the player is not in-game
+        if (!running || isHidingNow || !inGame) {
+            close()
+            return@handler
+        }
+
+        // Otherwise, open the tab and set its visibility
+        val browserTab = open()
+        browserTab.visible = event.screen !is DisconnectedScreen && event.screen !is DownloadingTerrainScreen
+    }
+
+    @Suppress("unused")
+    private val disconnectHandler = handler<DisconnectEvent> {
+        close()
+    }
+
+    private fun open(): ITab {
+        if (browserTab != null) {
+            return browserTab!!
+        }
+
+        return ThemeManager.openImmediate(VirtualScreenType.HUD, true).also { browserTab = it }
+    }
+
+    private fun close() {
+        browserTab?.closeTab()
+        browserTab = null
+    }
+
+    fun reopen() {
+        close()
+        open()
     }
 
 }

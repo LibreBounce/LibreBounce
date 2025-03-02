@@ -60,7 +60,7 @@ class BrowserDrawer(val browser: () -> IBrowser?) : EventListener {
     @Suppress("unused")
     private val screenRenderHandler = handler<ScreenRenderEvent>(priority = READ_FINAL_STATE) { event ->
         for (tab in tabs) {
-            if (tab.drawn) {
+            if (tab.drawn || !tab.visible) {
                 continue
             }
 
@@ -93,7 +93,7 @@ class BrowserDrawer(val browser: () -> IBrowser?) : EventListener {
         }
 
         for (tab in tabs) {
-            if (tab.drawn) {
+            if (tab.drawn || !tab.visible) {
                 continue
             }
 

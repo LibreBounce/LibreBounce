@@ -23,7 +23,7 @@ import net.minecraft.util.Identifier
 interface ITab {
 
     var position: TabPosition
-
+    var visible: Boolean
     var drawn: Boolean
     var preferOnTop: Boolean
 
