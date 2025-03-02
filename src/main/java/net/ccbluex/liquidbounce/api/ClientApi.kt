@@ -1,6 +1,5 @@
 package net.ccbluex.liquidbounce.api
 
-import net.ccbluex.liquidbounce.utils.io.DEFAULT_AGENT
 import net.ccbluex.liquidbounce.utils.io.applyBypassHttps
 import net.ccbluex.liquidbounce.utils.io.decodeJson
 import net.ccbluex.liquidbounce.utils.io.get
