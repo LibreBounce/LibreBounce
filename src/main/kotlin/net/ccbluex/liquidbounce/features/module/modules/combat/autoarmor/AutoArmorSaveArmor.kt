@@ -85,7 +85,7 @@ object AutoArmorSaveArmor : ToggleableConfigurable(ModuleAutoArmor, "SaveArmor",
 
         val hasAnyHotBarReplacement = booleanArrayOf(
             UseHotbar.enabled,
-            UseHotbar.canReplaceEquippedArmor,
+            UseHotbar.canSwapArmor,
             armorToEquipWithSlots.any { it.itemSlot is HotbarItemSlot }
         ).all { it }
 

@@ -47,9 +47,9 @@ object ModuleAutoArmor : ClientModule("AutoArmor", Category.COMBAT) {
      */
     object UseHotbar : ToggleableConfigurable(this, "Hotbar", true) {
         /**
-         * Defines whether the [UseHotbar] option supports the new mechanic from MC 1.19.4+.
+         * Defines whether the [UseHotbar] option supports the armor swap from MC 1.19.4+.
          */
-        val canReplaceEquippedArmor by boolean("CanReplaceEquippedArmor", false)
+        val canSwapArmor by boolean("CanSwapArmor", false)
     }
 
     init {
@@ -116,7 +116,7 @@ object ModuleAutoArmor : ClientModule("AutoArmor", Category.COMBAT) {
         val canTryHotbarMove = booleanArrayOf(
             UseHotbar.enabled,
             !InventoryManager.isInventoryOpen,
-            (!isInArmorSlot || UseHotbar.canReplaceEquippedArmor)
+            (!isInArmorSlot || UseHotbar.canSwapArmor)
         ).all { it }
 
         if (inventorySlot is HotbarItemSlot && canTryHotbarMove) {
