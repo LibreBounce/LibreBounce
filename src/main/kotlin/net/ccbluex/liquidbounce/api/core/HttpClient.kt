@@ -33,7 +33,7 @@ import java.io.File
 import java.io.InputStream
 import java.util.concurrent.TimeUnit
 
-private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
 fun withScope(block: suspend CoroutineScope.() -> Unit) = scope.launch { block() }
 

@@ -38,9 +38,9 @@ import org.lwjgl.opengl.GL13
 import org.lwjgl.opengl.GL20
 import kotlin.math.sin
 
-object UiRenderer : MinecraftShortcuts {
+object BlurEffectRenderer : MinecraftShortcuts {
 
-    private object UiBlurShader : BlitShader(
+    private object BlurShader : BlitShader(
         resourceToString("/resources/liquidbounce/shaders/sobel.vert"),
         resourceToString("/resources/liquidbounce/shaders/blur/ui_blur.frag"),
         arrayOf(
@@ -85,7 +85,8 @@ object UiRenderer : MinecraftShortcuts {
         fb
     }
 
-    val OUTLINE_TARGET = RenderPhase.Target("overlay_target", {
+    @JvmStatic
+    val outlineTarget = RenderPhase.Target("overlay_target", {
         if (isDrawingHudFramebuffer) {
             overlayFramebuffer.beginWrite(true)
         }
@@ -118,7 +119,7 @@ object UiRenderer : MinecraftShortcuts {
         return (this.getBlurRadiusFactor() * 20.0F).coerceIn(5.0F..20.0F)
     }
 
-    fun startUIOverlayDrawing(context: DrawContext, tickDelta: Float) {
+    fun startOverlayDrawing(context: DrawContext, tickDelta: Float) {
         ItemImageAtlas.updateAtlas(context)
 
         if (isBlurable) {
@@ -132,7 +133,7 @@ object UiRenderer : MinecraftShortcuts {
         callEvent(OverlayRenderEvent(context, tickDelta))
     }
 
-    fun endUIOverlayDrawing() {
+    fun endOverlayDrawing() {
         if (!this.isDrawingHudFramebuffer) {
             return
         }
@@ -159,7 +160,7 @@ object UiRenderer : MinecraftShortcuts {
 
         mc.framebuffer.beginWrite(false)
 
-        UiBlurShader.blit()
+        BlurShader.blit()
 
         RenderSystem.enableBlend()
         RenderSystem.blendFunc(GlStateManager.SrcFactor.ONE, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA)

@@ -227,7 +227,8 @@ object ActiveServerList : EventListener {
         }
     }
 
-    val tickHandler = handler<GameTickEvent> {
+    @Suppress("unused")
+    private val tickHandler = handler<GameTickEvent> {
         serverListPinger.tick()
     }
 

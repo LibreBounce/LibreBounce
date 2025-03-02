@@ -18,7 +18,6 @@
  */
 package net.ccbluex.liquidbounce.integration.browser.supports
 
-import com.mojang.blaze3d.systems.RenderSystem
 import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.api.core.HttpClient
 import net.ccbluex.liquidbounce.config.ConfigSystem
@@ -26,9 +25,11 @@ import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.integration.browser.BrowserType
 import net.ccbluex.liquidbounce.integration.browser.supports.tab.JcefTab
 import net.ccbluex.liquidbounce.integration.browser.supports.tab.TabPosition
+import net.ccbluex.liquidbounce.integration.task.MCEFProgressForwarder
+import net.ccbluex.liquidbounce.integration.task.type.Task
 import net.ccbluex.liquidbounce.mcef.MCEF
 import net.ccbluex.liquidbounce.utils.client.ErrorHandler
-import net.ccbluex.liquidbounce.utils.client.formatBytesAsSize
+import net.ccbluex.liquidbounce.utils.client.formatAsCapacity
 import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.utils.kotlin.sortedInsert
 import net.ccbluex.liquidbounce.utils.validation.HashValidator
@@ -57,7 +58,7 @@ class JcefBrowser : IBrowser, EventListener {
     private val cacheFolder = mcefFolder.resolve("cache")
     private val tabs = mutableListOf<JcefTab>()
 
-    override fun makeDependenciesAvailable(whenAvailable: () -> Unit) {
+    override fun makeDependenciesAvailable(task: Task) {
         if (!MCEF.INSTANCE.isInitialized) {
             MCEF.INSTANCE.settings.apply {
                 // Uses a natural user agent to prevent websites from blocking the browser
@@ -69,6 +70,7 @@ class JcefBrowser : IBrowser, EventListener {
             }
 
             val resourceManager = MCEF.INSTANCE.newResourceManager()
+            resourceManager.registerProgressListener(MCEFProgressForwarder(task))
 
             // Check if system is compatible with MCEF (JCEF)
             if (!resourceManager.isSystemCompatible) {
@@ -93,14 +95,9 @@ class JcefBrowser : IBrowser, EventListener {
             HashValidator.validateFolder(resourceManager.commitDirectory)
 
             if (resourceManager.requiresDownload()) {
-                thread(name = "mcef-downloader") {
-                    runCatching {
-                        resourceManager.downloadJcef()
-                        RenderSystem.recordRenderCall(whenAvailable)
-                    }.onFailure(ErrorHandler::fatal)
-                }
-            } else {
-                whenAvailable()
+                runCatching {
+                    resourceManager.downloadJcef()
+                }.onFailure(ErrorHandler::fatal)
             }
         }
 
@@ -137,7 +134,7 @@ class JcefBrowser : IBrowser, EventListener {
                 logger.error("Failed to clean up old JCEF cache directories", it)
             }.onSuccess { size ->
                 if (size > 0) {
-                    logger.info("Cleaned up ${size.formatBytesAsSize()} JCEF cache directories")
+                    logger.info("Cleaned up ${size.formatAsCapacity()} JCEF cache directories")
                 }
             }
         }
