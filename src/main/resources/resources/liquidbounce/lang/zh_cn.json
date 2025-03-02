@@ -640,4 +640,5 @@
   "liquidbounce.module.autoPearl.description": "瞄准并向敌方珍珠的轨迹投掷一颗珍珠。",
   "liquidbounce.module.replenish.description": "自动用物品栏中的物品填充快捷栏，使物品数量保持设定的阈值。",
   "liquidbounce.module.anchor.description": "让你移动到水晶PvP的安全点里。"
+    "liquidbounce.module.boatfly.description": "可以用船飞行."
 }
