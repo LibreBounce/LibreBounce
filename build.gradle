@@ -63,9 +63,29 @@ base {
     group = project.maven_group
 }
 
+// These libs are included by the game or other required mods
 final excludeProvidedLibs = {
     exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib"
+
     exclude group: "com.google.code.gson", module: "gson"
+
+    exclude group: "commons-codec", module: "commons-codec"
+    exclude group: "commons-io", module: "commons-io"
+    exclude group: "org.apache.commons", module: "commons-lang3"
+    exclude group: "org.apache.logging.log4j", module: "log4j-core"
+    exclude group: "org.apache.logging.log4j", module: "log4j-api"
+    exclude group: "org.apache.logging.log4j", module: "log4j-slf4j-impl"
+    exclude group: "org.slf4j", module: "slf4j-api"
+    exclude group: "com.mojang", module: "authlib"
+
+    exclude group: "io.netty", module: "netty-all"
+    exclude group: "io.netty", module: "netty-buffer"
+    exclude group: "io.netty", module: "netty-codec"
+    exclude group: "io.netty", module: "netty-common"
+    exclude group: "io.netty", module: "netty-handler"
+    exclude group: "io.netty", module: "netty-resolver"
+    exclude group: "io.netty", module: "netty-transport"
+    exclude group: "io.netty", module: "netty-transport-native-unix-common"
 }
 
 configurations {
@@ -133,20 +153,11 @@ dependencies {
     modRuntimeOnly "com.viaversion:viafabricplus:${project.viafabricplus_version}"
 
     // Minecraft Authlib
-    includeDependency ("com.github.CCBlueX:mc-authlib:${project.mc_authlib_version}") {
-        exclude group: "org.apache.logging.log4j", module: "log4j-core"
-        exclude group: "org.apache.logging.log4j", module: "log4j-api"
-        exclude group: "org.apache.logging.log4j", module: "log4j-slf4j-impl"
-        exclude group: "org.slf4j", module: "slf4j-api"
-        exclude group: "com.mojang", module: "authlib"
-    }
+    includeDependency "com.github.CCBlueX:mc-authlib:${project.mc_authlib_version}"
 
     // JCEF Support
     includeModDependency "com.github.CCBlueX:mcef:${project.mcef_version}"
-    includeDependency "org.apache.commons:commons-compress:1.27.1"
-    includeDependency ("com.github.CCBlueX:netty-httpserver:2.1.1") {
-        exclude group: "io.netty", module: "netty-all"
-    }
+    includeDependency "com.github.CCBlueX:netty-httpserver:2.1.1"
 
     // Discord RPC Support
     includeDependency "com.github.CCBlueX:DiscordIPC:4.0.0"
@@ -166,12 +177,7 @@ dependencies {
     includeDependency "com.squareup.okhttp3:okhttp:5.0.0-alpha.14"
 
     // SOCKS5 Proxy Support
-    includeDependency ("io.netty:netty-handler-proxy:4.1.97.Final") {
-        exclude group: "io.netty", module: "netty-common"
-        exclude group: "io.netty", module: "netty-buffer"
-        exclude group: "io.netty", module: "netty-transport"
-        exclude group: "io.netty", module: "netty-codec"
-    }
+    includeDependency "io.netty:netty-handler-proxy:4.1.97.Final"
 
     // Update Checker
     includeDependency "com.vdurmont:semver4j:3.1.0"
