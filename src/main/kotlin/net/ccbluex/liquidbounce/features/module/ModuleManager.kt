@@ -305,6 +305,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleSpider,
             ModuleTargetStrafe,
             ModuleAnchor,
+			ModuleBoatFly,
 
             // Player
             ModuleAntiVoid,
