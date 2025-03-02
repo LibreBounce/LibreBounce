@@ -63,9 +63,14 @@ base {
     group = project.maven_group
 }
 
+final excludeProvidedLibs = {
+    exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib"
+    exclude group: "com.google.code.gson", module: "gson"
+}
+
 configurations {
-    includeDependency
-    includeModDependency
+    includeDependency excludeProvidedLibs
+    includeModDependency excludeProvidedLibs
 
     include.extendsFrom includeModDependency
     modImplementation.extendsFrom includeModDependency
@@ -129,23 +134,18 @@ dependencies {
 
     // Minecraft Authlib
     includeDependency ("com.github.CCBlueX:mc-authlib:${project.mc_authlib_version}") {
-        exclude group: "com.google.code.gson", module: "gson"
         exclude group: "org.apache.logging.log4j", module: "log4j-core"
         exclude group: "org.apache.logging.log4j", module: "log4j-api"
         exclude group: "org.apache.logging.log4j", module: "log4j-slf4j-impl"
         exclude group: "org.slf4j", module: "slf4j-api"
         exclude group: "com.mojang", module: "authlib"
-        exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib"
     }
 
     // JCEF Support
-    includeModDependency ("com.github.CCBlueX:mcef:${project.mcef_version}") {
-        exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib"
-    }
+    includeModDependency "com.github.CCBlueX:mcef:${project.mcef_version}"
     includeDependency "org.apache.commons:commons-compress:1.27.1"
     includeDependency ("com.github.CCBlueX:netty-httpserver:2.1.1") {
         exclude group: "io.netty", module: "netty-all"
-        exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib"
     }
 
     // Discord RPC Support
