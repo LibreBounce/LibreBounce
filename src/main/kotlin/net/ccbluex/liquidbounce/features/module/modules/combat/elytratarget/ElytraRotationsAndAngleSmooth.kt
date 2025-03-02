@@ -29,7 +29,7 @@ private const val IDEAL_DISTANCE = 10
 @Suppress("MagicNumber")
 internal object ElytraRotationsAndAngleSmooth : Configurable("Rotations"), AngleSmooth, EventListener {
     private val sharpRotations by boolean("Sharp", false)
-    internal val ignoreKillAura by boolean("IgnoreKillAuraRotation", false)
+    internal val ignoreKillAura by boolean("IgnoreKillAuraRotation", true)
     internal val look by boolean("Look", false)
     private val autoDistance by boolean("AutoDistance", true)
     private val prediction = tree(TargetEntityMovementPrediction)
