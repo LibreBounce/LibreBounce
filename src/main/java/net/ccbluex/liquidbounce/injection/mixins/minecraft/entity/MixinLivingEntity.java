@@ -30,10 +30,12 @@ import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleSca
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager;
 import net.ccbluex.liquidbounce.utils.aiming.features.MovementCorrection;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -77,6 +79,9 @@ public abstract class MixinLivingEntity extends MixinEntity {
 
     @Shadow
     public abstract boolean isGliding();
+
+    @Shadow
+    protected abstract boolean canGlide();
 
     /**
      * Disable [StatusEffects.LEVITATION] effect when [ModuleAntiLevitation] is enabled
@@ -274,8 +279,28 @@ public abstract class MixinLivingEntity extends MixinEntity {
         return rotation.getDirectionVector();
     }
 
-    @ModifyExpressionValue(method = "tickGliding", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;canGlide()Z"))
-    private boolean hookCanGlideInTickGliding(boolean original) {
-        return ModuleElytraTarget.canAlwaysGlide() || original;
+    @Unique
+    private boolean previousIsGliding = false;
+
+    @Inject(method = "isGliding", at = @At("RETURN"), cancellable = true)
+    private void hookIsGliding(CallbackInfoReturnable<Boolean> cir) {
+        if ((Object) this != MinecraftClient.getInstance().player) {
+            return;
+        }
+
+        var player = (ClientPlayerEntity) (Object) this;
+        var gliding = cir.getReturnValue();
+
+        if (previousIsGliding && !gliding) {
+            var flag = ModuleElytraTarget.canAlwaysGlide();
+            if (flag) {
+                player.startGliding();
+                player.networkHandler.sendPacket(new ClientCommandC2SPacket(player, ClientCommandC2SPacket.Mode.START_FALL_FLYING));
+            }
+
+            cir.setReturnValue(flag);
+        }
+
+        previousIsGliding = gliding;
     }
 }

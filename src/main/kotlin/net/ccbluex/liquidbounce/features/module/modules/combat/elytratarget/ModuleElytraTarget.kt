@@ -34,9 +34,10 @@ object ModuleElytraTarget : ClientModule("ElytraTarget", Category.COMBAT) {
     @JvmStatic
     @get:JvmName("canAlwaysGlide")
     val canAlwaysGlide get() =
-        running
-        && alwaysGlide
+        alwaysGlide
         && target != null
+        && super.running
+        && !player.abilities.flying
 
     val canIgnoreKillAuraRotations get() =
         running
