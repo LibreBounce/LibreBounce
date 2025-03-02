@@ -10,11 +10,12 @@ internal object TargetEntityMovementPrediction : ToggleableConfigurable(ElytraRo
     private val glidingOnly by boolean("GlidingOnly", true)
     internal val mode = choices(this, "Mode", VelocityPrediction, arrayOf(VelocityPrediction))
 
-    fun predictPosition(target: LivingEntity, targetPosition: Vec3d): Vec3d {
-        if (!enabled || (glidingOnly && !target.isGliding)) {
-            return targetPosition
-        }
-
-        return mode.activeChoice.predictPosition(target, targetPosition)
+    fun predictPosition(
+        target: LivingEntity,
+        targetPosition: Vec3d
+    ) = if (!enabled || (glidingOnly && !target.isGliding)) {
+        targetPosition
+    } else {
+        mode.activeChoice.predictPosition(target, targetPosition)
     }
 }
