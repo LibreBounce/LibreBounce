@@ -80,24 +80,7 @@ class TaskProgressScreen(
             -1
         )
         poseStack.pop()
-
-        // Get active tasks for display
-        val activeTasks = taskManager.getActiveTasks()
-        val speed = formatTotalSpeed(activeTasks)
-
-        // Prepare text to display
-        val textLines = mutableListOf<String>()
-        textLines.add("${percentFormat.format(progress * 100)}%$speed")
-
-        // Add active task names
-        activeTasks.take(3).forEach { task ->
-            textLines.add("${task.name}: ${percentFormat.format(task.progress * 100)}%${formatTotalSpeed(listOf(task))}")
-        }
-
-        // Show additional tasks count if more than 3
-        if (activeTasks.size > 3) {
-            textLines.add("... and ${activeTasks.size - 3} more tasks")
-        }
+        val textLines = getTaskLines(progress)
 
         // Draw text
         val textHeight = textLines.size * (textRenderer.fontHeight + 2)
@@ -127,6 +110,33 @@ class TaskProgressScreen(
             )
             yOffset += textRenderer.fontHeight + 2
         }
+    }
+
+    private fun getTaskLines(progress: Float): List<String> {
+        // Get active tasks for display
+        val activeTasks = taskManager.getActiveTasks()
+        val speed = formatTotalSpeed(activeTasks)
+
+        // Prepare text to display
+        val textLines = mutableListOf<String>()
+        textLines.add("${percentFormat.format(progress * 100)}%$speed")
+
+        // Add active task names
+        activeTasks.take(3).forEach { task ->
+            textLines.add(buildString {
+                append(task.name)
+                append(": ")
+                append(percentFormat.format(task.progress * 100))
+                append("%")
+                append(formatTotalSpeed(listOf(task)))
+            })
+        }
+
+        // Show additional tasks count if more than 3
+        if (activeTasks.size > 3) {
+            textLines.add("... and ${activeTasks.size - 3} more tasks")
+        }
+        return textLines
     }
 
     private fun formatTotalSpeed(tasks: List<Task>): String {

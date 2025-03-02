@@ -83,7 +83,7 @@ object ThemeManager : Configurable("theme") {
             field = value
 
             // Update components
-            ComponentOverlay.insertComponents()
+            ComponentOverlay.insertDefaultComponents()
 
             // Update integration browser
             IntegrationListener.updateIntegrationBrowser()

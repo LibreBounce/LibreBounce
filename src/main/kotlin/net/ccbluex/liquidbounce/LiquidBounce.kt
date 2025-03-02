@@ -19,6 +19,7 @@
  */
 package net.ccbluex.liquidbounce
 
+import com.mojang.blaze3d.systems.RenderSystem
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
@@ -120,13 +121,42 @@ object LiquidBounce : EventListener {
     var isInitialized = false
         private set
 
+    /**
+     * Initializes the client, called when
+     * we reached the last stage of the splash screen.
+     *
+     * The thread should be the main render thread.
+     */
     private fun initializeClient() {
         if (isInitialized) {
             return
         }
-
         isInitialized = true
 
+        // Ensure we are on the render thread
+        RenderSystem.assertOnRenderThread()
+
+        // Initialize managers and features
+        initializeManagers()
+        initializeFeatures()
+        initializeResources()
+        prepareGuiStage()
+
+        // Check for AMD Vega iGPU
+        if (HAS_AMD_VEGA_APU) {
+            logger.info("AMD Vega iGPU detected, enabling different line smooth handling. " +
+                "If you believe this is a mistake, please create an issue at " +
+                "https://github.com/CCBlueX/LiquidBounce/issues.")
+        }
+
+        // Load all configurations
+        ConfigSystem.loadAll()
+    }
+
+    /**
+     * Initializes managers for Event Listener registration.
+     */
+    private fun initializeManagers() {
         // Config
         ConfigSystem
 
@@ -161,15 +191,28 @@ object LiquidBounce : EventListener {
         ConfigSystem.root(SpooferManager)
         PostRotationExecutor
         TpsObserver
+        ItemImageAtlas
+    }
 
+    /**
+     * Initializes in-built and script features.
+     */
+    private fun initializeFeatures() {
         // Register commands and modules
         CommandManager.registerInbuilt()
         ModuleManager.registerInbuilt()
 
         // Load user scripts
         ScriptManager.loadAll()
+    }
 
-        val tasks = listOf(
+    /**
+     * Simultaneously initializes resources
+     * such as translations, cosmetics, player heads, configs and so on,
+     * which do not rely on the main thread.
+     */
+    private fun initializeResources() = runBlocking {
+        listOf(
             scope.async {
                 // Load translations
                 LanguageManager.loadDefault()
@@ -211,13 +254,31 @@ object LiquidBounce : EventListener {
                         ConfigSystem.storeConfigurable(ClientAccountManager)
                     }
                 }
+            },
+            scope.async {
+                ThemeManager.themesFolder.listFiles()
+                    ?.filter { file -> file.isDirectory }
+                    ?.forEach { file ->
+                        runCatching {
+                            val assetsFolder = File(file, "assets")
+                            if (!assetsFolder.exists()) {
+                                return@forEach
+                            }
+
+                            FontManager.queueFolder(assetsFolder)
+                        }.onFailure {
+                            logger.error("Failed to queue fonts from theme '${file.name}'.", it)
+                        }
+                    }
             }
-        )
+        ).awaitAll()
+    }
 
-        runBlocking {
-            tasks.awaitAll()
-        }
-
+    /**
+     * Prepares the GUI stage of the client.
+     * This will load [ThemeManager], as well as the [BrowserManager] and [ClientInteropServer].
+     */
+    private fun prepareGuiStage() {
         // Load theme and component overlay
         ThemeManager
         BrowserManager
@@ -231,43 +292,15 @@ object LiquidBounce : EventListener {
             launch("MCEF", BrowserManager::initBrowser)
         }
 
-        FontManager
-        ComponentOverlay.insertComponents()
-
-        // Queue fonts of all themes
-        // TODO: Will be removed with PR #3884 as it is not needed anymore
-        ThemeManager.themesFolder.listFiles()
-            ?.filter { file -> file.isDirectory }
-            ?.forEach { file ->
-                runCatching {
-                    val assetsFolder = File(file, "assets")
-                    if (!assetsFolder.exists()) {
-                        return@forEach
-                    }
-
-                    FontManager.queueFolder(assetsFolder)
-                }.onFailure {
-                    logger.error("Failed to queue fonts from theme '${file.name}'.", it)
-                }
-            }
-
-        // Load fonts
+        // Prepare glyph manager
         val duration = measureTime {
             FontManager.createGlyphManager()
         }
         logger.info("Completed loading fonts in ${duration.inWholeMilliseconds} ms.")
         logger.info("Fonts: [ ${FontManager.fontFaces.joinToString { face -> face.name }} ]")
 
-        ItemImageAtlas
-
-        if (HAS_AMD_VEGA_APU) {
-            logger.info("AMD Vega iGPU detected, enabling different line smooth handling. " +
-                "If you believe this is a mistake, please create an issue at " +
-                "https://github.com/CCBlueX/LiquidBounce/issues.")
-        }
-
-        // Load all configurations
-        ConfigSystem.loadAll()
+        // Insert default components on HUD
+        ComponentOverlay.insertDefaultComponents()
     }
 
     /**
