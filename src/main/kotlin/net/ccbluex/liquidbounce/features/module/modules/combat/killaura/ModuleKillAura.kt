@@ -203,11 +203,11 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
             return@tickHandler
         }
 
-        val rotation = if (rotations.rotationTiming == ON_TICK) {
-            getSpot(target, range.toDouble(), PointTracker.AimSituation.FOR_NOW)?.rotation?.normalize()
+        val rotation = (if (rotations.rotationTiming == ON_TICK) {
+            getSpot(target, range.toDouble(), PointTracker.AimSituation.FOR_NOW)?.rotation
         } else {
             null
-        } ?: RotationManager.currentRotation ?: player.rotation
+        } ?: RotationManager.currentRotation ?: player.rotation).normalize()
 
         val crosshairTarget = when {
             raycast != TRACE_NONE -> {
@@ -319,13 +319,14 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         ModuleDebug.debugParameter(ModuleKillAura, "AimSituation", situation)
 
         // Calculate maximum range based on enemy distance
-        val maximumRange = if (targetTracker.closestSquaredEnemyDistance > range * range) {
+        val maximumRange = if (targetTracker.closestSquaredEnemyDistance > range.pow(2)) {
             range + scanExtraRange
         } else {
             range
         }
 
-        // Calculate squared maximum range once
+        ModuleDebug.debugParameter(ModuleKillAura, "Maximum Range", maximumRange)
+        ModuleDebug.debugParameter(ModuleKillAura, "Range", range)
         val squaredMaxRange = maximumRange.pow(2)
         val squaredNormalRange = range.pow(2)
 
@@ -349,7 +350,8 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
                     provider = ModuleKillAura
                 )
             }
-
+        } else {
+            targetTracker.target = target
         }
     }
 
@@ -360,16 +362,27 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
     ): Boolean {
         val (rotation, vec) = getSpot(entity, maximumRange.toDouble(), situation) ?: return false
         val ticks = rotations.howLongToReach(rotation)
+        ModuleDebug.debugParameter(ModuleKillAura, "Rotation Ticks", ticks)
 
-        // Validate if we meet timing requirements
         when (rotations.rotationTiming) {
-            SNAP -> if (!clickScheduler.isClickOnNextTick(ticks.coerceAtLeast(1))) return false
-            ON_TICK -> if (ticks > 1) return false
-            else -> { /* Other modes don't have special conditions */ }
-        }
 
-        // Set target and rotation
-        targetTracker.target = entity
+            // If our click scheduler is not going to click the moment we will
+            // not select the entity as target.
+            SNAP -> if (!clickScheduler.isClickOnNextTick(ticks.coerceAtLeast(1))) {
+                return true
+            }
+
+            // [ON_TICK] will always instantly aim onto the target on attack, however, if
+            // our rotation is unable to be ready in time, we can at least start aiming towards
+            // the target.
+            ON_TICK -> if (ticks <= 1) {
+                return true
+            }
+
+            else -> {
+                // Continue with regular aiming
+            }
+        }
 
         RotationManager.setRotationTarget(
             rotations.toAimPlan(
