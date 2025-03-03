@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.features.module.modules.combat
+package net.ccbluex.liquidbounce.features.module.modules.combat.backtrack
 
 import com.google.common.collect.Queues
 import net.ccbluex.liquidbounce.config.types.Choice
@@ -27,13 +27,6 @@ import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
-import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleBacktrack.clear
-import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleBacktrack.currentDelay
-import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleBacktrack.delay
-import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleBacktrack.delayedPacketQueue
-import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleBacktrack.packetProcessQueue
-import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleBacktrack.processPackets
-import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleBacktrack.shouldCancelPackets
 import net.ccbluex.liquidbounce.render.drawSolidBox
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
@@ -41,7 +34,6 @@ import net.ccbluex.liquidbounce.render.withColor
 import net.ccbluex.liquidbounce.render.withPositionRelativeToCamera
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.client.PacketSnapshot
-import net.ccbluex.liquidbounce.utils.client.handlePacket
 import net.ccbluex.liquidbounce.utils.combat.findEnemy
 import net.ccbluex.liquidbounce.utils.combat.shouldBeAttacked
 import net.ccbluex.liquidbounce.utils.entity.boxedDistanceTo
@@ -105,13 +97,16 @@ object ModuleBacktrack : ClientModule("Backtrack", Category.COMBAT) {
 
     var currentDelay = delay.random()
 
+    val arePacketQueuesEmpty
+        get() = delayedPacketQueue.isEmpty() && packetProcessQueue.isEmpty()
+
     @Suppress("unused")
     private val packetHandler = handler<PacketEvent> { event ->
         if (event.origin != TransferOrigin.RECEIVE || event.isCancelled) {
             return@handler
         }
 
-        if (delayedPacketQueue.isEmpty() && !shouldCancelPackets()) {
+        if (arePacketQueuesEmpty && !shouldCancelPackets()) {
             return@handler
         }
 
@@ -296,7 +291,7 @@ object ModuleBacktrack : ClientModule("Backtrack", Category.COMBAT) {
     }
 
     private fun processTarget(enemy: Entity) {
-        shouldPause = enemy is LivingEntity && enemy.hurtTime >= pauseOnHurtTime.hurtTime
+        shouldPause = enemy is LivingEntity && enemy.hurtTime >= PauseOnHurtTime.hurtTime
 
         if (!shouldBacktrack(enemy)) {
             return
@@ -304,7 +299,7 @@ object ModuleBacktrack : ClientModule("Backtrack", Category.COMBAT) {
 
         // Reset on enemy change
         if (enemy != target) {
-            clear()
+            clear(resetChronometer = false)
 
             // Instantly set new position, so it does not look like the box was created with delay
             position = TrackedPosition().apply { this.pos = enemy.trackedPosition.pos }
@@ -331,14 +326,14 @@ object ModuleBacktrack : ClientModule("Backtrack", Category.COMBAT) {
         }
     }
 
-    fun clear(handlePackets: Boolean = true, clearOnly: Boolean = false) {
+    fun clear(handlePackets: Boolean = true, clearOnly: Boolean = false, resetChronometer: Boolean = true) {
         if (handlePackets && !clearOnly) {
             processPackets(true)
         } else if (clearOnly) {
             delayedPacketQueue.clear()
         }
 
-        if (target != null) {
+        if (target != null && resetChronometer) {
             chronometer.waitForAtLeast(nextBacktrackDelay.random().toLong())
         }
 
@@ -359,55 +354,15 @@ object ModuleBacktrack : ClientModule("Backtrack", Category.COMBAT) {
             target.shouldBeAttacked() &&
             player.age > 10 &&
             Math.random() * 100 < chance &&
-            chronometer.hasElapsed(nextBacktrackDelay.random().toLong()) &&
+            chronometer.hasElapsed() &&
             !shouldPause() &&
             !attackChronometer.hasElapsed(lastAttackTimeToWork.toLong())
     }
 
-    fun isLagging() = running && delayedPacketQueue.isNotEmpty() && packetProcessQueue.isNotEmpty()
+    fun isLagging() = running && !arePacketQueuesEmpty
 
     private fun shouldPause() = pauseOnHurtTime.enabled && shouldPause
 
     fun shouldCancelPackets() =
         target?.let { target -> target.isAlive && shouldBacktrack(target) } ?: false
-}
-
-// Maybe put both classes in a directory instead and each to their own
-object BacktrackPacketManager : EventListener {
-
-    /**
-     * When we process packets, we want the delayed ones to be processed first before
-     * the game proceeds with its own packet processing.
-     *
-     * Minecraft in older versions would process the packets every frame. Now it is being done every tick,
-     * before the general game tick function is called.
-     *
-     * @see net.minecraft.client.MinecraftClient.render
-     *
-     * profiler.push("scheduledExecutables");
-     * this.runTasks();
-     * profiler.pop();
-     * profiler.push("tick");
-     *
-     */
-    @Suppress("unused")
-    private val handleTickPacketProcess = handler<TickPacketProcessEvent> {
-        if (shouldCancelPackets()) {
-            processPackets()
-        } else {
-            clear()
-        }
-
-        // Maybe apply synchronized blocks?
-        packetProcessQueue.removeIf {
-            handlePacket(it)
-
-            return@removeIf true
-        }
-
-        // Same here?
-        if (delayedPacketQueue.isEmpty() && packetProcessQueue.isEmpty()) {
-            currentDelay = delay.random()
-        }
-    }
 }
