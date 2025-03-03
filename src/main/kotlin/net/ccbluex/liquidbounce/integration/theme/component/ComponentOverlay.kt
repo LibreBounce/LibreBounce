@@ -37,7 +37,8 @@ import net.ccbluex.liquidbounce.utils.render.Alignment.ScreenAxisY
 val components: MutableList<Component> = mutableListOf()
 val customComponents: MutableList<Component> = mutableListOf(
     TextComponent(
-        "Ping: {ping}, XYZ {position.x}, {position.y}, {position.z} | Nether XZ: {netherPosition.x}, {netherPosition.z}",
+        "Ping: {ping}, XYZ {position.x}, {position.y}, {position.z} |" +
+            " Nether XZ: {netherPosition.x}, {netherPosition.z}",
         enabled = false,
         alignment = Alignment(ScreenAxisX.LEFT, 4, ScreenAxisY.BOTTOM, 22)
     )
