@@ -640,5 +640,31 @@
   "liquidbounce.module.blockIn.messages.filled": "Fertig!",
   "liquidbounce.module.blockTrap.description": "Baut Gegner mit Blöcken ein.",
   "liquidbounce.module.blockIn.messages.positionChanged": "Deine Position hat sich geändert!",
-  "liquidbounce.module.packetMine.messages.noVfp": "Wähle eine andere Wechselmethode aus oder installier ViaFabricPlus!"
+  "liquidbounce.module.packetMine.messages.noVfp": "Wähle eine andere Wechselmethode aus oder installier ViaFabricPlus!",
+  "liquidbounce.module.phase.description": "Ermöglicht dir, durch Blöcke zu gehen.",
+  "liquidbounce.module.aspect.description": "Passt das horizontale Seitenverhältnis an.",
+  "liquidbounce.module.extendedFirework.description": "Ändert die Geschwindigkeit des Feuerwerkraketen-Boosts.",
+
+  "liquidbounce.command.models.subcommand.create.result.modelExists": "❌ Das Modell %s existiert bereits.",
+  "liquidbounce.command.models.subcommand.create.result.trainingStart": "⚡ Training wurde für das Modell %s gestartet...",
+  "liquidbounce.command.models.subcommand.create.result.samplesLoaded": "✔ %s Exemplare in %s geladen.",
+  "liquidbounce.command.models.subcommand.create.result.preparedData": "✔ Datenset vorbereitet in %s.",
+  "liquidbounce.command.models.subcommand.create.result.trainingEnd": "✔ Das Modell %s wurde trainiert und erfolgreich in %s gespeichert.",
+  "liquidbounce.command.models.subcommand.create.result.trainingFailed": "❌ Das Training ist mit dem Fehlercode %s fehlgeschlagen.",
+  "liquidbounce.command.models.subcommand.create.result.invalidName": "❌ Ungültiger Modellname. Der Modellname muss alphanumerisch sein und darf keine Leerzeichen enthalten.",
+
+  "liquidbounce.command.models.subcommand.improve.result.modelNotFound": "❌ Das Modell %s konnte nicht gefunden werden.",
+  "liquidbounce.command.models.subcommand.improve.result.trainingStart": "⚡ Training wurde für das Modell %s gestartet...",
+  "liquidbounce.command.models.subcommand.improve.result.samplesLoaded": "✔ %s Exemplare in %s geladen.",
+  "liquidbounce.command.models.subcommand.improve.result.preparedData": "✔ Datenset vorbereitet in %s.",
+  "liquidbounce.command.models.subcommand.improve.result.trainingEnd": "✔ Das Modell %s wurde trainiert und erfolgreich in %s gespeichert.",
+  "liquidbounce.command.models.subcommand.improve.result.trainingFailed": "❌ Das Training ist mit dem Fehlercode %s fehlgeschlagen.",
+
+  "liquidbounce.command.models.subcommand.reload.result.modelsReloaded": "✔ Modelle wurden neu geladen.",
+
+  "liquidbounce.command.models.subcommand.delete.result.modelNotFound": "❌ Das Modell %s konnte nicht gefunden werden.",
+  "liquidbounce.command.models.subcommand.delete.result.modelDeleted": "✔ Das Modell %s wurde gelöscht.",
+
+  "liquidbounce.module.particles.description": "Zeigt Partikel beim Angriff eines z.B. Spielers an.",
+  "liquidbounce.module.elytraTarget.description": "Verfolgt dein Ziel mit einer Elytra."
 }
