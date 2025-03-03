@@ -73,6 +73,9 @@ object KillAuraFightBot : NavigationBaseConfigurable<CombatContext>(ModuleKillAu
         tree(LeaderFollower)
     }
 
+    fun updateTarget() {
+        targetTracker.selectFirst()
+    }
 
     /**
      * Creates combat context

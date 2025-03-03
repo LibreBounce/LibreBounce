@@ -95,10 +95,27 @@ object ModuleAutoWeapon : ClientModule("AutoWeapon", Category.COMBAT) {
         get() = SilentHotbar.isSlotModifiedBy(ModuleAutoBuff) || player.isUsingItem && player.activeHand ==
             Hand.MAIN_HAND && player.activeItem.isConsumable
 
+    /**
+     * Check if the attack will break the shield
+     */
+    fun willBreakShield(): Boolean {
+        if (!this.running || isOlderThanOrEqual1_8) {
+            return false
+        }
+
+        // If we have an axe in our main hand, we will break the shield
+        if (player.mainHandStack.item is AxeItem) {
+            return true
+        }
+
+        // If we are not going to switch to an axe, we will not break the shield
+        return determineWeaponSlot(null, enforceShield = true)?.itemStack?.item is AxeItem
+    }
+
     @Suppress("unused")
     private val attackHandler = sequenceHandler<AttackEntityEvent> { event ->
         val entity = event.entity as? LivingEntity ?: return@sequenceHandler
-        val weaponSlot = determineWeaponSlot(entity) ?: return@sequenceHandler
+        val weaponSlot = determineWeaponSlot(entity)?.hotbarSlot ?: return@sequenceHandler
         val isOnSwitch = SilentHotbar.serversideSlot != weaponSlot
 
         if (isBusy) {
@@ -137,28 +154,28 @@ object ModuleAutoWeapon : ClientModule("AutoWeapon", Category.COMBAT) {
         determineWeaponSlot(entity)?.let { slot ->
             SilentHotbar.selectSlotSilently(
                 this,
-                slot,
+                slot.hotbarSlot,
                 switchBack
             )
         }
     }
 
-    private fun determineWeaponSlot(target: LivingEntity?): Int? {
+    private fun determineWeaponSlot(target: LivingEntity?, enforceShield: Boolean = false): HotbarItemSlot? {
         val itemCategorization = ItemCategorization(Slots.Hotbar)
+        val blockedByShield = enforceShield || !isOlderThanOrEqual1_8 &&
+            target?.blockedByShield(world.damageSources.playerAttack(player)) == true
 
         val bestSlot = Slots.Hotbar
-            .flatMap { itemCategorization.getItemFacets(it).filterIsInstance<WeaponItemFacet>() }
+            .flatMap { slot -> itemCategorization.getItemFacets(slot).filterIsInstance<WeaponItemFacet>() }
             .filter(
                 when {
-                    !isOlderThanOrEqual1_8 && target?.blockedByShield(world.damageSources.playerAttack(player)) == true
-                        -> againstShield.filter
-
+                    blockedByShield -> againstShield.filter
                     else -> preferredWeapon.filter
                 }
             )
             .maxOrNull()
 
-        return (bestSlot?.itemSlot as HotbarItemSlot?)?.hotbarSlot
+        return bestSlot?.itemSlot as HotbarItemSlot?
     }
 
 }

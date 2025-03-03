@@ -345,7 +345,7 @@ fun getNearestPointOnSide(eyes: Vec3d, box: Box, side: Direction): Vec3d {
 
 }
 
-fun PlayerEntity.wouldBlockHit(source: PlayerEntity): Boolean {
+fun LivingEntity.wouldBlockHit(source: PlayerEntity): Boolean {
     if (!this.isBlocking) {
         return false
     }
