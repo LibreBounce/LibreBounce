@@ -175,10 +175,10 @@ dependencies {
 //    includeDependency "org.graalvm.polyglot:llvm-native-community:24.0.2"
 
     // Machine Learning
-    includeDependency 'ai.djl:api:0.31.1'
-    includeDependency "ai.djl.pytorch:pytorch-engine:0.31.1"
-//    runtimeOnly "ai.djl.mxnet:mxnet-engine:0.31.1"
-//    runtimeOnly "ai.djl.tensorflow:tensorflow-model-zoo:0.31.1"
+    includeDependency "ai.djl:api:${djl_version}"
+    includeDependency "ai.djl.pytorch:pytorch-engine:${djl_version}"
+//    runtimeOnly "ai.djl.mxnet:mxnet-engine:${djl_version}"
+//    runtimeOnly "ai.djl.tensorflow:tensorflow-engine:${djl_version}"
 
 
     // HTTP library
