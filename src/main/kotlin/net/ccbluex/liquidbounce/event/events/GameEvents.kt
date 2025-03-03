@@ -48,6 +48,9 @@ object GameTickEvent : Event()
 @Nameable("gameRenderTaskQueue")
 object GameRenderTaskQueueEvent : Event()
 
+@Nameable("tickPacketProcess")
+object TickPacketProcessEvent : Event()
+
 @Nameable("key")
 @WebSocketEvent
 class KeyEvent(val key: InputUtil.Key, val action: Int) : Event()

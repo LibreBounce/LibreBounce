@@ -49,6 +49,7 @@ import net.ccbluex.liquidbounce.features.misc.FriendManager
 import net.ccbluex.liquidbounce.features.misc.proxy.ProxyManager
 import net.ccbluex.liquidbounce.features.module.ModuleManager
 import net.ccbluex.liquidbounce.features.module.modules.client.ipcConfiguration
+import net.ccbluex.liquidbounce.features.module.modules.combat.BacktrackPacketManager
 import net.ccbluex.liquidbounce.features.spoofer.SpooferManager
 import net.ccbluex.liquidbounce.integration.IntegrationListener
 import net.ccbluex.liquidbounce.integration.browser.BrowserManager
@@ -184,6 +185,7 @@ object LiquidBounce : EventListener {
         // Utility managers
         RotationManager
         PacketQueueManager
+        BacktrackPacketManager
         InteractionTracker
         CombatManager
         FriendManager

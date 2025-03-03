@@ -247,6 +247,11 @@ public abstract class MixinMinecraftClient {
         EventManager.INSTANCE.callEvent(GameRenderTaskQueueEvent.INSTANCE);
     }
 
+    @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;runTasks()V", shift = At.Shift.BEFORE))
+    private void hookPacketProcess(CallbackInfo callbackInfo) {
+        EventManager.INSTANCE.callEvent(TickPacketProcessEvent.INSTANCE);
+    }
+
     /**
      * Hook input handling
      */
