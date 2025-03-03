@@ -70,7 +70,7 @@ object PacketQueueManager : EventListener {
 
     @Suppress("unused")
     private val flushHandler = handler<GameRenderTaskQueueEvent> {
-        if (mc.networkHandler?.connection?.isOpen != null) {
+        if (mc.networkHandler?.connection?.isOpen != true) {
             packetQueue.clear()
             return@handler
         }
@@ -82,7 +82,7 @@ object PacketQueueManager : EventListener {
 
     @Suppress("unused")
     private val flushReceiveHandler = handler<TickPacketProcessEvent> {
-        if (mc.networkHandler?.connection?.isOpen != null) {
+        if (mc.networkHandler?.connection?.isOpen != true) {
             packetQueue.clear()
             return@handler
         }
