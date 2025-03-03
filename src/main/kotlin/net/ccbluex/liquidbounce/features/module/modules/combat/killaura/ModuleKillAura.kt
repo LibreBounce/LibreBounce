@@ -283,7 +283,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         ModuleDebug.debugParameter(ModuleKillAura, "Valid Rotation", rotation)
 
         // Attack enemy, according to the attack scheduler
-        if (clickScheduler.isGoingToClick && validateAttack(target)) {
+        if (clickScheduler.isClickTick && validateAttack(target)) {
             clickScheduler.attack(sequence, rotation) {
                 // On each click, we check if we are still ready to attack
                 if (!validateAttack(target)) {
@@ -301,7 +301,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
 
                 true
             }
-        } else if (KillAuraAutoBlock.tickOff > 0 && clickScheduler.isClickOnNextTick(KillAuraAutoBlock.tickOff)
+        } else if (KillAuraAutoBlock.tickOff > 0 && clickScheduler.willClickAt(KillAuraAutoBlock.tickOff)
             && KillAuraAutoBlock.shouldUnblockToHit) {
             KillAuraAutoBlock.stopBlocking(pauses = true)
         } else {
@@ -312,7 +312,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
     private fun updateTarget() {
         // Determine aim situation based on click scheduler
         val situation = when {
-            clickScheduler.isGoingToClick || clickScheduler.isClickOnNextTick(1)
+            clickScheduler.isClickTick || clickScheduler.willClickAt(1)
                 -> PointTracker.AimSituation.FOR_NEXT_TICK
             else -> PointTracker.AimSituation.FOR_THE_FUTURE
         }
@@ -368,7 +368,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
 
             // If our click scheduler is not going to click the moment we reach the target,
             // we should not start aiming towards the target just yet.
-            SNAP -> if (!clickScheduler.isClickOnNextTick(ticks.coerceAtLeast(1))) {
+            SNAP -> if (!clickScheduler.willClickAt(ticks.coerceAtLeast(1))) {
                 return true
             }
 

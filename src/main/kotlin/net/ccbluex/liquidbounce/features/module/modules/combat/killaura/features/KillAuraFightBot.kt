@@ -117,7 +117,7 @@ object KillAuraFightBot : NavigationBaseConfigurable<CombatContext>(ModuleKillAu
 
         // Otherwise handle combat movement
         val combatTarget = context.combatTarget ?: return null
-        return if (runawayOnCooldown && !clickScheduler.isClickOnNextTick()) {
+        return if (runawayOnCooldown && !clickScheduler.willClickAt()) {
             calculateRunawayPosition(context, combatTarget)
         } else {
             calculateAttackPosition(context, combatTarget)

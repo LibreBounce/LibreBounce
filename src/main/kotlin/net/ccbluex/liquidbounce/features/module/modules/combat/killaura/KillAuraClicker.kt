@@ -35,19 +35,7 @@ import net.ccbluex.liquidbounce.utils.inventory.openInventorySilently
 import net.minecraft.network.packet.c2s.play.CloseHandledScreenC2SPacket
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.Full
 
-object KillAuraClicker : Clicker<ModuleKillAura>(ModuleKillAura, true) {
-
-    /**
-     * When missing a hit, Minecraft has a cooldown before you can attack again.
-     * This option will consider the cooldown before attacking again.
-     *
-     * This is useful for anti-cheats that detect if you are ignoring this cooldown.
-     * Applies to the FailSwing feature as well.
-     */
-    val considerMissCooldown by boolean("ConsiderMissCooldown", false)
-
-    val passesMissCooldown
-        get() = !considerMissCooldown || mc.attackCooldown <= 0
+object KillAuraClicker : Clicker<ModuleKillAura>(ModuleKillAura, mc.options.attackKey, true) {
 
     /**
      * Prepare the environment for attacking an entity
@@ -56,7 +44,7 @@ object KillAuraClicker : Clicker<ModuleKillAura>(ModuleKillAura, true) {
      * and we are not in an inventory screen depending on the configuration.
      */
     suspend fun attack(sequence: Sequence, rotation: Rotation? = null, attack: () -> Boolean) {
-        if (!isGoingToClick) {
+        if (!isClickTick) {
             // If we are not going to click, we don't need to prepare the environment
             return
         }
@@ -66,13 +54,7 @@ object KillAuraClicker : Clicker<ModuleKillAura>(ModuleKillAura, true) {
             return
         }
 
-        clicks {
-            if (!passesMissCooldown) {
-                return@clicks false
-            }
-
-            attack()
-        }
+        click(attack)
 
         interactiveScene.unprepare()
     }

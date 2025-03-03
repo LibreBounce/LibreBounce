@@ -46,7 +46,7 @@ internal object AutoFirework : ToggleableConfigurable(ModuleElytraTarget, "AutoF
         if (!KillAura.running
             || !syncCooldownWithKillAura
             || (
-                KillAura.clickScheduler.isGoingToClick
+                KillAura.clickScheduler.isClickTick
                 && KillAura.targetTracker.target
                     ?.squaredBoxedDistanceTo(player)
                     ?.takeIf { it >= KillAura.range * KillAura.range } != null
@@ -60,7 +60,7 @@ internal object AutoFirework : ToggleableConfigurable(ModuleElytraTarget, "AutoF
          * We can use the firework on the next tick.
          * After killaura performed the click
          */
-        return if (KillAura.clickScheduler.isGoingToClick) {
+        return if (KillAura.clickScheduler.isClickTick) {
             waitTicks(1)
             true
         } else {
