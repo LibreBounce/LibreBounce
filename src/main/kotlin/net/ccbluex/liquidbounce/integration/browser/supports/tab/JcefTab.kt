@@ -91,8 +91,8 @@ class JcefTab(
     override fun getUrl() = mcefBrowser.getURL()
 
     override fun closeTab() {
-        mcefBrowser.close()
         jcefBrowser.removeTab(this)
+        mcefBrowser.close()
         mc.textureManager.destroyTexture(texture)
     }
 
