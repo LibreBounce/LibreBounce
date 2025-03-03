@@ -36,14 +36,15 @@ import kotlin.math.pow
 /**
  * TargetLock module
  *
- * Filters out any other entity to be targeted except the one focus is set to
+ * Locks on to a target and prevents targeting other entities,
+ * either [Temporary]ly on attack or by [Filter]ing by username.
  */
 object ModuleTargetLock : ClientModule("TargetLock", Category.MISC) {
 
     private val mode = choices("Mode", Temporary, arrayOf(Temporary, Filter))
 
     /**
-     * This option will only focus the enemy on combat modules
+     * This option will only lock the enemy on combat modules
      */
     private val combatOnly by boolean("Combat", false)
 
@@ -97,8 +98,8 @@ object ModuleTargetLock : ClientModule("TargetLock", Category.MISC) {
 
             if (!lockList.containsKey(target.id)) {
                 notification(
-                    "Focus",
-                    message("focused", target.gameProfile.name, timeUntilReset),
+                    "TargetLock",
+                    message("lockedOn", target.gameProfile.name, timeUntilReset),
                     NotificationEvent.Severity.INFO
                 )
             }
@@ -119,7 +120,7 @@ object ModuleTargetLock : ClientModule("TargetLock", Category.MISC) {
 
                 if (entity.isRemoved || entity.squaredDistanceTo(player) > outOfRange.pow(2)) {
                     notification(
-                        "Focus",
+                        "TargetLock",
                         message("outOfRange", entity.gameProfile.name),
                         NotificationEvent.Severity.INFO
                     )
@@ -129,7 +130,7 @@ object ModuleTargetLock : ClientModule("TargetLock", Category.MISC) {
                 // Remove if time is up
                 if (time < currentTime) {
                     notification(
-                        "Focus",
+                        "TargetLock",
                         message("timeUp", entity.gameProfile.name),
                         NotificationEvent.Severity.INFO
                     )
