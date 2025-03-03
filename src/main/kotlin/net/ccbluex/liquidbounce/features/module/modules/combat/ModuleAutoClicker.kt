@@ -45,7 +45,7 @@ import net.minecraft.util.hit.EntityHitResult
 
 object ModuleAutoClicker : ClientModule("AutoClicker", Category.COMBAT, aliases = arrayOf("TriggerBot")) {
 
-    object Left : ToggleableConfigurable(this, "Attack", true) {
+    object AttackButton : ToggleableConfigurable(this, "Attack", true) {
 
         val clicker = tree(Clicker(this, mc.options.attackKey, true))
         internal val requiresNoInput by boolean("RequiresNoInput", false)
@@ -143,7 +143,7 @@ object ModuleAutoClicker : ClientModule("AutoClicker", Category.COMBAT, aliases 
 
     }
 
-    object Right : ToggleableConfigurable(this, "Use", false) {
+    object UseButton : ToggleableConfigurable(this, "Use", false) {
         val clicker = tree(Clicker(this, mc.options.useKey, false))
         internal val delayStart by boolean("DelayStart", false)
         internal val onlyBlock by boolean("OnlyBlock", false)
@@ -153,19 +153,19 @@ object ModuleAutoClicker : ClientModule("AutoClicker", Category.COMBAT, aliases 
     }
 
     init {
-        tree(Left)
-        tree(Right)
+        tree(AttackButton)
+        tree(UseButton)
     }
 
     val attack: Boolean
-        get() = mc.options.attackKey.isPressed || Left.requiresNoInput
+        get() = mc.options.attackKey.isPressed || AttackButton.requiresNoInput
 
     val use: Boolean
-        get() = mc.options.useKey.isPressed || Right.requiresNoInput
+        get() = mc.options.useKey.isPressed || UseButton.requiresNoInput
 
     @Suppress("unused")
     val tickHandler = tickHandler {
-        Left.run {
+        AttackButton.run {
             if (!enabled || !attack || !isWeaponSelected() || !isOnObjective()) {
                 return@run
             }
@@ -198,7 +198,7 @@ object ModuleAutoClicker : ClientModule("AutoClicker", Category.COMBAT, aliases 
             }
         }
 
-        Right.run {
+        UseButton.run {
             if (!enabled) return@run
 
             if (!use) {

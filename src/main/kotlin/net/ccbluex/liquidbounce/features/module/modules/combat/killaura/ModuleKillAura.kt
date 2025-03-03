@@ -31,7 +31,6 @@ import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleAutoWeapon
 import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals.CriticalsSelectionMode
 import net.ccbluex.liquidbounce.features.module.modules.combat.elytratarget.ModuleElytraTarget
-import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.KillAuraClicker.passesMissCooldown
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.KillAuraRotationsConfigurable.KillAuraRotationTiming.ON_TICK
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.KillAuraRotationsConfigurable.KillAuraRotationTiming.SNAP
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura.RaycastMode.*
@@ -60,6 +59,8 @@ import net.ccbluex.liquidbounce.utils.combat.shouldBeAttacked
 import net.ccbluex.liquidbounce.utils.entity.rotation
 import net.ccbluex.liquidbounce.utils.entity.squaredBoxedDistanceTo
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
+import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.isInventoryOpen
+import net.ccbluex.liquidbounce.utils.inventory.isInContainerScreen
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.render.WorldTargetRenderer
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen
@@ -243,10 +244,6 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
     private suspend fun attackTarget(sequence: Sequence, target: Entity, rotation: Rotation) {
         // Make it seem like we are blocking
         KillAuraAutoBlock.makeSeemBlock()
-
-        if (!passesMissCooldown) {
-            return
-        }
 
         // Are we actually facing the [chosenEntity]
         val isFacingEnemy = facingEnemy(toEntity = target, rotation = rotation,
@@ -464,12 +461,10 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
      * Check if we can attack the target at the current moment
      */
     internal fun validateAttack(target: Entity? = null): Boolean {
-        val criticalHit = target == null || criticalsSelectionMode.isCriticalHit(target)
-        val isInInventoryScreen =
-            InventoryManager.isInventoryOpen || mc.currentScreen is GenericContainerScreen
+        val criticalHit = target == null || player.isGliding || criticalsSelectionMode.isCriticalHit(target)
+        val isInInventoryScreen = isInventoryOpen || isInContainerScreen
 
-        return (criticalHit || ModuleElytraTarget.running) &&
-            !(isInInventoryScreen && !ignoreOpenInventory && !simulateInventoryClosing) && passesMissCooldown
+        return criticalHit && !(isInInventoryScreen && !ignoreOpenInventory && !simulateInventoryClosing)
     }
 
     enum class RaycastMode(override val choiceName: String) : NamedChoice {

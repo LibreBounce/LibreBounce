@@ -74,7 +74,7 @@ open class Clicker<T>(
             fill()
         }
 
-    val cooldown: ItemCooldown<T>? = if (showCooldown) {
+    val itemCooldown: ItemCooldown<T>? = if (showCooldown) {
         tree(ItemCooldown(parent))
     } else {
         null
@@ -87,15 +87,15 @@ open class Clicker<T>(
      * This is useful for anti-cheats that detect if you are ignoring this cooldown.
      * Applies to the FailSwing feature as well.
      */
-    var considerMissCooldown: Value<Boolean>? = null
+    var attackCooldown: Value<Boolean>? = null
     init {
         if (keyBinding == mc.options.attackKey) {
-            considerMissCooldown = boolean("AttackCooldown", true)
+            attackCooldown = boolean("AttackCooldown", true)
         }
     }
 
-    val passesMissCooldown
-        get() = considerMissCooldown?.get() != true || mc.attackCooldown <= 0
+    private val passesAttackCooldown
+        get() = !(attackCooldown?.get() == true && mc.attackCooldown > 0)
 
     private val clickArray = RollingClickArray(DEFAULT_CYCLE_LENGTH, 2)
 
@@ -104,7 +104,8 @@ open class Clicker<T>(
     }
 
     // Clicks that were executed by [click] in the current tick
-    private var clickAmount: Int? = null
+    var clickAmount: Int? = null
+        private set
 
     val isClickTick: Boolean
         get() = willClickAt(0)
@@ -117,7 +118,7 @@ open class Clicker<T>(
                 .coerceAtLeast(1)
         }
 
-        if (cooldown?.isCooldownPassed(tick) == false) {
+        if (itemCooldown?.isCooldownPassed(tick) == false) {
             return 0
         }
 
@@ -131,7 +132,7 @@ open class Clicker<T>(
         }
 
         // Our cooldown is over, we want to click now!
-        if (cooldown?.enabled == true && cooldown.isCooldownPassed(tick)) {
+        if (itemCooldown?.enabled == true && itemCooldown.isCooldownPassed(tick)) {
             return true
         }
 
@@ -162,23 +163,19 @@ open class Clicker<T>(
             debugParameter(this@Clicker, "Peek Clicks", clickArray.get(1))
             debugParameter(this@Clicker, "Last Click Passed", lastClickPassed)
             debugParameter(this@Clicker, "Attack Cooldown", mc.attackCooldown)
-            debugParameter(this@Clicker, "Item Cooldown", cooldown?.cooldownProgress() ?: 0.0f)
-        }
-
-        if (clicks == 0) {
-            return
+            debugParameter(this@Clicker, "Item Cooldown", itemCooldown?.cooldownProgress() ?: 0.0f)
         }
 
         var clickAmount = 0
 
         repeat(clicks) {
-            if (!passesMissCooldown) {
+            if (!passesAttackCooldown) {
                 return@repeat
             }
 
-            if (cooldown?.isCooldownPassed() != false && block()) {
+            if (itemCooldown?.isCooldownPassed() != false && block()) {
                 clickAmount++
-                cooldown?.newCooldown()
+                itemCooldown?.newCooldown()
                 lastClickTime = System.currentTimeMillis()
             }
         }
