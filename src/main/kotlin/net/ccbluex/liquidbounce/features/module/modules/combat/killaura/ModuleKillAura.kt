@@ -366,8 +366,8 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
 
         when (rotations.rotationTiming) {
 
-            // If our click scheduler is not going to click the moment we will
-            // not select the entity as target.
+            // If our click scheduler is not going to click the moment we reach the target,
+            // we should not start aiming towards the target just yet.
             SNAP -> if (!clickScheduler.isClickOnNextTick(ticks.coerceAtLeast(1))) {
                 return true
             }
