@@ -256,7 +256,8 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
 
         // Check if our target is in range, otherwise deal with auto block
         if (!isFacingEnemy) {
-            if (KillAuraAutoBlock.enabled && KillAuraAutoBlock.onScanRange) {
+            if (KillAuraAutoBlock.enabled && KillAuraAutoBlock.onScanRange &&
+                player.squaredBoxedDistanceTo(target) <= (range + scanExtraRange).pow(2)) {
                 KillAuraAutoBlock.startBlocking()
                 return
             }
@@ -331,22 +332,21 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
             .sortedBy { entity -> if (entity.squaredBoxedDistanceTo(player) <= squaredNormalRange) 0 else 1 }
             .firstOrNull { entity -> processTarget(entity, maximumRange, situation) }
 
-        if (target == null) {
-            targetTracker.reset()
-
-            if (KillAuraFightBot.enabled) {
-                KillAuraFightBot.updateTarget()
-                RotationManager.setRotationTarget(
-                    rotations.toAimPlan(
-                        KillAuraFightBot.getMovementRotation(),
-                        considerInventory = !ignoreOpenInventory
-                    ),
-                    priority = Priority.IMPORTANT_FOR_USAGE_2,
-                    provider = ModuleKillAura
-                )
-            }
-        } else {
+        if (target != null) {
             targetTracker.target = target
+        } else if (KillAuraFightBot.enabled) {
+            KillAuraFightBot.updateTarget()
+
+            RotationManager.setRotationTarget(
+                rotations.toAimPlan(
+                    KillAuraFightBot.getMovementRotation(),
+                    considerInventory = !ignoreOpenInventory
+                ),
+                priority = Priority.IMPORTANT_FOR_USAGE_2,
+                provider = ModuleKillAura
+            )
+        } else {
+            targetTracker.reset()
         }
     }
 
