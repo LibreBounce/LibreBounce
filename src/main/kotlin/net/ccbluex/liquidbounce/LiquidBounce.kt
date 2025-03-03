@@ -131,7 +131,6 @@ object LiquidBounce : EventListener {
         if (isInitialized) {
             return
         }
-        isInitialized = true
 
         // Ensure we are on the render thread
         RenderSystem.assertOnRenderThread()
@@ -154,6 +153,8 @@ object LiquidBounce : EventListener {
 
         // Load all configurations
         ConfigSystem.loadAll()
+
+        isInitialized = true
     }
 
     /**

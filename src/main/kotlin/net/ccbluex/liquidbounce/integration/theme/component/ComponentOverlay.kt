@@ -30,10 +30,17 @@ import net.ccbluex.liquidbounce.integration.theme.ThemeManager
 import net.ccbluex.liquidbounce.integration.theme.component.types.IntegratedComponent
 import net.ccbluex.liquidbounce.integration.theme.component.types.TextComponent
 import net.ccbluex.liquidbounce.utils.client.logger
+import net.ccbluex.liquidbounce.utils.render.Alignment
+import net.ccbluex.liquidbounce.utils.render.Alignment.ScreenAxisX
+import net.ccbluex.liquidbounce.utils.render.Alignment.ScreenAxisY
 
 val components: MutableList<Component> = mutableListOf()
 val customComponents: MutableList<Component> = mutableListOf(
-    TextComponent("hello! :)", enabled = false)
+    TextComponent(
+        "Ping: {ping}, XYZ {position.x}, {position.y}, {position.z} | Nether XZ: {netherPosition.x}, {netherPosition.z}",
+        enabled = false,
+        alignment = Alignment(ScreenAxisX.LEFT, 4, ScreenAxisY.BOTTOM, 22)
+    )
 )
 
 object ComponentOverlay : EventListener {

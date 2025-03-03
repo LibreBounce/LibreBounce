@@ -29,6 +29,8 @@ import net.ccbluex.liquidbounce.utils.client.interaction
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.entity.getActualHealth
+import net.ccbluex.liquidbounce.utils.entity.netherPosition
+import net.ccbluex.liquidbounce.utils.entity.ping
 import net.ccbluex.netty.http.model.RequestObject
 import net.ccbluex.netty.http.util.httpOk
 import net.minecraft.entity.effect.StatusEffectInstance
@@ -41,6 +43,7 @@ import net.minecraft.scoreboard.Team
 import net.minecraft.scoreboard.number.NumberFormat
 import net.minecraft.scoreboard.number.StyledNumberFormat
 import net.minecraft.text.Text
+import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.GameMode
@@ -62,7 +65,9 @@ fun getCrosshairData(requestObject: RequestObject) = httpOk(interopGson.toJsonTr
 data class PlayerData(
     val username: String,
     val uuid: String,
+    val dimension: Identifier,
     val position: Vec3d,
+    val netherPosition: Vec3d,
     val blockPosition: BlockPos,
     val velocity: Vec3d,
     val selectedSlot: Int,
@@ -77,6 +82,7 @@ data class PlayerData(
     val maxAir: Int,
     val experienceLevel: Int,
     val experienceProgress: Float,
+    val ping: Int,
     val effects: List<StatusEffectInstance>,
     val mainHandStack: ItemStack,
     val offHandStack: ItemStack,
@@ -89,7 +95,9 @@ data class PlayerData(
         fun fromPlayer(player: PlayerEntity) = PlayerData(
             player.nameForScoreboard,
             player.uuidAsString,
+            player.world.registryKey.value,
             player.pos,
+            player.netherPosition,
             player.blockPos,
             player.velocity,
             player.inventory.selectedSlot,
@@ -104,6 +112,7 @@ data class PlayerData(
             player.maxAir,
             player.experienceLevel,
             player.experienceProgress.fixNaN(),
+            player.ping,
             player.statusEffects.toList(),
             player.mainHandStack,
             if (shouldHideOffhand(player = player) && hideShieldSlot) ItemStack.EMPTY else player.offHandStack,
