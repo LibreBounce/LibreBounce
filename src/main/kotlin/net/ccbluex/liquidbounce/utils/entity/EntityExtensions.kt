@@ -70,7 +70,7 @@ import kotlin.math.sin
 import kotlin.math.sqrt
 
 val Entity.netherPosition: Vec3d
-    get() = if (world.registryKey != World.NETHER) {
+    get() = if (world.registryKey == World.NETHER) {
         Vec3d(x, y, z)
     } else {
         Vec3d(x / 8.0, y, z / 8.0)
