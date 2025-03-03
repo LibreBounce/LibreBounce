@@ -431,7 +431,7 @@
   "liquidbounce.module.fly.messages.cubecraft20thAprBoostUsage": "Der Fly funktioniert nur durch Schadensmissbrauch. Warte ein paar Sekunden, bis du bereit bist zum Fliegen am Rundstart!",
   "liquidbounce.module.fly.messages.cubecraft20thAprBoostMessage": "Du wurdest verletzt, boosten..",
   "liquidbounce.module.targetLock.description": "Lässt dich nur einen bestimmten Feind angreifen.",
-  "liquidbounce.module.targetLock.messages.focused": "Konzentriert sich für %s Sekunden lang auf %s.",
+  "liquidbounce.module.targetLock.messages.lockedOn": "Konzentriert sich für %s Sekunden lang auf %s.",
   "liquidbounce.module.targetLock.messages.timeUp": "Nicht mehr auf %s konzentriert, da die Zeit abgelaufen ist.",
   "liquidbounce.module.targetLock.messages.outOfRange": "Nicht mehr auf %s konzentriert, da er außerhalb der Reichweite ist.",
   "liquidbounce.module.betterChat.description": "Verbesserungen am In-Game-Chat.",

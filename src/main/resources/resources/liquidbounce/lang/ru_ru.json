@@ -485,7 +485,7 @@
   "liquidbounce.module.fly.messages.vulcanGhostNewMessage": "Летите куда угодно в режиме призрака. Когда вы будете готовы, нажмите кнопку использования, подпрыгните и идите куда угодно, и вы вернетесь туда, куда переместились.",
   "liquidbounce.module.fly.messages.vulcanGhostOldMessage": "Летите куда хотите. Когда захотите приземлиться, сойдите с уступа или подпрыгните и идите в любом направлении. Если функция автоотключения отключена, отключите модуль.",
   "liquidbounce.module.targetLock.description": "Атакует только одного конкретного врага.",
-  "liquidbounce.module.targetLock.messages.focused": "Сфокусирован на %s на %s секунд.",
+  "liquidbounce.module.targetLock.messages.lockedOn": "Сфокусирован на %s на %s секунд.",
   "liquidbounce.module.targetLock.messages.outOfRange": "Больше не сфокусирован на %s, так как цель вне зоны досягаемости.",
   "liquidbounce.module.targetLock.messages.timeUp": "Больше не сфокусирован на %s, так как время истекло.",
   "liquidbounce.module.freeCam.description": "Позволяет свободно перемещать камеру",
