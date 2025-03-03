@@ -58,6 +58,7 @@ import net.ccbluex.liquidbounce.utils.combat.attack
 import net.ccbluex.liquidbounce.utils.combat.shouldBeAttacked
 import net.ccbluex.liquidbounce.utils.entity.rotation
 import net.ccbluex.liquidbounce.utils.entity.squaredBoxedDistanceTo
+import net.ccbluex.liquidbounce.utils.input.InputTracker.isPressedOnAny
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.isInventoryOpen
 import net.ccbluex.liquidbounce.utils.inventory.isInContainerScreen
@@ -128,7 +129,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
     }
 
     private val canTargetEnemies
-        get() = !requiresClick || mc.options.attackKey.isPressed
+        get() = !requiresClick || mc.options.attackKey.isPressedOnAny
 
     @Suppress("unused")
     private val renderHandler = handler<WorldRenderEvent> { event ->

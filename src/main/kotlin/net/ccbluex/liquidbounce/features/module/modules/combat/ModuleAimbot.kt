@@ -40,6 +40,7 @@ import net.ccbluex.liquidbounce.utils.client.Timer
 import net.ccbluex.liquidbounce.utils.combat.TargetPriority
 import net.ccbluex.liquidbounce.utils.combat.TargetTracker
 import net.ccbluex.liquidbounce.utils.entity.rotation
+import net.ccbluex.liquidbounce.utils.input.InputTracker.isPressedOnAny
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
 import net.ccbluex.liquidbounce.utils.render.WorldTargetRenderer
 import net.minecraft.client.gui.screen.ingame.HandledScreen
@@ -87,12 +88,12 @@ object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf(
     private val tickHandler = handler<RotationUpdateEvent> { _ ->
         playerRotation = player.rotation
 
-        if (mc.options.attackKey.isPressed) {
+        if (mc.options.attackKey.isPressedOnAny) {
             clickTimer.reset()
         }
 
         if (OnClick.enabled && (clickTimer.hasElapsed(OnClick.delayUntilStop * 50L)
-        || !mc.options.attackKey.isPressed && ModuleAutoClicker.running)) {
+        || !mc.options.attackKey.isPressedOnAny && ModuleAutoClicker.running)) {
             targetRotation = null
             return@handler
         }

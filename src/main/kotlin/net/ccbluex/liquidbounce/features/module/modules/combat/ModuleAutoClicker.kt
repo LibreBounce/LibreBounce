@@ -29,6 +29,7 @@ import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals.CriticalsSelectionMode
 import net.ccbluex.liquidbounce.utils.clicking.Clicker
 import net.ccbluex.liquidbounce.utils.combat.shouldBeAttacked
+import net.ccbluex.liquidbounce.utils.input.InputTracker.isPressedOnAny
 import net.minecraft.client.option.KeyBinding
 import net.minecraft.entity.Entity
 import net.minecraft.item.AxeItem
@@ -158,10 +159,10 @@ object ModuleAutoClicker : ClientModule("AutoClicker", Category.COMBAT, aliases 
     }
 
     val attack: Boolean
-        get() = mc.options.attackKey.isPressed || AttackButton.requiresNoInput
+        get() = mc.options.attackKey.isPressedOnAny || AttackButton.requiresNoInput
 
     val use: Boolean
-        get() = mc.options.useKey.isPressed || UseButton.requiresNoInput
+        get() = mc.options.useKey.isPressedOnAny || UseButton.requiresNoInput
 
     @Suppress("unused")
     val tickHandler = tickHandler {

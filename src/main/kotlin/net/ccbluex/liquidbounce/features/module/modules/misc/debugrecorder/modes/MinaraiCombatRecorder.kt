@@ -32,6 +32,7 @@ import net.ccbluex.liquidbounce.utils.entity.lastRotation
 import net.ccbluex.liquidbounce.utils.entity.prevPos
 import net.ccbluex.liquidbounce.utils.entity.rotation
 import net.ccbluex.liquidbounce.utils.entity.squaredBoxedDistanceTo
+import net.ccbluex.liquidbounce.utils.input.InputTracker.isPressedOnAny
 
 /**
  * Records combat behavior
@@ -49,7 +50,7 @@ object MinaraiCombatRecorder : ModuleDebugRecorder.DebugRecorderMode<TrainingDat
             return@tickHandler
         }
 
-        if (recordWhenClicking && !mc.options.attackKey.isPressed) {
+        if (recordWhenClicking && !mc.options.attackKey.isPressedOnAny) {
             return@tickHandler
         }
 
