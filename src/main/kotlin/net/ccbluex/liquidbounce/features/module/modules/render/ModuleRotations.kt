@@ -74,11 +74,6 @@ object ModuleRotations : ClientModule("Rotations", Category.RENDER) {
      */
     private val smooth by float("Smooth", 0.0f, 0.0f..0.3f)
 
-    /**
-     * Changes the perspective of the camera to match the Rotation Manager perspective
-     * without changing the player perspective.
-     */
-    val camera by boolean("Camera", false)
     private val vectorLine by color("VectorLine", Color4b.WHITE.with(a = 0)) // alpha 0 means OFF
     private val vectorDot by color("VectorDot", Color4b(0x00, 0x80, 0xFF, 0x00))
 
