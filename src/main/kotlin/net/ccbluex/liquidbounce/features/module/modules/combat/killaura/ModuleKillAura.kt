@@ -183,8 +183,6 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
             return@tickHandler
         }
 
-        ModuleDebug.debugParameter(ModuleKillAura, "Attack Cooldown", mc.attackCooldown)
-
         if (target == null) {
             val hasUnblocked = KillAuraAutoBlock.stopBlocking()
 

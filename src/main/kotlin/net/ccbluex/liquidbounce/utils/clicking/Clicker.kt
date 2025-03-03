@@ -161,6 +161,8 @@ open class Clicker<T>(
             debugParameter(this@Clicker, "Current Clicks", clicks)
             debugParameter(this@Clicker, "Peek Clicks", clickArray.get(1))
             debugParameter(this@Clicker, "Last Click Passed", lastClickPassed)
+            debugParameter(this@Clicker, "Attack Cooldown", mc.attackCooldown)
+            debugParameter(this@Clicker, "Item Cooldown", cooldown?.cooldownProgress() ?: 0.0f)
         }
 
         if (clicks == 0) {

@@ -39,7 +39,7 @@ class ItemCooldown<T>(module: T) : ToggleableConfigurable(module, "ItemCooldown"
      *
      * This can be out of percentage range [0, 1] to allow for higher minimum cooldowns.
      */
-    private fun cooldownProgress(baseTime: Int = 0) =
+    fun cooldownProgress(baseTime: Int = 0) =
         (player.lastAttackedTicks + baseTime).toFloat() / player.attackCooldownProgressPerTick
 
     /**
