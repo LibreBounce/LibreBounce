@@ -46,12 +46,22 @@ inline fun <reified T> decode(reader: Reader): T = reader.use {
     publicGson.fromJson(reader, object : TypeToken<T>() {}.type)
 }
 
-// Never add elements to it!
-private val EMPTY_JSON_ARRAY = JsonArray(0)
-private val EMPTY_JSON_OBJECT = JsonObject()
+private data object EmptyJsonArray : JsonElement() {
+    override fun deepCopy() = this
+    override fun isJsonArray() = true
+    override fun getAsJsonArray() = JsonArray()
+    override fun toString() = "[]"
+}
 
-internal fun emptyJsonArray(): JsonArray = EMPTY_JSON_ARRAY
-internal fun emptyJsonObject(): JsonObject = EMPTY_JSON_OBJECT
+private data object EmptyJsonObject : JsonElement() {
+    override fun deepCopy() = this
+    override fun isJsonObject() = true
+    override fun getAsJsonObject() = JsonObject()
+    override fun toString() = "{}"
+}
+
+internal fun emptyJsonArray(): JsonElement = EmptyJsonArray
+internal fun emptyJsonObject(): JsonElement = EmptyJsonObject
 
 fun String.toJsonPrimitive(): JsonPrimitive = JsonPrimitive(this)
 fun Char.toJsonPrimitive(): JsonPrimitive = JsonPrimitive(this)
