@@ -22,14 +22,14 @@ open class RotationsConfigurable(
 ) : Configurable("Rotations") {
 
     private val angleSmooth = choices(owner, "AngleSmooth", 0) {
-        arrayOf(
+        listOfNotNull(
             LinearAngleSmoothMode(it),
             BezierAngleSmoothMode(it),
             SigmoidAngleSmoothMode(it),
-            ConditionalLinearAngleSmoothMode(it),
+            if (combatSpecific) ConditionalLinearAngleSmoothMode(it) else null,
             AccelerationSmoothMode(it),
-            MinaraiSmoothMode(it)
-        )
+            if (combatSpecific) MinaraiSmoothMode(it) else null
+        ).toTypedArray()
     }
 
     private var slowStart = SlowStart(owner).takeIf { combatSpecific }?.also { tree(it) }
