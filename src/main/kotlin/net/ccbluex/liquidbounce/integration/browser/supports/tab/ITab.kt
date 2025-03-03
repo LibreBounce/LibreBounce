@@ -34,7 +34,7 @@ interface ITab {
     fun loadUrl(url: String)
     fun getUrl(): String
     fun closeTab()
-    fun getTexture(): Identifier
+    fun getTexture(): Identifier?
     fun resize(width: Int, height: Int)
 
     fun preferOnTop(): ITab {

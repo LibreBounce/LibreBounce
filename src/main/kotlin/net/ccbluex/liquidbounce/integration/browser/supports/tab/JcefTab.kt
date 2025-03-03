@@ -96,7 +96,7 @@ class JcefTab(
         mc.textureManager.destroyTexture(texture)
     }
 
-    override fun getTexture(): Identifier = texture
+    override fun getTexture(): Identifier? = texture.takeUnless { mcefBrowser.renderer.isUnpainted }
 
     override fun resize(width: Int, height: Int) {
         if (!position.fullScreen) {
