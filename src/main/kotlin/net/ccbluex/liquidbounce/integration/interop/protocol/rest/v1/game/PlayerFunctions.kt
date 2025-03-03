@@ -50,6 +50,11 @@ import kotlin.math.min
 @Suppress("UNUSED_PARAMETER")
 fun getPlayerData(requestObject: RequestObject) = httpOk(interopGson.toJsonTree(PlayerData.fromPlayer(player)))
 
+// GET /api/v1/client/player/inventory
+@Suppress("UNUSED_PARAMETER")
+fun getPlayerInventory(requestObject: RequestObject) =
+    httpOk(interopGson.toJsonTree(PlayerInventoryData.fromPlayer(player)))
+
 // GET /api/v1/client/crosshair
 @Suppress("UNUSED_PARAMETER")
 fun getCrosshairData(requestObject: RequestObject) = httpOk(interopGson.toJsonTree(mc.crosshairTarget))
@@ -105,6 +110,60 @@ data class PlayerData(
             player.armorItems.toList(),
             if (mc.player == player) ScoreboardData.fromScoreboard(player.scoreboard) else null
         )
+    }
+
+}
+
+data class PlayerInventoryData(
+    val armor: List<ItemStack>,
+    val main: List<ItemStack>,
+    val crafting: List<ItemStack>
+) {
+
+    companion object {
+        fun fromPlayer(player: PlayerEntity) = PlayerInventoryData(
+            armor = player.inventory.armor.map(ItemStack::copy),
+            main = player.inventory.main.map(ItemStack::copy),
+            crafting = player.playerScreenHandler.craftingInput.heldStacks.map(ItemStack::copy)
+        )
+    }
+
+    override fun hashCode(): Int {
+        var result = armor.hashCode()
+        result = 31 * result + main.hashCode()
+        result = 31 * result + crafting.hashCode()
+        return result
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as PlayerInventoryData
+
+        if (armor.size != other.armor.size) return false
+        if (main.size != other.main.size) return false
+        if (crafting.size != other.crafting.size) return false
+
+        for (i in armor.indices) {
+            if (!ItemStack.areEqual(armor[i], other.armor[i])) {
+                return false
+            }
+        }
+
+        for (i in main.indices) {
+            if (!ItemStack.areEqual(main[i], other.main[i])) {
+                return false
+            }
+        }
+
+        for (i in crafting.indices) {
+            if (!ItemStack.areEqual(crafting[i], other.crafting[i])) {
+                return false
+            }
+        }
+
+        return true
     }
 
 }

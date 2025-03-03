@@ -35,6 +35,7 @@ import net.ccbluex.liquidbounce.features.module.modules.render.ModuleNoSwing;
 import net.ccbluex.liquidbounce.integration.BrowserScreen;
 import net.ccbluex.liquidbounce.integration.VirtualDisplayScreen;
 import net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.game.PlayerData;
+import net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.game.PlayerInventoryData;
 import net.ccbluex.liquidbounce.interfaces.ClientPlayerEntityAddition;
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager;
 import net.ccbluex.liquidbounce.utils.aiming.data.Rotation;
@@ -72,6 +73,9 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity implemen
     private PlayerData lastKnownStatistics = null;
 
     @Unique
+    private PlayerInventoryData lastKnownInventory = null;
+
+    @Unique
     private PlayerNetworkMovementTickEvent eventMotion;
 
     @Unique
@@ -105,10 +109,17 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity implemen
 
         // Call player statistics change event when statistics change
         var statistics = PlayerData.Companion.fromPlayer((ClientPlayerEntity) (Object) this);
-        if (lastKnownStatistics == null || lastKnownStatistics != statistics) {
+        if (lastKnownStatistics == null || !lastKnownStatistics.equals(statistics)) {
             EventManager.INSTANCE.callEvent(ClientPlayerDataEvent.Companion.fromPlayerStatistics(statistics));
         }
         this.lastKnownStatistics = statistics;
+
+        // Call player inventory event when inventory changes
+        var playerInventory = PlayerInventoryData.Companion.fromPlayer((ClientPlayerEntity) (Object) this);
+        if (lastKnownInventory == null || !lastKnownInventory.equals(playerInventory)) {
+            EventManager.INSTANCE.callEvent(ClientPlayerInventoryEvent.Companion.fromPlayerInventory(playerInventory));
+        }
+        this.lastKnownInventory = playerInventory;
     }
 
     /**

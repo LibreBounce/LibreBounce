@@ -1,4 +1,13 @@
-import type {Component, ConfigurableSetting, ItemStack, PlayerData, Proxy, Screen, Server, TextComponent} from "./types";
+import type {
+    Component,
+    ConfigurableSetting,
+    ItemStack,
+    PlayerData,
+    Proxy,
+    Screen,
+    Server,
+    TextComponent
+} from "./types";
 
 export interface ClickGuiValueChangeEvent {
     configurable: ConfigurableSetting;
@@ -83,6 +92,10 @@ export interface ServerPingedEvent {
 }
 
 export interface PlayerInventoryEvent {
+    inventory: PlayerInventory;
+}
+
+export interface PlayerInventory {
     armor: ItemStack[];
     main: ItemStack[];
     crafting: ItemStack[];

@@ -28,7 +28,6 @@ import net.ccbluex.liquidbounce.utils.client.Nameable
 import net.minecraft.entity.MovementType
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.fluid.Fluid
-import net.minecraft.item.ItemStack
 import net.minecraft.registry.tag.TagKey
 import net.minecraft.util.ActionResult
 import net.minecraft.util.Hand
@@ -79,10 +78,6 @@ class PlayerSneakMultiplier(var multiplier: Double) : Event()
 
 @Nameable("playerInteractedItem")
 class PlayerInteractedItem(val player: PlayerEntity, val hand: Hand, val actionResult: ActionResult) : Event()
-
-@Nameable("playerInventory")
-@WebSocketEvent
-class PlayerInventory(val armor: List<ItemStack>, val main: List<ItemStack>, val crafting: List<ItemStack>) : Event()
 
 @Nameable("playerStrafe")
 class PlayerVelocityStrafe(val movementInput: Vec3d, val speed: Float, val yaw: Float, var velocity: Vec3d) : Event()

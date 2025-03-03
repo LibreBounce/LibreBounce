@@ -1,13 +1,24 @@
 <script lang="ts">
     import type {ItemStack} from "../../../../integration/types";
     import {listen} from "../../../../integration/ws";
-    import type {PlayerInventoryEvent} from "../../../../integration/events";
+    import type {PlayerInventory, PlayerInventoryEvent} from "../../../../integration/events";
     import ItemStackView from "./ItemStackView.svelte";
+    import {onMount} from "svelte";
+    import {getPlayerInventory} from "../../../../integration/rest";
 
     let stacks: ItemStack[] = [];
 
-    listen("playerInventory", (data: PlayerInventoryEvent) => {
-        stacks = data.crafting;
+    function updateStacks(inventory: PlayerInventory) {
+        stacks = inventory.crafting;
+    }
+
+    listen("clientPlayerInventory", (data: PlayerInventoryEvent) => {
+        updateStacks(data.inventory);
+    });
+
+    onMount(async () => {
+        const inventory = await getPlayerInventory();
+        updateStacks(inventory);
     });
 </script>
 

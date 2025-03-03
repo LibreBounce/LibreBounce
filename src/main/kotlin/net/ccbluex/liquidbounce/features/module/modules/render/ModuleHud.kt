@@ -22,8 +22,6 @@ import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.config.types.Value
 import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.DisconnectEvent
-import net.ccbluex.liquidbounce.event.events.PlayerTickEvent
-import net.ccbluex.liquidbounce.event.events.PlayerInventory
 import net.ccbluex.liquidbounce.event.events.ScreenEvent
 import net.ccbluex.liquidbounce.event.events.SpaceSeperatedNamesChangeEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -110,17 +108,6 @@ object ModuleHud : ClientModule("HUD", Category.RENDER, state = true, hide = tru
         // Otherwise, open the tab and set its visibility
         val browserTab = open()
         browserTab.visible = event.screen !is DisconnectedScreen && event.screen !is DownloadingTerrainScreen
-    }
-
-    @Suppress("unused")
-    val tickHandler = handler<PlayerTickEvent> {
-        EventManager.callEvent(
-            PlayerInventory(
-                armor = player.inventory.armor,
-                main = player.inventory.main,
-                crafting = player.playerScreenHandler.craftingInput.heldStacks,
-            )
-        )
     }
 
     @Suppress("unused")
