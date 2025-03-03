@@ -401,7 +401,7 @@
 	"liquidbounce.module.fly.description": "サバイバル モードで飛行できるようにします。",
 	"liquidbounce.module.fly.messages.vulcanGhostNewMessage": "ゴーストモードで飛行します。準備ができた際にボタンを押して使用してください。サーバーによって後退されられるかもしれません。",
 	"liquidbounce.module.fly.messages.vulcanGhostOldMessage": "飛行します。着陸したいときは、棚から降りるか、飛び上がって好きな方向に歩きます。AutoDisableが無効になっている場合は、モジュールを無効にしてください。",
-	"liquidbounce.module.focus.description": "特定の敵のみを攻撃できるようにします。",
+	"liquidbounce.module.targetLock.description": "特定の敵のみを攻撃できるようにします。",
 	"liquidbounce.module.forceUnicodeChat.description": "送信したすべてのチャット メッセージを Unicode に変換します。",
 	"liquidbounce.module.freeCam.description": "体外への移動を許可します。",
 	"liquidbounce.module.freeze.description": "サーバーに知られることなく、現在の位置で自分自身をフリーズさせることができます。",

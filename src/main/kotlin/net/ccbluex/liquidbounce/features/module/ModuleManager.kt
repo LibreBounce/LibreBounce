@@ -265,7 +265,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleTeams,
             ModuleElytraSwap,
             ModuleAutoChatGame,
-            ModuleFocus,
+            ModuleTargetLock,
             ModuleAutoPearl,
             ModuleAntiStaff,
             ModuleFlagCheck,
