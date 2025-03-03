@@ -131,7 +131,6 @@ object LiquidBounce : EventListener {
         if (isInitialized) {
             return
         }
-        isInitialized = true
 
         // Ensure we are on the render thread
         RenderSystem.assertOnRenderThread()
@@ -154,6 +153,8 @@ object LiquidBounce : EventListener {
 
         // Load all configurations
         ConfigSystem.loadAll()
+
+        isInitialized = true
     }
 
     /**
@@ -176,7 +177,9 @@ object LiquidBounce : EventListener {
 
         // Script system
         EnvironmentRemapper
-        ScriptManager
+        runCatching(ScriptManager::initializeEngine).onFailure { error ->
+            logger.error("[ScriptAPI] Failed to initialize script engine.", error)
+        }
 
         // Utility managers
         RotationManager
@@ -206,7 +209,9 @@ object LiquidBounce : EventListener {
         ModuleManager.registerInbuilt()
 
         // Load user scripts
-        ScriptManager.loadAll()
+        runCatching(ScriptManager::loadAll).onFailure { error ->
+            logger.error("ScriptManager was unable to load scripts.", error)
+        }
     }
 
     /**

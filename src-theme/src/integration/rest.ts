@@ -22,6 +22,7 @@ import type {
     VirtualScreen,
     World
 } from "./types";
+import type {PlayerInventory} from "./events";
 
 const API_BASE = `${REST_BASE}/api/v1`;
 
@@ -127,6 +128,13 @@ export async function confirmVirtualScreen(name: string) {
 export async function getPlayerData(): Promise<PlayerData> {
     const response = await fetch(`${API_BASE}/client/player`);
     const data: PlayerData = await response.json();
+
+    return data;
+}
+
+export async function getPlayerInventory(): Promise<PlayerInventory> {
+    const response = await fetch(`${API_BASE}/client/player/inventory`);
+    const data: PlayerInventory = await response.json();
 
     return data;
 }

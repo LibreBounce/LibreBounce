@@ -22,7 +22,7 @@ import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.utils.kotlin.random
 
-class ClickCooldown<T>(module: T) : ToggleableConfigurable(module, "Cooldown", true)
+class ItemCooldown<T>(module: T) : ToggleableConfigurable(module, "ItemCooldown", true, aliases = arrayOf("Cooldown"))
     where T : EventListener {
 
     private val minimumCooldown by floatRange(
@@ -32,14 +32,14 @@ class ClickCooldown<T>(module: T) : ToggleableConfigurable(module, "Cooldown", t
 
     private var nextCooldown = minimumCooldown.random()
 
-    fun readyToAttack(ticks: Int = 0) = !this.enabled || cooldownProgress(ticks) >= nextCooldown
+    fun isCooldownPassed(ticks: Int = 0) = !this.enabled || cooldownProgress(ticks) >= nextCooldown
 
     /**
      * Calculates the current cooldown progress.
      *
      * This can be out of percentage range [0, 1] to allow for higher minimum cooldowns.
      */
-    private fun cooldownProgress(baseTime: Int = 0) =
+    fun cooldownProgress(baseTime: Int = 0) =
         (player.lastAttackedTicks + baseTime).toFloat() / player.attackCooldownProgressPerTick
 
     /**

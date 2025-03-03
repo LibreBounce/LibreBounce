@@ -60,7 +60,7 @@ class BrowserDrawer(val browser: () -> IBrowser?) : EventListener {
     @Suppress("unused")
     private val screenRenderHandler = handler<ScreenRenderEvent>(priority = READ_FINAL_STATE) { event ->
         for (tab in tabs) {
-            if (tab.drawn) {
+            if (tab.drawn || !tab.visible) {
                 continue
             }
 
@@ -70,7 +70,7 @@ class BrowserDrawer(val browser: () -> IBrowser?) : EventListener {
             val w = tab.position.width.toFloat() / scaleFactor
             val h = tab.position.height.toFloat() / scaleFactor
 
-            renderTexture(event.context, tab.getTexture(), x, y, w, h)
+            renderTexture(event.context, tab.getTexture() ?: return@handler, x, y, w, h)
             tab.drawn = true
         }
     }
@@ -83,7 +83,7 @@ class BrowserDrawer(val browser: () -> IBrowser?) : EventListener {
     }
 
     @Suppress("unused")
-    private val overlayRenderHandler = handler<OverlayRenderEvent>(priority = READ_FINAL_STATE) {
+    private val overlayRenderHandler = handler<OverlayRenderEvent>(priority = READ_FINAL_STATE) { event ->
         if (this.shouldReload) {
             for (tab in tabs) {
                 tab.forceReload()
@@ -93,7 +93,7 @@ class BrowserDrawer(val browser: () -> IBrowser?) : EventListener {
         }
 
         for (tab in tabs) {
-            if (tab.drawn) {
+            if (tab.drawn || !tab.visible) {
                 continue
             }
 
@@ -107,7 +107,7 @@ class BrowserDrawer(val browser: () -> IBrowser?) : EventListener {
             val w = tab.position.width.toFloat() / scaleFactor
             val h = tab.position.height.toFloat() / scaleFactor
 
-            renderTexture(it.context, tab.getTexture(), x, y, w, h)
+            renderTexture(event.context, tab.getTexture() ?: return@handler, x, y, w, h)
             tab.drawn = true
         }
     }

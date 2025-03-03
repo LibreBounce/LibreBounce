@@ -48,7 +48,7 @@ import net.minecraft.util.math.MathHelper
  */
 object ModuleProjectilePuncher : ClientModule("ProjectilePuncher", Category.WORLD, aliases = arrayOf("AntiFireball")) {
 
-    private val clicker = tree(Clicker(ModuleProjectilePuncher, false))
+    private val clicker = tree(Clicker(ModuleProjectilePuncher, mc.options.attackKey, false))
 
     private val swing by boolean("Swing", true)
     private val range by float("Range", 3f, 3f..6f)
@@ -85,7 +85,7 @@ object ModuleProjectilePuncher : ClientModule("ProjectilePuncher", Category.WORL
             return@tickHandler
         }
 
-        clicker.clicks {
+        clicker.click {
             target.attack(swing)
             true
         }

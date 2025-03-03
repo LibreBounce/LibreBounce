@@ -59,6 +59,7 @@ object RotationManager : EventListener {
         get() = rotationTargetHandler.getActiveRequestValue()
     private var rotationTargetHandler = RequestHandler<RotationTarget>()
 
+    @JvmStatic
     val activeRotationTarget: RotationTarget?
         get() = rotationTarget ?: previousRotationTarget
     private var previousRotationTarget: RotationTarget? = null
@@ -66,6 +67,7 @@ object RotationManager : EventListener {
     /**
      * The rotation we want to aim at. This DOES NOT mean that the server already received this rotation.
      */
+    @JvmStatic
     var currentRotation: Rotation? = null
         set(value) {
             previousRotation = if (value == null) {
@@ -167,6 +169,7 @@ object RotationManager : EventListener {
             val diff = rotation.angleTo(playerRotation)
 
             if (aimPlan == null && (activeRotationTarget.movementCorrection == MovementCorrection.CHANGE_LOOK
+                    || activeRotationTarget.angleSmooth == null
                     || diff <= activeRotationTarget.resetThreshold)) {
                 currentRotation?.let { currentRotation ->
                     player.yaw = player.withFixedYaw(currentRotation)

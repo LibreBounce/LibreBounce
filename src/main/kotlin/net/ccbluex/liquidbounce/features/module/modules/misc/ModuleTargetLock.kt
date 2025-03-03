@@ -31,28 +31,30 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.client.notification
 import net.minecraft.client.network.AbstractClientPlayerEntity
+import kotlin.math.pow
 
 /**
- * Focus module
+ * TargetLock module
  *
- * Filters out any other entity to be targeted except the one focus is set to
+ * Locks on to a target and prevents targeting other entities,
+ * either [Temporary]ly on attack or by [Filter]ing by username.
  */
-object ModuleFocus : ClientModule("Focus", Category.MISC) {
+object ModuleTargetLock : ClientModule("TargetLock", Category.MISC) {
 
-    private val mode = choices("Mode", Filter, arrayOf(Temporary, Filter))
+    private val mode = choices("Mode", Temporary, arrayOf(Temporary, Filter))
 
     /**
-     * This option will only focus the enemy on combat modules
+     * This option will only lock the enemy on combat modules
      */
     private val combatOnly by boolean("Combat", false)
 
-    private sealed class FocusChoice(name: String) : Choice(name) {
+    private sealed class LockChoice(name: String) : Choice(name) {
         override val parent: ChoiceConfigurable<*>
             get() = mode
-        abstract fun isFocused(playerEntity: AbstractClientPlayerEntity): Boolean
+        abstract fun isLockedOn(playerEntity: AbstractClientPlayerEntity): Boolean
     }
 
-    private object Filter : FocusChoice("Filter") {
+    private object Filter : LockChoice("Filter") {
 
         private val usernames by textArray("Usernames", mutableListOf("Notch"))
         private val filterType by enumChoice("FilterType", FilterType.WHITELIST)
@@ -62,7 +64,7 @@ object ModuleFocus : ClientModule("Focus", Category.MISC) {
             BLACKLIST("Blacklist")
         }
 
-        override fun isFocused(playerEntity: AbstractClientPlayerEntity): Boolean {
+        override fun isLockedOn(playerEntity: AbstractClientPlayerEntity): Boolean {
             val name = playerEntity.gameProfile.name
 
             return when (filterType) {
@@ -75,17 +77,17 @@ object ModuleFocus : ClientModule("Focus", Category.MISC) {
         }
     }
 
-    private object Temporary : FocusChoice("Temporary") {
+    private object Temporary : LockChoice("Temporary") {
 
         private val timeUntilReset by int("MaximumTime", 30, 0..120, "s")
         private val outOfRange by float("MaximumRange", 20f, 8f..40f)
 
-        private val whenNoFocus by enumChoice("WhenNoFocus", NoFocusMode.ALLOW_ALL)
+        private val whenNoLock by enumChoice("WhenNoLock", NoLockMode.ALLOW_ALL)
 
         // Combination of [entityId] and [time]
-        private val focus = Int2LongLinkedOpenHashMap()
+        private val lockList = Int2LongLinkedOpenHashMap()
 
-        enum class NoFocusMode(override val choiceName: String) : NamedChoice {
+        enum class NoLockMode(override val choiceName: String) : NamedChoice {
             ALLOW_ALL("AllowAll"),
             ALLOW_NONE("AllowNone")
         }
@@ -94,42 +96,42 @@ object ModuleFocus : ClientModule("Focus", Category.MISC) {
         private val attackHandler = handler<AttackEntityEvent> { event ->
             val target = event.entity as? AbstractClientPlayerEntity ?: return@handler
 
-            if (!focus.containsKey(target.id)) {
+            if (!lockList.containsKey(target.id)) {
                 notification(
-                    "Focus",
-                    message("focused", target.gameProfile.name, timeUntilReset),
+                    "TargetLock",
+                    message("lockedOn", target.gameProfile.name, timeUntilReset),
                     NotificationEvent.Severity.INFO
                 )
             }
-            focus.put(target.id, System.currentTimeMillis() + timeUntilReset * 1000)
+            lockList.put(target.id, System.currentTimeMillis() + timeUntilReset * 1000L)
         }
 
         @Suppress("unused")
         private val cleanUpTask = tickHandler {
             if (player.isDead) {
-                focus.clear()
+                lockList.clear()
                 return@tickHandler
             }
 
             val currentTime = System.currentTimeMillis()
-            focus.int2LongEntrySet().removeIf { (entityId, time) ->
+            lockList.int2LongEntrySet().removeIf { (entityId, time) ->
                 // Remove if entity is out of range
                 val entity = world.getEntityById(entityId) as? AbstractClientPlayerEntity ?: return@removeIf true
 
-                // Remove if time is up
-                if (time < currentTime) {
+                if (entity.isRemoved || entity.squaredDistanceTo(player) > outOfRange.pow(2)) {
                     notification(
-                        "Focus",
-                        message("timeUp", entity.gameProfile.name),
+                        "TargetLock",
+                        message("outOfRange", entity.gameProfile.name),
                         NotificationEvent.Severity.INFO
                     )
                     return@removeIf true
                 }
 
-                if (entity.squaredDistanceTo(player) > outOfRange * outOfRange) {
+                // Remove if time is up
+                if (time < currentTime) {
                     notification(
-                        "Focus",
-                        message("outOfRange", entity.gameProfile.name),
+                        "TargetLock",
+                        message("timeUp", entity.gameProfile.name),
                         NotificationEvent.Severity.INFO
                     )
                     return@removeIf true
@@ -139,43 +141,43 @@ object ModuleFocus : ClientModule("Focus", Category.MISC) {
             }
         }
 
-        override fun isFocused(playerEntity: AbstractClientPlayerEntity): Boolean {
+        override fun isLockedOn(playerEntity: AbstractClientPlayerEntity): Boolean {
             val entityId = playerEntity.id
 
-            if (focus.isEmpty()) {
-                return when (whenNoFocus) {
-                    NoFocusMode.ALLOW_ALL -> true
-                    NoFocusMode.ALLOW_NONE -> false
+            if (lockList.isEmpty()) {
+                return when (whenNoLock) {
+                    NoLockMode.ALLOW_ALL -> true
+                    NoLockMode.ALLOW_NONE -> false
                 }
             }
 
-            return focus.containsKey(entityId)
+            return lockList.containsKey(entityId)
         }
 
     }
 
     @Suppress("unused")
-    private val tagEntityEvent = handler<TagEntityEvent> {
-        if (it.entity !is AbstractClientPlayerEntity || isInFocus(it.entity)) {
+    private val tagEntityEvent = handler<TagEntityEvent> { event ->
+        if (event.entity !is AbstractClientPlayerEntity || this@ModuleTargetLock.isLockedOn(event.entity)) {
             return@handler
         }
 
         if (combatOnly) {
-            it.dontTarget()
+            event.dontTarget()
         } else {
-           it.ignore()
+           event.ignore()
         }
     }
 
     /**
      * Check if [entity] is in your focus
      */
-    private fun isInFocus(entity: AbstractClientPlayerEntity): Boolean {
+    private fun isLockedOn(entity: AbstractClientPlayerEntity): Boolean {
         if (!running) {
             return false
         }
 
-        return mode.activeChoice.isFocused(entity)
+        return mode.activeChoice.isLockedOn(entity)
     }
 
 }

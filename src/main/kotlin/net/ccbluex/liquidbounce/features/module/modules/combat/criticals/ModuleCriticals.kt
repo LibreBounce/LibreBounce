@@ -189,7 +189,7 @@ object ModuleCriticals : ClientModule("Criticals", Category.COMBAT) {
             }
 
             // If we are about to do a critical hit, we should stop sprinting.
-            return target != null && clicker.isClickOnNextTick(1)
+            return target != null && clicker.willClickAt(1)
         }
 
     }

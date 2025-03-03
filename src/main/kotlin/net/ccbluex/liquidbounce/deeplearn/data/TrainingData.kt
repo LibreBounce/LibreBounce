@@ -100,22 +100,13 @@ data class TrainingData(
         const val T_DIFF = "h"
         const val DISTANCE = "i"
 
-        fun parse(vararg file: File): List<TrainingData> {
-            val files = file.flatMap { f ->
-                if (f.isDirectory) {
-                    f.listFiles { _, name -> name.endsWith(".json") }?.toList()
-                        ?: emptyList()
-                } else {
-                    listOf(f)
-                }
-            }
-
-            return files.flatMap { file ->
-                file.inputStream().use { stream ->
-                    decode<List<TrainingData>>(stream)
-                }
-            }
+        private fun parse(file: File): List<TrainingData> = when {
+            file.isDirectory -> file.listFiles().flatMap(::parse)
+            file.extension == "json" -> decode<List<TrainingData>>(file.inputStream())
+            else -> emptyList()
         }
+
+        fun parse(vararg files: File): List<TrainingData> = files.flatMap(::parse)
 
     }
 }

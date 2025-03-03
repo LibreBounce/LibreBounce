@@ -33,7 +33,7 @@ import net.minecraft.text.Text
  * @author sqlerrorthing
  * @since 12/28/2024
  **/
-object ModuleBetterTab : ClientModule("BetterTab", Category.MISC) {
+object ModuleBetterTab : ClientModule("BetterTab", Category.RENDER) {
 
     val sorting by enumChoice("Sorting", Sorting.VANILLA)
 

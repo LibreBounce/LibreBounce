@@ -41,7 +41,7 @@ import net.minecraft.item.equipment.EquipmentType
  **/
 object ModuleElytraSwap : ClientModule(
     "ElytraSwap",
-    Category.MISC,
+    Category.PLAYER,
     aliases = arrayOf("ChestSwap"),
     disableOnQuit = true
 ) {

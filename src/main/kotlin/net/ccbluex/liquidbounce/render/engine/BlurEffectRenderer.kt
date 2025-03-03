@@ -24,7 +24,7 @@ import net.ccbluex.liquidbounce.common.GlobalFramebuffer
 import net.ccbluex.liquidbounce.event.EventManager.callEvent
 import net.ccbluex.liquidbounce.event.events.OverlayRenderEvent
 import net.ccbluex.liquidbounce.features.module.MinecraftShortcuts
-import net.ccbluex.liquidbounce.features.module.modules.render.ModuleHud.isBlurable
+import net.ccbluex.liquidbounce.features.module.modules.render.ModuleHud.isBlurEffectActive
 import net.ccbluex.liquidbounce.render.shader.BlitShader
 import net.ccbluex.liquidbounce.render.shader.UniformProvider
 import net.ccbluex.liquidbounce.render.ui.ItemImageAtlas
@@ -122,7 +122,7 @@ object BlurEffectRenderer : MinecraftShortcuts {
     fun startOverlayDrawing(context: DrawContext, tickDelta: Float) {
         ItemImageAtlas.updateAtlas(context)
 
-        if (isBlurable) {
+        if (isBlurEffectActive) {
             this.isDrawingHudFramebuffer = true
 
             this.overlayFramebuffer.clear()

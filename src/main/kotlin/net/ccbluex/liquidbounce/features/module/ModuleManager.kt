@@ -35,6 +35,7 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.aimbot.ModuleAuto
 import net.ccbluex.liquidbounce.features.module.modules.combat.autoarmor.ModuleAutoArmor
 import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals
 import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.ModuleCrystalAura
+import net.ccbluex.liquidbounce.features.module.modules.combat.elytratarget.ModuleElytraTarget
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
 import net.ccbluex.liquidbounce.features.module.modules.combat.tpaura.ModuleTpAura
 import net.ccbluex.liquidbounce.features.module.modules.combat.velocity.ModuleVelocity
@@ -254,6 +255,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleAntiBot,
             ModuleBetterTab,
             ModuleBetterChat,
+            ModuleElytraTarget,
             ModuleMiddleClickAction,
             ModuleInventoryTracker,
             ModuleNameProtect,
@@ -263,7 +265,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleTeams,
             ModuleElytraSwap,
             ModuleAutoChatGame,
-            ModuleFocus,
+            ModuleTargetLock,
             ModuleAutoPearl,
             ModuleAntiStaff,
             ModuleFlagCheck,
@@ -440,10 +442,10 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
         modules.clear()
     }
 
-    fun autoComplete(begin: String, validator: (ClientModule) -> Boolean = { true }): List<String> {
+    inline fun autoComplete(begin: String, validator: (ClientModule) -> Boolean = { true }): List<String> {
         val parts = begin.split(",")
         val matchingPrefix = parts.last()
-        val resultPrefix = parts.dropLast(1).joinToString(",") + ","
+        val resultPrefix = parts.subList(0, parts.size - 1).joinToString(",") + ","
         return filter { it.name.startsWith(matchingPrefix, true) && validator(it) }
             .map {
                 if (parts.size == 1) {
@@ -467,6 +469,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
     fun getCategories() = Category.entries.mapArray { it.readableName }
 
     @JvmName("getModules")
+    @ScriptApiRequired
     fun getModules(): Iterable<ClientModule> = modules
 
     @JvmName("getModuleByName")

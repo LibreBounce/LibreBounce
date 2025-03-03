@@ -88,7 +88,7 @@ object ThemeManager : Configurable("theme") {
 
             // Update integration browser
             IntegrationListener.updateIntegrationBrowser()
-            ModuleHud.refresh()
+            ModuleHud.reopen()
             ModuleClickGui.restartView()
         }
 

@@ -1,5 +1,8 @@
 package net.ccbluex.liquidbounce.injection.mixins.minecraft.entity.projectile;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import net.ccbluex.liquidbounce.utils.aiming.RotationManager;
+import net.ccbluex.liquidbounce.utils.aiming.features.MovementCorrection;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.ccbluex.liquidbounce.features.module.modules.exploit.ModuleExtendedFirework;
 import net.minecraft.client.MinecraftClient;
@@ -13,14 +16,30 @@ import org.spongepowered.asm.mixin.injection.ModifyArgs;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 @Mixin(FireworkRocketEntity.class)
-public class MixinFireworkRocketEntity {
+public abstract class MixinFireworkRocketEntity {
     @Shadow
     private LivingEntity shooter;
+
+    @ModifyExpressionValue(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;getRotationVector()Lnet/minecraft/util/math/Vec3d;"))
+    private Vec3d getRotationVector(Vec3d original) {
+        if (shooter != MinecraftClient.getInstance().player) {
+            return original;
+        }
+
+        var rotation = RotationManager.getCurrentRotation();
+        var configurable = RotationManager.getActiveRotationTarget();
+
+        if (rotation == null || configurable == null || configurable.getMovementCorrection() == MovementCorrection.OFF) {
+            return original;
+        }
+
+        return rotation.getDirectionVector();
+    }
 
     @ModifyArgs(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/Vec3d;add(DDD)Lnet/minecraft/util/math/Vec3d;", ordinal = 0))
     private void hookExtendedFirework(Args args, @Local(ordinal = 0) Vec3d rotation, @Local(ordinal = 1) Vec3d velocity) {
         if (shooter != MinecraftClient.getInstance().player
-            || !ModuleExtendedFirework.INSTANCE.getRunning()
+                || !ModuleExtendedFirework.INSTANCE.getRunning()
         ) return;
 
         var multiplier = ModuleExtendedFirework.getVelocityMultiplier();

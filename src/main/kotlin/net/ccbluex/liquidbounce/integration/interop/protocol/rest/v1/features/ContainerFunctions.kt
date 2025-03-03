@@ -24,7 +24,7 @@ package net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.features
 import com.google.gson.JsonObject
 import io.netty.handler.codec.http.FullHttpResponse
 import net.ccbluex.liquidbounce.config.gson.util.emptyJsonObject
-import net.ccbluex.liquidbounce.features.container.inventoryAsCompound
+import net.ccbluex.liquidbounce.features.item.inventoryAsCompound
 import net.ccbluex.liquidbounce.features.itemgroup.ClientItemGroups
 import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.netty.http.model.RequestObject

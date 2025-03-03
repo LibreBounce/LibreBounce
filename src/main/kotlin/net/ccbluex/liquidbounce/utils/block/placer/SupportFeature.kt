@@ -125,13 +125,10 @@ class SupportFeature(val placer: BlockPlacer) : ToggleableConfigurable(placer, "
     }
 
     private fun canPlace(pos: BlockPos): Boolean {
-        for (direction in Direction.entries) {
-            if (!pos.offset(direction).getState()!!.isReplaceable) {
-                return true
-            }
+        val cache = BlockPos.Mutable()
+        return Direction.entries.any {
+            !cache.set(pos, it).getState()!!.isReplaceable
         }
-
-        return false
     }
 
 }

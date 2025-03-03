@@ -61,6 +61,7 @@ import net.minecraft.util.math.*
 import net.minecraft.util.shape.VoxelShapes
 import net.minecraft.world.Difficulty
 import net.minecraft.world.RaycastContext
+import net.minecraft.world.World
 import net.minecraft.world.explosion.ExplosionBehavior
 import net.minecraft.world.explosion.ExplosionImpl
 import kotlin.math.cos
@@ -68,6 +69,12 @@ import kotlin.math.floor
 import kotlin.math.sin
 import kotlin.math.sqrt
 
+val Entity.netherPosition: Vec3d
+    get() = if (world.registryKey == World.NETHER) {
+        Vec3d(x, y, z)
+    } else {
+        Vec3d(x / 8.0, y, z / 8.0)
+    }
 
 val ClientPlayerEntity.moving
     get() = input.movementForward != 0.0f || input.movementSideways != 0.0f
@@ -338,7 +345,7 @@ fun getNearestPointOnSide(eyes: Vec3d, box: Box, side: Direction): Vec3d {
 
 }
 
-fun PlayerEntity.wouldBlockHit(source: PlayerEntity): Boolean {
+fun LivingEntity.wouldBlockHit(source: PlayerEntity): Boolean {
     if (!this.isBlocking) {
         return false
     }

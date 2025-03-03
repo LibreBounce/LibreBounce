@@ -141,6 +141,7 @@ internal fun registerInteropFunctions(node: Node) = node.withPath("/api/v1/clien
 
     // Player Functions
     get("/player", ::getPlayerData)
+    get("/player/inventory", ::getPlayerInventory)
     get("/crosshair", ::getCrosshairData)
 
     // Registry Functions

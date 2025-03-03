@@ -67,7 +67,7 @@ object ModuleAutoShoot : ClientModule("AutoShoot", Category.COMBAT) {
     private val throwableType by enumChoice("ThrowableType", ThrowableType.EGG_AND_SNOWBALL)
     private val gravityType by enumChoice("GravityType", GravityType.AUTO).apply { tagBy(this) }
 
-    private val clicker = tree(Clicker(this, showCooldown = false))
+    private val clicker = tree(Clicker(this, mc.options.useKey, showCooldown = false))
 
     /**
      * The target tracker to find the best enemy to attack.
@@ -187,9 +187,9 @@ object ModuleAutoShoot : ClientModule("AutoShoot", Category.COMBAT) {
         }
 
         // Check if we are still aiming at the target
-        clicker.clicks {
+        clicker.click {
             if (player.isUsingItem || (considerInventory && InventoryManager.isInventoryOpen)) {
-                return@clicks false
+                return@click false
             }
 
             interaction.interactItem(

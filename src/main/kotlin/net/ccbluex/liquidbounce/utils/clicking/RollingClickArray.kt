@@ -45,11 +45,12 @@ class RollingClickArray(private val cycleLength: Int, val iterations: Int) {
         head = 0
     }
 
-    /**
-     * Returns list of next cycle values
-     */
-    fun nextCycleList(): List<Int> {
-        return List(cycleLength) { get(it) }
+    fun max(): Int {
+        return array.maxOrNull() ?: 0
+    }
+
+    fun min(): Int {
+        return array.minOrNull() ?: 0
     }
 
     fun push(cycleArray: IntArray) {
