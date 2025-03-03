@@ -29,7 +29,7 @@ import net.ccbluex.liquidbounce.render.engine.Vec3
 import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
 import net.ccbluex.liquidbounce.render.withColor
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
-import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
+import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.FINAL_DECISION
 import net.ccbluex.liquidbounce.utils.kotlin.mapArray
 import net.ccbluex.liquidbounce.utils.render.WireframePlayer
 import net.minecraft.client.option.Perspective
@@ -70,13 +70,9 @@ object PacketQueueManager : EventListener {
 
     @Suppress("unused")
     private val flushHandler = handler<GameRenderTaskQueueEvent> {
-        if (!inGame) {
+        if (mc.networkHandler?.connection?.isOpen != null) {
             packetQueue.clear()
             return@handler
-        }
-
-        if (fireEvent(null, TransferOrigin.RECEIVE) == Action.FLUSH) {
-            flush { snapshot -> snapshot.origin == TransferOrigin.RECEIVE }
         }
 
         if (fireEvent(null, TransferOrigin.SEND) == Action.FLUSH) {
@@ -85,9 +81,19 @@ object PacketQueueManager : EventListener {
     }
 
     @Suppress("unused")
-    private val packetHandler = handler<PacketEvent>(
-        priority = EventPriorityConvention.FINAL_DECISION
-    ) { event ->
+    private val flushReceiveHandler = handler<TickPacketProcessEvent> {
+        if (mc.networkHandler?.connection?.isOpen != null) {
+            packetQueue.clear()
+            return@handler
+        }
+
+        if (fireEvent(null, TransferOrigin.RECEIVE) == Action.FLUSH) {
+            flush { snapshot -> snapshot.origin == TransferOrigin.RECEIVE }
+        }
+    }
+
+    @Suppress("unused")
+    private val packetHandler = handler<PacketEvent>(priority = FINAL_DECISION) { event ->
         // Ignore packets that are already cancelled, as they are already handled
         if (event.isCancelled) {
             return@handler
