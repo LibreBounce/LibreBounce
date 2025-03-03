@@ -51,7 +51,7 @@ private const val MAX_LINE_WIDTH: Float = 114f
  * @author sqlerrorthing
  * @since 12/28/2024
  **/
-object ModuleBookBot : ClientModule("BookBot", Category.MISC, disableOnQuit = true) {
+object ModuleBookBot : ClientModule("BookBot", Category.EXPLOIT, disableOnQuit = true) {
     private val inventoryConstraints = tree(PlayerInventoryConstraints())
 
     private val generationMode = choices("Mode", GenerationMode.Random, arrayOf(GenerationMode.Random)).apply {
