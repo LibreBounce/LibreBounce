@@ -28,7 +28,6 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
 import net.ccbluex.liquidbounce.utils.clicking.pattern.ClickPattern
 import net.ccbluex.liquidbounce.utils.clicking.pattern.patterns.*
-import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
 import net.minecraft.client.option.KeyBinding
@@ -113,8 +112,6 @@ open class Clicker<T>(
     fun willClickAt(tick: Int = 1) = getClickAmount(tick) > 0
 
     fun getClickAmount(tick: Int = 0): Int {
-        chat("Clicks: ${clickArray.get(tick)}")
-
         if (isEnforcedClick()) {
             return RNG.nextInt(clickArray.min(), clickArray.max())
                 .coerceAtLeast(1)
