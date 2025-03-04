@@ -114,8 +114,7 @@ open class Clicker<T>(
 
     fun getClickAmount(tick: Int = 0): Int {
         if (isEnforcedClick()) {
-            return RNG.nextInt(clickArray.min(), clickArray.max())
-                .coerceAtLeast(1)
+            return 1
         }
 
         if (itemCooldown?.isCooldownPassed(tick) == false) {

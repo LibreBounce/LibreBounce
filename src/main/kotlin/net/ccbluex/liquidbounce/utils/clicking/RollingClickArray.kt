@@ -45,14 +45,6 @@ class RollingClickArray(private val cycleLength: Int, val iterations: Int) {
         head = 0
     }
 
-    fun max(): Int {
-        return array.maxOrNull() ?: 0
-    }
-
-    fun min(): Int {
-        return array.minOrNull() ?: 0
-    }
-
     fun push(cycleArray: IntArray) {
         require(cycleArray.size == cycleLength) { "Array size must match cycle length" }
 
