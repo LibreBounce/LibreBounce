@@ -47,8 +47,8 @@ class LinearAngleSmoothMode(override val parent: ChoiceConfigurable<*>) : AngleS
         val diff = currentRotation.rotationDeltaTo(targetRotation)
 
         val rotationDifference = diff.length()
-        val (factorH, factorV) = horizontalTurnSpeed.random().toFloat() to
-            verticalTurnSpeed.random().toFloat()
+        val (factorH, factorV) = horizontalTurnSpeed.random() to
+            verticalTurnSpeed.random()
 
         val straightLineYaw = abs(diff.deltaYaw / rotationDifference) * (factorH * factorModifier)
         val straightLinePitch = abs(diff.deltaPitch / rotationDifference) * (factorV * factorModifier)

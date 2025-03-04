@@ -112,11 +112,11 @@ object ModuleAntiAFK : ClientModule("AntiAFK", Category.PLAYER) {
                 }
 
                 4 -> {
-                    player.yaw += (-180f..180f).random().toFloat()
+                    player.yaw += (-180f..180f).random()
                 }
 
                 5 -> {
-                    player.pitch = ((-5f..5f).random().toFloat() + player.pitch).coerceIn(-90f, 90f)
+                    player.pitch = ((-5f..5f).random() + player.pitch).coerceIn(-90f, 90f)
                 }
             }
             waitTicks((4..7).random())

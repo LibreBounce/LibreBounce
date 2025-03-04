@@ -148,7 +148,7 @@ class Particle private constructor(
             (0.01..0.02).random(),
             (-0.01..0.01).random()
         ),
-        rotation = (0f..360f).random().toFloat()
+        rotation = (0f..360f).random()
     )
 }
 

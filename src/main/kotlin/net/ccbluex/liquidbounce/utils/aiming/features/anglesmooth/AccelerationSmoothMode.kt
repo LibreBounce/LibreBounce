@@ -89,8 +89,8 @@ class AccelerationSmoothMode(override val parent: ChoiceConfigurable<*>) : Angle
         private val constantErrorRange: ClosedFloatingPointRange<Float>,
     ) {
         fun getError(acceleration: Float): Float {
-            val currentAccelerationError = this.accelerationErrorRange.random().toFloat()
-            val currentConstantError = this.constantErrorRange.random().toFloat()
+            val currentAccelerationError = this.accelerationErrorRange.random()
+            val currentConstantError = this.constantErrorRange.random()
 
             return acceleration * currentAccelerationError + currentConstantError
         }
@@ -183,8 +183,8 @@ class AccelerationSmoothMode(override val parent: ChoiceConfigurable<*>) : Angle
         }
 
         val (accRangeYaw, accRangePitch) = Pair(
-            -aYaw.random().toFloat() + distanceFactor..aYaw.random().toFloat() + distanceFactor,
-            -aPitch.random().toFloat() + distanceFactor..aPitch.random().toFloat() + distanceFactor
+            -aYaw.random() + distanceFactor..aYaw.random() + distanceFactor,
+            -aPitch.random() + distanceFactor..aPitch.random() + distanceFactor
         )
 
         val yawAccel = calculateAcceleration(diff.deltaYaw, prevDiff.deltaYaw, accRangeYaw, decelerationFactor)

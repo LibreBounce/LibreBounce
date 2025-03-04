@@ -51,15 +51,15 @@ class FailFocus(owner: EventListener? = null)
         if (failRate > chance) {
             currentTransitionInDuration = transitionInDuration.random()
             val yawShift = if (Random.Default.nextBoolean()) {
-                strengthHorizontal.random().toFloat()
+                strengthHorizontal.random()
             } else {
-                -strengthHorizontal.random().toFloat()
+                -strengthHorizontal.random()
             }
 
             val pitchShift = if (Random.Default.nextBoolean()) {
-                strengthVertical.random().toFloat()
+                strengthVertical.random()
             } else {
-                -strengthVertical.random().toFloat()
+                -strengthVertical.random()
             }
 
             shiftRotation = Rotation(yawShift, pitchShift)

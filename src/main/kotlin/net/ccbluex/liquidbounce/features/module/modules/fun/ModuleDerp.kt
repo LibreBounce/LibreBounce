@@ -84,7 +84,7 @@ object ModuleDerp : ClientModule("Derp", Category.FUN) {
 
     private object YawRandom : YawChoice("Random") {
         override val yaw: Float
-            get() = (-180f..180f).random().toFloat()
+            get() = (-180f..180f).random()
 
     }
 
@@ -148,7 +148,7 @@ object ModuleDerp : ClientModule("Derp", Category.FUN) {
             get() = pitchMode
 
         override val pitch: Float
-            get() = if (safePitch) (-90..90).random().toFloat() else (-180..180).random().toFloat()
+            get() = if (safePitch) (-90f..90f).random() else (-180f..180f).random()
 
     }
 
