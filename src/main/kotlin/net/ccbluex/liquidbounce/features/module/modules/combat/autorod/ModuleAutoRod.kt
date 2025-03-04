@@ -1,8 +1,25 @@
 @file:Suppress("MaxLineLength")
 package net.ccbluex.liquidbounce.features.module.modules.combat.autorod
 
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
+import net.ccbluex.liquidbounce.utils.client.player
+import net.ccbluex.liquidbounce.utils.inventory.OffHandSlot
+import net.ccbluex.liquidbounce.utils.inventory.Slots
+import net.minecraft.item.Items
+
+@get:JvmSynthetic
+private inline val usingRod
+    get() = (player.isUsingItem && player.activeItem?.item == Items.FISHING_ROD)
+
+@get:JvmSynthetic
+private inline val rodSlot
+    get() = if (OffHandSlot.itemStack.item == Items.FISHING_ROD) {
+        OffHandSlot
+    } else {
+        Slots.Hotbar.findSlot(Items.FISHING_ROD)
+    }
 
 /**
  * Auto use fishing rod to PVP.
@@ -11,4 +28,36 @@ import net.ccbluex.liquidbounce.features.module.ClientModule
  *
  * @author zyklone4096, sqlerrorthing
  */
-object ModuleAutoRod : ClientModule("AutoRod", Category.COMBAT)
+@Suppress("MagicNumber")
+object ModuleAutoRod : ClientModule("AutoRod", Category.COMBAT) {
+    private val facingEnemy = tree(FacingEnemy())
+    private val using = tree(Using())
+
+    private val playerHealthThreshold by int("PlayerHealthThreshold", 5, 1..20)
+    private val escapeHealthThreshold by int("EscapeHealthThreshold", 10, 1..20)
+
+    override val running: Boolean
+        get() = super.running && rodSlot != null
+
+    @get:JvmSynthetic
+    private inline val canUseRod
+        get() = using.canUseRod &&
+                (!facingEnemy.enabled
+                || player.health <= escapeHealthThreshold.toFloat()
+                || (facingEnemy.enabled
+                    && player.health >= playerHealthThreshold.toFloat()
+                    && facingEnemy.testUseRod()))
+
+    @Suppress("unused")
+    private val tickHandler = tickHandler {
+        if (usingRod) {
+            return@tickHandler
+        }
+
+        if (canUseRod) {
+            rodSlot?.let {
+                using.useRod(this, it)
+            }
+        }
+    }
+}
