@@ -4,14 +4,9 @@ package net.ccbluex.liquidbounce.features.module.modules.combat.autorod
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
-import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.inventory.OffHandSlot
 import net.ccbluex.liquidbounce.utils.inventory.Slots
 import net.minecraft.item.Items
-
-@get:JvmSynthetic
-private inline val usingRod
-    get() = (player.isUsingItem && player.activeItem?.item == Items.FISHING_ROD)
 
 @get:JvmSynthetic
 private inline val rodSlot
@@ -37,25 +32,37 @@ object ModuleAutoRod : ClientModule("AutoRod", Category.COMBAT) {
     private val escapeHealthThreshold by int("EscapeHealthThreshold", 10, 1..20)
 
     override val running: Boolean
-        get() = super.running && rodSlot != null
+        get() = super.running
 
     @get:JvmSynthetic
-    private inline val canUseRod
-        get() = using.canUseRod &&
-                (!facingEnemy.enabled
-                || player.health <= escapeHealthThreshold.toFloat()
-                || (facingEnemy.enabled
-                    && player.health >= playerHealthThreshold.toFloat()
-                    && facingEnemy.testUseRod()))
+    private inline val usingRod
+        get() = (player.isUsingItem && player.activeItem?.item == Items.FISHING_ROD)
+
+    @get:JvmSynthetic
+    private inline val canUseRod: Boolean get() {
+        return if (usingRod || !using.canUseRod) {
+            false
+        } else if (facingEnemy.enabled && player.health >= playerHealthThreshold.toFloat() && facingEnemy.testUseRod()) {
+            true
+        } else if (player.health <= escapeHealthThreshold) {
+            true
+        } else if (!facingEnemy.enabled) {
+            true
+        } else {
+            false
+        }
+    }
 
     @Suppress("unused")
     private val tickHandler = tickHandler {
-        if (usingRod || using.isRodUsing) {
-            return@tickHandler
+        if (canUseRod) {
+            rodSlot?.let {
+                using.useRod(this, it)
+            }
         }
+    }
 
-        rodSlot?.takeIf { canUseRod }?.let {
-            using.useRod(this, it)
-        }
+    override fun disable() {
+        using.isRodUsing = false
     }
 }
