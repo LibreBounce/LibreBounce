@@ -27,6 +27,7 @@ import net.ccbluex.liquidbounce.event.EventManager.callEvent
 import net.ccbluex.liquidbounce.event.events.ClientShutdownEvent
 import net.ccbluex.liquidbounce.event.events.KeyboardKeyEvent
 import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.features.command.CommandManager
 import net.ccbluex.liquidbounce.features.module.ModuleManager
 import net.ccbluex.liquidbounce.integration.IntegrationListener
 import net.ccbluex.liquidbounce.utils.client.Chronometer
@@ -126,6 +127,10 @@ object HideAppearance : EventListener {
     fun destructClient() {
         isHidingNow = true
         isDestructed = true
+
+        mc.inGameHud.chatHud.messageHistory.removeIf {
+            it.startsWith(CommandManager.Options.prefix)
+        }
 
         callEvent(ClientShutdownEvent)
         EventManager.unregisterAll()
