@@ -119,14 +119,14 @@ inline fun range(
     }
 }
 
-fun ClosedFloatingPointRange<Float>.random(): Double {
+fun ClosedFloatingPointRange<Float>.random(): Float {
     require(start.isFinite())
     require(endInclusive.isFinite())
-    return start + (endInclusive - start) * Math.random()
+    return (start + (endInclusive - start) * Math.random()).toFloat()
 }
 
 // Due to name conflicts, we have to rename the function
-fun ClosedFloatingPointRange<Double>.randomDouble(): Double {
+fun ClosedFloatingPointRange<Double>.random(): Double {
     require(start.isFinite())
     require(endInclusive.isFinite())
     return start + (endInclusive - start) * Math.random()

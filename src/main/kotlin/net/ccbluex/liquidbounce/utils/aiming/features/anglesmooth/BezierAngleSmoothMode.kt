@@ -42,8 +42,8 @@ class BezierAngleSmoothMode(override val parent: ChoiceConfigurable<*>) : AngleS
         val diff = currentRotation.rotationDeltaTo(targetRotation)
         val rotationDifference = diff.length()
 
-        val (factorH, factorV) = computeFactor(rotationDifference, horizontalTurnSpeed.random()) to
-            computeFactor(rotationDifference, verticalTurnSpeed.random())
+        val (factorH, factorV) = computeFactor(rotationDifference, horizontalTurnSpeed.random().toDouble()) to
+            computeFactor(rotationDifference, verticalTurnSpeed.random().toDouble())
         val straightLineYaw = abs(diff.deltaYaw / rotationDifference) * (factorH * factorModifier)
         val straightLinePitch = abs(diff.deltaPitch / rotationDifference) * (factorV * factorModifier)
 
@@ -57,8 +57,8 @@ class BezierAngleSmoothMode(override val parent: ChoiceConfigurable<*>) : AngleS
         val diff = currentRotation.rotationDeltaTo(targetRotation)
         val rotationDifference = diff.length()
 
-        val (factorH, factorV) = computeFactor(rotationDifference, horizontalTurnSpeed.random()) to
-            computeFactor(rotationDifference, verticalTurnSpeed.random())
+        val (factorH, factorV) = computeFactor(rotationDifference, horizontalTurnSpeed.random().toDouble()) to
+            computeFactor(rotationDifference, verticalTurnSpeed.random().toDouble())
         val straightLineYaw = abs(diff.deltaYaw / rotationDifference) * factorH
         val straightLinePitch = abs(diff.deltaPitch / rotationDifference) * factorV
         return (rotationDifference / min(straightLineYaw, straightLinePitch)).toInt()

@@ -52,8 +52,8 @@ class SigmoidAngleSmoothMode(override val parent: ChoiceConfigurable<*>) : Angle
         val rotationDifference = diff.length()
 
         val (factorH, factorV) =
-            computeFactor(rotationDifference, horizontalTurnSpeed.random()) to
-            computeFactor(rotationDifference, verticalTurnSpeed.random())
+            computeFactor(rotationDifference, horizontalTurnSpeed.random().toDouble()) to
+            computeFactor(rotationDifference, verticalTurnSpeed.random().toDouble())
 
         val straightLineYaw = abs(diff.deltaYaw / rotationDifference) * (factorH * factorModifier)
         val straightLinePitch = abs(diff.deltaPitch / rotationDifference) * (factorV * factorModifier)
@@ -70,8 +70,8 @@ class SigmoidAngleSmoothMode(override val parent: ChoiceConfigurable<*>) : Angle
         val rotationDifference = diff.length()
 
         val (factorH, factorV) =
-            computeFactor(rotationDifference, horizontalTurnSpeed.random()) to
-            computeFactor(rotationDifference, verticalTurnSpeed.random())
+            computeFactor(rotationDifference, horizontalTurnSpeed.random().toDouble()) to
+            computeFactor(rotationDifference, verticalTurnSpeed.random().toDouble())
 
         val straightLineYaw = abs(diff.deltaYaw / rotationDifference) * factorH
         val straightLinePitch = abs(diff.deltaPitch / rotationDifference) * factorV

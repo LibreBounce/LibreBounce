@@ -24,7 +24,6 @@ import net.ccbluex.liquidbounce.utils.client.world
 import net.ccbluex.liquidbounce.utils.combat.shouldBeShown
 import net.ccbluex.liquidbounce.utils.entity.rotation
 import net.ccbluex.liquidbounce.utils.kotlin.random
-import net.ccbluex.liquidbounce.utils.kotlin.randomDouble
 import net.ccbluex.liquidbounce.utils.math.interpolate
 import net.ccbluex.liquidbounce.utils.math.times
 import net.ccbluex.liquidbounce.utils.math.toBlockPos
@@ -145,9 +144,9 @@ class Particle private constructor(
         pos = pos,
         prevPos = pos,
         velocity = Vec3d(
-            (-0.01..0.01).randomDouble(),
-            (0.01..0.02).randomDouble(),
-            (-0.01..0.01).randomDouble()
+            (-0.01..0.01).random(),
+            (0.01..0.02).random(),
+            (-0.01..0.01).random()
         ),
         rotation = (0f..360f).random().toFloat()
     )

@@ -21,15 +21,19 @@ package net.ccbluex.liquidbounce.features.module.modules.combat.killaura.feature
 import net.ccbluex.liquidbounce.config.types.NoneChoice
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.Sequence
+import net.ccbluex.liquidbounce.event.events.AttackEntityEvent
+import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.KillAuraClicker.attack
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura.validateAttack
+import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.KillAuraFailSwing.additionalRange
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.KillAuraNotifyWhenFail.Box
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.KillAuraNotifyWhenFail.Sound
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.combat.findEnemy
 import net.ccbluex.liquidbounce.utils.entity.rotation
 import net.ccbluex.liquidbounce.utils.entity.squaredBoxedDistanceTo
+import net.ccbluex.liquidbounce.utils.kotlin.random
 import net.minecraft.entity.Entity
 import net.minecraft.util.Hand
 import net.minecraft.util.hit.HitResult
@@ -40,11 +44,24 @@ internal object KillAuraFailSwing : ToggleableConfigurable(ModuleKillAura, "Fail
     /**
      * Additional range for fail swing to work
      */
-    private val additionalRange by float("AdditionalRange", 2f, 0f..10f)
+    private val additionalRange by floatRange("AdditionalRange", 2.5f..3f, 0f..10f).onChanged { range ->
+        currentAdditionalRange = range.random()
+    }
     val mode = choices(this, "NotifyWhenFail", activeIndex = 1) {
         arrayOf(NoneChoice(it), Box, Sound)
     }.apply {
         doNotIncludeAlways()
+    }
+
+    /**
+     * Current additional range - randomized from [additionalRange].
+     * This will change every time we attack an entity.
+     */
+    private var currentAdditionalRange: Float = this.additionalRange.random()
+
+    @Suppress("unused")
+    private val attackHandler = handler<AttackEntityEvent>{
+        currentAdditionalRange = this.additionalRange.random()
     }
 
     suspend fun dealWithFakeSwing(sequence: Sequence, target: Entity?) {
@@ -52,8 +69,8 @@ internal object KillAuraFailSwing : ToggleableConfigurable(ModuleKillAura, "Fail
             return
         }
 
-        val range = ModuleKillAura.range + additionalRange
-        val entity = target ?: world.findEnemy(0f..range) ?: return
+        val range = ModuleKillAura.range + currentAdditionalRange
+        val entity = target ?: world.findEnemy(0f..range.toFloat()) ?: return
         val raycastType = mc.crosshairTarget?.type
 
         if (entity.isRemoved || entity.squaredBoxedDistanceTo(player) > range.pow(2)

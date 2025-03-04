@@ -18,6 +18,6 @@ internal object TargetEntityMovementPrediction : ToggleableConfigurable(ElytraRo
     ) = if (!enabled || (glidingOnly && !target.isGliding)) {
         targetPosition
     } else {
-        targetPosition + target.velocity * multiplier.random()
+        targetPosition + target.velocity * multiplier.random().toDouble()
     }
 }

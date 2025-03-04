@@ -63,6 +63,7 @@ import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.isInventoryOpen
 import net.ccbluex.liquidbounce.utils.inventory.isInContainerScreen
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
+import net.ccbluex.liquidbounce.utils.kotlin.random
 import net.ccbluex.liquidbounce.utils.render.WorldTargetRenderer
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen
 import net.minecraft.client.util.math.MatrixStack
@@ -82,14 +83,18 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
 
     // Range
     internal val range by float("Range", 4.2f, 1f..8f)
-    private val scanExtraRange by float("ScanExtraRange", 3.0f, 0.0f..7.0f)
-    internal val wallRange by float("WallRange", 3f, 0f..8f).onChange {
-        if (it > range) {
+    internal val wallRange by float("WallRange", 3f, 0f..8f).onChange { wallRange ->
+        if (wallRange > range) {
             range
         } else {
-            it
+            wallRange
         }
     }
+
+    private val scanExtraRange by floatRange("ScanExtraRange", 2.0f..3.0f, 0.0f..7.0f).onChanged { range ->
+        currentScanExtraRange = range.random()
+    }
+    private var currentScanExtraRange: Float = scanExtraRange.random()
 
     // Target
     val targetTracker = tree(KillAuraTargetTracker)
@@ -258,7 +263,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         // Check if our target is in range, otherwise deal with auto block
         if (!isFacingEnemy) {
             if (KillAuraAutoBlock.enabled && KillAuraAutoBlock.onScanRange &&
-                player.squaredBoxedDistanceTo(target) <= (range + scanExtraRange).pow(2)) {
+                player.squaredBoxedDistanceTo(target) <= (range + currentScanExtraRange).pow(2)) {
                 KillAuraAutoBlock.startBlocking()
                 return
             }
@@ -289,6 +294,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
 
                 // Attack enemy
                 target.attack(true, keepSprint && !shouldBlockSprinting)
+                currentScanExtraRange = scanExtraRange.random()
                 KillAuraNotifyWhenFail.failedHitsIncrement = 0
 
                 GenericDebugRecorder.recordDebugInfo(ModuleKillAura, "attackEntity", JsonObject().apply {
@@ -317,7 +323,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
 
         // Calculate maximum range based on enemy distance
         val maximumRange = if (targetTracker.closestSquaredEnemyDistance > range.pow(2)) {
-            range + scanExtraRange
+            range + currentScanExtraRange
         } else {
             range
         }

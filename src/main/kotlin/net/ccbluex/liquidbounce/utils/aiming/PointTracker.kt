@@ -132,14 +132,14 @@ class PointTracker(
                     (yawFactor.random() + player.sqrtSpeed * dynamic.yawFactor)
                 } else {
                     yawFactor.random()
-                }
+                }.toDouble()
 
             val pitchFactor =
                 if (dynamicCheck && dynamic.pitchFactor > 0f) {
                     (pitchFactor.random() + player.sqrtSpeed * dynamic.pitchFactor)
                 } else {
                     pitchFactor.random()
-                }
+                }.toDouble()
 
             if (gaussianHasReachedTarget(
                     currentOffset,
@@ -159,17 +159,17 @@ class PointTracker(
                     interpolate(
                         currentOffset.x,
                         targetOffset.x,
-                        if (dynamicCheck) dynamic.speed.random() else speed.random()
+                        if (dynamicCheck) dynamic.speed.random().toDouble() else speed.random().toDouble()
                     ),
                     interpolate(
                         currentOffset.y,
                         targetOffset.y,
-                        if (dynamicCheck) dynamic.speed.random() else speed.random()
+                        if (dynamicCheck) dynamic.speed.random().toDouble() else speed.random().toDouble()
                     ),
                     interpolate(
                         currentOffset.z,
                         targetOffset.z,
-                        if (dynamicCheck) dynamic.speed.random() else speed.random()
+                        if (dynamicCheck) dynamic.speed.random().toDouble() else speed.random().toDouble()
                     )
                 )
             }
