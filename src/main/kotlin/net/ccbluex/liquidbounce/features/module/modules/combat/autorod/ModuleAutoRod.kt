@@ -50,7 +50,7 @@ object ModuleAutoRod : ClientModule("AutoRod", Category.COMBAT) {
 
     @Suppress("unused")
     private val tickHandler = tickHandler {
-        if (usingRod) {
+        if (usingRod || using.isRodUsing) {
             return@tickHandler
         }
 

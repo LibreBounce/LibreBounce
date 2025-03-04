@@ -7,7 +7,7 @@ import net.ccbluex.liquidbounce.utils.combat.shouldBeAttacked
 import net.ccbluex.liquidbounce.utils.entity.rotation
 import net.ccbluex.liquidbounce.utils.kotlin.random
 import net.minecraft.entity.Entity
-import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.entity.LivingEntity
 
 @Suppress("MagicNumber")
 internal class FacingEnemy : ToggleableConfigurable(ModuleAutoRod, "FacingEnemy", true) {
@@ -24,24 +24,15 @@ internal class FacingEnemy : ToggleableConfigurable(ModuleAutoRod, "FacingEnemy"
     @Suppress("ReturnCount")
     internal fun testUseRod(): Boolean {
         val facingEntity = raytraceEntity(activationDistance.random().toDouble(), player.rotation) {
-            it is PlayerEntity && it.shouldBeAttacked()
-        }?.entity as? PlayerEntity ?: return false
+            it is LivingEntity && it.shouldBeAttacked()
+        }?.entity as? LivingEntity ?: return false
 
         val facesEnemy = facingEnemy(
             toEntity = facingEntity, rotation = player.rotation, range = activationDistance.random().toDouble(),
             wallsRange = 0.0
         )
 
-        if (facesEnemy && nearbyEnemies.size <= enemiesNearby) {
-            if (ignoreOnLowHealth) {
-                if (facingEntity.health >= healthThreshold) {
-                    return true
-                }
-            } else {
-                return true
-            }
-        }
-
-        return false
+        return facesEnemy && nearbyEnemies.size <= enemiesNearby &&
+               (ignoreOnLowHealth || facingEntity.health >= healthThreshold)
     }
 }
