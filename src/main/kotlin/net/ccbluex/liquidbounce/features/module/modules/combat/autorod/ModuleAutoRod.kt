@@ -54,10 +54,8 @@ object ModuleAutoRod : ClientModule("AutoRod", Category.COMBAT) {
             return@tickHandler
         }
 
-        if (canUseRod) {
-            rodSlot?.let {
-                using.useRod(this, it)
-            }
+        rodSlot?.takeIf { canUseRod }?.let {
+            using.useRod(this, it)
         }
     }
 }
