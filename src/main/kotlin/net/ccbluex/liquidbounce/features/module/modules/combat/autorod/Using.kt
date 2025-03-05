@@ -28,7 +28,6 @@ internal class Using : Configurable("Using") {
     internal inline fun proceedUsingRod() {
         if (pullbackChronometer.hasElapsed(pullback.toLong())) {
             resetSlot
-                ?.takeIf { isRodUsing }
                 ?.takeIf { player.inventory.selectedSlot != it }
                 ?.let {
                     player.inventory.selectedSlot = it
