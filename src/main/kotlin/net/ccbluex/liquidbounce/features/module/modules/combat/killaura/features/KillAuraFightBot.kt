@@ -27,10 +27,7 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKi
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
-import net.ccbluex.liquidbounce.utils.entity.box
-import net.ccbluex.liquidbounce.utils.entity.isFallingToVoid
-import net.ccbluex.liquidbounce.utils.entity.rotation
-import net.ccbluex.liquidbounce.utils.entity.squaredBoxedDistanceTo
+import net.ccbluex.liquidbounce.utils.entity.*
 import net.ccbluex.liquidbounce.utils.math.times
 import net.ccbluex.liquidbounce.utils.navigation.NavigationBaseConfigurable
 import net.minecraft.entity.Entity
@@ -94,7 +91,7 @@ object KillAuraFightBot : NavigationBaseConfigurable<CombatContext>(ModuleKillAu
                 return@select null
             }
 
-            if (TargetFilter.notWhenVoid && entity.isFallingToVoid()) {
+            if (TargetFilter.notWhenVoid && entity.doesNotCollideBelow()) {
                 return@select null
             }
 
@@ -212,6 +209,11 @@ object KillAuraFightBot : NavigationBaseConfigurable<CombatContext>(ModuleKillAu
             .mapNotNull { yaw ->
                 val rotation = Rotation(yaw = yaw.toFloat(), pitch = 0.0F)
                 val position = target.pos.add(rotation.directionVector * combatTarget.range.toDouble())
+
+                // Check if this point collides with a block
+                if (player.doesCollideAt(position)) {
+                    return@mapNotNull null
+                }
 
                 val isInAngle = rotation.angleTo(combatTarget.targetRotation) <= dangerousYawDiff
                 ModuleDebug.debugGeometry(

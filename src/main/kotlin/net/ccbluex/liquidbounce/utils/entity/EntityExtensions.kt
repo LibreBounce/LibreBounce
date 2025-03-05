@@ -585,22 +585,28 @@ private fun LivingEntity.getHealthFromScoreboard(): Float? {
     return score.score.toFloat()
 }
 
+fun Entity.getBoundingBoxAt(pos: Vec3d): Box {
+    return boundingBox.offset(pos - this.pos)
+}
+
 /**
- * Check if the entity is likely falling to the void based on the current position and bounding box.
+ * Check if the entity collides with anything below his bounding box.
  */
-fun Entity.isFallingToVoid(voidLevel: Double = -64.0, safetyExpand: Double = 0.0): Boolean {
-    if (this.y < voidLevel || boundingBox.minY < voidLevel) {
+fun Entity.doesNotCollideBelow(until: Double = -64.0): Boolean {
+    if (this.y < until || boundingBox.minY < until) {
         return true
     }
 
-    // If there is no collision to void threshold, we do not want to teleport down.
-    val boundingBox = boundingBox
-        // Set the minimum Y to the void threshold to check for collisions below the player
-        .withMinY(voidLevel)
-        // Expand the bounding box to check if there might blocks to safely land on
-        .expand(safetyExpand, 0.0, safetyExpand)
-    return world.getBlockCollisions(this, boundingBox)
+    val offsetBb = boundingBox.withMinY(until)
+    return world.getBlockCollisions(this, offsetBb)
         .all(VoxelShapes.empty()::equals)
+}
+
+/**
+ * Check if the entity box collides with any block in the world at the given [pos].
+ */
+fun Entity.doesCollideAt(pos: Vec3d): Boolean {
+    return !world.getBlockCollisions(this, getBoundingBoxAt(pos)).all(VoxelShapes.empty()::equals)
 }
 
 /**
