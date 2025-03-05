@@ -76,10 +76,13 @@ object BacktrackPacketManager : EventListener {
 
                     val trackedPos = TrackedPosition().apply { this.pos = pos }
 
-                    val pos1 =
-                        trackedPos.withDelta(packet.deltaX.toLong(), packet.deltaY.toLong(), packet.deltaZ.toLong())
-
-                    updateTeleportedPosition(pos1)
+                    updateTeleportedPosition(
+                        trackedPos.withDelta(
+                            packet.deltaX.toLong(),
+                            packet.deltaY.toLong(),
+                            packet.deltaZ.toLong()
+                        )
+                    )
                 }
             }
 
