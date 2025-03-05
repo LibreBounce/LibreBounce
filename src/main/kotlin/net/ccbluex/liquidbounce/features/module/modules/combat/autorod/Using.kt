@@ -12,11 +12,13 @@ import net.ccbluex.liquidbounce.utils.inventory.OffHandSlot
 import net.ccbluex.liquidbounce.utils.inventory.interactItem
 import net.minecraft.item.Items
 
+private const val MILLISECONDS_PER_TICK = 50
+
 @Suppress("MagicNumber")
 internal class Using : Configurable("Using") {
     private val onItemUsing by boolean("IgnoreUsingItem", false)
-    private val push by int("Push", 100, 50..1000, suffix = "ms")
-    private val pullback by int("Pullback", 500, 50..1000, suffix = "ms")
+    private val push by int("Push", 2, 1..20, suffix = "ticks")
+    private val pullback by int("Pullback", 10, 1..20, suffix = "ticks")
 
     internal var isUsingRod = false
     private var resetSlot: Int? = null
@@ -26,7 +28,7 @@ internal class Using : Configurable("Using") {
 
     @Suppress("NOTHING_TO_INLINE")
     internal inline fun proceedUsingRod() {
-        if (pullbackChronometer.hasElapsed(pullback.toLong())) {
+        if (pullbackChronometer.hasElapsed(pullback.toLong() * MILLISECONDS_PER_TICK)) {
             resetSlot
                 ?.takeIf { player.inventory.selectedSlot != it }
                 ?.let {
@@ -45,7 +47,7 @@ internal class Using : Configurable("Using") {
 
     @Suppress("NOTHING_TO_INLINE")
     internal inline fun startRodUsing(slot: HotbarItemSlot) {
-        if (pushChronometer.hasElapsed(push.toLong())) {
+        if (pushChronometer.hasElapsed(push.toLong() * MILLISECONDS_PER_TICK)) {
             val (yaw, pitch) = RotationManager.currentRotation ?: player.rotation
 
             interactItem(slot.useHand, yaw, pitch) {
