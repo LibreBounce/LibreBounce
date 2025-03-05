@@ -261,11 +261,6 @@ val ClientPlayerEntity.lastRotation: Rotation
 val Entity.box: Box
     get() = boundingBox.expand(targetingMargin.toDouble())
 
-val Entity.serverPosition: Vec3d
-    get() = (this as? GlobalEntityAddition)
-        ?.takeIf { it.`liquidBounce$getPassedFirstUpdate`() }?.`liquidBounce$getActualPosition`()
-        ?: this.trackedPosition.pos
-
 /**
  * Allows to calculate the distance between the current entity and [entity] from the nearest corner of the bounding box
  */

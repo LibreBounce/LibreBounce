@@ -29,6 +29,7 @@ import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
+import net.ccbluex.liquidbounce.interfaces.GlobalEntityAddition
 import net.ccbluex.liquidbounce.render.drawSolidBox
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
@@ -39,7 +40,6 @@ import net.ccbluex.liquidbounce.utils.client.PacketSnapshot
 import net.ccbluex.liquidbounce.utils.combat.findEnemy
 import net.ccbluex.liquidbounce.utils.combat.shouldBeAttacked
 import net.ccbluex.liquidbounce.utils.entity.boxedDistanceTo
-import net.ccbluex.liquidbounce.utils.entity.serverPosition
 import net.ccbluex.liquidbounce.utils.entity.squareBoxedDistanceTo
 import net.ccbluex.liquidbounce.utils.entity.squaredBoxedDistanceTo
 import net.ccbluex.liquidbounce.utils.render.WireframePlayer
@@ -103,6 +103,11 @@ object ModuleBacktrack : ClientModule("Backtrack", Category.COMBAT) {
 
     val arePacketQueuesEmpty
         get() = delayedPacketQueue.isEmpty() && packetProcessQueue.isEmpty()
+
+    private val Entity.serverPosition: Vec3d
+        get() = (this as? GlobalEntityAddition)
+            ?.takeIf { it.`liquidBounce$getPassedFirstUpdate`() }?.`liquidBounce$getActualPosition`()
+            ?: this.trackedPosition.pos
 
     @Suppress("unused")
     private val packetHandler = handler<PacketEvent> { event ->
