@@ -73,6 +73,8 @@ object MinaraiTrainer : ModuleDebugRecorder.DebugRecorderMode<TrainingData>("Min
 
             chat("✧ Starting training...")
         } else {
+            val starting = RotationManager.previousRotation ?: player.lastRotation
+
             waitUntil {
                 var target = target ?: return@waitUntil true
 
@@ -84,6 +86,7 @@ object MinaraiTrainer : ModuleDebugRecorder.DebugRecorderMode<TrainingData>("Min
                 val distance = player.squaredBoxedDistanceTo(target).toFloat()
 
                 recordPacket(TrainingData(
+                    startingVector = starting.directionVector,
                     currentVector = current.directionVector,
                     previousVector = previous.directionVector,
                     targetVector = Rotation.lookingAt(point = target.box.center, from = player.eyePos).directionVector,

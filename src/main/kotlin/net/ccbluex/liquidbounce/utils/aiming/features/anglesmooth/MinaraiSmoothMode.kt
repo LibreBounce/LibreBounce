@@ -29,6 +29,7 @@ import net.ccbluex.liquidbounce.deeplearn.data.MAXIMUM_TRAINING_AGE
 import net.ccbluex.liquidbounce.deeplearn.data.TrainingData
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
+import net.ccbluex.liquidbounce.utils.aiming.RotationManager.startingRotation
 import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.markAsError
@@ -104,18 +105,18 @@ class MinaraiSmoothMode(override val parent: ChoiceConfigurable<*>) : AngleSmoot
         }
 
         val entity = entity as? LivingEntity
-        val inputModelRotation = targetRotation
         val prevRotation = RotationManager.previousRotation ?: player.lastRotation
-        val totalDelta = currentRotation.rotationDeltaTo(inputModelRotation)
+        val totalDelta = currentRotation.rotationDeltaTo(targetRotation)
         val velocityDelta = prevRotation.rotationDeltaTo(currentRotation)
 
         ModuleDebug.debugParameter(this, "DeltaYaw", totalDelta.deltaYaw)
         ModuleDebug.debugParameter(this, "DeltaPitch", totalDelta.deltaPitch)
 
         val input = TrainingData(
+            startingVector = startingRotation?.directionVector ?: currentRotation.directionVector,
             currentVector = currentRotation.directionVector,
             previousVector = prevRotation.directionVector,
-            targetVector = inputModelRotation.directionVector,
+            targetVector = targetRotation.directionVector,
             velocityDelta = velocityDelta.toVec2f(),
 
             playerDiff = player.pos.subtract(player.prevPos),
@@ -141,7 +142,7 @@ class MinaraiSmoothMode(override val parent: ChoiceConfigurable<*>) : AngleSmoot
         return correctionMode.activeChoice.limitAngleChange(
             rotationFactor,
             modelOutput,
-            inputModelRotation,
+            targetRotation,
             vec3d,
             entity
         )

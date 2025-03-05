@@ -78,6 +78,7 @@ object RotationManager : EventListener {
 
     // Used for rotation interpolation
     var previousRotation: Rotation? = null
+    var startingRotation: Rotation? = null
 
     private val fakeLagging
         get() = PacketQueueManager.isLagging || ModuleBacktrack.isLagging()
@@ -226,6 +227,10 @@ object RotationManager : EventListener {
     ) { event ->
         EventManager.callEvent(RotationUpdateEvent)
         update()
+
+        if (currentRotation == null) {
+            startingRotation = player.rotation
+        }
 
         // Reset the trigger
         if (triggerNoDifference) {
