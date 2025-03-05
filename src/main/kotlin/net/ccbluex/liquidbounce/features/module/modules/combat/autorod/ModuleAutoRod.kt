@@ -34,9 +34,9 @@ object ModuleAutoRod : ClientModule("AutoRod", Category.COMBAT) {
 
     private inline val canUseRod get() = when {
         usingRod -> false
+        testFacingEnemyUseRod -> true
         player.health <= escapeHealthThreshold -> true
-        !facingEnemy.enabled -> true
-        else -> testFacingEnemyUseRod
+        else -> !facingEnemy.enabled
     }
 
     @Suppress("unused")
