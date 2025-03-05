@@ -28,6 +28,7 @@ import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
 import net.ccbluex.liquidbounce.utils.entity.box
+import net.ccbluex.liquidbounce.utils.entity.isFallingToVoid
 import net.ccbluex.liquidbounce.utils.entity.rotation
 import net.ccbluex.liquidbounce.utils.entity.squaredBoxedDistanceTo
 import net.ccbluex.liquidbounce.utils.math.times
@@ -67,6 +68,7 @@ object KillAuraFightBot : NavigationBaseConfigurable<CombatContext>(ModuleKillAu
     internal object TargetFilter : Configurable("TargetFilter") {
         internal var range by float("Range", 50f, 10f..100f)
         internal var visibleOnly by boolean("VisibleOnly", true)
+        internal var notWhenVoid by boolean("NotWhenVoid", true)
     }
 
     /**
@@ -89,6 +91,10 @@ object KillAuraFightBot : NavigationBaseConfigurable<CombatContext>(ModuleKillAu
             }
 
             if (TargetFilter.visibleOnly && !player.canSee(entity)) {
+                return@select null
+            }
+
+            if (TargetFilter.notWhenVoid && entity.isFallingToVoid()) {
                 return@select null
             }
 
