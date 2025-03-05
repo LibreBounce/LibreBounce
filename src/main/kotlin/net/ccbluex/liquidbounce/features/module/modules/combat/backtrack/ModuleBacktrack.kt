@@ -16,6 +16,8 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
+@file:Suppress("detekt:TooManyFunctions")
+
 package net.ccbluex.liquidbounce.features.module.modules.combat.backtrack
 
 import com.google.common.collect.Queues
@@ -84,7 +86,7 @@ object ModuleBacktrack : ClientModule("Backtrack", Category.COMBAT) {
         doNotIncludeAlways()
     }
 
-    val delayedPacketQueue = Queues.newConcurrentLinkedQueue<PacketSnapshot>()
+    private val delayedPacketQueue = Queues.newConcurrentLinkedQueue<PacketSnapshot>()
     val packetProcessQueue = Queues.newConcurrentLinkedQueue<Packet<*>>()
 
     private val chronometer = Chronometer()
