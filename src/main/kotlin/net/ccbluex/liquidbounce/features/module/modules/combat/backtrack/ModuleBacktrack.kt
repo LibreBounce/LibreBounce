@@ -373,8 +373,6 @@ object ModuleBacktrack : ClientModule("Backtrack", Category.COMBAT) {
 
     /**
      * Checks if the actual position of the [target] is closer to the player.
-     *
-     * Assumes that [target] is non-null at that call point.
      */
     fun shouldImmediatelyClear() = mc.player?.let {
         target!!.squareBoxedDistanceTo(it, target!!.serverPosition) < target!!.squaredBoxedDistanceTo(it)

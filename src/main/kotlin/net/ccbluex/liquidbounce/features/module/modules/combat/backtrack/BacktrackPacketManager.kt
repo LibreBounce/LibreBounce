@@ -25,7 +25,6 @@ import net.ccbluex.liquidbounce.event.events.TickPacketProcessEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.combat.backtrack.ModuleBacktrack.arePacketQueuesEmpty
 import net.ccbluex.liquidbounce.features.module.modules.combat.backtrack.ModuleBacktrack.clear
-import net.ccbluex.liquidbounce.features.module.modules.combat.backtrack.ModuleBacktrack.currentChance
 import net.ccbluex.liquidbounce.features.module.modules.combat.backtrack.ModuleBacktrack.currentDelay
 import net.ccbluex.liquidbounce.features.module.modules.combat.backtrack.ModuleBacktrack.delay
 import net.ccbluex.liquidbounce.features.module.modules.combat.backtrack.ModuleBacktrack.packetProcessQueue
