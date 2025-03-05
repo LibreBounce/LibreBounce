@@ -36,11 +36,11 @@ object ModuleAutoRod : ClientModule("AutoRod", Category.COMBAT) {
 
     @get:JvmSynthetic
     private inline val usingRod
-        get() = (player.isUsingItem && player.activeItem?.item == Items.FISHING_ROD)
+        get() = (player.isUsingItem && player.activeItem?.item == Items.FISHING_ROD) || using.isRodUsing
 
     @get:JvmSynthetic
     private inline val canUseRod: Boolean get() {
-        return if (usingRod || !using.canUseRod) {
+        return if (usingRod) {
             false
         } else if (facingEnemy.enabled && player.health >= playerHealthThreshold.toFloat() && facingEnemy.testUseRod()) {
             true
@@ -55,9 +55,13 @@ object ModuleAutoRod : ClientModule("AutoRod", Category.COMBAT) {
 
     @Suppress("unused")
     private val tickHandler = tickHandler {
-        if (canUseRod) {
+        if (!canUseRod) {
+            if (using.isRodUsing) {
+                using.proceedUsingRod()
+            }
+        } else if (using.canUseRodThroughUsingItem) {
             rodSlot?.let {
-                using.useRod(this, it)
+                using.startRodUsing(it)
             }
         }
     }
