@@ -2,9 +2,11 @@ package net.ccbluex.liquidbounce.features.module.modules.combat.autorod
 
 import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.KillAuraAutoBlock
+import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.client.interaction
 import net.ccbluex.liquidbounce.utils.client.player
+import net.ccbluex.liquidbounce.utils.entity.rotation
 import net.ccbluex.liquidbounce.utils.inventory.HotbarItemSlot
 import net.ccbluex.liquidbounce.utils.inventory.OffHandSlot
 import net.ccbluex.liquidbounce.utils.inventory.interactItem
@@ -45,7 +47,9 @@ internal class Using : Configurable("Using") {
     @Suppress("NOTHING_TO_INLINE")
     internal inline fun startRodUsing(slot: HotbarItemSlot) {
         if (pushChronometer.hasElapsed(push.toLong())) {
-            interactItem(slot.useHand, player.yaw, player.pitch) {
+            val rotation = RotationManager.currentRotation ?: player.rotation
+
+            interactItem(slot.useHand, rotation.yaw, rotation.pitch) {
                 if (slot !is OffHandSlot && player.activeItem?.item != Items.FISHING_ROD) {
                     resetSlot = slot.hotbarSlotForServer
 

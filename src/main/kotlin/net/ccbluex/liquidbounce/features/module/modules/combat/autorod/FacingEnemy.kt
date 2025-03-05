@@ -1,6 +1,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat.autorod
 
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
+import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.utils.facingEnemy
 import net.ccbluex.liquidbounce.utils.aiming.utils.raytraceEntity
 import net.ccbluex.liquidbounce.utils.combat.shouldBeAttacked
@@ -24,12 +25,14 @@ internal class FacingEnemy : ToggleableConfigurable(ModuleAutoRod, "FacingEnemy"
 
     @Suppress("ReturnCount")
     internal fun testUseRod(): Boolean {
-        val facingEntity = raytraceEntity(activationDistance.random().toDouble(), player.rotation) {
+        val rotation = RotationManager.currentRotation ?: player.rotation
+
+        val facingEntity = raytraceEntity(activationDistance.random().toDouble(), rotation) {
             it is LivingEntity && it.shouldBeAttacked()
         }?.entity as? LivingEntity ?: return false
 
         val facesEnemy = facingEnemy(
-            toEntity = facingEntity, rotation = player.rotation, range = activationDistance.random().toDouble(),
+            toEntity = facingEntity, rotation = rotation, range = activationDistance.random().toDouble(),
             wallsRange = 0.0
         )
 
