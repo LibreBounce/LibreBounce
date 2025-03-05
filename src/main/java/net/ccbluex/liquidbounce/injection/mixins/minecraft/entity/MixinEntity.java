@@ -28,6 +28,7 @@ import net.ccbluex.liquidbounce.features.module.modules.exploit.ModuleNoPitchLim
 import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleAntiBounce;
 import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleNoPush;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleFreeCam;
+import net.ccbluex.liquidbounce.interfaces.GlobalEntityAddition;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.fluid.Fluid;
@@ -37,6 +38,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -44,7 +46,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Entity.class)
-public abstract class MixinEntity {
+public abstract class MixinEntity implements GlobalEntityAddition {
 
     @Shadow
     public boolean noClip;
@@ -69,6 +71,15 @@ public abstract class MixinEntity {
 
     @Shadow
     public abstract double getZ();
+
+    @Shadow
+    public abstract Vec3d getPos();
+
+    @Unique
+    public Vec3d actualPosition = new Vec3d(0.0D, 0.0D, 0.0D);
+
+    @Unique
+    public boolean passedFirstUpdate;
 
     @ModifyExpressionValue(method = "bypassesLandingEffects", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;isSneaking()Z"))
     private boolean hookAntiBounce(boolean original) {
@@ -204,4 +215,23 @@ public abstract class MixinEntity {
         return original;
     }
 
+    @Override
+    public Vec3d liquidBounce$getActualPosition() {
+        return actualPosition;
+    }
+
+    @Override
+    public boolean liquidBounce$getPassedFirstUpdate() {
+        return passedFirstUpdate;
+    }
+
+    @Override
+    public void liquidBounce$updateFirstUpdate() {
+        passedFirstUpdate = true;
+    }
+
+    @Override
+    public void liquidBounce$setActualPosition(Vec3d newPosition) {
+        actualPosition = newPosition;
+    }
 }

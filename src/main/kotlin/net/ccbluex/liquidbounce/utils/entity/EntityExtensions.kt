@@ -23,6 +23,7 @@ package net.ccbluex.liquidbounce.utils.entity
 
 import net.ccbluex.liquidbounce.common.ShapeFlag
 import net.ccbluex.liquidbounce.interfaces.ClientPlayerEntityAddition
+import net.ccbluex.liquidbounce.interfaces.GlobalEntityAddition
 import net.ccbluex.liquidbounce.interfaces.InputAddition
 import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
 import net.ccbluex.liquidbounce.utils.block.DIRECTIONS_EXCLUDING_UP
@@ -259,6 +260,11 @@ val ClientPlayerEntity.lastRotation: Rotation
 
 val Entity.box: Box
     get() = boundingBox.expand(targetingMargin.toDouble())
+
+val Entity.serverPosition: Vec3d
+    get() = (this as? GlobalEntityAddition)
+        ?.takeIf { it.`liquidBounce$getPassedFirstUpdate`() }?.`liquidBounce$getActualPosition`()
+        ?: this.trackedPosition.pos
 
 /**
  * Allows to calculate the distance between the current entity and [entity] from the nearest corner of the bounding box

@@ -23,9 +23,8 @@ import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
+import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.event.events.*
-import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.render.drawSolidBox
@@ -38,12 +37,12 @@ import net.ccbluex.liquidbounce.utils.client.PacketSnapshot
 import net.ccbluex.liquidbounce.utils.combat.findEnemy
 import net.ccbluex.liquidbounce.utils.combat.shouldBeAttacked
 import net.ccbluex.liquidbounce.utils.entity.boxedDistanceTo
+import net.ccbluex.liquidbounce.utils.entity.serverPosition
 import net.ccbluex.liquidbounce.utils.entity.squareBoxedDistanceTo
 import net.ccbluex.liquidbounce.utils.entity.squaredBoxedDistanceTo
 import net.ccbluex.liquidbounce.utils.render.WireframePlayer
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
-import net.minecraft.entity.TrackedPosition
 import net.minecraft.network.packet.Packet
 import net.minecraft.network.packet.c2s.play.ChatMessageC2SPacket
 import net.minecraft.network.packet.c2s.play.CommandExecutionC2SPacket
@@ -94,8 +93,9 @@ object ModuleBacktrack : ClientModule("Backtrack", Category.COMBAT) {
 
     private var shouldPause = false
 
+    private var targetPosition = Vec3d.ZERO
+
     var target: Entity? = null
-    private var position: TrackedPosition? = null
 
     var currentDelay = delay.random()
 
@@ -142,46 +142,35 @@ object ModuleBacktrack : ClientModule("Backtrack", Category.COMBAT) {
             }
         }
 
-        // Update box position with these packets
-        val entityPacket = packet is EntityS2CPacket && packet.getEntity(world) == target
-        val positionPacket = packet is EntityPositionS2CPacket && packet.entityId == target?.id
-        val syncPacket = packet is EntityPositionSyncS2CPacket && packet.id == target?.id
-        if (entityPacket || positionPacket || syncPacket) {
-            val pos = if (packet is EntityS2CPacket) {
-                position?.withDelta(packet.deltaX.toLong(), packet.deltaY.toLong(), packet.deltaZ.toLong())
-            } else if (packet is EntityPositionS2CPacket) {
-                Vec3d(packet.change.position.x, packet.change.position.y, packet.change.position.z)
-            } else {
-                (packet as EntityPositionSyncS2CPacket).values.position()
-            }
-
-            position?.setPos(pos)
-
-            // Is the target's actual position closer than its tracked position?
-            if (target!!.squareBoxedDistanceTo(player, pos!!) < target!!.squaredBoxedDistanceTo(player)) {
-                // Process all packets. We want to be able to hit the enemy, not the opposite.
-                processPackets(true)
-                // And stop right here. No need to cancel further packets.
-                return@handler
-            }
-        }
-
         event.cancelEvent()
         delayedPacketQueue.add(PacketSnapshot(packet, event.origin, System.currentTimeMillis()))
+    }
+
+    val positionUpdateHandler = handler<WorldRenderEvent> {
+        val entity = target ?: return@handler
+
+        val delta = mc.renderTickCounter.let {
+            it.lastFrameDuration * 50.0 / 150.0
+        }.coerceAtMost(1.0)
+
+        targetPosition = targetPosition.lerp(entity.serverPosition, delta)
     }
 
     abstract class RenderChoice(name: String) : Choice(name) {
         protected fun getEntityPosition(): Pair<Entity, Vec3d>? {
             val entity = target ?: return null
-            val pos = position?.pos ?: return null
-            return entity to pos
+            return entity to targetPosition
         }
+
+        open val shouldTransitionSmoothly
+            get() = false
     }
 
     object Box : RenderChoice("Box") {
         override val parent: ChoiceConfigurable<RenderChoice>
             get() = espMode
 
+        private val smoothTransition by boolean("SmoothTransition", true)
         private val color by color("Color", Color4b(36, 32, 147, 87))
 
         @Suppress("unused")
@@ -201,12 +190,16 @@ object ModuleBacktrack : ClientModule("Backtrack", Category.COMBAT) {
                 }
             }
         }
+
+        override val shouldTransitionSmoothly: Boolean
+            get() = smoothTransition
     }
 
     object Model : RenderChoice("Model") {
         override val parent: ChoiceConfigurable<RenderChoice>
             get() = espMode
 
+        private val smoothTransition by boolean("SmoothTransition", true)
         private val lightAmount by float("LightAmount", 0.3f, 0.01f..1f)
 
         @Suppress("unused")
@@ -231,12 +224,16 @@ object ModuleBacktrack : ClientModule("Backtrack", Category.COMBAT) {
                 }
             }
         }
+
+        override val shouldTransitionSmoothly: Boolean
+            get() = smoothTransition
     }
 
     object Wireframe : RenderChoice("Wireframe") {
         override val parent: ChoiceConfigurable<RenderChoice>
             get() = espMode
 
+        private val smoothTransition by boolean("SmoothTransition", true)
         private val color by color("Color", Color4b(36, 32, 147, 87))
         private val outlineColor by color("OutlineColor", Color4b(36, 32, 147, 255))
 
@@ -247,6 +244,9 @@ object ModuleBacktrack : ClientModule("Backtrack", Category.COMBAT) {
             val wireframePlayer = WireframePlayer(pos, entity.yaw, entity.pitch)
             wireframePlayer.render(it, color, outlineColor)
         }
+
+        override val shouldTransitionSmoothly: Boolean
+            get() = smoothTransition
     }
 
     object None : RenderChoice("None") {
@@ -306,8 +306,9 @@ object ModuleBacktrack : ClientModule("Backtrack", Category.COMBAT) {
         if (enemy != target) {
             clear(resetChronometer = false)
 
-            // Instantly set new position, so it does not look like the box was created with delay
-            position = TrackedPosition().apply { this.pos = enemy.trackedPosition.pos }
+            if (!espMode.activeChoice.shouldTransitionSmoothly) {
+                targetPosition = enemy.serverPosition
+            }
         }
 
         target = enemy
@@ -343,10 +344,11 @@ object ModuleBacktrack : ClientModule("Backtrack", Category.COMBAT) {
         }
 
         target = null
-        position = null
     }
 
     private fun shouldBacktrack(target: Entity): Boolean {
+        val player = mc.player ?: return false
+
         val inRange = target.boxedDistanceTo(player) in range
 
         if (inRange) {
@@ -367,5 +369,14 @@ object ModuleBacktrack : ClientModule("Backtrack", Category.COMBAT) {
     private fun shouldPause() = pauseOnHurtTime.enabled && shouldPause
 
     fun shouldCancelPackets() =
-        target?.let { target -> target.isAlive && shouldBacktrack(target) } ?: false
+        target?.let { target -> target.isAlive && (shouldImmediatelyClear() || shouldBacktrack(target)) } ?: false
+
+    /**
+     * Checks if the actual position of the [target] is closer to the player.
+     *
+     * Assumes that [target] is non-null at that call point.
+     */
+    fun shouldImmediatelyClear() = mc.player?.let {
+        target!!.squareBoxedDistanceTo(it, target!!.serverPosition) < target!!.squaredBoxedDistanceTo(it)
+    } ?: true
 }
