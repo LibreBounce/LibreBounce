@@ -16,7 +16,7 @@ internal class FacingEnemy : ToggleableConfigurable(ModuleAutoRod, "FacingEnemy"
     private val activationDistance by floatRange("ActivationDistance", 8f..8f, 1f..20f, suffix = "m")
     private val enemiesNearby by int("EnemiesNearby", 1, 1..5)
     private val ignoreOnLowHealth by boolean("IgnoreOnLowHealth", true)
-    private val healthThreshold by int("HealthThreshold", 10, 1..20)
+    private val healthThreshold by int("HealthThreshold", 10, 1..20, suffix = "hp")
 
     private inline val nearbyEnemies: List<Entity>
         get() = world.entities.filter {

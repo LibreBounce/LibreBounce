@@ -19,8 +19,8 @@ object ModuleAutoRod : ClientModule("AutoRod", Category.COMBAT) {
     private val facingEnemy = tree(FacingEnemy())
     private val using = tree(Using())
 
-    private val playerHealthThreshold by int("PlayerHealthThreshold", 5, 1..20)
-    private val escapeHealthThreshold by int("EscapeHealthThreshold", 10, 1..20)
+    private val playerHealthThreshold by int("PlayerHealthThreshold", 5, 1..20, suffix = "hp")
+    private val escapeHealthThreshold by int("EscapeHealthThreshold", 10, 1..20, suffix = "hp")
 
     private inline val usingRod
         get() = (player.isUsingItem
