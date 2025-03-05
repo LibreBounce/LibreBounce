@@ -627,6 +627,7 @@
   "liquidbounce.module.holeFiller.description": "Автоматически заполняет безопасные места для PvP с кристаллами.",
   "liquidbounce.module.tpAura.description": "Автоматически телепортирует и атакует врагов вокруг.",
   "liquidbounce.module.aspect.description": "Позволяет растягивать или сужать игру по горизонтали.",
+  "liquidbounce.module.autoRod.description": "Автоматически использует удочку при пвп.",
   "liquidbounce.module.packetMine.description": "Позволяет добывать блоки, щелкая по ним один раз.",
   "liquidbounce.module.fastExp.description": "Автоматически чинит вашу броню.",
   "liquidbounce.module.bookBot.description": "Автоматически пишет в книгах.",
