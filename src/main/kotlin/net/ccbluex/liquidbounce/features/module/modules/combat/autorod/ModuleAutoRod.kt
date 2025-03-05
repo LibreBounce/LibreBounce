@@ -31,8 +31,6 @@ object ModuleAutoRod : ClientModule("AutoRod", Category.COMBAT) {
     private val playerHealthThreshold by int("PlayerHealthThreshold", 5, 1..20)
     private val escapeHealthThreshold by int("EscapeHealthThreshold", 10, 1..20)
 
-    override val running: Boolean
-        get() = super.running
 
     @get:JvmSynthetic
     private inline val usingRod
