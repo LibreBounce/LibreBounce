@@ -23,8 +23,8 @@ internal class FacingEnemy : ToggleableConfigurable(ModuleAutoRod, "FacingEnemy"
             it.shouldBeAttacked() && it.pos.squaredDistanceTo(player.pos) <= activationDistance.random().sq()
         }
 
-    @Suppress("ReturnCount")
-    internal fun testUseRod(): Boolean {
+    @Suppress("ReturnCount", "NOTHING_TO_INLINE")
+    internal inline fun testUseRod(): Boolean {
         val rotation = RotationManager.currentRotation ?: player.rotation
 
         val facingEntity = raytraceEntity(activationDistance.random().toDouble(), rotation) {

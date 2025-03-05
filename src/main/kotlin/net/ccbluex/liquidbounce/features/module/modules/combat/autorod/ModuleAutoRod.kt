@@ -22,19 +22,16 @@ object ModuleAutoRod : ClientModule("AutoRod", Category.COMBAT) {
     private val playerHealthThreshold by int("PlayerHealthThreshold", 5, 1..20)
     private val escapeHealthThreshold by int("EscapeHealthThreshold", 10, 1..20)
 
-    @get:JvmSynthetic
     private inline val usingRod
         get() = (player.isUsingItem
                 && player.activeItem?.item == Items.FISHING_ROD)
                 || using.isUsingRod
 
-    @get:JvmSynthetic
     private inline val testFacingEnemyUseRod
         get() = facingEnemy.enabled
                 && player.health >= playerHealthThreshold.toFloat()
                 && facingEnemy.testUseRod()
 
-    @get:JvmSynthetic
     private inline val canUseRod get() = when {
         usingRod -> false
         player.health <= escapeHealthThreshold -> true
