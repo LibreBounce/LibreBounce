@@ -55,13 +55,15 @@ object ModuleAutoRod : ClientModule("AutoRod", Category.COMBAT) {
 
     @Suppress("unused")
     private val tickHandler = tickHandler {
-        if (!canUseRod) {
+        if (canUseRod) {
+            if (using.canUseRodThroughUsingItem) {
+                rodSlot?.let {
+                    using.startRodUsing(it)
+                }
+            }
+        } else {
             if (using.isRodUsing) {
                 using.proceedUsingRod()
-            }
-        } else if (using.canUseRodThroughUsingItem) {
-            rodSlot?.let {
-                using.startRodUsing(it)
             }
         }
     }

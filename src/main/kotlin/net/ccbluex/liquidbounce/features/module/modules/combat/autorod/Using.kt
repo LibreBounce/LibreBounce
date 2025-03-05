@@ -26,6 +26,7 @@ internal class Using : Configurable("Using") {
     internal inline fun proceedUsingRod() {
         if (pullbackChronometer.hasElapsed(pullback.toLong())) {
             resetSlot
+                ?.takeIf { isRodUsing }
                 ?.takeIf { player.inventory.selectedSlot != it }
                 ?.let {
                     player.inventory.selectedSlot = it
@@ -63,6 +64,6 @@ internal class Using : Configurable("Using") {
         get() = if (onItemUsing) {
             true
         } else {
-            player.activeItem?.item != Items.FISHING_ROD && (!player.usingItem || !KillAuraAutoBlock.blockVisual)
+            player.activeItem?.item != Items.FISHING_ROD && !(player.usingItem || KillAuraAutoBlock.blockVisual)
         }
 }
