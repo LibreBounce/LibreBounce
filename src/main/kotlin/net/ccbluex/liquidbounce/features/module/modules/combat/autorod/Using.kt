@@ -46,9 +46,9 @@ internal class Using : Configurable("Using") {
     @Suppress("NOTHING_TO_INLINE")
     internal inline fun startRodUsing(slot: HotbarItemSlot) {
         if (pushChronometer.hasElapsed(push.toLong())) {
-            val rotation = RotationManager.currentRotation ?: player.rotation
+            val (yaw, pitch) = RotationManager.currentRotation ?: player.rotation
 
-            interactItem(slot.useHand, rotation.yaw, rotation.pitch) {
+            interactItem(slot.useHand, yaw, pitch) {
                 if (slot !is OffHandSlot && player.activeItem?.item != Items.FISHING_ROD) {
                     resetSlot = slot.hotbarSlotForServer
 
