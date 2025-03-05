@@ -23,8 +23,9 @@ import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
-import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.event.events.*
+import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.render.drawSolidBox
@@ -60,6 +61,7 @@ object ModuleBacktrack : ClientModule("Backtrack", Category.COMBAT) {
     private val nextBacktrackDelay by intRange("NextBacktrackDelay", 0..10, 0..2000, "ms")
     private val trackingBuffer by int("TrackingBuffer", 500, 0..2000, "ms")
     private val chance by float("Chance", 50f, 0f..100f, "%")
+    private var currentChance = (0..100).random()
 
     private object PauseOnHurtTime : ToggleableConfigurable(this, "PauseOnHurtTime", false) {
         val hurtTime by int("HurtTime", 3, 0..10)
@@ -253,9 +255,9 @@ object ModuleBacktrack : ClientModule("Backtrack", Category.COMBAT) {
     }
 
     @Suppress("unused")
-    private val worldChangeHandler = handler<WorldChangeEvent> {
+    private val worldChangeHandler = handler<WorldChangeEvent> { event ->
         // Clear packets on disconnect only
-        if (it.world == null) {
+        if (event.world == null) {
             clear(clearOnly = true)
         }
     }
@@ -270,8 +272,11 @@ object ModuleBacktrack : ClientModule("Backtrack", Category.COMBAT) {
     @Suppress("unused")
     private val attackHandler = handler<AttackEntityEvent> { event ->
         attackChronometer.reset() // Update the last attack time
+        currentChance = (0..100).random()
 
-        if (targetMode != Mode.ATTACK) return@handler
+        if (targetMode != Mode.ATTACK) {
+            return@handler
+        }
 
         val enemy = event.entity
         processTarget(enemy)
@@ -342,8 +347,6 @@ object ModuleBacktrack : ClientModule("Backtrack", Category.COMBAT) {
     }
 
     private fun shouldBacktrack(target: Entity): Boolean {
-        val player = mc.player ?: return false
-
         val inRange = target.boxedDistanceTo(player) in range
 
         if (inRange) {
@@ -353,7 +356,7 @@ object ModuleBacktrack : ClientModule("Backtrack", Category.COMBAT) {
         return (inRange || !trackingBufferChronometer.hasElapsed(trackingBuffer.toLong())) &&
             target.shouldBeAttacked() &&
             player.age > 10 &&
-            Math.random() * 100 < chance &&
+            currentChance < chance &&
             chronometer.hasElapsed() &&
             !shouldPause() &&
             !attackChronometer.hasElapsed(lastAttackTimeToWork.toLong())
