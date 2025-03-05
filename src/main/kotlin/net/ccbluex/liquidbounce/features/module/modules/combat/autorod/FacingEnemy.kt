@@ -6,6 +6,7 @@ import net.ccbluex.liquidbounce.utils.aiming.utils.raytraceEntity
 import net.ccbluex.liquidbounce.utils.combat.shouldBeAttacked
 import net.ccbluex.liquidbounce.utils.entity.rotation
 import net.ccbluex.liquidbounce.utils.kotlin.random
+import net.ccbluex.liquidbounce.utils.math.sq
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 
@@ -18,7 +19,7 @@ internal class FacingEnemy : ToggleableConfigurable(ModuleAutoRod, "FacingEnemy"
 
     private inline val nearbyEnemies: List<Entity>
         get() = world.entities.filter {
-            it.shouldBeAttacked() && it.pos.squaredDistanceTo(player.pos) <= activationDistance.random()
+            it.shouldBeAttacked() && it.pos.squaredDistanceTo(player.pos) <= activationDistance.random().sq()
         }
 
     @Suppress("ReturnCount")
