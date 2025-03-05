@@ -61,9 +61,7 @@ internal class Using : Configurable("Using") {
 
     @get:JvmSynthetic
     internal inline val canUseRodThroughUsingItem
-        get() = if (onItemUsing) {
-            true
-        } else {
-            player.activeItem?.item != Items.FISHING_ROD && !(player.usingItem || KillAuraAutoBlock.blockVisual)
-        }
+        get() = onItemUsing
+                || (player.activeItem?.item != Items.FISHING_ROD
+                    && !(player.usingItem || KillAuraAutoBlock.blockVisual))
 }

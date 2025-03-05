@@ -38,20 +38,17 @@ object ModuleAutoRod : ClientModule("AutoRod", Category.COMBAT) {
     private inline val usingRod
         get() = (player.isUsingItem && player.activeItem?.item == Items.FISHING_ROD) || using.isRodUsing
 
-    @get:JvmSynthetic
-    private inline val canUseRod: Boolean get() {
-        return if (usingRod) {
-            false
-        } else if (facingEnemy.enabled && player.health >= playerHealthThreshold.toFloat() && facingEnemy.testUseRod()) {
-            true
-        } else if (player.health <= escapeHealthThreshold) {
-            true
-        } else if (!facingEnemy.enabled) {
-            true
-        } else {
-            false
-        }
+@get:JvmSynthetic
+private inline val canUseRod: Boolean get() {
+    return when {
+        usingRod -> false
+        player.health <= escapeHealthThreshold -> true
+        !facingEnemy.enabled -> true
+        else -> facingEnemy.enabled
+                && player.health >= playerHealthThreshold.toFloat()
+                && facingEnemy.testUseRod()
     }
+}
 
     @Suppress("unused")
     private val tickHandler = tickHandler {
