@@ -18,7 +18,7 @@ internal class Using : Configurable("Using") {
     private val push by int("Push", 100, 50..1000, suffix = "ms")
     private val pullback by int("Pullback", 500, 50..1000, suffix = "ms")
 
-    internal var isRodUsing = false
+    internal var isUsingRod = false
     private var resetSlot: Int? = null
 
     private val pushChronometer = Chronometer()
@@ -38,7 +38,7 @@ internal class Using : Configurable("Using") {
                 }
 
             resetSlot = null
-            isRodUsing = false
+            isUsingRod = false
             pullbackChronometer.reset()
         }
     }
@@ -57,13 +57,13 @@ internal class Using : Configurable("Using") {
                 }
             }
 
-            isRodUsing = true
+            isUsingRod = true
             pushChronometer.reset()
         }
     }
 
     @get:JvmSynthetic
-    internal inline val canUseRodThroughUsingItem
+    internal inline val canUseRodWhenUsingItem
         get() = onItemUsing
                 || (player.activeItem?.item != Items.FISHING_ROD
                     && !(player.usingItem || KillAuraAutoBlock.blockVisual))
