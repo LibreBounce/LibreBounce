@@ -1,10 +1,10 @@
 package net.ccbluex.liquidbounce.injection.mixins.minecraft.entity.projectile;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import net.ccbluex.liquidbounce.utils.aiming.RotationManager;
-import net.ccbluex.liquidbounce.utils.aiming.features.MovementCorrection;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.ccbluex.liquidbounce.features.module.modules.exploit.ModuleExtendedFirework;
+import net.ccbluex.liquidbounce.utils.aiming.RotationManager;
+import net.ccbluex.liquidbounce.utils.aiming.features.MovementCorrection;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.projectile.FireworkRocketEntity;
@@ -26,10 +26,10 @@ public abstract class MixinFireworkRocketEntity {
             return original;
         }
 
-        var rotation = RotationManager.getCurrentRotation();
-        var configurable = RotationManager.getActiveRotationTarget();
+        var rotation = RotationManager.INSTANCE.getCurrentRotation();
+        var rotationTarget = RotationManager.INSTANCE.getActiveRotationTarget();
 
-        if (rotation == null || configurable == null || configurable.getMovementCorrection() == MovementCorrection.OFF) {
+        if (rotation == null || rotationTarget == null || rotationTarget.getMovementCorrection() == MovementCorrection.OFF) {
             return original;
         }
 

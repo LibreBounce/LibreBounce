@@ -143,7 +143,9 @@ open class Clicker<T>(
     private val keybindIsPressedHandler = handler<KeybindIsPressedEvent> { event ->
         val clickAmount = this.clickAmount ?: return@handler
 
-        if (event.keyBinding == keyBinding) {
+        // It turns out, we only want to do this with [attackKey], otherwise
+        // [useKey] will do unexpected things.
+        if (keyBinding == mc.options.attackKey && event.keyBinding == keyBinding) {
             // We want to simulate the click in order to
             // allow the game to handle the logic as if we clicked
             event.isPressed = clickAmount > 0

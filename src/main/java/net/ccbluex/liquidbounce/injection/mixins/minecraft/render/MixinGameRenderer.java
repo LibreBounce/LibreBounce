@@ -106,7 +106,7 @@ public abstract class MixinGameRenderer {
         Rotation rotation;
         if (RotationManager.INSTANCE.getCurrentRotation() != null) {
             rotation = RotationManager.INSTANCE.getCurrentRotation();
-        } if (ModuleFreeCam.INSTANCE.getRunning()) {
+        } else if (ModuleFreeCam.INSTANCE.getRunning()) {
             var serverRotation = RotationManager.INSTANCE.getServerRotation();
             rotation = ModuleFreeCam.INSTANCE.shouldDisableCameraInteract() ? serverRotation : cameraRotation;
         } else {
