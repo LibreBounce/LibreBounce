@@ -44,9 +44,7 @@ object ModuleAutoRod : ClientModule("AutoRod", Category.COMBAT) {
         if (canUseRod) {
             Slots.OffhandWithHotbar.findSlot(Items.FISHING_ROD)
                 ?.takeIf { using.canUseRodWhenUsingItem }
-                ?.let {
-                    using.startRodUsing(it)
-                }
+                ?.let { using.startRodUsing(it) }
         } else if (using.isUsingRod) {
             using.proceedUsingRod()
         }
