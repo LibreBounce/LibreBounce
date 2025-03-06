@@ -29,14 +29,13 @@ internal class Using : Configurable("Using") {
     @Suppress("NOTHING_TO_INLINE")
     internal inline fun proceedUsingRod() {
         if (pullbackChronometer.hasElapsed(pullback.toLong() * MILLISECONDS_PER_TICK)) {
+            interaction.stopUsingItem(player)
+
             resetSlot
                 ?.takeIf { player.inventory.selectedSlot != it }
                 ?.let {
                     player.inventory.selectedSlot = it
                     interaction.syncSelectedSlot()
-                }
-                ?: run {
-                    interaction.stopUsingItem(player)
                 }
 
             resetSlot = null
