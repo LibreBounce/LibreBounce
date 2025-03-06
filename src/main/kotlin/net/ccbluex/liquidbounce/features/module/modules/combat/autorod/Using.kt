@@ -21,41 +21,37 @@ internal class Using : Configurable("Using") {
     internal var isUsingRod = false
     private var resetSlot: Int? = null
 
-    internal inline fun startRodUsing(slot: HotbarItemSlot) {
-        push.testPushRod {
-            val (yaw, pitch) = RotationManager.currentRotation ?: player.rotation
+    internal inline fun startRodUsing(slot: HotbarItemSlot) = push.testPushRod {
+        val (yaw, pitch) = RotationManager.currentRotation ?: player.rotation
 
-            interactItem(slot.useHand, yaw, pitch) {
-                slot.takeIf { it !is OffHandSlot }
-                    ?.hotbarSlotForServer
-                    ?.let {
-                        resetSlot = player.inventory.selectedSlot
+        interactItem(slot.useHand, yaw, pitch) {
+            slot.takeIf { it !is OffHandSlot }
+                ?.hotbarSlotForServer
+                ?.let {
+                    resetSlot = player.inventory.selectedSlot
 
-                        player.inventory.selectedSlot = it
-                        interaction.syncSelectedSlot()
-                    }
-            }
-
-            isUsingRod = true
-            pullback.reset()
-        }
-    }
-
-    internal inline fun proceedUsingRod() {
-        pullback.testPullbackRod {
-            if (canUseRodWhenUsingItem) {
-                interaction.stopUsingItem(player)
-
-                resetSlot?.let {
                     player.inventory.selectedSlot = it
                     interaction.syncSelectedSlot()
                 }
-            }
-
-            resetSlot = null
-            isUsingRod = false
-            push.reset()
         }
+
+        isUsingRod = true
+        pullback.reset()
+    }
+
+    internal inline fun proceedUsingRod() = pullback.testPullbackRod {
+        if (canUseRodWhenUsingItem) {
+            interaction.stopUsingItem(player)
+
+            resetSlot?.let {
+                player.inventory.selectedSlot = it
+                interaction.syncSelectedSlot()
+            }
+        }
+
+        resetSlot = null
+        isUsingRod = false
+        push.reset()
     }
 
     @get:JvmSynthetic

@@ -27,7 +27,7 @@ internal class Pullback : Configurable("Pullback") {
             else -> fishingBobberEntity?.takeIf { it.hookedEntity != null } != null
         }
 
-    internal inline fun testPullbackRod(pullback: () -> Unit) {
+    internal fun testPullbackRod(pullback: () -> Unit) {
         if (pullbackChronometer.hasElapsed(delay.toLong() * MILLISECONDS_PER_TICK) || targetReached) {
             pullback()
             reset()
