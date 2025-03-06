@@ -11,7 +11,7 @@ import net.ccbluex.liquidbounce.utils.inventory.OffHandSlot
 import net.ccbluex.liquidbounce.utils.inventory.interactItem
 import net.minecraft.item.Items
 
-@Suppress("MagicNumber")
+@Suppress("MagicNumber", "NOTHING_TO_INLINE")
 internal class Using : Configurable("Using") {
     private val onItemUsing by boolean("IgnoreUsingItem", false)
 
@@ -21,14 +21,14 @@ internal class Using : Configurable("Using") {
     internal var isUsingRod = false
     private var resetSlot: Int? = null
 
-    @Suppress("NOTHING_TO_INLINE")
     internal inline fun startRodUsing(slot: HotbarItemSlot) {
         push.testPushRod {
             val (yaw, pitch) = RotationManager.currentRotation ?: player.rotation
 
             interactItem(slot.useHand, yaw, pitch) {
                 slot
-                    .takeIf { it !is OffHandSlot }?.hotbarSlotForServer
+                    .takeIf { it !is OffHandSlot }
+                    ?.hotbarSlotForServer
                     ?.takeIf { it != player.inventory.selectedSlot }
                     ?.let {
                         resetSlot = player.inventory.selectedSlot
@@ -43,7 +43,6 @@ internal class Using : Configurable("Using") {
         }
     }
 
-    @Suppress("NOTHING_TO_INLINE")
     internal inline fun proceedUsingRod() {
         pullback.testPullbackRod {
             if (canUseRodWhenUsingItem) {
