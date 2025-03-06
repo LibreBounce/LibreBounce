@@ -3,7 +3,6 @@ package net.ccbluex.liquidbounce.features.module.modules.combat.autorod
 import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.KillAuraAutoBlock
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
-import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.client.interaction
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.entity.rotation
@@ -12,41 +11,19 @@ import net.ccbluex.liquidbounce.utils.inventory.OffHandSlot
 import net.ccbluex.liquidbounce.utils.inventory.interactItem
 import net.minecraft.item.Items
 
-private const val MILLISECONDS_PER_TICK = 50
-
 @Suppress("MagicNumber")
 internal class Using : Configurable("Using") {
     private val onItemUsing by boolean("IgnoreUsingItem", false)
-    private val push by int("Push", 2, 1..20, suffix = "ticks")
-    private val pullback by int("Pullback", 10, 1..20, suffix = "ticks")
+
+    private val push = tree(Push())
+    private val pullback = tree(Pullback())
 
     internal var isUsingRod = false
     private var resetSlot: Int? = null
 
-    private val pushChronometer = Chronometer()
-    private val pullbackChronometer = Chronometer()
-
-    @Suppress("NOTHING_TO_INLINE")
-    internal inline fun proceedUsingRod() {
-        if (pullbackChronometer.hasElapsed(pullback.toLong() * MILLISECONDS_PER_TICK)) {
-            interaction.stopUsingItem(player)
-
-            resetSlot
-                ?.takeIf { player.inventory.selectedSlot != it }
-                ?.let {
-                    player.inventory.selectedSlot = it
-                    interaction.syncSelectedSlot()
-                }
-
-            resetSlot = null
-            isUsingRod = false
-            pullbackChronometer.reset()
-        }
-    }
-
     @Suppress("NOTHING_TO_INLINE")
     internal inline fun startRodUsing(slot: HotbarItemSlot) {
-        if (pushChronometer.hasElapsed(push.toLong() * MILLISECONDS_PER_TICK)) {
+        push.testPushRod {
             val (yaw, pitch) = RotationManager.currentRotation ?: player.rotation
 
             interactItem(slot.useHand, yaw, pitch) {
@@ -59,7 +36,23 @@ internal class Using : Configurable("Using") {
             }
 
             isUsingRod = true
-            pushChronometer.reset()
+        }
+    }
+
+    @Suppress("NOTHING_TO_INLINE")
+    internal inline fun proceedUsingRod() {
+        pullback.testPullbackRod {
+            interaction.stopUsingItem(player)
+
+            resetSlot
+                ?.takeIf { player.inventory.selectedSlot != it }
+                ?.let {
+                    player.inventory.selectedSlot = it
+                    interaction.syncSelectedSlot()
+                }
+
+            resetSlot = null
+            isUsingRod = false
         }
     }
 

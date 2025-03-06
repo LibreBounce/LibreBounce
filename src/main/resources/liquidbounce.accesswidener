@@ -80,6 +80,8 @@ accessible field net/minecraft/entity/LivingEntity riptideAttackDamage F
 accessible method net/minecraft/entity/Entity movementInputToVelocity (Lnet/minecraft/util/math/Vec3d;FF)Lnet/minecraft/util/math/Vec3d;
 accessible method net/minecraft/util/math/Box traceCollisionSide (Lnet/minecraft/util/math/Box;Lnet/minecraft/util/math/Vec3d;[DLnet/minecraft/util/math/Direction;DDD)Lnet/minecraft/util/math/Direction;
 
+accessible field net/minecraft/entity/projectile/FishingBobberEntity hookedEntity Lnet/minecraft/entity/Entity;
+
 accessible field net/minecraft/network/packet/s2c/play/EntityVelocityUpdateS2CPacket velocityX I
 accessible field net/minecraft/network/packet/s2c/play/EntityVelocityUpdateS2CPacket velocityY I
 accessible field net/minecraft/network/packet/s2c/play/EntityVelocityUpdateS2CPacket velocityZ I
