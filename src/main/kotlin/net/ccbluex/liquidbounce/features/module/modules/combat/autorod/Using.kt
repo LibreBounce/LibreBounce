@@ -27,12 +27,15 @@ internal class Using : Configurable("Using") {
             val (yaw, pitch) = RotationManager.currentRotation ?: player.rotation
 
             interactItem(slot.useHand, yaw, pitch) {
-                if (slot !is OffHandSlot && player.activeItem?.item != Items.FISHING_ROD) {
-                    resetSlot = slot.hotbarSlotForServer
+                slot
+                    .takeIf { it !is OffHandSlot }?.hotbarSlotForServer
+                    ?.takeIf { it != player.inventory.selectedSlot }
+                    ?.let {
+                        resetSlot = player.inventory.selectedSlot
 
-                    player.inventory.selectedSlot = slot.hotbarSlotForServer
-                    interaction.syncSelectedSlot()
-                }
+                        player.inventory.selectedSlot = it
+                        interaction.syncSelectedSlot()
+                    }
             }
 
             isUsingRod = true
