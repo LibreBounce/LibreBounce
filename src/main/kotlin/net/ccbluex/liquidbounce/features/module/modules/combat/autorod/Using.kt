@@ -26,8 +26,7 @@ internal class Using : Configurable("Using") {
             val (yaw, pitch) = RotationManager.currentRotation ?: player.rotation
 
             interactItem(slot.useHand, yaw, pitch) {
-                slot
-                    .takeIf { it !is OffHandSlot }
+                slot.takeIf { it !is OffHandSlot }
                     ?.hotbarSlotForServer
                     ?.let {
                         resetSlot = player.inventory.selectedSlot
