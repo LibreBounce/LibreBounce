@@ -93,7 +93,6 @@ object MinaraiCombatRecorder : ModuleDebugRecorder.DebugRecorderMode<TrainingDat
             }
 
             buffer.add(TrainingData(
-                startingVector = starting.rotation.directionVector,
                 currentVector = current.directionVector,
                 previousVector = previous.directionVector,
                 targetVector = Rotation.lookingAt(point = target.eyePos, from = player.eyePos).directionVector,

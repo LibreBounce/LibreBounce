@@ -29,7 +29,6 @@ import net.ccbluex.liquidbounce.deeplearn.data.MAXIMUM_TRAINING_AGE
 import net.ccbluex.liquidbounce.deeplearn.data.TrainingData
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
-import net.ccbluex.liquidbounce.utils.aiming.RotationManager.startingRotation
 import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.markAsError
@@ -113,7 +112,6 @@ class MinaraiSmoothMode(override val parent: ChoiceConfigurable<*>) : AngleSmoot
         ModuleDebug.debugParameter(this, "DeltaPitch", totalDelta.deltaPitch)
 
         val input = TrainingData(
-            startingVector = startingRotation?.directionVector ?: currentRotation.directionVector,
             currentVector = currentRotation.directionVector,
             previousVector = prevRotation.directionVector,
             targetVector = targetRotation.directionVector,

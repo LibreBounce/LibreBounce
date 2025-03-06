@@ -18,8 +18,6 @@ import java.io.File
 const val MAXIMUM_TRAINING_AGE = 5
 
 data class TrainingData(
-    @SerializedName(STARTING_DIRECTION_VECTOR)
-    val startingVector: Vec3d,
     @SerializedName(CURRENT_DIRECTION_VECTOR)
     val currentVector: Vec3d,
     @SerializedName(PREVIOUS_DIRECTION_VECTOR)
@@ -92,7 +90,6 @@ data class TrainingData(
         )
 
     companion object {
-        const val STARTING_DIRECTION_VECTOR = "s"
         const val CURRENT_DIRECTION_VECTOR = "a"
         const val PREVIOUS_DIRECTION_VECTOR = "b"
         const val TARGET_DIRECTION_VECTOR = "c"
@@ -113,3 +110,4 @@ data class TrainingData(
 
     }
 }
+
