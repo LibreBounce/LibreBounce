@@ -27,11 +27,13 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
 import net.ccbluex.liquidbounce.utils.aiming.PointTracker
+import net.ccbluex.liquidbounce.utils.aiming.RotationTarget
 import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.data.RotationWithVector
-import net.ccbluex.liquidbounce.utils.aiming.features.SlowStart
-import net.ccbluex.liquidbounce.utils.aiming.features.anglesmooth.LinearAngleSmoothMode
-import net.ccbluex.liquidbounce.utils.aiming.features.anglesmooth.SigmoidAngleSmoothMode
+import net.ccbluex.liquidbounce.utils.aiming.features.MovementCorrection
+import net.ccbluex.liquidbounce.utils.aiming.features.processors.LazyFlick
+import net.ccbluex.liquidbounce.utils.aiming.features.processors.anglesmooth.functions.LinearAngleSmooth
+import net.ccbluex.liquidbounce.utils.aiming.features.processors.anglesmooth.functions.SigmoidAngleSmooth
 import net.ccbluex.liquidbounce.utils.aiming.preference.LeastDifferencePreference
 import net.ccbluex.liquidbounce.utils.aiming.utils.raytraceBox
 import net.ccbluex.liquidbounce.utils.aiming.utils.setRotation
@@ -71,12 +73,12 @@ object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf(
 
     private var angleSmooth = choices(this, "AngleSmooth") {
         arrayOf(
-            LinearAngleSmoothMode(it),
-            SigmoidAngleSmoothMode(it)
+            LinearAngleSmooth(it),
+            SigmoidAngleSmooth(it)
         )
     }
 
-    private val slowStart = tree(SlowStart(this))
+    private val lazyFlick = tree(LazyFlick(this))
 
     private val ignoreOpenScreen by boolean("IgnoreOpenScreen", false)
     private val ignoreOpenContainer by boolean("IgnoreOpenContainer", false)
@@ -99,12 +101,21 @@ object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf(
         }
 
         targetRotation = findNextTargetRotation()?.let { (target, rotation) ->
-            angleSmooth.activeChoice.limitAngleChange(
-                slowStart.rotationFactor,
+            angleSmooth.activeChoice.process(
+                RotationTarget(
+                    rotation = rotation.rotation,
+                    entity = target,
+                    angleSmooth = angleSmooth.activeChoice,
+                    lazyFlick = null,
+                    failFocus = null,
+                    shortStop = null,
+                    ticksUntilReset = 1,
+                    resetThreshold = 1f,
+                    considerInventory = true,
+                    movementCorrection = MovementCorrection.CHANGE_LOOK
+                ),
                 player.rotation,
-                rotation.rotation,
-                rotation.vec,
-                target
+                rotation.rotation
             )
         }
 
@@ -180,9 +191,6 @@ object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf(
                 rotationPreference = rotationPreference
             ) ?: continue
 
-            if (target != targetTracker.target) {
-                slowStart.onTrigger()
-            }
             targetTracker.target = target
             return target to spot
         }

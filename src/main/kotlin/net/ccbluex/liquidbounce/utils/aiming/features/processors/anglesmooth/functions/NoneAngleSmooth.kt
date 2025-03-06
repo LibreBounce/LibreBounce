@@ -19,17 +19,19 @@
  *
  */
 
-package net.ccbluex.liquidbounce.utils.aiming.features.anglesmooth
+package net.ccbluex.liquidbounce.utils.aiming.features.processors.anglesmooth.functions
 
-import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.utils.aiming.RotationTarget
 import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
 
 /**
- * An [AngleSmooth]'er, but as choice
+ * Not an actual angle smooth function, but a placeholder for when no angle smoothing is used.
  */
-abstract class AngleSmoothMode(name: String) : Choice(name), AngleSmooth {
-    abstract fun howLongToReach(
+class NoneAngleSmooth(parent: ChoiceConfigurable<*>) : FunctionAngleSmooth("None", parent) {
+    override fun calculateFactors(
+        rotationTarget: RotationTarget?,
         currentRotation: Rotation,
         targetRotation: Rotation
-    ): Int
+    ): Pair<Float, Float> = 1f to 1f
 }

@@ -19,7 +19,7 @@
  *
  */
 
-package net.ccbluex.liquidbounce.utils.aiming.features.anglesmooth
+package net.ccbluex.liquidbounce.utils.aiming.features.processors.anglesmooth.others
 
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.config.types.Configurable
@@ -29,13 +29,17 @@ import net.ccbluex.liquidbounce.deeplearn.data.MAXIMUM_TRAINING_AGE
 import net.ccbluex.liquidbounce.deeplearn.data.TrainingData
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
+import net.ccbluex.liquidbounce.utils.aiming.RotationTarget
 import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
+import net.ccbluex.liquidbounce.utils.aiming.features.processors.anglesmooth.AngleSmooth
+import net.ccbluex.liquidbounce.utils.aiming.features.processors.anglesmooth.functions.LinearAngleSmooth
+import net.ccbluex.liquidbounce.utils.aiming.features.processors.anglesmooth.functions.NoneAngleSmooth
+import net.ccbluex.liquidbounce.utils.aiming.features.processors.anglesmooth.functions.SigmoidAngleSmooth
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.markAsError
 import net.ccbluex.liquidbounce.utils.entity.lastRotation
 import net.ccbluex.liquidbounce.utils.entity.prevPos
 import net.ccbluex.liquidbounce.utils.entity.squaredBoxedDistanceTo
-import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.util.math.Vec3d
 import kotlin.math.min
@@ -47,9 +51,9 @@ import kotlin.time.measureTimedValue
  * - [net.ccbluex.liquidbounce.features.module.modules.misc.debugrecorder.modes.MinaraiCombatRecorder]
  * - [net.ccbluex.liquidbounce.features.module.modules.misc.debugrecorder.modes.MinaraiTrainer]
  * and then train a model - after that you will be able to use it with
- * [net.ccbluex.liquidbounce.utils.aiming.features.anglesmooth.MinaraiSmoothMode].
+ * [net.ccbluex.liquidbounce.utils.aiming.features.processors.anglesmooth.others.MinaraiAngleSmooth].
  */
-class MinaraiSmoothMode(override val parent: ChoiceConfigurable<*>) : AngleSmoothMode("Minarai") {
+class MinaraiAngleSmooth(override val parent: ChoiceConfigurable<*>) : AngleSmooth("Minarai") {
 
     private val choices = choices("Model", 0) { local ->
         models.onChanged { _ ->
@@ -64,49 +68,30 @@ class MinaraiSmoothMode(override val parent: ChoiceConfigurable<*>) : AngleSmoot
         var pitchMultiplier by float("Pitch", 1f, 0.5f..2f)
     }
 
-    data class NoneAngleSmoothMode(override val parent: ChoiceConfigurable<*>) : AngleSmoothMode("None") {
-
-        override fun limitAngleChange(
-            rotationFactor: Float,
-            currentRotation: Rotation,
-            targetRotation: Rotation,
-            vec3d: Vec3d?,
-            entity: Entity?
-        ) = currentRotation
-
-        override fun howLongToReach(
-            currentRotation: Rotation,
-            targetRotation: Rotation
-        ): Int = 0
-
-    }
-
     private var correctionMode = choices(this, "Correction") {
         arrayOf(
-            NoneAngleSmoothMode(it),
-            LinearAngleSmoothMode(it),
-            SigmoidAngleSmoothMode(it)
+            NoneAngleSmooth(it),
+            LinearAngleSmooth(it),
+            SigmoidAngleSmooth(it),
+            AccelerationAngleSmooth(it)
         )
     }
 
     private val outputMultiplier = tree(OutputMultiplier())
 
-    override fun limitAngleChange(
-        rotationFactor: Float,
+    override fun process(
+        rotationTarget: RotationTarget,
         currentRotation: Rotation,
-        targetRotation: Rotation,
-        vec3d: Vec3d?,
-        entity: Entity?
+        targetRotation: Rotation
     ): Rotation {
         if (!DeepLearningEngine.isInitialized) {
             chat(markAsError("No deep learning engine found."))
             return currentRotation
         }
 
-        val entity = entity as? LivingEntity
-        val inputModelRotation = targetRotation
+        val entity = rotationTarget.entity as? LivingEntity
         val prevRotation = RotationManager.previousRotation ?: player.lastRotation
-        val totalDelta = currentRotation.rotationDeltaTo(inputModelRotation)
+        val totalDelta = currentRotation.rotationDeltaTo(targetRotation)
         val velocityDelta = prevRotation.rotationDeltaTo(currentRotation)
 
         ModuleDebug.debugParameter(this, "DeltaYaw", totalDelta.deltaYaw)
@@ -115,7 +100,7 @@ class MinaraiSmoothMode(override val parent: ChoiceConfigurable<*>) : AngleSmoot
         val input = TrainingData(
             currentVector = currentRotation.directionVector,
             previousVector = prevRotation.directionVector,
-            targetVector = inputModelRotation.directionVector,
+            targetVector = targetRotation.directionVector,
             velocityDelta = velocityDelta.toVec2f(),
 
             playerDiff = player.pos.subtract(player.prevPos),
@@ -123,7 +108,7 @@ class MinaraiSmoothMode(override val parent: ChoiceConfigurable<*>) : AngleSmoot
 
             hurtTime = entity?.let {entity.hurtTime } ?: 10,
             distance = entity?.let { player.squaredBoxedDistanceTo(entity).toFloat() } ?: 3f,
-            age = min(MAXIMUM_TRAINING_AGE, RotationManager.ticksSinceChange)
+            age = min(MAXIMUM_TRAINING_AGE, RotationManager.reactionTicks)
         )
 
         val (output, time) = measureTimedValue {
@@ -138,16 +123,14 @@ class MinaraiSmoothMode(override val parent: ChoiceConfigurable<*>) : AngleSmoot
             currentRotation.pitch + output[1] * outputMultiplier.pitchMultiplier
         )
 
-        return correctionMode.activeChoice.limitAngleChange(
-            rotationFactor,
+        return correctionMode.activeChoice.process(
+            rotationTarget,
             modelOutput,
-            inputModelRotation,
-            vec3d,
-            entity
+            targetRotation
         )
     }
 
-    override fun howLongToReach(
+    override fun calculateTicks(
         currentRotation: Rotation,
         targetRotation: Rotation
     ): Int {

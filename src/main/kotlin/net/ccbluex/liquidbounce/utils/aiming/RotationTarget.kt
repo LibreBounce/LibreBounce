@@ -19,16 +19,15 @@
 package net.ccbluex.liquidbounce.utils.aiming
 
 import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
-import net.ccbluex.liquidbounce.utils.aiming.features.FailFocus
 import net.ccbluex.liquidbounce.utils.aiming.features.MovementCorrection
-import net.ccbluex.liquidbounce.utils.aiming.features.ShortStop
-import net.ccbluex.liquidbounce.utils.aiming.features.SlowStart
-import net.ccbluex.liquidbounce.utils.aiming.features.anglesmooth.AngleSmooth
+import net.ccbluex.liquidbounce.utils.aiming.features.processors.FailFocus
+import net.ccbluex.liquidbounce.utils.aiming.features.processors.LazyFlick
+import net.ccbluex.liquidbounce.utils.aiming.features.processors.RotationProcessor
+import net.ccbluex.liquidbounce.utils.aiming.features.processors.ShortStop
 import net.ccbluex.liquidbounce.utils.client.RestrictedSingleUseAction
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.entity.rotation
 import net.minecraft.entity.Entity
-import net.minecraft.util.math.Vec3d
 
 /**
  * An aim plan is a plan to aim at a certain rotation.
@@ -40,13 +39,12 @@ import net.minecraft.util.math.Vec3d
 @Suppress("LongParameterList")
 class RotationTarget(
     val rotation: Rotation,
-    val vec3d: Vec3d? = null,
     val entity: Entity? = null,
     /**
      * If we do not want to smooth the angle, we can set this to null.
      */
-    val angleSmooth: AngleSmooth?,
-    val slowStart: SlowStart?,
+    val angleSmooth: RotationProcessor?,
+    val lazyFlick: LazyFlick?,
     val failFocus: FailFocus?,
     val shortStop: ShortStop?,
     val ticksUntilReset: Int,
@@ -68,34 +66,37 @@ class RotationTarget(
 
     /**
      * Calculates the next rotation to aim at.
-     * [fromRotation] is the current rotation or rather last rotation we aimed at. It is being used to calculate the
+     * [currentRotation] is the current rotation or rather last rotation we aimed at. It is being used to calculate the
      * next rotation.
      *
      * We might even return null if we do not want to aim at anything yet.
      */
-    fun nextRotation(fromRotation: Rotation, isResetting: Boolean): Rotation {
-        if (shortStop?.isInStopState == true) {
-            return fromRotation
-        }
-
-        val angleSmooth = angleSmooth ?: return rotation
-        val factorModifier = if (failFocus?.isInFailState == true) {
-            failFocus.failFactor
-        } else {
-            slowStart?.rotationFactor ?: 1f
-        }
-
+    fun towards(currentRotation: Rotation, isResetting: Boolean): Rotation {
         if (isResetting) {
-            return angleSmooth.limitAngleChange(factorModifier, fromRotation, player.rotation)
+            return process(currentRotation, player.rotation)
         }
 
-        val rotation = if (failFocus?.isInFailState == true) {
-            failFocus.shiftRotation(rotation)
-        } else {
-            rotation
+        return process(currentRotation, rotation)
+    }
+
+    private fun process(currentRotation: Rotation, targetRotation: Rotation): Rotation {
+        val processors = listOfNotNull(
+            angleSmooth,
+            lazyFlick.takeIf { lazyFlick?.running == true },
+            failFocus.takeIf { failFocus?.running == true },
+            shortStop.takeIf { shortStop?.running == true }
+        )
+
+        if (processors.isEmpty()) {
+            return rotation
         }
 
-        return angleSmooth.limitAngleChange(factorModifier, fromRotation, rotation, vec3d, entity)
+        var targetRotation = targetRotation
+        for (processor in processors) {
+            // We process the rotation with the processor but only the [targetRotation] is being updated.
+            targetRotation = processor.process(this, currentRotation, targetRotation)
+        }
+        return targetRotation
     }
 
 }

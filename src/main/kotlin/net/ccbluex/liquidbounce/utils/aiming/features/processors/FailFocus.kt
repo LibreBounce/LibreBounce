@@ -1,4 +1,4 @@
-package net.ccbluex.liquidbounce.utils.aiming.features
+package net.ccbluex.liquidbounce.utils.aiming.features.processors
 
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.EventListener
@@ -6,6 +6,7 @@ import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
+import net.ccbluex.liquidbounce.utils.aiming.RotationTarget
 import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
 import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
 import net.ccbluex.liquidbounce.utils.kotlin.random
@@ -15,7 +16,7 @@ import kotlin.random.Random
  * The fail focus acts as fail rate, it will purposely miss the target on a certain rate.
  */
 class FailFocus(owner: EventListener? = null)
-    : ToggleableConfigurable(owner, "Fail", false) {
+    : ToggleableConfigurable(owner, "Fail", false), RotationProcessor {
 
     // Configuration properties
     private val failRate by int("Rate", 3, 1..100, "%")
@@ -76,7 +77,7 @@ class FailFocus(owner: EventListener? = null)
     }
 
     /**
-     * Generates a complete non-sense rotation.
+     * Generates a complete nonsense rotation.
      */
     fun shiftRotation(rotation: Rotation): Rotation {
         val prevRotation = RotationManager.previousRotation ?: return rotation
@@ -89,6 +90,18 @@ class FailFocus(owner: EventListener? = null)
             rotation.yaw + deltaYaw + shiftRotation.yaw,
             rotation.pitch + deltaPitch + shiftRotation.pitch
         )
+    }
+
+    override fun process(
+        rotationTarget: RotationTarget,
+        currentRotation: Rotation,
+        targetRotation: Rotation
+    ): Rotation {
+        return if (isInFailState) {
+            shiftRotation(targetRotation)
+        } else {
+            targetRotation
+        }
     }
 
 }

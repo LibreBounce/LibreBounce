@@ -341,7 +341,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
             KillAuraFightBot.updateTarget()
 
             RotationManager.setRotationTarget(
-                rotations.toAimPlan(
+                rotations.toRotationTarget(
                     KillAuraFightBot.getMovementRotation(),
                     considerInventory = !ignoreOpenInventory
                 ),
@@ -358,7 +358,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         maximumRange: Float,
         situation: PointTracker.AimSituation
     ): Boolean {
-        val (rotation, vec) = getSpot(entity, maximumRange.toDouble(), situation) ?: return false
+        val (rotation, _) = getSpot(entity, maximumRange.toDouble(), situation) ?: return false
         val ticks = rotations.howLongToReach(rotation)
         ModuleDebug.debugParameter(ModuleKillAura, "Rotation Ticks", ticks)
 
@@ -383,9 +383,8 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         }
 
         RotationManager.setRotationTarget(
-            rotations.toAimPlan(
+            rotations.toRotationTarget(
                 rotation,
-                vec,
                 entity,
                 considerInventory = !ignoreOpenInventory
             ),

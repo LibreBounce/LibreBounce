@@ -25,6 +25,7 @@ import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.entity.rotation
 import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Vec3d
+import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
@@ -103,6 +104,22 @@ data class Rotation(
         return RotationDelta(
             angleDifference(other.yaw, this.yaw),
             angleDifference(other.pitch, this.pitch)
+        )
+    }
+
+    /**
+     * Calculates a new rotation that is closer to the [other] rotation by [factorH] and [factorV].
+     */
+    fun towards(other: Rotation, factorH: Float, factorV: Float): Rotation {
+        val diff = rotationDeltaTo(other)
+        val rotationDifference = diff.length()
+
+        val straightLineYaw = abs(diff.deltaYaw / rotationDifference) * factorH
+        val straightLinePitch = abs(diff.deltaPitch / rotationDifference) * factorV
+
+        return Rotation(
+            this.yaw + diff.deltaYaw.coerceIn(-straightLineYaw, straightLineYaw),
+            this.pitch + diff.deltaPitch.coerceIn(-straightLinePitch, straightLinePitch)
         )
     }
 

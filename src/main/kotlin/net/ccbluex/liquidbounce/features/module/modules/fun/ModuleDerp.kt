@@ -60,7 +60,7 @@ object ModuleDerp : ClientModule("Derp", Category.FUN) {
             }
         }
 
-        RotationManager.setRotationTarget(rotationsConfigurable.toAimPlan(Rotation(yaw, pitch)), Priority.NOT_IMPORTANT,
+        RotationManager.setRotationTarget(rotationsConfigurable.toRotationTarget(Rotation(yaw, pitch)), Priority.NOT_IMPORTANT,
             this@ModuleDerp)
     }
 

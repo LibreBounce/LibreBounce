@@ -72,7 +72,7 @@ object ModuleFastExp : ClientModule(
             waitUntil {
                 val rotation = Rotation(player.yaw, 90f)
                 RotationManager.setRotationTarget(
-                    Rotate.rotations.toAimPlan(rotation),
+                    Rotate.rotations.toRotationTarget(rotation),
                     Priority.IMPORTANT_FOR_USAGE_3,
                     this@ModuleFastExp
                 )

@@ -63,6 +63,15 @@ object RotationManager : EventListener {
     private var previousRotationTarget: RotationTarget? = null
 
     /**
+     * Reaction time in ticks.
+     *
+     * This is used to determine when to trigger slow start, etc.
+     * It will either trigger when we change the target or when we have a zero rotation difference,
+     * or when our target suddenly changes position (e.g. pearl).
+     */
+    var reactionTicks = 0
+
+    /**
      * The rotation we want to aim at. This DOES NOT mean that the server already received this rotation.
      */
     var currentRotation: Rotation? = null
@@ -106,7 +115,7 @@ object RotationManager : EventListener {
         provider: ClientModule,
         whenReached: RestrictedSingleUseAction? = null
     ) {
-        setRotationTarget(configurable.toAimPlan(
+        setRotationTarget(configurable.toRotationTarget(
             rotation, considerInventory = considerInventory, whenReached = whenReached
         ), priority, provider)
     }
@@ -126,8 +135,6 @@ object RotationManager : EventListener {
         )
     }
 
-    var ticksSinceChange = 0
-
     /**
      * Update current rotation to a new rotation step
      */
@@ -136,21 +143,7 @@ object RotationManager : EventListener {
         val activeRotationTarget = this.activeRotationTarget ?: return
         val playerRotation = player.rotation
 
-        ticksSinceChange++
-
-        val aimPlan = this.rotationTarget
-        if (aimPlan != null) {
-            val enemyChange = aimPlan.entity != null && aimPlan.entity != previousRotationTarget?.entity &&
-                aimPlan.slowStart?.onEnemyChange == true
-            val triggerNoChange = triggerNoDifference && aimPlan.slowStart?.onZeroRotationDifference == true
-
-            if (triggerNoChange || enemyChange) {
-                ticksSinceChange = 0
-                aimPlan.slowStart.onTrigger()
-            }
-        } else {
-            ticksSinceChange = 0
-        }
+        val rotationTarget = this.rotationTarget
 
         // Prevents any rotation changes when inventory is opened
         val allowedRotation = ((!InventoryManager.isInventoryOpen &&
@@ -159,13 +152,13 @@ object RotationManager : EventListener {
 
         if (allowedRotation) {
             val fromRotation = currentRotation ?: playerRotation
-            val rotation = activeRotationTarget.nextRotation(fromRotation, aimPlan == null)
+            val rotation = activeRotationTarget.towards(fromRotation, rotationTarget == null)
                 // After generating the next rotation, we need to normalize it
                 .normalize()
 
             val diff = rotation.angleTo(playerRotation)
 
-            if (aimPlan == null && (activeRotationTarget.movementCorrection == MovementCorrection.CHANGE_LOOK
+            if (rotationTarget == null && (activeRotationTarget.movementCorrection == MovementCorrection.CHANGE_LOOK
                     || activeRotationTarget.angleSmooth == null
                     || diff <= activeRotationTarget.resetThreshold)) {
                 currentRotation?.let { currentRotation ->
@@ -184,7 +177,7 @@ object RotationManager : EventListener {
                 currentRotation = rotation
                 previousRotationTarget = activeRotationTarget
 
-                aimPlan?.whenReached?.invoke()
+                rotationTarget?.whenReached?.invoke()
             }
         }
 

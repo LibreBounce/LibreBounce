@@ -48,7 +48,7 @@ object SpeedYawOffset : ToggleableConfigurable(ModuleSpeed, "YawOffset", false) 
         val rotation = Rotation(player.yaw - yaw, player.pitch)
 
         RotationManager.setRotationTarget(
-            rotationsConfigurable.toAimPlan(rotation),
+            rotationsConfigurable.toRotationTarget(rotation),
             Priority.NOT_IMPORTANT,
             ModuleSpeed
         )
