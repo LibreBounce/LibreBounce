@@ -31,7 +31,6 @@ import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleAutoWeapon
 import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals.CriticalsSelectionMode
 import net.ccbluex.liquidbounce.features.module.modules.combat.elytratarget.ModuleElytraTarget
-import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.KillAuraRequirements.requirementsMet
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.KillAuraRotationsConfigurable.KillAuraRotationTiming.ON_TICK
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.KillAuraRotationsConfigurable.KillAuraRotationTiming.SNAP
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura.RaycastMode.*
@@ -98,6 +97,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
 
     // Target
     val targetTracker = tree(KillAuraTargetTracker)
+    val requirements = tree(KillAuraRequirements)
 
     // Rotation
     private val rotations = tree(KillAuraRotationsConfigurable)
@@ -115,7 +115,6 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
 
     init {
         tree(KillAuraAutoBlock)
-        tree(KillAuraRequirements)
     }
 
     // Target rendering
@@ -158,7 +157,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         val isInInventoryScreen =
             InventoryManager.isInventoryOpen || mc.currentScreen is GenericContainerScreen
 
-        val shouldResetTarget = player.isSpectator || player.isDead || !requirementsMet
+        val shouldResetTarget = player.isSpectator || player.isDead || !requirements.requirementsMet
 
         if (isInInventoryScreen && !ignoreOpenInventory || shouldResetTarget) {
             // Reset current target
@@ -191,7 +190,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
             val hasUnblocked = KillAuraAutoBlock.stopBlocking()
 
             // Deal with fake swing when there is no target
-            if (KillAuraFailSwing.enabled && requirementsMet) {
+            if (KillAuraFailSwing.enabled && requirements.requirementsMet) {
                 if (hasUnblocked) {
                     waitTicks(KillAuraAutoBlock.tickOff)
                 }
@@ -201,7 +200,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         }
 
         // Check if the module should (not) continue after the blocking state is updated
-        if (!requirementsMet) {
+        if (!requirements.requirementsMet) {
             return@tickHandler
         }
 
