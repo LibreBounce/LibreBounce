@@ -39,23 +39,27 @@ internal class Using : Configurable("Using") {
             }
 
             isUsingRod = true
+            pullback.reset()
         }
     }
 
     @Suppress("NOTHING_TO_INLINE")
     internal inline fun proceedUsingRod() {
         pullback.testPullbackRod {
-            interaction.stopUsingItem(player)
+            if (canUseRodWhenUsingItem) {
+                interaction.stopUsingItem(player)
 
-            resetSlot
-                ?.takeIf { player.inventory.selectedSlot != it }
-                ?.let {
-                    player.inventory.selectedSlot = it
-                    interaction.syncSelectedSlot()
-                }
+                resetSlot
+                    ?.takeIf { player.inventory.selectedSlot != it }
+                    ?.let {
+                        player.inventory.selectedSlot = it
+                        interaction.syncSelectedSlot()
+                    }
+            }
 
             resetSlot = null
             isUsingRod = false
+            push.reset()
         }
     }
 
