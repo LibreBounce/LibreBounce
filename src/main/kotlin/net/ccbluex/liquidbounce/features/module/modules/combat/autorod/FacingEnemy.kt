@@ -5,6 +5,7 @@ import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.utils.facingEnemy
 import net.ccbluex.liquidbounce.utils.aiming.utils.raytraceEntity
 import net.ccbluex.liquidbounce.utils.combat.shouldBeAttacked
+import net.ccbluex.liquidbounce.utils.entity.getActualHealth
 import net.ccbluex.liquidbounce.utils.entity.rotation
 import net.ccbluex.liquidbounce.utils.kotlin.random
 import net.ccbluex.liquidbounce.utils.math.sq
@@ -24,7 +25,7 @@ internal class FacingEnemy : ToggleableConfigurable(ModuleAutoRod, "FacingEnemy"
         }
 
     @Suppress("ReturnCount", "NOTHING_TO_INLINE")
-    internal inline fun testUseRod(): Boolean {
+    internal inline fun testUseRod(healthByScoreboard: Boolean): Boolean {
         val rotation = RotationManager.currentRotation ?: player.rotation
 
         val facingEntity = raytraceEntity(activationDistance.random().toDouble(), rotation) {
@@ -37,6 +38,6 @@ internal class FacingEnemy : ToggleableConfigurable(ModuleAutoRod, "FacingEnemy"
         )
 
         return facesEnemy && nearbyEnemies.size <= enemiesNearby &&
-               (ignoreOnLowHealth || facingEntity.health >= healthThreshold)
+               (ignoreOnLowHealth || facingEntity.getActualHealth(healthByScoreboard) >= healthThreshold)
     }
 }

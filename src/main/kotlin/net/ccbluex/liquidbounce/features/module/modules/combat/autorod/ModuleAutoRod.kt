@@ -4,6 +4,7 @@ package net.ccbluex.liquidbounce.features.module.modules.combat.autorod
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
+import net.ccbluex.liquidbounce.utils.entity.getActualHealth
 import net.ccbluex.liquidbounce.utils.inventory.Slots
 import net.minecraft.item.Items
 
@@ -22,6 +23,8 @@ object ModuleAutoRod : ClientModule("AutoRod", Category.COMBAT) {
     private val playerHealthThreshold by int("PlayerHealthThreshold", 5, 1..20, suffix = "hp")
     private val escapeHealthThreshold by int("EscapeHealthThreshold", 10, 1..20, suffix = "hp")
 
+    private val healthByScoreboard by boolean("HealthByScoreboard", true)
+
     private inline val usingRod
         get() = (player.isUsingItem
                 && player.activeItem?.item == Items.FISHING_ROD)
@@ -29,8 +32,8 @@ object ModuleAutoRod : ClientModule("AutoRod", Category.COMBAT) {
 
     private inline val testFacingEnemyUseRod
         get() = facingEnemy.enabled
-                && player.health >= playerHealthThreshold.toFloat()
-                && facingEnemy.testUseRod()
+                && player.getActualHealth(healthByScoreboard) >= playerHealthThreshold.toFloat()
+                && facingEnemy.testUseRod(healthByScoreboard)
 
     private inline val canUseRod get() = when {
         usingRod -> false
