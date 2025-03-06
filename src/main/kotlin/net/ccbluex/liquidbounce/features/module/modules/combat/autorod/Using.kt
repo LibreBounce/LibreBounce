@@ -29,7 +29,6 @@ internal class Using : Configurable("Using") {
                 slot
                     .takeIf { it !is OffHandSlot }
                     ?.hotbarSlotForServer
-                    ?.takeIf { it != player.inventory.selectedSlot }
                     ?.let {
                         resetSlot = player.inventory.selectedSlot
 
@@ -48,12 +47,10 @@ internal class Using : Configurable("Using") {
             if (canUseRodWhenUsingItem) {
                 interaction.stopUsingItem(player)
 
-                resetSlot
-                    ?.takeIf { player.inventory.selectedSlot != it }
-                    ?.let {
-                        player.inventory.selectedSlot = it
-                        interaction.syncSelectedSlot()
-                    }
+                resetSlot?.let {
+                    player.inventory.selectedSlot = it
+                    interaction.syncSelectedSlot()
+                }
             }
 
             resetSlot = null
