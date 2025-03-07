@@ -13,7 +13,12 @@ import net.minecraft.text.HoverEvent
 import java.text.SimpleDateFormat
 import java.util.*
 
-object ModuleDebugRecorder : ClientModule("DebugRecorder", Category.MISC) {
+object ModuleDebugRecorder : ClientModule("DebugRecorder", Category.MISC, disableOnQuit = true) {
+
+    init {
+        // [Debug Recorder] is usually used by developers and testers and is not needed in the auto config.
+        doNotIncludeAlways()
+    }
 
     val modes = choices("Mode", GenericDebugRecorder, arrayOf(
         MinaraiCombatRecorder,
