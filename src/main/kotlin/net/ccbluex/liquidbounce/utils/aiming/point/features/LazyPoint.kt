@@ -31,7 +31,7 @@ import net.minecraft.util.math.Vec3d
  */
 internal class LazyPoint(parent: EventListener) : ToggleableConfigurable(parent, "Lazy", false) {
 
-    private val threshold by floatRange("Threshold", 0.5f..0.6f, 0.01f..2f).onChanged { range ->
+    private val threshold by floatRange("Threshold", 0.0f..0.2f, 0.01f..1f).onChanged { range ->
         currentThreshold = range.random()
     }
 
