@@ -139,7 +139,7 @@ class PointTracker(
             Vec3d.ZERO
         }
 
-        val targetPoint = lazyPoint.lazyPoint(preferredBoxPoint.point(cutoffBox, playerEyes) + offset)
+        val targetPoint = lazyPoint.update(preferredBoxPoint.point(cutoffBox, playerEyes) + offset)
 
         val finalCutoffBox = Box(
             min(targetPoint.x, cutoffBox.minX),

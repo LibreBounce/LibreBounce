@@ -38,7 +38,10 @@ internal class LazyPoint(parent: EventListener) : ToggleableConfigurable(parent,
     private var currentThreshold: Float = threshold.random()
     private var currentPoint: Vec3d? = null
 
-    fun lazyPoint(point: Vec3d): Vec3d {
+    /**
+     * Update the point if the distance is greater than the threshold
+     */
+    fun update(point: Vec3d): Vec3d {
         if (!enabled) {
             return point
         }
