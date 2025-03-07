@@ -6,10 +6,7 @@ import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.features.MovementCorrection
 import net.ccbluex.liquidbounce.utils.aiming.features.processors.FailRotationProcessor
 import net.ccbluex.liquidbounce.utils.aiming.features.processors.ShortStopRotationProcessor
-import net.ccbluex.liquidbounce.utils.aiming.features.processors.anglesmooth.impl.AccelerationAngleSmooth
-import net.ccbluex.liquidbounce.utils.aiming.features.processors.anglesmooth.impl.InterpolationAngleSmooth
-import net.ccbluex.liquidbounce.utils.aiming.features.processors.anglesmooth.impl.LinearAngleSmooth
-import net.ccbluex.liquidbounce.utils.aiming.features.processors.anglesmooth.impl.MinaraiAngleSmooth
+import net.ccbluex.liquidbounce.utils.aiming.features.processors.anglesmooth.impl.*
 import net.ccbluex.liquidbounce.utils.client.RestrictedSingleUseAction
 import net.minecraft.entity.Entity
 
@@ -25,9 +22,10 @@ open class RotationsConfigurable(
     private val angleSmooth = choices(owner, "AngleSmooth", 0) {
         listOfNotNull(
             LinearAngleSmooth(it),
-            InterpolationAngleSmooth(it),
+            SigmoidAngleSmooth(it),
+            if (combatSpecific) InterpolationAngleSmooth(it) else null,
             AccelerationAngleSmooth(it),
-            if (combatSpecific) MinaraiAngleSmooth(it) else null
+            MinaraiAngleSmooth(it)
         ).toTypedArray()
     }
 
@@ -67,7 +65,7 @@ open class RotationsConfigurable(
      * @param rotation The rotation to rotate to
      * @return The amount of ticks it takes to rotate to the rotation
      */
-    fun howLongToReach(rotation: Rotation) = angleSmooth.activeChoice
+    fun calculateTicks(rotation: Rotation) = angleSmooth.activeChoice
         .calculateTicks(RotationManager.actualServerRotation, rotation)
 
 }

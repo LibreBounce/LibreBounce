@@ -359,7 +359,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         situation: PointTracker.AimSituation
     ): Boolean {
         val (rotation, _) = getSpot(entity, maximumRange.toDouble(), situation) ?: return false
-        val ticks = rotations.howLongToReach(rotation)
+        val ticks = rotations.calculateTicks(rotation)
         ModuleDebug.debugParameter(ModuleKillAura, "Rotation Ticks", ticks)
 
         when (rotations.rotationTiming) {
