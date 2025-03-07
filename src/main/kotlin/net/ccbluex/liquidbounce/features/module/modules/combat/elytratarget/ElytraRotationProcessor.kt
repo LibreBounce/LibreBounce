@@ -4,7 +4,7 @@ import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.RotationUpdateEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.features.module.modules.combat.elytratarget.ElytraRotationsAndAngleSmooth.ignoreKillAura
+import net.ccbluex.liquidbounce.features.module.modules.combat.elytratarget.ElytraRotationProcessor.ignoreKillAura
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationTarget
 import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
@@ -27,7 +27,7 @@ private const val BASE_PITCH_SPEED = 35.0f
 private const val IDEAL_DISTANCE = 10
 
 @Suppress("MagicNumber")
-internal object ElytraRotationsAndAngleSmooth : Configurable("Rotations"), RotationProcessor, EventListener {
+internal object ElytraRotationProcessor : Configurable("Rotations"), RotationProcessor, EventListener {
     private val sharpRotations by boolean("Sharp", false)
     internal val ignoreKillAura by boolean("IgnoreKillAuraRotation", true)
     internal val look by boolean("Look", false)
@@ -141,7 +141,7 @@ internal object ElytraRotationsAndAngleSmooth : Configurable("Rotations"), Rotat
                 plan = RotationTarget(
                     rotation = it,
                     entity = target,
-                    processors = listOfNotNull(ElytraRotationsAndAngleSmooth),
+                    processors = listOfNotNull(ElytraRotationProcessor),
                     ticksUntilReset = 1,
                     resetThreshold = 1f,
                     considerInventory = true,
