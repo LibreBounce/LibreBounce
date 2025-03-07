@@ -32,6 +32,7 @@ import net.ccbluex.netty.http.model.RequestObject
 import net.ccbluex.netty.http.util.httpOk
 import java.net.BindException
 import java.net.Socket
+import kotlin.concurrent.thread
 
 /**
  * A client server implementation.
@@ -74,7 +75,7 @@ object ClientInteropServer {
         }.onFailure(ErrorHandler::fatal)
 
         // Start the HTTP server
-        startServer()
+        thread(name = "netty-websocket", block = ::startServer)
     }
 
     private var attempt = 0
