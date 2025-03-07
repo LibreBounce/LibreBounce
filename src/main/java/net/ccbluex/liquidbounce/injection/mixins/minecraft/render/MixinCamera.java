@@ -108,8 +108,10 @@ public abstract class MixinCamera {
         var previousRotation = RotationManager.INSTANCE.getPreviousRotation();
         var currentRotation = RotationManager.INSTANCE.getCurrentRotation();
 
-        var changeLook = rotationTarget != null && rotationTarget.getMovementCorrection() == MovementCorrection.CHANGE_LOOK;
-        if (currentRotation == null || previousRotation == null || !changeLook) {
+        var changeLook = rotationTarget != null &&
+                rotationTarget.getMovementCorrection() == MovementCorrection.CHANGE_LOOK;
+        if (currentRotation == null || previousRotation == null || !changeLook ||
+                !RotationManager.INSTANCE.isRotatingAllowed(rotationTarget)) {
             return;
         }
 

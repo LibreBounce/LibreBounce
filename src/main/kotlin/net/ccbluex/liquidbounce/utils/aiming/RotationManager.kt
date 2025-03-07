@@ -125,6 +125,23 @@ object RotationManager : EventListener {
     }
 
     /**
+     * Checks if the rotation is allowed to be updated
+     */
+    fun isRotatingAllowed(rotationTarget: RotationTarget): Boolean {
+        if (!allowedToUpdate()) {
+            return false
+        }
+
+        if (rotationTarget.considerInventory) {
+            if (InventoryManager.isInventoryOpen || mc.currentScreen is GenericContainerScreen) {
+                return false
+            }
+        }
+
+        return true
+    }
+
+    /**
      * Update current rotation to a new rotation step
      */
     @Suppress("CognitiveComplexMethod", "NestedBlockDepth")
@@ -135,11 +152,7 @@ object RotationManager : EventListener {
         val rotationTarget = this.rotationTarget
 
         // Prevents any rotation changes when inventory is opened
-        val allowedRotation = ((!InventoryManager.isInventoryOpen &&
-            mc.currentScreen !is GenericContainerScreen) || !activeRotationTarget.considerInventory)
-            && allowedToUpdate()
-
-        if (allowedRotation) {
+        if (isRotatingAllowed(activeRotationTarget)) {
             val fromRotation = currentRotation ?: playerRotation
             val rotation = activeRotationTarget.towards(fromRotation, rotationTarget == null)
                 // After generating the next rotation, we need to normalize it
