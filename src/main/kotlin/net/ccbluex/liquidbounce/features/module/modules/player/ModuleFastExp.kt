@@ -39,6 +39,7 @@ import net.minecraft.item.Items
  *
  * Automatically repairs your armor.
  */
+@Suppress("MagicNumber")
 object ModuleFastExp : ClientModule(
     "FastExp",
     Category.PLAYER,
@@ -59,9 +60,9 @@ object ModuleFastExp : ClientModule(
     private val combatPauseTime by int("CombatPauseTime", 0, 0..40, "ticks")
     private val slotResetDelay by intRange("SlotResetDelay", 0..0, 0..40, "ticks")
 
-    @Suppress("unused")
+    @Suppress("unused", "ComplexCondition")
     private val repeatable = tickHandler {
-        val slot = getSlot()
+        val slot = Slots.OffhandWithHotbar.findSlot(Items.EXPERIENCE_BOTTLE)
         if (slot == null || player.isDead || InventoryManager.isInventoryOpen || isRepaired(slot)) {
             return@tickHandler
         }
@@ -110,13 +111,5 @@ object ModuleFastExp : ClientModule(
         itemStack.damage <= 0
 
     private fun noMending(itemStack: ItemStack?) = itemStack.getEnchantment(Enchantments.MENDING) == 0
-
-    private fun getSlot(): HotbarItemSlot? {
-        if (OffHandSlot.itemStack.item == Items.EXPERIENCE_BOTTLE) {
-            return OffHandSlot
-        }
-
-        return Slots.Hotbar.findSlot(Items.EXPERIENCE_BOTTLE)
-    }
 
 }

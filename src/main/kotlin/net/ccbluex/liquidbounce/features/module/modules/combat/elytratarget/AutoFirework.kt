@@ -5,7 +5,6 @@ import net.ccbluex.liquidbounce.event.Sequence
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.utils.client.Chronometer
 import net.ccbluex.liquidbounce.utils.entity.squaredBoxedDistanceTo
-import net.ccbluex.liquidbounce.utils.inventory.OffHandSlot
 import net.ccbluex.liquidbounce.utils.inventory.Slots
 import net.minecraft.item.Items
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura as KillAura
@@ -17,13 +16,6 @@ private const val MILLISECONDS_PER_TICK = 50
  */
 @Suppress("MagicNumber")
 private var fireworkCooldown = 750
-
-private inline val fireworkSlot
-    get() = if (OffHandSlot.itemStack.item == Items.FIREWORK_ROCKET) {
-        OffHandSlot
-    } else {
-        Slots.Hotbar.findSlot(Items.FIREWORK_ROCKET)
-    }
 
 private val fireworkChronometer = Chronometer()
 
@@ -73,7 +65,7 @@ internal object AutoFirework : ToggleableConfigurable(ModuleElytraTarget, "AutoF
         val target = ModuleElytraTarget.target ?: return@tickHandler
 
         if (cooldownReached && canUseFirework()) {
-            fireworkSlot?.let {
+            Slots.OffhandWithHotbar.findSlot(Items.FIREWORK_ROCKET)?.let {
                 useMode.useFireworkSlot(it, slotResetDelay.random())
                 fireworkChronometer.reset()
             }
