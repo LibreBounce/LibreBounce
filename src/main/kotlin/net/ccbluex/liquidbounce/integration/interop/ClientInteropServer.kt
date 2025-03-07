@@ -78,25 +78,21 @@ object ClientInteropServer {
     }
 
     private var attempt = 0
-
     private fun startServer(port: Int = this.port) {
-        runCatching {
+        try {
             httpServer.start(port)
-        }.onFailure { error ->
-            when (error) {
-                is BindException -> {
-                    if (attempt >= 5) {
-                        ErrorHandler.fatal(error)
-                        return@onFailure
-                    }
-
-                    // Retry with random port
-                    attempt++
-                    logger.error("Failed to bind to port $port. Falling back to random port.")
-                    startServer((15001..17000).random())
-                }
-                else -> ErrorHandler.fatal(error)
+        } catch (bindException: BindException) {
+            if (attempt >= 5) {
+                ErrorHandler.fatal(bindException)
+                return
             }
+
+            // Retry with random port
+            attempt++
+            logger.error("Failed to bind to port $port. Falling back to random port.")
+            startServer((15001..17000).random())
+        } catch (exception: Exception) {
+            ErrorHandler.fatal(exception)
         }
     }
 
