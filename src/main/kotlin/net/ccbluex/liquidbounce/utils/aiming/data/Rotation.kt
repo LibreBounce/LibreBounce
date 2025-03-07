@@ -108,19 +108,23 @@ data class Rotation(
     }
 
     /**
-     * Calculates a new rotation that is closer to the [other] rotation by [factorH] and [factorV].
+     * Calculates a new rotation that is closer to the [other] rotation by a limiting factor of
+     * [horizontalFactor] and [verticalFactor], which should be between 0 and 180 degrees.
      */
-    fun towards(other: Rotation, factorH: Float, factorV: Float): Rotation {
+    fun towardsLinear(other: Rotation, horizontalFactor: Float, verticalFactor: Float): Rotation {
         val diff = rotationDeltaTo(other)
         val rotationDifference = diff.length()
-
-        val straightLineYaw = abs(diff.deltaYaw / rotationDifference) * factorH
-        val straightLinePitch = abs(diff.deltaPitch / rotationDifference) * factorV
+        val straightLineYaw = abs(diff.deltaYaw / rotationDifference) * horizontalFactor
+        val straightLinePitch = abs(diff.deltaPitch / rotationDifference) * verticalFactor
 
         return Rotation(
             this.yaw + diff.deltaYaw.coerceIn(-straightLineYaw, straightLineYaw),
             this.pitch + diff.deltaPitch.coerceIn(-straightLinePitch, straightLinePitch)
         )
+    }
+
+    fun approximatelyEquals(other: Rotation, tolerance: Float = 8f): Boolean {
+        return angleTo(other) <= tolerance
     }
 
 }

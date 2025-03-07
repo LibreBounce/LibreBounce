@@ -18,8 +18,7 @@
  *
  *
  */
-
-package net.ccbluex.liquidbounce.utils.aiming.features.processors.anglesmooth.others
+package net.ccbluex.liquidbounce.utils.aiming.features.processors.anglesmooth.impl
 
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.config.types.Configurable
@@ -32,9 +31,7 @@ import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationTarget
 import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.features.processors.anglesmooth.AngleSmooth
-import net.ccbluex.liquidbounce.utils.aiming.features.processors.anglesmooth.functions.LinearAngleSmooth
-import net.ccbluex.liquidbounce.utils.aiming.features.processors.anglesmooth.functions.NoneAngleSmooth
-import net.ccbluex.liquidbounce.utils.aiming.features.processors.anglesmooth.functions.SigmoidAngleSmooth
+import net.ccbluex.liquidbounce.utils.aiming.features.processors.anglesmooth.NoneAngleSmooth
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.markAsError
 import net.ccbluex.liquidbounce.utils.entity.lastRotation
@@ -51,9 +48,9 @@ import kotlin.time.measureTimedValue
  * - [net.ccbluex.liquidbounce.features.module.modules.misc.debugrecorder.modes.MinaraiCombatRecorder]
  * - [net.ccbluex.liquidbounce.features.module.modules.misc.debugrecorder.modes.MinaraiTrainer]
  * and then train a model - after that you will be able to use it with
- * [net.ccbluex.liquidbounce.utils.aiming.features.processors.anglesmooth.others.MinaraiAngleSmooth].
+ * [net.ccbluex.liquidbounce.utils.aiming.features.processors.anglesmooth.impl.MinaraiAngleSmooth].
  */
-class MinaraiAngleSmooth(override val parent: ChoiceConfigurable<*>) : AngleSmooth("Minarai") {
+class MinaraiAngleSmooth(parent: ChoiceConfigurable<*>) : AngleSmooth("Minarai", parent) {
 
     private val choices = choices("Model", 0) { local ->
         models.onChanged { _ ->
@@ -70,10 +67,19 @@ class MinaraiAngleSmooth(override val parent: ChoiceConfigurable<*>) : AngleSmoo
 
     private var correctionMode = choices(this, "Correction") {
         arrayOf(
-            NoneAngleSmooth(it),
-            LinearAngleSmooth(it),
-            SigmoidAngleSmooth(it),
-            AccelerationAngleSmooth(it)
+            /**
+             * Works best with the model, as it allows for the most natural movement.
+             */
+            InterpolationAngleSmooth(it, 2..5, 2..5, 95..100),
+            /**
+             * Not recommended to use this one, as it completely eliminates any acceleration
+             * effects from the model.
+             */
+            LinearAngleSmooth(it,
+                horizontalTurnSpeed = 5f..5f,
+                verticalTurnSpeed = 5f..5f
+            ),
+            NoneAngleSmooth(it)
         )
     }
 

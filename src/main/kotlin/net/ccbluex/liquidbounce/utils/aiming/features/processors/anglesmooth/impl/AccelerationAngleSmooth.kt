@@ -1,4 +1,22 @@
-package net.ccbluex.liquidbounce.utils.aiming.features.processors.anglesmooth.others
+/*
+ * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
+ *
+ * Copyright (c) 2015 - 2025 CCBlueX
+ *
+ * LiquidBounce is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * LiquidBounce is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
+ */
+package net.ccbluex.liquidbounce.utils.aiming.features.processors.anglesmooth.impl
 
 import it.unimi.dsi.fastutil.floats.FloatFloatPair
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
@@ -21,7 +39,7 @@ import kotlin.math.exp
 import kotlin.math.floor
 import kotlin.math.max
 
-class AccelerationAngleSmooth(override val parent: ChoiceConfigurable<*>) : AngleSmooth("Acceleration") {
+class AccelerationAngleSmooth(parent: ChoiceConfigurable<*>) : AngleSmooth("Acceleration", parent) {
 
     private val yawAcceleration by floatRange("YawAcceleration", 20f..25f, 1f..180f)
     private val pitchAcceleration by floatRange("PitchAccelelation", 20f..25f, 1f..180f)
@@ -96,7 +114,11 @@ class AccelerationAngleSmooth(override val parent: ChoiceConfigurable<*>) : Angl
         }
     }
 
-    override fun process(rotationTarget: RotationTarget, currentRotation: Rotation, targetRotation: Rotation): Rotation {
+    override fun process(
+        rotationTarget: RotationTarget,
+        currentRotation: Rotation,
+        targetRotation: Rotation
+    ): Rotation {
         val prevRotation = RotationManager.previousRotation ?: player.lastRotation
 
         val prevDiff = prevRotation.rotationDeltaTo(currentRotation)

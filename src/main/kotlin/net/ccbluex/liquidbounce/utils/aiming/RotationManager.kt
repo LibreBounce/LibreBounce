@@ -60,7 +60,7 @@ object RotationManager : EventListener {
 
     val activeRotationTarget: RotationTarget?
         get() = rotationTarget ?: previousRotationTarget
-    private var previousRotationTarget: RotationTarget? = null
+    internal var previousRotationTarget: RotationTarget? = null
 
     /**
      * Reaction time in ticks.
@@ -103,8 +103,6 @@ object RotationManager : EventListener {
         private set
 
     private var theoreticalServerRotation = Rotation.ZERO
-
-    private var triggerNoDifference = false
 
     @Suppress("LongParameterList")
     fun setRotationTarget(
@@ -159,7 +157,7 @@ object RotationManager : EventListener {
             val diff = rotation.angleTo(playerRotation)
 
             if (rotationTarget == null && (activeRotationTarget.movementCorrection == MovementCorrection.CHANGE_LOOK
-                    || activeRotationTarget.angleSmooth == null
+                    || activeRotationTarget.processors.isEmpty()
                     || diff <= activeRotationTarget.resetThreshold)) {
                 currentRotation?.let { currentRotation ->
                     player.yaw = player.withFixedYaw(currentRotation)
@@ -219,11 +217,6 @@ object RotationManager : EventListener {
     ) { event ->
         EventManager.callEvent(RotationUpdateEvent)
         update()
-
-        // Reset the trigger
-        if (triggerNoDifference) {
-            triggerNoDifference = false
-        }
     }
 
     /**
@@ -240,9 +233,7 @@ object RotationManager : EventListener {
         val rotation = when (val packet = event.packet) {
             is PlayerMoveC2SPacket -> {
                 // If we are not changing the look, we don't need to update the rotation
-                // but, we want to handle slow start triggers
                 if (!packet.changeLook) {
-                    triggerNoDifference = true
                     return@handler
                 }
 

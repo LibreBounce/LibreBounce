@@ -18,17 +18,18 @@
  *
  *
  */
-
 package net.ccbluex.liquidbounce.utils.aiming.features.processors.anglesmooth
 
 import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.features.processors.RotationProcessor
 
 /**
  * An [AngleSmooth]'er, but as choice
  */
-abstract class AngleSmooth(name: String) : Choice(name), RotationProcessor {
+abstract class AngleSmooth(name: String, override val parent: ChoiceConfigurable<*>)
+    : Choice(name), RotationProcessor {
     abstract fun calculateTicks(
         currentRotation: Rotation,
         targetRotation: Rotation

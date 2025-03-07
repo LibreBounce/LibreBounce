@@ -60,8 +60,8 @@ object ModuleDerp : ClientModule("Derp", Category.FUN) {
             }
         }
 
-        RotationManager.setRotationTarget(rotationsConfigurable.toRotationTarget(Rotation(yaw, pitch)), Priority.NOT_IMPORTANT,
-            this@ModuleDerp)
+        RotationManager.setRotationTarget(rotationsConfigurable.toRotationTarget(Rotation(yaw, pitch)),
+            Priority.NOT_IMPORTANT, this@ModuleDerp)
     }
 
     private object YawStatic : YawChoice("Static") {

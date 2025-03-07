@@ -20,10 +20,8 @@ package net.ccbluex.liquidbounce.utils.aiming
 
 import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.features.MovementCorrection
-import net.ccbluex.liquidbounce.utils.aiming.features.processors.FailFocus
-import net.ccbluex.liquidbounce.utils.aiming.features.processors.LazyFlick
 import net.ccbluex.liquidbounce.utils.aiming.features.processors.RotationProcessor
-import net.ccbluex.liquidbounce.utils.aiming.features.processors.ShortStop
+import net.ccbluex.liquidbounce.utils.aiming.features.processors.ShortStopRotationProcessor
 import net.ccbluex.liquidbounce.utils.client.RestrictedSingleUseAction
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.entity.rotation
@@ -41,16 +39,21 @@ class RotationTarget(
     val rotation: Rotation,
     val entity: Entity? = null,
     /**
-     * If we do not want to smooth the angle, we can set this to null.
+     * The rotation processors which are being used to calculate the next rotation.
+     * This list should start with [net.ccbluex.liquidbounce.utils.aiming.features.processors.anglesmooth.AngleSmooth]
+     * and then continue with other processors like [ShortStopRotationProcessor] and [FailFocus].
      */
-    val angleSmooth: RotationProcessor?,
-    val lazyFlick: LazyFlick?,
-    val failFocus: FailFocus?,
-    val shortStop: ShortStop?,
+    val processors: List<RotationProcessor> = emptyList(),
+    /**
+     * The ticks until reset defines the amount of ticks until we are rotating back.
+     */
     val ticksUntilReset: Int,
     /**
      * The reset threshold defines the threshold at which we are going to reset the aim plan.
      * The threshold is being calculated by the distance between the current rotation and the rotation we want to aim.
+     *
+     * TODO: Replace this with a fixed check that checks if our current mouse movement
+     *   outperforms the threshold.
      */
     val resetThreshold: Float,
     /**
@@ -80,18 +83,12 @@ class RotationTarget(
     }
 
     private fun process(currentRotation: Rotation, targetRotation: Rotation): Rotation {
-        val processors = listOfNotNull(
-            angleSmooth,
-            lazyFlick.takeIf { lazyFlick?.running == true },
-            failFocus.takeIf { failFocus?.running == true },
-            shortStop.takeIf { shortStop?.running == true }
-        )
+        var targetRotation = targetRotation
 
         if (processors.isEmpty()) {
-            return rotation
+            return targetRotation
         }
 
-        var targetRotation = targetRotation
         for (processor in processors) {
             // We process the rotation with the processor but only the [targetRotation] is being updated.
             targetRotation = processor.process(this, currentRotation, targetRotation)

@@ -19,20 +19,16 @@
  *
  */
 
-package net.ccbluex.liquidbounce.utils.aiming.features.processors.anglesmooth.functions
+package net.ccbluex.liquidbounce.utils.aiming.features.processors.anglesmooth
 
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.utils.aiming.RotationTarget
 import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
-import net.ccbluex.liquidbounce.utils.aiming.features.processors.anglesmooth.AngleSmooth
-import net.minecraft.util.math.MathHelper
 
-abstract class FunctionAngleSmooth(name: String, override val parent: ChoiceConfigurable<*>) : AngleSmooth(name) {
+abstract class FactorAngleSmooth(name: String, parent: ChoiceConfigurable<*>) : AngleSmooth(name, parent) {
 
     /**
      * Calculate the factors for the rotation towards the target rotation.
-     *
-     * TODO: Change this to be a 0.0 to 1.0 range instead of 0.0 to 180.0
      *
      * @param currentRotation The current rotation
      * @param targetRotation The target rotation
@@ -40,9 +36,13 @@ abstract class FunctionAngleSmooth(name: String, override val parent: ChoiceConf
     abstract fun calculateFactors(rotationTarget: RotationTarget?, currentRotation: Rotation, targetRotation: Rotation):
         Pair<Float, Float>
 
-    override fun process(rotationTarget: RotationTarget, currentRotation: Rotation, targetRotation: Rotation): Rotation {
+    override fun process(
+        rotationTarget: RotationTarget,
+        currentRotation: Rotation,
+        targetRotation: Rotation
+    ): Rotation {
         val (horizontalFactor, verticalFactor) = calculateFactors(rotationTarget, currentRotation, targetRotation)
-        return currentRotation.towards(targetRotation, horizontalFactor, verticalFactor)
+        return currentRotation.towardsLinear(targetRotation, horizontalFactor, verticalFactor)
     }
 
     override fun calculateTicks(currentRotation: Rotation, targetRotation: Rotation): Int {
@@ -51,9 +51,9 @@ abstract class FunctionAngleSmooth(name: String, override val parent: ChoiceConf
 
         do {
             val (horizontalFactor, verticalFactor) = calculateFactors(null, currentRotation, targetRotation)
-            currentRotation = currentRotation.towards(targetRotation, horizontalFactor, verticalFactor)
+            currentRotation = currentRotation.towardsLinear(targetRotation, horizontalFactor, verticalFactor)
             ticks++
-        } while (!MathHelper.approximatelyEquals(currentRotation.angleTo(targetRotation), 0f))
+        } while (!currentRotation.approximatelyEquals(targetRotation) && ticks < 80)
 
         return ticks
     }

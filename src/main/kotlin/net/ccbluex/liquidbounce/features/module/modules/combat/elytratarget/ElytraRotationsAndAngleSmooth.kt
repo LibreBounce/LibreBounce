@@ -141,10 +141,7 @@ internal object ElytraRotationsAndAngleSmooth : Configurable("Rotations"), Rotat
                 plan = RotationTarget(
                     rotation = it,
                     entity = target,
-                    angleSmooth = ElytraRotationsAndAngleSmooth,
-                    lazyFlick = null,
-                    failFocus = null,
-                    shortStop = null,
+                    processors = listOfNotNull(ElytraRotationsAndAngleSmooth),
                     ticksUntilReset = 1,
                     resetThreshold = 1f,
                     considerInventory = true,

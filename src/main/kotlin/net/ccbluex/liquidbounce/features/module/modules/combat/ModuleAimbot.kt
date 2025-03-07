@@ -31,9 +31,8 @@ import net.ccbluex.liquidbounce.utils.aiming.RotationTarget
 import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.data.RotationWithVector
 import net.ccbluex.liquidbounce.utils.aiming.features.MovementCorrection
-import net.ccbluex.liquidbounce.utils.aiming.features.processors.LazyFlick
-import net.ccbluex.liquidbounce.utils.aiming.features.processors.anglesmooth.functions.LinearAngleSmooth
-import net.ccbluex.liquidbounce.utils.aiming.features.processors.anglesmooth.functions.SigmoidAngleSmooth
+import net.ccbluex.liquidbounce.utils.aiming.features.processors.anglesmooth.impl.InterpolationAngleSmooth
+import net.ccbluex.liquidbounce.utils.aiming.features.processors.anglesmooth.impl.LinearAngleSmooth
 import net.ccbluex.liquidbounce.utils.aiming.preference.LeastDifferencePreference
 import net.ccbluex.liquidbounce.utils.aiming.utils.raytraceBox
 import net.ccbluex.liquidbounce.utils.aiming.utils.setRotation
@@ -73,12 +72,10 @@ object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf(
 
     private var angleSmooth = choices(this, "AngleSmooth") {
         arrayOf(
-            LinearAngleSmooth(it),
-            SigmoidAngleSmooth(it)
+            InterpolationAngleSmooth(it),
+            LinearAngleSmooth(it)
         )
     }
-
-    private val lazyFlick = tree(LazyFlick(this))
 
     private val ignoreOpenScreen by boolean("IgnoreOpenScreen", false)
     private val ignoreOpenContainer by boolean("IgnoreOpenContainer", false)
@@ -105,10 +102,7 @@ object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf(
                 RotationTarget(
                     rotation = rotation.rotation,
                     entity = target,
-                    angleSmooth = angleSmooth.activeChoice,
-                    lazyFlick = null,
-                    failFocus = null,
-                    shortStop = null,
+                    processors = listOf(angleSmooth.activeChoice),
                     ticksUntilReset = 1,
                     resetThreshold = 1f,
                     considerInventory = true,

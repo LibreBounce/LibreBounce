@@ -1,3 +1,21 @@
+/*
+ * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
+ *
+ * Copyright (c) 2015 - 2025 CCBlueX
+ *
+ * LiquidBounce is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * LiquidBounce is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
+ */
 package net.ccbluex.liquidbounce.utils.aiming.features.processors
 
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
@@ -10,9 +28,9 @@ import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.FIRST_PRIOR
 import net.ccbluex.liquidbounce.utils.kotlin.random
 
 /**
- * The short stop mechanism temporarily halts aiming at the target based on a specified rate.
+ * Short stop temporarily halts aiming at the target based on a specified rate.
  */
-class ShortStop(owner: EventListener? = null)
+class ShortStopRotationProcessor(owner: EventListener? = null)
     : ToggleableConfigurable(owner, "ShortStop", false), RotationProcessor {
 
     private val rate by int("Rate", 3, 1..25, "%")
@@ -40,8 +58,12 @@ class ShortStop(owner: EventListener? = null)
         currentRotation: Rotation,
         targetRotation: Rotation
     ): Rotation {
+        if (!this.running) {
+            return targetRotation
+        }
+
         return if (isInStopState) {
-            currentRotation.towards(targetRotation, (0.0f..0.1f).random(), (0.0f..0.1f).random())
+            currentRotation.towardsLinear(targetRotation, (0.0f..0.1f).random(), (0.0f..0.1f).random())
         } else {
             targetRotation
         }
