@@ -4,17 +4,17 @@ import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.RotationUpdateEvent
 import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.features.module.modules.combat.elytratarget.ElytraRotationProcessor.ignoreKillAura
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationTarget
 import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.features.MovementCorrection
-import net.ccbluex.liquidbounce.utils.aiming.features.anglesmooth.AngleSmooth
+import net.ccbluex.liquidbounce.utils.aiming.features.processors.RotationProcessor
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.math.minus
 import net.ccbluex.liquidbounce.utils.math.plus
 import net.ccbluex.liquidbounce.utils.math.times
-import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Vec3d
@@ -27,7 +27,7 @@ private const val BASE_PITCH_SPEED = 35.0f
 private const val IDEAL_DISTANCE = 10
 
 @Suppress("MagicNumber")
-internal object ElytraRotationsAndAngleSmooth : Configurable("Rotations"), AngleSmooth, EventListener {
+internal object ElytraRotationProcessor : Configurable("Rotations"), RotationProcessor, EventListener {
     private val sharpRotations by boolean("Sharp", false)
     internal val ignoreKillAura by boolean("IgnoreKillAuraRotation", true)
     internal val look by boolean("Look", false)
@@ -68,12 +68,10 @@ internal object ElytraRotationsAndAngleSmooth : Configurable("Rotations"), Angle
      * Please do not use this ANYWHERE ELSE
      * This is only for [ModuleElytraTarget]
      */
-    override fun limitAngleChange(
-        factorModifier: Float,
+    override fun process(
+        rotationTarget: RotationTarget,
         currentRotation: Rotation,
-        targetRotation: Rotation,
-        vec3d: Vec3d?,
-        entity: Entity?
+        targetRotation: Rotation
     ): Rotation {
         val delta = currentRotation.rotationDeltaTo(targetRotation)
 
@@ -142,12 +140,8 @@ internal object ElytraRotationsAndAngleSmooth : Configurable("Rotations"), Angle
                  */
                 plan = RotationTarget(
                     rotation = it,
-                    vec3d = it.directionVector,
                     entity = target,
-                    angleSmooth = ElytraRotationsAndAngleSmooth,
-                    slowStart = null,
-                    failFocus = null,
-                    shortStop = null,
+                    processors = listOfNotNull(ElytraRotationProcessor),
                     ticksUntilReset = 1,
                     resetThreshold = 1f,
                     considerInventory = true,

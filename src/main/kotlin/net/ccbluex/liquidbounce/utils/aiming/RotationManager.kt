@@ -60,7 +60,7 @@ object RotationManager : EventListener {
 
     val activeRotationTarget: RotationTarget?
         get() = rotationTarget ?: previousRotationTarget
-    private var previousRotationTarget: RotationTarget? = null
+    internal var previousRotationTarget: RotationTarget? = null
 
     /**
      * The rotation we want to aim at. This DOES NOT mean that the server already received this rotation.
@@ -95,8 +95,6 @@ object RotationManager : EventListener {
 
     private var theoreticalServerRotation = Rotation.ZERO
 
-    private var triggerNoDifference = false
-
     @Suppress("LongParameterList")
     fun setRotationTarget(
         rotation: Rotation,
@@ -106,7 +104,7 @@ object RotationManager : EventListener {
         provider: ClientModule,
         whenReached: RestrictedSingleUseAction? = null
     ) {
-        setRotationTarget(configurable.toAimPlan(
+        setRotationTarget(configurable.toRotationTarget(
             rotation, considerInventory = considerInventory, whenReached = whenReached
         ), priority, provider)
     }
@@ -126,8 +124,6 @@ object RotationManager : EventListener {
         )
     }
 
-    var ticksSinceChange = 0
-
     /**
      * Update current rotation to a new rotation step
      */
@@ -136,21 +132,7 @@ object RotationManager : EventListener {
         val activeRotationTarget = this.activeRotationTarget ?: return
         val playerRotation = player.rotation
 
-        ticksSinceChange++
-
-        val aimPlan = this.rotationTarget
-        if (aimPlan != null) {
-            val enemyChange = aimPlan.entity != null && aimPlan.entity != previousRotationTarget?.entity &&
-                aimPlan.slowStart?.onEnemyChange == true
-            val triggerNoChange = triggerNoDifference && aimPlan.slowStart?.onZeroRotationDifference == true
-
-            if (triggerNoChange || enemyChange) {
-                ticksSinceChange = 0
-                aimPlan.slowStart.onTrigger()
-            }
-        } else {
-            ticksSinceChange = 0
-        }
+        val rotationTarget = this.rotationTarget
 
         // Prevents any rotation changes when inventory is opened
         val allowedRotation = ((!InventoryManager.isInventoryOpen &&
@@ -159,14 +141,14 @@ object RotationManager : EventListener {
 
         if (allowedRotation) {
             val fromRotation = currentRotation ?: playerRotation
-            val rotation = activeRotationTarget.nextRotation(fromRotation, aimPlan == null)
+            val rotation = activeRotationTarget.towards(fromRotation, rotationTarget == null)
                 // After generating the next rotation, we need to normalize it
                 .normalize()
 
             val diff = rotation.angleTo(playerRotation)
 
-            if (aimPlan == null && (activeRotationTarget.movementCorrection == MovementCorrection.CHANGE_LOOK
-                    || activeRotationTarget.angleSmooth == null
+            if (rotationTarget == null && (activeRotationTarget.movementCorrection == MovementCorrection.CHANGE_LOOK
+                    || activeRotationTarget.processors.isEmpty()
                     || diff <= activeRotationTarget.resetThreshold)) {
                 currentRotation?.let { currentRotation ->
                     player.yaw = player.withFixedYaw(currentRotation)
@@ -184,7 +166,7 @@ object RotationManager : EventListener {
                 currentRotation = rotation
                 previousRotationTarget = activeRotationTarget
 
-                aimPlan?.whenReached?.invoke()
+                rotationTarget?.whenReached?.invoke()
             }
         }
 
@@ -226,11 +208,6 @@ object RotationManager : EventListener {
     ) { event ->
         EventManager.callEvent(RotationUpdateEvent)
         update()
-
-        // Reset the trigger
-        if (triggerNoDifference) {
-            triggerNoDifference = false
-        }
     }
 
     /**
@@ -247,9 +224,7 @@ object RotationManager : EventListener {
         val rotation = when (val packet = event.packet) {
             is PlayerMoveC2SPacket -> {
                 // If we are not changing the look, we don't need to update the rotation
-                // but, we want to handle slow start triggers
                 if (!packet.changeLook) {
-                    triggerNoDifference = true
                     return@handler
                 }
 

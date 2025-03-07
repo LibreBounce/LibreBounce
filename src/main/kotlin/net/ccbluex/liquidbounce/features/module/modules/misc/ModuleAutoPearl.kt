@@ -119,7 +119,7 @@ object ModuleAutoPearl : ClientModule("AutoPearl", Category.COMBAT, aliases = ar
         CombatManager.pauseCombatForAtLeast(combatPauseTime)
         if (Rotate.enabled) {
             RotationManager.setRotationTarget(
-                Rotate.rotations.toAimPlan(rotation),
+                Rotate.rotations.toRotationTarget(rotation),
                 Priority.IMPORTANT_FOR_USAGE_3,
                 this@ModuleAutoPearl
             )
@@ -138,7 +138,7 @@ object ModuleAutoPearl : ClientModule("AutoPearl", Category.COMBAT, aliases = ar
 
             waitConditional(20) {
                 RotationManager.setRotationTarget(
-                    Rotate.rotations.toAimPlan(rotation),
+                    Rotate.rotations.toRotationTarget(rotation),
                     Priority.IMPORTANT_FOR_USAGE_3,
                     this@ModuleAutoPearl
                 )

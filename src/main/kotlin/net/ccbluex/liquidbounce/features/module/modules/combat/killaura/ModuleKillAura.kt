@@ -58,7 +58,6 @@ import net.ccbluex.liquidbounce.utils.combat.attack
 import net.ccbluex.liquidbounce.utils.combat.shouldBeAttacked
 import net.ccbluex.liquidbounce.utils.entity.rotation
 import net.ccbluex.liquidbounce.utils.entity.squaredBoxedDistanceTo
-import net.ccbluex.liquidbounce.utils.input.InputTracker.isPressedOnAny
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.isInventoryOpen
 import net.ccbluex.liquidbounce.utils.inventory.isInContainerScreen
@@ -98,6 +97,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
 
     // Target
     val targetTracker = tree(KillAuraTargetTracker)
+    val requirements = tree(KillAuraRequirements)
 
     // Rotation
     private val rotations = tree(KillAuraRotationsConfigurable)
@@ -108,7 +108,6 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
     internal val raycast by enumChoice("Raycast", TRACE_ALL)
     private val criticalsSelectionMode by enumChoice("Criticals", CriticalsSelectionMode.SMART)
     private val keepSprint by boolean("KeepSprint", true)
-    private val requiresClick by boolean("RequiresClick", false)
 
     // Inventory Handling
     internal val ignoreOpenInventory by boolean("IgnoreOpenInventory", true)
@@ -132,9 +131,6 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         KillAuraAutoBlock.stopBlocking()
         KillAuraNotifyWhenFail.failedHitsIncrement = 0
     }
-
-    private val canTargetEnemies
-        get() = !requiresClick || mc.options.attackKey.isPressedOnAny
 
     @Suppress("unused")
     private val renderHandler = handler<WorldRenderEvent> { event ->
@@ -161,7 +157,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         val isInInventoryScreen =
             InventoryManager.isInventoryOpen || mc.currentScreen is GenericContainerScreen
 
-        val shouldResetTarget = player.isSpectator || player.isDead || !canTargetEnemies
+        val shouldResetTarget = player.isSpectator || player.isDead || !requirements.requirementsMet
 
         if (isInInventoryScreen && !ignoreOpenInventory || shouldResetTarget) {
             // Reset current target
@@ -194,7 +190,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
             val hasUnblocked = KillAuraAutoBlock.stopBlocking()
 
             // Deal with fake swing when there is no target
-            if (KillAuraFailSwing.enabled && canTargetEnemies) {
+            if (KillAuraFailSwing.enabled && requirements.requirementsMet) {
                 if (hasUnblocked) {
                     waitTicks(KillAuraAutoBlock.tickOff)
                 }
@@ -204,7 +200,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         }
 
         // Check if the module should (not) continue after the blocking state is updated
-        if (!canTargetEnemies) {
+        if (!requirements.requirementsMet) {
             return@tickHandler
         }
 
@@ -345,7 +341,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
             KillAuraFightBot.updateTarget()
 
             RotationManager.setRotationTarget(
-                rotations.toAimPlan(
+                rotations.toRotationTarget(
                     KillAuraFightBot.getMovementRotation(),
                     considerInventory = !ignoreOpenInventory
                 ),
@@ -362,7 +358,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         maximumRange: Float,
         situation: PointTracker.AimSituation
     ): Boolean {
-        val (rotation, vec) = getSpot(entity, maximumRange.toDouble(), situation) ?: return false
+        val (rotation, _) = getSpot(entity, maximumRange.toDouble(), situation) ?: return false
         val ticks = rotations.howLongToReach(rotation)
         ModuleDebug.debugParameter(ModuleKillAura, "Rotation Ticks", ticks)
 
@@ -387,9 +383,8 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         }
 
         RotationManager.setRotationTarget(
-            rotations.toAimPlan(
+            rotations.toRotationTarget(
                 rotation,
-                vec,
                 entity,
                 considerInventory = !ignoreOpenInventory
             ),

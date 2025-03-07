@@ -8,7 +8,7 @@ import net.minecraft.entity.LivingEntity
 import net.minecraft.util.math.Vec3d
 
 @Suppress("MaxLineLength", "MagicNumber")
-internal object TargetEntityMovementPrediction : ToggleableConfigurable(ElytraRotationsAndAngleSmooth, "Prediction", true) {
+internal object TargetEntityMovementPrediction : ToggleableConfigurable(ElytraRotationProcessor, "Prediction", true) {
     private val glidingOnly by boolean("GlidingOnly", true)
     private val multiplier by floatRange("Multiplier", 1f..1.1f, 0.5f..2f)
 

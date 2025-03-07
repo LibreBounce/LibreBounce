@@ -3,14 +3,15 @@ package net.ccbluex.liquidbounce.utils.aiming
 import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
-import net.ccbluex.liquidbounce.utils.aiming.features.FailFocus
 import net.ccbluex.liquidbounce.utils.aiming.features.MovementCorrection
-import net.ccbluex.liquidbounce.utils.aiming.features.ShortStop
-import net.ccbluex.liquidbounce.utils.aiming.features.SlowStart
-import net.ccbluex.liquidbounce.utils.aiming.features.anglesmooth.*
+import net.ccbluex.liquidbounce.utils.aiming.features.processors.FailRotationProcessor
+import net.ccbluex.liquidbounce.utils.aiming.features.processors.ShortStopRotationProcessor
+import net.ccbluex.liquidbounce.utils.aiming.features.processors.anglesmooth.impl.AccelerationAngleSmooth
+import net.ccbluex.liquidbounce.utils.aiming.features.processors.anglesmooth.impl.InterpolationAngleSmooth
+import net.ccbluex.liquidbounce.utils.aiming.features.processors.anglesmooth.impl.LinearAngleSmooth
+import net.ccbluex.liquidbounce.utils.aiming.features.processors.anglesmooth.impl.MinaraiAngleSmooth
 import net.ccbluex.liquidbounce.utils.client.RestrictedSingleUseAction
 import net.minecraft.entity.Entity
-import net.minecraft.util.math.Vec3d
 
 /**
  * Configurable to configure the dynamic rotation engine
@@ -23,37 +24,33 @@ open class RotationsConfigurable(
 
     private val angleSmooth = choices(owner, "AngleSmooth", 0) {
         listOfNotNull(
-            LinearAngleSmoothMode(it),
-            BezierAngleSmoothMode(it),
-            SigmoidAngleSmoothMode(it),
-            if (combatSpecific) ConditionalLinearAngleSmoothMode(it) else null,
-            AccelerationSmoothMode(it),
-            if (combatSpecific) MinaraiSmoothMode(it) else null
+            LinearAngleSmooth(it),
+            InterpolationAngleSmooth(it),
+            AccelerationAngleSmooth(it),
+            if (combatSpecific) MinaraiAngleSmooth(it) else null
         ).toTypedArray()
     }
 
-    private var slowStart = SlowStart(owner).takeIf { combatSpecific }?.also { tree(it) }
-    private var shortStop = ShortStop(owner).takeIf { combatSpecific }?.also { tree(it) }
-    private val failFocus = FailFocus(owner).takeIf { combatSpecific }?.also { tree(it) }
+    private var shortStop = ShortStopRotationProcessor(owner).takeIf { combatSpecific }?.also { tree(it) }
+    private val fail = FailRotationProcessor(owner).takeIf { combatSpecific }?.also { tree(it) }
 
     private val movementCorrection by enumChoice("MovementCorrection", movementCorrection)
     private val resetThreshold by float("ResetThreshold", 2f, 1f..180f)
     private val ticksUntilReset by int("TicksUntilReset", 5, 1..30, "ticks")
 
-    fun toAimPlan(
+    fun toRotationTarget(
         rotation: Rotation,
-        vec: Vec3d? = null,
         entity: Entity? = null,
         considerInventory: Boolean = false,
         whenReached: RestrictedSingleUseAction? = null
     ) = RotationTarget(
         rotation,
-        vec,
         entity,
-        angleSmooth.activeChoice,
-        slowStart,
-        failFocus,
-        shortStop,
+        listOfNotNull(
+            angleSmooth.activeChoice,
+            fail.takeIf { failFocus -> failFocus?.running == true },
+            shortStop.takeIf { shortStop -> shortStop?.running == true }
+        ),
         ticksUntilReset,
         resetThreshold,
         considerInventory,
@@ -71,6 +68,6 @@ open class RotationsConfigurable(
      * @return The amount of ticks it takes to rotate to the rotation
      */
     fun howLongToReach(rotation: Rotation) = angleSmooth.activeChoice
-        .howLongToReach(RotationManager.actualServerRotation, rotation)
+        .calculateTicks(RotationManager.actualServerRotation, rotation)
 
 }
