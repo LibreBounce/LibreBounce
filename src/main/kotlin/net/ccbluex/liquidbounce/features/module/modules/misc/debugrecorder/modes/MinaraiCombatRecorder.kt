@@ -21,7 +21,7 @@
 
 package net.ccbluex.liquidbounce.features.module.modules.misc.debugrecorder.modes
 
-import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectArrayMap
+import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap
 import net.ccbluex.liquidbounce.deeplearn.data.TrainingData
 import net.ccbluex.liquidbounce.event.events.AttackEntityEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
