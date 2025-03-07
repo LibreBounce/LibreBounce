@@ -184,6 +184,9 @@ dependencies {
     // HTTP library
     includeDependency "com.squareup.okhttp3:okhttp:5.0.0-alpha.14"
 
+    // OS Information (Missing when using Lunar Client)
+    includeDependency "com.github.oshi:oshi-core:6.6.5"
+
     // SOCKS5 Proxy Support
     includeDependency "io.netty:netty-handler-proxy:4.1.97.Final"
 
