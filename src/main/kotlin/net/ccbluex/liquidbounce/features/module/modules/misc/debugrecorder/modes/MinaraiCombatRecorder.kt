@@ -22,24 +22,31 @@
 package net.ccbluex.liquidbounce.features.module.modules.misc.debugrecorder.modes
 
 import com.viaversion.viaversion.libs.fastutil.ints.Int2ObjectArrayMap
-import it.unimi.dsi.fastutil.ints.IntOpenHashSet
 import net.ccbluex.liquidbounce.deeplearn.data.TrainingData
 import net.ccbluex.liquidbounce.event.events.AttackEntityEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
+import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.sequenceHandler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.misc.debugrecorder.ModuleDebugRecorder
+import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
+import net.ccbluex.liquidbounce.render.BoxRenderer
+import net.ccbluex.liquidbounce.render.engine.Color4b
+import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
+import net.ccbluex.liquidbounce.render.withPositionRelativeToCamera
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
+import net.ccbluex.liquidbounce.utils.aiming.utils.raytraceEntity
 import net.ccbluex.liquidbounce.utils.client.FloatValueProvider
 import net.ccbluex.liquidbounce.utils.client.asText
+import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.combat.TargetPriority
 import net.ccbluex.liquidbounce.utils.combat.TargetTracker
 import net.ccbluex.liquidbounce.utils.entity.*
 import net.minecraft.entity.LivingEntity
 import net.minecraft.network.packet.c2s.play.PlayerInteractBlockC2SPacket
-import net.minecraft.util.math.MathHelper
+import net.minecraft.util.math.Box
 
 /**
  * Records combat behavior
@@ -55,21 +62,22 @@ object MinaraiCombatRecorder : ModuleDebugRecorder.DebugRecorderMode<TrainingDat
     ))
     private var previous: Rotation = Rotation(0f, 0f)
 
-    private var startMap = Int2ObjectArrayMap<Start>()
+    private var fightMap = Int2ObjectArrayMap<Fight>()
     private var trainingCollection = Int2ObjectArrayMap<MutableList<TrainingData>>()
-    private var sequenceLocks = IntOpenHashSet()
 
-    private data class Start(
-        var age: Int,
-        val rotation: Rotation
+    private var targetEntityId: Int? = null
+
+    private data class Fight(
+        var ticks: Int = 0
     )
 
-    const val BUFFER_SIZE = 100
+    private val doNotTrack
+        get() = player.abilities.allowFlying || player.isSpectator ||
+            player.isDead || player.abilities.flying
 
     @Suppress("unused")
     private val tickHandler = tickHandler {
-        if (player.abilities.allowFlying || player.isSpectator ||
-            player.isDead || player.abilities.flying) {
+        if (doNotTrack) {
             return@tickHandler
         }
 
@@ -86,29 +94,39 @@ object MinaraiCombatRecorder : ModuleDebugRecorder.DebugRecorderMode<TrainingDat
         val targets = targetTracker.targets()
 
         for (target in targets) {
-            val starting = startMap.computeIfAbsent(target.id) { Start(target.age, current) }
-            val buffer = trainingCollection.computeIfAbsent(target.id) { mutableListOf() }
-            if (buffer.size > BUFFER_SIZE) {
-                buffer.removeAt(0)
+            val targetRotation = Rotation.lookingAt(point = target.eyePos, from = player.eyePos)
+
+            if (targetEntityId != target.id) {
+                // Check if we are moving towards the target
+                if (next.angleTo(targetRotation) >= current.angleTo(targetRotation)) {
+                    fightMap.remove(target.id)
+                    trainingCollection.remove(target.id)
+                    continue
+                }
             }
+
+            val fight = fightMap.computeIfAbsent(target.id) { Fight() }
+            val buffer = trainingCollection.computeIfAbsent(target.id) { mutableListOf() }
 
             buffer.add(TrainingData(
                 currentVector = current.directionVector,
                 previousVector = previous.directionVector,
-                targetVector = Rotation.lookingAt(point = target.eyePos, from = player.eyePos).directionVector,
+                targetVector = targetRotation.directionVector,
                 velocityDelta = current.rotationDeltaTo(next).toVec2f(),
                 playerDiff = player.pos.subtract(player.prevPos),
                 targetDiff = target.pos.subtract(target.prevPos),
-                age = target.age - starting.age,
+                age = fight.ticks,
                 hurtTime = target.hurtTime,
                 distance = player.squaredBoxedDistanceTo(target).toFloat()
             ))
+
+            fight.ticks++
         }
 
         // Drop from [startingVector] and [trainingCollection] if target is not present anymore
         val targetIds = targets.map { targetId -> targetId.id }
 
-        startMap.keys.removeIf { it !in targetIds }
+        fightMap.keys.removeIf { it !in targetIds }
         trainingCollection.keys.removeIf { it !in targetIds }
     }
 
@@ -116,42 +134,83 @@ object MinaraiCombatRecorder : ModuleDebugRecorder.DebugRecorderMode<TrainingDat
     private val attackHandler = sequenceHandler<AttackEntityEvent> { event ->
         val entity = event.entity as? LivingEntity ?: return@sequenceHandler
         val entityId = entity.id
-        val start = startMap.remove(entity.id) ?: return@sequenceHandler
 
         // Lock the sequence to prevent multiple recordings
-        if (sequenceLocks.contains(entity.id)) {
+        if (targetEntityId != null) {
             return@sequenceHandler
         }
-        sequenceLocks.add(entity.id)
+        targetEntityId = entity.id
 
-        // Wait until entity is hurt
-        waitUntil { entity.hurtTime > 0 }
+        // Wait until entity is not in combat
+        var inactivity = 0
+        var buffer: MutableList<TrainingData>? = null
+        waitUntil {
+            if (entity.isDead || entity.isRemoved || doNotTrack) {
+                return@waitUntil true
+            }
 
-        // Wait until entity is not hurt or disappeared
-        waitUntil { entity.hurtTime == 0 || entity.isRemoved || entity.isDead }
+            val rotation = RotationManager.currentRotation ?: player.rotation
+            val distance = player.eyePos.distanceTo(entity.eyePos) + 1.0
+            ModuleDebug.debugParameter(this, "Distance", distance)
+            val raytraceTarget = raytraceEntity(distance, rotation) { e ->
+                e == entity
+            }
 
-        sequenceLocks.remove(entity.id)
+            if (raytraceTarget?.entity == null) {
+                inactivity++
+                ModuleDebug.debugParameter(this, "Inactivity", inactivity)
+                return@waitUntil inactivity > 20
+            } else {
+                buffer = trainingCollection[entityId]
+                inactivity = 0
+            }
 
-        // Pass training collection to recording
-        val buffer = trainingCollection.remove(entity.id) ?: return@sequenceHandler
-        buffer.forEach(::recordPacket)
+            return@waitUntil false
+        }
 
-        val totalDrag = start.rotation.rotationDeltaTo(player.rotation)
-        mc.inGameHud.setOverlayMessage("Recorded ${buffer.size} samples for ${entity.name.string}".asText(), false)
+        targetEntityId = null
+        trainingCollection.remove(entity.id)
+
+        val sampleBuffer = buffer ?: return@sequenceHandler
+        sampleBuffer.forEach(::recordPacket)
+        chat("Recorded ${sampleBuffer.size} samples for ${entity.name.string}".asText())
     }
 
     @Suppress("unused")
-    private val inactivityTracker = tickHandler {
-        val ticks = waitUntil {
-            val rotation = RotationManager.currentRotation ?: player.rotation
-            val current = RotationManager.previousRotation ?: player.lastRotation
-            // Wait until the player moves
-            !MathHelper.approximatelyEquals(rotation.rotationDeltaTo(current).length(), 0.0f)
-        }
+    private val renderHandler = handler<WorldRenderEvent> { event ->
+        val matrixStack = event.matrixStack
 
-        // When inactive more than 20 ticks, clear the data
-        if (ticks > 20 && trainingCollection.isNotEmpty()) {
-            reset()
+        renderEnvironmentForWorld(matrixStack) {
+            BoxRenderer.Companion.drawWith(this) {
+                targetTracker.targets().forEach { entity ->
+                    val pos = entity.interpolateCurrentPosition(event.partialTicks)
+                    val eyePos = pos.add(0.0, entity.standingEyeHeight.toDouble(), 0.0)
+                    val box = Box(
+                        0.0,
+                        entity.standingEyeHeight.toDouble(),
+                        0.0,
+                        0.0,
+                        entity.standingEyeHeight.toDouble(),
+                        0.0
+                    ).expand(0.1)
+
+                    val color = if (targetEntityId == entity.id) {
+                        Color4b.GREEN
+                    } else if (fightMap.contains(entity.id)) {
+                        Color4b.YELLOW
+                    } else {
+                        Color4b.RED
+                    }
+
+                    withPositionRelativeToCamera(pos) {
+                        drawBox(
+                            box,
+                            color.with(a = 50),
+                            color.with(a = 150)
+                        )
+                    }
+                }
+            }
         }
     }
 
@@ -164,8 +223,14 @@ object MinaraiCombatRecorder : ModuleDebugRecorder.DebugRecorderMode<TrainingDat
         }
     }
 
+    override fun disable() {
+        reset()
+        super.disable()
+    }
+
     private fun reset() {
-        startMap.clear()
+        targetEntityId = null
+        fightMap.clear()
         trainingCollection.clear()
     }
 
