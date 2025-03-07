@@ -129,7 +129,7 @@ open class Value<T : Any>(
      * @docs https://kotlinlang.org/docs/reference/delegated-properties.html
      */
 
-    operator fun getValue(u: Any?, property: KProperty<*>) = get()
+    operator fun getValue(u: Any?, property: KProperty<*>) = this@Value.get()
 
     operator fun setValue(u: Any?, property: KProperty<*>, t: T) {
         set(t)
@@ -142,7 +142,7 @@ open class Value<T : Any>(
             return this.activeChoice.name
         }
 
-        return when (val v = get()) {
+        return when (val v = this@Value.get()) {
             is ClosedFloatingPointRange<*> -> arrayOf(v.start, v.endInclusive)
             is IntRange -> arrayOf(v.first, v.last)
             is NamedChoice -> v.choiceName
@@ -358,7 +358,7 @@ class BindValue(
     defaultValue: InputBind,
 ) : Value<InputBind>(name, aliases, defaultValue, ValueType.BIND) {
     override fun setByString(string: String) {
-        get().bind(string)
+        this@BindValue.get().bind(string)
     }
 }
 

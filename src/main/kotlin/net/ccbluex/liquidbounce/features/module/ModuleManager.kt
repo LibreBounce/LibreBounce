@@ -237,7 +237,6 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleServerCrasher,
             ModuleDupe,
             ModuleClickTp,
-            ModuleConsoleSpammer,
             ModuleTimeShift,
             ModuleTeleport,
             ModulePhase,
