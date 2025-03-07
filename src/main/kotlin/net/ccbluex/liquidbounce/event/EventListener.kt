@@ -69,7 +69,7 @@ interface EventListener {
 
 inline fun <reified T : Event> EventListener.handler(
     priority: Short = 0,
-    noinline handler: (T) -> Unit
+    noinline handler: Handler<T>
 ): EventHook<T> {
     return EventManager.registerEventHook(T::class.java,
         EventHook(this, handler, priority)
