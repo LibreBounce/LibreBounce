@@ -63,15 +63,6 @@ object RotationManager : EventListener {
     internal var previousRotationTarget: RotationTarget? = null
 
     /**
-     * Reaction time in ticks.
-     *
-     * This is used to determine when to trigger slow start, etc.
-     * It will either trigger when we change the target or when we have a zero rotation difference,
-     * or when our target suddenly changes position (e.g. pearl).
-     */
-    var reactionTicks = 0
-
-    /**
      * The rotation we want to aim at. This DOES NOT mean that the server already received this rotation.
      */
     var currentRotation: Rotation? = null

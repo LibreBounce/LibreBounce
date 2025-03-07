@@ -24,7 +24,6 @@ import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.deeplearn.DeepLearningEngine
 import net.ccbluex.liquidbounce.deeplearn.ModelHolster.models
-import net.ccbluex.liquidbounce.deeplearn.data.MAXIMUM_TRAINING_AGE
 import net.ccbluex.liquidbounce.deeplearn.data.TrainingData
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
@@ -39,7 +38,6 @@ import net.ccbluex.liquidbounce.utils.entity.prevPos
 import net.ccbluex.liquidbounce.utils.entity.squaredBoxedDistanceTo
 import net.minecraft.entity.LivingEntity
 import net.minecraft.util.math.Vec3d
-import kotlin.math.min
 import kotlin.time.DurationUnit
 import kotlin.time.measureTimedValue
 
@@ -114,7 +112,7 @@ class MinaraiAngleSmooth(parent: ChoiceConfigurable<*>) : AngleSmooth("Minarai",
 
             hurtTime = entity?.let {entity.hurtTime } ?: 10,
             distance = entity?.let { player.squaredBoxedDistanceTo(entity).toFloat() } ?: 3f,
-            age = min(MAXIMUM_TRAINING_AGE, RotationManager.reactionTicks)
+            age = 0
         )
 
         val (output, time) = measureTimedValue {
