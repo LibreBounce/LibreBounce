@@ -367,5 +367,5 @@ object ModuleBacktrack : ClientModule("Backtrack", Category.COMBAT) {
     private fun shouldPause() = pauseOnHurtTime.enabled && shouldPause
 
     fun shouldCancelPackets() =
-        target?.let { target -> target.isAlive && shouldBacktrack(target) } ?: false
+        target?.let { target -> target.isAlive && shouldBacktrack(target) } == true
 }
