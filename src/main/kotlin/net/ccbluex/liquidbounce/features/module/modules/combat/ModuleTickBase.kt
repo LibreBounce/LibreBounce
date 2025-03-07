@@ -19,7 +19,10 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import net.ccbluex.liquidbounce.config.types.NamedChoice
-import net.ccbluex.liquidbounce.event.events.*
+import net.ccbluex.liquidbounce.event.events.MovementInputEvent
+import net.ccbluex.liquidbounce.event.events.PacketEvent
+import net.ccbluex.liquidbounce.event.events.PlayerTickEvent
+import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
@@ -31,7 +34,6 @@ import net.ccbluex.liquidbounce.render.drawLineStrip
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
 import net.ccbluex.liquidbounce.render.withColor
-import net.ccbluex.liquidbounce.utils.client.PacketQueueManager
 import net.ccbluex.liquidbounce.utils.combat.findEnemy
 import net.ccbluex.liquidbounce.utils.entity.PlayerSimulationCache
 import net.ccbluex.liquidbounce.utils.kotlin.mapArray
@@ -172,13 +174,6 @@ internal object ModuleTickBase : ClientModule("TickBase", Category.COMBAT) {
         }
 
         waitTicks(cooldown)
-    }
-
-    @Suppress("unused")
-    private val packetQueueHandler = handler<QueuePacketEvent> { event ->
-        if (ticksToSkip > 0 && event.origin == TransferOrigin.RECEIVE) {
-            event.action = PacketQueueManager.Action.QUEUE
-        }
     }
 
     @Suppress("unused")
