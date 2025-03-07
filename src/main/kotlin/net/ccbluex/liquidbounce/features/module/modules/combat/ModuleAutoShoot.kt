@@ -138,7 +138,7 @@ object ModuleAutoShoot : ClientModule("AutoShoot", Category.COMBAT) {
 
         // Set the rotation with the usage priority of 2.
         RotationManager.setRotationTarget(
-            rotationConfigurable.toAimPlan(rotation ?: return@handler, considerInventory = considerInventory),
+            rotationConfigurable.toRotationTarget(rotation ?: return@handler, considerInventory = considerInventory),
             Priority.IMPORTANT_FOR_USAGE_2, this
         )
     }

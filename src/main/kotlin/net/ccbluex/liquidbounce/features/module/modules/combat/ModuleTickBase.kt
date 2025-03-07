@@ -139,7 +139,6 @@ internal object ModuleTickBase : ClientModule("TickBase", Category.COMBAT) {
             TickBaseMode.PAST -> {
                 ticksToSkip = bestTick + pause
                 waitTicks(ticksToSkip)
-                ticksToSkip = 0
 
                 repeat(bestTick) {
                     call.tick()
@@ -147,6 +146,7 @@ internal object ModuleTickBase : ClientModule("TickBase", Category.COMBAT) {
                 }
 
                 ModuleDebug.debugParameter(this, "Recommended Skip", bestTick)
+                ticksToSkip = 0
             }
 
             TickBaseMode.FUTURE -> {

@@ -18,7 +18,6 @@
  */
 package net.ccbluex.liquidbounce.features.module
 
-import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.config.ConfigSystem
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.DisconnectEvent
@@ -273,6 +272,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleAntiStaff,
             ModuleFlagCheck,
             ModulePacketLogger,
+            ModuleDebugRecorder,
 
             // Movement
             ModuleAirJump,
@@ -414,11 +414,6 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleTargets,
             ModuleLiquidChat
         )
-
-        // Register dev modules
-        if (LiquidBounce.IN_DEVELOPMENT) {
-            builtin += ModuleDebugRecorder
-        }
 
         builtin.forEach { module ->
             addModule(module)

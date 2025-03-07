@@ -15,21 +15,30 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
- *
- *
  */
+package net.ccbluex.liquidbounce.utils.aiming.features.processors.anglesmooth
 
-package net.ccbluex.liquidbounce.utils.aiming.features.anglesmooth
-
-import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.utils.aiming.RotationTarget
 import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
 
 /**
- * An [AngleSmooth]'er, but as choice
+ * This is used by [net.ccbluex.liquidbounce.utils.aiming.features.processors.anglesmooth.impl.MinaraiAngleSmooth]
+ * to define an angle smooth mode that does not affect the current rotation.
+ *
+ * It essentially does nothing.
  */
-abstract class AngleSmoothMode(name: String) : Choice(name), AngleSmooth {
-    abstract fun howLongToReach(
+class NoneAngleSmooth(parent: ChoiceConfigurable<*>) : AngleSmooth("None", parent) {
+
+    override fun calculateTicks(
         currentRotation: Rotation,
         targetRotation: Rotation
-    ): Int
+    ): Int = 0
+
+    override fun process(
+        rotationTarget: RotationTarget,
+        currentRotation: Rotation,
+        targetRotation: Rotation
+    ): Rotation = currentRotation
+
 }

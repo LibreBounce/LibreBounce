@@ -23,7 +23,7 @@ object ModuleElytraTarget : ClientModule("ElytraTarget", Category.COMBAT) {
     private val targetTracker = tree(TargetTracker())
 
     init {
-        tree(ElytraRotationsAndAngleSmooth)
+        tree(ElytraRotationProcessor)
         tree(AutoFirework)
     }
 
@@ -41,7 +41,7 @@ object ModuleElytraTarget : ClientModule("ElytraTarget", Category.COMBAT) {
 
     val canIgnoreKillAuraRotations get() =
         running
-        && ElytraRotationsAndAngleSmooth.ignoreKillAura
+        && ElytraRotationProcessor.ignoreKillAura
 
     fun isSameTargetRendering(target: LivingEntity) =
         running

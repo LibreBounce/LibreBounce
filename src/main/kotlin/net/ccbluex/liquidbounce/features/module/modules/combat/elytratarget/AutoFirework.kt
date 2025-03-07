@@ -17,9 +17,6 @@ private const val MILLISECONDS_PER_TICK = 50
 @Suppress("MagicNumber")
 private var fireworkCooldown = 750
 
-private inline val fireworkSlot
-    get() = Slots.OffhandWithHotbar.findSlot(Items.FIREWORK_ROCKET)
-
 private val fireworkChronometer = Chronometer()
 
 @Suppress("MagicNumber")
@@ -68,7 +65,7 @@ internal object AutoFirework : ToggleableConfigurable(ModuleElytraTarget, "AutoF
         val target = ModuleElytraTarget.target ?: return@tickHandler
 
         if (cooldownReached && canUseFirework()) {
-            fireworkSlot?.let {
+            Slots.OffhandWithHotbar.findSlot(Items.FIREWORK_ROCKET)?.let {
                 useMode.useFireworkSlot(it, slotResetDelay.random())
                 fireworkChronometer.reset()
             }

@@ -175,14 +175,14 @@ public abstract class MixinLivingEntity extends MixinEntity {
      */
     @ModifyExpressionValue(method = "jump", at = @At(value = "NEW", target = "(DDD)Lnet/minecraft/util/math/Vec3d;"))
     private Vec3d hookFixRotation(Vec3d original) {
-        var rotation = RotationManager.getCurrentRotation();
-        var configurable = RotationManager.getActiveRotationTarget();
+        var rotation = RotationManager.INSTANCE.getCurrentRotation();
+        var rotationTarget = RotationManager.INSTANCE.getActiveRotationTarget();
 
         if ((Object) this != MinecraftClient.getInstance().player) {
             return original;
         }
 
-        if (configurable == null || configurable.getMovementCorrection() == MovementCorrection.OFF || rotation == null) {
+        if (rotationTarget == null || rotationTarget.getMovementCorrection() == MovementCorrection.OFF || rotation == null) {
             return original;
         }
 
@@ -250,10 +250,10 @@ public abstract class MixinLivingEntity extends MixinEntity {
             return original;
         }
 
-        var rotation = RotationManager.getCurrentRotation();
-        var configurable = RotationManager.getActiveRotationTarget();
+        var rotation = RotationManager.INSTANCE.getCurrentRotation();
+        var rotationTarget = RotationManager.INSTANCE.getActiveRotationTarget();
 
-        if (rotation == null || configurable == null || configurable.getMovementCorrection() == MovementCorrection.OFF) {
+        if (rotation == null || rotationTarget == null || rotationTarget.getMovementCorrection() == MovementCorrection.OFF) {
             return original;
         }
 
@@ -269,10 +269,10 @@ public abstract class MixinLivingEntity extends MixinEntity {
             return original;
         }
 
-        var rotation = RotationManager.getCurrentRotation();
-        var configurable = RotationManager.getActiveRotationTarget();
+        var rotation = RotationManager.INSTANCE.getCurrentRotation();
+        var rotationTarget = RotationManager.INSTANCE.getActiveRotationTarget();
 
-        if (rotation == null || configurable == null || configurable.getMovementCorrection() == MovementCorrection.OFF) {
+        if (rotation == null || rotationTarget == null || rotationTarget.getMovementCorrection() == MovementCorrection.OFF) {
             return original;
         }
 

@@ -1,26 +1,45 @@
-package net.ccbluex.liquidbounce.utils.aiming.features.anglesmooth
+/*
+ * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
+ *
+ * Copyright (c) 2015 - 2025 CCBlueX
+ *
+ * LiquidBounce is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * LiquidBounce is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
+ */
+package net.ccbluex.liquidbounce.utils.aiming.features.processors.anglesmooth.impl
 
 import it.unimi.dsi.fastutil.floats.FloatFloatPair
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
+import net.ccbluex.liquidbounce.utils.aiming.RotationTarget
 import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.data.RotationDelta
+import net.ccbluex.liquidbounce.utils.aiming.features.processors.anglesmooth.AngleSmooth
 import net.ccbluex.liquidbounce.utils.aiming.utils.RotationUtil
 import net.ccbluex.liquidbounce.utils.aiming.utils.facingEnemy
+import net.ccbluex.liquidbounce.utils.entity.boxedDistanceTo
 import net.ccbluex.liquidbounce.utils.entity.lastRotation
 import net.ccbluex.liquidbounce.utils.kotlin.component1
 import net.ccbluex.liquidbounce.utils.kotlin.component2
 import net.ccbluex.liquidbounce.utils.kotlin.random
-import net.minecraft.entity.Entity
 import net.minecraft.util.math.MathHelper
-import net.minecraft.util.math.Vec3d
 import kotlin.math.abs
 import kotlin.math.exp
 import kotlin.math.floor
 import kotlin.math.max
 
-class AccelerationSmoothMode(override val parent: ChoiceConfigurable<*>) : AngleSmoothMode("Acceleration") {
+class AccelerationAngleSmooth(parent: ChoiceConfigurable<*>) : AngleSmooth("Acceleration", parent) {
 
     private val yawAcceleration by floatRange("YawAcceleration", 20f..25f, 1f..180f)
     private val pitchAcceleration by floatRange("PitchAccelelation", 20f..25f, 1f..180f)
@@ -40,7 +59,6 @@ class AccelerationSmoothMode(override val parent: ChoiceConfigurable<*>) : Angle
         val yawConstantError by float("YawConstantError", 0.1f, 0.01f..1f)
         val pitchConstantError by float("PitchConstantError", 0.1f, 0.01f..1f)
     }
-
 
     // compute a sigmoid-like deceleration factor
     private inner class SigmoidDeceleration : ToggleableConfigurable(this, "SigmoidDeceleration", false) {
@@ -96,20 +114,19 @@ class AccelerationSmoothMode(override val parent: ChoiceConfigurable<*>) : Angle
         }
     }
 
-    override fun limitAngleChange(
-        factorModifier: Float,
+    override fun process(
+        rotationTarget: RotationTarget,
         currentRotation: Rotation,
-        targetRotation: Rotation,
-        vec3d: Vec3d?,
-        entity: Entity?
+        targetRotation: Rotation
     ): Rotation {
         val prevRotation = RotationManager.previousRotation ?: player.lastRotation
 
         val prevDiff = prevRotation.rotationDeltaTo(currentRotation)
         val diff = currentRotation.rotationDeltaTo(targetRotation)
 
-        val distance = vec3d?.distanceTo(player.pos) ?: 0.0
-        val crosshair = entity?.let { facingEnemy(entity, max(3.0, distance), currentRotation) } ?: false
+        val entity = rotationTarget.entity
+        val distance = entity?.let { entity -> player.boxedDistanceTo(entity) } ?: 0.0
+        val crosshair = entity?.let { facingEnemy(entity, max(3.0, distance), currentRotation) } == true
 
         val (newYawDiff, newPitchDiff) = computeTurnSpeed(
             prevDiff,
@@ -124,7 +141,7 @@ class AccelerationSmoothMode(override val parent: ChoiceConfigurable<*>) : Angle
         )
     }
 
-    override fun howLongToReach(currentRotation: Rotation, targetRotation: Rotation): Int {
+    override fun calculateTicks(currentRotation: Rotation, targetRotation: Rotation): Int {
         val prevRotation = RotationManager.previousRotation ?: player.lastRotation
         val prevDiff = prevRotation.rotationDeltaTo(currentRotation)
         val diff = currentRotation.rotationDeltaTo(targetRotation)

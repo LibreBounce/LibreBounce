@@ -40,9 +40,6 @@ object BacktrackPacketManager : EventListener {
      * When we process packets, we want the delayed ones to be processed first before
      * the game proceeds with its own packet processing.
      *
-     * Minecraft in older versions would process the packets every frame. Now it is being done every tick,
-     * before the general game tick function is called.
-     *
      * @see net.minecraft.client.MinecraftClient.render
      *
      * profiler.push("scheduledExecutables");
