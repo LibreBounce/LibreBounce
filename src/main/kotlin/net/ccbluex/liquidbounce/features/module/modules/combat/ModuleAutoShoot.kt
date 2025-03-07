@@ -30,10 +30,11 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
 import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
-import net.ccbluex.liquidbounce.utils.aiming.PointTracker
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
 import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
+import net.ccbluex.liquidbounce.utils.aiming.point.PointTracker
+import net.ccbluex.liquidbounce.utils.aiming.point.preference.PreferredBoxPart
 import net.ccbluex.liquidbounce.utils.aiming.projectiles.SituationalProjectileAngleCalculator
 import net.ccbluex.liquidbounce.utils.clicking.Clicker
 import net.ccbluex.liquidbounce.utils.client.SilentHotbar
@@ -75,8 +76,8 @@ object ModuleAutoShoot : ClientModule("AutoShoot", Category.COMBAT) {
     internal val targetTracker = tree(TargetTracker(TargetPriority.DISTANCE, floatRange("Range", 3.0f..6f, 1f..50f)))
     private val pointTracker = tree(
         PointTracker(
-            lowestPointDefault = PointTracker.PreferredBoxPart.HEAD,
-            highestPointDefault = PointTracker.PreferredBoxPart.HEAD,
+            lowestPointDefault = PreferredBoxPart.HEAD,
+            highestPointDefault = PreferredBoxPart.HEAD,
             // The lag on Hypixel is massive
             timeEnemyOffsetDefault = 3f,
             timeEnemyOffsetScale = 0f..7f
