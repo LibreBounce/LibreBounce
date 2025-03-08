@@ -21,7 +21,7 @@
 
 package net.ccbluex.liquidbounce.features.module.modules.misc.debugrecorder.modes
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import net.ccbluex.liquidbounce.deeplearn.data.TrainingData
 import net.ccbluex.liquidbounce.event.events.AttackEntityEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
@@ -44,6 +44,7 @@ import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.combat.TargetPriority
 import net.ccbluex.liquidbounce.utils.combat.TargetTracker
 import net.ccbluex.liquidbounce.utils.entity.*
+import net.ccbluex.liquidbounce.utils.kotlin.mapIntSet
 import net.minecraft.entity.LivingEntity
 import net.minecraft.network.packet.c2s.play.PlayerInteractBlockC2SPacket
 import net.minecraft.util.math.Box
@@ -62,14 +63,18 @@ object MinaraiCombatRecorder : ModuleDebugRecorder.DebugRecorderMode<TrainingDat
     ))
     private var previous: Rotation = Rotation(0f, 0f)
 
-    private var fightMap = Int2ObjectArrayMap<Fight>()
-    private var trainingCollection = Int2ObjectArrayMap<MutableList<TrainingData>>()
+    private val fightMap = Int2ObjectOpenHashMap<Fight>()
+    private val trainingCollection = Int2ObjectOpenHashMap<MutableList<TrainingData>>()
 
     private var targetEntityId: Int? = null
 
     private data class Fight(
         var ticks: Int = 0
     )
+
+    private inline fun <V> Int2ObjectOpenHashMap<V>.getOrPut(key: Int, valueProvider: () -> V): V {
+        return get(key) ?: valueProvider().also { put(key, it) }
+    }
 
     private val doNotTrack
         get() = player.abilities.allowFlying || player.isSpectator ||
@@ -105,8 +110,8 @@ object MinaraiCombatRecorder : ModuleDebugRecorder.DebugRecorderMode<TrainingDat
                 }
             }
 
-            val fight = fightMap.computeIfAbsent(target.id) { Fight() }
-            val buffer = trainingCollection.computeIfAbsent(target.id) { mutableListOf() }
+            val fight = fightMap.getOrPut(target.id, ::Fight)
+            val buffer = trainingCollection.getOrPut(target.id, ::ArrayList)
 
             buffer.add(TrainingData(
                 currentVector = current.directionVector,
@@ -124,10 +129,10 @@ object MinaraiCombatRecorder : ModuleDebugRecorder.DebugRecorderMode<TrainingDat
         }
 
         // Drop from [startingVector] and [trainingCollection] if target is not present anymore
-        val targetIds = targets.map { targetId -> targetId.id }
+        val targetIds = targets.mapIntSet { it.id }
 
-        fightMap.keys.removeIf { it !in targetIds }
-        trainingCollection.keys.removeIf { it !in targetIds }
+        fightMap.keys.retainAll(targetIds)
+        trainingCollection.keys.retainAll(targetIds)
     }
 
     @Suppress("unused")
@@ -181,7 +186,7 @@ object MinaraiCombatRecorder : ModuleDebugRecorder.DebugRecorderMode<TrainingDat
         val matrixStack = event.matrixStack
 
         renderEnvironmentForWorld(matrixStack) {
-            BoxRenderer.Companion.drawWith(this) {
+            BoxRenderer.drawWith(this) {
                 targetTracker.targets().forEach { entity ->
                     val pos = entity.interpolateCurrentPosition(event.partialTicks)
                     val eyePos = pos.add(0.0, entity.standingEyeHeight.toDouble(), 0.0)

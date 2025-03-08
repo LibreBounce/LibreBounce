@@ -23,7 +23,9 @@ package net.ccbluex.liquidbounce.utils.kotlin
 import it.unimi.dsi.fastutil.doubles.DoubleIterable
 import it.unimi.dsi.fastutil.doubles.DoubleIterator
 import it.unimi.dsi.fastutil.ints.IntArrayList
+import it.unimi.dsi.fastutil.ints.IntLinkedOpenHashSet
 import it.unimi.dsi.fastutil.ints.IntList
+import it.unimi.dsi.fastutil.ints.IntSet
 import java.util.stream.Stream
 
 inline infix operator fun IntRange.contains(range: IntRange): Boolean {
@@ -176,6 +178,14 @@ inline fun <T, reified R> Collection<T>.mapArray(transform: (T) -> R): Array<R> 
 
 inline fun <T> Collection<T>.mapInt(transform: (T) -> Int): IntList {
     val result = IntArrayList(this.size)
+    for (element in this) {
+        result.add(transform(element))
+    }
+    return result
+}
+
+inline fun <T> Collection<T>.mapIntSet(transform: (T) -> Int): IntSet {
+    val result = IntLinkedOpenHashSet(this.size * 4 / 3)
     for (element in this) {
         result.add(transform(element))
     }
