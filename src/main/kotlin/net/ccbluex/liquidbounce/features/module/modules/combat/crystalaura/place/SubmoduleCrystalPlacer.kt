@@ -50,11 +50,11 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
     private val switchMode by enumChoice("Switch", SwitchMode.SILENT)
     val oldVersion by boolean("1_12_2", false)
     private val delay by int("Delay", 0, 0..1000, "ms")
-    val range by float("Range", 4.5F, 1.0F..5.0F).onChanged {
+    val range by float("Range", 4.5f, 1f..6f).onChanged {
         CrystalAuraPlaceTargetFactory.updateSphere()
     }
 
-    val wallsRange by float("WallsRange", 4.5F, 0.0F..5.0F).onChanged {
+    val wallsRange by float("WallsRange", 4.5f, 0f..6f).onChanged {
         CrystalAuraPlaceTargetFactory.updateSphere()
     }
 
