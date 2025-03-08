@@ -42,7 +42,7 @@ object SubmoduleCrystalDestroyer : ToggleableConfigurable(ModuleCrystalAura, "De
 
     val swingMode by enumChoice("Swing", SwingMode.DO_NOT_HIDE)
     private val delay by int("Delay", 0, 0..1000, "ms")
-    val range by float("Range", 4.5F, 1f..6f)
+    val range by float("Range", 4.5f, 1f..6f)
     val wallsRange by float("WallsRange", 4.5f, 0f..6f)
 
     // prioritizes faces that are visible, might make the crystal aura slower
