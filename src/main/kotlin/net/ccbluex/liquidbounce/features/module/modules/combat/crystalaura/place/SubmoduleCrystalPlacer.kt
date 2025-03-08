@@ -54,7 +54,7 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
         CrystalAuraPlaceTargetFactory.updateSphere()
     }
 
-    val wallsRange by float("WallsRange", 4.5F, 1.0F..5.0F).onChanged {
+    val wallsRange by float("WallsRange", 4.5F, 0.0F..5.0F).onChanged {
         CrystalAuraPlaceTargetFactory.updateSphere()
     }
 
