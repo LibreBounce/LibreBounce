@@ -7,6 +7,7 @@ import net.minecraft.util.math.Vec2f
 import net.minecraft.util.math.Vec3d
 import java.io.File
 
+@JvmRecord
 data class TrainingData(
     @SerializedName(CURRENT_DIRECTION_VECTOR)
     val currentVector: Vec3d,
