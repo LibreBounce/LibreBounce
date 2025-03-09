@@ -26,9 +26,12 @@ import net.ccbluex.liquidbounce.utils.client.mc
 import org.lwjgl.util.tinyfd.TinyFileDialogs
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.div
+import kotlin.math.min
 import kotlin.system.exitProcess
 
 private typealias CurrentStringBuilder = StringBuilder
+
+private const val MAX_STACKTRACE_LINES = 3
 
 /**
  * The ErrorHandler class is responsible for handling and reporting errors encountered by the application.
@@ -132,14 +135,36 @@ class ErrorHandler private constructor(
     )
 
     private inline fun error(): CurrentStringBuilder = builder.apply {
-        append("Error: ${error.message}")
+        append("Error: ${error.message} (${error.javaClass.name})")
         appendLine()
-        append("Error type:  ${error.javaClass.name}")
+        stacktrace()
 
         if (additionalMessage != null) {
             appendLine()
             append("Additional message: $additionalMessage")
         }
+    }
+
+    @Suppress("UnusedPrivateProperty")
+    private inline fun stacktrace(): CurrentStringBuilder = builder.apply {
+        val elements = error.stackTrace.toList()
+
+        val displayed = min(elements.size, MAX_STACKTRACE_LINES)
+        val displayedItems = elements.take(displayed)
+
+        displayedItems.withIndex().forEach { (idx, item) ->
+            append("  at $item")
+
+            if (idx < displayedItems.size-1) {
+                appendLine()
+            }
+        }
+
+        (elements.size - displayedItems.size)
+            .takeIf { it > 0 }
+            ?.let {
+                append("  ... and $it more")
+            }
     }
 
     @Suppress("MagicNumber")
