@@ -17,12 +17,15 @@
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
 @file:Suppress("NOTHING_TO_INLINE")
-package net.ccbluex.liquidbounce.utils.client.errors
+package net.ccbluex.liquidbounce.utils.client.error
 
 import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.utils.client.browseUrl
+import net.ccbluex.liquidbounce.utils.client.error.errors.ClientError
 import net.ccbluex.liquidbounce.utils.client.mc
 import org.lwjgl.util.tinyfd.TinyFileDialogs
+import kotlin.io.path.absolutePathString
+import kotlin.io.path.div
 import kotlin.system.exitProcess
 
 /**
@@ -36,13 +39,26 @@ class ErrorHandler private constructor(
 ) {
     companion object {
         @JvmStatic
+        @JvmOverloads
         fun fatal(
             error: Throwable,
             quickFix: QuickFix? = null,
             needToReport: Boolean = true,
             additionalMessage: String? = null,
         ) {
-            ErrorHandler(error, quickFix, additionalMessage, needToReport).apply {
+            val finalQuickFix = if (error is ClientError && quickFix == null) {
+                error.quickFix
+            } else {
+                null
+            }
+
+            val finalNeedToReport = if (error is ClientError) {
+                error.needToReport
+            } else {
+                needToReport
+            }
+
+            ErrorHandler(error, finalQuickFix, additionalMessage, finalNeedToReport).apply {
                 if (buildAndShowMessage()) {
                     browseUrl("https://github.com/CCBlueX/LiquidBounce/issues/new?template=bug_report.yml")
                 }
@@ -60,11 +76,37 @@ class ErrorHandler private constructor(
         "$title has encountered an error!"
     )
 
-    private inline fun reportMessage(): StringBuffer = builder.apply {
-        append("Please report this issue to the developers on GitHub if the error keeps occurring.")
-        appendLine()
+    private inline fun quickFix(): StringBuffer = builder.apply {
+        requireNotNull(quickFix)
 
-        append("Include the following information:")
+        append(quickFix.description)
+        appendLine(2)
+
+        quickFix.whatYouNeed?.let {
+            append("What you need:")
+            appendLine()
+            appendQuickFixStep(it)
+        }
+
+        quickFix.stepsToFix?.let {
+            quickFix.whatYouNeed?.let {
+                appendLine(2)
+            }
+
+            append("What to do:")
+            appendLine()
+            appendQuickFixStep(it)
+        }
+    }
+
+    private inline fun reportMessage(): StringBuffer = builder.apply {
+        append(
+            """
+                Try restarting the client.
+                Please report this issue to the developers on GitHub if the error keeps occurring.
+
+                Include the following information:
+            """.trimIndent())
         appendLine(2)
 
         systemSpecs()
@@ -73,9 +115,9 @@ class ErrorHandler private constructor(
         error()
         appendLine(2)
 
-        append("Include you game log, which can be found at:")
+        append("Also include you game log, which can be found at:")
         appendLine()
-        append(mc.runDirectory.resolve("logs").resolve("latest.log").absolutePath)
+        append((mc.runDirectory.toPath() / "logs" / "latest.log").absolutePathString())
 
         appendLine(2)
         append("Open new GitHub issue?")
@@ -103,22 +145,71 @@ class ErrorHandler private constructor(
     fun buildAndShowMessage(): Boolean {
         builder.apply {
             header()
-            appendLine()
+            appendLine(2)
+
+            if (quickFix != null) {
+                quickFix()
+                appendLine(2)
+            }
 
             if (needToReport) {
                 reportMessage()
+            } else {
+                systemSpecs()
+                appendLine()
+                error()
             }
         }
 
-        return TinyFileDialogs.tinyfd_messageBox(
-            title,
-            builder,
-            "yesno",
-            "error",
-            true
-        )
+        val message = builder.toString().replace("\"", "").replace("'", "")
+
+        return if (needToReport) {
+            TinyFileDialogs.tinyfd_messageBox(
+                title,
+                message,
+                "yesno",
+                "error",
+                true
+            )
+        } else {
+            TinyFileDialogs.tinyfd_messageBox(
+                title,
+                message,
+                "ok",
+                "error",
+                true
+            )
+
+            false
+        }
     }
 
+}
+
+private inline fun Appendable.appendQuickFixStep(quickFixStep: Steps): Appendable = apply {
+    quickFixStep.steps
+        .map {
+            if (!it.endsWith(".")) {
+                "$it."
+            } else {
+                it
+            }
+        }
+        .withIndex()
+        .joinToString("\n") { (index, line) ->
+            val step = if (quickFixStep.showStep) {
+                index + 1
+            } else {
+                "-"
+            }
+
+            "$step $line"
+        }
+        .let {
+            if (it.isNotEmpty()) {
+                append(it)
+            }
+        }
 }
 
 private inline fun Appendable.appendLine(times: Int = 1): Appendable = apply {
