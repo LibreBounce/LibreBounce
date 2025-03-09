@@ -88,7 +88,7 @@ class ErrorHandler private constructor(
             appendQuickFixStep(it)
         }
 
-        quickFix.stepsToFix?.let {
+        quickFix.whatToDo?.let {
             quickFix.whatYouNeed?.let {
                 appendLine(2)
             }

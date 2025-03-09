@@ -10,19 +10,24 @@ class Steps(
 enum class QuickFix (
     val description: String,
     val whatYouNeed: Steps? = null,
-    val stepsToFix: Steps? = null
+    val whatToDo: Steps? = null
 ) {
     JCEF_ISNT_COMPATIBLE_WITH_THAT_SYSTEM(
-        "Your system isn't compatible",
+        "Your system isn't compatible with JCEF",
         whatYouNeed = Steps(false,
             "A 64-bit computer",
             "Windows 10 or newer, macOS 10.15 or newer, or a Linux system"
         ),
-        stepsToFix = Steps(false,
+        whatToDo = Steps(false,
             "Please update your operating system to a never version"
         )
     ),
     DOWNLOAD_JCEF_FAILED(
-        ""
+        "A fatal error occurred while loading libraries required for JCEF to work",
+        whatToDo = Steps(false,
+            "Check your internet connection",
+            "Use a VPN such as Cloudflare Warp or another one",
+            "Check if there is free space on the disk."
+        )
     )
 }
