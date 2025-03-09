@@ -47,7 +47,7 @@ class ErrorHandler private constructor(
             quickFix: QuickFix? = null,
             needToReport: Boolean = true,
             additionalMessage: String? = null,
-        ) {
+        ): Nothing {
             val finalQuickFix = if (error is ClientError && quickFix == null) {
                 error.quickFix
             } else {
