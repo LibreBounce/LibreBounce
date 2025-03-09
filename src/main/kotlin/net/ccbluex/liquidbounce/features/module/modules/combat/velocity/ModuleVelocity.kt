@@ -56,7 +56,8 @@ object ModuleVelocity : ClientModule("Velocity", Category.COMBAT, aliases = arra
             VelocityJumpReset,
             VelocityIntave,
             VelocityHylex,
-            VelocityBlocksMC
+            VelocityBlocksMC,
+            VelocityReversal
         )
     ).apply(::tagBy)
 
