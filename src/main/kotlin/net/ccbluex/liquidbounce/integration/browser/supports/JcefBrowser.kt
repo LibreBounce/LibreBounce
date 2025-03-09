@@ -77,9 +77,9 @@ class JcefBrowser : IBrowser, EventListener {
             val resourceManager = MCEF.INSTANCE.newResourceManager()
 
             // Check if system is compatible with MCEF (JCEF)
-//            if (!resourceManager.isSystemCompatible) {
+            if (!resourceManager.isSystemCompatible) {
                 throw JcefIsntCompatible
-//            }
+            }
 
             HashValidator.validateFolder(resourceManager.commitDirectory)
 
