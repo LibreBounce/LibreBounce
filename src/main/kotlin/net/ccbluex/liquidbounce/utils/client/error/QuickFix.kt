@@ -22,10 +22,15 @@ enum class QuickFix (
     ),
     DOWNLOAD_JCEF_FAILED(
         "A fatal error occurred while loading libraries required for JCEF to work",
+        whatYouNeed = Steps(true, arrayOf(
+            "Stable internet connection",
+            "Free space on the disk"
+        )),
         whatToDo = Steps(false, arrayOf(
             "Check your internet connection",
             "Use a VPN such as Cloudflare Warp or another one",
-            "Check if there is free space on the disk."
+            "Check if there is free space on the disk",
+            "Make sure that the client folder is not blocked by the file system"
         ))
     )
 }

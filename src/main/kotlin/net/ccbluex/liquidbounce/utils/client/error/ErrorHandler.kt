@@ -28,6 +28,8 @@ import kotlin.io.path.absolutePathString
 import kotlin.io.path.div
 import kotlin.system.exitProcess
 
+private typealias CurrentStringBuilder = StringBuilder
+
 /**
  * The ErrorHandler class is responsible for handling and reporting errors encountered by the application.
  */
@@ -49,7 +51,7 @@ class ErrorHandler private constructor(
             val finalQuickFix = if (error is ClientError && quickFix == null) {
                 error.quickFix
             } else {
-                null
+                quickFix
             }
 
             val finalNeedToReport = if (error is ClientError) {
@@ -68,38 +70,41 @@ class ErrorHandler private constructor(
         }
     }
 
-    private inline val title get() = "${LiquidBounce.CLIENT_NAME}/${LiquidBounce.clientBranch}"
+    private inline val title get() = "${LiquidBounce.CLIENT_NAME} Nextgen"
 
-    private val builder = StringBuffer()
+    private val builder = CurrentStringBuilder()
 
-    private inline fun header(): StringBuffer = builder.append(
+    private inline fun header(): CurrentStringBuilder = builder.append(
         "$title has encountered an error!"
     )
 
-    private inline fun quickFix(): StringBuffer = builder.apply {
+    private inline fun quickFix(): CurrentStringBuilder = builder.apply {
         requireNotNull(quickFix)
 
         append(quickFix.description)
         appendLine(2)
 
-        quickFix.whatYouNeed?.let {
-            append("What you need:")
-            appendLine()
-            appendQuickFixStep(it)
-        }
+        val messages = listOf(
+            "What you need" to quickFix.whatYouNeed,
+            "What to do" to quickFix.whatToDo
+        ).filter { it.second != null }
 
-        quickFix.whatToDo?.let {
-            quickFix.whatYouNeed?.let {
+        for ((index, message) in messages.withIndex()) {
+            val (title, steps) = message
+
+            requireNotNull(steps)
+
+            append("${title}:")
+            appendLine()
+            appendQuickFixStep(steps)
+
+            if (index < messages.lastIndex) {
                 appendLine(2)
             }
-
-            append("What to do:")
-            appendLine()
-            appendQuickFixStep(it)
         }
     }
 
-    private inline fun reportMessage(): StringBuffer = builder.apply {
+    private inline fun reportMessage(): CurrentStringBuilder = builder.apply {
         append(
             """
                 Try restarting the client.
@@ -123,7 +128,7 @@ class ErrorHandler private constructor(
         append("Open new GitHub issue?")
     }
 
-    private inline fun systemSpecs(): StringBuffer = builder.append(
+    private inline fun systemSpecs(): CurrentStringBuilder = builder.append(
         """
             OS: ${System.getProperty("os.name")} (${System.getProperty("os.arch")})
             Java: ${System.getProperty("java.version")}
@@ -131,7 +136,7 @@ class ErrorHandler private constructor(
         """.trimIndent()
     )
 
-    private inline fun error(): StringBuffer = builder.apply {
+    private inline fun error(): CurrentStringBuilder = builder.apply {
         append("Error: ${error.message}")
         appendLine()
         append("Error type:  ${error.javaClass.name}")
@@ -142,14 +147,15 @@ class ErrorHandler private constructor(
         }
     }
 
+    @Suppress("MagicNumber")
     fun buildAndShowMessage(): Boolean {
         builder.apply {
             header()
-            appendLine(2)
+            appendLine(3)
 
             if (quickFix != null) {
                 quickFix()
-                appendLine(2)
+                appendLine(3)
             }
 
             if (needToReport) {
@@ -183,7 +189,6 @@ class ErrorHandler private constructor(
             false
         }
     }
-
 }
 
 private inline fun Appendable.appendQuickFixStep(quickFixStep: Steps): Appendable = apply {
@@ -198,7 +203,7 @@ private inline fun Appendable.appendQuickFixStep(quickFixStep: Steps): Appendabl
         .withIndex()
         .joinToString("\n") { (index, line) ->
             val step = if (quickFixStep.showStep) {
-                index + 1
+                "${index + 1}."
             } else {
                 "-"
             }
