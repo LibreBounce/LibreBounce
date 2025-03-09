@@ -84,12 +84,7 @@ class ErrorHandler private constructor(
         append(quickFix.description)
         appendLine(2)
 
-        val messages = listOf(
-            "What you need" to quickFix.whatYouNeed,
-            "What to do" to quickFix.whatToDo
-        ).filter { it.second != null }
-
-        for ((index, message) in messages.withIndex()) {
+        for ((index, message) in quickFix.messages.withIndex()) {
             val (title, steps) = message
 
             requireNotNull(steps)
@@ -98,7 +93,7 @@ class ErrorHandler private constructor(
             appendLine()
             appendQuickFixStep(steps)
 
-            if (index < messages.lastIndex) {
+            if (index < quickFix.messages.lastIndex) {
                 appendLine(2)
             }
         }
@@ -202,7 +197,7 @@ private inline fun Appendable.appendQuickFixStep(quickFixStep: Steps): Appendabl
         }
         .withIndex()
         .joinToString("\n") { (index, line) ->
-            val step = if (quickFixStep.showStep) {
+            val step = if (quickFixStep.showStepIndex) {
                 "${index + 1}."
             } else {
                 "-"

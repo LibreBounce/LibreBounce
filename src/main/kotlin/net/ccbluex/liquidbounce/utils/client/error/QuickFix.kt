@@ -1,7 +1,7 @@
 package net.ccbluex.liquidbounce.utils.client.error
 
 class Steps(
-    val showStep: Boolean,
+    val showStepIndex: Boolean,
     val steps: Array<String>
 )
 
@@ -26,11 +26,16 @@ enum class QuickFix (
             "Stable internet connection",
             "Free space on the disk"
         )),
-        whatToDo = Steps(false, arrayOf(
+        whatToDo = Steps(true, arrayOf(
             "Check your internet connection",
             "Use a VPN such as Cloudflare Warp or another one",
             "Check if there is free space on the disk",
             "Make sure that the client folder is not blocked by the file system"
         ))
-    )
+    );
+
+    val messages = listOf(
+        "What you need" to whatYouNeed,
+        "What to do" to whatToDo
+    ).filter { it.second != null }
 }
