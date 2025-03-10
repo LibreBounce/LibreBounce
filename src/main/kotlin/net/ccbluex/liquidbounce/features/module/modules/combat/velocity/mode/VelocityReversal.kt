@@ -54,7 +54,7 @@ internal object VelocityReversal : VelocityMode("Reversal") {
         return (isSelfVelocity || isExplosion) && isKillAuraRunning
     }
 
-    @Supress("unused")
+    @Suppress("unused")
     private val packetEventHandler =
         sequenceHandler<PacketEvent> { event ->
             if (!checkRequirements(event.packet)) return@sequenceHandler
@@ -63,7 +63,7 @@ internal object VelocityReversal : VelocityMode("Reversal") {
             handlingVelocity = true
         }
 
-    @Supress("unused")
+    @Suppress("unused")
     private val playerTickHandler =
         sequenceHandler<PlayerTickEvent> {
             if (!handlingVelocity) return@sequenceHandler
