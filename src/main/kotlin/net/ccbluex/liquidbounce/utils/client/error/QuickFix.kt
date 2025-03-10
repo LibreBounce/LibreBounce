@@ -50,7 +50,7 @@ enum class QuickFix (
         testError = { it is ClassNotFoundException },
         whatYouNeed = Instructions(false) { _ ->
             arrayOf(
-                "Make sure you have all minecraft required libraries"
+                "Make sure you have all the libraries required by minecraft installed"
             )
         },
         whatToDo = Instructions(false) {
