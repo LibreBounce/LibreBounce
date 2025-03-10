@@ -40,11 +40,9 @@ internal object VelocityReversal : VelocityMode("Reversal") {
     private var velocityTicks = 0
 
     // We assume the velocity has reset. Idk of any edge cases where this logic would fail.
-    private inline val hasVelocityReset
-        get() =
-            abs(player.velocity.x) == 0.0 &&
-                abs(player.velocity.y) == 0.0 &&
-                abs(player.velocity.z) == 0.0
+    private fun hasVelocityReset(): Boolean {
+           return player.velocity.lengthSquared() == 0
+    }
 
     // TODO: Yes, type: any check. I'll fix this when I have the time.
     private fun checkRequirements(packet: Any): Boolean {
