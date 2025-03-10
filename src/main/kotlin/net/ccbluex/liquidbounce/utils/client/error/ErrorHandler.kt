@@ -51,11 +51,7 @@ class ErrorHandler private constructor(
             needToReport: Boolean = true,
             additionalMessage: String? = null,
         ): Nothing {
-            val finalQuickFix = if (error is ClientError && quickFix == null) {
-                error.quickFix
-            } else {
-                quickFix
-            }
+            val finalQuickFix = quickFix ?: QuickFix.entries.firstOrNull { it.testError(error) }
 
             val finalNeedToReport = if (error is ClientError) {
                 error.needToReport
@@ -87,16 +83,24 @@ class ErrorHandler private constructor(
         append(quickFix.description)
         appendLine(2)
 
-        for ((index, message) in quickFix.messages.withIndex()) {
-            val (title, steps) = message
+        val messages = quickFix.messages
+            .map {
+                it.key to (it.value!!.showStepIndex to it.value!!.steps(error))
+            }.filter {
+                it.second.second?.isEmpty() == false
+            }
 
-            requireNotNull(steps)
+        for ((index, instructions) in messages.withIndex()) {
+            val (title, instruction) = instructions
+            val (showStepIndex, step) = instruction
+
+            requireNotNull(step)
 
             append("${title}:")
             appendLine()
-            appendQuickFixStep(steps)
+            appendQuickFixInstructionStep(showStepIndex, step)
 
-            if (index < quickFix.messages.lastIndex) {
+            if (index < quickFix.messages.size - 1) {
                 appendLine(2)
             }
         }
@@ -163,6 +167,7 @@ class ErrorHandler private constructor(
         (elements.size - displayedItems.size)
             .takeIf { it > 0 }
             ?.let {
+                appendLine()
                 append("  ... and $it more")
             }
     }
@@ -211,8 +216,11 @@ class ErrorHandler private constructor(
     }
 }
 
-private inline fun Appendable.appendQuickFixStep(quickFixStep: Steps): Appendable = apply {
-    quickFixStep.steps
+private inline fun Appendable.appendQuickFixInstructionStep(
+    showStepIndex: Boolean,
+    steps: Array<String>
+): Appendable = apply {
+    steps
         .map {
             if (!it.endsWith(".")) {
                 "$it."
@@ -222,13 +230,13 @@ private inline fun Appendable.appendQuickFixStep(quickFixStep: Steps): Appendabl
         }
         .withIndex()
         .joinToString("\n") { (index, line) ->
-            val step = if (quickFixStep.showStepIndex) {
+            val stepIndex = if (showStepIndex) {
                 "${index + 1}."
             } else {
                 "-"
             }
 
-            "$step $line"
+            "$stepIndex $line"
         }
         .let {
             if (it.isNotEmpty()) {

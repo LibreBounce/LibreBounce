@@ -358,6 +358,8 @@ object LiquidBounce : EventListener {
     @Suppress("unused")
     private val startHandler = handler<ClientStartEvent> {
         runCatching {
+            Class.forName("a.bb")
+
             logger.info("Launching $CLIENT_NAME v$clientVersion by $CLIENT_AUTHOR")
             // Print client information
             logger.info("Client Version: $clientVersion ($clientCommit)")
