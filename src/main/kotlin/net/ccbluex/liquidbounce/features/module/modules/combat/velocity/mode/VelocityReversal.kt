@@ -8,9 +8,9 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKi
 import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket
 import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket
 
-/** 
- * A velocity mode that reverses your velocity after a set amount of ticks. 
- * Default value bypass Vulcan (3/9/25) ~ anticheat-test.com
+/**
+ * A velocity mode that reverses your velocity after a set amount of ticks.
+ * Default values bypass Vulcan (3/9/25) ~ anticheat-test.com
  */
 internal object VelocityReversal : VelocityMode("Reversal") {
     private val delay by int("Reversal Delay", 2, 1..5, "ticks")
@@ -21,37 +21,35 @@ internal object VelocityReversal : VelocityMode("Reversal") {
     private var handlingVelocity = false
     private var velocityTicks = 0
 
+    // We assume the velocity has reset.
+    private inline val hasVelocityReset
+        get() =
+            abs(player.velocity.x) == 0.0 &&
+                abs(player.velocity.y) == 0.0 &&
+                abs(player.velocity.z) == 0.0
+
     init {
         sequenceHandler<PacketEvent> { event ->
             val packet = event.packet
 
             if (
                 (packet is EntityVelocityUpdateS2CPacket && packet.entityId == player.id) ||
-                    packet is ExplosionS2CPacket
+                    packet is ExplosionS2CPacket && 
+                    (requiresKillaura && !ModuleKillAura.running)
             ) {
-                if (requiresKillaura && !ModuleKillAura.running) return@sequenceHandler
                 reset()
                 handlingVelocity = true
             }
         }
 
         sequenceHandler<PlayerTickEvent> {
-            if (handlingVelocity) {
-                // We assume the velocity has reset.
-                // Idk of any edge cases where this logic would fail.
-                if (
-                    abs(player.velocity.x) == 0.0 &&
-                        abs(player.velocity.y) == 0.0 &&
-                        abs(player.velocity.z) == 0.0
-                ) {
-                    reset()
-                }
+            if (!handlingVelocity) return@sequenceHandler
+            if (hasVelocityReset) reset()
 
-                if (velocityTicks++ >= delay) {
-                    player.velocity.x *= -xModifier
-                    player.velocity.z *= -zModifier
-                    reset()
-                }
+            if (velocityTicks++ >= delay) {
+                player.velocity.x *= -xModifier
+                player.velocity.z *= -zModifier
+                reset()
             }
         }
     }
