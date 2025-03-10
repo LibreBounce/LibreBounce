@@ -84,7 +84,7 @@ public abstract class MixinWorldRenderer {
             //noinspection unused
             var instance = OutlineShader.INSTANCE;
         } catch (Exception e) {
-            ErrorHandler.Companion.fatal(e, null, true, "Failed to load outline shader");
+            ErrorHandler.fatal(e, null, true, "Failed to load outline shader");
 
             // This will make Minecraft unable to continue loading
             throw e;
