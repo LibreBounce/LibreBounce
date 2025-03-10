@@ -33,10 +33,14 @@ import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
 import net.ccbluex.liquidbounce.utils.client.MovePacketType
 import net.ccbluex.liquidbounce.utils.client.PacketQueueManager
 import net.ccbluex.liquidbounce.utils.client.Timer
+import net.ccbluex.liquidbounce.utils.client.chat
+import net.ccbluex.liquidbounce.utils.entity.airTicks
+import net.ccbluex.liquidbounce.utils.entity.blockVecPosition
 import net.ccbluex.liquidbounce.utils.entity.canStep
 import net.ccbluex.liquidbounce.utils.entity.withStrafe
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.minecraft.stat.Stats
+import kotlin.math.round
 
 /**
  * Step module
@@ -50,7 +54,8 @@ object ModuleStep : ClientModule("Step", Category.MOVEMENT) {
         Instant,
         Legit,
         Vulcan286,
-        BlocksMC
+        BlocksMC,
+        Hypixel
     )).apply { tagBy(this) }
 
     object Legit : Choice("Legit") {
@@ -260,6 +265,70 @@ object ModuleStep : ClientModule("Step", Category.MOVEMENT) {
 
         override val running: Boolean
             get() = super.running && !ModuleSpeed.running
+
+    }
+
+    /**
+     * does not seem to work above a certain y level for some reason
+     */
+    object Hypixel : Choice("Hypixel") {
+
+        override val parent: ChoiceConfigurable<Choice>
+            get() = modes
+
+        val alternateBypass by boolean("AlternateBypass", false)
+        val spoof by boolean("Spoof", false)
+
+        private var stepping = false
+
+        private fun getStepHeight(): Double {
+            var height = 1.5
+            if (player.canStep(1.25)) height = 1.25
+            if (player.canStep(1.0)) height = 1.0
+            return height
+        }
+
+        @Suppress("unused")
+        private val movementInputHandler = sequenceHandler<MovementInputEvent> { event ->
+            if (player.canStep(1.5) && !stepping) {
+                val stepHeight = getStepHeight()
+                event.jump = true
+
+                stepping = true
+                player.velocity.y = 0.42
+                waitTicks(1)
+                player.velocity.y += 0.061
+                waitTicks(2)
+                if (stepHeight == 1.0) {
+                    player.velocity.y -= 0.14
+                } else {
+                    player.velocity.y -= 0.095
+                    if (stepHeight > 1.25) {
+                        waitTicks(5)
+                        if(alternateBypass) {
+                            player.isOnGround = true
+                        } else {
+                            player.velocity.y = 0.42
+                        }
+                    }
+                }
+                stepping = false
+            }
+        }
+
+        @Suppress("unused")
+        private val networkTickHandler = handler<PlayerNetworkMovementTickEvent> { event ->
+            if(!spoof) return@handler
+
+            if(player.airTicks == 8) {
+                event.ground = true
+            }
+        }
+
+        override fun disable() {
+            stepping = false
+            super.disable()
+        }
 
     }
 
