@@ -43,8 +43,6 @@ internal object VelocityReversal : VelocityMode("Reversal") {
     private fun hasVelocityReset(): Boolean {
            return player.velocity.lengthSquared() == 0
     }
-
-    // TODO: Yes, type: any check. I'll fix this when I have the time.
     private fun checkRequirements(packet: Any): Boolean {
         val isKillAuraRunning = requiresKillaura && !ModuleKillAura.running
         val isExplosion = packet is ExplosionS2CPacket
