@@ -1,3 +1,21 @@
+/*
+ * This file is part of LiquidBounce (https://github.com/CCBlueX/LiquidBounce)
+ *
+ * Copyright (c) 2015 - 2025 CCBlueX
+ *
+ * LiquidBounce is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * LiquidBounce is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
+ */
 package net.ccbluex.liquidbounce.features.module.modules.combat.velocity.mode
 
 import kotlin.math.abs
@@ -21,27 +39,32 @@ internal object VelocityReversal : VelocityMode("Reversal") {
     private var handlingVelocity = false
     private var velocityTicks = 0
 
-    // We assume the velocity has reset.
+    // We assume the velocity has reset. Idk of any edge cases where this logic would fail.
     private inline val hasVelocityReset
         get() =
             abs(player.velocity.x) == 0.0 &&
                 abs(player.velocity.y) == 0.0 &&
                 abs(player.velocity.z) == 0.0
 
-    init {
-        sequenceHandler<PacketEvent> { event ->
-            val packet = event.packet
+    // TODO: Yes, type: any check. I'll fix this when I have the time.
+    private fun checkRequirements(packet: Any): Boolean {
+        val isKillAuraRunning = requiresKillaura && !ModuleKillAura.running
+        val isExplosion = packet is ExplosionS2CPacket
+        val isSelfVelocity = packet is EntityVelocityUpdateS2CPacket && packet.entityId == player.id
+        return (isSelfVelocity || isExplosion) && isKillAuraRunning
+    }
 
-            if (
-                (packet is EntityVelocityUpdateS2CPacket && packet.entityId == player.id) ||
-                    packet is ExplosionS2CPacket && 
-                    (requiresKillaura && !ModuleKillAura.running)
-            ) {
-                reset()
-                handlingVelocity = true
-            }
+    @Supress("unused")
+    private val packetEventHandler =
+        sequenceHandler<PacketEvent> { event ->
+            if (!checkRequirements(event.packet)) return@sequenceHandler
+
+            reset()
+            handlingVelocity = true
         }
 
+    @Supress("unused")
+    private val playerTickHandler =
         sequenceHandler<PlayerTickEvent> {
             if (!handlingVelocity) return@sequenceHandler
             if (hasVelocityReset) reset()
@@ -52,7 +75,6 @@ internal object VelocityReversal : VelocityMode("Reversal") {
                 reset()
             }
         }
-    }
 
     private fun reset() {
         velocityTicks = 0
