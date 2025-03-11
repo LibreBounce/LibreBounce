@@ -142,10 +142,12 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
 
         when (blockMode) {
             BlockMode.HYPIXEL -> {
-                targetTracker.target?.let {
-                    interaction.interactEntity(player, targetTracker.target, Hand.MAIN_HAND)
-                } ?: run {
+                val target = targetTracker.target
+
+                if (target == null) {
                     interaction.interactItem(player, Hand.MAIN_HAND)
+                } else {
+                    interaction.interactEntity(player, target, Hand.MAIN_HAND)
                 }
             }
             BlockMode.FAKE -> {
@@ -266,7 +268,7 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
 
         if (packet is UpdateSelectedSlotC2SPacket) {
             blockVisual = false
-            blockingStateEnforced =false
+            blockingStateEnforced = false
         }
     }
 
