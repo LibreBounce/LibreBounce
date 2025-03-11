@@ -184,7 +184,7 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
             blockingTicks++
         }
 
-        if (blockMode == BlockMode.HYPIXEL && blockingTicks % 3 == 0 && blockingStateEnforced) {
+        if (blockMode == BlockMode.HYPIXEL && blockingTicks % 5 == 0 && blockingStateEnforced) {
             interaction.interactItem(player, Hand.MAIN_HAND)
         }
     }
