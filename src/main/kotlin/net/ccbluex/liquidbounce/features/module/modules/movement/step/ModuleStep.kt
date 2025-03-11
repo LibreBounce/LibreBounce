@@ -281,17 +281,16 @@ object ModuleStep : ClientModule("Step", Category.MOVEMENT) {
 
         private var stepping = false
 
-        private fun getStepHeight(): Double {
-            var height = 1.5
-            if (player.canStep(1.25)) height = 1.25
-            if (player.canStep(1.0)) height = 1.0
-            return height
+        private val stepHeight get() = when {
+            player.canStep(1.25) -> 1.25
+            player.canStep(1.0) -> 1.0
+            else -> 1.5
         }
 
         @Suppress("unused")
         private val movementInputHandler = sequenceHandler<MovementInputEvent> { event ->
             if (player.canStep(1.5) && !stepping) {
-                val stepHeight = getStepHeight()
+                val currentStepHeight = stepHeight
                 event.jump = true
 
                 stepping = true
@@ -299,11 +298,11 @@ object ModuleStep : ClientModule("Step", Category.MOVEMENT) {
                 waitTicks(1)
                 player.velocity.y += 0.061
                 waitTicks(2)
-                if (stepHeight == 1.0) {
+                if (currentStepHeight == 1.0) {
                     player.velocity.y -= 0.14
                 } else {
                     player.velocity.y -= 0.095
-                    if (stepHeight > 1.25) {
+                    if (currentStepHeight > 1.25) {
                         waitTicks(5)
                         if(alternateBypass) {
                             player.isOnGround = true
