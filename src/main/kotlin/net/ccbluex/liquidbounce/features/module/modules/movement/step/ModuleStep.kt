@@ -318,9 +318,7 @@ object ModuleStep : ClientModule("Step", Category.MOVEMENT) {
 
         @Suppress("unused")
         private val networkTickHandler = handler<PlayerNetworkMovementTickEvent> { event ->
-            if(!spoof) return@handler
-
-            if(player.airTicks == 8) {
+            if(spoof && player.airTicks == 8) {
                 event.ground = true
             }
         }
