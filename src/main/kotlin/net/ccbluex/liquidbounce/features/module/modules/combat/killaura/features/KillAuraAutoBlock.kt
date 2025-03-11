@@ -66,6 +66,8 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
     val onScanRange by boolean("OnScanRange", true)
     private val onlyWhenInDanger by boolean("OnlyWhenInDanger", false)
 
+    private var blockingTicks = 0
+
     /**
      * Enforces the blocking state on the Input
      *
@@ -97,7 +99,7 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
         get() = unblockMode != UnblockMode.NONE
 
     val blockImmediate
-        get() = tickOn == 0 || blockMode == BlockMode.HYPIXEL117
+        get() = tickOn == 0 || blockMode == BlockMode.HYPIXEL
 
     /**
      * Make it seem like the player is blocking.
@@ -115,7 +117,7 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
      */
     @Suppress("ReturnCount", "CognitiveComplexMethod")
     fun startBlocking() {
-        if (!enabled || (player.isBlockAction && blockMode != BlockMode.HYPIXEL117)) {
+        if (!enabled || (player.isBlockAction && blockMode != BlockMode.HYPIXEL)) {
             return
         }
 
@@ -142,12 +144,12 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
         }
 
         when (blockMode) {
-            BlockMode.HYPIXEL117 -> {
-                val currentSlot = player.inventory.selectedSlot
-                val nextSlot = (currentSlot + 1) % 8
-
-                network.sendPacket(UpdateSelectedSlotC2SPacket(nextSlot))
-                network.sendPacket(UpdateSelectedSlotC2SPacket(currentSlot))
+            BlockMode.HYPIXEL -> {
+                targetTracker.target?.let {
+                    interaction.interactEntity(player, targetTracker.target, Hand.MAIN_HAND)
+                } ?: run {
+                    interaction.interactItem(player, Hand.MAIN_HAND)
+                }
             }
             BlockMode.FAKE -> {
                 blockVisual = true
@@ -156,7 +158,7 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
             else -> { }
         }
 
-        if (blockMode == BlockMode.INTERACT || blockMode == BlockMode.HYPIXEL117) {
+        if (blockMode == BlockMode.INTERACT || blockMode == BlockMode.HYPIXEL) {
             interactWithFront()
         }
 
@@ -178,6 +180,14 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
     @Suppress("unused")
     private val gameTickHandler = handler<GameTickEvent> {
         flushTicks++
+
+        if (blockingStateEnforced) {
+            blockingTicks++
+        }
+
+        if (blockMode == BlockMode.HYPIXEL && blockingTicks % 3 == 0 && blockingStateEnforced) {
+            interaction.interactItem(player, Hand.MAIN_HAND)
+        }
     }
 
     @Suppress("unused")
@@ -316,7 +326,7 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
     enum class BlockMode(override val choiceName: String) : NamedChoice {
         BASIC("Basic"),
         INTERACT("Interact"),
-        HYPIXEL117("Hypixel117"),
+        HYPIXEL("Hypixel"),
         FAKE("Fake"),
     }
 
