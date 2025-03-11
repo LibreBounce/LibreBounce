@@ -20,10 +20,7 @@ package net.ccbluex.liquidbounce.features.module.modules.combat.killaura.feature
 
 import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
-import net.ccbluex.liquidbounce.event.events.GameTickEvent
-import net.ccbluex.liquidbounce.event.events.PacketEvent
-import net.ccbluex.liquidbounce.event.events.QueuePacketEvent
-import net.ccbluex.liquidbounce.event.events.TransferOrigin
+import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleSwordBlock
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
@@ -191,6 +188,11 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
     }
 
     @Suppress("unused")
+    private val worldChangeHandler = handler<WorldChangeEvent> {
+        blockingStateEnforced = false
+    }
+
+    @Suppress("unused")
     private val blinkHandler = handler<QueuePacketEvent> { event ->
         if (event.origin != TransferOrigin.SEND) {
             return@handler
@@ -264,6 +266,7 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
 
         if (packet is UpdateSelectedSlotC2SPacket) {
             blockVisual = false
+            blockingStateEnforced =false
         }
     }
 
