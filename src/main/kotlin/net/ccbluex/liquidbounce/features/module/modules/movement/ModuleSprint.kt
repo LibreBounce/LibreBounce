@@ -105,7 +105,8 @@ object ModuleSprint : ClientModule("Sprint", Category.MOVEMENT) {
         if (packet !is ClientCommandC2SPacket || !cancelPackets || event.isCancelled) {
             return@handler
         }
-        if (packet.mode == ClientCommandC2SPacket.Mode.STOP_SPRINTING || packet.mode == ClientCommandC2SPacket.Mode.START_SPRINTING) {
+        if (packet.mode == ClientCommandC2SPacket.Mode.STOP_SPRINTING
+            || packet.mode == ClientCommandC2SPacket.Mode.START_SPRINTING) {
             event.cancelEvent()
         }
     }
