@@ -20,10 +20,7 @@ package net.ccbluex.liquidbounce.features.module.modules.combat.killaura.feature
 
 import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
-import net.ccbluex.liquidbounce.event.events.GameTickEvent
-import net.ccbluex.liquidbounce.event.events.PacketEvent
-import net.ccbluex.liquidbounce.event.events.QueuePacketEvent
-import net.ccbluex.liquidbounce.event.events.TransferOrigin
+import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleSwordBlock
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
@@ -66,6 +63,8 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
     val onScanRange by boolean("OnScanRange", true)
     private val onlyWhenInDanger by boolean("OnlyWhenInDanger", false)
 
+    private var blockingTicks = 0
+
     /**
      * Enforces the blocking state on the Input
      *
@@ -97,7 +96,7 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
         get() = unblockMode != UnblockMode.NONE
 
     val blockImmediate
-        get() = tickOn == 0 || blockMode == BlockMode.HYPIXEL117
+        get() = tickOn == 0 || blockMode == BlockMode.HYPIXEL
 
     /**
      * Make it seem like the player is blocking.
@@ -115,7 +114,7 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
      */
     @Suppress("ReturnCount", "CognitiveComplexMethod")
     fun startBlocking() {
-        if (!enabled || (player.isBlockAction && blockMode != BlockMode.HYPIXEL117)) {
+        if (!enabled || (player.isBlockAction && blockMode != BlockMode.HYPIXEL)) {
             return
         }
 
@@ -142,12 +141,14 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
         }
 
         when (blockMode) {
-            BlockMode.HYPIXEL117 -> {
-                val currentSlot = player.inventory.selectedSlot
-                val nextSlot = (currentSlot + 1) % 8
+            BlockMode.HYPIXEL -> {
+                val target = targetTracker.target
 
-                network.sendPacket(UpdateSelectedSlotC2SPacket(nextSlot))
-                network.sendPacket(UpdateSelectedSlotC2SPacket(currentSlot))
+                if (target == null) {
+                    interaction.interactItem(player, Hand.MAIN_HAND)
+                } else {
+                    interaction.interactEntity(player, target, Hand.MAIN_HAND)
+                }
             }
             BlockMode.FAKE -> {
                 blockVisual = true
@@ -156,7 +157,7 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
             else -> { }
         }
 
-        if (blockMode == BlockMode.INTERACT || blockMode == BlockMode.HYPIXEL117) {
+        if (blockMode == BlockMode.INTERACT || blockMode == BlockMode.HYPIXEL) {
             interactWithFront()
         }
 
@@ -178,6 +179,19 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
     @Suppress("unused")
     private val gameTickHandler = handler<GameTickEvent> {
         flushTicks++
+
+        if (blockingStateEnforced) {
+            blockingTicks++
+        }
+
+        if (blockMode == BlockMode.HYPIXEL && blockingTicks % 5 == 0 && blockingStateEnforced) {
+            interaction.interactItem(player, Hand.MAIN_HAND)
+        }
+    }
+
+    @Suppress("unused")
+    private val worldChangeHandler = handler<WorldChangeEvent> {
+        blockingStateEnforced = false
     }
 
     @Suppress("unused")
@@ -254,6 +268,7 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
 
         if (packet is UpdateSelectedSlotC2SPacket) {
             blockVisual = false
+            blockingStateEnforced = false
         }
     }
 
@@ -316,7 +331,7 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
     enum class BlockMode(override val choiceName: String) : NamedChoice {
         BASIC("Basic"),
         INTERACT("Interact"),
-        HYPIXEL117("Hypixel117"),
+        HYPIXEL("Hypixel"),
         FAKE("Fake"),
     }
 
