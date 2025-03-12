@@ -41,8 +41,9 @@ internal object VelocityReversal : VelocityMode("Reversal") {
 
     // We assume the velocity has reset. Idk of any edge cases where this logic would fail.
     private fun hasVelocityReset(): Boolean {
-           return player.velocity.lengthSquared() == 0
+           return player.velocity.lengthSquared() == 0.0
     }
+    
     private fun checkRequirements(packet: Any): Boolean {
         val isKillAuraRunning = requiresKillaura && !ModuleKillAura.running
         val isExplosion = packet is ExplosionS2CPacket
@@ -63,7 +64,7 @@ internal object VelocityReversal : VelocityMode("Reversal") {
     private val playerTickHandler =
         sequenceHandler<PlayerTickEvent> {
             if (!handlingVelocity) return@sequenceHandler
-            if (hasVelocityReset) reset()
+            if (hasVelocityReset()) reset()
 
             if (velocityTicks++ >= delay) {
                 player.velocity.x *= -xModifier
