@@ -20,6 +20,7 @@ package net.ccbluex.liquidbounce.features.module.modules.movement
 
 import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
+import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.SprintEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
@@ -34,6 +35,7 @@ import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.CRITICAL_MO
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.movement.DirectionalInput
 import net.minecraft.util.math.MathHelper
+import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket
 
 /**
  * Sprint module
@@ -54,6 +56,7 @@ object ModuleSprint : ClientModule("Sprint", Category.MOVEMENT) {
     private val ignoreBlindness by boolean("IgnoreBlindness", false)
     private val ignoreHunger by boolean("IgnoreHunger", false)
     private val ignoreCollision by boolean("IgnoreCollision", false)
+    private val cancelPackets by boolean("CancelPackets", false)
 
     /**
      * This is used to stop sprinting when the player is not moving forward
@@ -92,6 +95,18 @@ object ModuleSprint : ClientModule("Sprint", Category.MOVEMENT) {
         // because otherwise you could guess from the input change that this is automated.
         if (event.source == SprintEvent.Source.MOVEMENT_TICK && shouldPreventSprint()) {
             event.sprint = false
+        }
+    }
+
+    @Suppress("unused")
+    private val cancelSprintPacketsHandler = handler<PacketEvent> { event ->
+        val packet = event.packet
+
+        if (packet !is ClientCommandC2SPacket || !cancelPackets || event.isCancelled) {
+            return@handler
+        }
+        if (packet.mode == ClientCommandC2SPacket.Mode.STOP_SPRINTING || packet.mode == ClientCommandC2SPacket.Mode.START_SPRINTING) {
+            event.cancelEvent()
         }
     }
 
