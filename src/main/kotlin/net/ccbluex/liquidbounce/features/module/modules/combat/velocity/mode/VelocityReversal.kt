@@ -31,9 +31,9 @@ import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket
  * Default values bypass Vulcan (3/9/25) ~ anticheat-test.com
  */
 internal object VelocityReversal : VelocityMode("Reversal") {
-    private val delay by int("Reversal Delay", 2, 1..5, "ticks")
-    private val xModifier by float("X Modifier", 0.5f, 0.1f..1.0f)
-    private val zModifier by float("Z Modifier", 0.5f, 0.1f..1.0f)
+    private val delay by int("ReversalDelay", 2, 1..5, "ticks")
+    private val xModifier by float("XModifier", 0.5f, 0.1f..1.0f)
+    private val zModifier by float("ZModifier", 0.5f, 0.1f..1.0f)
     private val requiresKillaura by boolean("RequiresKillAura", true)
 
     private var handlingVelocity = false
@@ -41,7 +41,7 @@ internal object VelocityReversal : VelocityMode("Reversal") {
 
     // We assume the velocity has reset. Idk of any edge cases where this logic would fail.
     private fun hasVelocityReset(): Boolean {
-           return player.velocity.lengthSquared() == 0.0
+        return player.velocity.lengthSquared() == 0.0
     }
     
     private fun checkRequirements(packet: Any): Boolean {
