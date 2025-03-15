@@ -55,8 +55,13 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
     private val blockMode by enumChoice("BlockMode", BlockMode.INTERACT)
     private val unblockMode by enumChoice("UnblockMode", UnblockMode.STOP_USING_ITEM)
 
-    val tickOff by intRange("TickOffRange", 1..5, 0..5)
-    val tickOn by intRange("TickOnRange", 1..5, 0..5)
+    val tickOffRange by intRange("TickOffRange", 1..1, 0..5)
+    val tickOnRange by intRange("TickOnRange", 1..1, 0..5)
+    var tickOff : Int = 0
+        get() = tickOffRange.random()
+    var tickOn : Int = 0
+        get() = tickOnRange.random()
+
     val chance by float("Chance", 100f, 0f..100f, "%")
     val blink by int("Blink", 0, 0..10, "ticks")
 
@@ -96,7 +101,7 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
         get() = unblockMode != UnblockMode.NONE
 
     val blockImmediate
-        get() = tickOn.random() == 0 || blockMode == BlockMode.HYPIXEL
+        get() = tickOn == 0 || blockMode == BlockMode.HYPIXEL
 
     /**
      * Make it seem like the player is blocking.
