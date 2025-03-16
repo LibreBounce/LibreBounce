@@ -11,7 +11,7 @@ import net.ccbluex.liquidbounce.utils.movement.DirectionalInput
 
 object ModuleAntiCombo : ClientModule("AntiCombo", Category.COMBAT) {
 
-    private val maxAirTime by int("maxAirTime", 2000, 0..10000, "ms")
+    private val maxAirTick by int("maxAirTick", 20, 0..150, "ticks")
 
     private object NoBackToVoid : ToggleableConfigurable(ModuleAntiCombo, "No Back To Void", true) {
         val maxFallTime by int("maxFallTime", 10, 0..15, "s")
@@ -23,7 +23,7 @@ object ModuleAntiCombo : ClientModule("AntiCombo", Category.COMBAT) {
 
     private val onMovementInput = handler<MovementInputEvent>() { event ->
 
-        if (player.airTicks > maxAirTime) {
+        if (player.airTicks > maxAirTick) {
             if (NoBackToVoid.enabled) {
                 var simulatedPlayer = SimulatedPlayer.fromClientPlayer(
                     SimulatedPlayer.SimulatedPlayerInput(
