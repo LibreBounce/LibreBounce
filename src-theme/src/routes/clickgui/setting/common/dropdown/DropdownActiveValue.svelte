@@ -7,7 +7,6 @@
     $: values = (Array.isArray(value) ? value : [value])
         .slice()
         .sort((a, b) => {
-            console.log(value)
             return options.indexOf(a) - options.indexOf(b);
         });
 
