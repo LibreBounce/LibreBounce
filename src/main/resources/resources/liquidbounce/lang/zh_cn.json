@@ -387,6 +387,7 @@
   "liquidbounce.module.antiBot.description": "检测并防止你攻击反作弊生成的假人。",
   "liquidbounce.module.antiBounce.description": "防止你被粘液块反弹。",
   "liquidbounce.module.antiCactus.description": "防止受到仙人掌的伤害。",
+  "liquidbounce.module.antiCombo.description" : "减少你在战斗时被连击的可能",
   "liquidbounce.module.antiExploit.description": "防止服务器利用客户端漏洞。",
   "liquidbounce.module.antiLevitation.description": "避免受到失重/缓降效果。",
   "liquidbounce.module.antiReducedDebugInfo.description": "允许你看到完整的F3调试信息。",

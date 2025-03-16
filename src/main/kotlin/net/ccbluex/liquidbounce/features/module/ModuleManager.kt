@@ -213,6 +213,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleKeepSprint,
             ModuleMaceKill,
             ModuleNoMissCooldown,
+            ModuleAntiCombo,
 
             // Exploit
             ModuleAbortBreaking,

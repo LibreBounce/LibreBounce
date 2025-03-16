@@ -387,6 +387,7 @@
   "liquidbounce.module.antiBot.description": "Detects bots spawned by Anti-Cheats and prevents you from attacking them.",
   "liquidbounce.module.antiBounce.description": "Prevents you from bouncing on blocks.",
   "liquidbounce.module.antiCactus.description": "Protects you against damage caused by touching cacti.",
+  "liquidbounce.module.antiCombo.description" : "Reduce combo in combat",
   "liquidbounce.module.antiExploit.description": "Prevents the server from exploiting client-side bugs.",
   "liquidbounce.module.antiLevitation.description": "Prevents levitation and slow falling effects from affecting you.",
   "liquidbounce.module.antiReducedDebugInfo.description": "Allows you to see extended debug information.",
