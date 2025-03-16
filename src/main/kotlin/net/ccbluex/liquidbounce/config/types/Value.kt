@@ -386,6 +386,9 @@ class MultiChooseListValue<T>(
 
         set(active)
     }
+
+    @Suppress("NOTHING_TO_INLINE")
+    inline operator fun contains(choice: T) = get().contains(choice)
 }
 
 class ChooseListValue<T : NamedChoice>(
