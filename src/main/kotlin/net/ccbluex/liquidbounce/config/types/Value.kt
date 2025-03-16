@@ -362,6 +362,32 @@ class BindValue(
     }
 }
 
+class MultiChooseListValue<T>(
+    name: String,
+    value: MutableList<T>,
+    @Exclude
+    val choices: Array<T>
+) : Value<MutableList<T>>(
+    name,
+    defaultValue = value,
+    valueType = ValueType.MULTI_CHOOSE,
+    listType = ListValueType.Enums
+) where T : Enum<T>, T : NamedChoice {
+    override fun deserializeFrom(gson: Gson, element: JsonElement) {
+        val active = mutableListOf<T>()
+
+        if (element.isJsonArray) {
+            for (item in element.asJsonArray) {
+                choices.firstOrNull { it.choiceName == item.asString }?.let {
+                    active.add(it)
+                }
+            }
+        }
+
+        set(active)
+    }
+}
+
 class ChooseListValue<T : NamedChoice>(
     name: String,
     aliases: Array<String> = emptyArray(),
@@ -416,6 +442,7 @@ enum class ValueType(
     VECTOR_D,
     CHOICE(completer = AutoCompletionProvider.choiceCompleter),
     CHOOSE(completer = AutoCompletionProvider.chooseCompleter),
+    MULTI_CHOOSE(HumanInputDeserializer.textArrayDeserializer),
     INVALID,
     PROXY,
     CONFIGURABLE,
@@ -431,5 +458,6 @@ enum class ListValueType(val type: Class<*>?) {
     Friend(FriendManager.Friend::class.java),
     Proxy(net.ccbluex.liquidbounce.features.misc.proxy.Proxy::class.java),
     Account(MinecraftAccount::class.java),
+    Enums(Enum::class.java),
     None(null)
 }
