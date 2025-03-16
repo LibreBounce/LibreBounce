@@ -364,17 +364,17 @@ class BindValue(
 
 class MultiChooseListValue<T>(
     name: String,
-    value: MutableList<T>,
+    value: MutableSet<T>,
     @Exclude
     val choices: Array<T>
-) : Value<MutableList<T>>(
+) : Value<MutableSet<T>>(
     name,
     defaultValue = value,
     valueType = ValueType.MULTI_CHOOSE,
     listType = ListValueType.Enums
 ) where T : Enum<T>, T : NamedChoice {
     override fun deserializeFrom(gson: Gson, element: JsonElement) {
-        val active = mutableListOf<T>()
+        val active = mutableSetOf<T>()
 
         if (element.isJsonArray) {
             for (item in element.asJsonArray) {

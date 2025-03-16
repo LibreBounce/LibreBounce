@@ -251,13 +251,19 @@ open class Configurable(
 
     inline fun <reified T> multiEnumChoice(
         name: String,
-        default: MutableList<T> = mutableListOf(),
+        default: MutableSet<T> = mutableSetOf(),
     ) where T : Enum<T>, T : NamedChoice =
         multiEnumChoice(name, default, enumValues())
 
+    inline fun <reified T> multiEnumChoice(
+        name: String,
+        vararg default: T
+    ) where T : Enum<T>, T : NamedChoice =
+        multiEnumChoice(name, default.toMutableSet())
+
     fun <T> multiEnumChoice(
         name: String,
-        default: MutableList<T> = mutableListOf(),
+        default: MutableSet<T> = mutableSetOf(),
         choices: Array<T>
     ) where T : Enum<T>, T : NamedChoice =
         MultiChooseListValue(name, default, choices).apply { this@Configurable.inner.add(this@apply) }
