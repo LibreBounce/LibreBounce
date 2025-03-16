@@ -35,14 +35,15 @@ import net.ccbluex.liquidbounce.utils.math.sq
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ArmorItem
 import net.minecraft.item.Item
+import net.minecraft.item.equipment.ArmorMaterial
 import net.minecraft.item.equipment.ArmorMaterials
-import net.minecraft.item.equipment.EquipmentType
 import net.minecraft.network.packet.s2c.play.EntitiesDestroyS2CPacket
 import net.minecraft.network.packet.s2c.play.EntityAnimationS2CPacket
 import net.minecraft.network.packet.s2c.play.EntityAttributesS2CPacket
 import net.minecraft.network.packet.s2c.play.EntityS2CPacket
 import kotlin.math.abs
 
+@Suppress("MagicNumber")
 object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
 
     override val parent: ChoiceConfigurable<*>
@@ -52,16 +53,12 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
         val vlToConsiderAsBot by int("VLToConsiderAsBot", 10, 1..50, "flags")
     }
 
-    private val duplicate by boolean("Duplicate", false)
-    private val noGameMode by boolean("NoGameMode", true)
-    private val illegalPitch by boolean("IllegalPitch", true)
-    private val fakeEntityID by boolean("FakeEntityID", true)
-    private val illegalName by boolean("IllegalName", true)
-    private val needHit by boolean("NeedHit", false)
-    private val health by boolean("IllegalHealth", false)
-    private val swung by boolean("Swung", false)
-    private val critted by boolean("Critted", false)
-    private val attributes by boolean("Attributes", false)
+    private val customConditions by multiEnumChoice<CustomConditions>("Conditions",
+        CustomConditions.NO_GAME_MODE,
+        CustomConditions.ILLEGAL_PITCH,
+        CustomConditions.FAKE_ENTITY_ID,
+        CustomConditions.ILLEGAL_NAME,
+    )
 
     private object AlwaysInRadius : ToggleableConfigurable(ModuleAntiBot, "AlwaysInRadius", false) {
         val alwaysInRadiusRange by float("AlwaysInRadiusRange", 20f, 5f..30f)
@@ -73,32 +70,32 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
     }
 
     private object Armor : ToggleableConfigurable(ModuleAntiBot, "ArmorMaterial", false) {
-
         private class ArmorConfigurable(
-            name: String, val equipmentType: EquipmentType
+            name: String
         ) : ToggleableConfigurable(this, name, false) {
-
-            private val materialValues = mapOf(
-                null to boolean("Nothing", true),
-                ArmorMaterials.LEATHER to boolean("Leather", true),
-                ArmorMaterials.GOLD to boolean("Gold", true),
-                ArmorMaterials.CHAIN to boolean("Chain", true),
-                ArmorMaterials.IRON to boolean("Iron", true),
-                ArmorMaterials.DIAMOND to boolean("Diamond", true),
-                ArmorMaterials.NETHERITE to boolean("Netherite", true)
-            )
-
-            fun isValid(item: Item): Boolean {
-                // TURTLE_SCUTE or ARMADILLO_SCUTE -> valid
-                return materialValues[(item as? ArmorItem)?.material()]?.get() ?: true
+            private enum class ArmorMaterialSelector(
+                override val choiceName: String,
+                val material: ArmorMaterial? = null
+            ) : NamedChoice {
+                NOTHING("Nothing"),
+                GOLD("Gold", ArmorMaterials.GOLD),
+                CHAIN("Chain", ArmorMaterials.CHAIN),
+                IRON("Iron", ArmorMaterials.IRON),
+                DIAMOND("Diamond", ArmorMaterials.DIAMOND),
+                NETHERITE("Netherite", ArmorMaterials.NETHERITE)
             }
+
+            @Suppress("SpreadOperator")
+            private val materials by multiEnumChoice("Materials", *enumValues<ArmorMaterialSelector>())
+
+            fun isValid(item: Item) = materials.find { it.material == (item as? ArmorItem)?.material() } != null
         }
 
         private val values = arrayOf(
-            ArmorConfigurable("Boots", EquipmentType.BOOTS),
-            ArmorConfigurable("Leggings", EquipmentType.LEGGINGS),
-            ArmorConfigurable("Chestplate", EquipmentType.CHESTPLATE),
-            ArmorConfigurable("Helmet", EquipmentType.HELMET),
+            ArmorConfigurable("Boots"),
+            ArmorConfigurable("Leggings"),
+            ArmorConfigurable("Chestplate"),
+            ArmorConfigurable("Helmet"),
         ).also { it.reversedArray().onEach(::tree) }
 
         fun isValid(entity: PlayerEntity): Boolean {
@@ -240,30 +237,15 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
         return name.any { it !in VALID_CHARS }
     }
 
-    @Suppress("all")
-    private fun meetsCustomConditions(player: PlayerEntity): Boolean {
+    override fun isBot(entity: PlayerEntity): Boolean {
         val playerId = player.id
         return when {
-            noGameMode && network.getPlayerListEntry(player.uuid)?.gameMode == null -> true
             InvalidGround.enabled && hasInvalidGround(player) -> true
-            fakeEntityID && (playerId < 0 || playerId >= 1E+9) -> true
-            duplicate && isADuplicate(player.gameProfile) -> true
-            illegalName && hasIllegalName(player) -> true
-            illegalPitch && abs(player.pitch) > 90 -> true
             AlwaysInRadius.enabled && !notAlwaysInRadiusSet.contains(playerId) -> true
             Age.enabled && ageSet.contains(playerId) -> true
             Armor.enabled && armorSet.contains(playerId) -> true
-            needHit && !hitListSet.contains(playerId) -> true
-            health && player.health > 20f -> true
-            swung && !swungSet.contains(playerId) -> true
-            critted && !crittedSet.contains(playerId) -> true
-            attributes && !attributesSet.contains(playerId) -> true
-            else -> false
+            else -> customConditions.any { it.meetsCondition(player) }
         }
-    }
-
-    override fun isBot(entity: PlayerEntity): Boolean {
-        return meetsCustomConditions(entity)
     }
 
     override fun reset() {
@@ -275,5 +257,44 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
         attributesSet.clear()
         ageSet.clear()
         armorSet.clear()
+    }
+
+    @Suppress("unused")
+    private enum class CustomConditions(
+        override val choiceName: String,
+        val meetsCondition: (PlayerEntity) -> Boolean
+    ): NamedChoice {
+        DUPLICATE("Duplicate", { suspected ->
+            isADuplicate(suspected.gameProfile)
+        }),
+        NO_GAME_MODE("NoGameMode", { suspected ->
+            network.getPlayerListEntry(suspected.uuid)?.gameMode == null
+        }),
+        ILLEGAL_PITCH("IllegalPitch", { suspected ->
+            abs(suspected.pitch) > 90
+        }),
+        FAKE_ENTITY_ID("FakeEntityID", { suspected ->
+            suspected.id.let {
+                it < 0 || it >= 1E+9
+            }
+        }),
+        ILLEGAL_NAME("IllegalName", { suspected ->
+            hasIllegalName(suspected)
+        }),
+        NEED_IT("NeedHit", { suspected ->
+            !hitListSet.contains(suspected.id)
+        }),
+        ILLEGAL_HEALTH("IllegalHealth", { suspected ->
+            suspected.health > 20f
+        }),
+        SWUNG("Swung", { suspected ->
+            !swungSet.contains(suspected.id)
+        }),
+        CRITTED("Critted", { suspected ->
+            !crittedSet.contains(suspected.id)
+        }),
+        ATTRIBUTES("Attributes", { suspected ->
+            !attributesSet.contains(suspected.id)
+        })
     }
 }
