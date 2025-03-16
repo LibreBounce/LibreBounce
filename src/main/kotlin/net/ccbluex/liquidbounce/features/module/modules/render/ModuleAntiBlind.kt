@@ -18,6 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
+import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 
@@ -26,17 +27,35 @@ import net.ccbluex.liquidbounce.features.module.ClientModule
  *
  * Protects you from potentially annoying screen effects that block your view.
  */
+@Suppress("MagicNumber")
 object ModuleAntiBlind : ClientModule("AntiBlind", Category.RENDER, aliases = arrayOf("NoRender")) {
-    val antiBlind by boolean("DisableBlindingEffect", true)
-    val antiDarkness by boolean("DisableDarknessEffect", true)
-    val antiNausea by boolean("DisableNauseaEffect", true)
-    val pumpkinBlur by boolean("DisablePumpkinBlur", true)
-    val liquidsFog by boolean("DisableLiquidsFog", true)
-    val powderSnowFog by boolean("DisablePowderSnowFog", true)
-    val floatingItems by boolean("DisableFloatingItems", true)
-    val portalOverlay by boolean("DisablePortalOverlay", true)
-    val wallOverlay by boolean("DisableWallOverlay", true)
-    val fireOpacity by float("FireOpacity", 1.0F, 0.0F..1.0F)
-    val bossBars by boolean("DisableBossBars", true)
-    val explosionParticles by boolean("DisableExplosionParticles", false)
+    private val render = multiEnumChoice<DoRender>("DoRender",
+        DoRender.SIGN_TEXT,
+        DoRender.INVISIBLE_ENTITIES,
+        DoRender.BOSS_BARS,
+        DoRender.EXPLOSION_PARTICLES,
+    )
+
+    private val fireOpacity by int("FireOpacity", 100, 0..100, suffix = "%")
+
+    @JvmStatic
+    fun canRender(choice: DoRender) = !running || choice in render
+
+    val fireOpacityPercentage get() = (fireOpacity / 100.0).toFloat()
+}
+
+enum class DoRender(override val choiceName: String) : NamedChoice {
+    BLINDING("Blinding"),
+    DARKNESS("Darkness"),
+    NAUSEA("Nausea"),
+    PUMPKIN_BLUR("PumpkinBlur"),
+    LIQUIDS_FOG("LiquidsFog"),
+    POWDER_SNOW_FOG("PowderSnowFog"),
+    FLOATING_ITEMS("FloatingItems"),
+    PORTAL_OVERLAY("PortalOverlay"),
+    WALL_OVERLAY("WallOverlay"),
+    SIGN_TEXT("SignText"),
+    INVISIBLE_ENTITIES("InvisibleEntities"),
+    BOSS_BARS("BossBars"),
+    EXPLOSION_PARTICLES("ExplosionParticles")
 }

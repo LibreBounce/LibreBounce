@@ -23,6 +23,7 @@ import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.OverlayMessageEvent;
 import net.ccbluex.liquidbounce.event.events.PerspectiveEvent;
 import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleSwordBlock;
+import net.ccbluex.liquidbounce.features.module.modules.render.DoRender;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleAntiBlind;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleFreeCam;
 import net.ccbluex.liquidbounce.integration.theme.component.ComponentOverlay;
@@ -88,17 +89,16 @@ public abstract class MixinInGameHud {
 
     @Inject(method = "renderOverlay", at = @At("HEAD"), cancellable = true)
     private void injectPumpkinBlur(DrawContext context, Identifier texture, float opacity, CallbackInfo callback) {
-        ModuleAntiBlind module = ModuleAntiBlind.INSTANCE;
-        if (!module.getRunning()) {
+        if (!ModuleAntiBlind.INSTANCE.getRunning()) {
             return;
         }
 
-        if (module.getPumpkinBlur() && liquid_bounce$PUMPKIN_BLUR.equals(texture)) {
+        if (!ModuleAntiBlind.canRender(DoRender.PUMPKIN_BLUR) && liquid_bounce$PUMPKIN_BLUR.equals(texture)) {
             callback.cancel();
             return;
         }
 
-        if (module.getPowderSnowFog() && POWDER_SNOW_OUTLINE.equals(texture)) {
+        if (!ModuleAntiBlind.canRender(DoRender.POWDER_SNOW_FOG) && POWDER_SNOW_OUTLINE.equals(texture)) {
             callback.cancel();
         }
     }
@@ -113,8 +113,7 @@ public abstract class MixinInGameHud {
 
     @Inject(method = "renderPortalOverlay", at = @At("HEAD"), cancellable = true)
     private void hookRenderPortalOverlay(CallbackInfo ci) {
-        var antiBlind = ModuleAntiBlind.INSTANCE;
-        if (antiBlind.getRunning() && antiBlind.getPortalOverlay()) {
+        if (!ModuleAntiBlind.canRender(DoRender.PORTAL_OVERLAY)) {
             ci.cancel();
         }
     }
@@ -232,8 +231,7 @@ public abstract class MixinInGameHud {
 
     @Inject(method = "renderNauseaOverlay", at = @At("HEAD"), cancellable = true)
     private void hookNauseaOverlay(DrawContext context, float distortionStrength, CallbackInfo ci) {
-        var antiBlind = ModuleAntiBlind.INSTANCE;
-        if (antiBlind.getRunning() && antiBlind.getAntiNausea()) {
+        if (!ModuleAntiBlind.canRender(DoRender.NAUSEA)) {
             ci.cancel();
         }
     }
