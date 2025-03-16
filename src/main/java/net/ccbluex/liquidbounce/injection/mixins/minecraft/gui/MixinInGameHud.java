@@ -19,6 +19,8 @@
 package net.ccbluex.liquidbounce.injection.mixins.minecraft.gui;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.OverlayMessageEvent;
 import net.ccbluex.liquidbounce.event.events.PerspectiveEvent;
@@ -43,7 +45,8 @@ import net.minecraft.util.Identifier;
 import net.minecraft.world.GameMode;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.*;
-import org.spongepowered.asm.mixin.injection.*;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.function.Function;
@@ -70,10 +73,6 @@ public abstract class MixinInGameHud {
 
     @Shadow
     protected abstract void renderHotbarItem(DrawContext context, int x, int y, RenderTickCounter tickCounter, PlayerEntity player, ItemStack stack, int seed);
-
-    @Shadow
-    @Final
-    private static Identifier CROSSHAIR_TEXTURE;
 
     /**
      * Hook render hud event at the top layer
@@ -115,14 +114,10 @@ public abstract class MixinInGameHud {
         }
     }
 
-    @Redirect(method = "renderCrosshair", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;drawGuiTexture(Ljava/util/function/Function;Lnet/minecraft/util/Identifier;IIII)V", ordinal = 0))
-    private void drawTextureRedirect(DrawContext drawContext, Function<Identifier, RenderLayer> renderLayers, Identifier texture, int x, int y, int width, int height) {
+    @WrapOperation(method = "renderCrosshair", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;drawGuiTexture(Ljava/util/function/Function;Lnet/minecraft/util/Identifier;IIII)V", ordinal = 0))
+    private void centerCrosshair(DrawContext drawContext, Function<Identifier, RenderLayer> renderLayers, Identifier sprite, int x, int y, int width, int height, Operation<Void> original) {
         if (!ModuleHud.INSTANCE.getCenteredCrosshair()) {
-            drawContext.drawGuiTexture(
-                RenderLayer::getCrosshair, CROSSHAIR_TEXTURE,
-                (drawContext.getScaledWindowWidth() - 15) / 2,
-                (drawContext.getScaledWindowHeight() - 15) / 2, 15, 15
-            );
+            original.call(drawContext, renderLayers, sprite, x, y, width, height);
             return;
         }
 
@@ -131,9 +126,10 @@ public abstract class MixinInGameHud {
         double scaledCenterX = (window.getFramebufferWidth() / scaleFactor) / 2.0;
         double scaledCenterY = (window.getFramebufferHeight() / scaleFactor) / 2.0;
         ((DrawContextAddition) drawContext).liquid_bounce$drawTexture(
-            renderLayers, CROSSHAIR_TEXTURE,
+            renderLayers, sprite,
             Math.round((scaledCenterX - 7.5) * 4.0) * 0.25f,
-            Math.round((scaledCenterY - 7.5) * 4.0) * 0.25f, 15, 15
+            Math.round((scaledCenterY - 7.5) * 4.0) * 0.25f,
+            width, height
         );
     }
 
