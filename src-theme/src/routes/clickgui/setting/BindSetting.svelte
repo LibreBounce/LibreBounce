@@ -5,7 +5,7 @@
     import {getPrintableKeyName} from "../../../integration/rest";
     import type {KeyboardKeyEvent, MouseButtonEvent} from "../../../integration/events";
     import {convertToSpacedString, spaceSeperatedNames} from "../../../theme/theme_config";
-    import Dropdown from "./common/Dropdown.svelte";
+    import Dropdown from "./common/dropdown/Dropdown.svelte";
 
     export let setting: ModuleSetting;
 

@@ -1,10 +1,11 @@
 <script lang="ts">
     import {createEventDispatcher} from "svelte";
-    import {convertToSpacedString, spaceSeperatedNames} from "../../../../theme/theme_config";
+    import {convertToSpacedString, spaceSeperatedNames} from "../../../../../theme/theme_config";
+    import DropdownActiveValue from "./DropdownActiveValue.svelte";
 
     export let name: string | null;
     export let options: string[];
-    export let value: string;
+    export let value: string | string[];
 
     const dispatch = createEventDispatcher();
 
@@ -18,7 +19,14 @@
     }
 
     function updateValue(v: string) {
-        value = v;
+        if (Array.isArray(value)) {
+            value = value.includes(v)
+                ? value.filter(item => item !== v)
+                : [...value, v];
+        } else {
+            value = v;
+        }
+
         dispatch("change");
     }
 </script>
@@ -30,9 +38,12 @@
     <div class="head" bind:this={dropdownHead}>
         {#if name !== null}
             <span class="text">{$spaceSeperatedNames ? convertToSpacedString(name) : name}
-                &bull; {$spaceSeperatedNames ? convertToSpacedString(value) : value}</span>
+                &bull; <DropdownActiveValue bind:value={value} bind:options={options} />
+            </span>
         {:else}
-            <span class="text">{$spaceSeperatedNames ? convertToSpacedString(value) : value}</span>
+            <span class="text">
+                <DropdownActiveValue bind:value={value} bind:options={options} />
+            </span>
         {/if}
     </div>
 
@@ -41,7 +52,7 @@
             {#each options as o}
                 <div
                         class="option"
-                        class:active={o === value}
+                        class:active={Array.isArray(value) ? value.includes(o) : o === value}
                         on:click={() => updateValue(o)}
                 >
                     {$spaceSeperatedNames ? convertToSpacedString(o) : o}
@@ -52,7 +63,7 @@
 </div>
 
 <style lang="scss">
-  @use "../../../../colors.scss" as *;
+  @use "../../../../../colors.scss" as *;
 
   .dropdown {
     position: relative;

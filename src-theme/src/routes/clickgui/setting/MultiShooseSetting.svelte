@@ -1,12 +1,12 @@
 <script lang="ts">
     import {createEventDispatcher} from "svelte";
-    import type {ChooseSetting, ModuleSetting,} from "../../../integration/types";
-    import Dropdown from "./common/dropdown/Dropdown.svelte";
+    import type {ModuleSetting, MultiChooseSetting,} from "../../../integration/types";
     import {convertToSpacedString, spaceSeperatedNames} from "../../../theme/theme_config";
+    import Dropdown from "./common/dropdown/Dropdown.svelte";
 
     export let setting: ModuleSetting;
 
-    const cSetting = setting as ChooseSetting;
+    const cSetting = setting as MultiChooseSetting;
 
     const dispatch = createEventDispatcher();
 
@@ -27,6 +27,6 @@
 
 <style lang="scss">
     .setting {
-        padding: 7px 0px;
+        padding: 7px 0;
     }
 </style>

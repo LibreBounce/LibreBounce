@@ -22,6 +22,7 @@ export type ModuleSetting =
     | IntRangeSetting
     | ChoiceSetting
     | ChooseSetting
+    | MultiChooseSetting
     | ConfigurableSetting
     | TogglableSetting
     | ColorSetting
@@ -149,6 +150,13 @@ export interface ChooseSetting {
     name: string;
     choices: string[];
     value: string;
+}
+
+export interface MultiChooseSetting {
+    valueType: string;
+    name: string;
+    choices: string[];
+    value: string[];
 }
 
 export interface ConfigurableSetting {

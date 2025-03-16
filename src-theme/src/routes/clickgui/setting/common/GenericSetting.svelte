@@ -18,6 +18,7 @@
     import BindSetting from "../BindSetting.svelte";
     import VectorSetting from "../VectorSetting.svelte";
     import KeySetting from "../KeySetting.svelte";
+    import MultiChooseSetting from "../MultiShooseSetting.svelte";
 
     export let setting: ModuleSetting;
     export let path: string;
@@ -40,6 +41,8 @@
             <ChoiceSetting {path} bind:setting={setting} on:change/>
         {:else if setting.valueType === "CHOOSE"}
             <ChooseSetting bind:setting={setting} on:change/>
+        {:else if setting.valueType === "MULTI_CHOOSE"}
+            <MultiChooseSetting bind:setting={setting} on:change/>
         {:else if setting.valueType === "TOGGLEABLE"}
             <TogglableSetting {path} bind:setting={setting} on:change/>
         {:else if setting.valueType === "INT"}
