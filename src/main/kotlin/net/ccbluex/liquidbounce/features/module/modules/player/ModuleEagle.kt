@@ -40,7 +40,9 @@ object ModuleEagle : ClientModule("Eagle", Category.PLAYER,
     private val edgeDistance by float("EagleEdgeDistance", 0.4f, 0.01f..1.3f)
 
     private object Conditional : ToggleableConfigurable(this, "Conditional", true) {
-        private val conditions by multiEnumChoice<Conditions>("Conditions")
+        private val conditions by multiEnumChoice("Conditions",
+            Conditions.ON_GROUND
+        )
         val pitch by floatRange("Pitch", -90f..90f, -90f..90f)
 
         fun shouldSneak(event: MovementInputEvent): Boolean = when {
@@ -55,7 +57,7 @@ object ModuleEagle : ClientModule("Eagle", Category.PLAYER,
             val meetsCondition: (event: MovementInputEvent) -> Boolean
         ) : NamedChoice {
             HOLDING_BLOCKS("HoldingBlocks", { _ ->
-                isValidBlock(player.mainHandStack) && isValidBlock(player.offHandStack)
+                isValidBlock(player.mainHandStack) || isValidBlock(player.offHandStack)
             }),
             ON_GROUND("OnGround", { _ ->
                 player.isOnGround
