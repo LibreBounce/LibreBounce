@@ -18,6 +18,12 @@
             {$spaceSeperatedNames ? convertToSpacedString(v) : v}{i < values.length - 1 ? ', ' : ''}
         {/each}
     {:else}
-        None
+        <span class="noneSelectedValue">None</span>
     {/if}
 </span>
+
+<style lang="scss">
+    .noneSelectedValue {
+        opacity: 0.8;
+    }
+</style>

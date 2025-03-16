@@ -21,6 +21,7 @@
         on:change={handleChange}
         bind:value={cSetting.value}
         options={cSetting.choices}
+        autoClose={false}
         name={$spaceSeperatedNames ? convertToSpacedString(cSetting.name) : cSetting.name}
     />
 </div>

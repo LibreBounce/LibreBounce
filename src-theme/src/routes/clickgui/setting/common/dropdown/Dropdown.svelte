@@ -4,6 +4,7 @@
     import DropdownActiveValue from "./DropdownActiveValue.svelte";
 
     export let name: string | null;
+    export let autoClose: boolean = true;
     export let options: string[];
     export let value: string | string[];
 
@@ -53,7 +54,11 @@
                 <div
                         class="option"
                         class:active={Array.isArray(value) ? value.includes(o) : o === value}
-                        on:click={() => updateValue(o)}
+                        on:click={(e) => {
+                            updateValue(o)
+
+                            if (!autoClose) e.stopPropagation()
+                        }}
                 >
                     {$spaceSeperatedNames ? convertToSpacedString(o) : o}
                 </div>
