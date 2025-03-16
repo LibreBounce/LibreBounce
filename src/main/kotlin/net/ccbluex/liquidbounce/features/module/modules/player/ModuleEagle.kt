@@ -43,6 +43,7 @@ object ModuleEagle : ClientModule("Eagle", Category.PLAYER,
         private val conditions by multiEnumChoice("Conditions",
             Conditions.ON_GROUND
         )
+
         val pitch by floatRange("Pitch", -90f..90f, -90f..90f)
 
         fun shouldSneak(event: MovementInputEvent): Boolean = when {

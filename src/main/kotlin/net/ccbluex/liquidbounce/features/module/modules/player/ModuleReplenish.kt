@@ -40,7 +40,6 @@ import net.minecraft.screen.slot.SlotActionType
  * @author ccetl
  */
 object ModuleReplenish : ClientModule("Replenish", Category.PLAYER, aliases = arrayOf("Refill")) {
-
     private val constraints = tree(PlayerInventoryConstraints())
     private val itemThreshold by int("ItemThreshold", 5, 0..63)
     private val delay by int("Delay", 40, 0..1000, "ms")
