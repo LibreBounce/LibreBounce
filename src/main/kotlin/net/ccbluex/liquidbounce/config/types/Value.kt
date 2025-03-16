@@ -373,6 +373,13 @@ class MultiChooseListValue<T>(
     valueType = ValueType.MULTI_CHOOSE,
     listType = ListValueType.Enums
 ) where T : Enum<T>, T : NamedChoice {
+    /**
+     * For optimization purposes.
+     *
+     * O(n) -> O(1)
+     */
+    private val indexMap = choices.mapIndexed { index, choice -> choice to index }.toMap()
+
     override fun deserializeFrom(gson: Gson, element: JsonElement) {
         val active = mutableSetOf<T>()
 
@@ -384,7 +391,11 @@ class MultiChooseListValue<T>(
             }
         }
 
-        set(active)
+        active.sortedBy {
+            indexMap[it] ?: Int.MAX_VALUE
+        }.toMutableSet().let {
+            set(it)
+        }
     }
 
     @Suppress("NOTHING_TO_INLINE")
