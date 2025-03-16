@@ -18,27 +18,42 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.world
 
+import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.event.events.UseCooldownEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.minecraft.item.BlockItem
+import net.minecraft.item.Item
+import net.minecraft.item.ProjectileItem
 
 /**
  * FastPlace module
  *
  * Allows you to place blocks faster.
  */
+@Suppress("MagicNumber")
 object ModuleFastPlace : ClientModule("FastPlace", Category.WORLD) {
-
     private val cooldown by int("Cooldown", 0, 0..4, "ticks").apply { tagBy(this) }
-    private val onlyBlock by boolean("OnlyBlock", true)
+    private val applyTo by multiEnumChoice("ApplyTo", enumValues<ApplyTo>().toMutableSet())
 
     @Suppress("unused")
     private val useCooldownHandler = handler<UseCooldownEvent> { event ->
-        if (onlyBlock && player.mainHandStack.item !is BlockItem) return@handler
+        if (applyTo.none { it.meetsCondition(player.mainHandStack.item) }) return@handler
 
         event.cooldown = cooldown
     }
 
+    @Suppress("unused")
+    private enum class ApplyTo(
+        override val choiceName: String,
+        val meetsCondition: (Item) -> Boolean
+    ): NamedChoice {
+        PROJECTILES("Projectiles", { item ->
+            item is ProjectileItem
+        }),
+        BLOCKS("Blocks", { item ->
+            item is BlockItem
+        })
+    }
 }
