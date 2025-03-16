@@ -261,6 +261,11 @@ open class Configurable(
     ) where T : Enum<T>, T : NamedChoice =
         multiEnumChoice(name, default.toMutableSet())
 
+    inline fun <reified T> multiEnumChoice(
+        name: String
+    ) where T : Enum<T>, T : NamedChoice =
+        multiEnumChoice(name, enumValues<T>().toMutableSet(), enumValues<T>())
+
     fun <T> multiEnumChoice(
         name: String,
         default: MutableSet<T> = mutableSetOf(),
