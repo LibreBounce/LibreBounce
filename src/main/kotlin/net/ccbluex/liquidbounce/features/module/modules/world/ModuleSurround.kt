@@ -18,6 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.world
 
+import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.EventState
 import net.ccbluex.liquidbounce.event.events.*
@@ -88,18 +89,10 @@ object ModuleSurround : ClientModule("Surround", Category.WORLD, disableOnQuit =
 
     /**
      * Disables the module when the y-coordinate changes.
+     * Or when the player has moved at least 0.5 blocks away from the original center.
+     * Or when the player has a speed that is faster than or equal to 5 m/s.
      */
-    private val disableOnYChange by boolean("DisableOnYChange", true)
-
-    /**
-     * Disables the module when the player has moved at least 0.5 blocks away from the original center.
-     */
-    private val disableOnXZMove by boolean("DisableOnXZMove", false)
-
-    /**
-     * Disables the module when the player has a speed that is faster than or equal to 5 m/s.
-     */
-    private val disableOnXZSpeed by boolean("DisableOnXZSpeed", false)
+    private val disableOn by multiEnumChoice("DisableOn", DisableOn.Y_CHANGE)
 
     /**
      * Replaces broken blocks instantly.
@@ -269,12 +262,12 @@ object ModuleSurround : ClientModule("Surround", Category.WORLD, disableOnQuit =
             return@handler
         }
 
-        val yChange = disableOnYChange && it.y != startY
+        val yChange = DisableOn.Y_CHANGE in disableOn && it.y != startY
         val dx = abs(player.x - (centerPos?.x ?: 0.0))
         val dz = abs(player.z - (centerPos?.y ?: 0.0))
-        val xzChange = disableOnXZMove && (dx > 0.5 || dz > 0.5)
+        val xzChange = DisableOn.XZ_MOVE in disableOn && (dx > 0.5 || dz > 0.5)
         val speed = player.pos.subtract(player.prevX, player.prevY, player.prevZ).lengthSquared() * 20.0
-        val highSpeed = disableOnXZSpeed && speed >= 5.0
+        val highSpeed = DisableOn.XZ_SPEED in disableOn && speed >= 5.0
         if (yChange || xzChange || highSpeed) {
             enabled = false
         }
@@ -282,7 +275,7 @@ object ModuleSurround : ClientModule("Surround", Category.WORLD, disableOnQuit =
 
     @Suppress("unused")
     private val targetUpdater = handler<RotationUpdateEvent> {
-        if (disableOnYChange && player.pos.y != startY) {
+        if (DisableOn.Y_CHANGE in disableOn && player.pos.y != startY) {
             enabled = false
             return@handler
         }
@@ -391,4 +384,12 @@ object ModuleSurround : ClientModule("Surround", Category.WORLD, disableOnQuit =
         }
     }
 
+    @Suppress("unused")
+    private enum class DisableOn(
+        override val choiceName: String
+    ) : NamedChoice {
+        Y_CHANGE("YChange"),
+        XZ_MOVE("XZMove"),
+        XZ_SPEED("XZSpeed")
+    }
 }
