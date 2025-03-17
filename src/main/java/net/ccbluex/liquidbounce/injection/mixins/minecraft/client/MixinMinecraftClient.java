@@ -340,12 +340,12 @@ public abstract class MixinMinecraftClient {
 
     @ModifyExpressionValue(method = "handleBlockBreaking", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;isUsingItem()Z"))
     private boolean injectMultiActionsBreakingWhileUsing(boolean original) {
-        return original && !(ModuleMultiActions.INSTANCE.getRunning() && ModuleMultiActions.INSTANCE.getBreakingWhileUsing());
+        return original && !ModuleMultiActions.mayBreakWhileUsing();
     }
 
     @ModifyExpressionValue(method = "doItemUse", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerInteractionManager;isBreakingBlock()Z"))
     private boolean injectMultiActionsPlacingWhileBreaking(boolean original) {
-        return original && !(ModuleMultiActions.INSTANCE.getRunning() && ModuleMultiActions.INSTANCE.getPlacingWhileBreaking());
+        return original && !ModuleMultiActions.mayPlaceWhileBreaking();
     }
 
     @ModifyExpressionValue(method = "handleInputEvents", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;isUsingItem()Z", ordinal = 0))
@@ -355,7 +355,7 @@ public abstract class MixinMinecraftClient {
                 this.interactionManager.stopUsingItem(this.player);
             }
 
-            if (!ModuleMultiActions.INSTANCE.getRunning() || !ModuleMultiActions.INSTANCE.getAttackingWhileUsing()) {
+            if (!ModuleMultiActions.mayAttackWhileUsing()) {
                 this.options.attackKey.timesPressed = 0;
             }
 
