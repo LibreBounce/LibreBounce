@@ -398,6 +398,24 @@ class MultiChooseListValue<T>(
         }
     }
 
+    fun toggle(value: T): Boolean {
+        val current = get().toMutableSet()
+
+        if (value in current) {
+            current.remove(value)
+        } else {
+            current.add(value)
+        }
+
+        current.sortedBy {
+            indexMap[it] ?: Int.MAX_VALUE
+        }.toMutableSet().let {
+            set(it)
+        }
+
+        return value in current
+    }
+
     @Suppress("NOTHING_TO_INLINE")
     inline operator fun contains(choice: T) = get().contains(choice)
 }
