@@ -49,7 +49,7 @@ object ModuleEagle : ClientModule("Eagle", Category.PLAYER,
         fun shouldSneak(event: MovementInputEvent): Boolean = when {
             !enabled || event.sneak -> true
             player.pitch !in pitch -> false
-            else -> conditions.all { it.meetsCondition(event) }
+            else -> conditions.all { !it.meetsCondition(event) }
         }
 
         @Suppress("unused")
