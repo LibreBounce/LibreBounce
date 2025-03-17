@@ -46,26 +46,18 @@ object ModuleEagle : ClientModule("Eagle", Category.PLAYER,
 
         val pitch by floatRange("Pitch", -90f..90f, -90f..90f)
 
-        fun shouldSneak(event: MovementInputEvent): Boolean = when {
-            !enabled || event.sneak -> true
-            player.pitch !in pitch -> false
-            else -> conditions.all { !it.meetsCondition(event) }
-        }
+        fun shouldSneak(event: MovementInputEvent) =
+            if (!enabled || event.sneak) {
+                true
+            } else {
+                player.pitch in pitch && conditions.all { it.meetsCondition(event) }
+            }
 
         @Suppress("unused")
         private enum class Conditions(
             override val choiceName: String,
             val meetsCondition: (event: MovementInputEvent) -> Boolean
         ) : NamedChoice {
-            HOLDING_BLOCKS("HoldingBlocks", { _ ->
-                isValidBlock(player.mainHandStack) || isValidBlock(player.offHandStack)
-            }),
-            ON_GROUND("OnGround", { _ ->
-                player.isOnGround
-            }),
-            SNEAK("Sneak", { event ->
-                event.sneak
-            }),
             LEFT("Left", { event ->
                 event.directionalInput.left
             }),
@@ -77,6 +69,15 @@ object ModuleEagle : ClientModule("Eagle", Category.PLAYER,
             }),
             BACKWARDS("Backwards", { event ->
                 event.directionalInput.backwards
+            }),
+            HOLDING_BLOCKS("HoldingBlocks", { _ ->
+                isValidBlock(player.mainHandStack) || isValidBlock(player.offHandStack)
+            }),
+            ON_GROUND("OnGround", { _ ->
+                player.isOnGround
+            }),
+            SNEAK("Sneak", { event ->
+                event.sneak
             })
         }
     }
