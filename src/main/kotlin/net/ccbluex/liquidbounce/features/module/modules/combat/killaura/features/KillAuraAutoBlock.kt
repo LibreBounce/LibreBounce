@@ -57,10 +57,8 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
 
     val tickOffRange by intRange("TickOffRange", 1..1, 0..5)
     val tickOnRange by intRange("TickOnRange", 1..1, 0..5)
-    var tickOff : Int = 0
-        get() = tickOffRange.random()
-    var tickOn : Int = 0
-        get() = tickOnRange.random()
+    val tickOff get() = tickOffRange.random()
+    val tickOn get() = tickOnRange.random()
 
     val chance by float("Chance", 100f, 0f..100f, "%")
     val blink by int("Blink", 0, 0..10, "ticks")
