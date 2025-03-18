@@ -33,19 +33,22 @@ import net.minecraft.text.Text
  * @author sqlerrorthing
  * @since 12/28/2024
  **/
+@Suppress("MagicNumber")
 object ModuleBetterTab : ClientModule("BetterTab", Category.RENDER) {
 
     val sorting by enumChoice("Sorting", Sorting.VANILLA)
 
+    private val visibility by multiEnumChoice("Visibility",
+        Visibility.HEADER,
+        Visibility.FOOTER
+    )
+
+    @JvmStatic
+    fun isVisible(visibility: Visibility) = visibility in this.visibility
+
     object Limits : Configurable("Limits") {
         val tabSize by int("TabSize", 80, 1..1000)
         val height by int("ColumnHeight", 20, 1..100)
-    }
-
-    object Visibility : Configurable("Visibility") {
-        val header by boolean("Header", true)
-        val footer by boolean("Footer", true)
-        val nameOnly by boolean("NameOnly", false)
     }
 
     object Highlight : ToggleableConfigurable(ModuleBetterTab, "Highlight", true) {
@@ -76,7 +79,6 @@ object ModuleBetterTab : ClientModule("BetterTab", Category.RENDER) {
     init {
         treeAll(
             Limits,
-            Visibility,
             Highlight,
             AccurateLatency,
             PlayerHider
@@ -138,4 +140,12 @@ enum class Sorting(
     NONE("None", { _, _ -> 0 })
 }
 
+@Suppress("unused")
+enum class Visibility(
+    override val choiceName: String
+) : NamedChoice {
+    HEADER("Header"),
+    FOOTER("Footer"),
+    NAME_ONLY("NameOnly")
+}
 
