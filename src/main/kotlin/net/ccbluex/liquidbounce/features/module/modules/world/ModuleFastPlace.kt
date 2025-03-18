@@ -35,7 +35,7 @@ import net.minecraft.item.ProjectileItem
 @Suppress("MagicNumber")
 object ModuleFastPlace : ClientModule("FastPlace", Category.WORLD) {
     private val cooldown by int("Cooldown", 0, 0..4, "ticks").apply { tagBy(this) }
-    private val applyTo by multiEnumChoice("ApplyTo", enumValues<ApplyTo>().toMutableSet())
+    private val applyTo by multiEnumChoice("ApplyTo", ApplyTo.entries)
 
     @Suppress("unused")
     private val useCooldownHandler = handler<UseCooldownEvent> { event ->

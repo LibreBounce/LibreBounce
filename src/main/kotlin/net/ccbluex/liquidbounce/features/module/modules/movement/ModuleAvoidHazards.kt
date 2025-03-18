@@ -36,7 +36,7 @@ import net.minecraft.util.shape.VoxelShapes
  * Prevents you walking into blocks that might be malicious for you.
  */
 object ModuleAvoidHazards : ClientModule("AvoidHazards", Category.MOVEMENT) {
-    private val avoid by multiEnumChoice("Avoid", Avoid.entries.toMutableSet())
+    private val avoid by multiEnumChoice("Avoid", Avoid.entries)
 
     // Conflicts with AvoidHazards
     val cobWebs get() = Avoid.COBWEB in avoid

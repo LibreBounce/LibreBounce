@@ -364,10 +364,10 @@ class BindValue(
 
 class MultiChooseListValue<T>(
     name: String,
-    value: MutableSet<T>,
+    value: Set<T>,
     @Exclude
     val choices: Array<T>
-) : Value<MutableSet<T>>(
+) : Value<Set<T>>(
     name,
     defaultValue = value,
     valueType = ValueType.MULTI_CHOOSE,
@@ -393,7 +393,7 @@ class MultiChooseListValue<T>(
 
         active.sortedBy {
             indexMap[it] ?: Int.MAX_VALUE
-        }.toMutableSet().let {
+        }.toSet().let {
             set(it)
         }
     }
@@ -409,7 +409,7 @@ class MultiChooseListValue<T>(
 
         current.sortedBy {
             indexMap[it] ?: Int.MAX_VALUE
-        }.toMutableSet().let {
+        }.toSet().let {
             set(it)
         }
 

@@ -81,7 +81,7 @@ class BlockPlacer(
      */
     val sneak by int("Sneak", 1, 0..10, "ticks")
 
-    private val ignores by multiEnumChoice("Ignore", Ignore.entries.toMutableSet())
+    private val ignores by multiEnumChoice("Ignore", Ignore.entries)
 
     val ignoreOpenInventory get() = Ignore.OPEN_INVENTORY in ignores
 

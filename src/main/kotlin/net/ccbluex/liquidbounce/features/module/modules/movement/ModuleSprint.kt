@@ -57,7 +57,7 @@ object ModuleSprint : ClientModule("Sprint", Category.MOVEMENT) {
      * This is used to stop sprinting when the player is not moving forward
      * without a velocity fix enabled.
      */
-    private val stopOn by multiEnumChoice("StopOn", StopOn.entries.toMutableSet())
+    private val stopOn by multiEnumChoice("StopOn", StopOn.entries)
 
     val shouldSprintOmnidirectional: Boolean
         get() = running && sprintMode == SprintMode.OMNIDIRECTIONAL ||

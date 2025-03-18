@@ -34,7 +34,7 @@ import kotlin.random.Random
 object ModuleSkinDerp : ClientModule("SkinDerp", Category.FUN) {
     private val sync by boolean("Sync", false)
     private val delay by int("Delay", 0, 0..20, "ticks")
-    private val parts by multiEnumChoice("Parts", DerpParts.entries.toTypedArray().toMutableSet())
+    private val parts by multiEnumChoice("Parts", DerpParts.entries)
 
     private var prevModelParts = emptySet<PlayerModelPart>()
 

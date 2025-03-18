@@ -44,7 +44,7 @@ abstract class NavigationBaseConfigurable<T>(
     enabled: Boolean
 ) : ToggleableConfigurable(parent, name, enabled) {
 
-    private val autoAction by multiEnumChoice("Auto", AutoAction.entries.toMutableSet())
+    private val autoAction by multiEnumChoice("Auto", AutoAction.entries)
 
     private inline val autoJump get() = AutoAction.JUMP in autoAction
     private inline val autoSwim get() = AutoAction.SWIM in autoAction

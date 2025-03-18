@@ -90,7 +90,7 @@ object ModuleBetterTab : ClientModule("BetterTab", Category.RENDER) {
 class PlayerFilter: Configurable("Filter") {
     private var filters = setOf<Regex>()
 
-    private val filterBy by multiEnumChoice("FilterBy", Filter.entries.toMutableSet())
+    private val filterBy by multiEnumChoice("FilterBy", Filter.entries)
 
     @Suppress("unused")
     private val names by textArray("Names", mutableListOf()).onChanged { newValue ->

@@ -29,6 +29,7 @@ import net.minecraft.item.Item
 import net.minecraft.util.math.Vec3d
 import net.minecraft.util.math.Vec3i
 import org.lwjgl.glfw.GLFW
+import kotlin.enums.EnumEntries
 
 @Suppress("TooManyFunctions")
 open class Configurable(
@@ -251,7 +252,7 @@ open class Configurable(
 
     inline fun <reified T> multiEnumChoice(
         name: String,
-        default: MutableSet<T> = mutableSetOf(),
+        default: Set<T> = setOf(),
     ) where T : Enum<T>, T : NamedChoice =
         multiEnumChoice(name, default, enumValues())
 
@@ -259,11 +260,17 @@ open class Configurable(
         name: String,
         vararg default: T
     ) where T : Enum<T>, T : NamedChoice =
-        multiEnumChoice(name, default.toMutableSet())
+        multiEnumChoice(name, default.toSet())
+
+    inline fun <reified T> multiEnumChoice(
+        name: String,
+        default: EnumEntries<T>
+    ) where T : Enum<T>, T : NamedChoice =
+        multiEnumChoice(name, default.toSet())
 
     fun <T> multiEnumChoice(
         name: String,
-        default: MutableSet<T> = mutableSetOf(),
+        default: Set<T> = setOf(),
         choices: Array<T>
     ) where T : Enum<T>, T : NamedChoice =
         MultiChooseListValue(name, default, choices).apply { this@Configurable.inner.add(this@apply) }
