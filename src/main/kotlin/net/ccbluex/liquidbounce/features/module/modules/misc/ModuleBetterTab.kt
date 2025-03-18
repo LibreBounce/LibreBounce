@@ -90,7 +90,7 @@ object ModuleBetterTab : ClientModule("BetterTab", Category.RENDER) {
 class PlayerFilter: Configurable("Filter") {
     private var filters = setOf<Regex>()
 
-    private val filterType by enumChoice("FilterBy", Filter.BOTH)
+    private val filterBy by multiEnumChoice("FilterBy", Filter.entries.toMutableSet())
 
     @Suppress("unused")
     private val names by textArray("Names", mutableListOf()).onChanged { newValue ->
@@ -104,7 +104,7 @@ class PlayerFilter: Configurable("Filter") {
     }
 
     fun isInFilter(entry: PlayerListEntry) = filters.any { regex ->
-        filterType.matches(entry, regex)
+        filterBy.any { filter -> filter.matches(entry, regex) }
     }
 
     @Suppress("unused")
@@ -112,10 +112,6 @@ class PlayerFilter: Configurable("Filter") {
         override val choiceName: String,
         val matches: PlayerListEntry.(Regex) -> Boolean
     ) : NamedChoice {
-        BOTH("Both", { regex ->
-            DISPLAY_NAME.matches(this, regex) || PLAYER_NAME.matches(this, regex)
-        }),
-
         DISPLAY_NAME("DisplayName", { regex ->
             this.displayName?.string?.let { regex.matches(it) } ?: false
         }),
