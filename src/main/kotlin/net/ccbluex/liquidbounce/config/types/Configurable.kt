@@ -30,6 +30,7 @@ import net.minecraft.util.math.Vec3d
 import net.minecraft.util.math.Vec3i
 import org.lwjgl.glfw.GLFW
 import kotlin.enums.EnumEntries
+import kotlin.reflect.KClass
 
 @Suppress("TooManyFunctions")
 open class Configurable(
@@ -252,28 +253,35 @@ open class Configurable(
 
     inline fun <reified T> multiEnumChoice(
         name: String,
-        default: Set<T> = setOf(),
-    ) where T : Enum<T>, T : NamedChoice =
-        multiEnumChoice(name, default, enumValues())
-
-    inline fun <reified T> multiEnumChoice(
-        name: String,
         vararg default: T
-    ) where T : Enum<T>, T : NamedChoice =
-        multiEnumChoice(name, default.toSet())
+    ): MultiChooseListValue<T> where T : Enum<T>, T : NamedChoice {
+        /**
+         * Idk why but `*default` or `default.toTypedArray()` doesnt work.
+         */
+        return multiEnumChoice(name, default.distinct().toTypedArray(), enumValues<T>())
+    }
+
 
     inline fun <reified T> multiEnumChoice(
         name: String,
         default: EnumEntries<T>
     ) where T : Enum<T>, T : NamedChoice =
-        multiEnumChoice(name, default.toSet())
+        multiEnumChoice(name, default.toTypedArray(), enumValues<T>())
+
+    inline fun <reified T> multiEnumChoice(
+        name: String,
+        default: Array<T> = arrayOf(),
+        choices: Array<T>
+    ) where T : Enum<T>, T : NamedChoice =
+        multiEnumChoice(name, default.distinct().toTypedArray(), choices.distinct().toTypedArray(), T::class)
 
     fun <T> multiEnumChoice(
         name: String,
-        default: Set<T> = setOf(),
-        choices: Array<T>
+        default: Array<T>,
+        choices: Array<T>,
+        clazz: KClass<T>
     ) where T : Enum<T>, T : NamedChoice =
-        MultiChooseListValue(name, default, choices).apply { this@Configurable.inner.add(this@apply) }
+        MultiChooseListValue(name, default, choices, clazz).apply { this@Configurable.inner.add(this@apply) }
 
     inline fun <reified T> enumChoice(name: String, default: T): ChooseListValue<T>
         where T : Enum<T>, T : NamedChoice = enumChoice(name, default, enumValues<T>())

@@ -39,6 +39,7 @@ import net.ccbluex.liquidbounce.utils.kotlin.mapArray
 import net.minecraft.client.util.InputUtil
 import java.util.*
 import java.util.function.Supplier
+import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 
 typealias ValueListener<T> = (T) -> T
@@ -364,10 +365,15 @@ class BindValue(
 
 class MultiChooseListValue<T>(
     name: String,
-    value: Set<T>,
+    value: Array<T>,
+
     @Exclude
-    val choices: Array<T>
-) : Value<Set<T>>(
+    val choices: Array<T>,
+
+    @Exclude
+    @ProtocolExclude
+    private val clazz: KClass<T>
+) : Value<Array<T>>(
     name,
     defaultValue = value,
     valueType = ValueType.MULTI_CHOOSE,
@@ -378,7 +384,7 @@ class MultiChooseListValue<T>(
      *
      * O(n) -> O(1)
      */
-    private val indexMap = choices.mapIndexed { index, choice -> choice to index }.toMap()
+    private val indexMap = choices.distinct().mapIndexed { index, choice -> choice to index }.toMap()
 
     override fun deserializeFrom(gson: Gson, element: JsonElement) {
         val active = mutableSetOf<T>()
@@ -393,7 +399,7 @@ class MultiChooseListValue<T>(
 
         active.sortedBy {
             indexMap[it] ?: Int.MAX_VALUE
-        }.toSet().let {
+        }.toTypedArray().let {
             set(it)
         }
     }
@@ -409,7 +415,7 @@ class MultiChooseListValue<T>(
 
         current.sortedBy {
             indexMap[it] ?: Int.MAX_VALUE
-        }.toSet().let {
+        }.toTypedArray().let {
             set(it)
         }
 
@@ -418,6 +424,13 @@ class MultiChooseListValue<T>(
 
     @Suppress("NOTHING_TO_INLINE")
     inline operator fun contains(choice: T) = get().contains(choice)
+
+    @Suppress("UNCHECKED_CAST")
+    private fun Collection<T>.toTypedArray(): Array<T> {
+        val array = java.lang.reflect.Array.newInstance(clazz.java, size) as Array<T>
+        forEachIndexed { index, item -> array[index] = item }
+        return array
+    }
 }
 
 class ChooseListValue<T : NamedChoice>(

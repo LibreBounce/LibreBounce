@@ -83,7 +83,7 @@ enum class Targets(override val choiceName: String) : NamedChoice {
     FRIENDS("Friends");
 }
 
-fun Set<Targets>.shouldAttack(entity: Entity): Boolean {
+fun Array<Targets>.shouldAttack(entity: Entity): Boolean {
     val info = EntityTaggingManager.getTag(entity).targetingInfo
 
     return when {
@@ -93,7 +93,7 @@ fun Set<Targets>.shouldAttack(entity: Entity): Boolean {
     }
 }
 
-fun Set<Targets>.shouldShow(entity: Entity): Boolean {
+fun Array<Targets>.shouldShow(entity: Entity): Boolean {
     val info = EntityTaggingManager.getTag(entity).targetingInfo
 
     return when {
@@ -106,7 +106,8 @@ fun Set<Targets>.shouldShow(entity: Entity): Boolean {
 /**
  * Check if an entity is considered a target
  */
-private fun Set<Targets>.isInteresting(suspect: Entity): Boolean {
+@Suppress("CyclomaticComplexMethod", "ReturnCount")
+private fun Array<Targets>.isInteresting(suspect: Entity): Boolean {
     // Check if the enemy is living and not dead (or ignore being dead)
     if (suspect !is LivingEntity || !((Targets.DEAD in this) || suspect.isAlive)) {
         return false
@@ -135,11 +136,11 @@ private fun Set<Targets>.isInteresting(suspect: Entity): Boolean {
 
 // Extensions
 @JvmOverloads
-fun Entity.shouldBeShown(enemyConf: Set<Targets> = ModuleTargets.visual) =
+fun Entity.shouldBeShown(enemyConf: Array<Targets> = ModuleTargets.visual) =
     enemyConf.shouldShow(this)
 
 @JvmOverloads
-fun Entity.shouldBeAttacked(enemyConf: Set<Targets> = ModuleTargets.combat) =
+fun Entity.shouldBeAttacked(enemyConf: Array<Targets> = ModuleTargets.combat) =
     enemyConf.shouldAttack(this)
 
 /**
@@ -147,12 +148,12 @@ fun Entity.shouldBeAttacked(enemyConf: Set<Targets> = ModuleTargets.combat) =
  */
 fun ClientWorld.findEnemy(
     range: ClosedFloatingPointRange<Float>,
-    enemyConf: Set<Targets> = ModuleTargets.combat
+    enemyConf: Array<Targets> = ModuleTargets.combat
 ) = findEnemies(range, enemyConf).minByOrNull { (_, distance) -> distance }?.key()
 
 fun ClientWorld.findEnemies(
     range: ClosedFloatingPointRange<Float>,
-    enemyConf: Set<Targets> = ModuleTargets.combat
+    enemyConf: Array<Targets> = ModuleTargets.combat
 ): List<ObjectDoublePair<Entity>> {
     val squaredRange = (range.start * range.start..range.endInclusive * range.endInclusive).toDouble()
 
@@ -185,7 +186,7 @@ fun Entity.attack(swing: Boolean, keepSprint: Boolean = false) {
     attack(if (swing) SwingMode.DO_NOT_HIDE else SwingMode.HIDE_BOTH, keepSprint)
 }
 
-@Suppress("CognitiveComplexMethod", "NestedBlockDepth")
+@Suppress("CognitiveComplexMethod", "NestedBlockDepth", "MagicNumber")
 fun Entity.attack(swing: SwingMode, keepSprint: Boolean = false) {
     if (EventManager.callEvent(AttackEntityEvent(this) {
         attack(swing, keepSprint)
