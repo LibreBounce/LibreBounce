@@ -11,7 +11,7 @@ private val pushChronometer = Chronometer()
 internal class Push : Configurable("Push") {
     private val delay by int("Delay", 2, 1..20, suffix = "ticks")
 
-    internal inline fun testPushRod(push: () -> Unit) {
+    internal fun testPushRod(push: () -> Unit) {
         if (pushChronometer.hasElapsed(delay.toLong() * MILLISECONDS_PER_TICK)) {
             push()
             reset()

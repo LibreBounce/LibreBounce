@@ -6,6 +6,7 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.entity.getActualHealth
 import net.ccbluex.liquidbounce.utils.inventory.Slots
+import net.minecraft.client.network.ClientPlayerEntity
 import net.minecraft.item.Items
 
 /**
@@ -25,28 +26,28 @@ object ModuleAutoRod : ClientModule("AutoRod", Category.COMBAT) {
 
     private val healthByScoreboard by boolean("HealthByScoreboard", true)
 
-    private inline val usingRod
-        get() = (player.isUsingItem
-                && player.activeItem?.item == Items.FISHING_ROD)
+    private val ClientPlayerEntity.isUsingRod
+        get() = (isUsingItem
+                && activeItem?.item == Items.FISHING_ROD)
                 || using.isUsingRod
 
-    private inline val testFacingEnemyUseRod
-        get() = facingEnemy.enabled
-                && player.getActualHealth(healthByScoreboard) >= playerHealthThreshold.toFloat()
-                && facingEnemy.testUseRod(healthByScoreboard)
-
-    private inline val canUseRod get() = when {
-        usingRod -> false
-        testFacingEnemyUseRod -> true
-        player.health <= escapeHealthThreshold -> true
+    private fun ClientPlayerEntity.testUseRod() = when {
+        isUsingRod -> false
+        testFacingEnemyUseRod() -> true
+        health <= escapeHealthThreshold -> true
         else -> !facingEnemy.enabled
     }
 
+    private fun testFacingEnemyUseRod() =
+        facingEnemy.enabled
+        && player.getActualHealth(healthByScoreboard) >= playerHealthThreshold.toFloat()
+        && facingEnemy.testUseRod(healthByScoreboard)
+
     @Suppress("unused")
     private val tickHandler = tickHandler {
-        if (canUseRod) {
+        if (player.testUseRod()) {
             Slots.OffhandWithHotbar.findSlot(Items.FISHING_ROD)
-                ?.takeIf { using.canUseRodWhenUsingItem }
+                ?.takeIf { using.canUseRodWhenUsingItem() }
                 ?.let { using.startRodUsing(it) }
         } else if (using.isUsingRod) {
             using.proceedUsingRod()

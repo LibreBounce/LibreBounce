@@ -15,20 +15,19 @@ internal class Pullback : Configurable("Pullback") {
     private val onTargetReach by boolean("OnTargetReach", true)
     private val delay by int("Pullback", 15, 1..20, suffix = "ticks")
 
-    private inline val fishingBobberEntity
+    private val fishingBobberEntity
         get() = when {
             player.fishHook != null -> player.fishHook!!
-            else -> world.entities.find { it is FishingBobberEntity && it.owner == player } as FishingBobberEntity?
+            else -> world.entities.find { it is FishingBobberEntity && it.owner == player } as? FishingBobberEntity?
         }
 
-    private inline val targetReached
-        get() = when {
-            !onTargetReach -> false
-            else -> fishingBobberEntity?.takeIf { it.hookedEntity != null } != null
-        }
+    private fun isTargetReached() = when {
+        !onTargetReach -> false
+        else -> fishingBobberEntity?.takeIf { it.hookedEntity != null } != null
+    }
 
-    internal inline fun testPullbackRod(pullback: () -> Unit) {
-        if (pullbackChronometer.hasElapsed(delay.toLong() * MILLISECONDS_PER_TICK) || targetReached) {
+    internal fun testPullbackRod(pullback: () -> Unit) {
+        if (pullbackChronometer.hasElapsed(delay.toLong() * MILLISECONDS_PER_TICK) || isTargetReached()) {
             pullback()
             reset()
         }

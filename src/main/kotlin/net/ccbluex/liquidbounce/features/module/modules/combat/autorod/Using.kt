@@ -11,7 +11,7 @@ import net.ccbluex.liquidbounce.utils.inventory.OffHandSlot
 import net.ccbluex.liquidbounce.utils.inventory.interactItem
 import net.minecraft.item.Items
 
-@Suppress("MagicNumber", "NOTHING_TO_INLINE")
+@Suppress("MagicNumber")
 internal class Using : Configurable("Using") {
     private val onItemUsing by boolean("IgnoreUsingItem", false)
 
@@ -21,7 +21,7 @@ internal class Using : Configurable("Using") {
     internal var isUsingRod = false
     private var resetSlot: Int? = null
 
-    internal inline fun startRodUsing(slot: HotbarItemSlot) = push.testPushRod {
+    internal fun startRodUsing(slot: HotbarItemSlot) = push.testPushRod {
         val (yaw, pitch) = RotationManager.currentRotation ?: player.rotation
 
         interactItem(slot.useHand, yaw, pitch) {
@@ -39,8 +39,8 @@ internal class Using : Configurable("Using") {
         pullback.reset()
     }
 
-    internal inline fun proceedUsingRod() = pullback.testPullbackRod {
-        if (canUseRodWhenUsingItem) {
+    internal fun proceedUsingRod() = pullback.testPullbackRod {
+        if (canUseRodWhenUsingItem()) {
             interaction.stopUsingItem(player)
 
             resetSlot?.let {
@@ -54,9 +54,8 @@ internal class Using : Configurable("Using") {
         push.reset()
     }
 
-    @get:JvmSynthetic
-    internal inline val canUseRodWhenUsingItem
-        get() = onItemUsing
-                || (player.activeItem?.item != Items.FISHING_ROD
-                    && !(player.usingItem || KillAuraAutoBlock.blockVisual))
+    internal fun canUseRodWhenUsingItem() =
+        onItemUsing
+        || (player.activeItem?.item != Items.FISHING_ROD
+            && !(player.usingItem || KillAuraAutoBlock.blockVisual))
 }

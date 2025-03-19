@@ -9,7 +9,6 @@ import net.ccbluex.liquidbounce.utils.entity.getActualHealth
 import net.ccbluex.liquidbounce.utils.entity.rotation
 import net.ccbluex.liquidbounce.utils.kotlin.random
 import net.ccbluex.liquidbounce.utils.math.sq
-import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 
 @Suppress("MagicNumber")
@@ -19,13 +18,12 @@ internal class FacingEnemy : ToggleableConfigurable(ModuleAutoRod, "FacingEnemy"
     private val ignoreOnLowHealth by boolean("IgnoreOnLowHealth", true)
     private val healthThreshold by int("HealthThreshold", 10, 1..20, suffix = "hp")
 
-    private inline val nearbyEnemies: List<Entity>
-        get() = world.entities.filter {
+    private fun findNearbyEnemies() = world.entities.filter {
             it.shouldBeAttacked() && it.pos.squaredDistanceTo(player.pos) <= activationDistance.random().sq()
         }
 
-    @Suppress("ReturnCount", "NOTHING_TO_INLINE")
-    internal inline fun testUseRod(healthByScoreboard: Boolean): Boolean {
+    @Suppress("ReturnCount")
+    internal fun testUseRod(healthByScoreboard: Boolean): Boolean {
         val rotation = RotationManager.currentRotation ?: player.rotation
 
         val facingEntity = raytraceEntity(activationDistance.random().toDouble(), rotation) {
@@ -37,7 +35,7 @@ internal class FacingEnemy : ToggleableConfigurable(ModuleAutoRod, "FacingEnemy"
             wallsRange = 0.0
         )
 
-        return facesEnemy && nearbyEnemies.size <= enemiesNearby &&
+        return facesEnemy && findNearbyEnemies().size <= enemiesNearby &&
                (ignoreOnLowHealth || facingEntity.getActualHealth(healthByScoreboard) >= healthThreshold)
     }
 }
