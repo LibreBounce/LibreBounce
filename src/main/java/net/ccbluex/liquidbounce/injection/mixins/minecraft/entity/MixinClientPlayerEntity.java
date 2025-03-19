@@ -313,7 +313,7 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity implemen
 
     @ModifyReturnValue(method = "getMountJumpStrength", at = @At("RETURN"))
     private float hookMountJumpStrength(float original) {
-        if (ModuleEntityControl.INSTANCE.getRunning() && ModuleEntityControl.INSTANCE.getEnforceJumpStrength()) {
+        if (ModuleEntityControl.getEnforceJumpStrength()) {
             return 1f;
         }
 
