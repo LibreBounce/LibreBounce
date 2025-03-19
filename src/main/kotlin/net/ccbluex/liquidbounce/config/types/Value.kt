@@ -36,7 +36,6 @@ import net.ccbluex.liquidbounce.utils.input.HumanInputDeserializer
 import net.ccbluex.liquidbounce.utils.input.InputBind
 import net.ccbluex.liquidbounce.utils.input.inputByName
 import net.ccbluex.liquidbounce.utils.kotlin.mapArray
-import net.ccbluex.liquidbounce.utils.kotlin.toEnumSet
 import net.minecraft.client.util.InputUtil
 import java.util.*
 import java.util.function.Supplier
@@ -380,13 +379,6 @@ class MultiChooseListValue<T>(
     valueType = ValueType.MULTI_CHOOSE,
     listType = ListValueType.Enums
 ) where T : Enum<T>, T : NamedChoice {
-    /**
-     * For optimization purposes.
-     *
-     * O(n) -> O(1)
-     */
-    private val indexMap = choices.mapIndexed { index, choice -> choice to index }.toMap()
-
     override fun deserializeFrom(gson: Gson, element: JsonElement) {
         val active = EnumSet.noneOf(clazz.java)
 
@@ -398,29 +390,21 @@ class MultiChooseListValue<T>(
             }
         }
 
-        active.sortedBy {
-            indexMap[it] ?: Int.MAX_VALUE
-        }.toEnumSet(clazz.java).let {
-            set(it)
-        }
+        set(active)
     }
 
     fun toggle(value: T): Boolean {
         val current = get()
 
-        if (value in current) {
-            current.remove(value)
-        } else {
-            current.add(value)
-        }
+        return !((value in current).also {
+            if (it) {
+                current.remove(value)
+            } else {
+                current.add(value)
+            }
 
-        current.sortedBy {
-            indexMap[it] ?: Int.MAX_VALUE
-        }.toEnumSet(clazz.java).let {
-            set(it)
-        }
-
-        return value in current
+            set(current)
+        })
     }
 
     operator fun contains(choice: T) = get().contains(choice)
