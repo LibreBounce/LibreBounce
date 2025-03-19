@@ -36,6 +36,7 @@ import net.ccbluex.liquidbounce.utils.input.HumanInputDeserializer
 import net.ccbluex.liquidbounce.utils.input.InputBind
 import net.ccbluex.liquidbounce.utils.input.inputByName
 import net.ccbluex.liquidbounce.utils.kotlin.mapArray
+import net.ccbluex.liquidbounce.utils.kotlin.toEnumSet
 import net.minecraft.client.util.InputUtil
 import java.util.*
 import java.util.function.Supplier
@@ -365,15 +366,15 @@ class BindValue(
 
 class MultiChooseListValue<T>(
     name: String,
-    value: Array<T>,
+    value: EnumSet<T>,
 
     @Exclude
-    val choices: Array<T>,
+    val choices: EnumSet<T>,
 
     @Exclude
     @ProtocolExclude
     private val clazz: KClass<T>
-) : Value<Array<T>>(
+) : Value<EnumSet<T>>(
     name,
     defaultValue = value,
     valueType = ValueType.MULTI_CHOOSE,
@@ -387,7 +388,7 @@ class MultiChooseListValue<T>(
     private val indexMap = choices.distinct().mapIndexed { index, choice -> choice to index }.toMap()
 
     override fun deserializeFrom(gson: Gson, element: JsonElement) {
-        val active = mutableSetOf<T>()
+        val active = EnumSet.noneOf(clazz.java)
 
         if (element.isJsonArray) {
             for (item in element.asJsonArray) {
@@ -399,13 +400,13 @@ class MultiChooseListValue<T>(
 
         active.sortedBy {
             indexMap[it] ?: Int.MAX_VALUE
-        }.toTypedArray().let {
+        }.toEnumSet(clazz.java).let {
             set(it)
         }
     }
 
     fun toggle(value: T): Boolean {
-        val current = get().toMutableSet()
+        val current = get()
 
         if (value in current) {
             current.remove(value)
@@ -415,22 +416,14 @@ class MultiChooseListValue<T>(
 
         current.sortedBy {
             indexMap[it] ?: Int.MAX_VALUE
-        }.toTypedArray().let {
+        }.toEnumSet(clazz.java).let {
             set(it)
         }
 
         return value in current
     }
 
-    @Suppress("NOTHING_TO_INLINE")
-    inline operator fun contains(choice: T) = get().contains(choice)
-
-    @Suppress("UNCHECKED_CAST")
-    private fun Collection<T>.toTypedArray(): Array<T> {
-        val array = java.lang.reflect.Array.newInstance(clazz.java, size) as Array<T>
-        forEachIndexed { index, item -> array[index] = item }
-        return array
-    }
+    operator fun contains(choice: T) = get().contains(choice)
 }
 
 class ChooseListValue<T : NamedChoice>(

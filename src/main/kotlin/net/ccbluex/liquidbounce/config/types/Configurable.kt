@@ -22,6 +22,8 @@ import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.client.toLowerCamelCase
 import net.ccbluex.liquidbounce.utils.input.InputBind
+import net.ccbluex.liquidbounce.utils.kotlin.emptyEnumSet
+import net.ccbluex.liquidbounce.utils.kotlin.toEnumSet
 import net.ccbluex.liquidbounce.utils.math.Easing
 import net.minecraft.block.Block
 import net.minecraft.client.util.InputUtil
@@ -29,6 +31,7 @@ import net.minecraft.item.Item
 import net.minecraft.util.math.Vec3d
 import net.minecraft.util.math.Vec3i
 import org.lwjgl.glfw.GLFW
+import java.util.*
 import kotlin.enums.EnumEntries
 import kotlin.reflect.KClass
 
@@ -251,34 +254,29 @@ open class Configurable(
     fun items(name: String, default: MutableList<Item>) =
         value(name, default, ValueType.ITEMS, ListValueType.Item)
 
+    @Suppress("UNCHECKED_CAST")
     inline fun <reified T> multiEnumChoice(
         name: String,
         vararg default: T
-    ): MultiChooseListValue<T> where T : Enum<T>, T : NamedChoice {
-        /**
-         * Idk why but `*default` or `default.toTypedArray()` doesnt work.
-         */
-        return multiEnumChoice(name, default.distinct().toTypedArray(), enumValues<T>())
-    }
-
+    ) where T : Enum<T>, T : NamedChoice =
+        multiEnumChoice(name, (default as Array<T>).toEnumSet())
 
     inline fun <reified T> multiEnumChoice(
         name: String,
         default: EnumEntries<T>
     ) where T : Enum<T>, T : NamedChoice =
-        multiEnumChoice(name, default.toTypedArray(), enumValues<T>())
+        multiEnumChoice(name, default.toEnumSet())
 
     inline fun <reified T> multiEnumChoice(
         name: String,
-        default: Array<T> = arrayOf(),
-        choices: Array<T>
+        default: EnumSet<T> = emptyEnumSet()
     ) where T : Enum<T>, T : NamedChoice =
-        multiEnumChoice(name, default.distinct().toTypedArray(), choices.distinct().toTypedArray(), T::class)
+        multiEnumChoice(name, default.toEnumSet(), enumValues<T>().toEnumSet(), T::class)
 
     fun <T> multiEnumChoice(
         name: String,
-        default: Array<T>,
-        choices: Array<T>,
+        default: EnumSet<T>,
+        choices: EnumSet<T>,
         clazz: KClass<T>
     ) where T : Enum<T>, T : NamedChoice =
         MultiChooseListValue(name, default, choices, clazz).apply { this@Configurable.inner.add(this@apply) }

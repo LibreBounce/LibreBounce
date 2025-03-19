@@ -47,6 +47,7 @@ import net.minecraft.util.Hand
 import net.minecraft.util.math.Box
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.GameMode
+import java.util.*
 
 /**
  * Global target configurable
@@ -83,7 +84,7 @@ enum class Targets(override val choiceName: String) : NamedChoice {
     FRIENDS("Friends");
 }
 
-fun Array<Targets>.shouldAttack(entity: Entity): Boolean {
+fun EnumSet<Targets>.shouldAttack(entity: Entity): Boolean {
     val info = EntityTaggingManager.getTag(entity).targetingInfo
 
     return when {
@@ -93,7 +94,7 @@ fun Array<Targets>.shouldAttack(entity: Entity): Boolean {
     }
 }
 
-fun Array<Targets>.shouldShow(entity: Entity): Boolean {
+fun EnumSet<Targets>.shouldShow(entity: Entity): Boolean {
     val info = EntityTaggingManager.getTag(entity).targetingInfo
 
     return when {
@@ -107,7 +108,7 @@ fun Array<Targets>.shouldShow(entity: Entity): Boolean {
  * Check if an entity is considered a target
  */
 @Suppress("CyclomaticComplexMethod", "ReturnCount")
-private fun Array<Targets>.isInteresting(suspect: Entity): Boolean {
+private fun EnumSet<Targets>.isInteresting(suspect: Entity): Boolean {
     // Check if the enemy is living and not dead (or ignore being dead)
     if (suspect !is LivingEntity || !((Targets.DEAD in this) || suspect.isAlive)) {
         return false
@@ -136,11 +137,11 @@ private fun Array<Targets>.isInteresting(suspect: Entity): Boolean {
 
 // Extensions
 @JvmOverloads
-fun Entity.shouldBeShown(enemyConf: Array<Targets> = ModuleTargets.visual) =
+fun Entity.shouldBeShown(enemyConf: EnumSet<Targets> = ModuleTargets.visual) =
     enemyConf.shouldShow(this)
 
 @JvmOverloads
-fun Entity.shouldBeAttacked(enemyConf: Array<Targets> = ModuleTargets.combat) =
+fun Entity.shouldBeAttacked(enemyConf: EnumSet<Targets> = ModuleTargets.combat) =
     enemyConf.shouldAttack(this)
 
 /**
@@ -148,12 +149,12 @@ fun Entity.shouldBeAttacked(enemyConf: Array<Targets> = ModuleTargets.combat) =
  */
 fun ClientWorld.findEnemy(
     range: ClosedFloatingPointRange<Float>,
-    enemyConf: Array<Targets> = ModuleTargets.combat
+    enemyConf: EnumSet<Targets> = ModuleTargets.combat
 ) = findEnemies(range, enemyConf).minByOrNull { (_, distance) -> distance }?.key()
 
 fun ClientWorld.findEnemies(
     range: ClosedFloatingPointRange<Float>,
-    enemyConf: Array<Targets> = ModuleTargets.combat
+    enemyConf: EnumSet<Targets> = ModuleTargets.combat
 ): List<ObjectDoublePair<Entity>> {
     val squaredRange = (range.start * range.start..range.endInclusive * range.endInclusive).toDouble()
 
