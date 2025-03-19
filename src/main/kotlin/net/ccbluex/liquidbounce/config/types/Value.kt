@@ -385,7 +385,7 @@ class MultiChooseListValue<T>(
      *
      * O(n) -> O(1)
      */
-    private val indexMap = choices.distinct().mapIndexed { index, choice -> choice to index }.toMap()
+    private val indexMap = choices.mapIndexed { index, choice -> choice to index }.toMap()
 
     override fun deserializeFrom(gson: Gson, element: JsonElement) {
         val active = EnumSet.noneOf(clazz.java)
