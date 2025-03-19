@@ -63,29 +63,10 @@ object ModuleSurround : ClientModule("Surround", Category.WORLD, disableOnQuit =
      */
     private val DEFAULT_BLOCKS = hashSetOf(Blocks.OBSIDIAN, Blocks.ENDER_CHEST, Blocks.CRYING_OBSIDIAN)
 
-    /**
-     * Runs [CommandCenter] when the module is enabled.
-     */
-    private val center by boolean("Center", false)
-
-    /**
-     * Extends when entities block placement spots.
-     */
-    private val extend by boolean("Extend", true)
-
-    /**
-     * When enabled, the surround won't build 2x1 or 2x2 holes if we already are in a completed 1x1 hole, even if
-     * we block replacements.
-     *
-     * This should only be enabled if no wall placements are possible, or we have a significantly lower ping
-     * than our opponent.
-     */
-    private val noWaste by boolean("NoWaste", false)
-
-    /**
-     * Places blocks below the surround so that enemies can't mine the block bellow you making you fall down.
-     */
-    private val down by boolean("Down", true)
+    private val features by multiEnumChoice("Features",
+        Features.EXTEND,
+        Features.DOWN,
+    )
 
     /**
      * Disables the module when the y-coordinate changes.
@@ -111,6 +92,7 @@ object ModuleSurround : ClientModule("Surround", Category.WORLD, disableOnQuit =
         /**
          * At what destroy stage, actions should be taken.
          */
+        @Suppress("MagicNumber")
         private val minDestroyProgress by int("MinDestroyProgress", 4, 0..9, "stage")
 
         /**
@@ -237,7 +219,7 @@ object ModuleSurround : ClientModule("Surround", Category.WORLD, disableOnQuit =
     }
 
     override fun enable() {
-        if (center) {
+        if (Features.CENTER in features) {
             CommandCenter.state = CenterHandlerState.APPLY_ON_NEXT_EVENT
         }
 
@@ -256,7 +238,7 @@ object ModuleSurround : ClientModule("Surround", Category.WORLD, disableOnQuit =
         addExtraLayerBlocks = addExtraLayer.getNewState(it, addExtraLayerBlocks)
     }
 
-    @Suppress("unused")
+    @Suppress("unused", "MagicNumber")
     private val tickMoveHandler = handler<PlayerNetworkMovementTickEvent> {
         if (it.state == EventState.PRE) {
             return@handler
@@ -284,7 +266,7 @@ object ModuleSurround : ClientModule("Surround", Category.WORLD, disableOnQuit =
         val y = ceil(bb.minY)
 
         val feetBlockPos = player.getFeetBlockPos()
-        val hole = if (noWaste && player.isInHole(feetBlockPos)) {
+        val hole = if (Features.NO_WASTE in features && player.isInHole(feetBlockPos)) {
             setOf(feetBlockPos)
         } else {
             val maxX = getMax(bb, Direction.Axis.X)
@@ -309,7 +291,7 @@ object ModuleSurround : ClientModule("Surround", Category.WORLD, disableOnQuit =
                 }
 
                 val isDown = direction == Direction.DOWN
-                if (isDown && down) {
+                if (isDown && Features.DOWN in features) {
                     holeBlocks.add(holePos.offset(direction, 2))
                 }
 
@@ -321,7 +303,7 @@ object ModuleSurround : ClientModule("Surround", Category.WORLD, disableOnQuit =
                     }
                 }
 
-                if (!isDown && extend) {
+                if (!isDown && Features.EXTEND in features) {
                     pos.getBlockingEntities { it !is EndCrystalEntity && it != player }.forEach {
                         getEntitySurround(it, holeBlocks, blocked, y)
                     }
@@ -384,12 +366,39 @@ object ModuleSurround : ClientModule("Surround", Category.WORLD, disableOnQuit =
         }
     }
 
-    @Suppress("unused")
     private enum class DisableOn(
         override val choiceName: String
     ) : NamedChoice {
         Y_CHANGE("YChange"),
         XZ_MOVE("XZMove"),
-        XZ_SPEED("XZSpeed")
+        XZ_SPEED("XZSpeed");
+    }
+
+    private enum class Features(
+        override val choiceName: String
+    ) : NamedChoice {
+        /**
+         * Runs [CommandCenter] when the module is enabled.
+         */
+        CENTER("Center"),
+
+        /**
+         * Extends when entities block placement spots.
+         */
+        EXTEND("Extend"),
+
+        /**
+         * When enabled, the surround won't build 2x1 or 2x2 holes if we already are in a completed 1x1 hole, even if
+         * we block replacements.
+         *
+         * This should only be enabled if no wall placements are possible, or we have a significantly lower ping
+         * than our opponent.
+         */
+        NO_WASTE("NoWaste"),
+
+        /**
+         * Places blocks below the surround so that enemies can't mine the block bellow you making you fall down.
+         */
+        DOWN("Down");
     }
 }
