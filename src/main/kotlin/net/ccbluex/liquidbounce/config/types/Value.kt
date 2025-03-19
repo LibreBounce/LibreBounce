@@ -19,7 +19,9 @@
 package net.ccbluex.liquidbounce.config.types
 
 import com.google.gson.Gson
+import com.google.gson.JsonArray
 import com.google.gson.JsonElement
+import com.google.gson.JsonPrimitive
 import com.google.gson.annotations.SerializedName
 import net.ccbluex.liquidbounce.authlib.account.MinecraftAccount
 import net.ccbluex.liquidbounce.config.gson.stategies.Exclude
@@ -366,13 +368,8 @@ class BindValue(
 class MultiChooseListValue<T>(
     name: String,
     value: EnumSet<T>,
-
-    @Exclude
-    val choices: EnumSet<T>,
-
-    @Exclude
-    @ProtocolExclude
-    private val clazz: KClass<T>
+    @Exclude val choices: EnumSet<T>,
+    @Exclude @ProtocolExclude private val clazz: KClass<T>
 ) : Value<EnumSet<T>>(
     name,
     defaultValue = value,
@@ -382,16 +379,18 @@ class MultiChooseListValue<T>(
     override fun deserializeFrom(gson: Gson, element: JsonElement) {
         val active = EnumSet.noneOf(clazz.java)
 
-        if (element.isJsonArray) {
-            for (item in element.asJsonArray) {
-                choices.firstOrNull { it.choiceName == item.asString }?.let {
-                    active.add(it)
-                }
-            }
+        when (element) {
+            is JsonArray -> element.forEach { active.tryToEnable(it.asString) }
+            is JsonPrimitive -> active.tryToEnable(element.asString)
         }
 
         set(active)
     }
+
+    private fun EnumSet<T>.tryToEnable(name: String) =
+        choices.firstOrNull { it.choiceName == name }?.let {
+            add(it)
+        }
 
     fun toggle(value: T): Boolean {
         val current = get()
