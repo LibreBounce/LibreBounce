@@ -69,7 +69,7 @@ object FeatureChestAura : ToggleableConfigurable(ModuleChestStealer, "Aura", tru
     // Sub-configurable for managing the await container settings
     private object AwaitContainerSettings : ToggleableConfigurable(this, "AwaitContainer", true) {
         val retryTimeout by int("Timeout", 10, 1..80, "ticks")
-        val maxInteractionRetries by int("MaxRetries", 4, 1..10)
+        val maxInteractionRetries by int("MaxRetries", 4, 0..10)
     }
 
     init {
