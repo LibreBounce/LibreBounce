@@ -1,12 +1,12 @@
 package net.ccbluex.liquidbounce.features.module.modules.render
 
 import net.ccbluex.liquidbounce.event.events.WorldChangeEvent
+import net.ccbluex.liquidbounce.event.events.WorldEntityRemoveEvent
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.render.engine.Color4b
-import net.ccbluex.liquidbounce.utils.entity.RenderedEntities
 import net.ccbluex.liquidbounce.utils.entity.interpolateCurrentPosition
 import net.ccbluex.liquidbounce.utils.entity.interpolateCurrentRotation
 import net.ccbluex.liquidbounce.utils.math.toBlockPos
@@ -26,14 +26,21 @@ object ModuleLogoffSpot : ClientModule("LogoffSpot", Category.RENDER) {
     private var outlineColor by color("OutlineColor", Color4b(192, 192, 192, 255))
 
     @Suppress("unused")
+    private val entityRemoveHandler = handler<WorldEntityRemoveEvent> { event ->
+        val entity = event.entity
+
+        if (entity !is PlayerEntity) {
+            return@handler
+        }
+
+        val position = entity.interpolateCurrentPosition(1f)
+        val rotation = entity.interpolateCurrentRotation(1f)
+        lastSeenPlayers[entity.id] = WireframePlayer(position, rotation.yaw, rotation.pitch)
+    }
+
+    @Suppress("unused")
     private val renderHandler = handler<WorldRenderEvent> { event ->
         val matrixStack = event.matrixStack
-
-        RenderedEntities.filterIsInstance<PlayerEntity>().forEach { entity ->
-            val position = entity.interpolateCurrentPosition(event.partialTicks)
-            val rotation = entity.interpolateCurrentRotation(event.partialTicks)
-            lastSeenPlayers[entity.id] = WireframePlayer(position, rotation.yaw, rotation.pitch)
-        }
 
         val lastSeenIterator = lastSeenPlayers.iterator()
         while (lastSeenIterator.hasNext()) {
