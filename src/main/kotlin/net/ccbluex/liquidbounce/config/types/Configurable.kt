@@ -33,7 +33,6 @@ import net.minecraft.util.math.Vec3i
 import org.lwjgl.glfw.GLFW
 import java.util.*
 import kotlin.enums.EnumEntries
-import kotlin.reflect.KClass
 
 @Suppress("TooManyFunctions")
 open class Configurable(
@@ -254,12 +253,11 @@ open class Configurable(
     fun items(name: String, default: MutableList<Item>) =
         value(name, default, ValueType.ITEMS, ListValueType.Item)
 
-    @Suppress("UNCHECKED_CAST")
     inline fun <reified T> multiEnumChoice(
         name: String,
         vararg default: T
     ) where T : Enum<T>, T : NamedChoice =
-        multiEnumChoice(name, (default as Array<T>).toEnumSet())
+        multiEnumChoice(name, default.toEnumSet())
 
     inline fun <reified T> multiEnumChoice(
         name: String,
@@ -271,13 +269,13 @@ open class Configurable(
         name: String,
         default: EnumSet<T> = emptyEnumSet()
     ) where T : Enum<T>, T : NamedChoice =
-        multiEnumChoice(name, default.toEnumSet(), enumValues<T>().toEnumSet(), T::class)
+        multiEnumChoice(name, default.toEnumSet(), enumValues<T>().toEnumSet(), T::class.java)
 
     fun <T> multiEnumChoice(
         name: String,
         default: EnumSet<T>,
         choices: EnumSet<T>,
-        clazz: KClass<T>
+        clazz: Class<T>
     ) where T : Enum<T>, T : NamedChoice =
         MultiChooseListValue(name, default, choices, clazz).apply { this@Configurable.inner.add(this@apply) }
 

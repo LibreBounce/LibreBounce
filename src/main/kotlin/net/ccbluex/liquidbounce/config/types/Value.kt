@@ -41,7 +41,6 @@ import net.ccbluex.liquidbounce.utils.kotlin.mapArray
 import net.minecraft.client.util.InputUtil
 import java.util.*
 import java.util.function.Supplier
-import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 
 typealias ValueListener<T> = (T) -> T
@@ -369,7 +368,7 @@ class MultiChooseListValue<T>(
     name: String,
     value: EnumSet<T>,
     @Exclude val choices: EnumSet<T>,
-    @Exclude @ProtocolExclude private val clazz: KClass<T>
+    @Exclude @ProtocolExclude private val clazz: Class<T>
 ) : Value<EnumSet<T>>(
     name,
     defaultValue = value,
@@ -377,7 +376,7 @@ class MultiChooseListValue<T>(
     listType = ListValueType.Enums
 ) where T : Enum<T>, T : NamedChoice {
     override fun deserializeFrom(gson: Gson, element: JsonElement) {
-        val active = EnumSet.noneOf(clazz.java)
+        val active = EnumSet.noneOf(clazz)
 
         when (element) {
             is JsonArray -> element.forEach { active.tryToEnable(it.asString) }

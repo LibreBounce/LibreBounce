@@ -162,7 +162,7 @@ inline fun Sequence<*>.isEmpty(): Boolean {
     return !isNotEmpty()
 }
 
-inline fun <reified T : Enum<T>> Array<T>.toEnumSet(): EnumSet<T> =
+inline fun <reified T : Enum<T>> Array<out T>.toEnumSet(): EnumSet<T> =
     EnumSet.noneOf(T::class.java).apply { addAll(this@toEnumSet) }
 
 inline fun <T : Enum<T>> Iterable<T>.toEnumSet(clazz: Class<T>): EnumSet<T> =
