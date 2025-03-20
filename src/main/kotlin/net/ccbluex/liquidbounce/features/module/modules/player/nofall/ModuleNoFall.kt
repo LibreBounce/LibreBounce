@@ -30,7 +30,6 @@ import net.minecraft.item.Items
  *
  * Protects you from taking fall damage.
  */
-
 object ModuleNoFall : ClientModule("NoFall", Category.PLAYER) {
     internal val modes = choices(
         "Mode", NoFallSpoofGround, arrayOf(
