@@ -62,6 +62,7 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
     private val swung by boolean("Swung", false)
     private val critted by boolean("Critted", false)
     private val attributes by boolean("Attributes", false)
+    private val color by boolean("Color", false)
 
     private object AlwaysInRadius : ToggleableConfigurable(ModuleAntiBot, "AlwaysInRadius", false) {
         val alwaysInRadiusRange by float("AlwaysInRadiusRange", 20f, 5f..30f)
@@ -123,6 +124,7 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
     private val crittedSet = IntOpenHashSet()
     private val attributesSet = IntOpenHashSet()
     private val ageSet = IntOpenHashSet()
+    private val colorSet = IntOpenHashSet()
 
     private val armorSet = IntOpenHashSet()
 
@@ -139,6 +141,10 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
 
             if (Armor.enabled && !Armor.isValid(entity)) {
                 armorSet.add(entity.id)
+            }
+
+            if (color && entity.displayName?.style?.color == null) {
+                colorSet.add(entity.id)
             }
         }
 
@@ -216,6 +222,7 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
                         notAlwaysInRadiusSet.remove(entityId)
                         ageSet.remove(entityId)
                         armorSet.remove(entityId)
+                        colorSet.remove(entityId)
                     }
                 }
             }
@@ -258,6 +265,7 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
             swung && !swungSet.contains(playerId) -> true
             critted && !crittedSet.contains(playerId) -> true
             attributes && !attributesSet.contains(playerId) -> true
+            color && colorSet.contains(playerId) -> true
             else -> false
         }
     }

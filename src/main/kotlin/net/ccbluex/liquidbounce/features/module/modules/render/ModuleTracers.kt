@@ -21,13 +21,15 @@ package net.ccbluex.liquidbounce.features.module.modules.render
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.features.misc.FriendManager
+import net.ccbluex.liquidbounce.features.misc.FriendManager.isFriend
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
+import net.ccbluex.liquidbounce.features.module.modules.misc.ModuleTeams
+import net.ccbluex.liquidbounce.features.module.modules.misc.ModuleTeams.isInClientPlayersTeam
 import net.ccbluex.liquidbounce.render.*
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.engine.Vec3
-import net.ccbluex.liquidbounce.utils.combat.EntityTaggingManager
+import net.ccbluex.liquidbounce.utils.combat.EntityTaggingManager.getTag
 import net.ccbluex.liquidbounce.utils.combat.shouldBeShown
 import net.ccbluex.liquidbounce.utils.entity.interpolateCurrentPosition
 import net.ccbluex.liquidbounce.utils.math.toVec3
@@ -53,6 +55,9 @@ object ModuleTracers : ClientModule("Tracers", Category.RENDER) {
         )
     }
 
+    private val friendColor by color("Friends", Color4b.BLUE)
+    private val teamColor by color("Teammates", Color4b.CYAN)
+
     private object DistanceColor : GenericColorMode<LivingEntity>("Distance") {
         override val parent: ChoiceConfigurable<*>
             get() = modes
@@ -60,7 +65,24 @@ object ModuleTracers : ClientModule("Tracers", Category.RENDER) {
         val useViewDistance by boolean("UseViewDistance", true)
         val customViewDistance by float("CustomViewDistance", 128.0F, 1.0F..512.0F)
 
-        override fun getColor(param: LivingEntity): Color4b = throw NotImplementedError()
+        override fun getColor(param: LivingEntity): Color4b {
+            val viewDistance = 16.0F * MathHelper.SQUARE_ROOT_OF_TWO *
+                (if (useViewDistance) {
+                    ModuleTracers.mc.options.viewDistance.value.toFloat()
+                } else {
+                    customViewDistance
+                })
+
+            val dist = ModuleTracers.player.distanceTo(param) * 2.0F
+
+            return Color4b(
+                Color.getHSBColor(
+                    (dist.coerceAtMost(viewDistance) / viewDistance) * (120.0f / 360.0f),
+                    1.0f,
+                    1.0f
+                )
+            )
+        }
     }
 
     val renderHandler = handler<WorldRenderEvent> { event ->
@@ -68,12 +90,6 @@ object ModuleTracers : ClientModule("Tracers", Category.RENDER) {
 
         val useDistanceColor = DistanceColor.isSelected
 
-        val viewDistance = 16.0F * MathHelper.SQUARE_ROOT_OF_TWO *
-            (if (DistanceColor.useViewDistance) {
-                mc.options.viewDistance.value.toFloat()
-            } else {
-                DistanceColor.customViewDistance
-            })
         val filteredEntities = world.entities.filter(this::shouldRenderTrace)
         val camera = mc.gameRenderer.camera
 
@@ -92,20 +108,11 @@ object ModuleTracers : ClientModule("Tracers", Category.RENDER) {
                         continue
                     }
 
-                    val dist = player.distanceTo(entity) * 2.0F
-
-                    val color = if (useDistanceColor) {
-                        Color4b(
-                            Color.getHSBColor(
-                                (dist.coerceAtMost(viewDistance) / viewDistance) * (120.0f / 360.0f),
-                                1.0f,
-                                1.0f
-                            )
-                        )
-                    } else if (entity is PlayerEntity && FriendManager.isFriend(entity.gameProfile.name)) {
-                        Color4b.BLUE
-                    } else {
-                        EntityTaggingManager.getTag(entity).color ?: modes.activeChoice.getColor(entity)
+                    val color = when {
+                        entity is PlayerEntity && isFriend(entity.gameProfile.name) && friendColor.a > 0 -> friendColor
+                        ModuleTeams.running && isInClientPlayersTeam(entity) && teamColor.a > 0 -> teamColor
+                        useDistanceColor -> DistanceColor.getColor(entity)
+                        else -> getTag(entity).color ?: modes.activeChoice.getColor(entity)
                     }
 
                     val pos = relativeToCamera(entity.interpolateCurrentPosition(event.partialTicks)).toVec3()

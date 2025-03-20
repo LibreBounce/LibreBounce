@@ -171,6 +171,10 @@ object CommandFriend : CommandFactory {
                 ParameterBuilder
                     .begin<String>("name")
                     .verifiedBy(ParameterBuilder.STRING_VALIDATOR)
+                    .autocompletedWith { begin, _ -> FriendManager.friends
+                        .map { it.name }
+                        .filter { it.startsWith(begin) }
+                    }
                     .required()
                     .build()
             )

@@ -21,6 +21,8 @@ package net.ccbluex.liquidbounce.features.module.modules.render.esp
 import net.ccbluex.liquidbounce.features.misc.FriendManager
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
+import net.ccbluex.liquidbounce.features.module.modules.misc.ModuleTeams
+import net.ccbluex.liquidbounce.features.module.modules.misc.ModuleTeams.isInClientPlayersTeam
 import net.ccbluex.liquidbounce.features.module.modules.render.esp.modes.EspBoxMode
 import net.ccbluex.liquidbounce.features.module.modules.render.esp.modes.EspGlowMode
 import net.ccbluex.liquidbounce.features.module.modules.render.esp.modes.EspOutlineMode
@@ -53,11 +55,12 @@ object ModuleESP : ClientModule("ESP", Category.RENDER) {
     private val colorModes = choices("ColorMode", 0) {
         arrayOf(
             GenericEntityHealthColorMode(it),
-            GenericStaticColorMode(it, Color4b.Companion.WHITE.with(a = 100)),
+            GenericStaticColorMode(it, Color4b.WHITE.with(a = 100)),
             GenericRainbowColorMode(it)
         )
     }
-    private val friendColor by color("Friends", Color4b.Companion.GREEN)
+    private val friendColor by color("Friends", Color4b.GREEN)
+    private val teamColor by color("Teammates", Color4b.CYAN)
 
     override fun enable() {
         RenderedEntities.subscribe(this)
@@ -71,7 +74,7 @@ object ModuleESP : ClientModule("ESP", Category.RENDER) {
         val baseColor = getBaseColor(entity)
 
         if (entity.hurtTime > 0) {
-            return Color4b.Companion.RED
+            return Color4b.RED
         }
 
         return baseColor
@@ -81,6 +84,8 @@ object ModuleESP : ClientModule("ESP", Category.RENDER) {
         if (entity is PlayerEntity) {
             if (FriendManager.isFriend(entity) && friendColor.a > 0) {
                 return friendColor
+            } else if (ModuleTeams.running && isInClientPlayersTeam(entity) && teamColor.a > 0) {
+                return teamColor
             }
 
             EntityTaggingManager.getTag(entity).color?.let { return it }
