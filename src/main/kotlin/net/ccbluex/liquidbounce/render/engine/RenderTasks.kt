@@ -26,6 +26,7 @@ import kotlin.Throws
 import kotlin.math.cos
 import kotlin.math.sin
 
+@JvmRecord
 data class Vec3(val x: Float, val y: Float, val z: Float) {
     constructor(x: Double, y: Double, z: Double) : this(x.toFloat(), y.toFloat(), z.toFloat())
     constructor(vec: Vec3d) : this(vec.x, vec.y, vec.z)
@@ -68,8 +69,10 @@ data class Vec3(val x: Float, val y: Float, val z: Float) {
     fun toVec3d() = Vec3d(this.x.toDouble(), this.y.toDouble(), this.z.toDouble())
 }
 
+@JvmRecord
 data class UV2f(val u: Float, val v: Float)
 
+@JvmRecord
 data class Color4b(val r: Int, val g: Int, val b: Int, val a: Int = 255) {
 
     companion object {

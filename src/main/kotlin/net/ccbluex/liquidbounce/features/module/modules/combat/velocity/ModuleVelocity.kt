@@ -39,7 +39,7 @@ import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket
  * Modifies the amount of velocity you take.
  */
 
-object ModuleVelocity : ClientModule("Velocity", Category.COMBAT) {
+object ModuleVelocity : ClientModule("Velocity", Category.COMBAT, aliases = arrayOf("AntiKnockBack")) {
 
     init {
         enableLock()

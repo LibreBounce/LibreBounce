@@ -77,7 +77,7 @@ internal object FlyEnderpearl : Choice("Enderpearl") {
 
                 if (player.pitch <= 80) {
                     RotationManager.setRotationTarget(
-                        Rotation(player.yaw, (80f..90f).random().toFloat()),
+                        Rotation(player.yaw, (80f..90f).random()),
                         configurable = rotations,
                         provider = ModuleFastUse,
                         priority = Priority.IMPORTANT_FOR_USAGE_2

@@ -25,12 +25,14 @@ import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.OverlayMessageEvent;
 import net.ccbluex.liquidbounce.event.events.PerspectiveEvent;
 import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleSwordBlock;
-import net.ccbluex.liquidbounce.features.module.modules.render.*;
+import net.ccbluex.liquidbounce.features.module.modules.render.ModuleAntiBlind;
+import net.ccbluex.liquidbounce.features.module.modules.render.ModuleFreeCam;
+import net.ccbluex.liquidbounce.features.module.modules.render.ModuleHud;
 import net.ccbluex.liquidbounce.integration.theme.component.ComponentOverlay;
 import net.ccbluex.liquidbounce.integration.theme.component.FeatureTweak;
 import net.ccbluex.liquidbounce.integration.theme.component.types.IntegratedComponent;
 import net.ccbluex.liquidbounce.interfaces.DrawContextAddition;
-import net.ccbluex.liquidbounce.render.engine.UiRenderer;
+import net.ccbluex.liquidbounce.render.engine.BlurEffectRenderer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.InGameHud;
@@ -44,7 +46,10 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.GameMode;
 import org.jetbrains.annotations.Nullable;
-import org.spongepowered.asm.mixin.*;
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -79,7 +84,7 @@ public abstract class MixinInGameHud {
      */
     @Inject(method = "renderMainHud", at = @At("HEAD"))
     private void hookRenderEventStart(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
-        UiRenderer.INSTANCE.startUIOverlayDrawing(context, tickCounter.getTickDelta(false));
+        BlurEffectRenderer.INSTANCE.startOverlayDrawing(context, tickCounter.getTickDelta(false));
 
         // Draw after overlay event
         var component = ComponentOverlay.getComponentWithTweak(FeatureTweak.TWEAK_HOTBAR);
@@ -126,10 +131,10 @@ public abstract class MixinInGameHud {
         double scaledCenterX = (window.getFramebufferWidth() / scaleFactor) / 2.0;
         double scaledCenterY = (window.getFramebufferHeight() / scaleFactor) / 2.0;
         ((DrawContextAddition) drawContext).liquid_bounce$drawTexture(
-            renderLayers, sprite,
-            Math.round((scaledCenterX - 7.5) * 4.0) * 0.25f,
-            Math.round((scaledCenterY - 7.5) * 4.0) * 0.25f,
-            width, height
+                renderLayers, sprite,
+                Math.round((scaledCenterX - 7.5) * 4.0) * 0.25f,
+                Math.round((scaledCenterY - 7.5) * 4.0) * 0.25f,
+                width, height
         );
     }
 

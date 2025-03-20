@@ -8,6 +8,7 @@ import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.client.toDegrees
 import net.ccbluex.liquidbounce.utils.entity.box
+import net.ccbluex.liquidbounce.utils.input.InputTracker.isPressedOnAny
 import net.ccbluex.liquidbounce.utils.math.geometry.NormalizedPlane
 import net.ccbluex.liquidbounce.utils.math.plus
 import net.ccbluex.liquidbounce.utils.render.WorldToScreen
@@ -113,7 +114,7 @@ class DroneControlScreen : Screen("BowAimbot Control Panel".asText()) {
     override fun mouseMoved(mouseX: Double, mouseY: Double) {
         val focusedEntity = this.focusedEntity
 
-        if (mc.options.sneakKey.isPressed && focusedEntity != null) {
+        if (mc.options.sneakKey.isPressedOnAny && focusedEntity != null) {
             val rot = Rotation.lookingAt(point = focusedEntity.entity.box.center, from = this.cameraPos)
 
             this.cameraRotation = Vec2f(rot.yaw, rot.pitch)

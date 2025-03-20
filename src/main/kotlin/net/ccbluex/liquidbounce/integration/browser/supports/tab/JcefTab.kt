@@ -21,7 +21,7 @@ package net.ccbluex.liquidbounce.integration.browser.supports.tab
 import net.ccbluex.liquidbounce.features.module.MinecraftShortcuts
 import net.ccbluex.liquidbounce.integration.browser.supports.JcefBrowser
 import net.ccbluex.liquidbounce.mcef.MCEF
-import net.ccbluex.liquidbounce.mcef.MCEFBrowser
+import net.ccbluex.liquidbounce.mcef.cef.MCEFBrowser
 import net.minecraft.client.texture.AbstractTexture
 import net.minecraft.util.Identifier
 
@@ -43,6 +43,7 @@ class JcefTab(
                 value.height.coerceAtLeast(1)
             )
         }
+    override var visible = true
 
     private val mcefBrowser: MCEFBrowser = MCEF.INSTANCE.createBrowser(
         url,
@@ -90,12 +91,12 @@ class JcefTab(
     override fun getUrl() = mcefBrowser.getURL()
 
     override fun closeTab() {
-        mcefBrowser.close()
         jcefBrowser.removeTab(this)
+        mcefBrowser.close()
         mc.textureManager.destroyTexture(texture)
     }
 
-    override fun getTexture(): Identifier = texture
+    override fun getTexture(): Identifier? = texture.takeUnless { mcefBrowser.renderer.isUnpainted }
 
     override fun resize(width: Int, height: Int) {
         if (!position.fullScreen) {

@@ -35,8 +35,6 @@ import net.ccbluex.liquidbounce.features.module.modules.player.ModuleReach;
 import net.ccbluex.liquidbounce.features.module.modules.player.nofall.modes.NoFallNoGround;
 import net.ccbluex.liquidbounce.features.module.modules.world.ModuleNoSlowBreak;
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager;
-import net.ccbluex.liquidbounce.utils.aiming.RotationTarget;
-import net.ccbluex.liquidbounce.utils.aiming.data.Rotation;
 import net.ccbluex.liquidbounce.utils.aiming.features.MovementCorrection;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
@@ -93,11 +91,11 @@ public abstract class MixinPlayerEntity extends MixinLivingEntity {
             return original;
         }
 
-        RotationManager rotationManager = RotationManager.INSTANCE;
-        Rotation rotation = rotationManager.getCurrentRotation();
-        RotationTarget configurable = rotationManager.getActiveRotationTarget();
+        var rotationManager = RotationManager.INSTANCE;
+        var rotation = rotationManager.getCurrentRotation();
+        var rotationTarget = rotationManager.getActiveRotationTarget();
 
-        if (configurable == null || configurable.getMovementCorrection() == MovementCorrection.OFF || rotation == null) {
+        if (rotationTarget == null || rotationTarget.getMovementCorrection() == MovementCorrection.OFF || rotation == null) {
             return original;
         }
 

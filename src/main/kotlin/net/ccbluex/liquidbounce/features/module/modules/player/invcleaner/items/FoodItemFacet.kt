@@ -18,6 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.items
 
+import it.unimi.dsi.fastutil.objects.ObjectIntPair
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.ItemCategory
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.ItemFunction
 import net.ccbluex.liquidbounce.utils.inventory.ItemSlot
@@ -39,7 +40,7 @@ class FoodItemFacet(itemSlot: ItemSlot) : ItemFacet(itemSlot) {
                 compareBy {
                     val foodComponent = it.itemStack.foodComponent!!
 
-                    foodComponent.saturation.toFloat() / foodComponent.nutrition.toFloat()
+                    foodComponent.saturation / foodComponent.nutrition.toFloat()
                 },
                 compareBy { it.itemStack.foodComponent!!.nutrition },
                 compareBy { it.itemStack.foodComponent!!.saturation },
@@ -49,8 +50,8 @@ class FoodItemFacet(itemSlot: ItemSlot) : ItemFacet(itemSlot) {
             )
     }
 
-    override val providedItemFunctions: List<Pair<ItemFunction, Int>>
-        get() = arrayListOf(ItemFunction.FOOD to itemStack.count * itemStack.foodComponent!!.nutrition)
+    override val providedItemFunctions: List<ObjectIntPair<ItemFunction>>
+        get() = listOf(ObjectIntPair.of(ItemFunction.FOOD, itemStack.count * itemStack.foodComponent!!.nutrition))
 
     override val category: ItemCategory
         get() = ItemCategory(ItemType.FOOD, 0)

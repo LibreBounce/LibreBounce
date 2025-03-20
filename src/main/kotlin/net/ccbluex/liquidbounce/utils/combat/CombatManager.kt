@@ -43,7 +43,8 @@ object CombatManager : EventListener {
     // useful for autoblock
     private var pauseBlocking: Int = 0
 
-    private var duringCombat: Int = 0
+    const val PAUSE_COMBAT = 40 // 40 ticks = 2 seconds
+    var duringCombat: Int = 0
 
     private fun updatePauseRotation() {
         if (pauseRotation <= 0) return
@@ -89,8 +90,7 @@ object CombatManager : EventListener {
         val entity = event.entity
 
         if (entity is LivingEntity && entity.shouldBeAttacked()) {
-            // 40 ticks = 2 seconds
-            duringCombat = 40
+            duringCombat = PAUSE_COMBAT
 
             if (entity is PlayerEntity) {
                 EventManager.callEvent(TargetChangeEvent(PlayerData.fromPlayer(entity)))

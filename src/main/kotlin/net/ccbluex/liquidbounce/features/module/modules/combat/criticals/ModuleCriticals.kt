@@ -30,6 +30,7 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.modes.*
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.ModuleFly
 import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalk.ModuleLiquidWalk
 import net.ccbluex.liquidbounce.utils.block.collideBlockIntersects
+import net.ccbluex.liquidbounce.utils.clicking.Clicker
 import net.ccbluex.liquidbounce.utils.combat.findEnemy
 import net.ccbluex.liquidbounce.utils.entity.box
 import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.CRITICAL_MODIFICATION
@@ -157,6 +158,40 @@ object ModuleCriticals : ClientModule("Criticals", Category.COMBAT) {
     init {
         tree(WhenSprinting)
         tree(VisualsConfigurable)
+    }
+
+    /**
+     * The Criticals selection mode
+     */
+    enum class CriticalsSelectionMode(override val choiceName: String) : NamedChoice {
+
+        SMART("Smart"),
+        IGNORE("Ignore"),
+        ALWAYS("Always");
+
+        fun isCriticalHit(target: Entity): Boolean {
+            return when (this) {
+                IGNORE -> true
+                SMART -> !shouldWaitForCrit(target, ignoreState = true)
+                ALWAYS -> wouldDoCriticalHit()
+            }
+        }
+
+        fun shouldStopSprinting(clicker: Clicker<*>, target: Entity?): Boolean {
+            // If we don't care about critical hits we don't have to stop sprinting.
+            if (this == IGNORE) {
+                return false
+            }
+
+            // On ground, we cannot do critical hits anyway.
+            if (player.isOnGround) {
+                return false
+            }
+
+            // If we are about to do a critical hit, we should stop sprinting.
+            return target != null && clicker.willClickAt(1)
+        }
+
     }
 
     fun shouldWaitForCrit(target: Entity, ignoreState: Boolean = false) = when {

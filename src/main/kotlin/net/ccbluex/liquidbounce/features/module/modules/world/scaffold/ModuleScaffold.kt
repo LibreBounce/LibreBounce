@@ -196,7 +196,7 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
 
     object SimulatePlacementAttempts : ToggleableConfigurable(this, "SimulatePlacementAttempts", false) {
 
-        internal val clicker = tree(Clicker(ModuleScaffold, false, maxCps = 100))
+        internal val clicker = tree(Clicker(ModuleScaffold, mc.options.useKey, false, maxCps = 100))
         val failedAttemptsOnly by boolean("FailedAttemptsOnly", true)
     }
 
@@ -222,16 +222,13 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
 
     val blockCount: Int
         get() {
-            val blockInMainHand = player.inventory.getStack(player.inventory.selectedSlot)
-            val blockInOffHand = player.offHandStack
+            fun ItemStack.blockCount() = if (isValidBlock(this)) this.count else 0
 
-            val blocks = hashSetOf(blockInMainHand, blockInOffHand)
-
-            if (ScaffoldAutoBlockFeature.enabled) {
-                findPlaceableSlots().mapTo(blocks) { it.value() }
+            return player.offHandStack.blockCount() + if (ScaffoldAutoBlockFeature.enabled) {
+                findPlaceableSlots().sumOf { it.value().blockCount() }
+            } else {
+                player.inventory.getStack(player.inventory.selectedSlot).blockCount()
             }
-
-            return blocks.sumOf { if (isValidBlock(it)) it.count else 0 }
         }
 
     val isBlockBelow: Boolean
@@ -474,9 +471,9 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
             arrayOf(Hand.MAIN_HAND, Hand.OFF_HAND).firstOrNull { isValidBlock(player.getStackInHand(it)) }
 
         if (simulatePlacementAttempts(currentCrosshairTarget, suitableHand) && player.moving
-            && SimulatePlacementAttempts.clicker.isGoingToClick
+            && SimulatePlacementAttempts.clicker.isClickTick
         ) {
-            SimulatePlacementAttempts.clicker.clicks {
+            SimulatePlacementAttempts.clicker.click {
                 doPlacement(currentCrosshairTarget!!, suitableHand!!, swingMode = swingMode)
                 true
             }
