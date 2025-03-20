@@ -85,7 +85,7 @@ class PlayerInventoryConstraints : InventoryConstraints() {
      * Sad.
      * :(
      */
-    private val requiresOpenInventory by boolean("RequiresInventoryOpen", false)
+    val requiresOpenInventory by boolean("RequiresInventoryOpen", false)
 
     override fun passesRequirements(action: InventoryAction) =
         super.passesRequirements(action) &&

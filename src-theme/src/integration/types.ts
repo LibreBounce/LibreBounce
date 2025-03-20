@@ -170,7 +170,6 @@ export interface PersistentStorageItem {
 
 export interface VirtualScreen {
     name: string;
-    showingSplash: boolean;
 }
 
 export interface Scoreboard {
@@ -230,6 +229,7 @@ export interface ItemStack {
     damage: number;
     maxDamage: number;
     displayName: TextComponent | string;
+    hasEnchantment: boolean;
 }
 
 export interface PrintableKey {

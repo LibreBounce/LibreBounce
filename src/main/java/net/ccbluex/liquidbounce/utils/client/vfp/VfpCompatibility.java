@@ -150,5 +150,4 @@ public enum VfpCompatibility {
             return false;
         }
     }
-
 }

@@ -18,6 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features
 
+import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
@@ -26,13 +27,13 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKi
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
-import net.ccbluex.liquidbounce.utils.entity.box
-import net.ccbluex.liquidbounce.utils.entity.rotation
+import net.ccbluex.liquidbounce.utils.entity.*
 import net.ccbluex.liquidbounce.utils.math.times
 import net.ccbluex.liquidbounce.utils.navigation.NavigationBaseConfigurable
 import net.minecraft.entity.Entity
 import net.minecraft.util.math.Vec3d
 import kotlin.math.min
+import kotlin.math.pow
 
 /**
  * Data class holding combat-related context
@@ -61,6 +62,12 @@ object KillAuraFightBot : NavigationBaseConfigurable<CombatContext>(ModuleKillAu
     private val dangerousYawDiff by float("DangerousYaw", 55f, 0f..90f, suffix = "°")
     private val runawayOnCooldown by boolean("RunawayOnCooldown", true)
 
+    internal object TargetFilter : Configurable("TargetFilter") {
+        internal var range by float("Range", 50f, 10f..100f)
+        internal var visibleOnly by boolean("VisibleOnly", true)
+        internal var notWhenVoid by boolean("NotWhenVoid", true)
+    }
+
     /**
      * Configuration for leader following functionality
      */
@@ -70,9 +77,27 @@ object KillAuraFightBot : NavigationBaseConfigurable<CombatContext>(ModuleKillAu
     }
 
     init {
+        tree(TargetFilter)
         tree(LeaderFollower)
     }
 
+    fun updateTarget() {
+        targetTracker.select { entity ->
+            if (player.squaredBoxedDistanceTo(entity) > TargetFilter.range.pow(2)) {
+                return@select null
+            }
+
+            if (TargetFilter.visibleOnly && !player.canSee(entity)) {
+                return@select null
+            }
+
+            if (TargetFilter.notWhenVoid && entity.doesNotCollideBelow()) {
+                return@select null
+            }
+
+            entity
+        }
+    }
 
     /**
      * Creates combat context
@@ -114,7 +139,7 @@ object KillAuraFightBot : NavigationBaseConfigurable<CombatContext>(ModuleKillAu
 
         // Otherwise handle combat movement
         val combatTarget = context.combatTarget ?: return null
-        return if (runawayOnCooldown && !clickScheduler.isClickOnNextTick()) {
+        return if (runawayOnCooldown && !clickScheduler.willClickAt()) {
             calculateRunawayPosition(context, combatTarget)
         } else {
             calculateAttackPosition(context, combatTarget)
@@ -184,6 +209,11 @@ object KillAuraFightBot : NavigationBaseConfigurable<CombatContext>(ModuleKillAu
             .mapNotNull { yaw ->
                 val rotation = Rotation(yaw = yaw.toFloat(), pitch = 0.0F)
                 val position = target.pos.add(rotation.directionVector * combatTarget.range.toDouble())
+
+                // Check if this point collides with a block
+                if (player.doesCollideAt(position)) {
+                    return@mapNotNull null
+                }
 
                 val isInAngle = rotation.angleTo(combatTarget.targetRotation) <= dangerousYawDiff
                 ModuleDebug.debugGeometry(

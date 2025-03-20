@@ -40,14 +40,14 @@ object ScriptSetting {
     @JvmName("float")
     fun float(value: PolyglotValue): RangedValue<Float> {
         val name = value.getMember("name").asString()
-        val default = value.getMember("default").asFloat()
+        val default = value.getMember("default").asDouble()
         val range = value.getMember("range").`as`(Array<Double>::class.java)
         val suffix = value.getMember("suffix")?.asString() ?: ""
 
         require(range.size == 2)
         return rangedValue(
             name,
-            default,
+            default.toFloat(),
             range.first().toFloat()..range.last().toFloat(),
             suffix,
             ValueType.FLOAT

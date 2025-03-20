@@ -179,7 +179,7 @@ object ModuleFreeCam : ClientModule("FreeCam", Category.RENDER, disableOnQuit = 
             return@handler
         }
 
-        RotationManager.setRotationTarget(rotationsConfigurable.toAimPlan(lookAt),
+        RotationManager.setRotationTarget(rotationsConfigurable.toRotationTarget(lookAt),
             Priority.NOT_IMPORTANT, ModuleFreeCam)
     }
 

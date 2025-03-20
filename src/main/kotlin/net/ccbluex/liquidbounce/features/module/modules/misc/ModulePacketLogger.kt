@@ -56,6 +56,11 @@ object ModulePacketLogger : ClientModule("PacketLogger", Category.MISC) {
 
     private val classNames = ConcurrentHashMap<Class<out Packet<*>>, String>()
     private val fieldNames = ConcurrentHashMap<Field, String>()
+    
+    init {
+        // Do not include this module in the auto config, as this is for debugging purposes only.
+        doNotIncludeAlways()
+    }
 
     override fun disable() {
         classNames.clear()

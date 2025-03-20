@@ -110,7 +110,7 @@ object ModuleSprint : ClientModule("Sprint", Category.MOVEMENT) {
         // todo: unhook pitch - AimPlan needs support for only yaw or pitch operation
         val rotation = Rotation(yaw, player.pitch)
 
-        RotationManager.setRotationTarget(rotationsConfigurable.toAimPlan(rotation), Priority.NOT_IMPORTANT,
+        RotationManager.setRotationTarget(rotationsConfigurable.toRotationTarget(rotation), Priority.NOT_IMPORTANT,
             this@ModuleSprint)
     }
 

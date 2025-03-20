@@ -22,6 +22,7 @@ import com.mojang.authlib.GameProfile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.api.core.withScope
 import net.ccbluex.liquidbounce.api.models.cosmetics.Cosmetic
 import net.ccbluex.liquidbounce.api.models.cosmetics.CosmeticCategory
 import net.ccbluex.liquidbounce.api.services.cosmetics.CapeApi
@@ -30,7 +31,6 @@ import net.ccbluex.liquidbounce.event.events.DisconnectEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.minecraft.util.Identifier
-import net.minecraft.util.Util
 
 /**
  * A cape cosmetic manager
@@ -45,7 +45,7 @@ object CapeCosmeticsManager : EventListener {
      * We also don't need to worry about memory leaks
      * because the cache is cleared when the player disconnects from the world.
      */
-    private var cachedCapes = mutableMapOf<String, Identifier>()
+    private val cachedCapes = mutableMapOf<String, Identifier>()
 
     /**
      * Interface for returning a cape texture
@@ -63,7 +63,7 @@ object CapeCosmeticsManager : EventListener {
      * Loads a player cape
      */
     fun loadPlayerCape(player: GameProfile, response: ReturnCapeTexture) {
-        Util.getMainWorkerExecutor().execute {
+        withScope {
             runCatching {
                 val uuid = player.id
 

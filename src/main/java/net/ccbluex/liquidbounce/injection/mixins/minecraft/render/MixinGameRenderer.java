@@ -20,7 +20,6 @@ package net.ccbluex.liquidbounce.injection.mixins.minecraft.render;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.GameRenderEvent;
@@ -32,7 +31,7 @@ import net.ccbluex.liquidbounce.features.module.modules.fun.ModuleDankBobbing;
 import net.ccbluex.liquidbounce.features.module.modules.render.*;
 import net.ccbluex.liquidbounce.features.module.modules.world.ModuleLiquidPlace;
 import net.ccbluex.liquidbounce.interfaces.LightmapTextureManagerAddition;
-import net.ccbluex.liquidbounce.render.engine.UiRenderer;
+import net.ccbluex.liquidbounce.render.engine.BlurEffectRenderer;
 import net.ccbluex.liquidbounce.render.shader.shaders.OutlineEffectShader;
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager;
 import net.ccbluex.liquidbounce.utils.aiming.data.Rotation;
@@ -62,7 +61,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArgs;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 @Mixin(GameRenderer.class)
@@ -108,7 +106,7 @@ public abstract class MixinGameRenderer {
         Rotation rotation;
         if (RotationManager.INSTANCE.getCurrentRotation() != null) {
             rotation = RotationManager.INSTANCE.getCurrentRotation();
-        } if (ModuleFreeCam.INSTANCE.getRunning()) {
+        } else if (ModuleFreeCam.INSTANCE.getRunning()) {
             var serverRotation = RotationManager.INSTANCE.getServerRotation();
             rotation = ModuleFreeCam.INSTANCE.shouldDisableCameraInteract() ? serverRotation : cameraRotation;
         } else {
@@ -203,19 +201,19 @@ public abstract class MixinGameRenderer {
     }
 
     @Inject(method = "onResized", at = @At("HEAD"))
-    private void injectResizeUIBlurShader(int width, int height, CallbackInfo ci) {
-        UiRenderer.INSTANCE.setupDimensions(width, height);
+    private void hookBlurEffectResize(int width, int height, CallbackInfo ci) {
+        BlurEffectRenderer.INSTANCE.setupDimensions(width, height);
     }
 
     @Inject(method = "render", at = @At(value = "RETURN"))
-    private void hookRenderEventStop(RenderTickCounter tickCounter, boolean tick, CallbackInfo ci) {
-        UiRenderer.INSTANCE.endUIOverlayDrawing();
+    private void hookBlurEffectEnd(RenderTickCounter tickCounter, boolean tick, CallbackInfo ci) {
+        BlurEffectRenderer.INSTANCE.endOverlayDrawing();
     }
 
     @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;renderWithTooltip(Lnet/minecraft/client/gui/DrawContext;IIF)V", shift = At.Shift.BEFORE))
-    private void injectRenderBlur(CallbackInfo ci) {
+    private void hookBlurEffectEndAlternative(CallbackInfo ci) {
         if (!(client.currentScreen instanceof ChatScreen)) {
-            UiRenderer.INSTANCE.endUIOverlayDrawing();
+            BlurEffectRenderer.INSTANCE.endOverlayDrawing();
         }
     }
 

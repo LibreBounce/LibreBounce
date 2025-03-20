@@ -53,7 +53,7 @@ object AStarMode : TpAuraChoice("AStar") {
     private val tickHandler = tickHandler {
         val (_, path) = pathCache ?: return@tickHandler
 
-        if (!clicker.isGoingToClick) {
+        if (!clicker.isClickTick) {
             return@tickHandler
         }
 

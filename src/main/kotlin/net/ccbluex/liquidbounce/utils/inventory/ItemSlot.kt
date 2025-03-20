@@ -23,6 +23,7 @@ import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.client.player
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen
 import net.minecraft.item.ItemStack
+import net.minecraft.util.Hand
 import java.util.*
 
 /**
@@ -121,6 +122,8 @@ open class HotbarItemSlot(val hotbarSlot: Int) : ItemSlot() {
 
     open val hotbarSlotForServer: Int = hotbarSlot
 
+    open val useHand = Hand.MAIN_HAND
+
     override fun getIdForServer(screen: GenericContainerScreen?): Int? {
         return if (screen == null) 36 + hotbarSlot else screen.itemCount() + 27 + this.hotbarSlot
     }
@@ -200,6 +203,8 @@ object OffHandSlot : HotbarItemSlot(-1) {
         get() = ItemSlotType.OFFHAND
 
     override val hotbarSlotForServer: Int = 40
+
+    override val useHand = Hand.OFF_HAND
 
     override fun getIdForServer(screen: GenericContainerScreen?) = if (screen == null) 45 else null
 
