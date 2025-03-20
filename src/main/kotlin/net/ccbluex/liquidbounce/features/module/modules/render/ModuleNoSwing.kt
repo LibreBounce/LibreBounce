@@ -27,7 +27,6 @@ import net.ccbluex.liquidbounce.features.module.ClientModule
  *
  * Disables the swing effect.
  */
-
 object ModuleNoSwing : ClientModule("NoSwing", Category.RENDER) {
     private val hideFor by multiEnumChoice("HideFor", HideFor.entries)
 
