@@ -269,15 +269,14 @@ open class Configurable(
         name: String,
         default: EnumSet<T> = emptyEnumSet()
     ) where T : Enum<T>, T : NamedChoice =
-        multiEnumChoice(name, default.toEnumSet(), enumValues<T>().toEnumSet(), T::class.java)
+        multiEnumChoice(name, default.toEnumSet(), enumValues<T>().toEnumSet())
 
     fun <T> multiEnumChoice(
         name: String,
         default: EnumSet<T>,
-        choices: EnumSet<T>,
-        clazz: Class<T>
+        choices: EnumSet<T>
     ) where T : Enum<T>, T : NamedChoice =
-        MultiChooseListValue(name, default, choices, clazz).apply { this@Configurable.inner.add(this@apply) }
+        MultiChooseListValue(name, default, choices).apply { this@Configurable.inner.add(this@apply) }
 
     inline fun <reified T> enumChoice(name: String, default: T): ChooseListValue<T>
         where T : Enum<T>, T : NamedChoice = enumChoice(name, default, enumValues<T>())

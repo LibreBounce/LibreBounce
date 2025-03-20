@@ -368,7 +368,6 @@ class MultiChooseListValue<T>(
     name: String,
     value: EnumSet<T>,
     @Exclude val choices: EnumSet<T>,
-    @Exclude @ProtocolExclude private val clazz: Class<T>
 ) : Value<EnumSet<T>>(
     name,
     defaultValue = value,
@@ -376,7 +375,8 @@ class MultiChooseListValue<T>(
     listType = ListValueType.Enums
 ) where T : Enum<T>, T : NamedChoice {
     override fun deserializeFrom(gson: Gson, element: JsonElement) {
-        val active = EnumSet.noneOf(clazz)
+        val active = get()
+        active.clear()
 
         when (element) {
             is JsonArray -> element.forEach { active.tryToEnable(it.asString) }
