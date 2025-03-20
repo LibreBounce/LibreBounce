@@ -39,7 +39,7 @@ val logger: Logger
     get() = LiquidBounce.logger
 
 val inGame: Boolean
-    get() = MinecraftClient.getInstance()?.let { mc -> mc.player != null && mc.world != null } ?: false
+    get() = MinecraftClient.getInstance()?.let { mc -> mc.player != null && mc.world != null } == true
 
 // Chat formatting
 private val clientPrefix = Text.empty()

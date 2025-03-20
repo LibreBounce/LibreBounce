@@ -32,7 +32,7 @@ import net.minecraft.client.gui.screen.DeathScreen
  *
  * Quality of life improvements to the in-game chat.
  */
-object ModuleBetterChat : ClientModule("BetterChat", Category.MISC, aliases = arrayOf("AntiSpam")) {
+object ModuleBetterChat : ClientModule("BetterChat", Category.RENDER, aliases = arrayOf("AntiSpam")) {
 
     val infiniteLength by boolean("Infinite", true)
     val antiClear by boolean("AntiClear", true)

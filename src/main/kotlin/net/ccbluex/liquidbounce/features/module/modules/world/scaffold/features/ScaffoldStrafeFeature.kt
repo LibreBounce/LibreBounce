@@ -72,8 +72,8 @@ object ScaffoldStrafeFeature : ToggleableConfigurable(ModuleScaffold, "Strafe", 
                 speed = 0.295
             }
 
-            if (player.age % 20 == 0 || moveTicks <= 5) {
-                speed = 0.1
+            if (player.age % 20 == 0 || moveTicks <= 7) {
+                speed = 0.09800000190734863
             }
 
             player.velocity = player.velocity.withStrafe(speed = speed)

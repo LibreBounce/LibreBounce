@@ -22,6 +22,7 @@ package net.ccbluex.liquidbounce.features.chat.packet
 
 import com.google.gson.*
 import net.ccbluex.liquidbounce.config.gson.publicGson
+import net.ccbluex.liquidbounce.config.gson.util.emptyJsonObject
 import java.lang.reflect.Type
 
 /**
@@ -110,7 +111,7 @@ class PacketDeserializer : JsonDeserializer<Packet> {
 
         if (!packetRegistry.containsKey(packetName)) return null
 
-        if (!packetObject.has("c")) packetObject.add("c", JsonObject())
+        if (!packetObject.has("c")) packetObject.add("c", emptyJsonObject())
 
         return publicGson.fromJson(packetObject.get("c"), packetRegistry[packetName])
 

@@ -58,6 +58,15 @@ inline operator fun Vec3d.times(scalar: Double): Vec3d {
     return this.multiply(scalar)
 }
 
+inline fun Vec3d.interpolate(start: Vec3d, multiple: Double) =
+    Vec3d(
+        this.x.interpolate(start.x, multiple),
+        this.y.interpolate(start.y, multiple),
+        this.z.interpolate(start.z, multiple),
+    )
+
+inline fun Double.interpolate(old: Double, scale: Double) = old + (this - old) * scale
+
 inline fun Vec3d.copy(x: Double = this.x, y: Double = this.y, z: Double = this.z) = Vec3d(x, y, z)
 
 inline operator fun Vec3d.component1(): Double = this.x
@@ -125,3 +134,10 @@ fun Vec3d.toVec3() = Vec3(this.x, this.y, this.z)
 fun Vec3d.toVec3i() = Vec3i(this.x.toInt(), this.y.toInt(), this.z.toInt())
 
 fun Vec3d.toBlockPos() = BlockPos.ofFloored(x, y, z)!!
+
+fun Vec3d.preferOver(other: Vec3d): Vec3d {
+    val x = if (this.x == 0.0) other.x else this.x
+    val y = if (this.y == 0.0) other.y else this.y
+    val z = if (this.z == 0.0) other.z else this.z
+    return Vec3d(x, y, z)
+}

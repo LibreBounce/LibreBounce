@@ -39,7 +39,7 @@ private class Atlas(
 /**
  *
  */
-object ItemImageAtlas: EventListener {
+object ItemImageAtlas : EventListener {
 
     private var atlas: Atlas? = null
 
@@ -88,7 +88,7 @@ object ItemImageAtlas: EventListener {
     }
 
     @Suppress("unused")
-    private val handleResourceReload = handler<ResourceReloadEvent> {
+    private val resourceReloadHandler = handler<ResourceReloadEvent> {
         this.atlas = null
     }
 

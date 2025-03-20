@@ -31,8 +31,8 @@ import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.engine.Vec3
 import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
 import net.ccbluex.liquidbounce.render.withColor
-import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
+import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
 import net.ccbluex.liquidbounce.utils.entity.lastRotation
 import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
 import net.ccbluex.liquidbounce.utils.math.times
@@ -74,11 +74,6 @@ object ModuleRotations : ClientModule("Rotations", Category.RENDER) {
      */
     private val smooth by float("Smooth", 0.0f, 0.0f..0.3f)
 
-    /**
-     * Changes the perspective of the camera to match the Rotation Manager perspective
-     * without changing the player perspective.
-     */
-    val camera by boolean("Camera", false)
     private val vectorLine by color("VectorLine", Color4b.WHITE.with(a = 0)) // alpha 0 means OFF
     private val vectorDot by color("VectorDot", Color4b(0x00, 0x80, 0xFF, 0x00))
 
@@ -125,7 +120,7 @@ object ModuleRotations : ClientModule("Rotations", Category.RENDER) {
             val previousRotation = RotationManager.previousRotation ?: currentRotation
             val camera = mc.gameRenderer.camera
 
-            val interpolatedRotationVec = previousRotation.rotationVec.lerp(currentRotation.rotationVec,
+            val interpolatedRotationVec = previousRotation.directionVector.lerp(currentRotation.directionVector,
                 partialTicks.toDouble()
             )
 

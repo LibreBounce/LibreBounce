@@ -46,7 +46,7 @@ import java.util.*
  *
  * Command: [CommandInvsee]
  */
-object ModuleInventoryTracker : ClientModule("InventoryTracker", Category.MISC) {
+object ModuleInventoryTracker : ClientModule("InventoryTracker", Category.WORLD) {
 
     /** Saves the non-persistent player object associated with the uuid.
      * This makes it possible to look up inventories of players which aren't in
@@ -111,7 +111,7 @@ object ModuleInventoryTracker : ClientModule("InventoryTracker", Category.MISC) 
     }
 
     @Suppress("unused")
-    val itemLoreQueryHandler = handler<ItemLoreQueryEvent> { event ->
+    private val itemLoreQueryHandler = handler<ItemLoreQueryEvent> { event ->
         if (mc.currentScreen !is ViewedInventoryScreen) return@handler
         val player = CommandInvsee.viewedPlayer
         val timeStamp = inventoryMap[player]?.timeMap?.getLong(event.itemStack)?.takeIf { it != 0L } ?: return@handler

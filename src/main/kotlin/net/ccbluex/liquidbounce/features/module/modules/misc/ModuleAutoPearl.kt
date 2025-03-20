@@ -21,21 +21,30 @@ package net.ccbluex.liquidbounce.features.module.modules.misc
 import com.oracle.truffle.runtime.collection.ArrayQueue
 import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
-import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.RotationUpdateEvent
+import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.event.sequenceHandler
+import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
-import net.ccbluex.liquidbounce.utils.aiming.*
+import net.ccbluex.liquidbounce.utils.aiming.RotationManager
+import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
+import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.projectiles.SituationalProjectileAngleCalculator
+import net.ccbluex.liquidbounce.utils.aiming.utils.RotationUtil
 import net.ccbluex.liquidbounce.utils.combat.CombatManager
 import net.ccbluex.liquidbounce.utils.combat.shouldBeAttacked
-import net.ccbluex.liquidbounce.utils.inventory.*
+import net.ccbluex.liquidbounce.utils.inventory.Slots
+import net.ccbluex.liquidbounce.utils.inventory.useHotbarSlotOrOffhand
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.render.trajectory.TrajectoryInfo
 import net.ccbluex.liquidbounce.utils.render.trajectory.TrajectoryInfoRenderer
-import net.minecraft.entity.*
+import net.minecraft.entity.Entity
+import net.minecraft.entity.EntityDimensions
+import net.minecraft.entity.EntityType
+import net.minecraft.entity.SpawnReason
 import net.minecraft.entity.projectile.thrown.EnderPearlEntity
 import net.minecraft.item.Items
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket
@@ -51,7 +60,7 @@ private const val MAX_SIMULATED_TICKS = 240
  *
  * @author sqlerrorthing
  */
-object ModuleAutoPearl : ClientModule("AutoPearl", Category.MISC, aliases = arrayOf("PearlFollower")) {
+object ModuleAutoPearl : ClientModule("AutoPearl", Category.COMBAT, aliases = arrayOf("PearlFollower", "PearlTarget")) {
 
     private val mode by enumChoice("Mode", Modes.TRIGGER)
 
@@ -74,20 +83,13 @@ object ModuleAutoPearl : ClientModule("AutoPearl", Category.MISC, aliases = arra
 
     private val queue = ArrayQueue<Rotation>()
 
-    private val enderPearlSlot: HotbarItemSlot?
-        get() = if (OffHandSlot.itemStack.item == Items.ENDER_PEARL) {
-            OffHandSlot
-        } else {
-            Slots.Hotbar.findSlot(Items.ENDER_PEARL)
-        }
-
     @Suppress("unused")
     private val pearlSpawnHandler = handler<PacketEvent> { event ->
         if (event.packet !is EntitySpawnS2CPacket || event.packet.entityType != EntityType.ENDER_PEARL) {
             return@handler
         }
 
-        enderPearlSlot ?: return@handler
+        Slots.OffhandWithHotbar.findSlot(Items.ENDER_PEARL) ?: return@handler
 
         val data = event.packet
         val entity = data.entityType.create(world, SpawnReason.SPAWN_ITEM_USE) as EnderPearlEntity
@@ -107,8 +109,8 @@ object ModuleAutoPearl : ClientModule("AutoPearl", Category.MISC, aliases = arra
 
         CombatManager.pauseCombatForAtLeast(combatPauseTime)
         if (Rotate.enabled) {
-            RotationManager.aimAt(
-                Rotate.rotations.toAimPlan(rotation),
+            RotationManager.setRotationTarget(
+                Rotate.rotations.toRotationTarget(rotation),
                 Priority.IMPORTANT_FOR_USAGE_3,
                 this@ModuleAutoPearl
             )
@@ -118,7 +120,7 @@ object ModuleAutoPearl : ClientModule("AutoPearl", Category.MISC, aliases = arra
     @Suppress("unused")
     private val gameTickHandler = tickHandler {
         val rotation = queue.poll() ?: return@tickHandler
-        val itemSlot = enderPearlSlot ?: return@tickHandler
+        val itemSlot = Slots.OffhandWithHotbar.findSlot(Items.ENDER_PEARL) ?: return@tickHandler
 
         if (Rotate.enabled) {
             fun isRotationSufficient(): Boolean {
@@ -126,8 +128,8 @@ object ModuleAutoPearl : ClientModule("AutoPearl", Category.MISC, aliases = arra
             }
 
             waitConditional(20) {
-                RotationManager.aimAt(
-                    Rotate.rotations.toAimPlan(rotation),
+                RotationManager.setRotationTarget(
+                    Rotate.rotations.toRotationTarget(rotation),
                     Priority.IMPORTANT_FOR_USAGE_3,
                     this@ModuleAutoPearl
                 )

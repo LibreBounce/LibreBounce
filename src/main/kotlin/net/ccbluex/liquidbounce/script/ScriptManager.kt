@@ -35,6 +35,8 @@ import java.io.File
  */
 object ScriptManager {
 
+    private var isInitialized = false
+
     /**
      * A list that holds all the loaded scripts.
      */
@@ -49,17 +51,15 @@ object ScriptManager {
         }
     }
 
-    init {
-        try {
-            // Initialize the script engine and log its version and supported languages.
-            val engine = Engine.create()
-            logger.info(
-                "[ScriptAPI] Engine Version: ${engine.version}, " +
-                    "Supported languages: [ ${engine.languages.keys.joinToString(", ")} ]"
-            )
-        } catch (e: Exception) {
-            logger.error("Failed to initialize the script engine.", e)
-        }
+    fun initializeEngine() {
+        // Initialize the script engine and log its version and supported languages.
+        val engine = Engine.create()
+        logger.info(
+            "[ScriptAPI] Engine Version: ${engine.version}, " +
+                "Supported languages: [ ${engine.languages.keys.joinToString(", ")} ]"
+        )
+
+        isInitialized = true
     }
 
     /**
@@ -67,6 +67,8 @@ object ScriptManager {
      * and directories containing a main script file. It then loads and enables all found scripts.
      */
     fun loadAll() {
+        require(isInitialized) { "Cannot load scripts before the script engine is initialized." }
+
         root.listFiles { file ->
             Source.findLanguage(file) != null || file.isDirectory
         }?.forEach { file ->
@@ -125,6 +127,8 @@ object ScriptManager {
         language: String = Source.findLanguage(file),
         debugOptions: ScriptDebugOptions = ScriptDebugOptions()
     ): PolyglotScript {
+        require(isInitialized) { "Cannot load scripts before the script engine is initialized." }
+
         val script = PolyglotScript(language, file, debugOptions)
         script.initScript()
 
@@ -149,9 +153,9 @@ object ScriptManager {
     fun enableAll() {
         scripts.forEach(PolyglotScript::enable)
 
-        // Reload the ClickGUI to update the module list.
-        RenderSystem.recordRenderCall {
-            ModuleClickGui.reloadView()
+        if (scripts.isNotEmpty()) {
+            // Reload the ClickGUI to update the module list.
+            RenderSystem.recordRenderCall(ModuleClickGui::reloadView)
         }
     }
 

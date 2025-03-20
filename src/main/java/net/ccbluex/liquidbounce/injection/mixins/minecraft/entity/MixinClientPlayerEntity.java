@@ -33,11 +33,12 @@ import net.ccbluex.liquidbounce.features.module.modules.render.ModuleClickGui;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleFreeCam;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleNoSwing;
 import net.ccbluex.liquidbounce.integration.BrowserScreen;
-import net.ccbluex.liquidbounce.integration.VrScreen;
+import net.ccbluex.liquidbounce.integration.VirtualDisplayScreen;
 import net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.game.PlayerData;
+import net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.game.PlayerInventoryData;
 import net.ccbluex.liquidbounce.interfaces.ClientPlayerEntityAddition;
-import net.ccbluex.liquidbounce.utils.aiming.Rotation;
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager;
+import net.ccbluex.liquidbounce.utils.aiming.data.Rotation;
 import net.ccbluex.liquidbounce.utils.movement.DirectionalInput;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
@@ -70,6 +71,9 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity implemen
 
     @Unique
     private PlayerData lastKnownStatistics = null;
+
+    @Unique
+    private PlayerInventoryData lastKnownInventory = null;
 
     @Unique
     private PlayerNetworkMovementTickEvent eventMotion;
@@ -105,10 +109,17 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity implemen
 
         // Call player statistics change event when statistics change
         var statistics = PlayerData.Companion.fromPlayer((ClientPlayerEntity) (Object) this);
-        if (lastKnownStatistics == null || lastKnownStatistics != statistics) {
+        if (lastKnownStatistics == null || !lastKnownStatistics.equals(statistics)) {
             EventManager.INSTANCE.callEvent(ClientPlayerDataEvent.Companion.fromPlayerStatistics(statistics));
         }
         this.lastKnownStatistics = statistics;
+
+        // Call player inventory event when inventory changes
+        var playerInventory = PlayerInventoryData.Companion.fromPlayer((ClientPlayerEntity) (Object) this);
+        if (lastKnownInventory == null || !lastKnownInventory.equals(playerInventory)) {
+            EventManager.INSTANCE.callEvent(ClientPlayerInventoryEvent.Companion.fromPlayerInventory(playerInventory));
+        }
+        this.lastKnownInventory = playerInventory;
     }
 
     /**
@@ -375,7 +386,7 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity implemen
     @WrapWithCondition(method = "closeScreen", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;setScreen(Lnet/minecraft/client/gui/screen/Screen;)V"))
     private boolean preventCloseScreen(MinecraftClient instance, Screen screen) {
         // Prevent closing screen if the current screen is a client screen
-        return !(instance.currentScreen instanceof BrowserScreen || instance.currentScreen instanceof VrScreen ||
+        return !(instance.currentScreen instanceof BrowserScreen || instance.currentScreen instanceof VirtualDisplayScreen ||
                 instance.currentScreen instanceof ModuleClickGui.ClickScreen);
     }
 

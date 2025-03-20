@@ -45,13 +45,6 @@ class RollingClickArray(private val cycleLength: Int, val iterations: Int) {
         head = 0
     }
 
-    /**
-     * Returns list of next cycle values
-     */
-    fun nextCycleList(): List<Int> {
-        return List(cycleLength) { get(it) }
-    }
-
     fun push(cycleArray: IntArray) {
         require(cycleArray.size == cycleLength) { "Array size must match cycle length" }
 

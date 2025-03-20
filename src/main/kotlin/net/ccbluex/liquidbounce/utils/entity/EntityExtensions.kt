@@ -24,7 +24,7 @@ package net.ccbluex.liquidbounce.utils.entity
 import net.ccbluex.liquidbounce.common.ShapeFlag
 import net.ccbluex.liquidbounce.interfaces.ClientPlayerEntityAddition
 import net.ccbluex.liquidbounce.interfaces.InputAddition
-import net.ccbluex.liquidbounce.utils.aiming.Rotation
+import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
 import net.ccbluex.liquidbounce.utils.block.DIRECTIONS_EXCLUDING_UP
 import net.ccbluex.liquidbounce.utils.block.isBlastResistant
 import net.ccbluex.liquidbounce.utils.block.raycast
@@ -61,6 +61,7 @@ import net.minecraft.util.math.*
 import net.minecraft.util.shape.VoxelShapes
 import net.minecraft.world.Difficulty
 import net.minecraft.world.RaycastContext
+import net.minecraft.world.World
 import net.minecraft.world.explosion.ExplosionBehavior
 import net.minecraft.world.explosion.ExplosionImpl
 import kotlin.math.cos
@@ -68,6 +69,12 @@ import kotlin.math.floor
 import kotlin.math.sin
 import kotlin.math.sqrt
 
+val Entity.netherPosition: Vec3d
+    get() = if (world.registryKey == World.NETHER) {
+        Vec3d(x, y, z)
+    } else {
+        Vec3d(x / 8.0, y, z / 8.0)
+    }
 
 val ClientPlayerEntity.moving
     get() = input.movementForward != 0.0f || input.movementSideways != 0.0f
@@ -338,7 +345,7 @@ fun getNearestPointOnSide(eyes: Vec3d, box: Box, side: Direction): Vec3d {
 
 }
 
-fun PlayerEntity.wouldBlockHit(source: PlayerEntity): Boolean {
+fun LivingEntity.wouldBlockHit(source: PlayerEntity): Boolean {
     if (!this.isBlocking) {
         return false
     }
@@ -578,22 +585,28 @@ private fun LivingEntity.getHealthFromScoreboard(): Float? {
     return score.score.toFloat()
 }
 
+fun Entity.getBoundingBoxAt(pos: Vec3d): Box {
+    return boundingBox.offset(pos - this.pos)
+}
+
 /**
- * Check if the entity is likely falling to the void based on the current position and bounding box.
+ * Check if the entity collides with anything below his bounding box.
  */
-fun Entity.isFallingToVoid(voidLevel: Double = -64.0, safetyExpand: Double = 0.0): Boolean {
-    if (this.y < voidLevel || boundingBox.minY < voidLevel) {
+fun Entity.doesNotCollideBelow(until: Double = -64.0): Boolean {
+    if (this.y < until || boundingBox.minY < until) {
         return true
     }
 
-    // If there is no collision to void threshold, we do not want to teleport down.
-    val boundingBox = boundingBox
-        // Set the minimum Y to the void threshold to check for collisions below the player
-        .withMinY(voidLevel)
-        // Expand the bounding box to check if there might blocks to safely land on
-        .expand(safetyExpand, 0.0, safetyExpand)
-    return world.getBlockCollisions(this, boundingBox)
+    val offsetBb = boundingBox.withMinY(until)
+    return world.getBlockCollisions(this, offsetBb)
         .all(VoxelShapes.empty()::equals)
+}
+
+/**
+ * Check if the entity box collides with any block in the world at the given [pos].
+ */
+fun Entity.doesCollideAt(pos: Vec3d): Boolean {
+    return !world.getBlockCollisions(this, getBoundingBoxAt(pos)).all(VoxelShapes.empty()::equals)
 }
 
 /**

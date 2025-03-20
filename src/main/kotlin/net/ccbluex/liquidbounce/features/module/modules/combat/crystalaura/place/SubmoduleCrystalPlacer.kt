@@ -23,7 +23,13 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.Modul
 import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.SubmoduleIdPredict
 import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.SwitchMode
 import net.ccbluex.liquidbounce.render.engine.Color4b
-import net.ccbluex.liquidbounce.utils.aiming.*
+import net.ccbluex.liquidbounce.utils.aiming.NoRotationMode
+import net.ccbluex.liquidbounce.utils.aiming.RotationManager
+import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
+import net.ccbluex.liquidbounce.utils.aiming.data.RotationWithVector
+import net.ccbluex.liquidbounce.utils.aiming.utils.findClosestPointOnBlockInLineWithCrystal
+import net.ccbluex.liquidbounce.utils.aiming.utils.raytraceBlock
+import net.ccbluex.liquidbounce.utils.aiming.utils.raytraceUpperBlockSide
 import net.ccbluex.liquidbounce.utils.block.SwingMode
 import net.ccbluex.liquidbounce.utils.block.getState
 import net.ccbluex.liquidbounce.utils.client.Chronometer
@@ -44,11 +50,11 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
     private val switchMode by enumChoice("Switch", SwitchMode.SILENT)
     val oldVersion by boolean("1_12_2", false)
     private val delay by int("Delay", 0, 0..1000, "ms")
-    val range by float("Range", 4.5F, 1.0F..5.0F).onChanged {
+    val range by float("Range", 4.5f, 1f..6f).onChanged {
         CrystalAuraPlaceTargetFactory.updateSphere()
     }
 
-    val wallsRange by float("WallsRange", 4.5F, 1.0F..5.0F).onChanged {
+    val wallsRange by float("WallsRange", 4.5f, 0f..6f).onChanged {
         CrystalAuraPlaceTargetFactory.updateSphere()
     }
 
@@ -144,7 +150,7 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
         queuePlacing(rotation, targetPos, side)
     }
 
-    private fun queuePlacing(rotation: VecRotation, targetPos: BlockPos, side: Direction) {
+    private fun queuePlacing(rotation: RotationWithVector, targetPos: BlockPos, side: Direction) {
         ModuleCrystalAura.rotationMode.activeChoice.rotate(rotation.rotation, isFinished = {
             blockHitResult = raytraceBlock(
                 getMaxRange().toDouble(),
@@ -174,7 +180,7 @@ object SubmoduleCrystalPlacer : ToggleableConfigurable(ModuleCrystalAura, "Place
         })
     }
 
-    private fun updatePrevious(rotation: VecRotation) {
+    private fun updatePrevious(rotation: RotationWithVector) {
         if (previousRotations.size == 2) {
             previousRotations.removeFirst()
         }
