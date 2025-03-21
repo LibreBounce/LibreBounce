@@ -386,23 +386,28 @@ class MultiChooseListValue<T>(
         set(active)
     }
 
-    private fun EnumSet<T>.tryToEnable(name: String) =
-        choices.firstOrNull { it.choiceName == name }?.let {
-            add(it)
+    private fun EnumSet<T>.tryToEnable(name: String) {
+        val choiceWithName = choices.firstOrNull { it.choiceName == name }
+
+        if (choiceWithName == null) {
+            add(choiceWithName)
         }
+    }
 
     fun toggle(value: T): Boolean {
         val current = get()
 
-        return !((value in current).also {
-            if (it) {
-                current.remove(value)
-            } else {
-                current.add(value)
-            }
+        val isActive = value in current
 
-            set(current)
-        })
+        if (isActive) {
+            current.remove(value)
+        } else {
+            current.add(value)
+        }
+
+        set(current)
+
+        return !isActive
     }
 
     operator fun contains(choice: T) = get().contains(choice)
