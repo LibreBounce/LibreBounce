@@ -366,7 +366,7 @@ class BindValue(
 
 class MultiChooseListValue<T>(
     name: String,
-    private val default: EnumSet<T>,
+    value: EnumSet<T>,
     @Exclude val choices: EnumSet<T>,
 
     /**
@@ -375,7 +375,7 @@ class MultiChooseListValue<T>(
     @Exclude val canBeNone: Boolean = true,
 ) : Value<EnumSet<T>>(
     name,
-    defaultValue = default,
+    defaultValue = value,
     valueType = ValueType.MULTI_CHOOSE,
     listType = ListValueType.Enums
 ) where T : Enum<T>, T : NamedChoice {
@@ -386,7 +386,7 @@ class MultiChooseListValue<T>(
                     "but at least one must be selected. (required because by canBeNone = false)"
             }
 
-            require(!default.isEmpty()) {
+            require(!value.isEmpty()) {
                 "There are no default values enabled, " +
                     "but at least one must be selected. (required because by canBeNone = false)"
             }
@@ -403,7 +403,7 @@ class MultiChooseListValue<T>(
         }
 
         if (!canBeNone && active.isEmpty()) {
-            active.addAll(default)
+            active.addAll(choices)
         }
 
         set(active)
