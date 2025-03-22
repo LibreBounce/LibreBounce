@@ -1,12 +1,9 @@
 <script lang="ts">
     import {createEventDispatcher} from "svelte";
-    import type {
-        ModuleSetting,
-        ConfigurableSetting,
-    } from "../../../integration/types";
+    import type {ConfigurableSetting, ModuleSetting,} from "../../../integration/types";
     import GenericSetting from "./common/GenericSetting.svelte";
     import ExpandArrow from "./common/ExpandArrow.svelte";
-    import { setItem } from "../../../integration/persistent_storage";
+    import {setItem} from "../../../integration/persistent_storage";
     import {convertToSpacedString, spaceSeperatedNames} from "../../../theme/theme_config";
 
     export let setting: ModuleSetting;

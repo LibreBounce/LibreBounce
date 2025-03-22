@@ -1,8 +1,8 @@
 <script lang="ts">
     import {createEventDispatcher} from "svelte";
     import type {ChooseSetting, ModuleSetting,} from "../../../integration/types";
-    import Dropdown from "./common/dropdown/Dropdown.svelte";
     import {convertToSpacedString, spaceSeperatedNames} from "../../../theme/theme_config";
+    import Dropdown from "./common/Dropdown.svelte";
 
     export let setting: ModuleSetting;
 

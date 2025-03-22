@@ -1,12 +1,10 @@
 <script lang="ts">
     import {createEventDispatcher} from "svelte";
-    import {convertToSpacedString, spaceSeperatedNames} from "../../../../../theme/theme_config";
-    import DropdownActiveValue from "./DropdownActiveValue.svelte";
+    import {convertToSpacedString, spaceSeperatedNames} from "../../../../theme/theme_config";
 
     export let name: string | null;
-    export let autoClose: boolean = true;
     export let options: string[];
-    export let value: string | string[];
+    export let value: string;
 
     const dispatch = createEventDispatcher();
 
@@ -20,14 +18,7 @@
     }
 
     function updateValue(v: string) {
-        if (Array.isArray(value)) {
-            value = value.includes(v)
-                ? value.filter(item => item !== v)
-                : [...value, v];
-        } else {
-            value = v;
-        }
-
+        value = v;
         dispatch("change");
     }
 </script>
@@ -39,12 +30,9 @@
     <div class="head" bind:this={dropdownHead}>
         {#if name !== null}
             <span class="text">{$spaceSeperatedNames ? convertToSpacedString(name) : name}
-                &bull; <DropdownActiveValue bind:value={value} bind:options={options} />
-            </span>
+                &bull; {$spaceSeperatedNames ? convertToSpacedString(value) : value}</span>
         {:else}
-            <span class="text">
-                <DropdownActiveValue bind:value={value} bind:options={options} />
-            </span>
+            <span class="text">{$spaceSeperatedNames ? convertToSpacedString(value) : value}</span>
         {/if}
     </div>
 
@@ -53,12 +41,8 @@
             {#each options as o}
                 <div
                         class="option"
-                        class:active={Array.isArray(value) ? value.includes(o) : o === value}
-                        on:click={(e) => {
-                            updateValue(o)
-
-                            if (!autoClose) e.stopPropagation()
-                        }}
+                        class:active={o === value}
+                        on:click={() => updateValue(o)}
                 >
                     {$spaceSeperatedNames ? convertToSpacedString(o) : o}
                 </div>
@@ -68,7 +52,7 @@
 </div>
 
 <style lang="scss">
-  @use "../../../../../colors.scss" as *;
+  @use "../../../../colors.scss" as *;
 
   .dropdown {
     position: relative;
