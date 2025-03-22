@@ -129,7 +129,7 @@ object ModuleSprint : ClientModule("Sprint", Category.MOVEMENT) {
     private enum class Ignore(override val choiceName: String) : NamedChoice {
         BLINDNESS("Blindness"),
         HUNGER("Hunger"),
-        COLLISION("COLLISION")
+        COLLISION("Collision")
     }
 
     private enum class StopOn(override val choiceName: String) : NamedChoice {

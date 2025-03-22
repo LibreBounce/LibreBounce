@@ -105,10 +105,10 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
 
     private val pointTracker = tree(PointTracker())
 
-    private val requirements by multiEnumChoice<KillAuraRequirements>("Requirements")
+    private val requires by multiEnumChoice<KillAuraRequirements>("Requires")
 
     private val requirementsMet
-        get() = requirements.all { it.meets() }
+        get() = requires.all { it.meets() }
 
     // Bypass techniques
     internal val raycast by enumChoice("Raycast", TRACE_ALL)

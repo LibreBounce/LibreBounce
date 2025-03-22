@@ -20,10 +20,7 @@ package net.ccbluex.liquidbounce.features.module.modules.misc.antibot.modes
 
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet
-import net.ccbluex.liquidbounce.config.types.Choice
-import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
-import net.ccbluex.liquidbounce.config.types.NamedChoice
-import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.*
 import net.ccbluex.liquidbounce.event.events.AttackEntityEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -70,40 +67,31 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
     }
 
     private object Armor : ToggleableConfigurable(ModuleAntiBot, "ArmorMaterial", false) {
-        private class ArmorConfigurable(
-            name: String
-        ) : ToggleableConfigurable(this, name, false) {
-            private enum class ArmorMaterialSelector(
-                override val choiceName: String,
-                val material: ArmorMaterial? = null
-            ) : NamedChoice {
-                NOTHING("Nothing"),
-                GOLD("Gold", ArmorMaterials.GOLD),
-                CHAIN("Chain", ArmorMaterials.CHAIN),
-                IRON("Iron", ArmorMaterials.IRON),
-                DIAMOND("Diamond", ArmorMaterials.DIAMOND),
-                NETHERITE("Netherite", ArmorMaterials.NETHERITE)
-            }
-
-            private val materials by multiEnumChoice(
-                "Materials",
-                ArmorMaterialSelector.entries,
-                canBeNone = false
-            )
-
-            fun isValid(item: Item) = materials.find { it.material == (item as? ArmorItem)?.material() } != null
+        private enum class ArmorMaterialSelector(
+            override val choiceName: String,
+            val material: ArmorMaterial? = null
+        ) : NamedChoice {
+            NOTHING("Nothing"),
+            GOLD("Gold", ArmorMaterials.GOLD),
+            CHAIN("Chain", ArmorMaterials.CHAIN),
+            IRON("Iron", ArmorMaterials.IRON),
+            DIAMOND("Diamond", ArmorMaterials.DIAMOND),
+            NETHERITE("Netherite", ArmorMaterials.NETHERITE)
         }
 
         private val values = arrayOf(
-            ArmorConfigurable("Boots"),
-            ArmorConfigurable("Leggings"),
-            ArmorConfigurable("Chestplate"),
-            ArmorConfigurable("Helmet"),
-        ).also { it.reversedArray().onEach(::tree) }
+            multiEnumChoice("Helmet", ArmorMaterialSelector.entries),
+            multiEnumChoice("Chestplate", ArmorMaterialSelector.entries),
+            multiEnumChoice("Leggings", ArmorMaterialSelector.entries),
+            multiEnumChoice("Boots", ArmorMaterialSelector.entries),
+        )
+
+        fun MultiChooseListValue<ArmorMaterialSelector>.isValid(item: Item) =
+            get().find { it.material == (item as? ArmorItem)?.material() } != null
 
         fun isValid(entity: PlayerEntity): Boolean {
             return entity.armorItems.withIndex().all { (index, armor) ->
-                values[index].let { !it.enabled || it.isValid(armor.item) }
+                values[values.lastIndex - index].isValid(armor.item)
             }
         }
     }

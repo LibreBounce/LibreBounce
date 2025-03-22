@@ -41,8 +41,7 @@ object ModuleTeams : ClientModule("Teams", Category.MISC) {
 
     private val matches by multiEnumChoice("Matches",
         Matches.SCOREBOARD_TEAM,
-        Matches.NAME_COLOR,
-        canBeNone = false
+        Matches.NAME_COLOR
     )
 
     private val armorColor by multiEnumChoice("ArmorColor",
