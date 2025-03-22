@@ -157,6 +157,7 @@ export interface MultiChooseSetting {
     name: string;
     choices: string[];
     value: string[];
+    canBeNone: boolean;
 }
 
 export interface ConfigurableSetting {

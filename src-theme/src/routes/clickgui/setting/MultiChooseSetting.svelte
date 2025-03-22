@@ -15,9 +15,18 @@
     const dispatch = createEventDispatcher();
 
     function handleChange(v: string) {
-        cSetting.value = cSetting.value.includes(v)
-            ? cSetting.value.filter(item => item !== v)
-            : [...cSetting.value, v];
+        if (cSetting.value.includes(v)) {
+            const filtered = cSetting.value.filter(item => item !== v);
+
+            if (filtered.length === 0 && !cSetting.canBeNone) {
+                // Doesn't remove the element because in this case value will be empty
+                return;
+            }
+
+            cSetting.value = filtered;
+        } else {
+            cSetting.value = [...cSetting.value, v]
+        }
 
         setting = { ...cSetting };
         dispatch("change");

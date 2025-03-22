@@ -368,12 +368,31 @@ class MultiChooseListValue<T>(
     name: String,
     value: EnumSet<T>,
     @Exclude val choices: EnumSet<T>,
+
+    /**
+     * Can deselect all values or enable at least one
+     */
+    @Exclude val canBeNone: Boolean = true,
 ) : Value<EnumSet<T>>(
     name,
     defaultValue = value,
     valueType = ValueType.MULTI_CHOOSE,
     listType = ListValueType.Enums
 ) where T : Enum<T>, T : NamedChoice {
+    init {
+        if (!canBeNone) {
+            require(!choices.isEmpty()) {
+                "There are no values provided, " +
+                    "but at least one must be selected. (required because by canBeNone = false)"
+            }
+
+            require(!value.isEmpty()) {
+                "There are no default values enabled, " +
+                    "but at least one must be selected. (required because by canBeNone = false)"
+            }
+        }
+    }
+
     override fun deserializeFrom(gson: Gson, element: JsonElement) {
         val active = get()
         active.clear()
@@ -381,6 +400,11 @@ class MultiChooseListValue<T>(
         when (element) {
             is JsonArray -> element.forEach { active.tryToEnable(it.asString) }
             is JsonPrimitive -> active.tryToEnable(element.asString)
+        }
+
+        if (!canBeNone && active.isEmpty()) {
+            restore()
+            return
         }
 
         set(active)
@@ -400,6 +424,10 @@ class MultiChooseListValue<T>(
         val isActive = value in current
 
         if (isActive) {
+            if (!canBeNone && current.size-1 <= 0) {
+                return true
+            }
+
             current.remove(value)
         } else {
             current.add(value)
