@@ -12,6 +12,9 @@
     const cSetting = setting as MultiChooseSetting;
     const thisPath = `${path}.${cSetting.name}`;
 
+    let errorValue: string | null = null;
+    let timeoutId: ReturnType<typeof setTimeout>;
+
     const dispatch = createEventDispatcher();
 
     function handleChange(v: string) {
@@ -19,7 +22,12 @@
             const filtered = cSetting.value.filter(item => item !== v);
 
             if (filtered.length === 0 && !cSetting.canBeNone) {
-                // Doesn't remove the element because in this case value will be empty
+                // Doesn't remove the element because in this case the value will be empty
+                // And indicate the value
+                errorValue = v
+                clearTimeout(timeoutId);
+                timeoutId = setTimeout(() => errorValue = null, 300);
+
                 return;
             }
 
@@ -70,6 +78,7 @@
                 <span
                         class="choice"
                         class:active={cSetting.value.includes(choice)}
+                        class:error={errorValue === choice}
                         on:click={() => {
                             handleChange(choice)
                         }}
@@ -107,6 +116,11 @@
 
     &:hover {
       color: $clickgui-text-color;
+    }
+
+    &.error {
+      background-color: rgba($menu-error-color, 0.1) !important;
+      color: $menu-error-color !important;
     }
 
     &.active {
