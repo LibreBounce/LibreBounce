@@ -85,8 +85,11 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
                 NETHERITE("Netherite", ArmorMaterials.NETHERITE)
             }
 
-            @Suppress("SpreadOperator")
-            private val materials by multiEnumChoice("Materials", *enumValues<ArmorMaterialSelector>())
+            private val materials by multiEnumChoice(
+                "Materials",
+                ArmorMaterialSelector.entries,
+                canBeNone = false
+            )
 
             fun isValid(item: Item) = materials.find { it.material == (item as? ArmorItem)?.material() } != null
         }
