@@ -389,7 +389,7 @@ class MultiChooseListValue<T>(
     private fun EnumSet<T>.tryToEnable(name: String) {
         val choiceWithName = choices.firstOrNull { it.choiceName == name }
 
-        if (choiceWithName == null) {
+        if (choiceWithName != null) {
             add(choiceWithName)
         }
     }
