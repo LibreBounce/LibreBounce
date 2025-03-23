@@ -37,12 +37,9 @@ class ScriptModule(val script: PolyglotScript, moduleObject: Map<String, Any>) :
     private val _values = linkedMapOf<String, Value<*>>()
     override var tag: String? = null
         set(value) {
-            if (field == null) {
-                field = value
-                return
-            }
             field = value
-            EventManager.callEvent(RefreshArrayListEvent)
+            if (field != null)
+                EventManager.callEvent(RefreshArrayListEvent)
         }
 
     private var _description: String? = null
