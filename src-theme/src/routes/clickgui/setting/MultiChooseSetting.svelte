@@ -1,10 +1,11 @@
 <script lang="ts">
     import {createEventDispatcher, onMount} from "svelte";
     import type {ModuleSetting, MultiChooseSetting,} from "../../../integration/types";
-    import {slide} from "svelte/transition";
+    import {fly, slide} from "svelte/transition";
     import {convertToSpacedString, spaceSeperatedNames} from "../../../theme/theme_config";
     import ExpandArrow from "./common/ExpandArrow.svelte";
     import {setItem} from "../../../integration/persistent_storage";
+    import {backOut} from "svelte/easing";
 
     export let setting: ModuleSetting;
     export let path: string;
@@ -74,9 +75,10 @@
 
     {#if expanded && skipAnimationDelay}
         <div in:slide|global={{duration: 200, axis: "y"}} out:slide|global={{duration: 200, axis: "y"}} class="choices">
-            {#each cSetting.choices as choice}
+            {#each cSetting.choices as choice, index}
                 <span
                         class="choice"
+                        in:fly|global={{duration: 300, y: -10, delay: index * 20, easing: backOut}}
                         class:active={cSetting.value.includes(choice)}
                         class:error={errorValue === choice}
                         on:click={() => {
