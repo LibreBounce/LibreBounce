@@ -423,7 +423,7 @@ class MultiChooseListValue<T>(
         val isActive = value in current
 
         if (isActive) {
-            if (!canBeNone && current.size-1 <= 0) {
+            if (!canBeNone && current.size <= 1) {
                 return true
             }
 

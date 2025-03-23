@@ -41,7 +41,12 @@ object ModuleAntiBlind : ClientModule("AntiBlind", Category.RENDER, aliases = ar
     @JvmStatic
     fun canRender(choice: DoRender) = !running || choice in render
 
-    val fireOpacityPercentage get() = (fireOpacity / 100.0).toFloat()
+    val fireOpacityPercentage get() =
+        if (running) {
+            fireOpacity / 100.0f
+        } else {
+            1.0f
+        }
 }
 
 enum class DoRender(override val choiceName: String) : NamedChoice {

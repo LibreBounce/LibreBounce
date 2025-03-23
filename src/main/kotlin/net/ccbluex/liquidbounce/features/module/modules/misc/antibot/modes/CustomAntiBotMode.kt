@@ -265,9 +265,7 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
             abs(suspected.pitch) > 90
         }),
         FAKE_ENTITY_ID("FakeEntityID", { suspected ->
-            suspected.id.let {
-                it < 0 || it >= 1E+9
-            }
+            suspected.id !in 0..1_000_000_000
         }),
         ILLEGAL_NAME("IllegalName", { suspected ->
             hasIllegalName(suspected)

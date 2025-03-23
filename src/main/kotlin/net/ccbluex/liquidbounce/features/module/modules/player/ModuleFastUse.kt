@@ -67,7 +67,7 @@ object ModuleFastUse : ClientModule("FastUse", Category.PLAYER, aliases = arrayO
     private val packetType by enumChoice("PacketType", MovePacketType.FULL)
 
     val accelerateNow: Boolean
-        get() = if (conditions.all { it.meetsConditions() }) {
+        get() = if (conditions.any { it.meetsConditions() }) {
             false
         } else {
             player.isUsingItem && player.activeItem.isConsumable

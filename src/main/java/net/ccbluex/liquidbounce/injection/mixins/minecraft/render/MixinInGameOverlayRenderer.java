@@ -40,7 +40,7 @@ public abstract class MixinInGameOverlayRenderer {
         return vertexConsumer.color(red,
                 green,
                 blue,
-                ModuleAntiBlind.INSTANCE.getRunning() ? ModuleAntiBlind.INSTANCE.getFireOpacityPercentage() * alpha : alpha);
+                ModuleAntiBlind.INSTANCE.getFireOpacityPercentage() * alpha);
     }
 
     @Inject(method = "renderInWallOverlay", at = @At("HEAD"), cancellable = true)
