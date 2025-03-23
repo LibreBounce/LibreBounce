@@ -161,7 +161,7 @@
   .choices {
     border-left: solid 2px $accent-color;
     color: $clickgui-text-color;
-    padding: 0 7px;
+    padding: 7px 7px;
     display: flex;
     flex-wrap: wrap;
     gap: 7px;
