@@ -74,11 +74,21 @@
     </div>
 
     {#if expanded && skipAnimationDelay}
-        <div in:slide|global={{duration: 200, axis: "y"}} out:slide|global={{duration: 200, axis: "y"}} class="choices">
+        <div
+                in:slide|global={{
+                    duration: ((cSetting.choices.length-1) * 20) + 200,
+                    axis: "y"
+                }}
+                out:slide|global={{
+                    duration: 200,
+                    axis: "y"
+                }}
+                class="choices"
+        >
             {#each cSetting.choices as choice, index}
                 <span
                         class="choice"
-                        in:fly|global={{duration: 300, y: -10, delay: index * 20, easing: backOut}}
+                        in:fly|global={{duration: 200, y: -10, delay: index * 20, easing: backOut}}
                         class:active={cSetting.value.includes(choice)}
                         class:error={errorValue === choice}
                         on:click={() => {
