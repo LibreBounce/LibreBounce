@@ -45,6 +45,8 @@ import net.minecraft.item.consume.UseAction
 import net.minecraft.registry.RegistryKey
 import net.minecraft.registry.RegistryKeys
 import net.minecraft.registry.entry.RegistryEntry
+import net.minecraft.registry.tag.ItemTags
+import net.minecraft.registry.tag.TagKey
 import net.minecraft.util.math.BlockPos
 import java.util.*
 import kotlin.contracts.ExperimentalContracts
@@ -167,6 +169,29 @@ private fun Item.getAttributeValue(attribute: RegistryEntry<EntityAttribute>): F
 
     return attribInstance.value.toFloat()
 }
+
+fun Item.isIn(tag: TagKey<Item>): Boolean {
+    return this.defaultStack.isIn(tag)
+}
+
+val Item.isSword
+    get() = this.defaultStack.isSword
+
+val ItemStack.isSword
+    get() = this.isIn(ItemTags.SWORDS)
+
+val Item.isPickaxe
+    get() = this.defaultStack.isPickaxe
+
+val ItemStack.isPickaxe
+    get() = this.isIn(ItemTags.PICKAXES)
+
+val Item.isArmor
+    get() = this.defaultStack.isArmor
+
+// TODO: please be enough
+val ItemStack.isArmor
+    get() = this.isIn(ItemTags.TRIMMABLE_ARMOR) || this.isIn(ItemTags.ARMOR_ENCHANTABLE)
 
 fun RegistryKey<Enchantment>.toRegistryEntry(): RegistryEntry<Enchantment> {
     val world = mc.world

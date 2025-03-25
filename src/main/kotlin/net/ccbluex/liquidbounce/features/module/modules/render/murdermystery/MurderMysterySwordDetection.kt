@@ -1,8 +1,9 @@
 package net.ccbluex.liquidbounce.features.module.modules.render.murdermystery
 
+import net.ccbluex.liquidbounce.utils.item.isPickaxe
+import net.ccbluex.liquidbounce.utils.item.isSword
 import net.minecraft.block.Blocks
 import net.minecraft.item.*
-import net.minecraft.registry.tag.ItemTags
 
 object MurderMysterySwordDetection {
     private val KNOWN_SWORD_ITEMS =
@@ -68,8 +69,8 @@ object MurderMysterySwordDetection {
         )
 
     fun isSword(item: Item?): Boolean {
-        if (item?.defaultStack?.isIn(ItemTags.SWORDS) == true
-            || item?.defaultStack?.isIn(ItemTags.PICKAXES) == true) {
+        if (item?.isSword == true
+            || item?.isPickaxe == true) {
             return true
         }
         return when (item) {

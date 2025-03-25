@@ -26,6 +26,7 @@ import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.ModuleAntiBot
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.ModuleAntiBot.isADuplicate
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.ModuleAntiBot.isGameProfileUnique
+import net.ccbluex.liquidbounce.utils.item.isArmor
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.item.ItemStack
@@ -102,7 +103,7 @@ object MatrixAntiBotMode : Choice("Matrix"), ModuleAntiBot.IAntiBotMode {
         return (0..3).all {
             val stack = entity.inventory.getStack(it)
             // TODO: please works
-            stack.isIn(ItemTags.ARMOR_ENCHANTABLE) && stack.hasEnchantments()
+            stack.isArmor && stack.hasEnchantments()
         }
     }
 
