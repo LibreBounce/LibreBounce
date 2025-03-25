@@ -37,7 +37,7 @@
             cSetting.value = [...cSetting.value, v]
         }
 
-        setting = { ...cSetting };
+        setting = {...cSetting};
         dispatch("change");
     }
 
@@ -64,16 +64,12 @@
     <div class="head" class:expanded on:contextmenu|preventDefault={toggleExpanded}>
         <div class="title">{$spaceSeperatedNames ? convertToSpacedString(cSetting.name) : cSetting.name}</div>
         <div class="amount">{cSetting.value.length}/{cSetting.choices.length}</div>
-        <ExpandArrow bind:expanded on:click={() => skipAnimationDelay = true} />
+        <ExpandArrow bind:expanded on:click={() => skipAnimationDelay = true}/>
     </div>
 
     {#if expanded && skipAnimationDelay}
         <div
-                in:slide|global={{
-                    duration: ((cSetting.choices.length-1) * 20) + 200,
-                    axis: "y"
-                }}
-                out:slide|global={{
+                transition:slide|global={{
                     duration: 200,
                     axis: "y"
                 }}
@@ -136,10 +132,10 @@
   }
 
   .amount {
-      letter-spacing: 1px;
-      font-weight: 500;
-      font-size: 12px;
-      font-family: monospace;
+    letter-spacing: 1px;
+    font-weight: 500;
+    font-size: 12px;
+    font-family: monospace;
   }
 
   .head {
