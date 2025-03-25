@@ -61,16 +61,10 @@
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div class="setting">
-    <div class="head" class:expanded on:contextmenu|preventDefault={toggleExpanded} on:click|preventDefault={toggleExpanded}>
+    <div class="head" class:expanded on:contextmenu|preventDefault={toggleExpanded}>
         <div class="title">{$spaceSeperatedNames ? convertToSpacedString(cSetting.name) : cSetting.name}</div>
-        <div class="right">
-            <span>
-                <span class="value">{cSetting.value.length}</span>
-                /
-                <span class="value">{cSetting.choices.length}</span>
-            </span>
-            <ExpandArrow bind:expanded on:click={() => skipAnimationDelay = true} />
-        </div>
+        <div class="amount">{cSetting.value.length}/{cSetting.choices.length}</div>
+        <ExpandArrow bind:expanded on:click={() => skipAnimationDelay = true} />
     </div>
 
     {#if expanded && skipAnimationDelay}
@@ -141,26 +135,16 @@
     }
   }
 
-  .right {
-    display: flex;
-    align-items: center;
-
-    & > span {
+  .amount {
       letter-spacing: 1px;
       font-weight: 500;
       font-size: 12px;
-      border: none;
-    }
-
-    & > span > .value {
       font-family: monospace;
-      line-height: 0;
-    }
   }
 
   .head {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: 1fr max-content max-content;
     transition: ease margin-bottom .2s;
 
     &.expanded {
