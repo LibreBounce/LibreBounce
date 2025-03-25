@@ -68,17 +68,10 @@
     </div>
 
     {#if expanded && skipAnimationDelay}
-        <div
-                transition:slide|global={{
-                    duration: 200,
-                    axis: "y"
-                }}
-                class="choices"
-        >
-            {#each cSetting.choices as choice, index}
-                <span
+        <div class="choices" transition:slide|global={{duration: 200, axis: "y"}}>
+            {#each cSetting.choices as choice}
+                <div
                         class="choice"
-                        in:fly|global={{duration: 200, y: -10, delay: index * 20, easing: backOut}}
                         class:active={cSetting.value.includes(choice)}
                         class:error={errorValue === choice}
                         on:click={() => {
@@ -86,7 +79,7 @@
                         }}
                 >
                     {$spaceSeperatedNames ? convertToSpacedString(choice) : choice}
-                </span>
+                </div>
             {/each}
         </div>
     {/if}
