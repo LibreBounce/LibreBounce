@@ -1,11 +1,10 @@
 <script lang="ts">
     import {createEventDispatcher, onMount} from "svelte";
     import type {ModuleSetting, MultiChooseSetting,} from "../../../integration/types";
-    import {fly, slide} from "svelte/transition";
+    import {slide} from "svelte/transition";
     import {convertToSpacedString, spaceSeperatedNames} from "../../../theme/theme_config";
     import ExpandArrow from "./common/ExpandArrow.svelte";
     import {setItem} from "../../../integration/persistent_storage";
-    import {backOut} from "svelte/easing";
 
     export let setting: ModuleSetting;
     export let path: string;
