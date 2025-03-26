@@ -6,10 +6,10 @@ import net.ccbluex.liquidbounce.event.Sequence
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.utils.inventory.HotbarItemSlot
 import net.ccbluex.liquidbounce.utils.item.durability
+import net.ccbluex.liquidbounce.utils.item.isArmor
 import net.ccbluex.liquidbounce.utils.item.type
 import net.minecraft.client.gui.screen.ingame.HandledScreen
 import net.minecraft.client.gui.screen.ingame.InventoryScreen
-import net.minecraft.item.ArmorItem
 
 object AutoArmorSaveArmor : ToggleableConfigurable(ModuleAutoArmor, "SaveArmor", true) {
     val durabilityThreshold by int("DurabilityThreshold", 24, 0..100)
@@ -44,7 +44,7 @@ object AutoArmorSaveArmor : ToggleableConfigurable(ModuleAutoArmor, "SaveArmor",
         )
 
         // All conditions must be met for this feature to work.
-        if (conditions.any { it == false }) {
+        if (conditions.any { !it }) {
             return@tickHandler
         }
 
@@ -81,7 +81,7 @@ object AutoArmorSaveArmor : ToggleableConfigurable(ModuleAutoArmor, "SaveArmor",
             .findBestArmorPieces(durabilityThreshold = durabilityThreshold)
             .values
             .filterNotNull()
-            .filter { !it.isAlreadyEquipped && it.itemSlot.itemStack.item is ArmorItem }
+            .filter { !it.isAlreadyEquipped && it.itemSlot.itemStack.isArmor }
 
         val hasAnyHotBarReplacement = booleanArrayOf(
             UseHotbar.enabled,
@@ -96,7 +96,7 @@ object AutoArmorSaveArmor : ToggleableConfigurable(ModuleAutoArmor, "SaveArmor",
             return@tickHandler
         }
 
-        val playerArmor = player.inventory.armor.filter { it.item is ArmorItem }
+        val playerArmor = player.inventory.armor.filter { it.isArmor }
         val armorToEquip = armorToEquipWithSlots.map { it.itemSlot.itemStack.item as ArmorItem }
 
         val hasArmorToReplace = playerArmor.any { armorStack ->

@@ -52,7 +52,8 @@ object KillAuraTargetTracker : TargetTracker() {
             return true
         }
 
-        return !entity.blockedByShield(world.damageSources.playerAttack(player)) || !entity.wouldBlockHit(player)
+        // TODO: find `blockedByShield`
+        return /*!entity.blockedByShield(world.damageSources.playerAttack(player)) || */!entity.wouldBlockHit(player)
     }
 
 }

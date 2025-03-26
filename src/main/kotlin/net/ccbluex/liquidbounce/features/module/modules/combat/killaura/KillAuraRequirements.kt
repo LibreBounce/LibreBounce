@@ -23,9 +23,9 @@ import net.ccbluex.liquidbounce.utils.client.isOlderThanOrEqual1_8
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.input.InputTracker.isPressedOnAny
+import net.ccbluex.liquidbounce.utils.item.isSword
 import net.minecraft.item.AxeItem
 import net.minecraft.item.Item
-import net.minecraft.item.SwordItem
 
 object KillAuraRequirements : Configurable("Requirements") {
 
@@ -38,7 +38,7 @@ object KillAuraRequirements : Configurable("Requirements") {
                 return false
             }
 
-            if (requiresWeapon && !player.inventory.mainHandStack.item.isWeapon()) {
+            if (requiresWeapon && !player.mainHandStack.item.isWeapon()) {
                 return false
             }
 
@@ -48,6 +48,6 @@ object KillAuraRequirements : Configurable("Requirements") {
     /**
      * Check if the item is a weapon.
      */
-    fun Item.isWeapon() = !isOlderThanOrEqual1_8 && this is AxeItem || this is SwordItem
+    private fun Item.isWeapon() = !isOlderThanOrEqual1_8 && this is AxeItem || this.isSword
 
 }
