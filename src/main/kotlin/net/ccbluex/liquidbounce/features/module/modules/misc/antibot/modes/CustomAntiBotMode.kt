@@ -92,8 +92,7 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
             // Helmet only
             TURTLE_SCUTE("TurtleScute", ArmorMaterials.TURTLE_SCUTE),
             PUMPKIN("Pumpkin", Items.CARVED_PUMPKIN),
-            SKULL("Skull", { (it.item as? BlockItem)?.block is AbstractSkullBlock }),
-            ;
+            SKULL("Skull", { (it.item as? BlockItem)?.block is AbstractSkullBlock });
 
             constructor(choiceName: String, material: ArmorMaterial) : this(
                 choiceName,
