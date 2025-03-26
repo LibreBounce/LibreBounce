@@ -100,6 +100,7 @@
     "minecraft.render.MixinItemRender",
     "minecraft.render.MixinLightmapTextureManager",
     "minecraft.render.MixinLivingEntityRenderer",
+    "minecraft.render.MixinMapRenderer",
     "minecraft.render.MixinOutlineVertexConsumerProvider",
     "minecraft.render.MixinPlayerEntityRenderer",
     "minecraft.render.MixinRenderTickCounter",
