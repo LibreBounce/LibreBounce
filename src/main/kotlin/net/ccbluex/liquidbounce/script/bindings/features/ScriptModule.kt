@@ -38,9 +38,7 @@ class ScriptModule(val script: PolyglotScript, moduleObject: Map<String, Any>) :
     override var tag: String? = null
         set(value) {
             field = value
-            if (field != null) {
-                EventManager.callEvent(RefreshArrayListEvent)
-            }
+            EventManager.callEvent(RefreshArrayListEvent)
         }
 
     private var _description: String? = null
