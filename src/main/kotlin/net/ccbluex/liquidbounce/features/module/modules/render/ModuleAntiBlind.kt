@@ -30,6 +30,7 @@ import net.ccbluex.liquidbounce.features.module.ClientModule
 @Suppress("MagicNumber")
 object ModuleAntiBlind : ClientModule("AntiBlind", Category.RENDER, aliases = arrayOf("NoRender")) {
     private val render = multiEnumChoice("DoRender",
+        DoRender.ARMOR,
         DoRender.ENCHANT_TABLE_BOOK,
         DoRender.EAT_PARTICLES,
         DoRender.BLOCK_BREAK_PARTICLES,
@@ -65,6 +66,7 @@ enum class DoRender(override val choiceName: String) : NamedChoice {
     BLINDING("Blinding"),
     DARKNESS("Darkness"),
     NAUSEA("Nausea"),
+    ARMOR("Armor"),
     ENCHANT_TABLE_BOOK("EnchantTableBook"),
     EAT_PARTICLES("EatParticles"),
     BLOCK_BREAK_PARTICLES("BlockBreakParticles"),
