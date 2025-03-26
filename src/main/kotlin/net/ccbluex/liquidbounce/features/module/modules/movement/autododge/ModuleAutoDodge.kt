@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
+@file:Suppress("WildcardImport")
 package net.ccbluex.liquidbounce.features.module.modules.movement.autododge
 
 import net.ccbluex.liquidbounce.config.types.NamedChoice
@@ -85,8 +86,8 @@ object ModuleAutoDodge : ClientModule("AutoDodge", Category.COMBAT) {
         }
 
         if (dodgePlan.shouldJump && AllowRotationChange.allowJump && player.isOnGround) {
-            once<MovementInputEvent> { event ->
-                event.jump = true
+            once<MovementInputEvent> { movementInputEvent ->
+                movementInputEvent.jump = true
             }
         }
 
