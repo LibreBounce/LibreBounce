@@ -38,8 +38,8 @@ import net.minecraft.client.gl.ShaderProgramKeys
 import net.minecraft.client.gl.VertexBuffer
 import net.minecraft.client.render.BufferBuilder
 import net.minecraft.client.render.Camera
-import net.minecraft.client.render.VertexFormat.DrawMode
-import net.minecraft.client.render.VertexFormats
+import com.mojang.blaze3d.vertex.VertexFormat.DrawMode
+import com.mojang.blaze3d.vertex.VertexFormats
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.entity.Entity
 import org.joml.Matrix4f

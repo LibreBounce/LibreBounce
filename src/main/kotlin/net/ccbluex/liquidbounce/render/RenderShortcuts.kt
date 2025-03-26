@@ -20,7 +20,7 @@
 
 package net.ccbluex.liquidbounce.render
 
-import com.mojang.blaze3d.platform.GlStateManager
+import com.mojang.blaze3d.opengl.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.engine.Vec3
@@ -30,7 +30,7 @@ import net.ccbluex.liquidbounce.utils.client.mc
 import net.minecraft.client.gl.ShaderProgramKey
 import net.minecraft.client.gl.ShaderProgramKeys
 import net.minecraft.client.render.*
-import net.minecraft.client.render.VertexFormat.DrawMode
+import com.mojang.blaze3d.vertex.VertexFormat.DrawMode
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.util.math.Box
 import net.minecraft.util.math.Direction

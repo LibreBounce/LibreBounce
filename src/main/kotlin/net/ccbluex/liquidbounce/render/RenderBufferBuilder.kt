@@ -29,7 +29,7 @@ import net.minecraft.client.gl.ShaderProgramKey
 import net.minecraft.client.gl.ShaderProgramKeys
 import net.minecraft.client.gl.VertexBuffer
 import net.minecraft.client.render.*
-import net.minecraft.client.render.VertexFormat.DrawMode
+import com.mojang.blaze3d.vertex.VertexFormat.DrawMode
 import net.minecraft.util.math.Box
 import net.minecraft.util.math.Vec3d
 

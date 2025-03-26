@@ -28,7 +28,7 @@ import net.ccbluex.liquidbounce.render.engine.font.processor.MinecraftTextProces
 import net.ccbluex.liquidbounce.render.engine.font.processor.TextProcessor
 import net.ccbluex.liquidbounce.utils.client.asText
 import net.minecraft.client.render.Tessellator
-import net.minecraft.client.render.VertexFormat
+import com.mojang.blaze3d.vertex.VertexFormat
 import net.minecraft.text.Text
 import net.minecraft.util.math.Vec3d
 import org.joml.Vector3f
