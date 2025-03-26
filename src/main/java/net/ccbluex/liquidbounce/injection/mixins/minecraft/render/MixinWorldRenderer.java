@@ -169,7 +169,7 @@ public abstract class MixinWorldRenderer {
 
     @Inject(method = "renderEntity", at = @At("HEAD"))
     private void injectChamsForEntity(Entity entity, double cameraX, double cameraY, double cameraZ, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, CallbackInfo ci) {
-        if (ModuleChams.INSTANCE.getRunning() && CombatExtensionsKt.getCombatTargetsConfigurable().shouldShow(entity)) {
+        if (ModuleChams.INSTANCE.getRunning() && CombatExtensionsKt.shouldBeAttacked(entity)) {
             glEnable(GL_POLYGON_OFFSET_FILL);
             glPolygonOffset(1f, -1000000F);
 
@@ -179,7 +179,7 @@ public abstract class MixinWorldRenderer {
 
     @Inject(method = "renderEntity", at = @At("RETURN"))
     private void injectChamsForEntityPost(Entity entity, double cameraX, double cameraY, double cameraZ, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, CallbackInfo ci) {
-        if (ModuleChams.INSTANCE.getRunning() && CombatExtensionsKt.getCombatTargetsConfigurable().shouldShow(entity) && this.isRenderingChams) {
+        if (ModuleChams.INSTANCE.getRunning() && CombatExtensionsKt.shouldBeAttacked(entity) && this.isRenderingChams) {
             glPolygonOffset(1f, 1000000F);
             glDisable(GL_POLYGON_OFFSET_FILL);
 

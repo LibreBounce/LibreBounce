@@ -18,6 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
+import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.MouseRotationEvent
 import net.ccbluex.liquidbounce.event.events.RotationUpdateEvent
@@ -54,6 +55,7 @@ import net.minecraft.util.math.MathHelper
  *
  * Automatically faces selected entities around you.
  */
+@Suppress("MagicNumber")
 object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf("AimAssist", "AutoAim")) {
 
     private val range = float("Range", 4.2f, 1f..8f)
@@ -79,13 +81,12 @@ object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf(
         )
     }
 
-    private val ignoreOpenScreen by boolean("IgnoreOpenScreen", false)
-    private val ignoreOpenContainer by boolean("IgnoreOpenContainer", false)
+    private val ignores by multiEnumChoice<IgnoreOpened>("Ignore")
 
     private var targetRotation: Rotation? = null
     private var playerRotation: Rotation? = null
 
-    @Suppress("unused")
+    @Suppress("unused", "ComplexCondition")
     private val tickHandler = handler<RotationUpdateEvent> { _ ->
         playerRotation = player.rotation
 
@@ -123,7 +124,8 @@ object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf(
         targetTracker.reset()
     }
 
-    val renderHandler = handler<WorldRenderEvent> { event ->
+    @Suppress("unused")
+    private val renderHandler = handler<WorldRenderEvent> { event ->
         val matrixStack = event.matrixStack
         val partialTicks = event.partialTicks
         val target = targetTracker.target ?: return@handler
@@ -132,11 +134,13 @@ object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf(
             targetRenderer.render(this, target, partialTicks)
         }
 
-        if (!ignoreOpenScreen && mc.currentScreen != null) {
+        if (IgnoreOpened.SCREEN !in ignores && mc.currentScreen != null) {
             return@handler
         }
 
-        if (!ignoreOpenContainer && (InventoryManager.isInventoryOpen || mc.currentScreen is HandledScreen<*>)) {
+        if (IgnoreOpened.CONTAINER !in ignores
+            && (InventoryManager.isInventoryOpen || mc.currentScreen is HandledScreen<*>)
+        ) {
             return@handler
         }
 
@@ -153,7 +157,8 @@ object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf(
         }
     }
 
-    val mouseMovement = handler<MouseRotationEvent> { event ->
+    @Suppress("unused", "MagicNumber")
+    private val mouseMovement = handler<MouseRotationEvent> { event ->
         val f = event.cursorDeltaY.toFloat() * 0.15f
         val g = event.cursorDeltaX.toFloat() * 0.15f
 
@@ -195,4 +200,10 @@ object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf(
         return null
     }
 
+    private enum class IgnoreOpened(
+        override val choiceName: String
+    ) : NamedChoice {
+        SCREEN("Screen"),
+        CONTAINER("Container")
+    }
 }

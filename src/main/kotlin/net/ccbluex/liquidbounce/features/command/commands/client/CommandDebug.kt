@@ -33,17 +33,16 @@ import net.ccbluex.liquidbounce.api.core.HttpMethod
 import net.ccbluex.liquidbounce.api.core.asForm
 import net.ccbluex.liquidbounce.api.core.parse
 import net.ccbluex.liquidbounce.config.AutoConfig.serializeAutoConfig
-import net.ccbluex.liquidbounce.config.ConfigSystem
 import net.ccbluex.liquidbounce.config.gson.publicGson
 import net.ccbluex.liquidbounce.features.command.CommandFactory
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.module.ModuleManager
+import net.ccbluex.liquidbounce.features.module.modules.client.ModuleTargets
 import net.ccbluex.liquidbounce.lang.LanguageManager
 import net.ccbluex.liquidbounce.script.ScriptManager
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.client.usesViaFabricPlus
-import net.ccbluex.liquidbounce.utils.combat.combatTargetsConfigurable
 import net.minecraft.SharedConstants
 import net.minecraft.text.ClickEvent
 import net.minecraft.text.Text
@@ -162,7 +161,7 @@ object CommandDebug : CommandFactory {
             }
         })
 
-        add("enemies", ConfigSystem.serializeConfigurable(combatTargetsConfigurable, publicGson))
+        add("enemies", publicGson.toJsonTree(ModuleTargets.combat, Enum::class.javaObjectType))
     }
 
     /**
