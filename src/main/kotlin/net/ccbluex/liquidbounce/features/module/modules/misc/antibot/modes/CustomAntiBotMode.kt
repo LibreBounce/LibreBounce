@@ -61,7 +61,6 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
         val alwaysInRadiusRange by float("AlwaysInRadiusRange", 20f, 5f..30f)
     }
 
-    // LivingTime in 1.8.9
     private object Age : ToggleableConfigurable(ModuleAntiBot, "Age", false) {
         val minimum by int("Minimum", 20, 0..120, "ticks")
     }
