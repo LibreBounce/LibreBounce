@@ -63,10 +63,14 @@ public abstract class MixinClientPlayerInteractionManager {
     /**
      * Hook into updateBlockBreakingProgress method at HEAD and call BlockBreakingProgress event.
      */
-    @Inject(method = "updateBlockBreakingProgress", at = @At(value = "HEAD"))
-    private void hookBlockBreakingProgress(BlockPos pos, Direction direction, CallbackInfoReturnable<Boolean> cir) {
+    @Inject(method = "updateBlockBreakingProgress", at = @At(value = "HEAD"), cancellable = true)
+    private void hookBlockBreakingProgress(BlockPos pos, Direction direction, CallbackInfoReturnable<Boolean> callbackInfo) {
         final BlockBreakingProgressEvent blockBreakingProgressEvent = new BlockBreakingProgressEvent(pos);
         EventManager.INSTANCE.callEvent(blockBreakingProgressEvent);
+
+        if (blockBreakingProgressEvent.isCancelled()) {
+            callbackInfo.cancel();
+        }
     }
 
     /**

@@ -20,6 +20,8 @@ package net.ccbluex.liquidbounce.features.module.modules.world.nuker.mode
 
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.event.events.BlockBreakingProgressEvent
+import net.ccbluex.liquidbounce.event.events.CancelBlockBreakingEvent
 import net.ccbluex.liquidbounce.event.events.RotationUpdateEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
@@ -45,6 +47,8 @@ import kotlin.math.max
 object LegitNukerMode : Choice("Legit") {
 
     private var currentTarget: BlockPos? = null
+    private var breaking = false
+    private var ourBreakingEvent = false
 
     override val parent: ChoiceConfigurable<Choice>
         get() = mode
@@ -85,8 +89,11 @@ object LegitNukerMode : Choice("Legit") {
 
     @Suppress("unused")
     private val tickHandler = tickHandler {
+        breaking = false
+
         val currentTarget = currentTarget ?: return@tickHandler
         val state = currentTarget.getState() ?: return@tickHandler
+
 
         if (ModulePacketMine.running) {
             return@tickHandler
@@ -107,8 +114,27 @@ object LegitNukerMode : Choice("Legit") {
             return@tickHandler
         }
 
+        breaking = true
+        ourBreakingEvent = true
+
         doBreak(rayTraceResult, forceImmediateBreak)
+
         wasTarget = currentTarget
+        ourBreakingEvent = false
+    }
+
+    // Shitty hack to fix ABORT_BREAK being sent immediately after START_BREAK
+    // There should really be a block breaking manager
+    @Suppress("unused")
+    private val cancelBreakHandler = handler<CancelBlockBreakingEvent> { event ->
+        if (breaking) event.cancelEvent()
+    }
+
+    // Shitty hack to fix left clicking doubling break speed
+    // There should really be a block breaking manager
+    @Suppress("unused")
+    private val blockBreakingHandler = handler<BlockBreakingProgressEvent> { event ->
+        if (!ourBreakingEvent) event.cancelEvent()
     }
 
     /**
