@@ -18,6 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.autododge
 
+import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -30,11 +31,13 @@ import net.ccbluex.liquidbounce.utils.client.PacketQueueManager
 import net.ccbluex.liquidbounce.utils.client.Timer
 import net.ccbluex.liquidbounce.utils.entity.*
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
+import net.minecraft.client.gui.screen.ingame.GenericContainerScreen
 import net.minecraft.client.world.ClientWorld
 import net.minecraft.entity.projectile.ArrowEntity
 import net.minecraft.util.math.Box
 import net.minecraft.util.math.Vec3d
 
+@Suppress("MagicNumber")
 object ModuleAutoDodge : ClientModule("AutoDodge", Category.COMBAT) {
     private object AllowRotationChange : ToggleableConfigurable(this, "AllowRotationChange", false) {
         val allowJump by boolean("AllowJump", true)
@@ -44,23 +47,23 @@ object ModuleAutoDodge : ClientModule("AutoDodge", Category.COMBAT) {
         val timerSpeed by float("TimerSpeed", 2.0F, 1.0F..10.0F, suffix = "x")
     }
 
+    private val ignore by multiEnumChoice("Ignore", Ignore.entries)
+
     init {
         tree(AllowRotationChange)
         tree(AllowTimer)
     }
 
+    override val running: Boolean get() =
+        super.running
+           // We aren't where we are because of blink. So this module shall not cause any disturbance in that case.
+        && !ModuleBlink.running
+        && !ModuleMurderMystery.disallowsArrowDodge()
+        && !(Ignore.OPEN_INVENTORY !in ignore && mc.currentScreen is GenericContainerScreen)
+        && !(Ignore.USING_ITEM !in ignore && player.isUsingItem)
+
     @Suppress("unused")
     val tickRep = handler<MovementInputEvent> { event ->
-        // We aren't where we are because of blink. So this module shall not cause any disturbance in that case.
-        if (ModuleBlink.running) {
-            return@handler
-        }
-        if (ModuleMurderMystery.disallowsArrowDodge()) {
-            return@handler
-        }
-
-        val world = world
-
         val arrows = findFlyingArrows(world)
 
         val simulatedPlayer = CachedPlayerSimulation(PlayerSimulationCache.getSimulationForLocalPlayer())
@@ -90,7 +93,7 @@ object ModuleAutoDodge : ClientModule("AutoDodge", Category.COMBAT) {
         }
     }
 
-    fun findFlyingArrows(world: ClientWorld): List<ArrowEntity> {
+    private fun findFlyingArrows(world: ClientWorld): List<ArrowEntity> {
         return world.entities.mapNotNull {
             if (it !is ArrowEntity) {
                 return@mapNotNull null
@@ -104,7 +107,7 @@ object ModuleAutoDodge : ClientModule("AutoDodge", Category.COMBAT) {
         }
     }
 
-    fun <T : PlayerSimulation> getInflictedHits(
+    private fun <T : PlayerSimulation> getInflictedHits(
         simulatedPlayer: T,
         arrows: List<ArrowEntity>,
         maxTicks: Int = 80,
@@ -150,6 +153,7 @@ object ModuleAutoDodge : ClientModule("AutoDodge", Category.COMBAT) {
     /**
      * Returns the index of the first position packet that avoids all arrows in the next X seconds
      */
+    @Suppress("ReturnCount")
     fun findAvoidingArrowPosition(): EvadingPacket? {
         var packetIndex = 0
 
@@ -205,4 +209,11 @@ object ModuleAutoDodge : ClientModule("AutoDodge", Category.COMBAT) {
         val prevArrowPos: Vec3d,
         val arrowVelocity: Vec3d,
     )
+
+    private enum class Ignore(
+        override val choiceName: String
+    ) : NamedChoice {
+        OPEN_INVENTORY("OpenInventory"),
+        USING_ITEM("UsingItem")
+    }
 }
