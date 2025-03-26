@@ -34,8 +34,6 @@ fun String.stripMinecraftColorCodes(): String {
     return COLOR_PATTERN.matcher(this).replaceAll("")
 }
 
-fun text(): MutableText = Text.literal("")
-
 fun String.asText(): MutableText = Text.literal(this)
 
 fun Text.asNbt(world: World? = null): NbtString =
@@ -43,7 +41,10 @@ fun Text.asNbt(world: World? = null): NbtString =
         Text.Serialization.toJsonString(this, world?.registryManager ?: DynamicRegistryManager.EMPTY)
     )
 
-fun Text.convertToString(): String = "${string}${siblings.joinToString(separator = "") { it.convertToString() }}"
+fun Text.convertToString(): String = buildString {
+    append(string)
+    siblings.forEach { append(it.convertToString()) }
+}
 
 fun OrderedText.toText(): Text {
     val textSnippets = mutableListOf<Pair<String, Style>>()
