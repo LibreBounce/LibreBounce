@@ -30,6 +30,7 @@ import net.ccbluex.liquidbounce.features.module.modules.render.murdermystery.Mod
 import net.ccbluex.liquidbounce.utils.client.PacketQueueManager
 import net.ccbluex.liquidbounce.utils.client.Timer
 import net.ccbluex.liquidbounce.utils.entity.*
+import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen
 import net.minecraft.client.world.ClientWorld
@@ -59,7 +60,8 @@ object ModuleAutoDodge : ClientModule("AutoDodge", Category.COMBAT) {
            // We aren't where we are because of blink. So this module shall not cause any disturbance in that case.
         && !ModuleBlink.running
         && !ModuleMurderMystery.disallowsArrowDodge()
-        && !(Ignore.OPEN_INVENTORY !in ignore && mc.currentScreen is GenericContainerScreen)
+        && !(Ignore.OPEN_INVENTORY !in ignore
+            && (InventoryManager.isInventoryOpen || mc.currentScreen is GenericContainerScreen))
         && !(Ignore.USING_ITEM !in ignore && player.isUsingItem)
 
     @Suppress("unused")
