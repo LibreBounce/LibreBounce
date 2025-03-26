@@ -51,16 +51,15 @@ object Reconnect : EventListener {
         val serverInfo = lastServer ?: error("no known last server")
         val serverAddress = ServerAddress.parse(serverInfo.address)
 
-        RenderSystem.recordRenderCall {
-            ConnectScreen.connect(
-                MultiplayerScreen(TitleScreen()),
-                mc,
-                serverAddress,
-                serverInfo,
-                false,
-                null
-            )
-        }
+        // TODO: please work (removed render thread wrapping)
+        ConnectScreen.connect(
+            MultiplayerScreen(TitleScreen()),
+            mc,
+            serverAddress,
+            serverInfo,
+            false,
+            null
+        )
     }
 
     /**

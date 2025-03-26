@@ -21,8 +21,7 @@ object CommandClientBrowserSubcommand {
                 .build()
         ).handler { command, args ->
             chat(regular("Opening browser..."))
-            RenderSystem.recordRenderCall {
-                mc.setScreen(BrowserScreen(args[0] as String))
-            }
+            // TODO: please work (removed render thread wrapping)
+            mc.setScreen(BrowserScreen(args[0] as String))
         }.build()
 }

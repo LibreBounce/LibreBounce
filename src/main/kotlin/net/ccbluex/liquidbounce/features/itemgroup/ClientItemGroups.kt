@@ -51,9 +51,7 @@ object ClientItemGroups : Configurable("tabs") {
         containers.add(compoundString)
         ConfigSystem.storeConfigurable(this)
 
-        RenderSystem.recordRenderCall {
-            chat("§aAdded container to creative inventory")
-        }
+        chat("§aAdded container to creative inventory")
     }
 
     fun containersAsItemStacks(): List<ItemStack> {

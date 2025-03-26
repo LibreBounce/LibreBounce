@@ -52,9 +52,7 @@ object ModuleTeleport : ClientModule("Teleport", Category.EXPLOIT, aliases = arr
             chat(warning(message("useCommand")))
 
             // Disables module on next render tick
-            RenderSystem.recordRenderCall {
-                this.enabled = false
-            }
+            this.enabled = false
         }
     }
 

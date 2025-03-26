@@ -71,7 +71,7 @@ object HideAppearance : EventListener {
     var isHidingNow = false
         set(value) {
             field = value
-            RenderSystem.recordRenderCall(::updateClient)
+            updateClient()
 
             if (modMenuPresent) {
                 if (value) {
