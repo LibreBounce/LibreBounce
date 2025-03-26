@@ -12,7 +12,6 @@
 
     const cSetting = setting as TogglableSetting;
     const thisPath = `${path}.${cSetting.name}`;
-    let skipAnimationDelay = false;
 
     const dispatch = createEventDispatcher();
 
@@ -31,7 +30,6 @@
 
     function toggleExpanded() {
         expanded = !expanded;
-        skipAnimationDelay = true;
     }
 </script>
 
@@ -44,7 +42,7 @@
                 bind:value={enabledSetting.value}
                 on:change={handleChange}
             />
-            <ExpandArrow bind:expanded on:click={() => skipAnimationDelay = true} />
+            <ExpandArrow bind:expanded />
         </div>
     {:else}
         <div class="head" class:expanded>
@@ -59,7 +57,7 @@
     {#if expanded}
         <div class="nested-settings">
             {#each nestedSettings as setting (setting.name)}
-                <GenericSetting {skipAnimationDelay} path={thisPath} bind:setting on:change={handleChange} />
+                <GenericSetting  path={thisPath} bind:setting on:change={handleChange} />
             {/each}
         </div>
     {/if}

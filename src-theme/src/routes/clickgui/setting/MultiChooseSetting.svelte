@@ -1,5 +1,5 @@
 <script lang="ts">
-    import {createEventDispatcher, onMount} from "svelte";
+    import {createEventDispatcher} from "svelte";
     import type {ModuleSetting, MultiChooseSetting,} from "../../../integration/types";
     import {slide} from "svelte/transition";
     import {convertToSpacedString, spaceSeperatedNames} from "../../../theme/theme_config";
@@ -41,20 +41,12 @@
     }
 
     let expanded = localStorage.getItem(thisPath) === "true";
-    let skipAnimationDelay = false;
 
     $: setItem(thisPath, expanded.toString());
 
     function toggleExpanded() {
         expanded = !expanded;
-        skipAnimationDelay = true;
     }
-
-    onMount(() => {
-        setTimeout(() => {
-            skipAnimationDelay = true;
-        }, 200)
-    });
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -63,10 +55,10 @@
     <div class="head" class:expanded on:contextmenu|preventDefault={toggleExpanded}>
         <div class="title">{$spaceSeperatedNames ? convertToSpacedString(cSetting.name) : cSetting.name}</div>
         <div class="amount">{cSetting.value.length}/{cSetting.choices.length}</div>
-        <ExpandArrow bind:expanded on:click={() => skipAnimationDelay = true}/>
+        <ExpandArrow bind:expanded/>
     </div>
 
-    {#if expanded && skipAnimationDelay}
+    {#if expanded}
         <div class="choices" transition:slide|global={{duration: 200, axis: "y"}}>
             {#each cSetting.choices as choice}
                 <div
