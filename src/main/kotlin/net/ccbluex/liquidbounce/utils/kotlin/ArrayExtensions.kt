@@ -20,12 +20,14 @@
 
 package net.ccbluex.liquidbounce.utils.kotlin
 
+import com.google.common.collect.Sets
 import it.unimi.dsi.fastutil.doubles.DoubleIterable
 import it.unimi.dsi.fastutil.doubles.DoubleIterator
 import it.unimi.dsi.fastutil.ints.IntArrayList
 import it.unimi.dsi.fastutil.ints.IntLinkedOpenHashSet
 import it.unimi.dsi.fastutil.ints.IntList
 import it.unimi.dsi.fastutil.ints.IntSet
+import java.util.*
 import java.util.stream.Stream
 
 inline infix operator fun IntRange.contains(range: IntRange): Boolean {
@@ -159,6 +161,18 @@ inline fun Sequence<*>.isNotEmpty(): Boolean {
 inline fun Sequence<*>.isEmpty(): Boolean {
     return !isNotEmpty()
 }
+
+inline fun <reified T : Enum<T>> Array<out T>.toEnumSet(): EnumSet<T> =
+    EnumSet.noneOf(T::class.java).apply { addAll(this@toEnumSet) }
+
+inline fun <T : Enum<T>> Iterable<T>.toEnumSet(clazz: Class<T>): EnumSet<T> =
+    Sets.newEnumSet(this, clazz)
+
+inline fun <reified T : Enum<T>> Iterable<T>.toEnumSet(): EnumSet<T> =
+    toEnumSet(T::class.java)
+
+inline fun <reified T : Enum<T>> emptyEnumSet(): EnumSet<T> =
+    EnumSet.noneOf(T::class.java)
 
 /**
  * Directly map to a typed array

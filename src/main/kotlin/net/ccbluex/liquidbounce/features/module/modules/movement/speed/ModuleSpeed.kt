@@ -20,6 +20,7 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.speed
 
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.features.misc.HideAppearance.isDestructed
 import net.ccbluex.liquidbounce.features.module.Category
@@ -99,9 +100,7 @@ object ModuleSpeed : ClientModule("Speed", Category.MOVEMENT) {
 
     val modes = choices("Mode", 0, this::initializeSpeeds).apply(::tagBy)
 
-    private val notWhileUsingItem by boolean("NotWhileUsingItem", false)
-    private val notDuringScaffold by boolean("NotDuringScaffold", true)
-    private val notWhileSneaking by boolean("NotWhileSneaking", false)
+    private val notCondition by multiEnumChoice("Not", NotCondition.DURING_SCAFFOLD)
 
     private val avoidEdgeBump by boolean("AvoidEdgeBump", true)
 
@@ -130,10 +129,7 @@ object ModuleSpeed : ClientModule("Speed", Category.MOVEMENT) {
     private fun passesRequirements() = when {
         // DO NOT REMOVE - PLAYER COULD BE NULL!
         !inGame || isDestructed -> false
-        notDuringScaffold && ModuleScaffold.running || ModuleFly.running -> false
-        notWhileUsingItem && player.isUsingItem -> false
-        notWhileSneaking && player.isSneaking -> false
-        else -> true
+        else -> notCondition.all { it.testCondition() }
     }
 
     private object OnlyInCombat : ToggleableConfigurable(this, "OnlyInCombat", false) {
@@ -182,6 +178,7 @@ object ModuleSpeed : ClientModule("Speed", Category.MOVEMENT) {
         abstract fun checkPotionEffects(): Boolean
     }
 
+    @Suppress("ReturnCount", "MagicNumber")
     internal fun doOptimizationsPreventJump(): Boolean {
         if (CriticalsJump.running && CriticalsJump.shouldWaitForJump(0.42f)) {
             return true
@@ -194,4 +191,19 @@ object ModuleSpeed : ClientModule("Speed", Category.MOVEMENT) {
         return false
     }
 
+    @Suppress("unused")
+    private enum class NotCondition(
+        override val choiceName: String,
+        val testCondition: () -> Boolean
+    ) : NamedChoice {
+        WHILE_USING_ITEM("WhileUsingItem", {
+            !player.isUsingItem
+        }),
+        DURING_SCAFFOLD("DuringScaffold", {
+            !(ModuleScaffold.running || ModuleFly.running)
+        }),
+        WHILE_SNEAKING("WhileSneaking", {
+            !player.isSneaking
+        })
+    }
 }

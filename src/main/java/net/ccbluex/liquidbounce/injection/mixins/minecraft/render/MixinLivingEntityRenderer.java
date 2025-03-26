@@ -60,7 +60,7 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, S extend
 
     @Unique
     private Pair<Rotation, Rotation> getOverwriteRotation(ModuleRotations.BodyPart bodyPart) {
-        if (ModuleRotations.INSTANCE.getRunning() && ModuleRotations.INSTANCE.getBodyParts().allows(bodyPart)) {
+        if (ModuleRotations.INSTANCE.getRunning() && ModuleRotations.INSTANCE.isPartAllowed(bodyPart)) {
             var rotation = ModuleRotations.INSTANCE.getModelRotation();
             var prevRotation = ModuleRotations.INSTANCE.getPrevModelRotation();
 
