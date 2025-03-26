@@ -45,6 +45,7 @@
     "minecraft.entity.MixinHeadFeatureRenderer",
     "minecraft.entity.MixinLivingEntity",
     "minecraft.entity.MixinLivingEntityCompatibility",
+    "minecraft.entity.MixinMobSpawnerBlockEntityRenderer",
     "minecraft.entity.MixinPlayerEntity",
     "minecraft.entity.MixinPlayerEntityAccessor",
     "minecraft.entity.projectile.MixinFireworkRocketEntity",

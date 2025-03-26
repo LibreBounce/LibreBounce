@@ -31,6 +31,7 @@ import net.ccbluex.liquidbounce.features.module.ClientModule
 object ModuleAntiBlind : ClientModule("AntiBlind", Category.RENDER, aliases = arrayOf("NoRender")) {
     private val render = multiEnumChoice("DoRender",
         DoRender.ARMOR,
+        DoRender.MOB_IN_SPAWNER,
         DoRender.ENCHANT_TABLE_BOOK,
         DoRender.EAT_PARTICLES,
         DoRender.BLOCK_BREAK_PARTICLES,
@@ -67,6 +68,7 @@ enum class DoRender(override val choiceName: String) : NamedChoice {
     DARKNESS("Darkness"),
     NAUSEA("Nausea"),
     ARMOR("Armor"),
+    MOB_IN_SPAWNER("MobInSpawner"),
     ENCHANT_TABLE_BOOK("EnchantTableBook"),
     EAT_PARTICLES("EatParticles"),
     BLOCK_BREAK_PARTICLES("BlockBreakParticles"),
