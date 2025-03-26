@@ -144,6 +144,7 @@ object ModuleTeams : ClientModule("Teams", Category.MISC) {
          */
         @Suppress("ReturnCount")
         fun matchesArmorColor(suspected: PlayerEntity): Boolean {
+            // TODO: hopefully works
             val ownStack = player.inventory.getStack(slot)
             val otherStack = suspected.inventory.getStack(slot)
 
