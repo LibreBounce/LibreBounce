@@ -96,6 +96,7 @@ object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf(
 
         if (OnClick.enabled && (clickTimer.hasElapsed(OnClick.delayUntilStop * 50L)
         || !mc.options.attackKey.isPressedOnAny && ModuleAutoClicker.running)) {
+            targetTracker.reset()
             targetRotation = null
             return@handler
         }
