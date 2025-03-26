@@ -120,6 +120,7 @@
     font-weight: 500;
     font-size: 12px;
     font-family: monospace;
+    transform: translateY(3px);
   }
 
   .head {
