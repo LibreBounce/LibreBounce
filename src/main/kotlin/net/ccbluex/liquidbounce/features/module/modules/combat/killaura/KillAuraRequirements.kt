@@ -23,6 +23,7 @@ import net.ccbluex.liquidbounce.utils.client.isOlderThanOrEqual1_8
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.input.InputTracker.isPressedOnAny
+import net.ccbluex.liquidbounce.utils.item.isSword
 import net.minecraft.item.AxeItem
 import net.minecraft.item.Item
 
@@ -35,11 +36,11 @@ enum class KillAuraRequirements(
         mc.options.attackKey.isPressedOnAny
     }),
     WEAPON("Weapon", {
-        player.inventory.mainHandStack.item.isWeapon()
+        player.mainHandStack.item.isWeapon()
     });
 }
 
 /**
  * Check if the item is a weapon.
  */
-private fun Item.isWeapon() = !isOlderThanOrEqual1_8 && this is AxeItem || this is SwordItem
+private fun Item.isWeapon() = !isOlderThanOrEqual1_8 && this is AxeItem || this.isSword
