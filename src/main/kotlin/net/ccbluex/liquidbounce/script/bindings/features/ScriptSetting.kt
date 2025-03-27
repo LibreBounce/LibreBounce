@@ -152,8 +152,8 @@ object ScriptSetting {
         val choices = value.getMember("choices").`as`(Array<String>::class.java)
             .toHashSet()
 
-        val default = value.getMember("default").`as`(Array<String>::class.java)
-            .toHashSet()
+        val default = value.getMember("default")?.`as`(Array<String>::class.java)
+            ?.toHashSet() ?: HashSet()
 
         val canBeNone = value.getMember("canBeNone")?.asBoolean() ?: true
 
