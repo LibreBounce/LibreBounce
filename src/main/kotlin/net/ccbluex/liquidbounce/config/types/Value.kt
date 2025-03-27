@@ -139,12 +139,10 @@ open class Value<T : Any>(
 
     @ScriptApiRequired
     @JvmName("getValue")
-    fun getValue(): Any {
-        if (this is ChoiceConfigurable<*>) {
-            return this.activeChoice.name
-        }
-
-        return when (val v = get()) {
+    fun getValue(): Any = when (this) {
+        is ChoiceConfigurable<*> -> activeChoice.name
+        is MultiChooseListValue<*> -> "${get().size}/${choices.size}"
+        else -> when (val v = get()) {
             is ClosedFloatingPointRange<*> -> arrayOf(v.start, v.endInclusive)
             is IntRange -> arrayOf(v.first, v.last)
             is NamedChoice -> v.choiceName
