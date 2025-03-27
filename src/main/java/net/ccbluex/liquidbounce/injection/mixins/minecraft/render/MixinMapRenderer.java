@@ -19,8 +19,8 @@ import java.util.List;
 public class MixinMapRenderer {
     @ModifyExpressionValue(
             method = "draw",
-            at = @At(value = "FIELD", target = "Lnet/minecraft/client/render/MapRenderState;decorations:Ljava/util/List;"))
-    private List<MapDecoration> hookMapMarkers(List<MapDecoration> original) {
+            at = @At(value = "FIELD", target = "Lnet/minecraft/client/render/MapRenderState;decorations:Ljava/util/List;")
+    ) private List<MapDecoration> hookMapMarkers(List<MapDecoration> original) {
         return ModuleAntiBlind.canRender(DoRender.MAP_MARKERS) ? original : List.of();
     }
 
