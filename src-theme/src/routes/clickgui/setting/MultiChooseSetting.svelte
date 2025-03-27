@@ -120,13 +120,13 @@
     font-weight: 500;
     font-size: 12px;
     font-family: monospace;
-    transform: translateY(3px);
   }
 
   .head {
     display: grid;
     grid-template-columns: 1fr max-content max-content;
     transition: ease margin-bottom .2s;
+    align-items: center;
 
     &.expanded {
       margin-bottom: 10px;
