@@ -1,62 +1,75 @@
 package net.ccbluex.liquidbounce.features.module.modules.render
 
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
+import net.ccbluex.liquidbounce.event.events.AttackEntityEvent
+import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.event.events.WorldChangeEvent
 import net.ccbluex.liquidbounce.event.events.WorldEntityRemoveEvent
-import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
-import net.ccbluex.liquidbounce.render.engine.Color4b
-import net.ccbluex.liquidbounce.utils.entity.interpolateCurrentPosition
-import net.ccbluex.liquidbounce.utils.entity.interpolateCurrentRotation
+import net.ccbluex.liquidbounce.interfaces.EntityRenderStateAddition
+import net.ccbluex.liquidbounce.utils.client.chat
+import net.ccbluex.liquidbounce.utils.client.regular
 import net.ccbluex.liquidbounce.utils.math.toBlockPos
-import net.ccbluex.liquidbounce.utils.render.WireframePlayer
+import net.minecraft.client.network.OtherClientPlayerEntity
+import net.minecraft.client.render.entity.state.LivingEntityRenderState
+import net.minecraft.entity.Entity
 import net.minecraft.entity.player.PlayerEntity
+import java.util.*
 
 /**
  * Log off spot
  *
- * Keeps track of the position of each player until they log off or get out of render distance,
- * and when the position is in an unloaded chunk, we remove it from the list.
+ * Creates a fake player entity when a player logs off.
  */
 object ModuleLogoffSpot : ClientModule("LogoffSpot", Category.RENDER) {
 
-    private val lastSeenPlayers = mutableMapOf<Int, WireframePlayer>()
-    private val color by color("Color", Color4b(192, 192, 192, 100))
-    private var outlineColor by color("OutlineColor", Color4b(192, 192, 192, 255))
+    private data class LoggedOffPlayer(
+        val time: Instant,
+        val entity: Entity
+    )
+
+    private val lastSeenPlayers = mutableMapOf<UUID, LoggedOffPlayer>()
 
     @Suppress("unused")
     private val entityRemoveHandler = handler<WorldEntityRemoveEvent> { event ->
         val entity = event.entity
-
-        if (entity !is PlayerEntity) {
+        if (entity !is PlayerEntity || isLogoffEntity(entity)) {
             return@handler
         }
 
-        val position = entity.interpolateCurrentPosition(1f)
-        val rotation = entity.interpolateCurrentRotation(1f)
-        lastSeenPlayers[entity.id] = WireframePlayer(position, rotation.yaw, rotation.pitch)
+        // Note: I thought we could keep [entity], but I was not able to keep it from being removed
+        // from the world. So, we have to create a new entity and copy the position and rotation.
+        val clone = OtherClientPlayerEntity(world, entity.gameProfile)
+        clone.headYaw = entity.headYaw
+        clone.copyPositionAndRotation(entity)
+        clone.uuid = UUID.randomUUID()
+        world.addEntity(clone)
+        lastSeenPlayers[entity.uuid] = LoggedOffPlayer(Clock.System.now(), clone)
+
+        val blockPos = entity.pos.toBlockPos()
+        chat(regular(message("disappeared", entity.nameForScoreboard, blockPos.x, blockPos.y, blockPos.z)))
     }
 
     @Suppress("unused")
-    private val renderHandler = handler<WorldRenderEvent> { event ->
-        val matrixStack = event.matrixStack
-
-        val lastSeenIterator = lastSeenPlayers.iterator()
-        while (lastSeenIterator.hasNext()) {
-            val (entityId, wireframePlayer) = lastSeenIterator.next()
-            val blockPos = wireframePlayer.pos.toBlockPos()
+    private val tickHandler = handler<GameTickEvent> {
+        lastSeenPlayers.entries.removeIf { (id, loggedOffPlayer) ->
+            val playerEntity = loggedOffPlayer.entity
+            val blockPos = playerEntity.pos.toBlockPos()
 
             if (!world.isPosLoaded(blockPos)) {
-                lastSeenIterator.remove()
-                continue
+                chat(regular(message("unloaded", playerEntity.nameForScoreboard)))
+                world.removeEntity(playerEntity.id, Entity.RemovalReason.UNLOADED_TO_CHUNK)
+                true
+            } else if (world.getPlayerByUuid(id) != null) {
+                chat(regular(message("reappeared", playerEntity.nameForScoreboard)))
+                world.removeEntity(playerEntity.id, Entity.RemovalReason.UNLOADED_WITH_PLAYER)
+                true
+            } else {
+                false
             }
-
-            if (world.getEntityById(entityId) != null) {
-                continue
-            }
-
-            wireframePlayer.render(event, color, outlineColor)
         }
     }
 
@@ -65,9 +78,38 @@ object ModuleLogoffSpot : ClientModule("LogoffSpot", Category.RENDER) {
         lastSeenPlayers.clear()
     }
 
+    @Suppress("unused")
+    private val attackHandler = handler<AttackEntityEvent> { event ->
+        val entity = event.entity
+
+        if (isLogoffEntity(entity)) {
+            event.cancelEvent()
+        }
+    }
+
     override fun disable() {
+        for (loggedOffPlayer in lastSeenPlayers.values) {
+            val playerEntity = loggedOffPlayer.entity
+            // Use [mc.world] instead of [world] to prevent NPE when the module is disabled
+            // outside the game
+            mc.world?.removeEntity(playerEntity.id, Entity.RemovalReason.UNLOADED_TO_CHUNK)
+        }
+
         lastSeenPlayers.clear()
         super.disable()
+    }
+
+    fun isLogoffEntity(state: LivingEntityRenderState) =
+        isLogoffEntity((state as EntityRenderStateAddition).`liquid_bounce$getEntity`())
+
+    fun isLogoffEntity(entity: Entity) = this.running
+        && lastSeenPlayers.any { (_, logOffPlayer) -> entity == logOffPlayer.entity }
+
+    fun getLogoffTime(entity: Entity): String? {
+        val time = lastSeenPlayers.values.firstOrNull { it.entity == entity }?.time ?: return null
+
+        val duration = Clock.System.now() - time
+        return duration.toString()
     }
 
 }
