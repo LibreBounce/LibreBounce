@@ -19,7 +19,6 @@
 package net.ccbluex.liquidbounce.features.module.modules.render.nametags
 
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.ModuleAntiBot
-import net.ccbluex.liquidbounce.features.module.modules.misc.nameprotect.sanitizeForeignInput
 import net.ccbluex.liquidbounce.utils.client.asText
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.client.regular
@@ -36,14 +35,15 @@ import net.minecraft.text.TextColor
 import net.minecraft.util.Formatting
 import kotlin.math.roundToInt
 
+@Suppress("MagicNumber")
 class NametagTextFormatter(private val entity: Entity) {
     fun format(): Text {
         val outputText = Text.empty()
 
-        if (ModuleNametags.ShowOptions.distance) {
+        if (NametagShowOptions.DISTANCE.isShowing()) {
             outputText.append(this.distanceText).append(" ")
         }
-        if (ModuleNametags.ShowOptions.ping) {
+        if (NametagShowOptions.PING.isShowing()) {
             outputText.append(this.pingText).append(" ")
         }
 
@@ -58,7 +58,7 @@ class NametagTextFormatter(private val entity: Entity) {
 
         outputText.append(nameText)
 
-        if (ModuleNametags.ShowOptions.health) {
+        if (NametagShowOptions.HEALTH.isShowing()) {
             outputText.append(" ").append(this.healthText)
         }
 

@@ -19,7 +19,9 @@
 package net.ccbluex.liquidbounce.config.types
 
 import com.google.gson.Gson
+import com.google.gson.JsonArray
 import com.google.gson.JsonElement
+import com.google.gson.JsonPrimitive
 import com.google.gson.annotations.SerializedName
 import net.ccbluex.liquidbounce.authlib.account.MinecraftAccount
 import net.ccbluex.liquidbounce.config.gson.stategies.Exclude
@@ -137,12 +139,10 @@ open class Value<T : Any>(
 
     @ScriptApiRequired
     @JvmName("getValue")
-    fun getValue(): Any {
-        if (this is ChoiceConfigurable<*>) {
-            return this.activeChoice.name
-        }
-
-        return when (val v = get()) {
+    fun getValue(): Any = when (this) {
+        is ChoiceConfigurable<*> -> activeChoice.name
+        is MultiChooseListValue<*> -> "${get().size}/${choices.size}"
+        else -> when (val v = get()) {
             is ClosedFloatingPointRange<*> -> arrayOf(v.start, v.endInclusive)
             is IntRange -> arrayOf(v.first, v.last)
             is NamedChoice -> v.choiceName
@@ -362,6 +362,82 @@ class BindValue(
     }
 }
 
+class MultiChooseListValue<T>(
+    name: String,
+    value: EnumSet<T>,
+    @Exclude val choices: EnumSet<T>,
+
+    /**
+     * Can deselect all values or enable at least one
+     */
+    @Exclude val canBeNone: Boolean = true,
+) : Value<EnumSet<T>>(
+    name,
+    defaultValue = value,
+    valueType = ValueType.MULTI_CHOOSE,
+    listType = ListValueType.Enums
+) where T : Enum<T>, T : NamedChoice {
+    init {
+        if (!canBeNone) {
+            require(!choices.isEmpty()) {
+                "There are no values provided, " +
+                    "but at least one must be selected. (required because by canBeNone = false)"
+            }
+
+            require(!value.isEmpty()) {
+                "There are no default values enabled, " +
+                    "but at least one must be selected. (required because by canBeNone = false)"
+            }
+        }
+    }
+
+    override fun deserializeFrom(gson: Gson, element: JsonElement) {
+        val active = get()
+        active.clear()
+
+        when (element) {
+            is JsonArray -> element.forEach { active.tryToEnable(it.asString) }
+            is JsonPrimitive -> active.tryToEnable(element.asString)
+        }
+
+        if (!canBeNone && active.isEmpty()) {
+            active.addAll(choices)
+        }
+
+        set(active)
+    }
+
+    private fun EnumSet<T>.tryToEnable(name: String) {
+        val choiceWithName = choices.firstOrNull { it.choiceName == name }
+
+        if (choiceWithName != null) {
+            add(choiceWithName)
+        }
+    }
+
+    fun toggle(value: T): Boolean {
+        val current = get()
+
+        val isActive = value in current
+
+        if (isActive) {
+            if (!canBeNone && current.size <= 1) {
+                return true
+            }
+
+            current.remove(value)
+        } else {
+            current.add(value)
+        }
+
+        set(current)
+
+        return !isActive
+    }
+
+    operator fun contains(choice: T) = get().contains(choice)
+}
+
 class ChooseListValue<T : NamedChoice>(
     name: String,
     aliases: Array<String> = emptyArray(),
@@ -416,6 +492,7 @@ enum class ValueType(
     VECTOR_D,
     CHOICE(completer = AutoCompletionProvider.choiceCompleter),
     CHOOSE(completer = AutoCompletionProvider.chooseCompleter),
+    MULTI_CHOOSE(HumanInputDeserializer.textArrayDeserializer),
     INVALID,
     PROXY,
     CONFIGURABLE,
@@ -431,5 +508,6 @@ enum class ListValueType(val type: Class<*>?) {
     Friend(FriendManager.Friend::class.java),
     Proxy(net.ccbluex.liquidbounce.features.misc.proxy.Proxy::class.java),
     Account(MinecraftAccount::class.java),
+    Enums(Enum::class.java),
     None(null)
 }
