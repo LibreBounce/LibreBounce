@@ -3,7 +3,6 @@ package net.ccbluex.liquidbounce.config.types.multiChoose
 import net.ccbluex.liquidbounce.config.types.ListValueType
 import java.util.*
 
-
 class MultiChooseStringListValue(
     name: String,
     value: AbstractSet<String>,
@@ -14,7 +13,8 @@ class MultiChooseStringListValue(
     value = value,
     choices = choices,
     canBeNone = canBeNone,
-    listType = ListValueType.String
+    listType = ListValueType.String,
+    autoSorting = false
 ) {
     override val String.elementName: String
         get() = this

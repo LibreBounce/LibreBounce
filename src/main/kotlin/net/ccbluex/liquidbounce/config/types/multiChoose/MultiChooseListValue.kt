@@ -5,6 +5,7 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonPrimitive
 import net.ccbluex.liquidbounce.config.gson.stategies.Exclude
+import net.ccbluex.liquidbounce.config.gson.stategies.ProtocolExclude
 import net.ccbluex.liquidbounce.config.types.ListValueType
 import net.ccbluex.liquidbounce.config.types.Value
 import net.ccbluex.liquidbounce.config.types.ValueType
@@ -19,7 +20,15 @@ sealed class MultiChooseListValue<T>(
      * Can deselect all values or enable at least one
      */
     @Exclude val canBeNone: Boolean = true,
-    listType: ListValueType
+    listType: ListValueType,
+
+    /**
+     * If the [AbstractSet] automatically implements sorting and guarantees order,
+     * then set the [autoSorting] to true.
+     * Otherwise, if the insertion order is not guaranteed,
+     * leave [autoSorting] to false and then the implementation guarantees the order.
+     */
+    @Exclude @ProtocolExclude private val autoSorting: Boolean
 ) : Value<AbstractSet<T>>(
     name,
     defaultValue = value,
@@ -58,6 +67,15 @@ sealed class MultiChooseListValue<T>(
 
         if (!canBeNone && active.isEmpty()) {
             active.addAll(choices)
+        } else if (!autoSorting) {
+            val temp = LinkedHashSet(active)
+            active.clear()
+
+            for (choice in choices) {
+                if (temp.contains(choice)) {
+                    active.add(choice)
+                }
+            }
         }
 
         set(active)

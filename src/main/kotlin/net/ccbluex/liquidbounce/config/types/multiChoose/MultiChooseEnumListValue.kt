@@ -14,7 +14,8 @@ class MultiChooseEnumListValue<T>(
     value = value,
     choices = choices,
     canBeNone = canBeNone,
-    listType = ListValueType.Enums
+    listType = ListValueType.Enums,
+    autoSorting = true
 ) where T : Enum<T>, T : NamedChoice {
     override val T.elementName: String
         get() = choiceName
