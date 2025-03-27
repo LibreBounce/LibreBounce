@@ -67,15 +67,8 @@ sealed class MultiChooseListValue<T>(
 
         if (!canBeNone && active.isEmpty()) {
             active.addAll(choices)
-        } else if (!autoSorting) {
-            val temp = LinkedHashSet(active)
-            active.clear()
-
-            for (choice in choices) {
-                if (temp.contains(choice)) {
-                    active.add(choice)
-                }
-            }
+        } else {
+            active.sortIfAutoSortingDisabled()
         }
 
         set(active)
@@ -90,6 +83,10 @@ sealed class MultiChooseListValue<T>(
     }
 
     fun toggle(value: T): Boolean {
+        require(value in choices) {
+            "Provided value is not in the choices: $value"
+        }
+
         val current = get()
 
         val isActive = value in current
@@ -104,9 +101,25 @@ sealed class MultiChooseListValue<T>(
             current.add(value)
         }
 
+        current.sortIfAutoSortingDisabled()
         set(current)
 
         return !isActive
+    }
+
+    private fun AbstractSet<T>.sortIfAutoSortingDisabled() {
+        if (autoSorting) {
+            return
+        }
+
+        val temp = LinkedHashSet(this)
+        clear()
+
+        for (choice in choices) {
+            if (temp.contains(choice)) {
+                add(choice)
+            }
+        }
     }
 
     protected abstract val T.elementName: String
