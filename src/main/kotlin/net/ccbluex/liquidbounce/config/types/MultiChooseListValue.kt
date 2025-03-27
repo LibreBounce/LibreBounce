@@ -1,4 +1,4 @@
-package net.ccbluex.liquidbounce.config.types.multiChoose
+package net.ccbluex.liquidbounce.config.types
 
 import com.google.gson.Gson
 import com.google.gson.JsonArray
@@ -6,10 +6,42 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonPrimitive
 import net.ccbluex.liquidbounce.config.gson.stategies.Exclude
 import net.ccbluex.liquidbounce.config.gson.stategies.ProtocolExclude
-import net.ccbluex.liquidbounce.config.types.ListValueType
-import net.ccbluex.liquidbounce.config.types.Value
-import net.ccbluex.liquidbounce.config.types.ValueType
 import java.util.*
+
+class MultiChooseEnumListValue<T>(
+    name: String,
+    value: EnumSet<T>,
+    choices: EnumSet<T>,
+    canBeNone: Boolean = true,
+) : MultiChooseListValue<T>(
+    name,
+    value = value,
+    choices = choices,
+    canBeNone = canBeNone,
+    listType = ListValueType.Enums,
+    autoSorting = true
+) where T : Enum<T>, T : NamedChoice {
+    override val T.elementName: String
+        get() = choiceName
+}
+
+class MultiChooseStringListValue(
+    name: String,
+    value: AbstractSet<String>,
+    choices: AbstractSet<String>,
+    canBeNone: Boolean = true,
+) : MultiChooseListValue<String>(
+    name,
+    value = value,
+    choices = choices,
+    canBeNone = canBeNone,
+    listType = ListValueType.String,
+    autoSorting = false
+) {
+    override val String.elementName: String
+        get() = this
+}
+
 
 sealed class MultiChooseListValue<T>(
     name: String,

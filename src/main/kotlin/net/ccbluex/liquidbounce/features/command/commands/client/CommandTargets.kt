@@ -18,7 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.command.commands.client
 
-import net.ccbluex.liquidbounce.config.types.multiChoose.MultiChooseEnumListValue
+import net.ccbluex.liquidbounce.config.types.MultiChooseEnumListValue
 import net.ccbluex.liquidbounce.features.command.CommandFactory
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.module.modules.client.ModuleTargets

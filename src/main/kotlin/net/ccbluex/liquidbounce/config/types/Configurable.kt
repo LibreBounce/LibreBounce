@@ -18,7 +18,6 @@
  */
 package net.ccbluex.liquidbounce.config.types
 
-import net.ccbluex.liquidbounce.config.types.multiChoose.MultiChooseEnumListValue
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.client.toLowerCamelCase
