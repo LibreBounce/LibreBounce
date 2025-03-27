@@ -20,7 +20,11 @@ package net.ccbluex.liquidbounce.features.module.modules.misc.antibot.modes
 
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet
-import net.ccbluex.liquidbounce.config.types.*
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.NamedChoice
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
+import net.ccbluex.liquidbounce.config.types.multiChoose.MultiChooseEnumListValue
 import net.ccbluex.liquidbounce.event.events.AttackEntityEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -86,7 +90,7 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
             multiEnumChoice("Boots", ArmorMaterialSelector.entries),
         )
 
-        fun MultiChooseListValue<ArmorMaterialSelector>.isValid(item: Item) =
+        fun MultiChooseEnumListValue<ArmorMaterialSelector>.isValid(item: Item) =
             get().find { it.material == (item as? ArmorItem)?.material() } != null
 
         fun isValid(entity: PlayerEntity): Boolean {

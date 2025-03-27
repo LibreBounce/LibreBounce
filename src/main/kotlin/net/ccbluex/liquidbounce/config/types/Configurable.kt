@@ -18,6 +18,7 @@
  */
 package net.ccbluex.liquidbounce.config.types
 
+import net.ccbluex.liquidbounce.config.types.multiChoose.MultiChooseEnumListValue
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.client.toLowerCamelCase
@@ -280,7 +281,7 @@ open class Configurable(
         choices: EnumSet<T>,
         canBeNone: Boolean = true
     ) where T : Enum<T>, T : NamedChoice =
-        MultiChooseListValue(name, default, choices, canBeNone).apply { this@Configurable.inner.add(this@apply) }
+        MultiChooseEnumListValue(name, default, choices, canBeNone).apply { this@Configurable.inner.add(this@apply) }
 
     inline fun <reified T> enumChoice(name: String, default: T): ChooseListValue<T>
         where T : Enum<T>, T : NamedChoice = enumChoice(name, default, enumValues<T>())

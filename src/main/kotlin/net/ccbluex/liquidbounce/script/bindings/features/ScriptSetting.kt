@@ -19,6 +19,7 @@
 package net.ccbluex.liquidbounce.script.bindings.features
 
 import net.ccbluex.liquidbounce.config.types.*
+import net.ccbluex.liquidbounce.config.types.multiChoose.MultiChooseStringListValue
 import net.ccbluex.liquidbounce.utils.input.inputByName
 import net.minecraft.client.util.InputUtil
 import org.graalvm.polyglot.Value as PolyglotValue
@@ -145,6 +146,24 @@ object ScriptSetting {
         return ChooseListValue(name, defaultValue = default, choices = choices)
     }
 
+    @JvmName("multiChoose")
+    fun multiChoose(value: PolyglotValue): MultiChooseStringListValue {
+        val name = value.getMember("name").asString()
+        val choices = value.getMember("choices").`as`(Array<String>::class.java)
+            .toHashSet()
+
+        val default = value.getMember("default").`as`(Array<String>::class.java)
+            .toHashSet()
+
+        val canBeNone = value.getMember("canBeNone")?.asBoolean() ?: true
+
+        return MultiChooseStringListValue(
+            name,
+            value = default,
+            choices = choices,
+            canBeNone = canBeNone
+        )
+    }
 
     private fun <T : Any> value(
         name: String,
