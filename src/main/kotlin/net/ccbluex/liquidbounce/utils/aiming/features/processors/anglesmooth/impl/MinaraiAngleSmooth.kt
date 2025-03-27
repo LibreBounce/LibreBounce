@@ -101,7 +101,10 @@ class MinaraiAngleSmooth(
         if (!DeepLearningEngine.isInitialized) {
             if (notificationChronometer.hasElapsed(UNSUPPORTED_NOTIFICATION_TIME)) {
                 chat(markAsError(translation("liquidbounce.unsupportedDeepLearning")))
-                chat(markAsError(translation("liquidbounce.rotationSystem.angleSmooth.minarai.fallback", fallback.name)))
+                chat(markAsError(translation(
+                    "liquidbounce.rotationSystem.angleSmooth.minarai.fallback",
+                    fallback.name
+                )))
                 notificationChronometer.reset()
             }
 
