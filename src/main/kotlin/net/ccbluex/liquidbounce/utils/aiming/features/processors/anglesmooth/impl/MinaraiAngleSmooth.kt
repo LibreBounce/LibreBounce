@@ -22,6 +22,7 @@ package net.ccbluex.liquidbounce.utils.aiming.features.processors.anglesmooth.im
 
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.config.types.Configurable
+import net.ccbluex.liquidbounce.deeplearn.DeepLearningEngine
 import net.ccbluex.liquidbounce.deeplearn.ModelHolster.models
 import net.ccbluex.liquidbounce.deeplearn.data.TrainingData
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
@@ -97,7 +98,7 @@ class MinaraiAngleSmooth(
         currentRotation: Rotation,
         targetRotation: Rotation
     ): Rotation {
-        if (true) {
+        if (!DeepLearningEngine.isInitialized) {
             if (notificationChronometer.hasElapsed(UNSUPPORTED_NOTIFICATION_TIME)) {
                 chat(markAsError(translation("liquidbounce.unsupportedDeepLearning")))
                 chat(markAsError(translation("liquidbounce.rotationSystem.angleSmooth.minarai.fallback", fallback.name)))
