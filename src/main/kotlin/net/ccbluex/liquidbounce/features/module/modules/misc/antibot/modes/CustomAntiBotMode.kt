@@ -125,10 +125,10 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
         )
 
         private val values = arrayOf(
-            multiEnumChoice("Helmet", EnumSet.of(ArmorPredicate.NOTHING), HELMET, true),
-            multiEnumChoice("Chestplate", EnumSet.of(ArmorPredicate.NOTHING), CHESTPLATE, true),
-            multiEnumChoice("Leggings", EnumSet.of(ArmorPredicate.NOTHING), BASE, true),
-            multiEnumChoice("Boots", EnumSet.of(ArmorPredicate.NOTHING), BASE, true),
+            multiEnumChoice("Helmet", EnumSet.of(ArmorPredicate.NOTHING), HELMET),
+            multiEnumChoice("Chestplate", EnumSet.of(ArmorPredicate.NOTHING), CHESTPLATE),
+            multiEnumChoice("Leggings", EnumSet.of(ArmorPredicate.NOTHING), BASE),
+            multiEnumChoice("Boots", EnumSet.of(ArmorPredicate.NOTHING), BASE),
         )
 
         fun isValid(entity: PlayerEntity): Boolean {
