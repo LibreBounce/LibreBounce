@@ -48,7 +48,7 @@ object ModuleAntiBlind : ClientModule("AntiBlind", Category.RENDER, aliases = ar
         DoRender.INVISIBLE_ENTITIES,
         DoRender.BOSS_BARS,
         DoRender.EXPLOSION_PARTICLES,
-    )
+    ).also { tagBy(it) }
 
     private val fireOpacity by int("FireOpacity", 100, 0..100, suffix = "%")
 
