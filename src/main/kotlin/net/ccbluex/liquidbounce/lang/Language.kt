@@ -44,6 +44,7 @@ object LanguageManager : Configurable("lang") {
         "ua_ua",
         "en_pt",
         "pt_br",
+        "tr_tr",
         "nl_nl",
         "nl_be"
     )
