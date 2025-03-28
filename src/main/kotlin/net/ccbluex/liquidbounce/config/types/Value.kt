@@ -40,6 +40,7 @@ import net.minecraft.client.util.InputUtil
 import java.util.*
 import java.util.function.Supplier
 import kotlin.reflect.KProperty
+import org.graalvm.polyglot.Value as PolyglotValue
 
 typealias ValueListener<T> = (T) -> T
 
@@ -156,7 +157,7 @@ open class Value<T : Any>(
     @ScriptApiRequired
     @JvmName("setValue")
     @Suppress("UNCHECKED_CAST")
-    fun setValue(t: org.graalvm.polyglot.Value) = runCatching {
+    fun setValue(t: PolyglotValue) = runCatching {
         if (this is ChooseListValue<*>) {
             setByString(t.asString())
             return@runCatching
@@ -261,25 +262,26 @@ open class Value<T : Any>(
     /**
      * Deserialize value from JSON
      */
+    @Suppress("UNCHECKED_CAST")
     open fun deserializeFrom(gson: Gson, element: JsonElement) {
         val currValue = this.inner
 
         set(
             when (currValue) {
                 is List<*> -> {
-                    @Suppress("UNCHECKED_CAST") element.asJsonArray.mapTo(
+                    element.asJsonArray.mapTo(
                         mutableListOf()
                     ) { gson.fromJson(it, this.listType.type!!) } as T
                 }
 
                 is HashSet<*> -> {
-                    @Suppress("UNCHECKED_CAST") element.asJsonArray.mapTo(
+                    element.asJsonArray.mapTo(
                         HashSet()
                     ) { gson.fromJson(it, this.listType.type!!) } as T
                 }
 
                 is Set<*> -> {
-                    @Suppress("UNCHECKED_CAST") element.asJsonArray.mapTo(
+                    element.asJsonArray.mapTo(
                         TreeSet()
                     ) { gson.fromJson(it, this.listType.type!!) } as T
                 }
@@ -302,6 +304,7 @@ open class Value<T : Any>(
             })
     }
 
+    @Suppress("UNCHECKED_CAST")
     open fun setByString(string: String) {
         val deserializer = this.valueType.deserializer
 
@@ -324,6 +327,7 @@ class RangedValue<T : Any>(
     valueType: ValueType
 ) : Value<T>(name, aliases, defaultValue, valueType) {
 
+    @Suppress("UNCHECKED_CAST")
     override fun setByString(string: String) {
         if (this.inner is ClosedRange<*>) {
             val split = string.split("..")
