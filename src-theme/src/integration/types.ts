@@ -33,10 +33,51 @@ export type ModuleSetting =
     | VectorSetting
     | KeySetting;
 
-export type Item = string;
+export interface ChoosePresetItem {
+    type: "CHOOSE";
+    item: string;
+}
+
+export interface BlockPresetItem {
+    type: "BLOCK";
+}
+
+export interface NonePresetItem {
+    type: "NONE";
+}
+
+export interface SwordPresetItem {
+    type: "SWORD";
+}
+
+export interface AxePresetItem {
+    type: "AXE";
+}
+
+export interface PickaxePresetItem {
+    type: "PICKAXE";
+}
+
+export interface FoodPresetItem {
+    type: "FOOD";
+}
+
+export interface PotionPresetItem {
+    type: "POTION";
+}
+
+export type PresetItem =
+    ChoosePresetItem
+    | BlockPresetItem
+    | NonePresetItem
+    | SwordPresetItem
+    | PickaxePresetItem
+    | FoodPresetItem
+    | PotionPresetItem
+    | AxePresetItem;
 
 export interface InventoryPreset {
-    items: Item[]
+    items: PresetItem[]
 }
 
 export interface InventoryPresets {
