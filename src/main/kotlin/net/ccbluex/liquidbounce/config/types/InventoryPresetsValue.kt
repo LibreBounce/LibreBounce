@@ -1,6 +1,9 @@
 package net.ccbluex.liquidbounce.config.types
 
-class InventoryPresetsValue : Value<Unit>("InventoryPresets",
-    defaultValue = Unit,
-    valueType = ValueType.INVENTORY_PRESETS
+import net.ccbluex.liquidbounce.features.inventoryPresets.InventoryPreset
+
+class InventoryPresetsValue : Value<Set<InventoryPreset>>("InventoryPresets",
+    defaultValue = emptySet(),
+    valueType = ValueType.INVENTORY_PRESETS,
+    listType = ListValueType.InventoryPreset
 )

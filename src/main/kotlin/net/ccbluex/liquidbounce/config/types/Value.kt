@@ -509,6 +509,7 @@ enum class ListValueType(val type: Class<*>?) {
     Friend(FriendManager.Friend::class.java),
     Proxy(net.ccbluex.liquidbounce.features.misc.proxy.Proxy::class.java),
     Account(MinecraftAccount::class.java),
+    InventoryPreset(InventoryPreset::class.java),
     Enums(Enum::class.java),
     None(null)
 }
