@@ -1,11 +1,23 @@
+@file:Suppress("WildcardImport")
 package net.ccbluex.liquidbounce.features.inventoryPresets
 
-import net.minecraft.item.Item
+import net.ccbluex.liquidbounce.features.inventoryPresets.items.*
 import net.minecraft.item.Items
 
 @Suppress("MagicNumber")
 class InventoryPreset(
-    val items: Array<Item> = (0..9).map { Items.REDSTONE }.toTypedArray(),
+    val items: Array<PresetItem> = arrayOf(
+        ChoosePresetItem(Items.CHERRY_WOOD),
+        ChoosePresetItem(Items.REDSTONE),
+        ChoosePresetItem(Items.BEDROCK),
+        ChoosePresetItem(Items.LIME_BED),
+        SwordPresetItem,
+        SwordPresetItem,
+        BlockPresetItem,
+        FoodPresetItem,
+        FoodPresetItem,
+        NonePresetItem
+    ),
 ) {
     init {
         /**
