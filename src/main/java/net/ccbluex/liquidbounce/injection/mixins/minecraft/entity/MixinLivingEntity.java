@@ -32,10 +32,12 @@ import net.ccbluex.liquidbounce.utils.aiming.RotationManager;
 import net.ccbluex.liquidbounce.utils.aiming.features.MovementCorrection;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.sound.SoundCategory;
@@ -259,6 +261,13 @@ public abstract class MixinLivingEntity extends MixinEntity {
         }
 
         return rotation.getPitch();
+    }
+
+    @Inject(method = "spawnItemParticles", at = @At("HEAD"), cancellable = true)
+    private void hookEatParticles(ItemStack stack, int count, CallbackInfo ci) {
+        if (stack.getComponents().contains(DataComponentTypes.FOOD) && !ModuleAntiBlind.canRender(DoRender.EAT_PARTICLES)) {
+            ci.cancel();
+        }
     }
 
     /**

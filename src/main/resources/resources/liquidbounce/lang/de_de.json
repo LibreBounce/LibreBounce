@@ -629,6 +629,7 @@
   "liquidbounce.command.tps.description": "Schätzt die TPS des Servers ab.",
   "liquidbounce.command.tps.result.tpsCheck": "Die TPS des Servers betragen %s.",
   "liquidbounce.command.tps.result.nan": "noch nicht berechnet",
+  "liquidbounce.module.logoffSpot.description": "Ermöglicht es, Spieler zu sehen, die den Server verlassen haben oder außerhalb der Sichtweite sind.",
   "liquidbounce.module.anchor.description": "Geht automatisch in sichere Löcher für Crystal PvP.",
   "liquidbounce.module.replenish.description": "Füllt deine Hotbar automatisch mit Items aus deinem Inventar auf, wenn die Anzahl des Items einen bestimmten Wert erreicht hat.",
   "liquidbounce.module.autoConfig.messages.loading": "Läd Konfiguration für %s...",
