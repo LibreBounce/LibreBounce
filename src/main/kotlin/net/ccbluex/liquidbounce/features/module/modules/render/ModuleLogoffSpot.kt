@@ -12,6 +12,7 @@ import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.interfaces.EntityRenderStateAddition
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.regular
+import net.ccbluex.liquidbounce.utils.entity.getActualHealth
 import net.ccbluex.liquidbounce.utils.math.toBlockPos
 import net.minecraft.client.network.OtherClientPlayerEntity
 import net.minecraft.client.render.entity.state.LivingEntityRenderState
@@ -46,6 +47,8 @@ object ModuleLogoffSpot : ClientModule("LogoffSpot", Category.RENDER) {
         clone.headYaw = entity.headYaw
         clone.copyPositionAndRotation(entity)
         clone.uuid = UUID.randomUUID()
+        clone.inventory.clone(entity.inventory)
+        clone.health = entity.getActualHealth()
         world.addEntity(clone)
         lastSeenPlayers[entity.uuid] = LoggedOffPlayer(Clock.System.now(), clone)
 
