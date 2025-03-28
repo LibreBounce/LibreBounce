@@ -37,10 +37,7 @@ class MultiChooseStringListValue(
     canBeNone = canBeNone,
     listType = ListValueType.String,
     autoSorting = false
-) {
-    override val String.elementName: String
-        get() = this
-}
+)
 
 sealed class MultiChooseListValue<T>(
     name: String,
@@ -153,7 +150,7 @@ sealed class MultiChooseListValue<T>(
         }
     }
 
-    protected abstract val T.elementName: String
+    protected open val T.elementName: String get() = this.toString()
 
     operator fun contains(choice: T) = get().contains(choice)
 }
