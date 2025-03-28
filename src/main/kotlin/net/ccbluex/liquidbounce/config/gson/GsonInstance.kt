@@ -18,7 +18,7 @@
  *
  *
  */
-
+@file:Suppress("WildcardImport")
 package net.ccbluex.liquidbounce.config.gson
 
 import com.google.gson.Gson
