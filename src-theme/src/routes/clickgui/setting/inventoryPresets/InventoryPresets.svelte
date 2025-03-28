@@ -22,16 +22,16 @@
         <span class="title">{$spaceSeperatedNames ? "Inventory Presets" : "InventoryPresets"}</span>
     </div>
 
-    <NewPreset
-            on:change={handleChange}
-            bind:value={cSetting.value}
-    />
-
-    <div class="presets">
+    <div class="presets" class:margin={cSetting.value.length > 0}>
         {#each cSetting.value as preset}
             <InventoryPreset bind:preset />
         {/each}
     </div>
+
+    <NewPreset
+            on:change={handleChange}
+            bind:value={cSetting.value}
+    />
 </div>
 
 <style lang="scss">
@@ -47,11 +47,14 @@
   }
 
   .presets {
-    margin-top: 5px;
     width: 100%;
     display: flex;
     flex-direction: column;
     gap: 5px;
+  }
+
+  .margin {
+    margin-bottom: 5px;
   }
 
   .title {
