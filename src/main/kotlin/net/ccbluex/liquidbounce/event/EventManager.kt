@@ -31,6 +31,7 @@ import kotlin.reflect.KClass
 val ALL_EVENT_CLASSES: Array<KClass<out Event>> = arrayOf(
     GameTickEvent::class,
     GameRenderTaskQueueEvent::class,
+    TickPacketProcessEvent::class,
     BlockChangeEvent::class,
     ChunkLoadEvent::class,
     ChunkDeltaUpdateEvent::class,
@@ -49,6 +50,7 @@ val ALL_EVENT_CLASSES: Array<KClass<out Event>> = arrayOf(
     KeyboardCharEvent::class,
     InputHandleEvent::class,
     MovementInputEvent::class,
+    SprintEvent::class,
     KeyEvent::class,
     MouseRotationEvent::class,
     KeybindChangeEvent::class,
@@ -72,11 +74,11 @@ val ALL_EVENT_CLASSES: Array<KClass<out Event>> = arrayOf(
     PlayerNetworkMovementTickEvent::class,
     PlayerPushOutEvent::class,
     PlayerMoveEvent::class,
-    RotatedMovementInputEvent::class,
     PlayerJumpEvent::class,
     PlayerAfterJumpEvent::class,
     PlayerUseMultiplier::class,
     PlayerInteractedItem::class,
+    ClientPlayerInventoryEvent::class,
     PlayerVelocityStrafe::class,
     PlayerStrideEvent::class,
     PlayerSafeWalkEvent::class,
@@ -105,8 +107,6 @@ val ALL_EVENT_CLASSES: Array<KClass<out Event>> = arrayOf(
     FpsChangeEvent::class,
     ClientPlayerDataEvent::class,
     RotationUpdateEvent::class,
-    SplashOverlayEvent::class,
-    SplashProgressEvent::class,
     RefreshArrayListEvent::class,
     BrowserReadyEvent::class,
     ServerConnectEvent::class,
@@ -123,6 +123,7 @@ val ALL_EVENT_CLASSES: Array<KClass<out Event>> = arrayOf(
     DrawOutlinesEvent::class,
     OverlayMessageEvent::class,
     ScheduleInventoryActionEvent::class,
+    SelectHotbarSlotSilentlyEvent::class,
     SpaceSeperatedNamesChangeEvent::class,
     ClickGuiScaleChangeEvent::class,
     BrowserUrlChangeEvent::class,
@@ -135,7 +136,9 @@ val ALL_EVENT_CLASSES: Array<KClass<out Event>> = arrayOf(
     PlayerEquipmentChangeEvent::class,
     ClickGuiValueChangeEvent::class,
     BlockAttackEvent::class,
-    QueuePacketEvent::class
+    QueuePacketEvent::class,
+    MinecraftAutoJumpEvent::class,
+    WorldEntityRemoveEvent::class,
 )
 
 /**

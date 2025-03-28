@@ -44,23 +44,19 @@ import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.technique
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.techniques.ScaffoldNormalTechnique
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.techniques.normal.ScaffoldDownFeature
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.techniques.normal.ScaffoldEagleFeature
-import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.tower.ScaffoldTowerKarhu
-import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.tower.ScaffoldTowerMotion
-import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.tower.ScaffoldTowerPulldown
-import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.tower.ScaffoldTowerVulcan
+import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.tower.*
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
-import net.ccbluex.liquidbounce.utils.aiming.withFixedYaw
+import net.ccbluex.liquidbounce.utils.aiming.utils.withFixedYaw
 import net.ccbluex.liquidbounce.utils.block.SwingMode
 import net.ccbluex.liquidbounce.utils.block.doPlacement
 import net.ccbluex.liquidbounce.utils.block.getCenterDistanceSquared
 import net.ccbluex.liquidbounce.utils.block.getState
 import net.ccbluex.liquidbounce.utils.block.targetfinding.BlockPlacementTarget
+import net.ccbluex.liquidbounce.utils.clicking.Clicker
 import net.ccbluex.liquidbounce.utils.client.SilentHotbar
 import net.ccbluex.liquidbounce.utils.client.Timer
-import net.ccbluex.liquidbounce.utils.combat.ClickScheduler
-import net.ccbluex.liquidbounce.utils.entity.eyes
 import net.ccbluex.liquidbounce.utils.entity.moving
 import net.ccbluex.liquidbounce.utils.entity.rotation
 import net.ccbluex.liquidbounce.utils.item.*
@@ -116,7 +112,7 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
 
     private val sameYMode by enumChoice("SameY", SameYMode.OFF)
 
-    enum class SameYMode(
+    private enum class SameYMode(
         override val choiceName: String,
         val getTargetedBlockPos: (BlockPos) -> BlockPos?
     ) : NamedChoice {
@@ -138,7 +134,7 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
          * 2 jumps
          */
         HYPIXEL("Hypixel", { blockPos ->
-            if (ModuleScaffold.player.velocity.y == -0.15233518685055708 && jumps >= 2) {
+            if (player.velocity.y == -0.15233518685055708 && jumps >= 2) {
                 jumps = 0
 
                 blockPos.copy(y = startY)
@@ -150,12 +146,19 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
     }
 
     @Suppress("UnusedPrivateProperty")
-    val towerMode = choices("Tower", 0) {
-        arrayOf(NoneChoice(it), ScaffoldTowerMotion, ScaffoldTowerPulldown, ScaffoldTowerKarhu, ScaffoldTowerVulcan)
+    val towerMode = choices("Tower", 0) { choices ->
+        arrayOf(
+            NoneChoice(choices),
+            ScaffoldTowerMotion,
+            ScaffoldTowerPulldown,
+            ScaffoldTowerKarhu,
+            ScaffoldTowerVulcan,
+            ScaffoldTowerHypixel
+        )
     }
 
-    val isTowering: Boolean
-        get() = towerMode.choices.indexOf(towerMode.activeChoice) != 0 && player.input.playerInput.jump
+    internal val isTowering: Boolean
+        get() = towerMode.choices.indexOf(towerMode.activeChoice) != 0 && mc.options.jumpKey.isPressed
 
     // SafeWalk feature - uses the SafeWalk module as a base
     @Suppress("unused")
@@ -193,14 +196,16 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
 
     object SimulatePlacementAttempts : ToggleableConfigurable(this, "SimulatePlacementAttempts", false) {
 
-        internal val clickScheduler = tree(ClickScheduler(ModuleScaffold, false, maxCps = 100))
+        internal val clicker = tree(Clicker(ModuleScaffold, mc.options.useKey, false, maxCps = 100))
         val failedAttemptsOnly by boolean("FailedAttemptsOnly", true)
     }
 
     init {
         tree(ScaffoldRotationConfigurable)
+        tree(ScaffoldSprintControlFeature)
         tree(SimulatePlacementAttempts)
-        tree(ScaffoldSlowFeature)
+        tree(ScaffoldAccelerationFeature)
+        tree(ScaffoldStrafeFeature)
         tree(ScaffoldJumpStrafe)
         tree(ScaffoldSpeedLimiterFeature)
         tree(ScaffoldBlinkFeature)
@@ -217,16 +222,13 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
 
     val blockCount: Int
         get() {
-            val blockInMainHand = player.inventory.getStack(player.inventory.selectedSlot)
-            val blockInOffHand = player.offHandStack
+            fun ItemStack.blockCount() = if (isValidBlock(this)) this.count else 0
 
-            val blocks = hashSetOf(blockInMainHand, blockInOffHand)
-
-            if (ScaffoldAutoBlockFeature.enabled) {
-                findPlaceableSlots().mapTo(blocks) { it.value() }
+            return player.offHandStack.blockCount() + if (ScaffoldAutoBlockFeature.enabled) {
+                findPlaceableSlots().sumOf { it.value().blockCount() }
+            } else {
+                player.inventory.getStack(player.inventory.selectedSlot).blockCount()
             }
-
-            return blocks.sumOf { if (isValidBlock(it)) it.count else 0 }
         }
 
     val isBlockBelow: Boolean
@@ -247,14 +249,15 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
      * The chain will prefer the block that is solid. If both are solid, it goes to the next criteria
      * (in this case full cube) and so on
      */
-    val BLOCK_COMPARATOR_FOR_HOTBAR =
+    private val BLOCK_COMPARATOR_FOR_HOTBAR =
         ComparatorChain(
             PreferFavourableBlocks,
             PreferSolidBlocks,
             PreferFullCubeBlocks,
             PreferWalkableBlocks,
-            PreferAverageHardBlocks,
+            PreferAverageHardBlocks(neutralRange = true),
             PreferStackSize(higher = false),
+            PreferAverageHardBlocks(neutralRange = false),
         )
     val BLOCK_COMPARATOR_FOR_INVENTORY =
         ComparatorChain(
@@ -262,8 +265,9 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
             PreferSolidBlocks,
             PreferFullCubeBlocks,
             PreferWalkableBlocks,
-            PreferAverageHardBlocks,
-            PreferStackSize(higher = false),
+            PreferAverageHardBlocks(neutralRange = true),
+            PreferStackSize(higher = true),
+            PreferAverageHardBlocks(neutralRange = false),
         )
 
     override fun enable() {
@@ -284,6 +288,7 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
         SilentHotbar.resetSlot(this)
         updateRenderCount()
         forceSneak = 0
+        renderer.clearSilently()
     }
 
     private fun updateRenderCount(count: Int? = null) = EventManager.callEvent(BlockCountChangeEvent(count))
@@ -347,7 +352,7 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
         if (rotationTiming == NORMAL) {
             val rotation = technique.getRotations(target)
 
-            RotationManager.aimAt(
+            RotationManager.setRotationTarget(
                 rotation ?: return@handler,
                 considerInventory = considerInventory,
                 configurable = ScaffoldRotationConfigurable,
@@ -466,9 +471,9 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
             arrayOf(Hand.MAIN_HAND, Hand.OFF_HAND).firstOrNull { isValidBlock(player.getStackInHand(it)) }
 
         if (simulatePlacementAttempts(currentCrosshairTarget, suitableHand) && player.moving
-            && SimulatePlacementAttempts.clickScheduler.goingToClick
+            && SimulatePlacementAttempts.clicker.isClickTick
         ) {
-            SimulatePlacementAttempts.clickScheduler.clicks {
+            SimulatePlacementAttempts.clicker.click {
                 doPlacement(currentCrosshairTarget!!, suitableHand!!, swingMode = swingMode)
                 true
             }
@@ -511,7 +516,7 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
             }
 
             if (rotationTiming == ON_TICK_SNAP) {
-                RotationManager.aimAt(
+                RotationManager.setRotationTarget(
                     currentRotation,
                     considerInventory = considerInventory,
                     configurable = ScaffoldRotationConfigurable,
@@ -546,6 +551,7 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
             ScaffoldMovementPrediction.onPlace(currentOptimalLine, previousFallOffPos)
             ScaffoldEagleFeature.onBlockPlacement()
             ScaffoldBlinkFeature.onBlockPlacement()
+            ScaffoldSprintControlFeature.onBlockPlacement()
 
             waitTicks(currentDelay)
         }
@@ -575,7 +581,7 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
     }
 
     internal fun isValidCrosshairTarget(rayTraceResult: BlockHitResult): Boolean {
-        val diff = rayTraceResult.pos - player.eyes
+        val diff = rayTraceResult.pos - player.eyePos
 
         val side = rayTraceResult.side
 
@@ -602,9 +608,7 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
 
         if (!isTowering) {
             sameYMode.getTargetedBlockPos(blockPos)?.let { return it }
-        } else if (towerMode.activeChoice == ScaffoldTowerMotion &&
-            ScaffoldTowerMotion.placeOffOnNoInput && !player.moving
-        ) {
+        } else if (towerMode.activeChoice == ScaffoldTowerHypixel && !player.moving) {
             // Find the block closest to the player
             val blocks = arrayOf(
                 blockPos.add(0, 0, 1),

@@ -21,18 +21,22 @@ package net.ccbluex.liquidbounce.event
 import kotlinx.coroutines.*
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.utils.client.logger
-import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
+import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.FIRST_PRIORITY
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.function.BooleanSupplier
 import java.util.function.IntSupplier
-import kotlin.coroutines.*
+import kotlin.coroutines.Continuation
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
-typealias SuspendableHandler<T> = suspend Sequence<T>.(T) -> Unit
+typealias SuspendableEventHandler<T> = suspend Sequence.(T) -> Unit
+typealias SuspendableHandler = suspend Sequence.() -> Unit
 
 object SequenceManager : EventListener {
 
     // Running sequences
-    internal val sequences = CopyOnWriteArrayList<Sequence<*>>()
+    internal val sequences = CopyOnWriteArrayList<Sequence>()
 
     /**
      * Tick sequences
@@ -42,7 +46,7 @@ object SequenceManager : EventListener {
      * in the same tick
      */
     @Suppress("unused")
-    val tickSequences = handler<GameTickEvent>(priority = EventPriorityConvention.FIRST_PRIORITY) {
+    val tickSequences = handler<GameTickEvent>(priority = FIRST_PRIORITY) {
         for (sequence in sequences) {
             // Prevent modules handling events when not supposed to
             if (!sequence.owner.running) {
@@ -71,18 +75,20 @@ object SequenceManager : EventListener {
 
 }
 
-open class Sequence<T : Event>(val owner: EventListener, val handler: SuspendableHandler<T>, protected val event: T) {
-
+@Suppress("TooManyFunctions")
+open class Sequence(val owner: EventListener, val handler: SuspendableHandler) {
     private var coroutine: Job
 
     open fun cancel() {
         coroutine.cancel()
+        cancellationTask?.run()
         SequenceManager.sequences -= this@Sequence
     }
 
     private var continuation: Continuation<Unit>? = null
     private var elapsedTicks = 0
     private var totalTicks = IntSupplier { 0 }
+    private var cancellationTask: Runnable? = null
 
     init {
         // Note: It is important that this is in the constructor and NOT in the variable declaration, because
@@ -99,7 +105,7 @@ open class Sequence<T : Event>(val owner: EventListener, val handler: Suspendabl
     internal open suspend fun coroutineRun() {
         if (owner.running) {
             runCatching {
-                handler(event)
+                handler()
             }.onFailure {
                 logger.error("Exception occurred during subroutine", it)
             }
@@ -115,12 +121,22 @@ open class Sequence<T : Event>(val owner: EventListener, val handler: Suspendabl
     }
 
     /**
+     * Adds a task to be executed when the sequence is cancelled.
+     */
+    fun onCancellation(task: Runnable) {
+        cancellationTask = task
+    }
+
+    /**
      * Waits until the [case] is true, then continues. Checks every tick.
      */
-    suspend fun waitUntil(case: BooleanSupplier) {
+    suspend fun waitUntil(case: BooleanSupplier): Int {
+        var ticks = 0
         while (!case.asBoolean) {
             sync()
+            ticks++
         }
+        return ticks
     }
 
     /**
@@ -193,11 +209,7 @@ open class Sequence<T : Event>(val owner: EventListener, val handler: Suspendabl
 
 }
 
-object DummyEvent : Event()
-
-class TickSequence(owner: EventListener, handler: SuspendableHandler<DummyEvent>)
-    : Sequence<DummyEvent>(owner, handler, DummyEvent) {
-
+class TickSequence(owner: EventListener, handler: SuspendableHandler) : Sequence(owner, handler) {
     private var continueLoop = true
 
     override suspend fun coroutineRun() {

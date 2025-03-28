@@ -46,5 +46,5 @@ inline fun <T> compareValueByCondition(a: T, b: T, cond: (T) -> Boolean): Int {
 }
 
 inline fun <T> compareByCondition(crossinline cond: (T) -> Boolean): Comparator<T> {
-    return Comparator { o1, o2 -> compareValuesBy(o1, o2, cond) }
+    return Comparator { o1, o2 -> compareValueByCondition(o1, o2, cond) }
 }

@@ -401,7 +401,7 @@
 	"liquidbounce.module.fly.description": "サバイバル モードで飛行できるようにします。",
 	"liquidbounce.module.fly.messages.vulcanGhostNewMessage": "ゴーストモードで飛行します。準備ができた際にボタンを押して使用してください。サーバーによって後退されられるかもしれません。",
 	"liquidbounce.module.fly.messages.vulcanGhostOldMessage": "飛行します。着陸したいときは、棚から降りるか、飛び上がって好きな方向に歩きます。AutoDisableが無効になっている場合は、モジュールを無効にしてください。",
-	"liquidbounce.module.focus.description": "特定の敵のみを攻撃できるようにします。",
+	"liquidbounce.module.targetLock.description": "特定の敵のみを攻撃できるようにします。",
 	"liquidbounce.module.forceUnicodeChat.description": "送信したすべてのチャット メッセージを Unicode に変換します。",
 	"liquidbounce.module.freeCam.description": "体外への移動を許可します。",
 	"liquidbounce.module.freeze.description": "サーバーに知られることなく、現在の位置で自分自身をフリーズさせることができます。",
@@ -454,6 +454,7 @@
 	"liquidbounce.module.noSlowBreak.description": "悪影響を与える状況にある場合、採掘速度を自動的に調整します。",
 	"liquidbounce.module.noSwing.description": "スイング効果を無効にします。",
 	"liquidbounce.module.noWeather.description": "雨の効果を無効にします。",
+	"liquidbounce.module.elytraSwap.description": "チェストプレートとエリトラを素早く入れ替えることができます。",
 	"liquidbounce.module.noWeb.description": "クモの巣のスローダウンを無効にします。",
 	"liquidbounce.module.notifier.description": "あらゆる種類のイベントについて通知します。",
 	"liquidbounce.module.nuker.description": "エリア内のすべてのブロックを自動的に破壊します。",
@@ -505,5 +506,6 @@
 	"liquidbounce.module.zoot.description": "すべての悪い効果/火を取り除きます。",
 	"modmenu.descriptionTranslation.liquidbounce": "無料でオープンソースのハッククライアント",
     "liquidbounce.module.betterTab.description": "タブリストに複数の改良を加えました。",
+    "liquidbounce.module.logoffSpot.description": "サーバーから退出したプレイヤーや、描画範囲外のプレイヤーを表示できるようにします。",
     "liquidbounce.module.autoPearl.description": "敵の真珠の軌道に向けて真珠を狙い投げる."
 }

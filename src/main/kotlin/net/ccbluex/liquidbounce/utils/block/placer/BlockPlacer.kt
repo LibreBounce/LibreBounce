@@ -20,25 +20,26 @@ package net.ccbluex.liquidbounce.utils.block.placer
 
 import it.unimi.dsi.fastutil.objects.Object2BooleanLinkedOpenHashMap
 import net.ccbluex.liquidbounce.config.types.Configurable
+import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.events.RotationUpdateEvent
 import net.ccbluex.liquidbounce.event.events.WorldChangeEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.ClientModule
-import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.HotbarItemSlot
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
 import net.ccbluex.liquidbounce.render.FULL_BOX
 import net.ccbluex.liquidbounce.render.engine.Color4b
-import net.ccbluex.liquidbounce.utils.aiming.Rotation
-import net.ccbluex.liquidbounce.utils.aiming.raycast
-import net.ccbluex.liquidbounce.utils.aiming.raytraceBlock
+import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
+import net.ccbluex.liquidbounce.utils.aiming.utils.raycast
+import net.ccbluex.liquidbounce.utils.aiming.utils.raytraceBlock
 import net.ccbluex.liquidbounce.utils.block.*
 import net.ccbluex.liquidbounce.utils.block.targetfinding.*
 import net.ccbluex.liquidbounce.utils.client.SilentHotbar
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.collection.getSlot
+import net.ccbluex.liquidbounce.utils.inventory.HotbarItemSlot
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.math.sq
 import net.ccbluex.liquidbounce.utils.render.placement.PlacementRenderer
@@ -80,8 +81,11 @@ class BlockPlacer(
      */
     val sneak by int("Sneak", 1, 0..10, "ticks")
 
-    val ignoreOpenInventory by boolean("IgnoreOpenInventory", true)
-    val ignoreUsingItem by boolean("IgnoreUsingItem", true)
+    private val ignores by multiEnumChoice("Ignore", Ignore.entries)
+
+    val ignoreOpenInventory get() = Ignore.OPEN_INVENTORY in ignores
+
+    val ignoreUsingItem get() = Ignore.USING_ITEM in ignores
 
     val slotResetDelay by intRange("SlotResetDelay", 4..6, 0..40, "ticks")
 
@@ -142,7 +146,7 @@ class BlockPlacer(
             return@handler
         }
 
-        if (blocks.isEmpty) {
+        if (blocks.isEmpty()) {
             return@handler
         }
 
@@ -366,7 +370,7 @@ class BlockPlacer(
         }
 
         val raycast = raycast(range = range.toDouble(), rotation = rotation)
-        return raycast != null && raycast.type == HitResult.Type.BLOCK && raycast.blockPos == pos
+        return raycast.type == HitResult.Type.BLOCK && raycast.blockPos == pos
     }
 
     /**
@@ -445,4 +449,8 @@ class BlockPlacer(
 
     override fun parent(): EventListener = module
 
+    private enum class Ignore(override val choiceName: String) : NamedChoice {
+        OPEN_INVENTORY("OpenInventory"),
+        USING_ITEM("UsingItem")
+    }
 }

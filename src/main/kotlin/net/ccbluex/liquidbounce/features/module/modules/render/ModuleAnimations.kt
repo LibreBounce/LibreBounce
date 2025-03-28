@@ -20,6 +20,7 @@ package net.ccbluex.liquidbounce.features.module.modules.render
 
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.PlayerStrideEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -40,11 +41,13 @@ import net.minecraft.util.math.RotationAxis
  * Please credit from where you got the animation from and make sure they are willing to contribute.
  * If they are not willing to contribute, please do not add the animation to this module.
  */
-object ModuleAnimations : ClientModule("Animations", Category.RENDER) {
+@Suppress("MagicNumber")
+object ModuleAnimations : ClientModule("Animations", Category.RENDER, aliases = arrayOf("ViewModel")) {
 
     init {
         tree(MainHand)
         tree(OffHand)
+        tree(EquipOffset)
     }
 
     object MainHand : ToggleableConfigurable(this, "MainHand", false) {
@@ -65,24 +68,38 @@ object ModuleAnimations : ClientModule("Animations", Category.RENDER) {
         val OffHandPositiveZ by float("PositiveRotationZ", 0f, -50f..50f)
     }
 
+    val swingDuration by int("SwingDuration", 6, 1..20)
+
     /**
      * A choice that allows the user to choose the animation that will be used during the blocking
      * of a sword.
      * This choice is only used when the [ModuleSwordBlock] module is enabled.
      */
-    var blockAnimationChoice = choices(
+    val blockAnimationChoice = choices(
         "BlockingAnimation", OneSevenAnimation, arrayOf(
             OneSevenAnimation,
             PushdownAnimation
         )
     )
 
-    /**
-     * If true, the original Minecraft equip offset will be applied.
-     * This causes the blocking to look weirdly fast and cause the sword to almost disappear from
-     * the screen.
-     */
-    var equipOffset by boolean("EquipOffset", false)
+    object EquipOffset : ToggleableConfigurable(this, "EquipOffset", true) {
+        private val ignore by multiEnumChoice("Ignore",
+            Ignores.BLOCKING,
+            Ignores.PLACE
+        )
+
+        val ignoreBlocking get() = Ignores.BLOCKING in ignore
+        val ignorePlace get() = Ignores.PLACE in ignore
+        val ignoreAmount get() = Ignores.AMOUNT in ignore
+
+        private enum class Ignores(
+            override val choiceName: String
+        ) : NamedChoice {
+            BLOCKING("Blocking"),
+            PLACE("Place"),
+            AMOUNT("Amount")
+        }
+    }
 
     /**
      * if true, the walk animation will also be applied in the air.

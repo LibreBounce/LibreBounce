@@ -39,7 +39,7 @@ import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket
  * Modifies the amount of velocity you take.
  */
 
-object ModuleVelocity : ClientModule("Velocity", Category.COMBAT) {
+object ModuleVelocity : ClientModule("Velocity", Category.COMBAT, aliases = arrayOf("AntiKnockBack")) {
 
     init {
         enableLock()
@@ -47,16 +47,22 @@ object ModuleVelocity : ClientModule("Velocity", Category.COMBAT) {
 
     val modes = choices(
         "Mode", VelocityModify, arrayOf(
+            // Generic modes
             VelocityModify,
-            VelocityWatchdog,
+            VelocityReversal,
             VelocityStrafe,
+            VelocityJumpReset,
+
+            // Server modes
+            VelocityHypixel,
+            VelocityDexland,
+            VelocityHylex,
+            VelocityBlocksMC,
+
+            // Anti cheat modes
             VelocityAAC442,
             VelocityExemptGrim117,
-            VelocityDexland,
-            VelocityJumpReset,
-            VelocityIntave,
-            VelocityHylex,
-            VelocityBlocksMC
+            VelocityIntave
         )
     ).apply(::tagBy)
 

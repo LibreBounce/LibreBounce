@@ -23,13 +23,33 @@ package net.ccbluex.liquidbounce.features.module.modules.client
 
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
-import net.ccbluex.liquidbounce.utils.combat.combatTargetsConfigurable
-import net.ccbluex.liquidbounce.utils.combat.visualTargetsConfigurable
+import net.ccbluex.liquidbounce.utils.combat.Targets
 
-object ModuleTargets : ClientModule("Targets", Category.CLIENT, disableActivation = true, hide = true,
-    aliases = arrayOf("Enemies")) {
-    init {
-        tree(combatTargetsConfigurable)
-        tree(visualTargetsConfigurable)
-    }
+object ModuleTargets : ClientModule(
+    name = "Targets",
+    category = Category.CLIENT,
+    notActivatable = true,
+    hide = true,
+    aliases = arrayOf("Enemies")
+) {
+    val combatConfigurable = multiEnumChoice("Combat",
+        Targets.PLAYERS,
+        Targets.HOSTILE,
+        Targets.ANGERABLE,
+        Targets.WATER_CREATURE,
+        Targets.INVISIBLE,
+    )
+
+    val visualConfigurable = multiEnumChoice("Visual",
+        Targets.PLAYERS,
+        Targets.HOSTILE,
+        Targets.ANGERABLE,
+        Targets.WATER_CREATURE,
+        Targets.INVISIBLE,
+        Targets.FRIENDS
+    )
+
+    inline val combat get() = combatConfigurable.get()
+
+    inline val visual get() = visualConfigurable.get()
 }

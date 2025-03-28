@@ -61,7 +61,7 @@ data class InputBind(
         get() = when {
             isUnbound -> "None"
             else -> this.boundKey.translationKey
-                .split(".")
+                .split('.')
                 .drop(2) // Drops the "key.keyboard" or "key.mouse" part
                 .joinToString(separator = "_") // Joins the remaining parts with underscores
                 .uppercase() // Converts the key name to uppercase

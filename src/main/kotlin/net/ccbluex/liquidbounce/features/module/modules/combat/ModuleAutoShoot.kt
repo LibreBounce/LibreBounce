@@ -30,20 +30,20 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
 import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
-import net.ccbluex.liquidbounce.utils.aiming.PointTracker
-import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
+import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
+import net.ccbluex.liquidbounce.utils.aiming.point.PointTracker
+import net.ccbluex.liquidbounce.utils.aiming.point.preference.PreferredBoxPart
 import net.ccbluex.liquidbounce.utils.aiming.projectiles.SituationalProjectileAngleCalculator
+import net.ccbluex.liquidbounce.utils.clicking.Clicker
 import net.ccbluex.liquidbounce.utils.client.SilentHotbar
 import net.ccbluex.liquidbounce.utils.client.interactItem
-import net.ccbluex.liquidbounce.utils.combat.ClickScheduler
 import net.ccbluex.liquidbounce.utils.combat.CombatManager
-import net.ccbluex.liquidbounce.utils.combat.PriorityEnum
+import net.ccbluex.liquidbounce.utils.combat.TargetPriority
 import net.ccbluex.liquidbounce.utils.combat.TargetTracker
-import net.ccbluex.liquidbounce.utils.entity.boxedDistanceTo
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
-import net.ccbluex.liquidbounce.utils.item.findHotbarSlot
+import net.ccbluex.liquidbounce.utils.inventory.Slots
 import net.ccbluex.liquidbounce.utils.item.isNothing
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.render.WorldTargetRenderer
@@ -65,20 +65,19 @@ import net.minecraft.util.Hand
  */
 object ModuleAutoShoot : ClientModule("AutoShoot", Category.COMBAT) {
 
-    private val range by floatRange("Range", 3.0f..6f, 1f..50f)
     private val throwableType by enumChoice("ThrowableType", ThrowableType.EGG_AND_SNOWBALL)
     private val gravityType by enumChoice("GravityType", GravityType.AUTO).apply { tagBy(this) }
 
-    private val clickScheduler = tree(ClickScheduler(this, showCooldown = false))
+    private val clicker = tree(Clicker(this, mc.options.useKey, showCooldown = false))
 
     /**
      * The target tracker to find the best enemy to attack.
      */
-    internal val targetTracker = tree(TargetTracker(defaultPriority = PriorityEnum.DISTANCE))
+    internal val targetTracker = tree(TargetTracker(TargetPriority.DISTANCE, floatRange("Range", 3.0f..6f, 1f..50f)))
     private val pointTracker = tree(
         PointTracker(
-            lowestPointDefault = PointTracker.PreferredBoxPart.HEAD,
-            highestPointDefault = PointTracker.PreferredBoxPart.HEAD,
+            lowestPointDefault = PreferredBoxPart.HEAD,
+            highestPointDefault = PreferredBoxPart.HEAD,
             // The lag on Hypixel is massive
             timeEnemyOffsetDefault = 3f,
             timeEnemyOffsetScale = 0f..7f
@@ -111,10 +110,8 @@ object ModuleAutoShoot : ClientModule("AutoShoot", Category.COMBAT) {
      */
     @Suppress("unused")
     val simulatedTickHandler = handler<RotationUpdateEvent> {
-        targetTracker.cleanup()
-
         // Find the recommended target
-        val target = targetTracker.enemies().firstOrNull {
+        val target = targetTracker.selectFirst {
             // Check if we can see the enemy
             player.canSee(it)
         } ?: return@handler
@@ -124,10 +121,6 @@ object ModuleAutoShoot : ClientModule("AutoShoot", Category.COMBAT) {
         }
 
         if (requiresKillAura && !ModuleKillAura.running) {
-            return@handler
-        }
-
-        if (target.boxedDistanceTo(player) !in range) {
             return@handler
         }
 
@@ -145,11 +138,14 @@ object ModuleAutoShoot : ClientModule("AutoShoot", Category.COMBAT) {
         val rotation = generateRotation(target, GravityType.fromHand(hand))
 
         // Set the rotation with the usage priority of 2.
-        RotationManager.aimAt(
-            rotationConfigurable.toAimPlan(rotation ?: return@handler, considerInventory = considerInventory),
+        RotationManager.setRotationTarget(
+            rotationConfigurable.toRotationTarget(rotation ?: return@handler, considerInventory = considerInventory),
             Priority.IMPORTANT_FOR_USAGE_2, this
         )
-        targetTracker.lock(target)
+    }
+
+    override fun disable() {
+        targetTracker.reset()
     }
 
     /**
@@ -157,17 +153,7 @@ object ModuleAutoShoot : ClientModule("AutoShoot", Category.COMBAT) {
      */
     @Suppress("unused")
     val handleAutoShoot = tickHandler {
-        val target = targetTracker.lockedOnTarget ?: return@tickHandler
-
-        // Cannot happen but we want to smart-cast
-        @Suppress("USELESS_IS_CHECK")
-        if (target !is LivingEntity) {
-            return@tickHandler
-        }
-
-        if (target.boxedDistanceTo(player) !in range) {
-            return@tickHandler
-        }
+        val target = targetTracker.target ?: return@tickHandler
 
         if (notDuringCombat && CombatManager.isInCombat) {
             return@tickHandler
@@ -202,9 +188,9 @@ object ModuleAutoShoot : ClientModule("AutoShoot", Category.COMBAT) {
         }
 
         // Check if we are still aiming at the target
-        clickScheduler.clicks {
+        clicker.click {
             if (player.isUsingItem || (considerInventory && InventoryManager.isInventoryOpen)) {
-                return@clicks false
+                return@click false
             }
 
             interaction.interactItem(
@@ -218,7 +204,7 @@ object ModuleAutoShoot : ClientModule("AutoShoot", Category.COMBAT) {
 
     val renderHandler = handler<WorldRenderEvent> { event ->
         val matrixStack = event.matrixStack
-        val target = targetTracker.lockedOnTarget ?: return@handler
+        val target = targetTracker.target ?: return@handler
 
         renderEnvironmentForWorld(matrixStack) {
             targetRenderer.render(this, target, event.partialTicks)
@@ -264,7 +250,7 @@ object ModuleAutoShoot : ClientModule("AutoShoot", Category.COMBAT) {
 
         // If both is false, we have to find the item in the hotbar
         return if (!mainHand && !offHand) {
-            val throwableSlot = findHotbarSlot(item) ?: return null
+            val throwableSlot = Slots.Hotbar.findSlotIndex(item) ?: return null
             Hand.MAIN_HAND to throwableSlot
         } else if (offHand) {
             Hand.OFF_HAND to -1

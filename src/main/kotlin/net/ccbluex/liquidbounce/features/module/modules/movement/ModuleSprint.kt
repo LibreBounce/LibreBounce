@@ -20,13 +20,19 @@ package net.ccbluex.liquidbounce.features.module.modules.movement
 
 import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
+import net.ccbluex.liquidbounce.event.events.SprintEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
-import net.ccbluex.liquidbounce.utils.aiming.Rotation
+import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.features.ScaffoldSprintControlFeature
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
+import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
+import net.ccbluex.liquidbounce.utils.aiming.features.MovementCorrection
+import net.ccbluex.liquidbounce.utils.entity.getMovementDirectionOfInput
+import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.CRITICAL_MODIFICATION
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
+import net.ccbluex.liquidbounce.utils.movement.DirectionalInput
 import net.minecraft.util.math.MathHelper
 
 /**
@@ -37,7 +43,7 @@ import net.minecraft.util.math.MathHelper
 
 object ModuleSprint : ClientModule("Sprint", Category.MOVEMENT) {
 
-    enum class SprintMode(override val choiceName: String) : NamedChoice {
+    private enum class SprintMode(override val choiceName: String) : NamedChoice {
         LEGIT("Legit"),
         OMNIDIRECTIONAL("Omnidirectional"),
         OMNIROTATIONAL("Omnirotational"),
@@ -45,35 +51,49 @@ object ModuleSprint : ClientModule("Sprint", Category.MOVEMENT) {
 
     private val sprintMode by enumChoice("Mode", SprintMode.LEGIT)
 
-    private val ignoreBlindness by boolean("IgnoreBlindness", false)
-    private val ignoreHunger by boolean("IgnoreHunger", false)
-    private val ignoreCollision by boolean("IgnoreCollision", false)
-    private val stopOnGround by boolean("StopOnGround", true)
-    private val stopOnAir by boolean("StopOnAir", true)
+    private val ignore by multiEnumChoice<Ignore>("Ignore")
+
+    /**
+     * This is used to stop sprinting when the player is not moving forward
+     * without a velocity fix enabled.
+     */
+    private val stopOn by multiEnumChoice("StopOn", StopOn.entries)
+
+    val shouldSprintOmnidirectional: Boolean
+        get() = running && sprintMode == SprintMode.OMNIDIRECTIONAL ||
+            ScaffoldSprintControlFeature.allowOmnidirectionalSprint
+
+    val shouldIgnoreBlindness
+        get() = running && Ignore.BLINDNESS in ignore
+
+    val shouldIgnoreHunger
+        get() = running && Ignore.HUNGER in ignore
+
+    val shouldIgnoreCollision
+        get() = running && Ignore.COLLISION in ignore
+
+    @Suppress("unused")
+    private val sprintHandler = handler<SprintEvent>(priority = CRITICAL_MODIFICATION) { event ->
+        if (!event.directionalInput.isMoving) {
+            return@handler
+        }
+
+        if (event.source == SprintEvent.Source.MOVEMENT_TICK || event.source == SprintEvent.Source.INPUT) {
+            event.sprint = true
+        }
+    }
+
+    @Suppress("unused")
+    private val sprintPreventionHandler = handler<SprintEvent> { event ->
+        // In this case we want to prevent sprinting on movement tick only,
+        // because otherwise you could guess from the input change that this is automated.
+        if (event.source == SprintEvent.Source.MOVEMENT_TICK && shouldPreventSprint()) {
+            event.sprint = false
+        }
+    }
 
     // DO NOT USE TREE TO MAKE SURE THAT THE ROTATIONS ARE NOT CHANGED
     private val rotationsConfigurable = RotationsConfigurable(this)
-
-    fun shouldSprintOmnidirectionally() = running && sprintMode == SprintMode.OMNIDIRECTIONAL
-
-    fun shouldIgnoreBlindness() = running && ignoreBlindness
-
-    fun shouldIgnoreHunger() = running && ignoreHunger
-
-    fun shouldIgnoreCollision() = running && ignoreCollision
-
-    fun shouldPreventSprint(): Boolean {
-        val deltaYaw = player.yaw - (RotationManager.currentRotation ?: return false).yaw
-        val (forward, sideways) = Pair(player.input.movementForward, player.input.movementSideways)
-
-        val hasForwardMovement = forward * MathHelper.cos(deltaYaw * 0.017453292f) + sideways *
-                MathHelper.sin(deltaYaw * 0.017453292f) > 1.0E-5
-        val preventSprint = (if (player.isOnGround) stopOnGround else stopOnAir)
-            && !shouldSprintOmnidirectionally()
-            && RotationManager.workingAimPlan?.applyVelocityFix == false && !hasForwardMovement
-
-        return running && preventSprint
-    }
 
     @Suppress("unused")
     private val omniRotationalHandler = handler<GameTickEvent> {
@@ -82,25 +102,38 @@ object ModuleSprint : ClientModule("Sprint", Category.MOVEMENT) {
             return@handler
         }
 
-        val yaw = when {
-            mc.options.forwardKey.isPressed && mc.options.leftKey.isPressed
-                && !mc.options.rightKey.isPressed -> 45f
-            mc.options.forwardKey.isPressed && mc.options.rightKey.isPressed
-                && !mc.options.leftKey.isPressed -> -45f
-            mc.options.backKey.isPressed && mc.options.leftKey.isPressed
-                && !mc.options.rightKey.isPressed -> 135f
-            mc.options.backKey.isPressed && mc.options.rightKey.isPressed
-                && !mc.options.leftKey.isPressed -> -135f
-            mc.options.backKey.isPressed -> 180f
-            mc.options.leftKey.isPressed && !mc.options.rightKey.isPressed -> 90f
-            mc.options.rightKey.isPressed && !mc.options.leftKey.isPressed -> -90f
-            else -> return@handler
-        }
+        val yaw = getMovementDirectionOfInput(player.yaw, DirectionalInput(player.input))
 
         // todo: unhook pitch - AimPlan needs support for only yaw or pitch operation
-        val rotation = Rotation(player.yaw - yaw, player.pitch)
+        val rotation = Rotation(yaw, player.pitch)
 
-        RotationManager.aimAt(rotationsConfigurable.toAimPlan(rotation), Priority.NOT_IMPORTANT,
+        RotationManager.setRotationTarget(rotationsConfigurable.toRotationTarget(rotation), Priority.NOT_IMPORTANT,
             this@ModuleSprint)
+    }
+
+    @Suppress("MagicNumber")
+    fun shouldPreventSprint(): Boolean {
+        val deltaYaw = player.yaw - (RotationManager.currentRotation ?: return false).yaw
+        val (forward, sideways) = Pair(player.input.movementForward, player.input.movementSideways)
+
+        val hasForwardMovement = forward * MathHelper.cos(deltaYaw * 0.017453292f) + sideways *
+            MathHelper.sin(deltaYaw * 0.017453292f) > 1.0E-5
+        val preventSprint = (if (player.isOnGround) StopOn.GROUND in stopOn else StopOn.AIR in stopOn)
+            && !shouldSprintOmnidirectional
+            && RotationManager.activeRotationTarget?.movementCorrection == MovementCorrection.OFF
+            && !hasForwardMovement
+
+        return running && preventSprint
+    }
+
+    private enum class Ignore(override val choiceName: String) : NamedChoice {
+        BLINDNESS("Blindness"),
+        HUNGER("Hunger"),
+        COLLISION("Collision")
+    }
+
+    private enum class StopOn(override val choiceName: String) : NamedChoice {
+        GROUND("Ground"),
+        AIR("Air")
     }
 }

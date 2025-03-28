@@ -18,10 +18,7 @@
  */
 package net.ccbluex.liquidbounce.api.core
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.config.gson.util.decode
 import net.minecraft.client.texture.NativeImage
@@ -29,15 +26,14 @@ import net.minecraft.client.texture.NativeImageBackedTexture
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
+import okio.BufferedSource
+import okio.buffer
+import okio.sink
 import java.io.File
-import java.io.IOException
 import java.io.InputStream
 import java.util.concurrent.TimeUnit
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCoroutine
 
-private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
 fun withScope(block: suspend CoroutineScope.() -> Unit) = scope.launch { block() }
 
@@ -50,6 +46,9 @@ object HttpClient {
     val JSON_MEDIA_TYPE = "application/json; charset=utf-8".toMediaType()
     val FORM_MEDIA_TYPE = "application/x-www-form-urlencoded".toMediaType()
 
+    /**
+     * Client default [OkHttpClient]
+     */
     val client: OkHttpClient = OkHttpClient.Builder()
         .connectTimeout(3, TimeUnit.SECONDS)
         .readTimeout(10, TimeUnit.SECONDS)
@@ -58,18 +57,17 @@ object HttpClient {
         .followSslRedirects(true)
         .build()
 
-    private fun createRequest(
-        url: String,
-        method: HttpMethod,
-        agent: String = DEFAULT_AGENT,
-        headers: Headers = Headers.Builder().build(),
-        body: RequestBody? = null
-    ) = Request.Builder()
-        .url(url)
-        .method(method.name, body)
-        .header("User-Agent", agent)
-        .headers(headers)
-        .build()
+    /**
+     * New [OkHttpClient.Builder] from [client],
+     * with default settings and shared connection pool / dispatcher / cache
+     */
+    @JvmStatic
+    fun newBuilder(): OkHttpClient.Builder = client.newBuilder()
+        .connectTimeout(3, TimeUnit.SECONDS)
+        .readTimeout(10, TimeUnit.SECONDS)
+        .writeTimeout(10, TimeUnit.SECONDS)
+        .followRedirects(true)
+        .followSslRedirects(true)
 
     suspend fun request(
         url: String,
@@ -77,42 +75,23 @@ object HttpClient {
         agent: String = DEFAULT_AGENT,
         headers: Headers.Builder.() -> Unit = {},
         body: RequestBody? = null
-    ): Response = suspendCoroutine { continuation ->
-        val request = createRequest(url, method, agent, Headers.Builder().apply(headers).build(), body)
+    ): Response = withContext(Dispatchers.IO) {
+        val request = Request.Builder()
+            .url(url)
+            .method(method.name, body)
+            .headers(Headers.Builder().apply(headers).build())
+            .header("User-Agent", agent)
+            .build()
 
-        client.newCall(request).enqueue(object : Callback {
-            override fun onResponse(call: Call, response: Response) {
-                if (!response.isSuccessful) {
-                    continuation.resumeWithException(
-                        HttpException(method, url, response.code, response.body.string())
-                    )
-                    return
-                }
-
-                continuation.resume(response)
-            }
-
-            override fun onFailure(call: Call, e: IOException) {
-                continuation.resumeWithException(e)
-            }
-        })
-    }
-
-    suspend fun download(url: String, file: File, agent: String = DEFAULT_AGENT) {
-        val request = createRequest(url, HttpMethod.GET, agent)
-
-        client.newCall(request).execute().use { response ->
-            if (!response.isSuccessful) {
-                throw HttpException(HttpMethod.GET, url, response.code, "Failed to download file")
-            }
-
-            file.outputStream().use { output ->
-                response.parse<InputStream>().use { input ->
-                    input.copyTo(output)
-                }
-            }
+        val response = client.newCall(request).execute()
+        if (!response.isSuccessful) {
+            throw HttpException(method, url, response.code, response.body.string())
         }
+        response
     }
+
+    suspend fun download(url: String, file: File, agent: String = DEFAULT_AGENT) =
+        request(url, HttpMethod.GET, agent).toFile(file)
 
 }
 
@@ -120,19 +99,23 @@ enum class HttpMethod {
     GET, POST, PUT, DELETE, PATCH
 }
 
-suspend inline fun <reified T> Response.parse(): T {
+inline fun <reified T> Response.parse(): T {
     return use {
-        when (T::class) {
-            String::class -> body.string() as T
-            ByteArray::class -> body.bytes() as T
-            Unit::class -> Unit as T
-            InputStream::class -> body.byteStream() as T
-            NativeImageBackedTexture::class -> body.byteStream().use { stream ->
+        when (T::class.java) {
+            String::class.java -> body.string() as T
+            Unit::class.java -> Unit as T
+            InputStream::class.java -> body.byteStream() as T
+            BufferedSource::class.java -> body.source() as T
+            NativeImageBackedTexture::class.java -> body.byteStream().use { stream ->
                 NativeImageBackedTexture(NativeImage.read(stream)) as T
             }
-            else -> decode<T>(body.string())
+            else -> decode<T>(body.charStream())
         }
     }
+}
+
+fun Response.toFile(file: File) = use { response ->
+    file.sink().buffer().use(response.body.source()::readAll)
 }
 
 fun String.asJson() = toRequestBody(HttpClient.JSON_MEDIA_TYPE)

@@ -18,7 +18,9 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.items
 
+import it.unimi.dsi.fastutil.objects.ObjectIntPair
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.*
+import net.ccbluex.liquidbounce.utils.inventory.ItemSlot
 import net.ccbluex.liquidbounce.utils.item.EnchantmentValueEstimator
 import net.ccbluex.liquidbounce.utils.item.attackDamage
 import net.ccbluex.liquidbounce.utils.item.attackSpeed
@@ -87,8 +89,8 @@ open class WeaponItemFacet(itemSlot: ItemSlot) : ItemFacet(itemSlot) {
     override val category: ItemCategory
         get() = ItemCategory(ItemType.WEAPON, 0)
 
-    override val providedItemFunctions: List<Pair<ItemFunction, Int>>
-        get() = arrayListOf(ItemFunction.WEAPON_LIKE to 1)
+    override val providedItemFunctions: List<ObjectIntPair<ItemFunction>>
+        get() = listOf(ObjectIntPair.of(ItemFunction.WEAPON_LIKE, 1))
 
     override fun compareTo(other: ItemFacet): Int {
         return COMPARATOR.compare(this, other as WeaponItemFacet)

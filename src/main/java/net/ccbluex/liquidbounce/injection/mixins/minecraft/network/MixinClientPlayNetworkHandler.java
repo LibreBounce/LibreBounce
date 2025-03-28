@@ -16,21 +16,21 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-
 package net.ccbluex.liquidbounce.injection.mixins.minecraft.network;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.ccbluex.liquidbounce.common.ChunkUpdateFlag;
-import net.ccbluex.liquidbounce.config.types.Choice;
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.*;
+import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.trigger.triggers.*;
 import net.ccbluex.liquidbounce.features.module.modules.exploit.disabler.disablers.DisablerSpigotSpam;
 import net.ccbluex.liquidbounce.features.module.modules.misc.betterchat.ModuleBetterChat;
+import net.ccbluex.liquidbounce.features.module.modules.player.Limit;
 import net.ccbluex.liquidbounce.features.module.modules.player.ModuleAntiExploit;
 import net.ccbluex.liquidbounce.features.module.modules.player.ModuleNoRotateSet;
-import net.ccbluex.liquidbounce.utils.aiming.Rotation;
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager;
+import net.ccbluex.liquidbounce.utils.aiming.data.Rotation;
 import net.ccbluex.liquidbounce.utils.kotlin.Priority;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.DownloadingTerrainScreen;
@@ -40,8 +40,6 @@ import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.ClientConnection;
-import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
-import net.minecraft.network.packet.c2s.play.TeleportConfirmC2SPacket;
 import net.minecraft.network.packet.s2c.play.*;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -75,6 +73,36 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkH
         ChunkUpdateFlag.chunkUpdate = true;
     }
 
+    @Inject(method = "onEntityPosition", at = @At("RETURN"))
+    private void hookOnEntityPosition(EntityPositionS2CPacket packet, CallbackInfo ci) {
+        EntityMoveTrigger.INSTANCE.notify(packet);
+    }
+
+    @Inject(method = "onBlockUpdate", at = @At("RETURN"))
+    private void hookOnBlockUpdate(BlockUpdateS2CPacket packet, CallbackInfo ci) {
+        BlockChangeTrigger.INSTANCE.notify(packet);
+    }
+
+    @Inject(method = "onChunkDeltaUpdate", at = @At("RETURN"))
+    private void hookOnChunkDeltaUpdate(ChunkDeltaUpdateS2CPacket packet, CallbackInfo ci) {
+        BlockChangeTrigger.INSTANCE.postChunkUpdateHandler(packet);
+    }
+
+    @Inject(method = "onEntitySpawn", at = @At("RETURN"))
+    private void hookOnEntitySpawn(EntitySpawnS2CPacket packet, CallbackInfo ci) {
+        CrystalSpawnTrigger.INSTANCE.notify(packet);
+    }
+
+    @Inject(method = "onPlaySoundFromEntity", at = @At("RETURN"))
+    private void hookOnPlaySoundFromEntity(PlaySoundFromEntityS2CPacket packet, CallbackInfo ci) {
+        ExplodeSoundTrigger.INSTANCE.notify(packet);
+    }
+
+    @Inject(method = "onEntitiesDestroy", at = @At("RETURN"))
+    private void hookOnEntitiesDestroy(EntitiesDestroyS2CPacket packet, CallbackInfo ci) {
+        CrystalDestroyTrigger.INSTANCE.notify(packet);
+    }
+
     @Inject(method = "onChunkDeltaUpdate", at = @At("RETURN"))
     private void onChunkDeltaUpdateEnd(ChunkDeltaUpdateS2CPacket packet, CallbackInfo ci) {
         var chunkPosition = packet.sectionPos.toChunkPos();
@@ -86,7 +114,7 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkH
     @ModifyExpressionValue(method = "onExplosion", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/packet/s2c/play/ExplosionS2CPacket;playerKnockback()Ljava/util/Optional;"))
     private Optional<Vec3d> onExplosionVelocity(Optional<Vec3d> original) {
         var present = original.isPresent();
-        if (present && ModuleAntiExploit.INSTANCE.getRunning() && ModuleAntiExploit.INSTANCE.getLimitExplosionStrength()) {
+        if (present && ModuleAntiExploit.canLimit(Limit.EXPLOSION_STRENGTH)) {
             var vec = original.get();
             double fixedX = MathHelper.clamp(vec.x, -10.0, 10.0);
             double fixedY = MathHelper.clamp(vec.y, -10.0, 10.0);
@@ -104,7 +132,7 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkH
 
     @ModifyExpressionValue(method = "onParticle", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/packet/s2c/play/ParticleS2CPacket;getCount()I", ordinal = 1))
     private int onParticleAmount(int original) {
-        if (ModuleAntiExploit.INSTANCE.getRunning() && ModuleAntiExploit.INSTANCE.getLimitParticlesAmount() && 500 <= original) {
+        if (ModuleAntiExploit.canLimit(Limit.PARTICLES_AMOUNT) && 500 <= original) {
             ModuleAntiExploit.INSTANCE.notifyAboutExploit("Limited too many particles", true);
             return 100;
         }
@@ -113,7 +141,7 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkH
 
     @ModifyExpressionValue(method = "onParticle", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/packet/s2c/play/ParticleS2CPacket;getSpeed()F"))
     private float onParticleSpeed(float original) {
-        if (ModuleAntiExploit.INSTANCE.getRunning() && ModuleAntiExploit.INSTANCE.getLimitParticlesSpeed() && 10.0f <= original) {
+        if (ModuleAntiExploit.canLimit(Limit.PARTICLES_SPEED) && 10.0f <= original) {
             ModuleAntiExploit.INSTANCE.notifyAboutExploit("Limited too fast particles speed", true);
             return 10.0f;
         }
@@ -145,37 +173,40 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkH
         }
     }
 
-    @Inject(method = "onPlayerPositionLook", cancellable = true, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayNetworkHandler;setPosition(Lnet/minecraft/entity/player/PlayerPosition;Ljava/util/Set;Lnet/minecraft/entity/Entity;Z)Z", shift = At.Shift.AFTER))
-    private void injectNoRotateSet(PlayerPositionLookS2CPacket packet, CallbackInfo ci, @Local PlayerEntity playerEntity) {
-        float j = packet.change().yaw();
-        float k = packet.change().pitch();
+    private ThreadLocal<Rotation> rotationThreadLocal = ThreadLocal.withInitial(() -> null);
 
+    @Inject(method = "onPlayerPositionLook", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayNetworkHandler;setPosition(Lnet/minecraft/entity/player/PlayerPosition;Ljava/util/Set;Lnet/minecraft/entity/Entity;Z)Z"))
+    private void injectPlayerPositionLook(PlayerPositionLookS2CPacket packet, CallbackInfo ci, @Local PlayerEntity playerEntity) {
+        rotationThreadLocal.set(new Rotation(playerEntity.getYaw(), playerEntity.getPitch(), true));
+    }
+
+    @Inject(method = "onPlayerPositionLook", at = @At("RETURN"))
+    private void injectNoRotateSet(PlayerPositionLookS2CPacket packet, CallbackInfo ci, @Local PlayerEntity playerEntity) {
         if (!ModuleNoRotateSet.INSTANCE.getRunning() || MinecraftClient.getInstance().currentScreen instanceof DownloadingTerrainScreen) {
             return;
         }
 
-        // Confirm teleport
-        this.connection.send(new TeleportConfirmC2SPacket(packet.teleportId()));
-        // Silently accept yaw and pitch values requested by the server.
-        this.connection.send(new PlayerMoveC2SPacket.Full(playerEntity.getX(), playerEntity.getY(), playerEntity.getZ(), j, k, false, playerEntity.horizontalCollision));
-        Choice activeChoice = ModuleNoRotateSet.INSTANCE.getMode().getActiveChoice();
-        if (activeChoice.equals(ModuleNoRotateSet.ResetRotation.INSTANCE)) {
+        var prevRotation = this.rotationThreadLocal.get();
+        if (prevRotation == null) {
+            return;
+        }
+        this.rotationThreadLocal.remove();
+
+        if (ModuleNoRotateSet.INSTANCE.getMode().getActiveChoice() == ModuleNoRotateSet.ResetRotation.INSTANCE) {
             // Changes your server side rotation and then resets it with provided settings
-            var aimPlan = ModuleNoRotateSet.ResetRotation.INSTANCE.getRotationsConfigurable().toAimPlan(
-                    new Rotation(j, k, true),
-                    null,
+            var rotationTarget = ModuleNoRotateSet.ResetRotation.INSTANCE.getRotationsConfigurable().toRotationTarget(
+                    new Rotation(playerEntity.getYaw(), playerEntity.getPitch(), true),
                     null,
                     true,
                     null
             );
-            RotationManager.INSTANCE.aimAt(aimPlan, Priority.NOT_IMPORTANT, ModuleNoRotateSet.INSTANCE);
-        } else {
-            // Increase yaw and pitch by a value so small that the difference cannot be seen, just to update the rotation server-side.
-            playerEntity.setYaw(playerEntity.prevYaw + 0.000001f);
-            playerEntity.setPitch(playerEntity.prevPitch + 0.000001f);
+            RotationManager.INSTANCE.setRotationTarget(rotationTarget, Priority.NOT_IMPORTANT, ModuleNoRotateSet.INSTANCE);
         }
 
-        ci.cancel();
+        // Increase yaw and pitch by a value so small that the difference cannot be seen,
+        // just to update the rotation server-side.
+        playerEntity.setYaw(prevRotation.getYaw() + 0.000001f);
+        playerEntity.setPitch(prevRotation.getPitch() + 0.000001f);
     }
 
     @ModifyVariable(method = "sendChatMessage", at = @At("HEAD"), ordinal = 0, argsOnly = true)

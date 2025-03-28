@@ -31,7 +31,6 @@ import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleSca
 import net.ccbluex.liquidbounce.render.*
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.entity.PlayerSimulationCache
-import net.ccbluex.liquidbounce.utils.entity.eyes
 import net.ccbluex.liquidbounce.utils.math.geometry.AlignedFace
 import net.ccbluex.liquidbounce.utils.math.geometry.Line
 import net.ccbluex.liquidbounce.utils.math.geometry.LineSegment
@@ -122,7 +121,7 @@ object ModuleDebug : ClientModule("Debug", Category.RENDER) {
             DebuggedBox(Box(face.from, face.to), Color4b(255, 0, 0, 64))
         )
 
-        val line = LineSegment(player.eyes, player.rotationVector, 0.0..10.0)
+        val line = LineSegment(player.eyePos, player.rotationVector, 0.0..10.0)
 
         debugGeometry(
             ModuleScaffold,
@@ -143,8 +142,8 @@ object ModuleDebug : ClientModule("Debug", Category.RENDER) {
     private val expireHandler = tickHandler {
         val currentTime = System.currentTimeMillis()
 
-        debugParameters.entries.removeIf { (parameter, capture) ->
-            (currentTime - capture.time) / 1000 >= expireTime
+        debugParameters.entries.removeIf { (_, capture) ->
+            currentTime - capture.time >= expireTime * 1000
         }
     }
 
@@ -155,8 +154,6 @@ object ModuleDebug : ClientModule("Debug", Category.RENDER) {
         if (mc.options.playerListKey.isPressed || !parameters) {
             return@handler
         }
-
-        val width = mc.window.scaledWidth
 
         renderEnvironmentForGUI {
             fontRenderer.withBuffers { buffers ->
@@ -221,18 +218,8 @@ object ModuleDebug : ClientModule("Debug", Category.RENDER) {
 
                     commit(buffers)
                 }
-
-
             }
         }
-    }
-
-    inline fun debugGeometry(owner: Any, name: String, lazyGeometry: () -> DebuggedGeometry) {
-        if (!running) {
-            return
-        }
-
-        debugGeometry(owner, name, lazyGeometry.invoke())
     }
 
     fun debugGeometry(owner: Any, name: String, geometry: DebuggedGeometry) {
@@ -244,28 +231,36 @@ object ModuleDebug : ClientModule("Debug", Category.RENDER) {
         debuggedGeometry[DebuggedGeometryOwner(owner, name)] = geometry
     }
 
+    inline fun Any.debugGeometry(name: String, lazyGeometry: () -> DebuggedGeometry) {
+        if (!ModuleDebug.running) {
+            return
+        }
+
+        debugGeometry(owner = this, name, lazyGeometry())
+    }
+
     private data class DebuggedGeometryOwner(val owner: Any, val name: String)
 
     private data class DebuggedParameter(val owner: Any, val name: String)
 
-    private data class ParameterCapture(val time: Long = System.currentTimeMillis(), val value: Any)
+    private data class ParameterCapture(val time: Long = System.currentTimeMillis(), val value: Any?)
 
     private val debugParameters = hashMapOf<DebuggedParameter, ParameterCapture>()
 
-    inline fun debugParameter(owner: Any, name: String, lazyValue: () -> Any) {
-        if (!running) {
-            return
-        }
-
-        debugParameter(owner, name, lazyValue.invoke())
-    }
-
-    fun debugParameter(owner: Any, name: String, value: Any) {
+    fun debugParameter(owner: Any, name: String, value: Any?) {
         if (!running) {
             return
         }
 
         debugParameters[DebuggedParameter(owner, name)] = ParameterCapture(value = value)
+    }
+
+    inline fun Any.debugParameter(name: String, lazyValue: () -> Any) {
+        if (!ModuleDebug.running) {
+            return
+        }
+
+        debugParameter(owner = this, name, lazyValue())
     }
 
     fun getArrayEntryColor(idx: Int, length: Int): Color4b {

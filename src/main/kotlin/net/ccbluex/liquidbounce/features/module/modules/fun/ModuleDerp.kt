@@ -23,9 +23,9 @@ import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
-import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
+import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.kotlin.random
 
@@ -60,8 +60,8 @@ object ModuleDerp : ClientModule("Derp", Category.FUN) {
             }
         }
 
-        RotationManager.aimAt(rotationsConfigurable.toAimPlan(Rotation(yaw, pitch)), Priority.NOT_IMPORTANT,
-            this@ModuleDerp)
+        RotationManager.setRotationTarget(rotationsConfigurable.toRotationTarget(Rotation(yaw, pitch)),
+            Priority.NOT_IMPORTANT, this@ModuleDerp)
     }
 
     private object YawStatic : YawChoice("Static") {
@@ -84,7 +84,7 @@ object ModuleDerp : ClientModule("Derp", Category.FUN) {
 
     private object YawRandom : YawChoice("Random") {
         override val yaw: Float
-            get() = (-180f..180f).random().toFloat()
+            get() = (-180f..180f).random()
 
     }
 
@@ -148,7 +148,7 @@ object ModuleDerp : ClientModule("Derp", Category.FUN) {
             get() = pitchMode
 
         override val pitch: Float
-            get() = if (safePitch) (-90..90).random().toFloat() else (-180..180).random().toFloat()
+            get() = if (safePitch) (-90f..90f).random() else (-180f..180f).random()
 
     }
 

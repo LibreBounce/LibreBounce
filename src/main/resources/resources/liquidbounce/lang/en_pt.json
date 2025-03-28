@@ -302,6 +302,7 @@
   "liquidbounce.module.noSignRender.description": "Prevents the sign text from being rendered.",
   "liquidbounce.module.noSwing.description": "Disables the swing effect.",
   "liquidbounce.module.noWeather.description": "Disables the rain effect.",
+  "liquidbounce.module.elytraSwap.description": "Allows you to quickly swap between the chestplate and elytra.",
   "liquidbounce.module.rotations.description": "Allows you to see server-sided rotations.",
   "liquidbounce.module.storageEsp.description": "Allows you to see chests, dispensers, etc. through walls.",
   "liquidbounce.module.trajectories.description": "Allows you to see where projectile items will land.",
@@ -439,5 +440,6 @@
   "liquidbounce.liquidchat.authenticationFailed": "Authentication failed! LiquidChat requires Minecraft premium account.",
   "liquidbounce.module.autoBalls.description": "Automatically throws snowballs at your enemies.",
   "liquidbounce.module.betterTab.description": "Multiple enhancements to the tab list.",
+  "liquidbounce.module.logoffSpot.description": "Allows you to see players who have left the server or are out of render distance.",
   "liquidbounce.module.autoPearl.description": "Mira e lança uma pérola na trajetória da pérola inimiga."
 }

@@ -26,7 +26,7 @@ import net.ccbluex.liquidbounce.event.Sequence
 import net.ccbluex.liquidbounce.features.module.modules.player.autobuff.HealthBasedBuff
 import net.ccbluex.liquidbounce.features.module.modules.player.autobuff.features.Soup.DropAfterUse.assumeEmptyBowl
 import net.ccbluex.liquidbounce.features.module.modules.player.autobuff.features.Soup.DropAfterUse.wait
-import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.HotbarItemSlot
+import net.ccbluex.liquidbounce.utils.inventory.HotbarItemSlot
 import net.ccbluex.liquidbounce.utils.inventory.useHotbarSlotOrOffhand
 import net.minecraft.item.Items
 import net.minecraft.util.Hand
@@ -42,7 +42,7 @@ object Soup : HealthBasedBuff("Soup", isValidItem = { stack, _ -> stack.item == 
         tree(DropAfterUse)
     }
 
-    override suspend fun execute(sequence: Sequence<*>, slot: HotbarItemSlot) {
+    override suspend fun execute(sequence: Sequence, slot: HotbarItemSlot) {
         // Use item (be aware, it will always return false in this case)
         useHotbarSlotOrOffhand(slot)
 

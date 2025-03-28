@@ -22,6 +22,7 @@ package net.ccbluex.liquidbounce.integration.theme
 import com.google.gson.JsonArray
 import com.google.gson.annotations.SerializedName
 import com.mojang.blaze3d.systems.RenderSystem
+import kotlinx.coroutines.runBlocking
 import net.ccbluex.liquidbounce.config.ConfigSystem
 import net.ccbluex.liquidbounce.config.gson.util.decode
 import net.ccbluex.liquidbounce.config.types.Configurable
@@ -83,11 +84,11 @@ object ThemeManager : Configurable("theme") {
             field = value
 
             // Update components
-            ComponentOverlay.insertComponents()
+            ComponentOverlay.insertDefaultComponents()
 
             // Update integration browser
             IntegrationListener.updateIntegrationBrowser()
-            ModuleHud.refresh()
+            ModuleHud.reopen()
             ModuleClickGui.restartView()
         }
 
@@ -247,7 +248,7 @@ class Theme(val name: String) : Closeable {
         }
 
         val image = NativeImageBackedTexture(readBackgroundImage() ?: return false)
-        loadedBackgroundImage = Identifier.of("liquidbounce-theme-bg-$name")
+        loadedBackgroundImage = Identifier.of("liquidbounce", "theme-bg-${name.lowercase()}")
         mc.textureManager.registerTexture(loadedBackgroundImage, image)
         logger.info("Loaded background image for theme $name")
         return true

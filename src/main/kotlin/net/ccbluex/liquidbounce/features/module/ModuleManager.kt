@@ -18,7 +18,6 @@
  */
 package net.ccbluex.liquidbounce.features.module
 
-import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.config.ConfigSystem
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.DisconnectEvent
@@ -33,14 +32,17 @@ import net.ccbluex.liquidbounce.features.module.modules.client.ModuleTargets
 import net.ccbluex.liquidbounce.features.module.modules.combat.*
 import net.ccbluex.liquidbounce.features.module.modules.combat.aimbot.ModuleAutoBow
 import net.ccbluex.liquidbounce.features.module.modules.combat.autoarmor.ModuleAutoArmor
+import net.ccbluex.liquidbounce.features.module.modules.combat.backtrack.ModuleBacktrack
 import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals
 import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.ModuleCrystalAura
+import net.ccbluex.liquidbounce.features.module.modules.combat.elytratarget.ModuleElytraTarget
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
 import net.ccbluex.liquidbounce.features.module.modules.combat.tpaura.ModuleTpAura
 import net.ccbluex.liquidbounce.features.module.modules.combat.velocity.ModuleVelocity
 import net.ccbluex.liquidbounce.features.module.modules.exploit.*
 import net.ccbluex.liquidbounce.features.module.modules.exploit.disabler.ModuleDisabler
 import net.ccbluex.liquidbounce.features.module.modules.exploit.dupe.ModuleDupe
+import net.ccbluex.liquidbounce.features.module.modules.exploit.phase.ModulePhase
 import net.ccbluex.liquidbounce.features.module.modules.exploit.servercrasher.ModuleServerCrasher
 import net.ccbluex.liquidbounce.features.module.modules.`fun`.*
 import net.ccbluex.liquidbounce.features.module.modules.misc.*
@@ -71,6 +73,7 @@ import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.Module
 import net.ccbluex.liquidbounce.features.module.modules.player.nofall.ModuleNoFall
 import net.ccbluex.liquidbounce.features.module.modules.player.offhand.ModuleOffhand
 import net.ccbluex.liquidbounce.features.module.modules.render.*
+import net.ccbluex.liquidbounce.features.module.modules.render.esp.ModuleESP
 import net.ccbluex.liquidbounce.features.module.modules.render.murdermystery.ModuleMurderMystery
 import net.ccbluex.liquidbounce.features.module.modules.render.nametags.ModuleNametags
 import net.ccbluex.liquidbounce.features.module.modules.render.trajectories.ModuleTrajectories
@@ -216,6 +219,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleAntiReducedDebugInfo,
             ModuleAntiHunger,
             ModuleClip,
+            ModuleExtendedFirework,
             ModuleResetVL,
             ModuleDamage,
             ModuleDisabler,
@@ -228,18 +232,14 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModulePingSpoof,
             ModulePlugins,
             ModulePortalMenu,
-            ModuleResourceSpoof,
             ModuleSleepWalker,
-            ModuleSpoofer,
-            ModuleBungeeSpoofer,
             ModuleVehicleOneHit,
             ModuleServerCrasher,
             ModuleDupe,
             ModuleClickTp,
-            ModuleConsoleSpammer,
-            ModuleTranslationFix,
             ModuleTimeShift,
             ModuleTeleport,
+            ModulePhase,
 
             // Fun
             ModuleDankBobbing,
@@ -254,6 +254,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleAntiBot,
             ModuleBetterTab,
             ModuleBetterChat,
+            ModuleElytraTarget,
             ModuleMiddleClickAction,
             ModuleInventoryTracker,
             ModuleNameProtect,
@@ -261,12 +262,14 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleSpammer,
             ModuleAutoAccount,
             ModuleTeams,
+            ModuleElytraSwap,
             ModuleAutoChatGame,
-            ModuleFocus,
+            ModuleTargetLock,
             ModuleAutoPearl,
             ModuleAntiStaff,
             ModuleFlagCheck,
             ModulePacketLogger,
+            ModuleDebugRecorder,
 
             // Movement
             ModuleAirJump,
@@ -326,6 +329,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleReach,
             ModuleAutoQueue,
             ModuleSmartEat,
+            ModuleReplenish,
 
             // Render
             ModuleAnimations,
@@ -336,7 +340,9 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleCameraClip,
             ModuleClickGui,
             ModuleDamageParticles,
+            ModuleParticles,
             ModuleESP,
+            ModuleLogoffSpot,
             ModuleFreeCam,
             ModuleFreeLook,
             ModuleFullBright,
@@ -350,6 +356,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleAttackEffects,
             ModuleNametags,
             ModuleCombineMobs,
+            ModuleAspect,
             ModuleAutoF5,
             ModuleChams,
             ModuleBedPlates,
@@ -368,10 +375,12 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleTracers,
             ModuleTrajectories,
             ModuleTrueSight,
+            ModuleVoidESP,
             ModuleXRay,
             ModuleDebug,
             ModuleZoom,
             ModuleItemChams,
+            ModuleCrystalView,
 
             // World
             ModuleAutoBuild,
@@ -383,6 +392,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleFastPlace,
             ModuleFucker,
             ModuleAutoTrap,
+            ModuleBlockTrap,
             ModuleNoSlowBreak,
             ModuleLiquidPlace,
             ModuleProjectilePuncher,
@@ -391,6 +401,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleNuker,
             ModuleExtinguish,
             ModuleBedDefender,
+            ModuleBlockIn,
             ModuleSurround,
             ModulePacketMine,
             ModuleHoleFiller,
@@ -401,11 +412,6 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleTargets,
             ModuleLiquidChat
         )
-
-        // Register dev modules
-        if (LiquidBounce.IN_DEVELOPMENT) {
-            builtin += ModuleDebugRecorder
-        }
 
         builtin.forEach { module ->
             addModule(module)
@@ -432,10 +438,10 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
         modules.clear()
     }
 
-    fun autoComplete(begin: String, validator: (ClientModule) -> Boolean = { true }): List<String> {
+    inline fun autoComplete(begin: String, validator: (ClientModule) -> Boolean = { true }): List<String> {
         val parts = begin.split(",")
         val matchingPrefix = parts.last()
-        val resultPrefix = parts.dropLast(1).joinToString(",") + ","
+        val resultPrefix = parts.subList(0, parts.size - 1).joinToString(",") + ","
         return filter { it.name.startsWith(matchingPrefix, true) && validator(it) }
             .map {
                 if (parts.size == 1) {
@@ -459,6 +465,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
     fun getCategories() = Category.entries.mapArray { it.readableName }
 
     @JvmName("getModules")
+    @ScriptApiRequired
     fun getModules(): Iterable<ClientModule> = modules
 
     @JvmName("getModuleByName")

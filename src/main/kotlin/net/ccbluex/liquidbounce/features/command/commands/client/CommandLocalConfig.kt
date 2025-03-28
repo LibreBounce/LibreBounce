@@ -22,16 +22,13 @@ import net.ccbluex.liquidbounce.config.AutoConfig
 import net.ccbluex.liquidbounce.config.AutoConfig.serializeAutoConfig
 import net.ccbluex.liquidbounce.config.ConfigSystem
 import net.ccbluex.liquidbounce.config.IncludeConfiguration
-import net.ccbluex.liquidbounce.config.gson.publicGson
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.features.command.CommandFactory
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
+import net.ccbluex.liquidbounce.features.command.builder.moduleParameter
 import net.ccbluex.liquidbounce.features.module.ModuleManager
-import net.ccbluex.liquidbounce.utils.client.chat
-import net.ccbluex.liquidbounce.utils.client.markAsError
-import net.ccbluex.liquidbounce.utils.client.regular
-import net.ccbluex.liquidbounce.utils.client.variable
+import net.ccbluex.liquidbounce.utils.client.*
 import net.minecraft.util.Util
 
 /**
@@ -131,8 +128,15 @@ object CommandLocalConfig : CommandFactory {
                 .required()
                 .build()
         )
+        .parameter(
+            moduleParameter()
+                .optional()
+                .build()
+        )
         .handler { command, args ->
             val name = args[0] as String
+            val moduleNames = args.getOrNull(1) as String?
+            val modules = ModuleManager.parseModulesFromParameter(moduleNames)
 
             ConfigSystem.userConfigsFolder.resolve("$name.json").runCatching {
                 if (!exists()) {
@@ -140,14 +144,13 @@ object CommandLocalConfig : CommandFactory {
                     return@handler
                 }
 
-                AutoConfig.withLoading {
-                    ConfigSystem.deserializeConfigurable(
-                        ModuleManager.modulesConfigurable,
-                        bufferedReader(),
-                        publicGson
-                    )
+                bufferedReader().use { r ->
+                    AutoConfig.withLoading {
+                        AutoConfig.loadAutoConfig(r, modules)
+                    }
                 }
-            }.onFailure {
+            }.onFailure { error ->
+                logger.error("Failed to load config $name", error)
                 chat(markAsError(command.result("failedToLoad", variable(name))))
             }.onSuccess {
                 chat(regular(command.result("loaded", variable(name))))

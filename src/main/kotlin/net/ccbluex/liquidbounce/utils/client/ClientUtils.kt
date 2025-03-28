@@ -39,7 +39,7 @@ val logger: Logger
     get() = LiquidBounce.logger
 
 val inGame: Boolean
-    get() = MinecraftClient.getInstance()?.let { mc -> mc.player != null && mc.world != null } ?: false
+    get() = MinecraftClient.getInstance()?.let { mc -> mc.player != null && mc.world != null } == true
 
 // Chat formatting
 private val clientPrefix = Text.empty()
@@ -111,7 +111,7 @@ data class MessageMetadata(
     replaceWith = ReplaceWith("chat(*texts, metadata = MessageMetadata(prefix = prefix))")
 )
 fun chat(vararg texts: Text, prefix: Boolean) {
-    chat(*texts, metadata =  MessageMetadata(prefix = prefix))
+    chat(texts = texts, metadata = MessageMetadata(prefix = prefix))
 }
 
 /**

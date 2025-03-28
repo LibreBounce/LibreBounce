@@ -22,13 +22,13 @@ import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.RotationUpdateEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
+import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 
 /**
- * Makes you go faster by strafing 45deg
+ * Makes you go faster by strategically strafing
  */
 object SpeedYawOffset : ToggleableConfigurable(ModuleSpeed, "YawOffset", false) {
 
@@ -42,13 +42,13 @@ object SpeedYawOffset : ToggleableConfigurable(ModuleSpeed, "YawOffset", false) 
         when (yawOffsetMode) {
             YawOffsetMode.GROUND -> groundYawOffset() // makes you strafe more on ground
             YawOffsetMode.AIR -> airYawOffset() // 45deg strafe on air
-            YawOffsetMode.NONE -> return@handler
+            YawOffsetMode.CONSTANT -> constantYawOffset()
         }
 
         val rotation = Rotation(player.yaw - yaw, player.pitch)
 
-        RotationManager.aimAt(
-            rotationsConfigurable.toAimPlan(rotation),
+        RotationManager.setRotationTarget(
+            rotationsConfigurable.toRotationTarget(rotation),
             Priority.NOT_IMPORTANT,
             ModuleSpeed
         )
@@ -72,6 +72,21 @@ object SpeedYawOffset : ToggleableConfigurable(ModuleSpeed, "YawOffset", false) 
         return 0f
     }
 
+    private fun constantYawOffset(): Float {
+        yaw = when {
+            mc.options.forwardKey.isPressed && mc.options.leftKey.isPressed -> 45f
+            mc.options.forwardKey.isPressed && mc.options.rightKey.isPressed -> -45f
+            mc.options.backKey.isPressed && mc.options.leftKey.isPressed -> 135f
+            mc.options.backKey.isPressed && mc.options.rightKey.isPressed -> -135f
+            mc.options.backKey.isPressed -> 180f
+            mc.options.leftKey.isPressed -> 90f
+            mc.options.rightKey.isPressed -> -90f
+            else -> 0f
+        }
+
+        return 0f
+    }
+
     private fun airYawOffset(): Float {
         yaw = when {
             !player.isOnGround &&
@@ -88,7 +103,7 @@ object SpeedYawOffset : ToggleableConfigurable(ModuleSpeed, "YawOffset", false) 
     private enum class YawOffsetMode(override val choiceName: String) : NamedChoice {
         GROUND("Ground"),
         AIR("Air"),
-        NONE("None")
+        CONSTANT("Constant")
     }
 
 }

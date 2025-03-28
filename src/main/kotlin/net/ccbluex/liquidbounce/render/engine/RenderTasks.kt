@@ -22,9 +22,11 @@ import net.minecraft.util.math.Vec3d
 import net.minecraft.util.math.Vec3i
 import org.lwjgl.opengl.GL20
 import java.awt.Color
+import kotlin.Throws
 import kotlin.math.cos
 import kotlin.math.sin
 
+@JvmRecord
 data class Vec3(val x: Float, val y: Float, val z: Float) {
     constructor(x: Double, y: Double, z: Double) : this(x.toFloat(), y.toFloat(), z.toFloat())
     constructor(vec: Vec3d) : this(vec.x, vec.y, vec.z)
@@ -67,8 +69,10 @@ data class Vec3(val x: Float, val y: Float, val z: Float) {
     fun toVec3d() = Vec3d(this.x.toDouble(), this.y.toDouble(), this.z.toDouble())
 }
 
+@JvmRecord
 data class UV2f(val u: Float, val v: Float)
 
+@JvmRecord
 data class Color4b(val r: Int, val g: Int, val b: Int, val a: Int = 255) {
 
     companion object {
@@ -78,6 +82,16 @@ data class Color4b(val r: Int, val g: Int, val b: Int, val a: Int = 255) {
         val RED = Color4b(255, 0, 0, 255)
         val GREEN = Color4b(0, 255, 0, 255)
         val BLUE = Color4b(0, 0, 255, 255)
+        val CYAN = Color4b(0, 255, 255, 255)
+        val MAGENTA = Color4b(255, 0, 255, 255)
+        val YELLOW = Color4b(255, 255, 0, 255)
+        val ORANGE = Color4b(255, 165, 0, 255)
+        val PURPLE = Color4b(128, 0, 128, 255)
+        val PINK = Color4b(255, 192, 203, 255)
+        val GRAY = Color4b(128, 128, 128, 255)
+        val LIGHT_GRAY = Color4b(192, 192, 192, 255)
+        val DARK_GRAY = Color4b(64, 64, 64, 255)
+        val TRANSPARENT = Color4b(0, 0, 0, 0)
 
         @Throws(IllegalArgumentException::class)
         fun fromHex(hex: String): Color4b {

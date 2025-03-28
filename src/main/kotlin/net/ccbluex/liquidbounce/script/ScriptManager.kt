@@ -18,7 +18,9 @@
  */
 package net.ccbluex.liquidbounce.script
 
+import com.mojang.blaze3d.systems.RenderSystem
 import net.ccbluex.liquidbounce.config.ConfigSystem
+import net.ccbluex.liquidbounce.features.module.modules.render.ModuleClickGui
 import net.ccbluex.liquidbounce.utils.client.logger
 import org.graalvm.polyglot.Engine
 import org.graalvm.polyglot.Source
@@ -32,6 +34,8 @@ import java.io.File
  * Scripts are stored in the scripts directory and can be organized in subdirectories when using a main script file.
  */
 object ScriptManager {
+
+    private var isInitialized = false
 
     /**
      * A list that holds all the loaded scripts.
@@ -47,13 +51,15 @@ object ScriptManager {
         }
     }
 
-    init {
+    fun initializeEngine() {
         // Initialize the script engine and log its version and supported languages.
         val engine = Engine.create()
         logger.info(
             "[ScriptAPI] Engine Version: ${engine.version}, " +
                 "Supported languages: [ ${engine.languages.keys.joinToString(", ")} ]"
         )
+
+        isInitialized = true
     }
 
     /**
@@ -61,6 +67,8 @@ object ScriptManager {
      * and directories containing a main script file. It then loads and enables all found scripts.
      */
     fun loadAll() {
+        require(isInitialized) { "Cannot load scripts before the script engine is initialized." }
+
         root.listFiles { file ->
             Source.findLanguage(file) != null || file.isDirectory
         }?.forEach { file ->
@@ -119,6 +127,8 @@ object ScriptManager {
         language: String = Source.findLanguage(file),
         debugOptions: ScriptDebugOptions = ScriptDebugOptions()
     ): PolyglotScript {
+        require(isInitialized) { "Cannot load scripts before the script engine is initialized." }
+
         val script = PolyglotScript(language, file, debugOptions)
         script.initScript()
 
@@ -142,6 +152,11 @@ object ScriptManager {
      */
     fun enableAll() {
         scripts.forEach(PolyglotScript::enable)
+
+        if (scripts.isNotEmpty()) {
+            // Reload the ClickGUI to update the module list.
+            RenderSystem.recordRenderCall(ModuleClickGui::reloadView)
+        }
     }
 
     /**
@@ -156,7 +171,15 @@ object ScriptManager {
      * directory, and then enables them. It logs a message upon successful completion.
      */
     fun reload() {
-        unloadAll()
+        // Unload
+        try {
+            disableAll()
+            unloadAll()
+        } catch (e: Exception) {
+            logger.error("Failed to unload scripts.", e)
+        }
+
+        // Load
         loadAll()
         enableAll()
 

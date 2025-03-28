@@ -36,6 +36,8 @@ import net.minecraft.network.packet.s2c.common.DisconnectS2CPacket
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket
 import net.minecraft.util.math.Vec3d
 import org.apache.commons.lang3.StringUtils
+import kotlin.math.abs
+import kotlin.math.roundToLong
 
 /**
  * Module Flag Check.
@@ -112,21 +114,34 @@ object ModuleFlagCheck : ClientModule("FlagCheck", Category.MISC, aliases = arra
     }
 
     private var flagCount = 0
+    private var lastYaw = 0F
+    private var lastPitch = 0F
 
     @Suppress("unused")
     private val packetHandler = handler<PacketEvent> { event ->
+        if (player.age <= 25) {
+            return@handler
+        }
+
         when (val packet = event.packet) {
             is PlayerPositionLookS2CPacket -> {
-                if (player.age <= 25) {
-                    return@handler
-                }
+                val change = packet.change
+                val deltaYaw = calculateAngleDelta(change.yaw, lastYaw)
+                val deltaPitch = calculateAngleDelta(change.pitch, lastPitch)
 
                 flagCount++
-                alert(AlertReason.LAGBACK)
+                if (deltaYaw >= 90 || deltaPitch >= 90) {
+                    alert(AlertReason.FORCEROTATE, "(${deltaYaw.roundToLong()}° | ${deltaPitch.roundToLong()}°)")
+                } else {
+                    alert(AlertReason.LAGBACK)
+                }
+
                 Render.reset()
-                val change = packet.change
                 val position = change.position
                 Render.wireframePlayer.setPosRot(position.x, position.y, position.z, change.yaw, change.pitch)
+
+                lastYaw = player.headYaw
+                lastPitch = player.pitch
             }
 
             is DisconnectS2CPacket -> {
@@ -182,9 +197,17 @@ object ModuleFlagCheck : ClientModule("FlagCheck", Category.MISC, aliases = arra
         }
     }
 
+    private fun calculateAngleDelta(newAngle: Float, oldAngle: Float): Float {
+        var delta = newAngle - oldAngle
+        if (delta > 180) delta -= 360
+        if (delta < -180) delta += 360
+        return abs(delta)
+    }
+
     @Suppress("SpellCheckingInspection")
     private enum class AlertReason(val key: String) {
         INVALID("invalid"),
+        FORCEROTATE("forceRotate"),
         LAGBACK("lagback")
     }
 

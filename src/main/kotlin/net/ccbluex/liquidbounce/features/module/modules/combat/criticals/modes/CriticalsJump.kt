@@ -30,8 +30,7 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleC
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
 import net.ccbluex.liquidbounce.features.module.modules.misc.debugrecorder.modes.GenericDebugRecorder
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
-import net.ccbluex.liquidbounce.utils.aiming.Rotation
-import net.ccbluex.liquidbounce.utils.aiming.RotationManager
+import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
 import net.ccbluex.liquidbounce.utils.combat.findEnemies
 import net.ccbluex.liquidbounce.utils.entity.FallingPlayer
 import net.ccbluex.liquidbounce.utils.entity.SimulatedPlayer
@@ -115,6 +114,10 @@ object CriticalsJump : Choice("Jump") {
      */
     fun shouldWaitForCrit(target: Entity, ignoreState: Boolean = false): Boolean {
         if (!isActive() && !ignoreState) {
+            return false
+        }
+
+        if (player.isGliding) {
             return false
         }
 

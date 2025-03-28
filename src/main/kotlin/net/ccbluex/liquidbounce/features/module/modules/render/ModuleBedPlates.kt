@@ -28,7 +28,7 @@ import net.ccbluex.liquidbounce.render.FontManager
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.renderEnvironmentForGUI
 import net.ccbluex.liquidbounce.utils.block.*
-import net.ccbluex.liquidbounce.utils.item.findHotbarSlot
+import net.ccbluex.liquidbounce.utils.inventory.Slots
 import net.ccbluex.liquidbounce.utils.kotlin.component1
 import net.ccbluex.liquidbounce.utils.kotlin.component2
 import net.ccbluex.liquidbounce.utils.kotlin.forEachWithSelf
@@ -37,6 +37,7 @@ import net.ccbluex.liquidbounce.utils.math.sq
 import net.ccbluex.liquidbounce.utils.render.WorldToScreen
 import net.minecraft.block.*
 import net.minecraft.client.gui.DrawContext
+import net.minecraft.item.ItemStack
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 import java.util.*
@@ -55,6 +56,7 @@ object ModuleBedPlates : ClientModule("BedPlates", Category.RENDER) {
     private val maxDistance by float("MaxDistance", 256.0f, 128.0f..1280.0f)
     private val maxCount by int("MaxCount", 8, 1..64)
     private val highlightUnbreakable by boolean("HighlightUnbreakable", true)
+    private val compact by boolean("Compact", true)
 
     private val fontRenderer
         get() = FontManager.FONT_RENDERER
@@ -153,9 +155,8 @@ object ModuleBedPlates : ClientModule("BedPlates", Category.RENDER) {
 
                             val defaultState = it.block.defaultState
                             val color =
-                                if (highlightUnbreakable && defaultState.isToolRequired && findHotbarSlot { stack ->
-                                        stack.isSuitableFor(defaultState)
-                                    } == null) {
+                                if (highlightUnbreakable && defaultState.isToolRequired
+                                    && Slots.Hotbar.findSlotIndex { s -> s.isSuitableFor(defaultState) } == null) {
                                     Color4b.RED
                                 } else {
                                     Color4b.WHITE
@@ -172,16 +173,18 @@ object ModuleBedPlates : ClientModule("BedPlates", Category.RENDER) {
                             )
                             commit(buf)
 
-                            // layer
-                            val layerText = process(ROMAN_NUMERALS[it.layer], color)
-                            draw(
-                                layerText,
-                                topLeftX.toFloat(),
-                                0F,
-                                shadow = true,
-                                scale = fontScale,
-                            )
-                            commit(buf)
+                            if (!compact) {
+                                // layer
+                                val layerText = process(ROMAN_NUMERALS[it.layer], color)
+                                draw(
+                                    layerText,
+                                    topLeftX.toFloat(),
+                                    0F,
+                                    shadow = true,
+                                    scale = fontScale,
+                                )
+                                commit(buf)
+                            }
                         }
                     }
                 }
@@ -246,7 +249,21 @@ object ModuleBedPlates : ClientModule("BedPlates", Category.RENDER) {
             }
         }
 
-        return result
+        return if (compact) {
+            result.groupBy { surrounding ->
+                surrounding.block
+            }.map { (block, group) ->
+                group.reduce { acc, item ->
+                    SurroundingBlock(
+                        block = block,
+                        count = acc.count + item.count,
+                        layer = minOf(acc.layer, item.layer)
+                    )
+                }
+            }.toSet()
+        } else {
+            result
+        }
     }
 
     private fun BlockPos.getBedPlates(headState: BlockState): BedState {

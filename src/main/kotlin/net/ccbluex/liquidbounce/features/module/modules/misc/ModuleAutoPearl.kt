@@ -29,17 +29,15 @@ import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
-import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.HotbarItemSlot
-import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
-import net.ccbluex.liquidbounce.utils.aiming.RotationUtil
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
+import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.projectiles.SituationalProjectileAngleCalculator
+import net.ccbluex.liquidbounce.utils.aiming.utils.RotationUtil
 import net.ccbluex.liquidbounce.utils.combat.CombatManager
 import net.ccbluex.liquidbounce.utils.combat.shouldBeAttacked
-import net.ccbluex.liquidbounce.utils.inventory.OFFHAND_SLOT
+import net.ccbluex.liquidbounce.utils.inventory.Slots
 import net.ccbluex.liquidbounce.utils.inventory.useHotbarSlotOrOffhand
-import net.ccbluex.liquidbounce.utils.item.findHotbarItemSlot
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.render.trajectory.TrajectoryInfo
 import net.ccbluex.liquidbounce.utils.render.trajectory.TrajectoryInfoRenderer
@@ -62,7 +60,7 @@ private const val MAX_SIMULATED_TICKS = 240
  *
  * @author sqlerrorthing
  */
-object ModuleAutoPearl : ClientModule("AutoPearl", Category.MISC, aliases = arrayOf("PearlFollower")) {
+object ModuleAutoPearl : ClientModule("AutoPearl", Category.COMBAT, aliases = arrayOf("PearlFollower", "PearlTarget")) {
 
     private val mode by enumChoice("Mode", Modes.TRIGGER)
 
@@ -85,18 +83,13 @@ object ModuleAutoPearl : ClientModule("AutoPearl", Category.MISC, aliases = arra
 
     private val queue = ArrayQueue<Rotation>()
 
-    private val enderPearlSlot: HotbarItemSlot?
-        get() = if (OFFHAND_SLOT.itemStack.item == Items.ENDER_PEARL) {
-            OFFHAND_SLOT
-        } else { findHotbarItemSlot(Items.ENDER_PEARL) }
-
     @Suppress("unused")
     private val pearlSpawnHandler = handler<PacketEvent> { event ->
         if (event.packet !is EntitySpawnS2CPacket || event.packet.entityType != EntityType.ENDER_PEARL) {
             return@handler
         }
 
-        enderPearlSlot ?: return@handler
+        Slots.OffhandWithHotbar.findSlot(Items.ENDER_PEARL) ?: return@handler
 
         val data = event.packet
         val entity = data.entityType.create(world, SpawnReason.SPAWN_ITEM_USE) as EnderPearlEntity
@@ -116,8 +109,8 @@ object ModuleAutoPearl : ClientModule("AutoPearl", Category.MISC, aliases = arra
 
         CombatManager.pauseCombatForAtLeast(combatPauseTime)
         if (Rotate.enabled) {
-            RotationManager.aimAt(
-                Rotate.rotations.toAimPlan(rotation),
+            RotationManager.setRotationTarget(
+                Rotate.rotations.toRotationTarget(rotation),
                 Priority.IMPORTANT_FOR_USAGE_3,
                 this@ModuleAutoPearl
             )
@@ -127,7 +120,7 @@ object ModuleAutoPearl : ClientModule("AutoPearl", Category.MISC, aliases = arra
     @Suppress("unused")
     private val gameTickHandler = tickHandler {
         val rotation = queue.poll() ?: return@tickHandler
-        val itemSlot = enderPearlSlot ?: return@tickHandler
+        val itemSlot = Slots.OffhandWithHotbar.findSlot(Items.ENDER_PEARL) ?: return@tickHandler
 
         if (Rotate.enabled) {
             fun isRotationSufficient(): Boolean {
@@ -135,8 +128,8 @@ object ModuleAutoPearl : ClientModule("AutoPearl", Category.MISC, aliases = arra
             }
 
             waitConditional(20) {
-                RotationManager.aimAt(
-                    Rotate.rotations.toAimPlan(rotation),
+                RotationManager.setRotationTarget(
+                    Rotate.rotations.toRotationTarget(rotation),
                     Priority.IMPORTANT_FOR_USAGE_3,
                     this@ModuleAutoPearl
                 )
@@ -202,7 +195,7 @@ object ModuleAutoPearl : ClientModule("AutoPearl", Category.MISC, aliases = arra
 
         return when(mode) {
             Modes.TRIGGER -> pearl.owner!!.shouldBeAttacked()
-            Modes.TARGET -> ModuleKillAura.targetTracker.lockedOnTarget?.uuid == pearl.ownerUuid
+            Modes.TARGET -> ModuleKillAura.targetTracker.target?.uuid == pearl.ownerUuid
         }
     }
 

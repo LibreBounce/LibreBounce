@@ -26,7 +26,7 @@ import net.ccbluex.liquidbounce.features.module.modules.misc.ModulePacketLogger
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.block.SwingMode
 import net.ccbluex.liquidbounce.utils.input.shouldSwingHand
-import net.ccbluex.liquidbounce.utils.inventory.OFFHAND_SLOT
+import net.ccbluex.liquidbounce.utils.inventory.OffHandSlot
 import net.minecraft.client.network.ClientPlayerEntity
 import net.minecraft.client.network.ClientPlayerInteractionManager
 import net.minecraft.client.network.SequencedPacketCreator
@@ -46,14 +46,16 @@ import net.minecraft.world.GameMode
 import org.apache.commons.lang3.mutable.MutableObject
 import java.util.*
 
+@Suppress("LongParameterList")
 fun clickBlockWithSlot(
     player: ClientPlayerEntity,
     rayTraceResult: BlockHitResult,
     slot: Int,
     swingMode: SwingMode,
-    switchMode: SwitchMode = SwitchMode.SILENT
+    switchMode: SwitchMode = SwitchMode.SILENT,
+    sequenced: Boolean = true
 ) {
-    val hand = if (slot == OFFHAND_SLOT.hotbarSlotForServer) {
+    val hand = if (slot == OffHandSlot.hotbarSlotForServer) {
         Hand.OFF_HAND
     } else {
         Hand.MAIN_HAND
@@ -73,8 +75,12 @@ fun clickBlockWithSlot(
         }
     }
 
-    interaction.sendSequencedPacket(world) { sequence ->
-        PlayerInteractBlockC2SPacket(hand, rayTraceResult, sequence)
+    if (sequenced) {
+        interaction.sendSequencedPacket(world) { sequence ->
+            PlayerInteractBlockC2SPacket(hand, rayTraceResult, sequence)
+        }
+    } else {
+        network.sendPacket(PlayerInteractBlockC2SPacket(hand, rayTraceResult, 0))
     }
 
     val itemUsageContext = ItemUsageContext(player, hand, rayTraceResult)

@@ -16,7 +16,6 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-
 package net.ccbluex.liquidbounce.injection.mixins.minecraft.entity;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
@@ -24,15 +23,22 @@ import net.ccbluex.liquidbounce.config.types.NoneChoice;
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.PlayerAfterJumpEvent;
 import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent;
+import net.ccbluex.liquidbounce.features.module.modules.combat.elytratarget.ModuleElytraTarget;
 import net.ccbluex.liquidbounce.features.module.modules.movement.*;
+import net.ccbluex.liquidbounce.features.module.modules.render.DoRender;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleAntiBlind;
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold;
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager;
+import net.ccbluex.liquidbounce.utils.aiming.features.MovementCorrection;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.item.ItemStack;
+import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -76,6 +82,9 @@ public abstract class MixinLivingEntity extends MixinEntity {
 
     @Shadow
     public abstract boolean isGliding();
+
+    @Shadow
+    protected abstract boolean canGlide();
 
     /**
      * Disable [StatusEffects.LEVITATION] effect when [ModuleAntiLevitation] is enabled
@@ -124,7 +133,7 @@ public abstract class MixinLivingEntity extends MixinEntity {
 
     @Inject(method = "hasStatusEffect", at = @At("HEAD"), cancellable = true)
     private void hookAntiNausea(RegistryEntry<StatusEffect> effect, CallbackInfoReturnable<Boolean> cir) {
-        if (effect == StatusEffects.NAUSEA && ModuleAntiBlind.INSTANCE.getRunning() && ModuleAntiBlind.INSTANCE.getAntiNausea()) {
+        if (effect == StatusEffects.NAUSEA && !ModuleAntiBlind.canRender(DoRender.NAUSEA)) {
             cir.setReturnValue(false);
             cir.cancel();
         }
@@ -169,15 +178,14 @@ public abstract class MixinLivingEntity extends MixinEntity {
      */
     @ModifyExpressionValue(method = "jump", at = @At(value = "NEW", target = "(DDD)Lnet/minecraft/util/math/Vec3d;"))
     private Vec3d hookFixRotation(Vec3d original) {
-        var rotationManager = RotationManager.INSTANCE;
-        var rotation = rotationManager.getCurrentRotation();
-        var configurable = rotationManager.getWorkingAimPlan();
+        var rotation = RotationManager.INSTANCE.getCurrentRotation();
+        var rotationTarget = RotationManager.INSTANCE.getActiveRotationTarget();
 
         if ((Object) this != MinecraftClient.getInstance().player) {
             return original;
         }
 
-        if (configurable == null || !configurable.getApplyVelocityFix() || rotation == null) {
+        if (rotationTarget == null || rotationTarget.getMovementCorrection() == MovementCorrection.OFF || rotation == null) {
             return original;
         }
 
@@ -188,7 +196,7 @@ public abstract class MixinLivingEntity extends MixinEntity {
 
     @Inject(method = "pushAwayFrom", at = @At("HEAD"), cancellable = true)
     private void hookNoPush(CallbackInfo callbackInfo) {
-        if (ModuleNoPush.INSTANCE.isEntities()) {
+        if (!ModuleNoPush.canPush(NoPushBy.ENTITIES)) {
             callbackInfo.cancel();
         }
     }
@@ -245,15 +253,21 @@ public abstract class MixinLivingEntity extends MixinEntity {
             return original;
         }
 
-        var rotationManager = RotationManager.INSTANCE;
-        var rotation = rotationManager.getCurrentRotation();
-        var configurable = rotationManager.getWorkingAimPlan();
+        var rotation = RotationManager.INSTANCE.getCurrentRotation();
+        var rotationTarget = RotationManager.INSTANCE.getActiveRotationTarget();
 
-        if (rotation == null || configurable == null || !configurable.getApplyVelocityFix() || configurable.getChangeLook()) {
+        if (rotation == null || rotationTarget == null || rotationTarget.getMovementCorrection() == MovementCorrection.OFF) {
             return original;
         }
 
         return rotation.getPitch();
+    }
+
+    @Inject(method = "spawnItemParticles", at = @At("HEAD"), cancellable = true)
+    private void hookEatParticles(ItemStack stack, int count, CallbackInfo ci) {
+        if (stack.getComponents().contains(DataComponentTypes.FOOD) && !ModuleAntiBlind.canRender(DoRender.EAT_PARTICLES)) {
+            ci.cancel();
+        }
     }
 
     /**
@@ -265,15 +279,38 @@ public abstract class MixinLivingEntity extends MixinEntity {
             return original;
         }
 
-        var rotationManager = RotationManager.INSTANCE;
-        var rotation = rotationManager.getCurrentRotation();
-        var configurable = rotationManager.getWorkingAimPlan();
+        var rotation = RotationManager.INSTANCE.getCurrentRotation();
+        var rotationTarget = RotationManager.INSTANCE.getActiveRotationTarget();
 
-        if (rotation == null || configurable == null || !configurable.getApplyVelocityFix() || configurable.getChangeLook()) {
+        if (rotation == null || rotationTarget == null || rotationTarget.getMovementCorrection() == MovementCorrection.OFF) {
             return original;
         }
 
-        return rotation.getRotationVec();
+        return rotation.getDirectionVector();
     }
 
+    @Unique
+    private boolean previousIsGliding = false;
+
+    @Inject(method = "isGliding", at = @At("RETURN"), cancellable = true)
+    private void hookIsGliding(CallbackInfoReturnable<Boolean> cir) {
+        if ((Object) this != MinecraftClient.getInstance().player) {
+            return;
+        }
+
+        var player = (ClientPlayerEntity) (Object) this;
+        var gliding = cir.getReturnValue();
+
+        if (previousIsGliding && !gliding) {
+            var flag = ModuleElytraTarget.canAlwaysGlide();
+            if (flag) {
+                player.startGliding();
+                player.networkHandler.sendPacket(new ClientCommandC2SPacket(player, ClientCommandC2SPacket.Mode.START_FALL_FLYING));
+            }
+
+            cir.setReturnValue(flag);
+        }
+
+        previousIsGliding = gliding;
+    }
 }

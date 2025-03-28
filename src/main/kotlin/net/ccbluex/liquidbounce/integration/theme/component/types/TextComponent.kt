@@ -26,12 +26,17 @@ import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.integration.theme.component.Component
 import net.ccbluex.liquidbounce.render.engine.Color4b
+import net.ccbluex.liquidbounce.utils.render.Alignment
 
 /**
  * A text component
  */
 @Suppress("unused")
-class TextComponent(text: String, enabled: Boolean = true) : Component("Text", enabled) {
+class TextComponent(
+    text: String,
+    enabled: Boolean = true,
+    alignment: Alignment = Alignment.center()
+) : Component("Text", enabled, alignment) {
 
     private val text by text("Text", text)
     private val color by color("Color", Color4b.WHITE)

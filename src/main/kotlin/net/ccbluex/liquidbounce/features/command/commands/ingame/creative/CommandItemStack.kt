@@ -33,7 +33,7 @@ object CommandItemStack : CommandFactory, MinecraftShortcuts {
 
     private val amountParameter = ParameterBuilder
         .begin<Int>("amount")
-        .verifiedBy(ParameterBuilder.INTEGER_VALIDATOR)
+        .verifiedBy(ParameterBuilder.POSITIVE_INTEGER_VALIDATOR)
         .autocompletedWith { begin, _ -> mutableListOf("16", "32", "64").filter { it.startsWith(begin) } }
         .optional()
         .build()
@@ -55,12 +55,8 @@ object CommandItemStack : CommandFactory, MinecraftShortcuts {
                     throw CommandException(command.result("noItem"))
                 }
 
-                val amount = args[0] as? Int ?: 64
-
-                if (amount < 1 || amount > 64) {
-                    throw CommandException(command.result("invalidAmount"))
-                }
-
+                val amount = (args.getOrElse(0, defaultValue = { 64 }) as Int)
+                    .coerceIn(1..64)
 
                 if (mainHandStack.count == amount) {
                     chat(regular(command.result("hasAlreadyAmount", variable(amount.toString()))), command)

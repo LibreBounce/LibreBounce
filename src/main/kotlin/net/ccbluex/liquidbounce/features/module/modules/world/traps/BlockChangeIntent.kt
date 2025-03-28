@@ -18,7 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.world.traps
 
-import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.HotbarItemSlot
+import net.ccbluex.liquidbounce.utils.inventory.HotbarItemSlot
 import net.ccbluex.liquidbounce.utils.block.targetfinding.BlockPlacementTarget
 import net.minecraft.item.Item
 import net.minecraft.util.hit.BlockHitResult

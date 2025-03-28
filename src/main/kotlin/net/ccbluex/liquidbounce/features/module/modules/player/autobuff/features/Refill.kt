@@ -26,10 +26,7 @@ import net.ccbluex.liquidbounce.event.events.ScheduleInventoryActionEvent
 import net.ccbluex.liquidbounce.features.module.modules.player.autobuff.ModuleAutoBuff
 import net.ccbluex.liquidbounce.features.module.modules.player.autobuff.ModuleAutoBuff.features
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.ItemSlotType
-import net.ccbluex.liquidbounce.utils.inventory.ALL_SLOTS_IN_INVENTORY
-import net.ccbluex.liquidbounce.utils.inventory.ClickInventoryAction
-import net.ccbluex.liquidbounce.utils.inventory.INVENTORY_SLOTS
-import net.ccbluex.liquidbounce.utils.inventory.PlayerInventoryConstraints
+import net.ccbluex.liquidbounce.utils.inventory.*
 import net.ccbluex.liquidbounce.utils.item.isNothing
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 
@@ -44,7 +41,7 @@ object Refill : ToggleableConfigurable(ModuleAutoBuff, "Refill", true) {
         }
 
         // Find valid items in the inventory
-        val validItems = INVENTORY_SLOTS.filter {
+        val validItems = Slots.Inventory.filter {
             it.itemStack.let { itemStack ->
                 features.any { f ->
                     f.isValidItem(itemStack, false)
@@ -67,7 +64,7 @@ object Refill : ToggleableConfigurable(ModuleAutoBuff, "Refill", true) {
     }
 
     private fun findEmptyHotbarSlot(): Boolean {
-        return ALL_SLOTS_IN_INVENTORY.find {
+        return Slots.All.find {
             it.slotType == ItemSlotType.HOTBAR && it.itemStack.isNothing()
         } != null
     }

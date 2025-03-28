@@ -496,6 +496,7 @@
   "liquidbounce.module.xRay.description": "Опис рентгену",
   "liquidbounce.module.antiHunger.description": "Опис антиголоду",
   "liquidbounce.module.antiHunger.messages.warnSprint": "Попередження: біг",
+  "liquidbounce.module.elytraSwap.description": "Дозволяє швидко змінювати нагрудник на елітри і навпаки.",
   "liquidbounce.module.antiHunger.messages.warnBreak": "Попередження: перерва",
   "liquidbounce.module.liquidChat.description": "Опис рідкого чату",
   "liquidbounce.module.consoleSpammer.description": "Опис спамера консолі",
@@ -509,6 +510,7 @@
   "liquidbounce.module.autoShop.messages.reloadSuccess": "Перезавантаження успішне",
   "liquidbounce.module.autoShop.messages.loadError": "Помилка завантаження",
   "liquidbounce.module.bookBot.description": "Автоматично пише в книгах.",
+  "liquidbounce.module.logoffSpot.description": "Дозволяє бачити гравців, які вийшли з сервера або знаходяться поза межами відображення.",
   "liquidbounce.module.betterTab.description": "Різноманітні покращення списку вкладок.",
   "liquidbounce.module.autoPearl.description": "Прицілюється та кидає перлину по траєкторії ворожої перлини."
 }

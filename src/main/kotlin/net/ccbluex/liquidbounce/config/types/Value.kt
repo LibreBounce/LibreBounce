@@ -16,13 +16,13 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-
 package net.ccbluex.liquidbounce.config.types
 
 import com.google.gson.Gson
+import com.google.gson.JsonArray
 import com.google.gson.JsonElement
+import com.google.gson.JsonPrimitive
 import com.google.gson.annotations.SerializedName
-import com.mojang.brigadier.StringReader
 import net.ccbluex.liquidbounce.authlib.account.MinecraftAccount
 import net.ccbluex.liquidbounce.config.gson.stategies.Exclude
 import net.ccbluex.liquidbounce.config.gson.stategies.ProtocolExclude
@@ -30,18 +30,15 @@ import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.ValueChangedEvent
 import net.ccbluex.liquidbounce.features.misc.FriendManager
 import net.ccbluex.liquidbounce.lang.translation
-import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.script.ScriptApiRequired
 import net.ccbluex.liquidbounce.utils.client.convertToString
 import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.utils.client.toLowerCamelCase
 import net.ccbluex.liquidbounce.utils.input.HumanInputDeserializer
 import net.ccbluex.liquidbounce.utils.input.InputBind
-import net.ccbluex.liquidbounce.utils.inventory.findBlocksEndingWith
+import net.ccbluex.liquidbounce.utils.input.inputByName
 import net.ccbluex.liquidbounce.utils.kotlin.mapArray
-import net.minecraft.registry.Registries
-import net.minecraft.util.Identifier
-import java.awt.Color
+import net.minecraft.client.util.InputUtil
 import java.util.*
 import java.util.function.Supplier
 import kotlin.reflect.KProperty
@@ -56,6 +53,7 @@ typealias ValueChangedListener<T> = (T) -> Unit
 @Suppress("TooManyFunctions")
 open class Value<T : Any>(
     @SerializedName("name") open val name: String,
+    @Exclude val aliases: Array<out String> = emptyArray(),
     @Exclude private var defaultValue: T,
     @Exclude val valueType: ValueType,
     @Exclude @ProtocolExclude val listType: ListValueType = ListValueType.None,
@@ -66,7 +64,8 @@ open class Value<T : Any>(
     @Exclude @ProtocolExclude var independentDescription: Boolean = false
 ) {
 
-    @SerializedName("value") internal var inner: T = defaultValue
+    @SerializedName("value")
+    internal var inner: T = defaultValue
 
     internal val loweredName
         get() = name.lowercase()
@@ -95,6 +94,14 @@ open class Value<T : Any>(
     @Exclude
     @ProtocolExclude
     var notAnOption = false
+        private set
+
+    /**
+     * If true, value will always keep [inner] equals [defaultValue]
+     */
+    @Exclude
+    @ProtocolExclude
+    var isImmutable = false
         private set
 
     @Exclude
@@ -140,12 +147,10 @@ open class Value<T : Any>(
 
     @ScriptApiRequired
     @JvmName("getValue")
-    fun getValue(): Any {
-        if (this is ChoiceConfigurable<*>) {
-            return this.activeChoice.name
-        }
-
-        return when (val v = get()) {
+    fun getValue(): Any = when (this) {
+        is ChoiceConfigurable<*> -> activeChoice.name
+        is MultiChooseListValue<*> -> "${get().size}/${choices.size}"
+        else -> when (val v = get()) {
             is ClosedFloatingPointRange<*> -> arrayOf(v.start, v.endInclusive)
             is IntRange -> arrayOf(v.first, v.last)
             is NamedChoice -> v.choiceName
@@ -170,6 +175,10 @@ open class Value<T : Any>(
                     (a.first().toFloat()..a.last().toFloat()) as T
                 }
 
+                is InputUtil.Key -> {
+                    inputByName(t.asString()) as T
+                }
+
                 is IntRange -> {
                     val a = t.`as`(Array<Int>::class.java)
                     require(a.size == 2)
@@ -185,7 +194,7 @@ open class Value<T : Any>(
             }
         )
     }.onFailure {
-        logger.error("Could not set value ${this.inner}")
+        logger.error("Could not set value, old value: ${this.inner}, throwable: $it")
     }
 
     fun get() = inner
@@ -205,6 +214,10 @@ open class Value<T : Any>(
             listeners.forEach {
                 currT = it(t)
             }
+
+            if (isImmutable) {
+                return
+            }
         }.onSuccess {
             apply(currT)
             EventManager.callEvent(ValueChangedEvent(this))
@@ -223,34 +236,32 @@ open class Value<T : Any>(
 
     fun type() = valueType
 
-    fun onChange(listener: ValueListener<T>): Value<T> {
+    fun immutable() = apply {
+        isImmutable = true
+    }
+
+    fun onChange(listener: ValueListener<T>) = apply {
         listeners += listener
-        return this
     }
 
-    fun onChanged(listener: ValueChangedListener<T>): Value<T> {
+    fun onChanged(listener: ValueChangedListener<T>) = apply {
         changedListeners += listener
-        return this
     }
 
-    fun doNotIncludeAlways(): Value<T> {
+    fun doNotIncludeAlways() = apply {
         doNotInclude = { true }
-        return this
     }
 
-    fun doNotIncludeWhen(condition: () -> Boolean): Value<T> {
+    fun doNotIncludeWhen(condition: () -> Boolean) = apply {
         doNotInclude = condition
-        return this
     }
 
-    fun notAnOption(): Value<T> {
+    fun notAnOption() = apply {
         notAnOption = true
-        return this
     }
 
-    fun independentDescription(): Value<T> {
+    fun independentDescription() = apply {
         independentDescription = true
-        return this
     }
 
     /**
@@ -259,41 +270,42 @@ open class Value<T : Any>(
     open fun deserializeFrom(gson: Gson, element: JsonElement) {
         val currValue = this.inner
 
-        set(when (currValue) {
-            is List<*> -> {
-                @Suppress("UNCHECKED_CAST") element.asJsonArray.mapTo(
-                    mutableListOf()
-                ) { gson.fromJson(it, this.listType.type!!) } as T
-            }
-
-            is HashSet<*> -> {
-                @Suppress("UNCHECKED_CAST") element.asJsonArray.mapTo(
-                    HashSet()
-                ) { gson.fromJson(it, this.listType.type!!) } as T
-            }
-
-            is Set<*> -> {
-                @Suppress("UNCHECKED_CAST") element.asJsonArray.mapTo(
-                    TreeSet()
-                ) { gson.fromJson(it, this.listType.type!!) } as T
-            }
-
-            else -> {
-                var clazz: Class<*>? = currValue.javaClass
-                var r: T? = null
-
-                while (clazz != null && clazz != Any::class.java) {
-                    try {
-                        r = gson.fromJson(element, clazz) as T?
-                        break
-                    } catch (@Suppress("SwallowedException") e: ClassCastException) {
-                        clazz = clazz.superclass
-                    }
+        set(
+            when (currValue) {
+                is List<*> -> {
+                    @Suppress("UNCHECKED_CAST") element.asJsonArray.mapTo(
+                        mutableListOf()
+                    ) { gson.fromJson(it, this.listType.type!!) } as T
                 }
 
-                r ?: error("Failed to deserialize value")
-            }
-        })
+                is HashSet<*> -> {
+                    @Suppress("UNCHECKED_CAST") element.asJsonArray.mapTo(
+                        HashSet()
+                    ) { gson.fromJson(it, this.listType.type!!) } as T
+                }
+
+                is Set<*> -> {
+                    @Suppress("UNCHECKED_CAST") element.asJsonArray.mapTo(
+                        TreeSet()
+                    ) { gson.fromJson(it, this.listType.type!!) } as T
+                }
+
+                else -> {
+                    var clazz: Class<*>? = currValue.javaClass
+                    var r: T? = null
+
+                    while (clazz != null && clazz != Any::class.java) {
+                        try {
+                            r = gson.fromJson(element, clazz) as T?
+                            break
+                        } catch (@Suppress("SwallowedException") e: ClassCastException) {
+                            clazz = clazz.superclass
+                        }
+                    }
+
+                    r ?: error("Failed to deserialize value")
+                }
+            })
     }
 
     open fun setByString(string: String) {
@@ -311,11 +323,12 @@ open class Value<T : Any>(
  */
 class RangedValue<T : Any>(
     name: String,
-    value: T,
+    aliases: Array<String> = emptyArray(),
+    defaultValue: T,
     @Exclude val range: ClosedRange<*>,
     @Exclude val suffix: String,
-    type: ValueType
-) : Value<T>(name, value, valueType = type) {
+    valueType: ValueType
+) : Value<T>(name, aliases, defaultValue, valueType) {
 
     override fun setByString(string: String) {
         if (this.inner is ClosedRange<*>) {
@@ -351,16 +364,96 @@ class RangedValue<T : Any>(
 
 class BindValue(
     name: String,
+    aliases: Array<String> = emptyArray(),
     defaultValue: InputBind,
-) : Value<InputBind>(name, defaultValue, ValueType.BIND) {
+) : Value<InputBind>(name, aliases, defaultValue, ValueType.BIND) {
     override fun setByString(string: String) {
         get().bind(string)
     }
 }
 
+class MultiChooseListValue<T>(
+    name: String,
+    value: EnumSet<T>,
+    @Exclude val choices: EnumSet<T>,
+
+    /**
+     * Can deselect all values or enable at least one
+     */
+    @Exclude val canBeNone: Boolean = true,
+) : Value<EnumSet<T>>(
+    name,
+    defaultValue = value,
+    valueType = ValueType.MULTI_CHOOSE,
+    listType = ListValueType.Enums
+) where T : Enum<T>, T : NamedChoice {
+    init {
+        if (!canBeNone) {
+            require(!choices.isEmpty()) {
+                "There are no values provided, " +
+                    "but at least one must be selected. (required because by canBeNone = false)"
+            }
+
+            require(!value.isEmpty()) {
+                "There are no default values enabled, " +
+                    "but at least one must be selected. (required because by canBeNone = false)"
+            }
+        }
+    }
+
+    override fun deserializeFrom(gson: Gson, element: JsonElement) {
+        val active = get()
+        active.clear()
+
+        when (element) {
+            is JsonArray -> element.forEach { active.tryToEnable(it.asString) }
+            is JsonPrimitive -> active.tryToEnable(element.asString)
+        }
+
+        if (!canBeNone && active.isEmpty()) {
+            active.addAll(choices)
+        }
+
+        set(active)
+    }
+
+    private fun EnumSet<T>.tryToEnable(name: String) {
+        val choiceWithName = choices.firstOrNull { it.choiceName == name }
+
+        if (choiceWithName != null) {
+            add(choiceWithName)
+        }
+    }
+
+    fun toggle(value: T): Boolean {
+        val current = get()
+
+        val isActive = value in current
+
+        if (isActive) {
+            if (!canBeNone && current.size <= 1) {
+                return true
+            }
+
+            current.remove(value)
+        } else {
+            current.add(value)
+        }
+
+        set(current)
+
+        return !isActive
+    }
+
+    operator fun contains(choice: T) = get().contains(choice)
+}
+
 class ChooseListValue<T : NamedChoice>(
-    name: String, value: T, @Exclude val choices: Array<T>
-) : Value<T>(name, value, ValueType.CHOOSE) {
+    name: String,
+    aliases: Array<String> = emptyArray(),
+    defaultValue: T,
+    @Exclude val choices: Array<T>
+) : Value<T>(name, aliases, defaultValue, ValueType.CHOOSE) {
 
     override fun deserializeFrom(gson: Gson, element: JsonElement) {
         val name = element.asString
@@ -392,8 +485,11 @@ interface NamedChoice {
     val choiceName: String
 }
 
-enum class ValueType(val deserializer: HumanInputDeserializer.StringDeserializer<*>? = null) {
-    BOOLEAN(HumanInputDeserializer.booleanDeserializer),
+enum class ValueType(
+    val deserializer: HumanInputDeserializer.StringDeserializer<*>? = null,
+    val completer: AutoCompletionProvider.CompletionHandler = AutoCompletionProvider.defaultCompleter
+) {
+    BOOLEAN(HumanInputDeserializer.booleanDeserializer, AutoCompletionProvider.booleanCompleter),
     FLOAT(HumanInputDeserializer.floatDeserializer), FLOAT_RANGE(HumanInputDeserializer.floatRangeDeserializer),
     INT(HumanInputDeserializer.intDeserializer), INT_RANGE(HumanInputDeserializer.intRangeDeserializer),
     TEXT(HumanInputDeserializer.textDeserializer), TEXT_ARRAY(HumanInputDeserializer.textArrayDeserializer),
@@ -404,7 +500,9 @@ enum class ValueType(val deserializer: HumanInputDeserializer.StringDeserializer
     BIND,
     VECTOR_I,
     VECTOR_D,
-    CHOICE, CHOOSE,
+    CHOICE(completer = AutoCompletionProvider.choiceCompleter),
+    CHOOSE(completer = AutoCompletionProvider.chooseCompleter),
+    MULTI_CHOOSE(HumanInputDeserializer.textArrayDeserializer),
     INVALID,
     PROXY,
     CONFIGURABLE,
@@ -420,5 +518,6 @@ enum class ListValueType(val type: Class<*>?) {
     Friend(FriendManager.Friend::class.java),
     Proxy(net.ccbluex.liquidbounce.features.misc.proxy.Proxy::class.java),
     Account(MinecraftAccount::class.java),
+    Enums(Enum::class.java),
     None(null)
 }

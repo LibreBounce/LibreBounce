@@ -26,7 +26,7 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.client.notification
 import net.ccbluex.liquidbounce.utils.entity.moving
-import net.ccbluex.liquidbounce.utils.entity.strafe
+import net.ccbluex.liquidbounce.utils.entity.withStrafe
 import net.minecraft.block.Blocks
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket
 import net.minecraft.util.math.BlockPos
@@ -122,10 +122,10 @@ object ModuleNoWeb : ClientModule("NoWeb", Category.MOVEMENT) {
             if (player.moving) {
                 if (player.isOnGround) {
                     if (player.age % 3 == 0) {
-                        player.strafe(strength = 0.734)
+                        player.velocity = player.velocity.withStrafe(strength = 0.734)
                     } else {
                         player.jump()
-                        player.strafe(strength = 0.346)
+                        player.velocity = player.velocity.withStrafe(strength = 0.346)
                     }
                 }
             }

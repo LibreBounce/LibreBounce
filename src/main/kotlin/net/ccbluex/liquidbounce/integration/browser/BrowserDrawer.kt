@@ -18,58 +18,32 @@
  */
 package net.ccbluex.liquidbounce.integration.browser
 
-import com.mojang.blaze3d.platform.GlStateManager
-import com.mojang.blaze3d.systems.RenderSystem
+import net.ccbluex.liquidbounce.common.RenderLayerExtensions
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.integration.browser.supports.IBrowser
-import net.ccbluex.liquidbounce.render.engine.UiRenderer
 import net.ccbluex.liquidbounce.utils.client.mc
-import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
+import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.READ_FINAL_STATE
 import net.minecraft.client.gui.DrawContext
-import net.minecraft.client.render.RenderLayer
-import net.minecraft.client.render.RenderPhase
-import net.minecraft.client.render.VertexFormat
-import net.minecraft.client.render.VertexFormats
 import net.minecraft.util.Identifier
-import net.minecraft.util.TriState
-import net.minecraft.util.Util
-import java.util.function.Function
 
+/**
+ * Draws any kind of [IBrowser] to the Minecraft screen.
+ */
 class BrowserDrawer(val browser: () -> IBrowser?) : EventListener {
 
     private val tabs
         get() = browser()?.getTabs() ?: emptyList()
 
-
-    private val browserTextureLayer: Function<Identifier, RenderLayer> = Util.memoize { texture: Identifier ->
-        RenderLayer.of(
-            "browser_textured",
-            VertexFormats.POSITION_TEXTURE_COLOR,
-            VertexFormat.DrawMode.QUADS,
-            786432,
-            RenderLayer.MultiPhaseParameters.builder()
-                .texture(RenderPhase.Texture(texture, TriState.FALSE, false))
-                .program(RenderPhase.POSITION_TEXTURE_COLOR_PROGRAM)
-                .transparency(browserTransparency)
-                .depthTest(RenderPhase.LEQUAL_DEPTH_TEST)
-                .target(UiRenderer.OUTLINE_TARGET)
-                .build(false)
-        )
-    }
-
-    private val browserTransparency: RenderPhase.Transparency = RenderPhase.Transparency("browser_transparency", {
-        RenderSystem.enableBlend()
-        RenderSystem.blendFunc(GlStateManager.SrcFactor.ONE, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA)
-    }, {
-        RenderSystem.disableBlend()
-        RenderSystem.defaultBlendFunc()
-    })
-
     @Suppress("unused")
-    val preRenderHandler = handler<GameRenderEvent> {
-        browser()?.drawGlobally()
+    private val gameRenderHandler = handler<GameRenderEvent> {
+        val browser = browser() ?: return@handler
+        if (!browser.isInitialized()) {
+            return@handler
+        }
+
+        browser.drawGlobally()
 
         for (tab in tabs) {
             tab.drawn = false
@@ -77,16 +51,16 @@ class BrowserDrawer(val browser: () -> IBrowser?) : EventListener {
     }
 
     @Suppress("unused")
-    val windowResizeWHandler = handler<FrameBufferResizeEvent> { ev ->
+    private val windowResizeHandler = handler<FrameBufferResizeEvent> { event ->
         for (tab in tabs) {
-            tab.resize(ev.width, ev.height)
+            tab.resize(event.width, event.height)
         }
     }
 
     @Suppress("unused")
-    val onScreenRender = handler<ScreenRenderEvent>(priority = EventPriorityConvention.READ_FINAL_STATE) {
+    private val screenRenderHandler = handler<ScreenRenderEvent>(priority = READ_FINAL_STATE) { event ->
         for (tab in tabs) {
-            if (tab.drawn) {
+            if (tab.drawn || !tab.visible) {
                 continue
             }
 
@@ -96,7 +70,7 @@ class BrowserDrawer(val browser: () -> IBrowser?) : EventListener {
             val w = tab.position.width.toFloat() / scaleFactor
             val h = tab.position.height.toFloat() / scaleFactor
 
-            renderTexture(it.context, tab.getTexture(), x, y, w, h)
+            renderTexture(event.context, tab.getTexture() ?: return@handler, x, y, w, h)
             tab.drawn = true
         }
     }
@@ -104,12 +78,12 @@ class BrowserDrawer(val browser: () -> IBrowser?) : EventListener {
     private var shouldReload = false
 
     @Suppress("unused")
-    val onReload = handler<ResourceReloadEvent> {
+    private val resourceReloadHandler = handler<ResourceReloadEvent> {
         shouldReload = true
     }
 
     @Suppress("unused")
-    val onOverlayRender = handler<OverlayRenderEvent>(priority = EventPriorityConvention.READ_FINAL_STATE) {
+    private val overlayRenderHandler = handler<OverlayRenderEvent>(priority = READ_FINAL_STATE) { event ->
         if (this.shouldReload) {
             for (tab in tabs) {
                 tab.forceReload()
@@ -119,7 +93,7 @@ class BrowserDrawer(val browser: () -> IBrowser?) : EventListener {
         }
 
         for (tab in tabs) {
-            if (tab.drawn) {
+            if (tab.drawn || !tab.visible) {
                 continue
             }
 
@@ -133,7 +107,7 @@ class BrowserDrawer(val browser: () -> IBrowser?) : EventListener {
             val w = tab.position.width.toFloat() / scaleFactor
             val h = tab.position.height.toFloat() / scaleFactor
 
-            renderTexture(it.context, tab.getTexture(), x, y, w, h)
+            renderTexture(event.context, tab.getTexture() ?: return@handler, x, y, w, h)
             tab.drawn = true
         }
     }
@@ -147,8 +121,10 @@ class BrowserDrawer(val browser: () -> IBrowser?) : EventListener {
         width: Float,
         height: Float
     ) {
-        context.drawTexture(browserTextureLayer, texture, x.toInt(), y.toInt(), 0f, 0f, width.toInt(),
-            height.toInt(), width.toInt(), height.toInt())
+        context.drawTexture(
+            RenderLayerExtensions::getBlurredTextureLayer, texture, x.toInt(), y.toInt(), 0f, 0f, width.toInt(),
+            height.toInt(), width.toInt(), height.toInt()
+        )
     }
 
 }

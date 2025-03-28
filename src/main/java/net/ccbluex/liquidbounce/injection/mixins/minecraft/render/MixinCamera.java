@@ -19,10 +19,13 @@
 package net.ccbluex.liquidbounce.injection.mixins.minecraft.render;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import net.ccbluex.liquidbounce.features.module.modules.render.*;
 import net.ccbluex.liquidbounce.features.module.modules.combat.aimbot.ModuleDroneControl;
-import net.ccbluex.liquidbounce.utils.aiming.AimPlan;
+import net.ccbluex.liquidbounce.features.module.modules.render.ModuleCameraClip;
+import net.ccbluex.liquidbounce.features.module.modules.render.ModuleFreeCam;
+import net.ccbluex.liquidbounce.features.module.modules.render.ModuleFreeLook;
+import net.ccbluex.liquidbounce.features.module.modules.render.ModuleQuickPerspectiveSwap;
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager;
+import net.ccbluex.liquidbounce.utils.aiming.features.MovementCorrection;
 import net.minecraft.client.render.Camera;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -62,6 +65,7 @@ public abstract class MixinCamera {
     @Inject(method = "update", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/Camera;setPos(DDD)V", shift = At.Shift.AFTER), cancellable = true)
     private void modifyCameraOrientation(BlockView area, Entity focusedEntity, boolean thirdPerson, boolean inverseView, float tickDelta, CallbackInfo ci) {
         var freeLook = ModuleFreeLook.INSTANCE.getRunning();
+        var freeLockInvertedView = ModuleFreeLook.INSTANCE.isInvertedView();
         var qps = ModuleQuickPerspectiveSwap.INSTANCE.getRunning();
         var rearView = qps && ModuleQuickPerspectiveSwap.INSTANCE.getRearView() && !freeLook && !thirdPerson;
 
@@ -69,11 +73,18 @@ public abstract class MixinCamera {
             if (!rearView) this.thirdPerson = true;
 
             if (freeLook) {
-                setRotation(ModuleFreeLook.INSTANCE.getCameraYaw(), ModuleFreeLook.INSTANCE.getCameraPitch());
+                var cameraYaw = ModuleFreeLook.INSTANCE.getCameraYaw();
+                var cameraPitch = ModuleFreeLook.INSTANCE.getCameraPitch();
+
+                if (freeLockInvertedView) {
+                    setRotation(cameraYaw + 180, -cameraPitch);
+                } else {
+                    setRotation(cameraYaw, cameraPitch);
+                }
             }
 
             if (qps) {
-                setRotation(yaw + 180.0f, freeLook ? pitch : -pitch);
+                setRotation(yaw + 180.0f, freeLook && !freeLockInvertedView ? pitch : -pitch);
             }
 
             float scale = focusedEntity instanceof LivingEntity livingEntity ? livingEntity.getScale() : 1.0F;
@@ -93,15 +104,14 @@ public abstract class MixinCamera {
             this.setRotation(screen.getCameraRotation().x, screen.getCameraRotation().y);
         }
 
-        AimPlan aimPlan = RotationManager.INSTANCE.getWorkingAimPlan();
-
+        var rotationTarget = RotationManager.INSTANCE.getActiveRotationTarget();
         var previousRotation = RotationManager.INSTANCE.getPreviousRotation();
         var currentRotation = RotationManager.INSTANCE.getCurrentRotation();
 
-        boolean shouldModifyRotation = ModuleRotations.INSTANCE.getRunning() && ModuleRotations.INSTANCE.getCamera()
-            || aimPlan != null && aimPlan.getChangeLook();
-
-        if (currentRotation == null || previousRotation == null || !shouldModifyRotation) {
+        var changeLook = rotationTarget != null &&
+                rotationTarget.getMovementCorrection() == MovementCorrection.CHANGE_LOOK;
+        if (currentRotation == null || previousRotation == null || !changeLook ||
+                !RotationManager.INSTANCE.isRotatingAllowed(rotationTarget)) {
             return;
         }
 
