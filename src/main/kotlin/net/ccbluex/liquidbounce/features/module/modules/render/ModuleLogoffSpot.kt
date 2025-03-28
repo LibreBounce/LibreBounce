@@ -108,11 +108,4 @@ object ModuleLogoffSpot : ClientModule("LogoffSpot", Category.RENDER) {
     fun isLogoffEntity(entity: Entity) = this.running
         && lastSeenPlayers.any { (_, logOffPlayer) -> entity == logOffPlayer.entity }
 
-    fun getLogoffTime(entity: Entity): String? {
-        val time = lastSeenPlayers.values.firstOrNull { it.entity == entity }?.time ?: return null
-
-        val duration = Clock.System.now() - time
-        return duration.toString()
-    }
-
 }
