@@ -8,5 +8,10 @@ enum class ItemType {
     AXE,
     PICKAXE,
     FOOD,
-    POTION
+    POTION;
+
+    companion object {
+        @JvmStatic
+        fun findOrThrow(name: String) = entries.find { it.name == name } ?: error("Unknown item type $name")
+    }
 }
