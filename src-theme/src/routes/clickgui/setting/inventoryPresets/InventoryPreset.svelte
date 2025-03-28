@@ -14,6 +14,7 @@
 </div>
 
 <style lang="scss">
+  @use "sass:color";
   @use "../../../../colors.scss" as *;
 
   .preset {
@@ -25,7 +26,7 @@
   .preset-item {
     width: 20px;
     height: 20px;
-    background-color: $clickgui-base-color;
+    background-color: color.adjust($clickgui-text-color, $lightness: -90%);
     border-radius: 3px;
     display: flex;
     justify-content: center;
