@@ -18,6 +18,7 @@
  */
 package net.ccbluex.liquidbounce.utils.navigation
 
+import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.MinecraftAutoJumpEvent
@@ -43,9 +44,11 @@ abstract class NavigationBaseConfigurable<T>(
     enabled: Boolean
 ) : ToggleableConfigurable(parent, name, enabled) {
 
-    protected val autoJump by boolean("AutoJump", true)
-    protected val autoSwim by boolean("AutoSwim", true)
-    protected val autoSprint by boolean("AutoSprint", true)
+    private val autoAction by multiEnumChoice("Auto", AutoAction.entries)
+
+    private inline val autoJump get() = AutoAction.JUMP in autoAction
+    private inline val autoSwim get() = AutoAction.SWIM in autoAction
+    private inline val autoSprint get() = AutoAction.SPRINT in autoAction
 
     /**
      * Creates context for navigation
@@ -64,6 +67,7 @@ abstract class NavigationBaseConfigurable<T>(
      *
      * @param event Movement input event to modify
      */
+    @Suppress("ComplexCondition")
     protected open fun handleMovementAssist(event: MovementInputEvent, context: T) {
         if ((autoSwim && player.isTouchingWater) || (autoJump && player.horizontalCollision)) {
             event.jump = true
@@ -77,7 +81,7 @@ abstract class NavigationBaseConfigurable<T>(
      * @param goal Target position to move towards
      * @return Calculated directional input
      */
-    protected fun calculateDirectionalInput(currentInput: DirectionalInput, goal: Vec3d): DirectionalInput {
+    private fun calculateDirectionalInput(currentInput: DirectionalInput, goal: Vec3d): DirectionalInput {
         val degrees = getDegreesRelativeToView(goal.subtract(player.pos), player.yaw)
         return getDirectionalInputForDegrees(currentInput, degrees, deadAngle = 20.0F)
     }
@@ -129,4 +133,9 @@ abstract class NavigationBaseConfigurable<T>(
         }
     }
 
+    private enum class AutoAction(override val choiceName: String) : NamedChoice {
+        JUMP("Jump"),
+        SWIM("Swim"),
+        SPRINT("Sprint")
+    }
 }

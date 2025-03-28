@@ -26,6 +26,7 @@ import it.unimi.dsi.fastutil.ints.IntArrayList
 import it.unimi.dsi.fastutil.ints.IntLinkedOpenHashSet
 import it.unimi.dsi.fastutil.ints.IntList
 import it.unimi.dsi.fastutil.ints.IntSet
+import java.util.*
 import java.util.stream.Stream
 
 inline infix operator fun IntRange.contains(range: IntRange): Boolean {
@@ -159,6 +160,15 @@ inline fun Sequence<*>.isNotEmpty(): Boolean {
 inline fun Sequence<*>.isEmpty(): Boolean {
     return !isNotEmpty()
 }
+
+inline fun <reified T : Enum<T>> Array<out T>.toEnumSet(): EnumSet<T> =
+    emptyEnumSet<T>().apply { addAll(this@toEnumSet) }
+
+inline fun <reified T : Enum<T>> Iterable<T>.toEnumSet(): EnumSet<T> =
+    emptyEnumSet<T>().apply { addAll(this@toEnumSet) }
+
+inline fun <reified T : Enum<T>> emptyEnumSet(): EnumSet<T> =
+    EnumSet.noneOf(T::class.java)
 
 /**
  * Directly map to a typed array

@@ -49,25 +49,17 @@ object ModuleRotations : ClientModule("Rotations", Category.RENDER) {
     /**
      * Body part to modify the rotation of.
      */
-    val bodyParts by enumChoice("BodyParts", BodyPart.BOTH)
+    private val bodyPart by multiEnumChoice("BodyPart", BodyPart.entries)
 
     @Suppress("unused")
     enum class BodyPart(
         override val choiceName: String,
-        val head: Boolean,
-        val body: Boolean
     ) : NamedChoice {
-        BOTH("Both", true, true),
-        HEAD("Head", true, false),
-        BODY("Body", false, true);
-
-        fun allows(part: BodyPart) = when (part) {
-            BOTH -> head && body
-            HEAD -> head
-            BODY -> body
-        }
-
+        HEAD("Head"),
+        BODY("Body");
     }
+
+    fun isPartAllowed(part: BodyPart) = part in bodyPart
 
     /**
      * Smoothes the rotation visually only.

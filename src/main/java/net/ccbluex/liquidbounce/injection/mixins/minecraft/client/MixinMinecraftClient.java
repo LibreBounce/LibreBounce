@@ -58,6 +58,7 @@ import net.minecraft.util.hit.HitResult;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -214,6 +215,14 @@ public abstract class MixinMinecraftClient {
     }
 
     /**
+     * Fixes recursive screen opening,
+     * this is usually caused by another mod such as Lunar Client.
+     * Can also happen when opening a screen during [ScreenEvent].
+     */
+    @Unique
+    private boolean recursiveScreenOpening = false;
+
+    /**
      * Handle opening screens
      *
      * @param screen       to be opened (null = no screen at all)
@@ -221,9 +230,21 @@ public abstract class MixinMinecraftClient {
      */
     @Inject(method = "setScreen", at = @At("HEAD"), cancellable = true)
     private void hookScreen(Screen screen, CallbackInfo callbackInfo) {
-        ScreenEvent event = new ScreenEvent(screen);
-        EventManager.INSTANCE.callEvent(event);
-        if (event.isCancelled()) callbackInfo.cancel();
+        if (recursiveScreenOpening) {
+            return;
+        }
+
+        try {
+            recursiveScreenOpening = true;
+
+            var event = EventManager.INSTANCE.callEvent(new ScreenEvent(screen));
+            if (event.isCancelled()) {
+                callbackInfo.cancel();
+            }
+        } finally {
+            recursiveScreenOpening = false;
+        }
+
         // Who need this GUI?
         if (screen instanceof AccessibilityOnboardingScreen) {
             callbackInfo.cancel();
@@ -340,12 +361,12 @@ public abstract class MixinMinecraftClient {
 
     @ModifyExpressionValue(method = "handleBlockBreaking", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;isUsingItem()Z"))
     private boolean injectMultiActionsBreakingWhileUsing(boolean original) {
-        return original && !(ModuleMultiActions.INSTANCE.getRunning() && ModuleMultiActions.INSTANCE.getBreakingWhileUsing());
+        return original && !ModuleMultiActions.mayBreakWhileUsing();
     }
 
     @ModifyExpressionValue(method = "doItemUse", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerInteractionManager;isBreakingBlock()Z"))
     private boolean injectMultiActionsPlacingWhileBreaking(boolean original) {
-        return original && !(ModuleMultiActions.INSTANCE.getRunning() && ModuleMultiActions.INSTANCE.getPlacingWhileBreaking());
+        return original && !ModuleMultiActions.mayPlaceWhileBreaking();
     }
 
     @ModifyExpressionValue(method = "handleInputEvents", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;isUsingItem()Z", ordinal = 0))
@@ -355,7 +376,7 @@ public abstract class MixinMinecraftClient {
                 this.interactionManager.stopUsingItem(this.player);
             }
 
-            if (!ModuleMultiActions.INSTANCE.getRunning() || !ModuleMultiActions.INSTANCE.getAttackingWhileUsing()) {
+            if (!ModuleMultiActions.mayAttackWhileUsing()) {
                 this.options.attackKey.timesPressed = 0;
             }
 

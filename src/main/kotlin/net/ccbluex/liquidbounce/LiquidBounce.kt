@@ -30,6 +30,8 @@ import net.ccbluex.liquidbounce.api.services.client.ClientUpdate.update
 import net.ccbluex.liquidbounce.api.thirdparty.IpInfoApi
 import net.ccbluex.liquidbounce.config.AutoConfig.configs
 import net.ccbluex.liquidbounce.config.ConfigSystem
+import net.ccbluex.liquidbounce.config.ConfigSystem.jsonFile
+import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.deeplearn.DeepLearningEngine
 import net.ccbluex.liquidbounce.deeplearn.ModelHolster
 import net.ccbluex.liquidbounce.event.EventListener
@@ -100,9 +102,24 @@ object LiquidBounce : EventListener {
     const val CLIENT_NAME = "LiquidBounce"
     const val CLIENT_AUTHOR = "CCBlueX"
 
-    val clientVersion = gitInfo["git.build.version"]?.toString() ?: "unknown"
-    val clientCommit = gitInfo["git.commit.id.abbrev"]?.let { "git-$it" } ?: "unknown"
-    val clientBranch = gitInfo["git.branch"]?.toString() ?: "nextgen"
+    private object Client : Configurable("Client") {
+        val version = text("Version", gitInfo["git.build.version"]?.toString() ?: "unknown").immutable()
+        val commit = text("Commit", gitInfo["git.commit.id.abbrev"]?.let { "git-$it" } ?: "unknown").immutable()
+        val branch = text("Branch", gitInfo["git.branch"]?.toString() ?: "nextgen").immutable()
+
+        init {
+            ConfigSystem.root(this)
+
+            version.onChange {
+                ConfigSystem.backup("backup-${it}-${version.inner}.zip")
+                it
+            }
+        }
+    }
+
+    val clientVersion by Client.version
+    val clientCommit by Client.commit
+    val clientBranch by Client.branch
 
     /**
      * Defines if the client is in development mode.
@@ -137,6 +154,7 @@ object LiquidBounce : EventListener {
         RenderSystem.assertOnRenderThread()
 
         // Initialize managers and features
+        Client
         initializeManagers()
         initializeFeatures()
         initializeResources()
@@ -150,6 +168,11 @@ object LiquidBounce : EventListener {
             logger.info("AMD Vega iGPU detected, enabling different line smooth handling. " +
                 "If you believe this is a mistake, please create an issue at " +
                 "https://github.com/CCBlueX/LiquidBounce/issues.")
+        }
+
+        // Do backup before loading configs
+        if (!ConfigSystem.isFirstLaunch && !Client.jsonFile.exists()) {
+            ConfigSystem.backup("backup-unknown-${Client.version.inner}.zip")
         }
 
         // Load all configurations

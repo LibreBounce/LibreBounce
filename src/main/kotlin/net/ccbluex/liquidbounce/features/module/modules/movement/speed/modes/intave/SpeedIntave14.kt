@@ -27,6 +27,9 @@ import net.ccbluex.liquidbounce.event.events.PlayerMoveEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.SpeedBHopBase
+import net.ccbluex.liquidbounce.utils.client.chat
+import net.ccbluex.liquidbounce.utils.entity.airTicks
+import net.ccbluex.liquidbounce.utils.entity.moving
 import net.ccbluex.liquidbounce.utils.entity.withStrafe
 import net.minecraft.entity.MovementType
 
@@ -36,36 +39,28 @@ import net.minecraft.entity.MovementType
  * @author larryngton
  */
 class SpeedIntave14(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase("Intave14", parent) {
-
-
     companion object {
         private const val BOOST_CONSTANT = 0.003
     }
 
     private inner class Strafe(parent: EventListener) : ToggleableConfigurable(parent, "Strafe", true) {
-
-        private val strength by float("Strength", 0.29f, 0.01f..0.29f)
+        private val strength by float("Strength", 0.27f, 0.01f..0.27f)
 
         @Suppress("unused")
-        private val moveHandler = handler<PlayerMoveEvent> { event ->
-            if (event.type == MovementType.SELF && player.isOnGround && player.isSprinting) {
-                event.movement = event.movement.withStrafe(strength = strength.toDouble())
+        private val tickHandler = tickHandler {
+            if (player.isSprinting && (player.isOnGround || player.airTicks == 11)) {
+                player.velocity = player.velocity.withStrafe(strength = strength.toDouble())
             }
         }
     }
 
     private inner class AirBoost(parent: EventListener) : ToggleableConfigurable(parent, "AirBoost", true) {
 
-        private val initialBoostMultiplier by float(
-            "InitialBoostMultiplier", 1f,
-            0.01f..10f
-        )
-
         @Suppress("unused")
         private val tickHandler = tickHandler {
             if (player.velocity.y > 0.003 && player.isSprinting) {
-                player.velocity.x *= 1f + (BOOST_CONSTANT * initialBoostMultiplier.toDouble())
-                player.velocity.z *= 1f + (BOOST_CONSTANT * initialBoostMultiplier.toDouble())
+                player.velocity.x *= 1f + (BOOST_CONSTANT * 0.25)
+                player.velocity.z *= 1f + (BOOST_CONSTANT * 0.25)
             }
         }
     }
@@ -74,17 +69,4 @@ class SpeedIntave14(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase(
         tree(Strafe(this))
         tree(AirBoost(this))
     }
-
-    /**
-     * Does not affect much, but we take what we can get.
-     */
-    private val lowHop by boolean("LowHop", true)
-
-    @Suppress("unused")
-    private val jumpHandler = handler<PlayerJumpEvent> { event ->
-        if (lowHop) {
-            event.motion = 0.42f - 1.7E-14f
-        }
-    }
-
 }
