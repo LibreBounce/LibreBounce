@@ -15,6 +15,7 @@ export interface GroupedModules {
 
 export type ModuleSetting =
     BlocksSetting
+    | InventoryPresets
     | BooleanSetting
     | FloatSetting
     | FloatRangeSetting
@@ -31,6 +32,17 @@ export type ModuleSetting =
     | BindSetting
     | VectorSetting
     | KeySetting;
+
+export type Item = string;
+
+export interface InventoryPreset {
+    items: Item[]
+}
+
+export interface InventoryPresets {
+    valueType: string;
+    value: InventoryPreset[];
+}
 
 export interface BlocksSetting {
     valueType: string;
