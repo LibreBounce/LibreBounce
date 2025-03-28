@@ -152,7 +152,7 @@ object ScriptSetting {
             .toHashSet()
 
         val default = value.getMember("default")?.`as`(Array<String>::class.java)
-            ?.toHashSet() ?: HashSet()
+            ?.toCollection(LinkedHashSet()) ?: LinkedHashSet()
 
         val canBeNone = value.getMember("canBeNone")?.asBoolean() ?: true
 
