@@ -184,6 +184,7 @@ open class Value<T : Any>(
                 is Int -> t.`as`(Int::class.java) as T
                 is String -> t.`as`(String::class.java) as T
                 is MutableList<*> -> t.`as`(Array<String>::class.java).toMutableList() as T
+                is LinkedHashSet<*> -> t.`as`(Array<String>::class.java).toCollection(LinkedHashSet()) as T
                 is Boolean -> t.`as`(Boolean::class.java) as T
                 else -> error("Unsupported value type $inner")
             }
