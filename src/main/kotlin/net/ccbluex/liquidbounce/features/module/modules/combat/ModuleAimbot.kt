@@ -18,6 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
+import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.MouseRotationEvent
 import net.ccbluex.liquidbounce.event.events.RotationUpdateEvent
@@ -26,12 +27,14 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
-import net.ccbluex.liquidbounce.utils.aiming.PointTracker
+import net.ccbluex.liquidbounce.utils.aiming.RotationTarget
 import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.data.RotationWithVector
-import net.ccbluex.liquidbounce.utils.aiming.features.SlowStart
-import net.ccbluex.liquidbounce.utils.aiming.features.anglesmooth.LinearAngleSmoothMode
-import net.ccbluex.liquidbounce.utils.aiming.features.anglesmooth.SigmoidAngleSmoothMode
+import net.ccbluex.liquidbounce.utils.aiming.features.MovementCorrection
+import net.ccbluex.liquidbounce.utils.aiming.features.processors.anglesmooth.impl.InterpolationAngleSmooth
+import net.ccbluex.liquidbounce.utils.aiming.features.processors.anglesmooth.impl.LinearAngleSmooth
+import net.ccbluex.liquidbounce.utils.aiming.features.processors.anglesmooth.impl.SigmoidAngleSmooth
+import net.ccbluex.liquidbounce.utils.aiming.point.PointTracker
 import net.ccbluex.liquidbounce.utils.aiming.preference.LeastDifferencePreference
 import net.ccbluex.liquidbounce.utils.aiming.utils.raytraceBox
 import net.ccbluex.liquidbounce.utils.aiming.utils.setRotation
@@ -40,6 +43,7 @@ import net.ccbluex.liquidbounce.utils.client.Timer
 import net.ccbluex.liquidbounce.utils.combat.TargetPriority
 import net.ccbluex.liquidbounce.utils.combat.TargetTracker
 import net.ccbluex.liquidbounce.utils.entity.rotation
+import net.ccbluex.liquidbounce.utils.input.InputTracker.isPressedOnAny
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
 import net.ccbluex.liquidbounce.utils.render.WorldTargetRenderer
 import net.minecraft.client.gui.screen.ingame.HandledScreen
@@ -51,6 +55,7 @@ import net.minecraft.util.math.MathHelper
  *
  * Automatically faces selected entities around you.
  */
+@Suppress("MagicNumber")
 object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf("AimAssist", "AutoAim")) {
 
     private val range = float("Range", 4.2f, 1f..8f)
@@ -70,40 +75,45 @@ object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf(
 
     private var angleSmooth = choices(this, "AngleSmooth") {
         arrayOf(
-            LinearAngleSmoothMode(it),
-            SigmoidAngleSmoothMode(it)
+            InterpolationAngleSmooth(it),
+            SigmoidAngleSmooth(it),
+            LinearAngleSmooth(it)
         )
     }
 
-    private val slowStart = tree(SlowStart(this))
-
-    private val ignoreOpenScreen by boolean("IgnoreOpenScreen", false)
-    private val ignoreOpenContainer by boolean("IgnoreOpenContainer", false)
+    private val ignores by multiEnumChoice<IgnoreOpened>("Ignore")
 
     private var targetRotation: Rotation? = null
     private var playerRotation: Rotation? = null
 
-    @Suppress("unused")
+    @Suppress("unused", "ComplexCondition")
     private val tickHandler = handler<RotationUpdateEvent> { _ ->
         playerRotation = player.rotation
 
-        if (mc.options.attackKey.isPressed) {
+        if (mc.options.attackKey.isPressedOnAny) {
             clickTimer.reset()
         }
 
         if (OnClick.enabled && (clickTimer.hasElapsed(OnClick.delayUntilStop * 50L)
-        || !mc.options.attackKey.isPressed && ModuleAutoClicker.running)) {
+        || !mc.options.attackKey.isPressedOnAny && ModuleAutoClicker.running)) {
+            targetTracker.reset()
             targetRotation = null
             return@handler
         }
 
         targetRotation = findNextTargetRotation()?.let { (target, rotation) ->
-            angleSmooth.activeChoice.limitAngleChange(
-                slowStart.rotationFactor,
+            angleSmooth.activeChoice.process(
+                RotationTarget(
+                    rotation = rotation.rotation,
+                    entity = target,
+                    processors = listOf(angleSmooth.activeChoice),
+                    ticksUntilReset = 1,
+                    resetThreshold = 1f,
+                    considerInventory = true,
+                    movementCorrection = MovementCorrection.CHANGE_LOOK
+                ),
                 player.rotation,
-                rotation.rotation,
-                rotation.vec,
-                target
+                rotation.rotation
             )
         }
 
@@ -115,7 +125,8 @@ object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf(
         targetTracker.reset()
     }
 
-    val renderHandler = handler<WorldRenderEvent> { event ->
+    @Suppress("unused")
+    private val renderHandler = handler<WorldRenderEvent> { event ->
         val matrixStack = event.matrixStack
         val partialTicks = event.partialTicks
         val target = targetTracker.target ?: return@handler
@@ -124,11 +135,13 @@ object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf(
             targetRenderer.render(this, target, partialTicks)
         }
 
-        if (!ignoreOpenScreen && mc.currentScreen != null) {
+        if (IgnoreOpened.SCREEN !in ignores && mc.currentScreen != null) {
             return@handler
         }
 
-        if (!ignoreOpenContainer && (InventoryManager.isInventoryOpen || mc.currentScreen is HandledScreen<*>)) {
+        if (IgnoreOpened.CONTAINER !in ignores
+            && (InventoryManager.isInventoryOpen || mc.currentScreen is HandledScreen<*>)
+        ) {
             return@handler
         }
 
@@ -145,7 +158,8 @@ object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf(
         }
     }
 
-    val mouseMovement = handler<MouseRotationEvent> { event ->
+    @Suppress("unused", "MagicNumber")
+    private val mouseMovement = handler<MouseRotationEvent> { event ->
         val f = event.cursorDeltaY.toFloat() * 0.15f
         val g = event.cursorDeltaX.toFloat() * 0.15f
 
@@ -179,9 +193,6 @@ object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf(
                 rotationPreference = rotationPreference
             ) ?: continue
 
-            if (target != targetTracker.target) {
-                slowStart.onTrigger()
-            }
             targetTracker.target = target
             return target to spot
         }
@@ -190,4 +201,10 @@ object ModuleAimbot : ClientModule("Aimbot", Category.COMBAT, aliases = arrayOf(
         return null
     }
 
+    private enum class IgnoreOpened(
+        override val choiceName: String
+    ) : NamedChoice {
+        SCREEN("Screen"),
+        CONTAINER("Container")
+    }
 }

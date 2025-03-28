@@ -20,7 +20,6 @@ package net.ccbluex.liquidbounce.utils.render
 
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
-import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
@@ -28,20 +27,19 @@ import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.render.*
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.engine.Vec3
+import net.ccbluex.liquidbounce.utils.client.registerAsDynamicImageFromClientResources
 import net.ccbluex.liquidbounce.utils.entity.box
 import net.ccbluex.liquidbounce.utils.entity.interpolateCurrentPosition
 import net.ccbluex.liquidbounce.utils.entity.lastRenderPos
+import net.ccbluex.liquidbounce.utils.math.interpolate
 import net.ccbluex.liquidbounce.utils.math.plus
 import net.ccbluex.liquidbounce.utils.render.WorldToScreen.calculateScreenPos
 import net.minecraft.client.gl.ShaderProgramKeys
 import net.minecraft.client.render.VertexFormat
 import net.minecraft.client.render.VertexFormats
-import net.minecraft.client.texture.NativeImage
-import net.minecraft.client.texture.NativeImageBackedTexture
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
-import net.minecraft.util.Identifier
 import net.minecraft.util.math.Box
 import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.RotationAxis
@@ -83,15 +81,7 @@ class WorldTargetRenderer(module: ClientModule) : TargetRenderer<WorldRenderEnvi
 
     inner class Ghost : WorldTargetRenderAppearance("Ghost") {
 
-        private val glow by lazy {
-            Identifier.of("liquidbounce", "glow").also { identifier ->
-                val texture = with(LiquidBounce.javaClass.getResourceAsStream("/resources/liquidbounce/glow.png")) {
-                    NativeImageBackedTexture(NativeImage.read(this))
-                }
-
-                mc.textureManager.registerTexture(identifier, texture)
-            }
-        }
+        private val glow = "particles/glow.png".registerAsDynamicImageFromClientResources()
 
         private var lastTime = System.currentTimeMillis()
 
@@ -216,15 +206,6 @@ class WorldTargetRenderer(module: ClientModule) : TargetRenderer<WorldRenderEnvi
                 }
             }
         }
-
-        private fun Vec3d.interpolate(start: Vec3d, multiple: Double) =
-            Vec3d(
-                this.x.interpolate(start.x, multiple),
-                this.y.interpolate(start.y, multiple),
-                this.z.interpolate(start.z, multiple),
-            )
-
-        private fun Double.interpolate(old: Double, scale: Double) = old + (this - old) * scale
     }
 
     inner class Legacy : WorldTargetRenderAppearance("Legacy") {

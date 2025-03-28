@@ -58,7 +58,7 @@ internal object FlySentinel27thJan : Choice("Sentinel27thJan") {
             player.input.playerInput.jump -> 0.42
             else -> 0.2
         }
-        player.velocity = player.velocity.withStrafe(speed = horizontalSpeed.random())
+        player.velocity = player.velocity.withStrafe(speed = horizontalSpeed.random().toDouble())
 
         waitTicks(6)
     }

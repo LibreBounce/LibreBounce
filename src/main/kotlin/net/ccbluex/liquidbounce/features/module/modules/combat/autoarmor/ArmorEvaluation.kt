@@ -15,7 +15,8 @@ object ArmorEvaluation {
     private const val EXPECTED_DAMAGE: Float = 6.0F
 
     fun findBestArmorPieces(
-        slots: List<ItemSlot> = Slots.All
+        slots: List<ItemSlot> = Slots.All,
+        durabilityThreshold: Int = Int.MIN_VALUE
     ): Map<EquipmentSlot, ArmorPiece?> {
         val armorPiecesGroupedByType = groupArmorByType(slots)
 
@@ -26,7 +27,7 @@ object ArmorEvaluation {
 
         // Run some passes in which we try to find best armor pieces based on the parameters of the last pass
         for (ignored in 0 until 2) {
-            val comparator = getArmorComparatorFor(currentBestPieces)
+            val comparator = getArmorComparatorFor(currentBestPieces, durabilityThreshold)
 
             currentBestPieces = armorPiecesGroupedByType.mapValues { it.value.maxWithOrNull(comparator) }
         }
@@ -56,12 +57,21 @@ object ArmorEvaluation {
         return armorPiecesGroupedByType
     }
 
-    fun getArmorComparatorFor(currentKit: Map<EquipmentSlot, ArmorPiece?>): ArmorComparator {
-        return getArmorComparatorForParameters(ArmorKitParameters.getParametersForSlots(currentKit))
+    fun getArmorComparatorFor(
+        currentKit: Map<EquipmentSlot, ArmorPiece?>,
+        durabilityThreshold: Int = Int.MIN_VALUE
+    ): ArmorComparator {
+        return getArmorComparatorForParameters(
+            ArmorKitParameters.getParametersForSlots(currentKit),
+            durabilityThreshold
+        )
     }
 
-    fun getArmorComparatorForParameters(currentParameters: ArmorKitParameters): ArmorComparator {
-        return ArmorComparator(EXPECTED_DAMAGE, currentParameters)
+    fun getArmorComparatorForParameters(
+        currentParameters: ArmorKitParameters,
+        durabilityThreshold: Int = Int.MIN_VALUE
+    ): ArmorComparator {
+        return ArmorComparator(EXPECTED_DAMAGE, currentParameters, durabilityThreshold)
     }
 
 

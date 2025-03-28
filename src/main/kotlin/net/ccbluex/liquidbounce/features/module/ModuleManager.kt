@@ -18,7 +18,6 @@
  */
 package net.ccbluex.liquidbounce.features.module
 
-import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.config.ConfigSystem
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.DisconnectEvent
@@ -33,8 +32,10 @@ import net.ccbluex.liquidbounce.features.module.modules.client.ModuleTargets
 import net.ccbluex.liquidbounce.features.module.modules.combat.*
 import net.ccbluex.liquidbounce.features.module.modules.combat.aimbot.ModuleAutoBow
 import net.ccbluex.liquidbounce.features.module.modules.combat.autoarmor.ModuleAutoArmor
+import net.ccbluex.liquidbounce.features.module.modules.combat.backtrack.ModuleBacktrack
 import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals
 import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.ModuleCrystalAura
+import net.ccbluex.liquidbounce.features.module.modules.combat.elytratarget.ModuleElytraTarget
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
 import net.ccbluex.liquidbounce.features.module.modules.combat.tpaura.ModuleTpAura
 import net.ccbluex.liquidbounce.features.module.modules.combat.velocity.ModuleVelocity
@@ -218,6 +219,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleAntiReducedDebugInfo,
             ModuleAntiHunger,
             ModuleClip,
+            ModuleExtendedFirework,
             ModuleResetVL,
             ModuleDamage,
             ModuleDisabler,
@@ -235,7 +237,6 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleServerCrasher,
             ModuleDupe,
             ModuleClickTp,
-            ModuleConsoleSpammer,
             ModuleTimeShift,
             ModuleTeleport,
             ModulePhase,
@@ -254,6 +255,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleBetterTab,
             ModuleItemScroller,
             ModuleBetterChat,
+            ModuleElytraTarget,
             ModuleMiddleClickAction,
             ModuleInventoryTracker,
             ModuleNameProtect,
@@ -263,11 +265,12 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleTeams,
             ModuleElytraSwap,
             ModuleAutoChatGame,
-            ModuleFocus,
+            ModuleTargetLock,
             ModuleAutoPearl,
             ModuleAntiStaff,
             ModuleFlagCheck,
             ModulePacketLogger,
+            ModuleDebugRecorder,
 
             // Movement
             ModuleAirJump,
@@ -338,7 +341,9 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleCameraClip,
             ModuleClickGui,
             ModuleDamageParticles,
+            ModuleParticles,
             ModuleESP,
+            ModuleLogoffSpot,
             ModuleFreeCam,
             ModuleFreeLook,
             ModuleFullBright,
@@ -388,6 +393,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleFastPlace,
             ModuleFucker,
             ModuleAutoTrap,
+            ModuleBlockTrap,
             ModuleNoSlowBreak,
             ModuleLiquidPlace,
             ModuleProjectilePuncher,
@@ -407,11 +413,6 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleTargets,
             ModuleLiquidChat
         )
-
-        // Register dev modules
-        if (LiquidBounce.IN_DEVELOPMENT) {
-            builtin += ModuleDebugRecorder
-        }
 
         builtin.forEach { module ->
             addModule(module)
@@ -438,10 +439,10 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
         modules.clear()
     }
 
-    fun autoComplete(begin: String, validator: (ClientModule) -> Boolean = { true }): List<String> {
+    inline fun autoComplete(begin: String, validator: (ClientModule) -> Boolean = { true }): List<String> {
         val parts = begin.split(",")
         val matchingPrefix = parts.last()
-        val resultPrefix = parts.dropLast(1).joinToString(",") + ","
+        val resultPrefix = parts.subList(0, parts.size - 1).joinToString(",") + ","
         return filter { it.name.startsWith(matchingPrefix, true) && validator(it) }
             .map {
                 if (parts.size == 1) {
@@ -465,6 +466,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
     fun getCategories() = Category.entries.mapArray { it.readableName }
 
     @JvmName("getModules")
+    @ScriptApiRequired
     fun getModules(): Iterable<ClientModule> = modules
 
     @JvmName("getModuleByName")

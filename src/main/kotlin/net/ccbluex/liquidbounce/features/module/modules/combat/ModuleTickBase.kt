@@ -19,7 +19,10 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import net.ccbluex.liquidbounce.config.types.NamedChoice
-import net.ccbluex.liquidbounce.event.events.*
+import net.ccbluex.liquidbounce.event.events.MovementInputEvent
+import net.ccbluex.liquidbounce.event.events.PacketEvent
+import net.ccbluex.liquidbounce.event.events.PlayerTickEvent
+import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
@@ -127,7 +130,7 @@ internal object ModuleTickBase : ClientModule("TickBase", Category.COMBAT) {
         // We do not want to tickbase if killaura is not ready to attack
         val breakRequirement = {
             requiresKillAura && !(ModuleKillAura.running &&
-                ModuleKillAura.clickScheduler.isClickOnNextTick(bestTick))
+                ModuleKillAura.clickScheduler.willClickAt(bestTick))
         }
 
         if (breakRequirement()) {
@@ -138,12 +141,14 @@ internal object ModuleTickBase : ClientModule("TickBase", Category.COMBAT) {
             TickBaseMode.PAST -> {
                 ticksToSkip = bestTick + pause
                 waitTicks(ticksToSkip)
+
                 repeat(bestTick) {
                     call.tick()
                     tickBalance -= 1
                 }
 
                 ModuleDebug.debugParameter(this, "Recommended Skip", bestTick)
+                ticksToSkip = 0
             }
 
             TickBaseMode.FUTURE -> {
@@ -164,6 +169,7 @@ internal object ModuleTickBase : ClientModule("TickBase", Category.COMBAT) {
 
                 ticksToSkip = totalSkipped + pause
                 waitTicks(ticksToSkip)
+                ticksToSkip = 0
             }
         }
 

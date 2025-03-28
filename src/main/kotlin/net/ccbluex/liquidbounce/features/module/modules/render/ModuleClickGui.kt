@@ -26,8 +26,8 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.sequenceHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
+import net.ccbluex.liquidbounce.integration.VirtualDisplayScreen
 import net.ccbluex.liquidbounce.integration.VirtualScreenType
-import net.ccbluex.liquidbounce.integration.VrScreen
 import net.ccbluex.liquidbounce.integration.browser.supports.tab.ITab
 import net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.game.isTyping
 import net.ccbluex.liquidbounce.integration.theme.ThemeManager
@@ -63,7 +63,7 @@ object ModuleClickGui :
                 closeView()
             }
 
-            if (mc.currentScreen is VrScreen || mc.currentScreen is ClickScreen) {
+            if (mc.currentScreen is VirtualDisplayScreen || mc.currentScreen is ClickScreen) {
                 enable()
             }
         }
@@ -75,7 +75,7 @@ object ModuleClickGui :
     }
 
     val isInSearchBar: Boolean
-        get() = (mc.currentScreen is VrScreen || mc.currentScreen is ClickScreen) && isTyping
+        get() = (mc.currentScreen is VirtualDisplayScreen || mc.currentScreen is ClickScreen) && isTyping
 
     object Snapping : ToggleableConfigurable(this, "Snapping", true) {
 
@@ -106,7 +106,7 @@ object ModuleClickGui :
 
         mc.setScreen(
             if (clickGuiTab == null) {
-                VrScreen(VirtualScreenType.CLICK_GUI)
+                VirtualDisplayScreen(VirtualScreenType.CLICK_GUI)
             } else {
                 ClickScreen()
             }

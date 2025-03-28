@@ -41,7 +41,6 @@ import net.minecraft.util.math.Vec3d
 internal object KillAuraNotifyWhenFail {
 
     internal val failedHits = ArrayDeque<ObjectLongMutablePair<Vec3d>>()
-    var hasFailedHit = false
     var failedHitsIncrement = 0
 
     object Box : Choice("Box") {
@@ -67,7 +66,6 @@ internal object KillAuraNotifyWhenFail {
         get() = 50 * Box.fadeSeconds
 
     fun notifyForFailedHit(entity: Entity, rotation: Rotation) {
-        hasFailedHit = true
         failedHitsIncrement++
 
         when (mode.activeChoice) {

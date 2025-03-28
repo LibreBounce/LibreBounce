@@ -22,6 +22,7 @@ export type ModuleSetting =
     | IntRangeSetting
     | ChoiceSetting
     | ChooseSetting
+    | MultiChooseSetting
     | ConfigurableSetting
     | TogglableSetting
     | ColorSetting
@@ -151,6 +152,14 @@ export interface ChooseSetting {
     value: string;
 }
 
+export interface MultiChooseSetting {
+    valueType: string;
+    name: string;
+    choices: string[];
+    value: string[];
+    canBeNone: boolean;
+}
+
 export interface ConfigurableSetting {
     valueType: string;
     name: string;
@@ -170,7 +179,6 @@ export interface PersistentStorageItem {
 
 export interface VirtualScreen {
     name: string;
-    showingSplash: boolean;
 }
 
 export interface Scoreboard {
@@ -230,6 +238,7 @@ export interface ItemStack {
     damage: number;
     maxDamage: number;
     displayName: TextComponent | string;
+    hasEnchantment: boolean;
 }
 
 export interface PrintableKey {

@@ -16,7 +16,7 @@
     export let requiresAuthentication: boolean;
     export let forwardAuthentication: boolean;
 
-    let hostPort = "";
+    let hostPort = `${host}:${port}`;
     let loading = false;
 
     $: disabled = validateInput(requiresAuthentication, hostPort, username, password);
@@ -26,10 +26,6 @@
             password = "";
         }
     }
-
-    afterUpdate(() => {
-        hostPort = `${host}:${port}`;
-    });
 
     function validateInput(requiresAuthentication: boolean, hostPort: string, username: string, password: string): boolean {
         let valid = /.+:[0-9]+/.test(hostPort);

@@ -30,7 +30,7 @@ import net.ccbluex.liquidbounce.utils.math.minus
 import net.minecraft.util.hit.EntityHitResult
 import net.minecraft.util.hit.HitResult
 
-object BoxDebugRecorder : ModuleDebugRecorder.DebugRecorderMode("Box") {
+object BoxDebugRecorder : ModuleDebugRecorder.DebugRecorderMode<JsonObject>("Box") {
 
     val repeatable = tickHandler {
         val crosshairTarget = mc.crosshairTarget

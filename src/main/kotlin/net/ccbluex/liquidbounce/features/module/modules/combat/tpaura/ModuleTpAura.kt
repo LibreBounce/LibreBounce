@@ -43,7 +43,7 @@ object ModuleTpAura : ClientModule("TpAura", Category.COMBAT, disableOnQuit = tr
 
     private val attackRange by float("AttackRange", 4.2f, 3f..5f)
 
-    val clicker = tree(Clicker(this, true))
+    val clicker = tree(Clicker(this, mc.options.attackKey, true))
     val mode = choices("Mode", AStarMode, arrayOf(AStarMode, ImmediateMode))
     val targetSelector = tree(TargetSelector(TargetPriority.HURT_TIME))
 
@@ -54,10 +54,10 @@ object ModuleTpAura : ClientModule("TpAura", Category.COMBAT, disableOnQuit = tr
     private val attackRepeatable = tickHandler {
         val position = desyncPlayerPosition ?: player.pos
 
-        clicker.clicks {
+        clicker.click {
             val enemy = targetSelector.targets().firstOrNull {
                 it.squaredBoxedDistanceTo(position) <= attackRange * attackRange
-            } ?: return@clicks false
+            } ?: return@click false
 
             enemy.attack(true, keepSprint = true)
             true

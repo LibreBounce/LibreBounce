@@ -48,6 +48,9 @@ object GameTickEvent : Event()
 @Nameable("gameRenderTaskQueue")
 object GameRenderTaskQueueEvent : Event()
 
+@Nameable("tickPacketProcess")
+object TickPacketProcessEvent : Event()
+
 @Nameable("key")
 @WebSocketEvent
 class KeyEvent(val key: InputUtil.Key, val action: Int) : Event()
@@ -122,14 +125,6 @@ class ChatReceiveEvent(
     }
 
 }
-
-@Nameable("splashOverlay")
-@WebSocketEvent
-class SplashOverlayEvent(val showingSplash: Boolean) : Event()
-
-@Nameable("splashProgress")
-@WebSocketEvent
-class SplashProgressEvent(val progress: Float, val isComplete: Boolean) : Event()
 
 @Nameable("serverConnect")
 class ServerConnectEvent(
