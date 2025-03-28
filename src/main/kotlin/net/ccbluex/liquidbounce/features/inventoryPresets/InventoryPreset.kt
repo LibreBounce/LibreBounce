@@ -14,7 +14,7 @@ class InventoryPreset(
         SwordPresetItem,
         SwordPresetItem,
         BlockPresetItem,
-        FoodPresetItem,
+        NonePresetItem,
         FoodPresetItem,
         NonePresetItem
     ),

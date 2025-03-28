@@ -19,12 +19,17 @@
   .preset {
     display: flex;
     justify-content: space-between;
+    cursor: pointer;
   }
 
   .preset-item {
     width: 20px;
     height: 20px;
-    background-color: rgba($clickgui-base-color, 0.5);
+    background-color: $clickgui-base-color;
     border-radius: 3px;
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    align-items: center;
   }
 </style>
