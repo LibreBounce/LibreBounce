@@ -352,19 +352,6 @@ class RangedValue<T : Any>(
 
 }
 
-class ButtonValue(
-    name: String,
-    @Exclude @ProtocolExclude private val action: () -> Unit,
-
-    /**
-     * It is necessary to immediately find this button as an identifier to simplify its final activation
-     */
-    @Exclude @ProtocolExclude private val uuid: String
-) : Value<Unit>(name,
-    defaultValue = Unit,
-    valueType = ValueType.BUTTON
-)
-
 class BindValue(
     name: String,
     aliases: Array<String> = emptyArray(),
@@ -501,7 +488,7 @@ enum class ValueType(
     ITEM(HumanInputDeserializer.itemDeserializer), ITEMS(HumanInputDeserializer.itemListDeserializer),
     KEY(HumanInputDeserializer.keyDeserializer),
     BIND,
-    BUTTON,
+    INVENTORY_PRESETS,
     VECTOR_I,
     VECTOR_D,
     CHOICE(completer = AutoCompletionProvider.choiceCompleter),

@@ -38,7 +38,7 @@ import net.minecraft.screen.slot.SlotActionType
 object ModuleInventoryCleaner : ClientModule("InventoryCleaner", Category.PLAYER,
     aliases = arrayOf("InventoryManager")
 ) {
-  
+
     private val inventoryConstraints = tree(PlayerInventoryConstraints())
 
     private val maxBlocks by int("MaximumBlocks", 512, 0..2500)
@@ -58,6 +58,9 @@ object ModuleInventoryCleaner : ClientModule("InventoryCleaner", Category.PLAYER
     private val slotItem7 by enumChoice("SlotItem-7", ItemSortChoice.FOOD)
     private val slotItem8 by enumChoice("SlotItem-8", ItemSortChoice.BLOCK)
     private val slotItem9 by enumChoice("SlotItem-9", ItemSortChoice.BLOCK)
+
+    @Suppress("unused")
+    private val inventoryPresets = inventoryPresets()
 
     val cleanupTemplateFromSettings: CleanupPlanPlacementTemplate
         get() {
