@@ -47,17 +47,22 @@ object ModuleVelocity : ClientModule("Velocity", Category.COMBAT, aliases = arra
 
     val modes = choices(
         "Mode", VelocityModify, arrayOf(
+            // Generic modes
             VelocityModify,
-            VelocityHypixel,
+            VelocityReversal,
             VelocityStrafe,
-            VelocityAAC442,
-            VelocityExemptGrim117,
-            VelocityDexland,
             VelocityJumpReset,
-            VelocityIntave,
+
+            // Server modes
+            VelocityHypixel,
+            VelocityDexland,
             VelocityHylex,
             VelocityBlocksMC,
-            VelocityReversal
+
+            // Anti cheat modes
+            VelocityAAC442,
+            VelocityExemptGrim117,
+            VelocityIntave
         )
     ).apply(::tagBy)
 

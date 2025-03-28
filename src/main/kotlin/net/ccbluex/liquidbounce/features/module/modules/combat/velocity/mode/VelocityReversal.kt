@@ -18,11 +18,9 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat.velocity.mode
 
-import kotlin.math.abs
-import net.ccbluex.liquidbounce.event.events.PacketEvent
+ import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.PlayerTickEvent
 import net.ccbluex.liquidbounce.event.sequenceHandler
-import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
 import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket
 import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket
 
@@ -31,47 +29,43 @@ import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket
  * Default values bypass Vulcan (3/9/25) ~ anticheat-test.com
  */
 internal object VelocityReversal : VelocityMode("Reversal") {
-    private val delay by int("ReversalDelay", 2, 1..5, "ticks")
+
+    private val delay by int("Delay", 2, 1..5, "ticks")
     private val xModifier by float("XModifier", 0.5f, 0.1f..1.0f)
     private val zModifier by float("ZModifier", 0.5f, 0.1f..1.0f)
-    private val requiresKillaura by boolean("RequiresKillAura", true)
 
     private var handlingVelocity = false
     private var velocityTicks = 0
 
-    // We assume the velocity has reset. Idk of any edge cases where this logic would fail.
-    private fun hasVelocityReset(): Boolean {
-        return player.velocity.lengthSquared() == 0.0
-    }
-    
     private fun checkRequirements(packet: Any): Boolean {
-        val isKillAuraRunning = requiresKillaura && !ModuleKillAura.running
         val isExplosion = packet is ExplosionS2CPacket
         val isSelfVelocity = packet is EntityVelocityUpdateS2CPacket && packet.entityId == player.id
-        return (isSelfVelocity || isExplosion) && isKillAuraRunning
+
+        return (isSelfVelocity || isExplosion)
     }
 
     @Suppress("unused")
-    private val packetEventHandler =
-        sequenceHandler<PacketEvent> { event ->
-            if (!checkRequirements(event.packet)) return@sequenceHandler
-
-            reset()
-            handlingVelocity = true
+    private val packetEventHandler = sequenceHandler<PacketEvent> { event ->
+        if (!checkRequirements(event.packet)) {
+            return@sequenceHandler
         }
 
-    @Suppress("unused")
-    private val playerTickHandler =
-        sequenceHandler<PlayerTickEvent> {
-            if (!handlingVelocity) return@sequenceHandler
-            if (hasVelocityReset()) reset()
+        reset()
+        handlingVelocity = true
+    }
 
-            if (velocityTicks++ >= delay) {
+    @Suppress("unused")
+    private val playerTickHandler = sequenceHandler<PlayerTickEvent> {
+        if (handlingVelocity) {
+            if (player.velocity.lengthSquared() == 0.0) {
+                reset()
+            } else if (velocityTicks++ >= delay) {
                 player.velocity.x *= -xModifier
                 player.velocity.z *= -zModifier
                 reset()
             }
         }
+    }
 
     private fun reset() {
         velocityTicks = 0
