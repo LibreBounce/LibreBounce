@@ -6,7 +6,9 @@
 </script>
 
 {#if item.type === "CHOOSE"}
-    <img class="icon" src="{REST_BASE}/api/v1/client/resource/itemTexture?id={item.item}" alt={item.item}/>
+    <img src="{REST_BASE}/api/v1/client/resource/itemTexture?id={item.item}" alt={item.item}/>
+{:else if item.type === "SWORD"}
+    <img src="img/items/sword.svg" alt="sword">
 {/if}
 
 <style lang="scss">
