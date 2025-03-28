@@ -137,7 +137,8 @@ val ALL_EVENT_CLASSES: Array<KClass<out Event>> = arrayOf(
     ClickGuiValueChangeEvent::class,
     BlockAttackEvent::class,
     QueuePacketEvent::class,
-    MinecraftAutoJumpEvent::class
+    MinecraftAutoJumpEvent::class,
+    WorldEntityRemoveEvent::class,
 )
 
 /**

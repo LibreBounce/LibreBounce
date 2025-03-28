@@ -342,6 +342,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleDamageParticles,
             ModuleParticles,
             ModuleESP,
+            ModuleLogoffSpot,
             ModuleFreeCam,
             ModuleFreeLook,
             ModuleFullBright,

@@ -96,6 +96,14 @@ open class Value<T : Any>(
     var notAnOption = false
         private set
 
+    /**
+     * If true, value will always keep [inner] equals [defaultValue]
+     */
+    @Exclude
+    @ProtocolExclude
+    var isImmutable = false
+        private set
+
     @Exclude
     var key: String? = null
         set(value) {
@@ -139,12 +147,10 @@ open class Value<T : Any>(
 
     @ScriptApiRequired
     @JvmName("getValue")
-    fun getValue(): Any {
-        if (this is ChoiceConfigurable<*>) {
-            return this.activeChoice.name
-        }
-
-        return when (val v = get()) {
+    fun getValue(): Any = when (this) {
+        is ChoiceConfigurable<*> -> activeChoice.name
+        is MultiChooseListValue<*> -> "${get().size}/${choices.size}"
+        else -> when (val v = get()) {
             is ClosedFloatingPointRange<*> -> arrayOf(v.start, v.endInclusive)
             is IntRange -> arrayOf(v.first, v.last)
             is NamedChoice -> v.choiceName
@@ -208,6 +214,10 @@ open class Value<T : Any>(
             listeners.forEach {
                 currT = it(t)
             }
+
+            if (isImmutable) {
+                return
+            }
         }.onSuccess {
             apply(currT)
             EventManager.callEvent(ValueChangedEvent(this))
@@ -226,34 +236,32 @@ open class Value<T : Any>(
 
     fun type() = valueType
 
-    fun onChange(listener: ValueListener<T>): Value<T> {
+    fun immutable() = apply {
+        isImmutable = true
+    }
+
+    fun onChange(listener: ValueListener<T>) = apply {
         listeners += listener
-        return this
     }
 
-    fun onChanged(listener: ValueChangedListener<T>): Value<T> {
+    fun onChanged(listener: ValueChangedListener<T>) = apply {
         changedListeners += listener
-        return this
     }
 
-    fun doNotIncludeAlways(): Value<T> {
+    fun doNotIncludeAlways() = apply {
         doNotInclude = { true }
-        return this
     }
 
-    fun doNotIncludeWhen(condition: () -> Boolean): Value<T> {
+    fun doNotIncludeWhen(condition: () -> Boolean) = apply {
         doNotInclude = condition
-        return this
     }
 
-    fun notAnOption(): Value<T> {
+    fun notAnOption() = apply {
         notAnOption = true
-        return this
     }
 
-    fun independentDescription(): Value<T> {
+    fun independentDescription() = apply {
         independentDescription = true
-        return this
     }
 
     /**
