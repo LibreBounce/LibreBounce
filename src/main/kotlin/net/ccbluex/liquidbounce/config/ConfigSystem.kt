@@ -43,6 +43,9 @@ import java.io.Writer
 @Suppress("TooManyFunctions")
 object ConfigSystem {
 
+    var isFirstLaunch: Boolean = false
+        private set
+
     // Config directory folder
     val rootFolder = File(
         mc.runDirectory, LiquidBounce.CLIENT_NAME
@@ -50,6 +53,7 @@ object ConfigSystem {
         // Check if there is already a config folder and if not create new folder
         // (mkdirs not needed - .minecraft should always exist)
         if (!exists()) {
+            isFirstLaunch = true
             mkdir()
         }
     }

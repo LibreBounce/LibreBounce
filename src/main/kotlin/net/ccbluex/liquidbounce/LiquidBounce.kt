@@ -23,7 +23,6 @@ import com.mojang.blaze3d.systems.RenderSystem
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
-import net.ccbluex.liquidbounce.LiquidBounce.Client.version
 import net.ccbluex.liquidbounce.api.core.scope
 import net.ccbluex.liquidbounce.api.models.auth.ClientAccount
 import net.ccbluex.liquidbounce.api.services.client.ClientUpdate.gitInfo
@@ -171,9 +170,9 @@ object LiquidBounce : EventListener {
                 "https://github.com/CCBlueX/LiquidBounce/issues.")
         }
 
-        // Do backup before loading
-        if (!Client.jsonFile.exists()) {
-            ConfigSystem.backup("backup-unknown-${version.inner}.zip")
+        // Do backup before loading configs
+        if (!ConfigSystem.isFirstLaunch && !Client.jsonFile.exists()) {
+            ConfigSystem.backup("backup-unknown-${Client.version.inner}.zip")
         }
 
         // Load all configurations
