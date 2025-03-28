@@ -42,7 +42,6 @@ class MultiChooseStringListValue(
         get() = this
 }
 
-
 sealed class MultiChooseListValue<T>(
     name: String,
     value: AbstractSet<T>,
