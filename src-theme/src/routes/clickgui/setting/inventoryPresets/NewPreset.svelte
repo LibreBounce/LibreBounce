@@ -1,7 +1,7 @@
 <script lang="ts">
     import {spaceSeperatedNames} from "../../../../theme/theme_config";
     import {createEventDispatcher} from "svelte";
-    import type {InventoryPreset} from "../../../../integration/types";
+    import type {InventoryPreset, NonePresetItem} from "../../../../integration/types";
 
     export let value: InventoryPreset[];
 
@@ -9,7 +9,7 @@
 
     function addNewPreset() {
         value = [...value, {
-            items: Array(10).fill("minecraft:air")
+            items: Array.from({ length: 10 }, (): NonePresetItem => ({ type: "NONE" }))
         }]
 
         dispatch("change")

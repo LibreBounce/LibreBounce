@@ -1,6 +1,6 @@
 <script lang="ts">
     import type {InventoryPreset} from "../../../../integration/types";
-    import {REST_BASE} from "../../../../integration/host";
+    import ItemImage from "./ItemImage.svelte";
 
     export let preset: InventoryPreset
 </script>
@@ -8,9 +8,7 @@
 <div class="preset">
     {#each preset.items as item}
         <div class="preset-item">
-            {#if item !== "minecraft:air"}
-                <img class="icon" src="{REST_BASE}/api/v1/client/resource/itemTexture?id={item}" alt={item}/>
-            {/if}
+            <ItemImage bind:item />
         </div>
     {/each}
 </div>
@@ -28,10 +26,5 @@
     height: 20px;
     background-color: rgba($clickgui-base-color, 0.5);
     border-radius: 3px;
-
-    & > img {
-      width: 100%;
-      height: 100%;
-    }
   }
 </style>
