@@ -23,8 +23,8 @@
     </div>
 
     <div class="presets" class:margin={cSetting.value.length > 0}>
-        {#each cSetting.value as preset}
-            <InventoryPreset bind:preset on:change={handleChange} />
+        {#each cSetting.value as preset, idx}
+            <InventoryPreset bind:preset idx={idx} on:change={handleChange} />
         {/each}
     </div>
 

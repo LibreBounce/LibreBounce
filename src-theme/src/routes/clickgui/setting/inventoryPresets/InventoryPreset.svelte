@@ -5,6 +5,7 @@
     import {createEventDispatcher} from "svelte";
 
     export let preset: InventoryPreset
+    export let idx: number
 
     const dispatch = createEventDispatcher();
 
@@ -28,6 +29,7 @@
 {#if configuring}
     <PresetModel
             bind:preset
+            bind:idx
             on:close={() => configuring = false}
             on:change={handleChange}
     />
