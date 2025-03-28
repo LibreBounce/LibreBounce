@@ -25,6 +25,7 @@ import net.ccbluex.liquidbounce.event.events.PlayerAfterJumpEvent;
 import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent;
 import net.ccbluex.liquidbounce.features.module.modules.combat.elytratarget.ModuleElytraTarget;
 import net.ccbluex.liquidbounce.features.module.modules.movement.*;
+import net.ccbluex.liquidbounce.features.module.modules.render.DoRender;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleAntiBlind;
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold;
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager;
@@ -130,7 +131,7 @@ public abstract class MixinLivingEntity extends MixinEntity {
 
     @Inject(method = "hasStatusEffect", at = @At("HEAD"), cancellable = true)
     private void hookAntiNausea(RegistryEntry<StatusEffect> effect, CallbackInfoReturnable<Boolean> cir) {
-        if (effect == StatusEffects.NAUSEA && ModuleAntiBlind.INSTANCE.getRunning() && ModuleAntiBlind.INSTANCE.getAntiNausea()) {
+        if (effect == StatusEffects.NAUSEA && !ModuleAntiBlind.canRender(DoRender.NAUSEA)) {
             cir.setReturnValue(false);
             cir.cancel();
         }
@@ -193,7 +194,7 @@ public abstract class MixinLivingEntity extends MixinEntity {
 
     @Inject(method = "pushAwayFrom", at = @At("HEAD"), cancellable = true)
     private void hookNoPush(CallbackInfo callbackInfo) {
-        if (ModuleNoPush.INSTANCE.isEntities()) {
+        if (!ModuleNoPush.canPush(NoPushBy.ENTITIES)) {
             callbackInfo.cancel();
         }
     }

@@ -18,6 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
+import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.TransferOrigin
 import net.ccbluex.liquidbounce.event.handler
@@ -49,14 +50,13 @@ import kotlin.math.max
  */
 object ModulePacketLogger : ClientModule("PacketLogger", Category.MISC) {
 
-    private val serverbound by boolean("Serverbound", true)
-    private val clientbound by boolean("Clientbound", false)
+    private val bound by multiEnumChoice("Bound", PacketBound.SERVER)
     private val filter by enumChoice("Filter", Filter.BLACKLIST)
     private val packets by textArray("Packets", mutableListOf())
 
     private val classNames = ConcurrentHashMap<Class<out Packet<*>>, String>()
     private val fieldNames = ConcurrentHashMap<Field, String>()
-    
+
     init {
         // Do not include this module in the auto config, as this is for debugging purposes only.
         doNotIncludeAlways()
@@ -73,11 +73,7 @@ object ModulePacketLogger : ClientModule("PacketLogger", Category.MISC) {
     }
 
     fun onPacket(origin: TransferOrigin, packet: Packet<*>, canceled: Boolean = false) {
-        if (!running) {
-            return
-        }
-
-        if (origin == TransferOrigin.RECEIVE && !clientbound || origin == TransferOrigin.SEND && !serverbound) {
+        if (!running || bound.none { it.origin == origin }) {
             return
         }
 
@@ -174,4 +170,12 @@ object ModulePacketLogger : ClientModule("PacketLogger", Category.MISC) {
     override val running: Boolean
         get() = !isDestructed && enabled
 
+    @Suppress("unused")
+    private enum class PacketBound(
+        override val choiceName: String,
+        val origin: TransferOrigin,
+    ) : NamedChoice {
+        CLIENT("Client", TransferOrigin.RECEIVE),
+        SERVER("Server", TransferOrigin.SEND)
+    }
 }

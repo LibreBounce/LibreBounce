@@ -20,6 +20,7 @@ package net.ccbluex.liquidbounce.utils.block.placer
 
 import it.unimi.dsi.fastutil.objects.Object2BooleanLinkedOpenHashMap
 import net.ccbluex.liquidbounce.config.types.Configurable
+import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.event.EventListener
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.events.RotationUpdateEvent
@@ -80,8 +81,11 @@ class BlockPlacer(
      */
     val sneak by int("Sneak", 1, 0..10, "ticks")
 
-    val ignoreOpenInventory by boolean("IgnoreOpenInventory", true)
-    val ignoreUsingItem by boolean("IgnoreUsingItem", true)
+    private val ignores by multiEnumChoice("Ignore", Ignore.entries)
+
+    val ignoreOpenInventory get() = Ignore.OPEN_INVENTORY in ignores
+
+    val ignoreUsingItem get() = Ignore.USING_ITEM in ignores
 
     val slotResetDelay by intRange("SlotResetDelay", 4..6, 0..40, "ticks")
 
@@ -445,4 +449,8 @@ class BlockPlacer(
 
     override fun parent(): EventListener = module
 
+    private enum class Ignore(override val choiceName: String) : NamedChoice {
+        OPEN_INVENTORY("OpenInventory"),
+        USING_ITEM("UsingItem")
+    }
 }

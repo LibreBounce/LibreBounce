@@ -27,6 +27,7 @@ import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
 import net.ccbluex.liquidbounce.features.misc.FriendManager;
 import net.ccbluex.liquidbounce.features.module.modules.misc.ModuleAntiStaff;
 import net.ccbluex.liquidbounce.features.module.modules.misc.ModuleBetterTab;
+import net.ccbluex.liquidbounce.features.module.modules.misc.Visibility;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -80,7 +81,7 @@ public abstract class MixinPlayerListHud {
             return original;
         }
 
-        return ModuleBetterTab.Visibility.INSTANCE.getHeader() ? original : null;
+        return ModuleBetterTab.isVisible(Visibility.HEADER) ? original : null;
     }
 
     @ModifyExpressionValue(method = "render", at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/hud/PlayerListHud;footer:Lnet/minecraft/text/Text;", ordinal = 0))
@@ -89,7 +90,7 @@ public abstract class MixinPlayerListHud {
             return original;
         }
 
-        return ModuleBetterTab.Visibility.INSTANCE.getFooter() ? original : null;
+        return ModuleBetterTab.isVisible(Visibility.FOOTER) ? original : null;
     }
 
     @ModifyExpressionValue(method = "render", at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/hud/PlayerListHud$ScoreDisplayEntry;name:Lnet/minecraft/text/Text;"))
@@ -98,7 +99,7 @@ public abstract class MixinPlayerListHud {
             return original;
         }
 
-        return ModuleBetterTab.Visibility.INSTANCE.getNameOnly() ? Text.of(entry.getProfile().getName()) : original;
+        return ModuleBetterTab.isVisible(Visibility.NAME_ONLY) ? Text.of(entry.getProfile().getName()) : original;
 
     }
 
@@ -108,7 +109,7 @@ public abstract class MixinPlayerListHud {
             return original;
         }
 
-        return ModuleBetterTab.Visibility.INSTANCE.getNameOnly() ? Text.of(entry.getProfile().getName()) : original;
+        return ModuleBetterTab.isVisible(Visibility.NAME_ONLY) ? Text.of(entry.getProfile().getName()) : original;
     }
 
     @Inject(method = "render", at = @At(value = "INVOKE", target = "Ljava/lang/Math;min(II)I", shift = At.Shift.BEFORE))

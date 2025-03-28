@@ -33,6 +33,7 @@ private const val NAMETAG_PADDING: Int = 5
 private const val ITEM_SIZE: Int = 20
 private const val ITEM_SCALE: Float = 1.0F
 
+@Suppress("MagicNumber")
 class NametagRenderer {
 
     private val quadBuffers =
@@ -78,11 +79,11 @@ class NametagRenderer {
 
         quadBuffers.drawQuad(env, q1, q2)
 
-        if (ModuleNametags.border) {
+        if (NametagShowOptions.BORDER.isShowing()) {
             lineBuffers.drawQuadOutlines(env, q1, q2)
         }
 
-        if (ModuleNametags.ShowOptions.items) {
+        if (NametagShowOptions.ITEMS.isShowing()) {
             drawItemList(pos, nametag.items)
         }
 
@@ -106,7 +107,7 @@ class NametagRenderer {
 
         dc.matrices.translate(0.0F, 0.0F, 100.0F)
 
-        val itemInfo = ModuleNametags.ShowOptions.itemInfo
+        val itemInfo = NametagShowOptions.ITEM_INFO.isShowing()
         itemsToRender.forEachIndexed { index, itemStack ->
             itemStack ?: return@forEachIndexed
 

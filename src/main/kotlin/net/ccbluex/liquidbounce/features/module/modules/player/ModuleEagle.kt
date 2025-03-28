@@ -18,6 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player
 
+import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -39,26 +40,45 @@ object ModuleEagle : ClientModule("Eagle", Category.PLAYER,
     private val edgeDistance by float("EagleEdgeDistance", 0.4f, 0.01f..1.3f)
 
     private object Conditional : ToggleableConfigurable(this, "Conditional", true) {
-        val holdingBlocks by boolean("HoldingBlocks", false)
-        val onGround by boolean("OnGround", true)
-        val pitch by floatRange("Pitch", -90f..90f, -90f..90f)
-        val sneak by boolean("Sneak", false)
-        val left by boolean("Left", false)
-        val right by boolean("Right", false)
-        val forwards by boolean("Forwards", false)
-        val backwards by boolean("Backwards", false)
+        private val conditions by multiEnumChoice("Conditions",
+            Conditions.ON_GROUND
+        )
 
-        fun shouldSneak(event: MovementInputEvent): Boolean = when {
-            !enabled || event.sneak -> true
-            holdingBlocks && !isValidBlock(player.mainHandStack) && !isValidBlock(player.offHandStack) -> false
-            onGround && !player.isOnGround -> false
-            player.pitch !in pitch -> false
-            sneak && !event.sneak -> false
-            left && !event.directionalInput.left -> false
-            right && !event.directionalInput.right -> false
-            forwards && !event.directionalInput.forwards -> false
-            backwards && !event.directionalInput.backwards -> false
-            else -> true
+        val pitch by floatRange("Pitch", -90f..90f, -90f..90f)
+
+        fun shouldSneak(event: MovementInputEvent) =
+            if (!enabled || event.sneak) {
+                true
+            } else {
+                player.pitch in pitch && conditions.all { it.meetsCondition(event) }
+            }
+
+        @Suppress("unused")
+        private enum class Conditions(
+            override val choiceName: String,
+            val meetsCondition: (event: MovementInputEvent) -> Boolean
+        ) : NamedChoice {
+            LEFT("Left", { event ->
+                event.directionalInput.left
+            }),
+            RIGHT("Right", { event ->
+                event.directionalInput.right
+            }),
+            FORWARDS("Forwards", { event ->
+                event.directionalInput.forwards
+            }),
+            BACKWARDS("Backwards", { event ->
+                event.directionalInput.backwards
+            }),
+            HOLDING_BLOCKS("HoldingBlocks", { _ ->
+                isValidBlock(player.mainHandStack) || isValidBlock(player.offHandStack)
+            }),
+            ON_GROUND("OnGround", { _ ->
+                player.isOnGround
+            }),
+            SNEAK("Sneak", { event ->
+                event.sneak
+            })
         }
     }
 
