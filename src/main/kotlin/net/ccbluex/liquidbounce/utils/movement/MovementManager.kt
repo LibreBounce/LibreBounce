@@ -18,7 +18,7 @@ object MovementManager : EventListener {
         get() = movementHandler.getActiveRequestValue()
     private var movementHandler = RequestHandler<MovementClass>()
 
-    fun setMovement(plan: MovementClass, priority: Priority, provider: ClientModule) {
+    fun setMovement(plan: MovementClass, leastTicks: Int, priority: Priority, provider: ClientModule) {
         movementHandler.request(
             RequestHandler.Request(
                 1,
@@ -90,7 +90,6 @@ object MovementManager : EventListener {
     ) { event ->
         val movement = movement ?: return@handler
         event.directionalInput = movement.directionalInput
-
         event.jump = movement.jumpInput
 
     }
