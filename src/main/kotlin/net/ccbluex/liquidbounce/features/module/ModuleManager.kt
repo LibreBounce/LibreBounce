@@ -270,6 +270,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleFlagCheck,
             ModulePacketLogger,
             ModuleDebugRecorder,
+            ModuleAntiCheatDetect,
 
             // Movement
             ModuleAirJump,
@@ -342,6 +343,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleDamageParticles,
             ModuleParticles,
             ModuleESP,
+            ModuleLogoffSpot,
             ModuleFreeCam,
             ModuleFreeLook,
             ModuleFullBright,

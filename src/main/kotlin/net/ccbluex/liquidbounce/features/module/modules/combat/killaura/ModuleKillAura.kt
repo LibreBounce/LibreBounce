@@ -198,7 +198,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
             // Deal with fake swing when there is no target
             if (KillAuraFailSwing.enabled && requirementsMet) {
                 if (hasUnblocked) {
-                    waitTicks(KillAuraAutoBlock.tickOff)
+                    waitTicks(KillAuraAutoBlock.currentTickOff)
                 }
                 dealWithFakeSwing(this, null)
             }
@@ -276,7 +276,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
             // Deal with fake swing
             if (KillAuraFailSwing.enabled) {
                 if (hasUnblocked) {
-                    sequence.waitTicks(KillAuraAutoBlock.tickOff)
+                    sequence.waitTicks(KillAuraAutoBlock.currentTickOff)
                 }
 
                 dealWithFakeSwing(sequence, target)
@@ -306,7 +306,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
 
                 true
             }
-        } else if (KillAuraAutoBlock.tickOff > 0 && clickScheduler.willClickAt(KillAuraAutoBlock.tickOff)
+        } else if (KillAuraAutoBlock.currentTickOff > 0 && clickScheduler.willClickAt(KillAuraAutoBlock.currentTickOff)
             && KillAuraAutoBlock.shouldUnblockToHit) {
             KillAuraAutoBlock.stopBlocking(pauses = true)
         } else {
