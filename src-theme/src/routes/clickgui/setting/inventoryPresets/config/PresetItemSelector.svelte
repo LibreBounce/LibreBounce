@@ -3,7 +3,7 @@
     import {convertToSpacedString, spaceSeperatedNames} from "../../../../../theme/theme_config";
     import ItemImage from "../ItemImage.svelte";
     import {onMount} from "svelte";
-    import {getRegistries} from "../../../../../integration/rest";
+    import {getRegistries, setTyping} from "../../../../../integration/rest";
     import VirtualList from "../../blocks/VirtualList.svelte";
     import {REST_BASE} from "../../../../../integration/host";
 
@@ -124,7 +124,14 @@
 
     <div class="search-wrapper">
         <div class="search">
-            <input type="text" placeholder="Search items..." class="search-input" bind:value={searchQuery} spellcheck="false">
+            <input
+                    type="text"
+                    placeholder="Search items..."
+                    class="search-input"
+                    bind:value={searchQuery}
+                    on:focusin={async () => await setTyping(true)}
+                    on:focusout={async () => await setTyping(false)}
+                    spellcheck="false">
             <div class="search-icon">
                 <img src="img/menu/icon-pen.svg" alt="Search" />
             </div>
