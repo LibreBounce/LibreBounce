@@ -17,7 +17,6 @@
 </script>
 
 <button on:click|preventDefault={addNewPreset}>
-    <img src="img/menu/icon-plus-circle.svg" alt="Add" />
     <span>{$spaceSeperatedNames ? "New Preset" : "NewPreset"}</span>
 </button>
 
@@ -46,10 +45,5 @@
     color: $clickgui-text-color;
     font-weight: 500;
     font-size: 12px;
-  }
-
-  img {
-    width: 20px;
-    height: 20px;
   }
 </style>

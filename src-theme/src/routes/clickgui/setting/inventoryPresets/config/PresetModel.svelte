@@ -21,7 +21,7 @@
     <div class="container" on:click|stopPropagation transition:scale={{duration: 200, easing: backOut, start: 0.9}}>
         <div class="title">
             <span>Inventory #{idx+1}</span>
-            <button on:click={() => dispatch("delete")}>delete</button>
+            <button on:click={() => dispatch("delete")}>Delete</button>
         </div>
     </div>
 </div>
@@ -45,15 +45,34 @@
   }
 
   .title {
-    padding: 20px;
+    padding: 0 20px;
+    height: 60px;
     position: relative;
     border-bottom: $accent-color solid 1px;
     background-color: rgba($clickgui-base-color, 0.5);
+    color: $menu-text-color;
+
+    display: flex;
+    align-items: center;
 
     & > span {
       font-weight: 500;
       letter-spacing: 1px;
       font-size: 16px;
+    }
+
+    & > button {
+      cursor: pointer;
+      margin-left: auto;
+      border: none;
+      padding: 5px 15px;
+      background: $menu-error-color;
+      color: $menu-text-color;
+      border-radius: 3px;
+
+      &:hover {
+        background: rgba($menu-error-color, 0.9);
+      }
     }
   }
 
