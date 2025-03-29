@@ -56,7 +56,7 @@ object ModuleClickGui :
 
     @Suppress("UnusedPrivateProperty")
     private val cache by boolean("Cache", true).onChanged { cache ->
-        RenderSystem.recordRenderCall {
+        mc.execute {
             if (cache) {
                 createView()
             } else {
