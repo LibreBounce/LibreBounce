@@ -4,11 +4,16 @@
     import {createEventDispatcher} from "svelte";
     import {fly, scale} from "svelte/transition"
     import {backOut} from "svelte/easing";
+    import PresetItems from "./PresetItems.svelte";
 
     export let preset: InventoryPreset
     export let idx: number
 
     const dispatch = createEventDispatcher();
+
+    function handleChange() {
+        dispatch("change")
+    }
 
     function handleClose() {
         dispatch("close")
@@ -22,6 +27,12 @@
         <div class="title">
             <span>Inventory #{idx+1}</span>
             <button on:click={() => dispatch("delete")}>Delete</button>
+        </div>
+        <div class="items-container">
+            <PresetItems
+                    bind:items={preset.items}
+                    on:change={handleChange}
+            />
         </div>
     </div>
 </div>
@@ -42,6 +53,10 @@
     align-items: center;
     justify-content: center;
     color: $clickgui-text-color;
+  }
+
+  .items-container {
+    padding: 20px;
   }
 
   .title {
@@ -78,7 +93,8 @@
 
   .container {
     border-radius: 3px;
-    width: 600px;
+    width: 700px;
+    min-width: 700px;
     height: 300px;
     box-shadow: 0 0 10px rgba($clickgui-base-color, 0.5);
     background-color: rgba($clickgui-base-color, 0.9);
