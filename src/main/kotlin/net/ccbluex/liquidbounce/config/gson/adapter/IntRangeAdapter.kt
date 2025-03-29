@@ -43,6 +43,10 @@ object IntRangeAdapter : JsonSerializer<IntRange>, JsonDeserializer<IntRange> {
             return IntRange(primitive.asInt, primitive.asInt)
         }
 
+        if (!json.isJsonObject) {
+            throw JsonParseException("Expected object, got ${json.javaClass.name}")
+        }
+
         val obj = json.asJsonObject
         return obj["from"].asInt..obj["to"].asInt
     }
