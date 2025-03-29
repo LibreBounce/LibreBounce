@@ -76,6 +76,7 @@
   .selector-container {
     position: absolute;
     width: 250px;
+    height: 470px;
     padding: 20px;
     background-color: rgba($clickgui-base-color, 0.95);
     outline: 1px solid color.adjust($clickgui-text-color, $lightness: -85%);
