@@ -30,7 +30,6 @@ object MarketplaceSubscriptionManager : Configurable("marketplace") {
             updateItem(itemId)
         } catch (e: Exception) {
             logger.error("Failed to update subscribed item $itemId", e)
-            e.printStackTrace()
         }
     }
 
@@ -50,7 +49,7 @@ object MarketplaceSubscriptionManager : Configurable("marketplace") {
         }
     }
 
-    private suspend fun updateItem(itemId: Int) {
+    internal suspend fun updateItem(itemId: Int) {
         val item = MarketplaceApi.getMarketplaceItem(itemId)
 
         if (item.status != MarketplaceItemStatus.ACTIVE) {
