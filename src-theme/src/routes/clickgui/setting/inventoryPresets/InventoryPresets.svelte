@@ -20,6 +20,11 @@
         cSetting.value = cSetting.value.filter((_, i) => i !== id)
         handleChange()
     }
+
+    function handleCopy(id: number) {
+        cSetting.value = [...cSetting.value, cSetting.value[id]]
+        handleChange()
+    }
 </script>
 
 <div class="setting">
@@ -34,6 +39,7 @@
                     idx={idx}
                     on:change={handleChange}
                     on:delete={() => {handleDelete(idx)}}
+                    on:copy={() => {handleCopy(idx)}}
             />
         {/each}
     </div>

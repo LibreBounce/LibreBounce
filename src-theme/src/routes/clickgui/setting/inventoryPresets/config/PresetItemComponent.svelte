@@ -74,6 +74,7 @@
   }
 
   .selector-container {
+    z-index: 9999;
     position: absolute;
     width: 250px;
     height: 470px;

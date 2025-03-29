@@ -18,6 +18,11 @@
         dispatch("delete")
     }
 
+    function handleCopy() {
+        configuring = false
+        dispatch("copy")
+    }
+
     let configuring = false
 </script>
 
@@ -40,6 +45,7 @@
             on:close={() => configuring = false}
             on:change={handleChange}
             on:delete={handleDelete}
+            on:copy={handleCopy}
     />
 {/if}
 

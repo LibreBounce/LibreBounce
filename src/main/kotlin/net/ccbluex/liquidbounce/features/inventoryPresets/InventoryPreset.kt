@@ -5,7 +5,7 @@ import net.ccbluex.liquidbounce.features.inventoryPresets.items.PresetItem
 
 @Suppress("MagicNumber")
 class InventoryPreset(
-    val items: Array<PresetItem> = emptyArray(),
+    val items: Array<PresetItem>,
 ) {
     init {
         /**

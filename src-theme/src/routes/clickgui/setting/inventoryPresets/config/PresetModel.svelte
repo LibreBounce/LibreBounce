@@ -18,6 +18,14 @@
     function handleClose() {
         dispatch("close")
     }
+
+    function handleCopy() {
+        dispatch("copy")
+    }
+
+    function handleDelete() {
+        dispatch("delete")
+    }
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -26,13 +34,27 @@
     <div class="container" on:click|stopPropagation transition:scale={{duration: 200, easing: backOut, start: 0.9}}>
         <div class="title">
             <span>Inventory #{idx+1}</span>
-            <button on:click={() => dispatch("delete")}>Delete</button>
+            <button class="close" on:click={handleClose}>
+                <img src="img/menu/icon-exit.svg" alt="exit">
+            </button>
         </div>
         <div class="items-container">
             <PresetItems
                     bind:items={preset.items}
                     on:change={handleChange}
             />
+        </div>
+
+        <div class="footer">
+            <div class="buttons">
+                <div>
+                    <button on:click={handleClose}>Save</button>
+                </div>
+                <div class="gap">
+                    <button on:click={handleCopy}>Copy & Create</button>
+                    <button class="danger" on:click={handleDelete}>Delete</button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -76,20 +98,58 @@
       letter-spacing: 1px;
       font-size: 16px;
     }
+  }
 
-    & > button {
+  .gap {
+    display: flex;
+    gap: 20px;
+  }
+
+  .close {
+    width: 30px;
+    height: 30px;
+    border: none;
+    background: transparent;
+    margin-left: auto;
+    cursor: pointer;
+  }
+
+  .buttons {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+
+    & > div > button {
       cursor: pointer;
-      margin-left: auto;
       border: none;
       padding: 5px 15px;
-      background: $menu-error-color;
+      background: $accent-color;
       color: $menu-text-color;
       border-radius: 3px;
 
       &:hover {
-        background: rgba($menu-error-color, 0.9);
+        background: rgba($accent-color, 0.9);
       }
     }
+  }
+
+  .danger {
+    background: $menu-error-color !important;
+
+    &:hover {
+      background: rgba($menu-error-color, 0.9) !important;
+    }
+  }
+
+  .footer {
+    background-color: rgba($clickgui-base-color, 0.5);
+    padding: 0 20px;
+    height: 60px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-radius: 0 0 3px 3px;
   }
 
   .container {
