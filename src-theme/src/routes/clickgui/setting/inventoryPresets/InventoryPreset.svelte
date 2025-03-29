@@ -31,7 +31,7 @@
 <div class="preset" on:click={() => configuring = true}>
     {#each preset.items as item, idx (idx)}
         <div class="preset-item">
-            {#if item.type !== "ANY"}
+            {#if item.type !== "NONE"}
                 <ItemImage bind:item />
             {/if}
         </div>

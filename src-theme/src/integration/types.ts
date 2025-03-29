@@ -46,6 +46,10 @@ export interface AnyPresetItem {
     type: "ANY";
 }
 
+export interface NonePresetItem {
+    type: "NONE";
+}
+
 export interface WeaponsPresetItem {
     type: "WEAPONS";
 }
@@ -61,6 +65,7 @@ export interface FoodPresetItem {
 export type GenericPresetItem =
     BlocksPresetItem
     | AnyPresetItem
+    | NonePresetItem
     | WeaponsPresetItem
     | ToolsPresetItem
     | FoodPresetItem;

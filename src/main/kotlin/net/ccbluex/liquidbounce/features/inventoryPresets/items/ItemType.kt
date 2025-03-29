@@ -2,6 +2,7 @@ package net.ccbluex.liquidbounce.features.inventoryPresets.items
 
 enum class ItemType {
     ANY,
+    NONE,
     CHOOSE,
     BLOCKS,
     WEAPONS,

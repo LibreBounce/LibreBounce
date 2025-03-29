@@ -20,6 +20,7 @@ object PresetItemAdapter : JsonSerializer<PresetItem>, JsonDeserializer<PresetIt
 
         return when (ItemType.findOrThrow(obj["type"].asString)) {
             ItemType.ANY -> AnyPresetItem
+            ItemType.NONE -> NonePresetItem
             ItemType.TOOLS -> ToolsPresetItem
             ItemType.FOOD -> FoodPresetItem
             ItemType.BLOCKS -> BlocksPresetItem

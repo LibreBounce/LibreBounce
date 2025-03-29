@@ -32,6 +32,10 @@ data object FoodPresetItem : PresetItem(ItemType.FOOD) {
     override fun test(item: Item) = item.components.get(DataComponentTypes.FOOD) != null
 }
 
+data object NonePresetItem : PresetItem(ItemType.NONE) {
+    override fun test(item: Item) = false
+}
+
 data object AnyPresetItem : PresetItem(ItemType.ANY) {
     override fun test(item: Item) = true
 }

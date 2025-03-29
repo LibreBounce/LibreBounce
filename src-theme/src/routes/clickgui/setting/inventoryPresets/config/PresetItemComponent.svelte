@@ -29,10 +29,16 @@
          on:click|preventDefault={() => expanded = !expanded}
     >
         <div class="image-wrapper">
-            {#if item.type !== "ANY"}
+            {#if item.type !== "NONE"}
                 <ItemImage bind:item />
             {/if}
         </div>
+
+        {#if item.type !== "NONE"}
+            <button class="delete" on:click|stopPropagation={() => setItem({type: "NONE"})}>
+                <img src="img/menu/icon-exit.svg" alt="exit">
+            </button>
+        {/if}
     </div>
 
     {#if expanded}
@@ -52,11 +58,11 @@
   @use "../../../../../colors.scss" as *;
 
   .item {
+    position: relative;
     width: 48px;
     height: 48px;
     background-color: rgba($clickgui-base-color, 0.85);
     outline: 1px solid color.adjust($clickgui-text-color, $lightness: -85%);
-    position: relative;
     border-radius: 6px;
     cursor: pointer;
     display: flex;
@@ -66,6 +72,29 @@
 
     &:hover {
       outline: 1px solid color.adjust($clickgui-text-color, $lightness: -70%);
+
+      .delete {
+        opacity: 1;
+      }
+    }
+  }
+
+  .delete {
+    background: none;
+    border: none;
+    position: absolute;
+    left: 100%;
+    top: 0;
+    transform: translate(-50%, -50%);
+    transition: opacity 0.3s ease;
+    opacity: 0;
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+
+    & > img {
+      width: 100%;
+      height: 100%;
     }
   }
 
