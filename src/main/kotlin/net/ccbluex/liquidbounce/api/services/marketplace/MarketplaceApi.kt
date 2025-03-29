@@ -32,6 +32,7 @@ import net.ccbluex.liquidbounce.config.gson.GsonInstance
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
+import okio.BufferedSource
 import java.io.File
 
 @Suppress("TooManyFunctions")
@@ -160,7 +161,7 @@ object MarketplaceApi : BaseApi(API_V3_ENDPOINT) {
         delete<Unit>("/marketplace/$id/revisions/$revisionId", headers = { addAuth(session) })
 
     suspend fun downloadRevision(id: Int, revisionId: Int) =
-        get<ByteArray>("/marketplace/$id/revisions/$revisionId/download")
+        get<BufferedSource>("/marketplace/$id/revisions/$revisionId/download")
 
     // Dependencies
     suspend fun getRevisionDependencies(id: Int, revisionId: Int) =

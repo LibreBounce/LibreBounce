@@ -27,7 +27,7 @@ import net.ccbluex.liquidbounce.api.models.marketplace.MarketplaceItemType
 import net.ccbluex.liquidbounce.api.services.marketplace.MarketplaceApi
 import net.ccbluex.liquidbounce.config.gson.interopGson
 import net.ccbluex.liquidbounce.features.cosmetic.ClientAccountManager
-import net.ccbluex.liquidbounce.features.misc.MarketplaceManager
+import net.ccbluex.liquidbounce.features.marketplace.MarketplaceManager
 import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.netty.http.model.RequestObject
 import net.ccbluex.netty.http.util.httpForbidden
@@ -168,25 +168,6 @@ fun unsubscribeMarketplaceItem(requestObject: RequestObject) = runBlocking {
     } catch (e: Exception) {
         logger.error("Failed to unsubscribe from marketplace item", e)
         httpForbidden("Failed to unsubscribe: ${e.message}")
-    }
-}
-
-/**
- * POST /api/v1/marketplace/:id/update
- */
-fun updateMarketplaceItem(requestObject: RequestObject) = runBlocking {
-    val id = requestObject.params["id"]?.toIntOrNull() ?: return@runBlocking httpForbidden("Invalid ID")
-
-    try {
-        if (!MarketplaceManager.isSubscribed(id)) {
-            return@runBlocking httpForbidden("Not subscribed")
-        }
-
-        MarketplaceManager.updateItem(id)
-        httpOk(interopGson.toJsonTree(requestObject))
-    } catch (e: Exception) {
-        logger.error("Failed to update marketplace item", e)
-        httpForbidden("Failed to update: ${e.message}")
     }
 }
 

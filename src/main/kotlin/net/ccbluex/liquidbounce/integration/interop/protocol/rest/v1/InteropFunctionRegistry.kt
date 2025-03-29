@@ -178,7 +178,6 @@ internal fun registerInteropFunctions(node: Node) = node.withPath("/api/v1/clien
         get("/:id/revisions/:revisionId", ::getMarketplaceItemRevision)
         post("/:id/subscribe", ::subscribeMarketplaceItem)
         post("/:id/unsubscribe", ::unsubscribeMarketplaceItem)
-        post("/:id/update", ::updateMarketplaceItem)
         get("/:id/reviews", ::getMarketplaceItemReviews)
         post("/:id/reviews", ::postMarketplaceItemReview)
     }
