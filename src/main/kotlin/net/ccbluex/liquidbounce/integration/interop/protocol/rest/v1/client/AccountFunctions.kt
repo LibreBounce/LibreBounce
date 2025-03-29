@@ -53,7 +53,7 @@ fun postNewMicrosoftAccount(requestObject: RequestObject): FullHttpResponse {
 @Suppress("UNUSED_PARAMETER")
 fun postClipboardMicrosoftAccount(requestObject: RequestObject): FullHttpResponse {
     AccountManager.newMicrosoftAccount {
-        RenderSystem.recordRenderCall {
+        mc.execute {
             GLFW.glfwSetClipboardString(mc.window.handle, it)
             EventManager.callEvent(AccountManagerMessageEvent("Copied login url to clipboard"))
         }

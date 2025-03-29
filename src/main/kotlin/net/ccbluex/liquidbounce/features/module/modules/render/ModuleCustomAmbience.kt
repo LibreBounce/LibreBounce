@@ -19,6 +19,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.render
 
 import com.mojang.blaze3d.opengl.GlStateManager
+import com.mojang.blaze3d.textures.FilterMode
 import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.features.module.Category
@@ -33,7 +34,9 @@ import net.minecraft.client.gl.SimpleFramebuffer
 import net.minecraft.client.render.Camera
 import net.minecraft.client.render.Fog
 import net.minecraft.client.render.FogShape
+import net.minecraft.client.texture.GlTexture
 import net.minecraft.util.math.MathHelper
+import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL13
 
 /**
@@ -84,7 +87,8 @@ object ModuleCustomAmbience : ClientModule("CustomAmbience", Category.RENDER, al
                 return false
             }
 
-            GlStateManager._clearColor(
+//            TODO: find GlStateManager.clearColor, but for now, we'll use the OpenGL API directly
+            GL11.glClearColor(
                 backgroundColor.r / 255f,
                 backgroundColor.g / 255f,
                 backgroundColor.b / 255f,
@@ -108,21 +112,24 @@ object ModuleCustomAmbience : ClientModule("CustomAmbience", Category.RENDER, al
             update()
         }
 
-        val framebuffer: Framebuffer = SimpleFramebuffer(16, 16, false)
+        val framebuffer: Framebuffer = SimpleFramebuffer("lightColorFB", 16, 16, false)
 
         init {
-            framebuffer.setTexFilter(9729)
-            framebuffer.setClearColor(1f, 1f, 1f, 1f)
+            framebuffer.setFilter(FilterMode.LINEAR)
+            // TODO: find setClearColor
+//            framebuffer.setClearColor(1f, 1f, 1f, 1f)
         }
 
         fun update() {
-            framebuffer.clear()
-            framebuffer.beginWrite(true)
+//            framebuffer.clear()
+            // TODO: find framebuffer.beginWrite
+//            framebuffer.beginWrite(true)
             GlStateManager._activeTexture(GL13.GL_TEXTURE0)
-            GlStateManager._bindTexture(mc.gameRenderer.lightmapTextureManager.lightmapFramebuffer.colorAttachment)
+            GlStateManager._bindTexture((mc.gameRenderer.lightmapTextureManager.glTexture as GlTexture).glId)
             BlendShaderData.color = lightColor
             BlendShader.blit()
-            framebuffer.endWrite()
+            // TODO: find framebuffer.endWrite
+//            framebuffer.endWrite()
         }
 
         override fun close() {

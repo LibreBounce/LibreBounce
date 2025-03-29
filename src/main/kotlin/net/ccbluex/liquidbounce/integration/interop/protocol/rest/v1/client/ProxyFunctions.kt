@@ -105,7 +105,7 @@ fun postAddProxy(requestObject: RequestObject): FullHttpResponse {
 // POST /api/v1/client/proxies/clipboard
 @Suppress("UNUSED_PARAMETER")
 fun postClipboardProxy(requestObject: RequestObject): FullHttpResponse {
-    RenderSystem.recordRenderCall {
+    mc.execute {
         runCatching {
             // Get clipboard content via GLFW
             val clipboard = GLFW.glfwGetClipboardString(mc.window.handle) ?: ""

@@ -61,7 +61,7 @@ object ThemeManager : Configurable("theme") {
     var shaderEnabled by boolean("Shader", false)
         .onChange { enabled ->
             if (enabled) {
-                RenderSystem.recordRenderCall {
+                mc.execute {
                     activeTheme.compileShader()
                     defaultTheme.compileShader()
                 }

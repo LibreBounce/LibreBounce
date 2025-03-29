@@ -88,7 +88,7 @@ fun postConnect(requestObject: RequestObject): FullHttpResponse {
 
     val serverAddress = ServerAddress.parse(serverInfo.address)
 
-    RenderSystem.recordRenderCall {
+    mc.execute {
         ConnectScreen.connect(MultiplayerScreen(TitleScreen()), mc, serverAddress, serverInfo, false, null)
     }
     return httpOk(emptyJsonObject())
