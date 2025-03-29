@@ -1,6 +1,7 @@
 <script lang="ts">
     import type {PresetItem} from "../../../../../integration/types";
     import {createEventDispatcher} from "svelte";
+    import PresetItemSelector from "./PresetItemSelector.svelte";
 
     export let items: PresetItem[]
 
@@ -9,9 +10,7 @@
 
 <div class="items">
     {#each items as item, idx}
-        <div class="item">
-
-        </div>
+        <PresetItemSelector bind:item/>
 
         {#if idx === 0}
             <div class="divider"></div>
@@ -43,15 +42,5 @@
     top: 7px;
     bottom: 7px;
     right: 0;
-  }
-
-  .item {
-    width: 48px;
-    height: 48px;
-    background-color: rgba($clickgui-base-color, 0.85);
-    outline: 1px solid color.adjust($clickgui-text-color, $lightness: -85%);
-    position: relative;
-    border-radius: 3px;
-    cursor: pointer;
   }
 </style>

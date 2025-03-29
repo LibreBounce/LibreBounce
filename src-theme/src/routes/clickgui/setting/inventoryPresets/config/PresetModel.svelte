@@ -1,5 +1,5 @@
 <script lang="ts">
-    import {portal} from "../../../../../util/portal_utils"
+    import {portal} from "../../../../../util/utils"
     import type {InventoryPreset} from "../../../../../integration/types";
     import {createEventDispatcher} from "svelte";
     import {fly, scale} from "svelte/transition"
@@ -66,6 +66,7 @@
     border-bottom: $accent-color solid 1px;
     background-color: rgba($clickgui-base-color, 0.5);
     color: $menu-text-color;
+    border-radius: 3px 3px 0 0;
 
     display: flex;
     align-items: center;
@@ -95,9 +96,7 @@
     border-radius: 3px;
     width: 700px;
     min-width: 700px;
-    height: 300px;
     box-shadow: 0 0 10px rgba($clickgui-base-color, 0.5);
     background-color: rgba($clickgui-base-color, 0.9);
-    overflow: hidden;
   }
 </style>
