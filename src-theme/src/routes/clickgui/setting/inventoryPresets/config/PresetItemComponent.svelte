@@ -26,6 +26,7 @@
 <div class="wrapper" use:clickOutside={() => expanded = false}>
     <div class="item"
          class:active={expanded}
+         class:hided={!expanded}
          on:click|preventDefault={() => expanded = !expanded}
     >
         <div class="image-wrapper">
@@ -36,7 +37,7 @@
 
         {#if item.type !== "NONE"}
             <button class="delete" on:click|stopPropagation={() => setItem({type: "NONE"})}>
-                <img src="img/menu/icon-exit.svg" alt="exit">
+                <img src="img/menu/icon-exit-danger.svg" alt="exit">
             </button>
         {/if}
     </div>
@@ -73,8 +74,9 @@
     &:hover {
       outline: 1px solid color.adjust($clickgui-text-color, $lightness: -70%);
 
-      .delete {
+      &.hided .delete {
         opacity: 1;
+        pointer-events: all;
       }
     }
   }
@@ -89,8 +91,9 @@
     transition: opacity 0.3s ease;
     opacity: 0;
     cursor: pointer;
-    width: 20px;
-    height: 20px;
+    width: 16px;
+    height: 16px;
+    pointer-events: none;
 
     & > img {
       width: 100%;

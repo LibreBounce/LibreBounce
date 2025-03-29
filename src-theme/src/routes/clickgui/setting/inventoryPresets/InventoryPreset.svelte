@@ -32,7 +32,9 @@
     {#each preset.items as item, idx (idx)}
         <div class="preset-item">
             {#if item.type !== "NONE"}
-                <ItemImage bind:item />
+                <div class="img-wrapper">
+                    <ItemImage bind:item />
+                </div>
             {/if}
         </div>
     {/each}
@@ -62,11 +64,16 @@
   .preset-item {
     width: 20px;
     height: 20px;
-    background-color: color.adjust($clickgui-text-color, $lightness: -90%);
+    outline: 1px solid color.adjust($clickgui-text-color, $lightness: -90%);
     border-radius: 3px;
     display: flex;
     justify-content: center;
     align-content: center;
     align-items: center;
+  }
+
+  .img-wrapper {
+    width: 16px;
+    height: 16px;
   }
 </style>
