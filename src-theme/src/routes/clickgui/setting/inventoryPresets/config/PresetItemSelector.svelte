@@ -84,7 +84,7 @@
     </div>
 
     <div>
-        <span class="items-group-title">{$spaceSeperatedNames ? "Common Items" : "CommonItems"}</span>
+        <span class="items-group-title">Common Items</span>
         <div class="common-wrapper">
             {#each commonItems as commonItem}
                 <div class="common-item-wrapper" on:click={() => setItem(commonItem)}>
@@ -97,7 +97,7 @@
     </div>
 
     <div>
-        <span class="items-group-title">{$spaceSeperatedNames ? "Generic Items" : "GenericItems"}</span>
+        <span class="items-group-title">Generic Items</span>
         <div class="generic-wrapper">
             {#each genericItems as genericItem}
                 <div class="generic-item" on:click={() => setItem(genericItem.item)}>
@@ -173,7 +173,7 @@
   .generic-item {
     display: flex;
     width: 100%;
-    height: 35px;
+    height: 40px;
     align-items: center;
     gap: 10px;
     cursor: pointer;
@@ -181,20 +181,12 @@
     & > .img-wrapper {
       width: 25px;
       height: 25px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      & > .img {
-        width: 20px;
-        height: 20px;
-      }
     }
 
     & > span {
       color: $clickgui-text-dimmed-color;
       display: flex;
-      font-size: 14px;
+      font-size: 15px;
       transition: color 0.3s ease;
     }
 
