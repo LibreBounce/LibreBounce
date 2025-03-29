@@ -430,15 +430,15 @@ class OverlayTargetRenderer(module: ClientModule) : TargetRenderer<GUIRenderEnvi
 
             with(env) {
                 withColor(color) {
-                    drawCustomMesh(
-                        VertexFormat.DrawMode.TRIANGLE_STRIP,
-                        VertexFormats.POSITION,
-                        ShaderProgramKeys.POSITION
-                    ) {
-                        vertex(it, screenPos.x - 5 * size, screenPos.y - 10 * size, 1f)
-                        vertex(it, screenPos.x, screenPos.y, 1f)
-                        vertex(it, screenPos.x + 5 * size, screenPos.y - 10 * size, 1f)
-                    }
+//                    drawCustomMesh(
+//                        VertexFormat.DrawMode.TRIANGLE_STRIP,
+//                        VertexFormats.POSITION,
+//                        ShaderProgramKeys.POSITION
+//                    ) {
+//                        vertex(it, screenPos.x - 5 * size, screenPos.y - 10 * size, 1f)
+//                        vertex(it, screenPos.x, screenPos.y, 1f)
+//                        vertex(it, screenPos.x + 5 * size, screenPos.y - 10 * size, 1f)
+//                    }
                 }
             }
         }
