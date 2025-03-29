@@ -90,7 +90,7 @@ open class FramebufferShader(vararg val shaders: Shader) : MinecraftShortcuts, C
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f)
         shaders.forEachIndexed { i, shader ->
             val inputFramebuffer = framebuffers.getOrNull(i) ?: framebuffers.first()
-            val outputFramebuffer = framebuffers.getOrNull(i + 1)
+//            val outputFramebuffer = framebuffers.getOrNull(i + 1)
 
 //            outputFramebuffer?.clear()
 //            outputFramebuffer?.beginWrite(true) ?: mc.framebuffer.beginWrite(false)

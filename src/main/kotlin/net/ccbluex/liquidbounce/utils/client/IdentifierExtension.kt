@@ -31,5 +31,10 @@ val Identifier.combined: String
     inline get() = "${this.namespace}:${this.path}"
 
 inline fun Identifier.registerDynamicImage(image: NativeImage) {
-    mc.textureManager.registerTexture(this, NativeImageBackedTexture(Supplier {  return@Supplier this.combined }, image))
+    mc.textureManager.registerTexture(
+        this,
+        NativeImageBackedTexture(Supplier { return@Supplier this.combined },
+            image
+        )
+    )
 }

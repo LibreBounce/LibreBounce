@@ -80,7 +80,7 @@ class WorldTargetRenderer(module: ClientModule) : TargetRenderer<WorldRenderEnvi
 
     inner class Ghost : WorldTargetRenderAppearance("Ghost") {
 
-        private val glow = "particles/glow.png".registerAsDynamicImageFromClientResources()
+//        private val glow = "particles/glow.png".registerAsDynamicImageFromClientResources()
 
         private var lastTime = System.currentTimeMillis()
 
@@ -422,11 +422,11 @@ class OverlayTargetRenderer(module: ClientModule) : TargetRenderer<GUIRenderEnvi
         private val size by float("Size", 1.5f, 0.5f..20f)
 
         override fun render(env: GUIRenderEnvironment, entity: Entity, partialTicks: Float) {
-            val pos =
-                entity.interpolateCurrentPosition(partialTicks) +
-                    Vec3d(0.0, entity.height.toDouble(), 0.0)
+//            val pos =
+//                entity.interpolateCurrentPosition(partialTicks) +
+//                    Vec3d(0.0, entity.height.toDouble(), 0.0)
 
-            val screenPos = calculateScreenPos(pos) ?: return
+//            val screenPos = calculateScreenPos(pos) ?: return
 
             with(env) {
                 withColor(color) {

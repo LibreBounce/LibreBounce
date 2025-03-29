@@ -97,21 +97,21 @@ object AutoArmorSaveArmor : ToggleableConfigurable(ModuleAutoArmor, "SaveArmor",
             return@tickHandler
         }
 
-//        val playerArmor = player.equipment.getArmor()
-//        val armorToEquip = armorToEquipWithSlots.map { it.itemSlot.itemStack.item }
-//
-//        TODO: fix these
-//        val hasArmorToReplace = playerArmor.any { armorStack ->
-//            armorStack.durability <= durabilityThreshold &&
-//                armorToEquip.any { it == (armorStack.item as ArmorItem).type() }
-//            false
-//        }
-//
-//        // closes the inventory if the armor is replaced.
-//        closeInventory(hasArmorToEquip = armorToEquip.isNotEmpty())
-//
-//        // tries to close the previous screen and open the inventory
-//        openInventory(hasArmorToReplace = hasArmorToReplace)
+        val playerArmor = player.equipment.getArmor()
+        val armorToEquip = armorToEquipWithSlots.map { it.itemSlot.itemStack.item }
+
+        val hasArmorToReplace = playerArmor.any { armorStack ->
+            armorStack.durability <= durabilityThreshold &&
+                // TODO: how do I get the "type" from ArmorItem?
+                armorToEquip.any { true/*it == (armorStack.item as ArmorItem).type()*/ }
+            false
+        }
+
+        // closes the inventory if the armor is replaced.
+        closeInventory(hasArmorToEquip = armorToEquip.isNotEmpty())
+
+        // tries to close the previous screen and open the inventory
+        openInventory(hasArmorToReplace = hasArmorToReplace)
     }
 
     /**

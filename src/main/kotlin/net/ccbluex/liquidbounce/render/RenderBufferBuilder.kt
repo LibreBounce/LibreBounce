@@ -108,7 +108,8 @@ class RenderBufferBuilder<I : VertexInputType>(
     }
 
     fun draw() {
-        val built = buffer.endNullable() ?: return
+        // TODO: fix this
+//        val built = buffer.endNullable() ?: return
 
 //        RenderSystem.setShader(vertexFormat.shaderProgram)
 

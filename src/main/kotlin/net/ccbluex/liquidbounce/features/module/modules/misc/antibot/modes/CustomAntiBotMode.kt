@@ -94,9 +94,10 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
             PUMPKIN("Pumpkin", Items.CARVED_PUMPKIN),
             SKULL("Skull", { (it.item as? BlockItem)?.block is AbstractSkullBlock });
 
+            @Suppress("UnusedPrivateProperty")
             constructor(choiceName: String, material: ArmorMaterial) : this(
                 choiceName,
-                { true } // TODO
+                { true } // TODO: find a replacement for ArmorItem.material()
             )
 
             constructor(choiceName: String, item: Item) : this(choiceName, { it.item === item })

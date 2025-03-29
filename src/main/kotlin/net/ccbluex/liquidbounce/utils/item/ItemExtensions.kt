@@ -115,10 +115,12 @@ val Item.type: Int
             is AxeItem -> 0
             is ShovelItem -> 2
             is HoeItem -> 3
-            else -> if (this.isIn(ItemTags.PICKAXES)) // doesn't work when I add it in the `when` block, idk why
+            else -> if (this.isIn(ItemTags.PICKAXES)) {
                 return 1
-            else
+            }
+            else {
                 error("Unknown tool item $this (WTF?)")
+            }
         }
     }
 

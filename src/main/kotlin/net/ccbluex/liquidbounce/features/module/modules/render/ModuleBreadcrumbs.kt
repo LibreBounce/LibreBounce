@@ -80,6 +80,7 @@ object ModuleBreadcrumbs : ClientModule("Breadcrumbs", Category.RENDER, aliases 
         }
     }
 
+    @Suppress("UnusedParameter")
     private fun draw(matrixStack: MatrixStack, color: Color4b) {
         if (trails.isEmpty()) {
             return
@@ -92,13 +93,13 @@ object ModuleBreadcrumbs : ClientModule("Breadcrumbs", Category.RENDER, aliases 
 
         val matrix = matrixStack.peek().positionMatrix
 
-        @Suppress("SpellCheckingInspection")
+//        @Suppress("SpellCheckingInspection")
 //        TODO: find renderThreadTesselator
 //        val tessellator = RenderSystem.renderThreadTesselator()
-        val camera = mc.entityRenderDispatcher.camera ?: return
-        val time = System.currentTimeMillis()
-        val colorF = Vector4f(color.r / 255f, color.g / 255f, color.b / 255f, color.a / 255f)
-        val lines = height == 0f
+//        val camera = mc.entityRenderDispatcher.camera ?: return
+//        val time = System.currentTimeMillis()
+//        val colorF = Vector4f(color.r / 255f, color.g / 255f, color.b / 255f, color.a / 255f)
+//        val lines = height == 0f
 //        val buffer = tessellator.begin(if (lines) DrawMode.DEBUG_LINES else DrawMode.QUADS,
 //            VertexFormats.POSITION_COLOR)
 //        val renderData = RenderData(matrix, buffer, colorF, lines)
@@ -109,13 +110,12 @@ object ModuleBreadcrumbs : ClientModule("Breadcrumbs", Category.RENDER, aliases 
 //            trail.verifyAndRenderTrail(renderData, camera, entity, time)
 //        }
 
-        // TODO: idk if this is right, probably could do this better but yes
 //        vertexBuffer.upload(buffer.endNullable() ?: return)
 //        vertexBuffer.draw()
 
-        if (height > 0) {
+//        if (height > 0) {
 //            RenderSystem.enableCull()
-        }
+//        }
     }
 
     /**

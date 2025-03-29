@@ -21,15 +21,14 @@
 package net.ccbluex.liquidbounce.render.shader
 
 import com.mojang.blaze3d.systems.RenderSystem
-import net.ccbluex.liquidbounce.utils.client.mc
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gl.SimpleFramebuffer
-import org.joml.Matrix4f
+//import org.joml.Matrix4f
 import java.io.Closeable
 
 class ScalableCanvas : Closeable {
 
-    private val identity = Matrix4f()
+//    private val identity = Matrix4f()
     private val output = MinecraftClient.getInstance().framebuffer
     private val input = SimpleFramebuffer("Scalable Canvas", output.textureWidth, output.textureHeight, false)
 //    private val shaderProgram by lazy { mc.shaderLoader.getOrCreateProgram(ShaderProgramKeys.POSITION_TEX_COLOR) }
@@ -45,10 +44,11 @@ class ScalableCanvas : Closeable {
     fun height() = input.textureHeight
 
     // TODO: lots of things here need to be changed...
-    fun write() = 0//input.beginWrite(true)
+    fun write() = Math.random()//input.beginWrite(true)
 
-    fun read() = 0//input.beginRead()
+    fun read() = Math.random()//input.beginRead()
 
+    @Suppress("unused")
     fun blit(buffer: Unit, alpha: Float = 1f) {
 //        output.beginWrite(true)
 

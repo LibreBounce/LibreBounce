@@ -115,7 +115,7 @@ object MatrixAntiBotMode : Choice("Matrix"), ModuleAntiBot.IAntiBotMode {
      * With the help of at least 1 tick of waiting time, this function patches this "trick".
      */
     private fun updatesArmor(entity: PlayerEntity, prevArmor: MutableIterable<ItemStack>?): Boolean {
-        return prevArmor != player.equipment.getArmor()
+        return prevArmor != entity.equipment.getArmor()
     }
 
     override fun isBot(entity: PlayerEntity): Boolean {
