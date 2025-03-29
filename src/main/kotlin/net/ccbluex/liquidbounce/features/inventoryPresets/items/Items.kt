@@ -7,6 +7,12 @@ import net.minecraft.item.*
 class ChoosePresetItem(
     val item: Item,
 ) : PresetItem(ItemType.CHOOSE) {
+    init {
+        check(item != Items.AIR) {
+            "use NonePresetItem instead."
+        }
+    }
+
     override fun test(item: Item) = item == this.item
 }
 
