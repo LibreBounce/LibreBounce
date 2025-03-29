@@ -119,7 +119,8 @@ public abstract class MixinPlayerListHud {
         }
 
         int playerCount = collectPlayerEntries().size();
-        int columns = MathHelper.ceil((double) playerCount / ModuleBetterTab.Limits.INSTANCE.getHeight());
+        int height = Math.max(1, ModuleBetterTab.Limits.INSTANCE.getHeight());
+        int columns = Math.max(1, MathHelper.ceil((double) playerCount / height));
         int rows = MathHelper.ceil((double) playerCount / columns);
         o.set(rows);
         p.set(columns);
