@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type {PresetItem} from "../../../../../integration/types";
+    import type {GenericPresetItem, PresetItem} from "../../../../../integration/types";
     import {spaceSeperatedNames} from "../../../../../theme/theme_config";
     import ItemImage from "../ItemImage.svelte";
 
@@ -43,8 +43,28 @@
             item: "minecraft:water_bucket"
         },
         {
-            type: "BLOCK"
+            type: "BLOCKS"
         },
+    ];
+
+    interface GenericPresetItemList {
+        item: GenericPresetItem
+        name: string
+    }
+
+    const genericItems: (GenericPresetItemList)[] = [
+        {
+            item: { type: "WEAPONS" },
+            name: "Weapons"
+        },
+        {
+            item: { type: "TOOLS" },
+            name: "Tools"
+        },
+        {
+            item: { type: "ANY" },
+            name: "AnyItem"
+        }
     ]
 </script>
 
@@ -56,7 +76,7 @@
     </div>
 
     <div>
-        <span class="muted">{$spaceSeperatedNames ? "Common Items" : "CommonItems"}</span>
+        <span class="items-group-title">{$spaceSeperatedNames ? "Common Items" : "CommonItems"}</span>
         <div class="common-wrapper">
             {#each commonItems as commonItem}
                 <div class="common-item-wrapper" on:click={() => setItem(commonItem)}>
@@ -69,7 +89,7 @@
     </div>
 
     <div>
-        <span class="muted">{$spaceSeperatedNames ? "Generic Items" : "GenericItems"}</span>
+        <span class="items-group-title">{$spaceSeperatedNames ? "Generic Items" : "GenericItems"}</span>
     </div>
 </div>
 
@@ -92,10 +112,11 @@
     gap: 20px;
   }
 
-  .muted {
+  .items-group-title {
     font-size: 12px;
     color: rgba($clickgui-text-dimmed-color, 0.6);
     font-weight: 600;
+    margin-left: 5px;
     text-transform: uppercase;
   }
 
@@ -105,10 +126,6 @@
     gap: 8px;
     justify-content: space-between;
     flex-wrap: wrap;
-  }
-
-  .common > span {
-    margin-left: 5px;
   }
 
   .common-item-wrapper {

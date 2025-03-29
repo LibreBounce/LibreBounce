@@ -16,30 +16,22 @@ class ChoosePresetItem(
     override fun test(item: Item) = item == this.item
 }
 
-data object BlockPresetItem : PresetItem(ItemType.BLOCK) {
+data object BlocksPresetItem : PresetItem(ItemType.BLOCKS) {
     override fun test(item: Item) = item is BlockItem
 }
 
-data object SwordPresetItem : PresetItem(ItemType.SWORD) {
+data object WeaponsPresetItem : PresetItem(ItemType.WEAPONS) {
     override fun test(item: Item) = item is SwordItem
 }
 
-data object AxePresetItem : PresetItem(ItemType.AXE) {
+data object ToolsPresetItem : PresetItem(ItemType.TOOLS) {
     override fun test(item: Item) = item is AxeItem
-}
-
-data object PickaxePresetItem : PresetItem(ItemType.PICKAXE) {
-    override fun test(item: Item) = item is PickaxeItem
 }
 
 data object FoodPresetItem : PresetItem(ItemType.FOOD) {
     override fun test(item: Item) = item.components.get(DataComponentTypes.FOOD) != null
 }
 
-data object PotionPresetItem : PresetItem(ItemType.POTION) {
-    override fun test(item: Item) = item.components is PotionItem
-}
-
-data object NonePresetItem : PresetItem(ItemType.NONE) {
-    override fun test(item: Item) = false
+data object AnyPresetItem : PresetItem(ItemType.ANY) {
+    override fun test(item: Item) = true
 }

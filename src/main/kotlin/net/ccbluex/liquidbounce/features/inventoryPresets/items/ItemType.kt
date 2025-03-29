@@ -1,14 +1,12 @@
 package net.ccbluex.liquidbounce.features.inventoryPresets.items
 
 enum class ItemType {
-    NONE,
+    ANY,
     CHOOSE,
-    BLOCK,
-    SWORD,
-    AXE,
-    PICKAXE,
-    FOOD,
-    POTION;
+    BLOCKS,
+    WEAPONS,
+    TOOLS,
+    FOOD;
 
     companion object {
         @JvmStatic

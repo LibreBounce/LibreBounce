@@ -38,43 +38,36 @@ export interface ChoosePresetItem {
     item: string;
 }
 
-export interface BlockPresetItem {
-    type: "BLOCK";
+export interface BlocksPresetItem {
+    type: "BLOCKS";
 }
 
-export interface NonePresetItem {
-    type: "NONE";
+export interface AnyPresetItem {
+    type: "ANY";
 }
 
-export interface SwordPresetItem {
-    type: "SWORD";
+export interface WeaponsPresetItem {
+    type: "WEAPONS";
 }
 
-export interface AxePresetItem {
-    type: "AXE";
-}
-
-export interface PickaxePresetItem {
-    type: "PICKAXE";
+export interface ToolsPresetItem {
+    type: "TOOLS";
 }
 
 export interface FoodPresetItem {
     type: "FOOD";
 }
 
-export interface PotionPresetItem {
-    type: "POTION";
-}
+export type GenericPresetItem =
+    BlocksPresetItem
+    | AnyPresetItem
+    | WeaponsPresetItem
+    | ToolsPresetItem
+    | FoodPresetItem;
 
 export type PresetItem =
     ChoosePresetItem
-    | BlockPresetItem
-    | NonePresetItem
-    | SwordPresetItem
-    | PickaxePresetItem
-    | FoodPresetItem
-    | PotionPresetItem
-    | AxePresetItem;
+    | GenericPresetItem;
 
 export interface InventoryPreset {
     items: PresetItem[]

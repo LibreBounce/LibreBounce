@@ -79,7 +79,6 @@
     outline: 1px solid color.adjust($clickgui-text-color, $lightness: -85%);
     transform: translate(calc(-50% + 48px/2), 15px);
     border-radius: 3px;
-    height: 300px;
   }
 
   .slot {

@@ -19,13 +19,11 @@ object PresetItemAdapter : JsonSerializer<PresetItem>, JsonDeserializer<PresetIt
         val obj = json.asJsonObject
 
         return when (ItemType.findOrThrow(obj["type"].asString)) {
-            ItemType.NONE -> NonePresetItem
-            ItemType.AXE -> AxePresetItem
+            ItemType.ANY -> AnyPresetItem
+            ItemType.TOOLS -> ToolsPresetItem
             ItemType.FOOD -> FoodPresetItem
-            ItemType.BLOCK -> BlockPresetItem
-            ItemType.SWORD -> SwordPresetItem
-            ItemType.POTION -> PotionPresetItem
-            ItemType.PICKAXE -> PickaxePresetItem
+            ItemType.BLOCKS -> BlocksPresetItem
+            ItemType.WEAPONS -> WeaponsPresetItem
             ItemType.CHOOSE -> ChoosePresetItem(context.deserialize(obj["item"], Item::class.java))
         }
     }

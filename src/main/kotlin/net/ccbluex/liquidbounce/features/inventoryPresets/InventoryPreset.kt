@@ -11,12 +11,12 @@ class InventoryPreset(
         ChoosePresetItem(Items.REDSTONE),
         ChoosePresetItem(Items.BEDROCK),
         ChoosePresetItem(Items.LIME_BED),
-        SwordPresetItem,
-        SwordPresetItem,
-        BlockPresetItem,
-        NonePresetItem,
+        WeaponsPresetItem,
+        WeaponsPresetItem,
+        BlocksPresetItem,
+        AnyPresetItem,
         FoodPresetItem,
-        NonePresetItem
+        AnyPresetItem
     ),
 ) {
     init {
