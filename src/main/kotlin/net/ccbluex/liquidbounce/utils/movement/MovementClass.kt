@@ -4,7 +4,6 @@ package net.ccbluex.liquidbounce.utils.movement
 @Suppress("LongParameterList")
 class MovementClass (
 
-
     val directionalInput : DirectionalInput,
     val jumpInput : Boolean,
     val motionStatus : MotionStatus,
