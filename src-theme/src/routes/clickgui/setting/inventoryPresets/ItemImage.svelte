@@ -17,9 +17,15 @@
     <img src="img/clickgui/icon-blocks.svg" alt="Blocks"/>
 {:else if item.type === "ANY"}
     <img src="img/clickgui/icon-any.svg" alt="Any"/>
+{:else}
+    <img class="muted" src="img/clickgui/icon-value-none.svg" alt="Any"/>
 {/if}
 
 <style lang="scss">
+  .muted {
+    fill: red !important;
+  }
+
   img {
     width: 100%;
     height: 100%;

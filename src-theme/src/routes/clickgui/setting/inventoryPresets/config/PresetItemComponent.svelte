@@ -30,9 +30,7 @@
          on:click|preventDefault={() => expanded = !expanded}
     >
         <div class="image-wrapper">
-            {#if item.type !== "NONE"}
-                <ItemImage bind:item />
-            {/if}
+            <ItemImage bind:item />
         </div>
 
         {#if item.type !== "NONE"}
