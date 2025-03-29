@@ -4,6 +4,7 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.autoarmor.ModuleA
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.Sequence
 import net.ccbluex.liquidbounce.event.tickHandler
+import net.ccbluex.liquidbounce.utils.entity.getArmor
 import net.ccbluex.liquidbounce.utils.inventory.HotbarItemSlot
 import net.ccbluex.liquidbounce.utils.item.durability
 import net.ccbluex.liquidbounce.utils.item.isArmor
@@ -96,12 +97,13 @@ object AutoArmorSaveArmor : ToggleableConfigurable(ModuleAutoArmor, "SaveArmor",
             return@tickHandler
         }
 
-        val playerArmor = player.inventory.armor.filter { it.isArmor }
-        val armorToEquip = armorToEquipWithSlots.map { it.itemSlot.itemStack.item as ArmorItem }
+        val playerArmor = player.equipment.getArmor()
+        val armorToEquip = armorToEquipWithSlots.map { it.itemSlot.itemStack.item }
 
         val hasArmorToReplace = playerArmor.any { armorStack ->
             armorStack.durability <= durabilityThreshold &&
-                armorToEquip.any { it.type() == (armorStack.item as ArmorItem).type() }
+                armorToEquip.any { it == (armorStack.item as ArmorItem).type() }
+            false
         }
 
         // closes the inventory if the armor is replaced.
