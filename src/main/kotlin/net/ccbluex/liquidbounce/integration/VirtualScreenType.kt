@@ -126,7 +126,7 @@ enum class VirtualScreenType(
         recognizer = { it is BrowserScreen }
     );
 
-    fun open() = RenderSystem.recordRenderCall(open)
+    fun open() = mc.execute(open)
 
     companion object {
         fun byName(name: String) = entries.find { it.routeName == name }

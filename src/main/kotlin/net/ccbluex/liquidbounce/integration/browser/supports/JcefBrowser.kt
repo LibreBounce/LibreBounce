@@ -102,7 +102,7 @@ class JcefBrowser : IBrowser, EventListener {
 
                     runCatching {
                         resourceManager.downloadJcef()
-                        RenderSystem.recordRenderCall(whenAvailable)
+                        mc.execute(whenAvailable)
                     }.onFailure(ErrorHandler::fatal)
                 }
             } else {
