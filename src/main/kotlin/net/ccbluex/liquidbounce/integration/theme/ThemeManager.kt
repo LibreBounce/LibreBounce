@@ -52,6 +52,7 @@ import net.minecraft.client.texture.NativeImageBackedTexture
 import net.minecraft.util.Identifier
 import java.io.Closeable
 import java.io.File
+import java.util.function.Supplier
 
 object ThemeManager : Configurable("theme") {
 
@@ -247,8 +248,9 @@ class Theme(val name: String) : Closeable {
             return true
         }
 
-        val image = NativeImageBackedTexture(readBackgroundImage() ?: return false)
-        loadedBackgroundImage = Identifier.of("liquidbounce", "theme-bg-${name.lowercase()}")
+        val themeBgName = "theme-bg-${name.lowercase()}"
+        val image = NativeImageBackedTexture(Supplier { return@Supplier themeBgName }, readBackgroundImage() ?: return false)
+        loadedBackgroundImage = Identifier.of("liquidbounce", themeBgName)
         mc.textureManager.registerTexture(loadedBackgroundImage, image)
         logger.info("Loaded background image for theme $name")
         return true

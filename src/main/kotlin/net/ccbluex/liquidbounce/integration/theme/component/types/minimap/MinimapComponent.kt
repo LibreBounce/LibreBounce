@@ -37,10 +37,9 @@ import net.ccbluex.liquidbounce.utils.entity.interpolateCurrentPosition
 import net.ccbluex.liquidbounce.utils.entity.interpolateCurrentRotation
 import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
 import net.ccbluex.liquidbounce.utils.math.Vec2i
-import net.minecraft.client.gl.ShaderProgramKeys
 import net.minecraft.client.render.BufferBuilder
 import com.mojang.blaze3d.vertex.VertexFormat
-import com.mojang.blaze3d.vertex.VertexFormats
+import net.minecraft.client.render.VertexFormats
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.entity.LivingEntity
 import net.minecraft.util.math.ChunkPos
@@ -107,22 +106,23 @@ object MinimapComponent : Component("Minimap", true) {
         renderEnvironmentForGUI(matStack) {
             val glId = ChunkRenderer.prepareRendering()
 
-            RenderSystem.bindTexture(glId)
+            GL11.glBindTexture(0, glId)
 
-            RenderSystem.setShaderTexture(0, glId)
+            // TODO: fix this
+//            RenderSystem.setShaderTexture(0, glId)
 
             drawCustomMesh(
                 VertexFormat.DrawMode.QUADS,
                 VertexFormats.POSITION_TEXTURE_COLOR,
-                ShaderProgramKeys.POSITION_TEX_COLOR,
+//                ShaderProgramKeys.POSITION_TEX_COLOR,
             ) { matrix ->
                 buildMinimapMesh(this, matrix, Vec2i(baseX, baseZ), chunksToRenderAround, viewDistance)
             }
 
+            // TODO: shader program keys thing
             drawCustomMesh(
                 VertexFormat.DrawMode.TRIANGLES,
                 VertexFormats.POSITION_COLOR,
-                ShaderProgramKeys.POSITION_COLOR,
             ) { matrix ->
                 for (renderedEntity in RenderedEntities) {
                     drawEntityOnMinimap(

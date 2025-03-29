@@ -34,6 +34,7 @@ import net.minecraft.client.gl.SimpleFramebuffer
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.gui.screen.ChatScreen
 import net.minecraft.client.render.RenderPhase
+import net.minecraft.client.texture.GlTexture
 import org.lwjgl.opengl.GL13
 import org.lwjgl.opengl.GL20
 import kotlin.math.sin
@@ -46,13 +47,13 @@ object BlurEffectRenderer : MinecraftShortcuts {
         arrayOf(
             UniformProvider("texture0") { pointer ->
                 GlStateManager._activeTexture(GL13.GL_TEXTURE0)
-                GlStateManager._bindTexture(tmpFramebuffer.colorAttachment)
+                GlStateManager._bindTexture((tmpFramebuffer.colorAttachment as GlTexture).glId)
                 GL20.glUniform1i(pointer, 0)
             },
             UniformProvider("overlay") { pointer ->
                 val active = GlStateManager._getActiveTexture()
                 GlStateManager._activeTexture(GL13.GL_TEXTURE9)
-                GlStateManager._bindTexture(overlayFramebuffer.colorAttachment)
+                GlStateManager._bindTexture((overlayFramebuffer.colorAttachment as GlTexture).glId)
                 GL20.glUniform1i(pointer, 9)
                 GlStateManager._activeTexture(active)
             },
@@ -63,34 +64,33 @@ object BlurEffectRenderer : MinecraftShortcuts {
 
     private val overlayFramebuffer by lazy {
         val fb = SimpleFramebuffer(
+            "Overlay Framebuffer",
             mc.window.framebufferWidth,
             mc.window.framebufferHeight,
             true
         )
 
-        fb.setClearColor(0.0f, 0.0f, 0.0f, 0.0f)
+//        TODO: find setClearColor again
+//        fb.setClearColor(0.0f, 0.0f, 0.0f, 0.0f)
 
         fb
     }
 
     private val tmpFramebuffer by lazy {
         val fb = SimpleFramebuffer(
+            "Temporary Framebuffer",
             mc.window.framebufferWidth,
             mc.window.framebufferHeight,
             true
         )
 
-        fb.setClearColor(0.0f, 0.0f, 0.0f, 0.0f)
+//        fb.setClearColor(0.0f, 0.0f, 0.0f, 0.0f)
 
         fb
     }
 
     @JvmStatic
-    val outlineTarget = RenderPhase.Target("overlay_target", {
-        if (isDrawingHudFramebuffer) {
-            overlayFramebuffer.beginWrite(true)
-        }
-    }, {})
+    val outlineTarget = RenderPhase.Target("overlay_target") { overlayFramebuffer }
 
     private val lastTimeScreenOpened = Chronometer()
     private var wasScreenOpen = false
@@ -125,8 +125,9 @@ object BlurEffectRenderer : MinecraftShortcuts {
         if (isBlurEffectActive) {
             this.isDrawingHudFramebuffer = true
 
-            this.overlayFramebuffer.clear()
-            this.overlayFramebuffer.beginWrite(true)
+            // TODO: find these
+//            this.overlayFramebuffer.clear()
+//            this.overlayFramebuffer.beginWrite(true)
             GlobalFramebuffer.push(overlayFramebuffer)
         }
 
@@ -141,34 +142,35 @@ object BlurEffectRenderer : MinecraftShortcuts {
         this.isDrawingHudFramebuffer = false
 
         GlobalFramebuffer.pop()
-        this.overlayFramebuffer.endWrite()
+//        this.overlayFramebuffer.endWrite()
 
         // Remember the previous projection matrix because the draw method changes it AND NEVER FUCKING CHANGES IT
         // BACK IN ORDER TO INTRODUCE HARD TO FUCKING FIND BUGS. Thanks Mojang :+1:
         val projectionMatrix = RenderSystem.getProjectionMatrix()
         val vertexSorting = RenderSystem.getProjectionType()
 
-        RenderSystem.disableBlend()
+        // TODO: fix all of this
+//        RenderSystem.disableBlend()
 //        RenderSystem.disableDepthTest()
 //        RenderSystem.resetTextureMatrix()
 
         // Draw Minecraft's framebuffer to the temporary one to avoid feedback loop
-        this.tmpFramebuffer.clear()
-        this.tmpFramebuffer.beginWrite(false)
+//        this.tmpFramebuffer.clear()
+//        this.tmpFramebuffer.beginWrite(false)
 
-        mc.framebuffer.drawInternal(mc.window.framebufferWidth, mc.window.framebufferHeight)
+//        mc.framebuffer.drawInternal(mc.window.framebufferWidth, mc.window.framebufferHeight)
 
-        mc.framebuffer.beginWrite(false)
+//        mc.framebuffer.beginWrite(false)
 
         BlurShader.blit()
 
-        RenderSystem.enableBlend()
-        RenderSystem.blendFunc(GlStateManager.SrcFactor.ONE, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA)
+//        RenderSystem.enableBlend()
+//        RenderSystem.blendFunc(GlStateManager.SrcFactor.ONE, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA)
 
-        this.overlayFramebuffer.drawInternal(mc.window.framebufferWidth, mc.window.framebufferHeight)
+//        this.overlayFramebuffer.drawInternal(mc.window.framebufferWidth, mc.window.framebufferHeight)
 
         RenderSystem.setProjectionMatrix(projectionMatrix, vertexSorting)
-        RenderSystem.defaultBlendFunc()
+//        RenderSystem.defaultBlendFunc()
     }
 
     fun setupDimensions(width: Int, height: Int) {

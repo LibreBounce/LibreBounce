@@ -21,15 +21,14 @@
 package net.ccbluex.liquidbounce.render
 
 import com.mojang.blaze3d.systems.RenderSystem
+import com.mojang.blaze3d.vertex.VertexFormat
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.engine.UV2f
 import net.ccbluex.liquidbounce.render.engine.Vec3
-import net.minecraft.client.gl.GlUsage
-import net.minecraft.client.gl.ShaderProgramKey
-import net.minecraft.client.gl.ShaderProgramKeys
-import net.minecraft.client.gl.VertexBuffer
 import net.minecraft.client.render.*
 import com.mojang.blaze3d.vertex.VertexFormat.DrawMode
+import net.caffeinemc.mods.sodium.api.vertex.buffer.VertexBufferWriter
+import net.caffeinemc.mods.sodium.client.gl.buffer.GlBufferUsage
 import net.minecraft.util.math.Box
 import net.minecraft.util.math.Vec3d
 
@@ -68,7 +67,8 @@ class RenderBufferBuilder<I : VertexInputType>(
 ) {
     // Begin drawing lines with position format
     val buffer: BufferBuilder = tesselator.begin(drawMode, vertexFormat.vertexFormat)
-    val vertexBuffer = VertexBuffer(GlUsage.DYNAMIC_WRITE)
+    // TODO: find VertexBuffer again
+//    val vertexBuffer = VertexBuffer(GlBufferUsage.DYNAMIC_WRITE)
 
     /**
      * Function to draw a solid box using the specified [box].
@@ -110,10 +110,10 @@ class RenderBufferBuilder<I : VertexInputType>(
     fun draw() {
         val built = buffer.endNullable() ?: return
 
-        RenderSystem.setShader(vertexFormat.shaderProgram)
+//        RenderSystem.setShader(vertexFormat.shaderProgram)
 
-        vertexBuffer.upload(built)
-        vertexBuffer.draw()
+//        vertexBuffer.upload(built)
+//        vertexBuffer.draw()
         tesselator.clear()
     }
 
@@ -359,27 +359,28 @@ fun RenderBufferBuilder<VertexInputType.PosColor>.drawLine(
 
 sealed class VertexInputType {
     abstract val vertexFormat: VertexFormat
-    abstract val shaderProgram: ShaderProgramKey
+    // TODO: Shader Program key moment
+//    abstract val shaderProgram: ShaderProgramKey
 
     object Pos : VertexInputType() {
         override val vertexFormat: VertexFormat
             get() = VertexFormats.POSITION
-        override val shaderProgram: ShaderProgramKey
-            get() = ShaderProgramKeys.POSITION
+//        override val shaderProgram: ShaderProgramKey
+//            get() = ShaderProgramKeys.POSITION
     }
 
     object PosColor : VertexInputType() {
         override val vertexFormat: VertexFormat
             get() = VertexFormats.POSITION_COLOR
-        override val shaderProgram: ShaderProgramKey
-            get() = ShaderProgramKeys.POSITION_COLOR
+//        override val shaderProgram: ShaderProgramKey
+//            get() = ShaderProgramKeys.POSITION_COLOR
     }
 
     object PosTexColor : VertexInputType() {
         override val vertexFormat: VertexFormat
             get() = VertexFormats.POSITION_TEXTURE_COLOR
-        override val shaderProgram: ShaderProgramKey
-            get() = ShaderProgramKeys.POSITION_TEX_COLOR
+//        override val shaderProgram: ShaderProgramKey
+//            get() = ShaderProgramKeys.POSITION_TEX_COLOR
     }
 
 }
