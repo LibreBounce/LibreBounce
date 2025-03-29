@@ -15,6 +15,7 @@
 
     function handleChange(newItem: PresetItem) {
         item = newItem;
+        expanded = false;
         dispatch("change");
     }
 </script>

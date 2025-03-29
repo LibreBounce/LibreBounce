@@ -28,7 +28,7 @@
     </div>
 
     <div class="presets" class:margin={cSetting.value.length > 0}>
-        {#each cSetting.value as preset, idx}
+        {#each cSetting.value as preset, idx (idx)}
             <InventoryPreset
                     bind:preset
                     idx={idx}

@@ -13,7 +13,7 @@
 </script>
 
 <div class="items">
-    {#each items as item, idx}
+    {#each items as item, idx (idx)}
         <PresetItemComponent bind:item idx={idx} on:change={handleChange} />
 
         {#if idx === 0}

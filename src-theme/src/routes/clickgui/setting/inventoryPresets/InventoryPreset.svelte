@@ -24,7 +24,7 @@
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div class="preset" on:click={() => configuring = true}>
-    {#each preset.items as item}
+    {#each preset.items as item, idx (idx)}
         <div class="preset-item">
             <ItemImage bind:item />
         </div>
