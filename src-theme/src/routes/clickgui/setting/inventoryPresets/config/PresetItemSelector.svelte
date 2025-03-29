@@ -173,9 +173,10 @@
   .generic-item {
     display: flex;
     width: 100%;
-    height: 30px;
+    height: 35px;
     align-items: center;
-    gap: 5px;
+    gap: 10px;
+    cursor: pointer;
 
     & > .img-wrapper {
       width: 25px;
