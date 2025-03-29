@@ -18,42 +18,42 @@
  */
 package net.ccbluex.liquidbounce.render.shader
 
-import com.mojang.blaze3d.systems.RenderSystem
-import net.minecraft.client.gl.GlUsage
-import net.minecraft.client.gl.VertexBuffer
-import net.minecraft.client.render.Tessellator
-import com.mojang.blaze3d.vertex.VertexFormat
-import com.mojang.blaze3d.vertex.VertexFormats
+//import com.mojang.blaze3d.systems.RenderSystem
+//import net.minecraft.client.render.Tessellator
+//import com.mojang.blaze3d.vertex.VertexFormat
+//import net.caffeinemc.mods.sodium.client.gl.buffer.GlBufferUsage
+//import net.minecraft.client.render.VertexFormats
 
 open class BlitShader(vertex: String, fragment: String, uniforms: Array<UniformProvider> = emptyArray()) :
     Shader(vertex, fragment, uniforms) {
 
     companion object {
 
-        private var buffer = VertexBuffer(GlUsage.DYNAMIC_WRITE)
+        // TODO: fix this
+//        private var buffer = VertexBuffer(GlBufferUsage.DYNAMIC_WRITE)
 
         init {
-            val builder = Tessellator.getInstance()
-            val bufferBuilder = builder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE)
-            bufferBuilder.vertex(-1f, -1f, 0f).texture(0f, 0f)
-            bufferBuilder.vertex(1f, -1f, 0f).texture(1f, 0f)
-            bufferBuilder.vertex(1f, 1f, 0f).texture(1f, 1f)
-            bufferBuilder.vertex(-1f, 1f, 0f).texture(0f, 1f)
-            buffer.bind()
-            buffer.upload(bufferBuilder.end())
-            VertexBuffer.unbind()
+//            val builder = Tessellator.getInstance()
+//            val bufferBuilder = builder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE)
+//            bufferBuilder.vertex(-1f, -1f, 0f).texture(0f, 0f)
+//            bufferBuilder.vertex(1f, -1f, 0f).texture(1f, 0f)
+//            bufferBuilder.vertex(1f, 1f, 0f).texture(1f, 1f)
+//            bufferBuilder.vertex(-1f, 1f, 0f).texture(0f, 1f)
+//            buffer.bind()
+//            buffer.upload(bufferBuilder.end())
+//            VertexBuffer.unbind()
         }
 
     }
 
     fun blit() {
-        RenderSystem.disableBlend()
+//        RenderSystem.disableBlend()
         use()
-        buffer.bind()
-        buffer.draw()
-        VertexBuffer.unbind()
+//        buffer.bind()
+//        buffer.draw()
+//        VertexBuffer.unbind()
         stop()
-        RenderSystem.enableBlend()
+//        RenderSystem.enableBlend()
     }
 
 }

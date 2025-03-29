@@ -3,9 +3,12 @@ package net.ccbluex.liquidbounce.render.engine.font
 import net.ccbluex.liquidbounce.render.FontManager
 import net.ccbluex.liquidbounce.render.engine.font.GlyphPage.Companion.CharacterGenerationInfo
 import net.ccbluex.liquidbounce.utils.client.logger
+import net.minecraft.client.texture.GlTexture
 import net.minecraft.client.texture.NativeImageBackedTexture
+import org.lwjgl.opengl.GL11
 import java.awt.Dimension
 import java.awt.Point
+import java.util.function.Supplier
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sqrt
@@ -82,10 +85,11 @@ class StaticGlyphPage(
                 .toSet()
 
             val nativeImage = atlas.toNativeImage()
-            val texture = NativeImageBackedTexture(nativeImage)
+            val texture = NativeImageBackedTexture(Supplier {return@Supplier ""}, nativeImage)
 
-            texture.bindTexture()
-            texture.image!!.upload(0, 0, 0, 0, 0, nativeImage.width, nativeImage.height, true)
+            // TODO: please work again
+            GL11.glBindTexture(0, (texture.glTexture as GlTexture).glId)
+            texture.upload()
 
             return StaticGlyphPage(
                 texture,
