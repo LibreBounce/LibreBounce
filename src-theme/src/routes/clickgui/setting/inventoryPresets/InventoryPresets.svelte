@@ -15,6 +15,11 @@
         setting = {...cSetting};
         dispatch("change");
     }
+
+    function handleDelete(id: number) {
+        cSetting.value = cSetting.value.filter((_, i) => i !== id)
+        handleChange()
+    }
 </script>
 
 <div class="setting">
@@ -24,7 +29,12 @@
 
     <div class="presets" class:margin={cSetting.value.length > 0}>
         {#each cSetting.value as preset, idx}
-            <InventoryPreset bind:preset idx={idx} on:change={handleChange} />
+            <InventoryPreset
+                    bind:preset
+                    idx={idx}
+                    on:change={handleChange}
+                    on:delete={() => {handleDelete(idx)}}
+            />
         {/each}
     </div>
 

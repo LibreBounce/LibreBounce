@@ -13,6 +13,11 @@
         dispatch("change")
     }
 
+    function handleDelete() {
+        configuring = false
+        dispatch("delete")
+    }
+
     let configuring = false
 </script>
 
@@ -32,6 +37,7 @@
             bind:idx
             on:close={() => configuring = false}
             on:change={handleChange}
+            on:delete={handleDelete}
     />
 {/if}
 
