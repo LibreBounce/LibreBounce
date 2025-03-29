@@ -26,6 +26,7 @@ import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.ModuleAntiBot
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.ModuleAntiBot.isADuplicate
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.ModuleAntiBot.isGameProfileUnique
+import net.ccbluex.liquidbounce.utils.entity.getArmor
 import net.ccbluex.liquidbounce.utils.item.isArmor
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.PlayerInventory
@@ -87,7 +88,7 @@ object MatrixAntiBotMode : Choice("Matrix"), ModuleAntiBot.IAntiBotMode {
 
             if (!isFullyArmored(entity)) {
                 // TODO: please work
-                armor = PlayerInventory.equipmentSlots.values.iterator().iterator() as MutableIterable<ItemStack>
+                armor = player.equipment.getArmor().iterator().iterator() as MutableIterable<ItemStack>
                 waitTicks(1)
             }
 
@@ -114,7 +115,7 @@ object MatrixAntiBotMode : Choice("Matrix"), ModuleAntiBot.IAntiBotMode {
      * With the help of at least 1 tick of waiting time, this function patches this "trick".
      */
     private fun updatesArmor(entity: PlayerEntity, prevArmor: MutableIterable<ItemStack>?): Boolean {
-        return prevArmor != PlayerInventory.equipmentSlots
+        return prevArmor != player.equipment.getArmor()
     }
 
     override fun isBot(entity: PlayerEntity): Boolean {

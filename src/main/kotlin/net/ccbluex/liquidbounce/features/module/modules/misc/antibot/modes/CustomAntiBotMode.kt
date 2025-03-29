@@ -30,7 +30,7 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.ModuleAntiBot
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.ModuleAntiBot.isADuplicate
-import net.ccbluex.liquidbounce.utils.item.material
+import net.ccbluex.liquidbounce.utils.entity.getArmor
 import net.ccbluex.liquidbounce.utils.math.sq
 import net.minecraft.block.AbstractSkullBlock
 import net.minecraft.entity.player.PlayerEntity
@@ -96,7 +96,7 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
 
             constructor(choiceName: String, material: ArmorMaterial) : this(
                 choiceName,
-                { (it.item as? ArmorItem)?.material() == material }
+                { true } // TODO
             )
 
             constructor(choiceName: String, item: Item) : this(choiceName, { it.item === item })
@@ -132,7 +132,7 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
         )
 
         fun isValid(entity: PlayerEntity): Boolean {
-            return entity.armorItems.withIndex().all { (index, armor) ->
+            return entity.equipment.getArmor().withIndex().all { (index, armor) ->
                 val predicates = values[values.lastIndex - index].get()
                 // Nothing selected = skip this part
                 return predicates.isEmpty() || predicates.any {

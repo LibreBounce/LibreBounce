@@ -109,13 +109,17 @@ val ItemStack.foodComponent: FoodComponent?
 
 fun isHotbarSlot(slot: Int) = slot == 45 || slot in 36..44
 
-val MiningToolItem.type: Int
-    get() = when (this) {
-        is AxeItem -> 0
-        is PickaxeItem -> 1
-        is ShovelItem -> 2
-        is HoeItem -> 3
-        else -> error("Unknown tool item $this (WTF?)")
+val Item.type: Int
+    get() {
+        return when (this) {
+            is AxeItem -> 0
+            is ShovelItem -> 2
+            is HoeItem -> 3
+            else -> if (this.isIn(ItemTags.PICKAXES)) // doesn't work when I add it in the `when` block, idk why
+                return 1
+            else
+                error("Unknown tool item $this (WTF?)")
+        }
     }
 
 fun ItemStack.getAttributeValue(attribute: RegistryEntry<EntityAttribute>) = item.components

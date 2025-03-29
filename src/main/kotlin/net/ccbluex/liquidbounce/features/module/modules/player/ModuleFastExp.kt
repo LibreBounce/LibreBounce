@@ -26,6 +26,7 @@ import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
 import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
 import net.ccbluex.liquidbounce.utils.combat.CombatManager
+import net.ccbluex.liquidbounce.utils.entity.getArmor
 import net.ccbluex.liquidbounce.utils.input.InputBind
 import net.ccbluex.liquidbounce.utils.inventory.*
 import net.ccbluex.liquidbounce.utils.item.getEnchantment
@@ -103,8 +104,8 @@ object ModuleFastExp : ClientModule(
             player.offHandStack
         }
 
-        return player.inventory.armor.any { itemStack -> isRepaired(itemStack) } || isRepaired(possibleSlot) ||
-            player.inventory.armor.all { itemStack -> noMending(itemStack) } && noMending(possibleSlot)
+        return player.equipment.getArmor().any { itemStack -> isRepaired(itemStack) } || isRepaired(possibleSlot) ||
+            player.equipment.getArmor().all { itemStack -> noMending(itemStack) } && noMending(possibleSlot)
     }
 
     private fun isRepaired(itemStack: ItemStack) = itemStack.getEnchantment(Enchantments.MENDING) != 0 &&

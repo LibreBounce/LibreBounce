@@ -25,6 +25,8 @@ import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.inventory.*
 import net.ccbluex.liquidbounce.utils.item.isArmor
 import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
+import net.minecraft.component.DataComponentTypes
+import net.minecraft.entity.EquipmentSlot
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
@@ -87,7 +89,8 @@ object ModuleElytraSwap : ClientModule(
         schedule(constraints, actions)
     }
 
-    private fun Item.isChestplate() = this.isArmor && this.type() == EquipmentType.CHESTPLATE
+    private fun Item.isChestplate() = this.isArmor
+        && this.components.get(DataComponentTypes.EQUIPPABLE)?.slot?.type == EquipmentSlot.Type.HUMANOID_ARMOR
 
     private fun ItemStack.isElytra() = this.item == Items.ELYTRA
 
