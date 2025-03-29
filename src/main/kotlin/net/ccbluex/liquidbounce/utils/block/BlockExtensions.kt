@@ -96,6 +96,7 @@ val BlockPos.collisionShape: VoxelShape
 /**
  * Shrinks a VoxelShape by the specified amounts on selected axes.
  */
+@Suppress("CognitiveComplexMethod")
 fun VoxelShape.shrink(x: Double = 0.0, y: Double = 0.0, z: Double = 0.0): VoxelShape {
     return when {
         this.isEmpty -> VoxelShapes.empty()
