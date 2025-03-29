@@ -52,7 +52,7 @@
         name: string
     }
 
-    const genericItems: (GenericPresetItemList)[] = [
+    const genericItems: GenericPresetItemList[] = [
         {
             item: { type: "WEAPONS" },
             name: "Weapons"
@@ -60,6 +60,14 @@
         {
             item: { type: "TOOLS" },
             name: "Tools"
+        },
+        {
+            item: { type: "FOOD" },
+            name: "Food"
+        },
+        {
+            item: { type: "BLOCKS" },
+            name: "Blocks"
         },
         {
             item: { type: "ANY" },
