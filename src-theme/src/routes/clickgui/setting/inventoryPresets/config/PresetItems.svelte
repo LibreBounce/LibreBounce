@@ -1,16 +1,20 @@
 <script lang="ts">
     import type {PresetItem} from "../../../../../integration/types";
     import {createEventDispatcher} from "svelte";
-    import PresetItemSelector from "./PresetItemSelector.svelte";
+    import PresetItemComponent from "./PresetItemComponent.svelte";
 
     export let items: PresetItem[]
 
     const dispatch = createEventDispatcher();
+
+    function handleChange() {
+        dispatch("change")
+    }
 </script>
 
 <div class="items">
     {#each items as item, idx}
-        <PresetItemSelector bind:item/>
+        <PresetItemComponent bind:item idx={idx} on:change={handleChange} />
 
         {#if idx === 0}
             <div class="divider"></div>
