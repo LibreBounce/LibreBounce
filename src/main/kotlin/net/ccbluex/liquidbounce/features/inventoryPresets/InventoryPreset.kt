@@ -1,12 +1,11 @@
 @file:Suppress("WildcardImport")
 package net.ccbluex.liquidbounce.features.inventoryPresets
 
-import net.ccbluex.liquidbounce.features.inventoryPresets.items.AnyPresetItem
 import net.ccbluex.liquidbounce.features.inventoryPresets.items.PresetItem
 
 @Suppress("MagicNumber")
 class InventoryPreset(
-    val items: Array<PresetItem> = (0..10).map { AnyPresetItem }.toTypedArray(),
+    val items: Array<PresetItem>,
 ) {
     init {
         /**

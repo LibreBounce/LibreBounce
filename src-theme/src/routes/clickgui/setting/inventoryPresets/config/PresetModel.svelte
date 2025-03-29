@@ -72,7 +72,8 @@
     background-color: rgba($clickgui-base-color, 0.3);
     backdrop-filter: blur(5px);
     display: flex;
-    align-items: center;
+    align-items: flex-start;
+    padding-top: 50px;
     justify-content: center;
     color: $clickgui-text-color;
   }
