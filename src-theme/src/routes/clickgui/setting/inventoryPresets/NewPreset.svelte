@@ -9,7 +9,8 @@
 
     function addNewPreset() {
         value = [...value, {
-            items: Array.from({ length: 10 }, (): NonePresetItem => ({ type: "NONE" }))
+            items: Array.from({ length: 10 }, (): NonePresetItem => ({ type: "NONE" })),
+            throws: []
         }]
 
         dispatch("change")

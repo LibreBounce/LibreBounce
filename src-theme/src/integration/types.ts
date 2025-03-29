@@ -74,8 +74,11 @@ export type PresetItem =
     ChoosePresetItem
     | GenericPresetItem;
 
+export type ThrowItem = string;
+
 export interface InventoryPreset {
     items: PresetItem[]
+    throws: ThrowItem[]
 }
 
 export interface InventoryPresets {

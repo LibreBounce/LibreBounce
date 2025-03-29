@@ -2,10 +2,12 @@
 package net.ccbluex.liquidbounce.features.inventoryPresets
 
 import net.ccbluex.liquidbounce.features.inventoryPresets.items.PresetItem
+import net.minecraft.item.Item
 
 @Suppress("MagicNumber")
 class InventoryPreset(
     val items: Array<PresetItem>,
+    val throws: Set<Item> = emptySet()
 ) {
     init {
         /**

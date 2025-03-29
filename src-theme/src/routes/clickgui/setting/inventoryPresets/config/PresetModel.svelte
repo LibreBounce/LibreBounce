@@ -5,11 +5,17 @@
     import {fly, scale} from "svelte/transition"
     import {backOut} from "svelte/easing";
     import PresetItems from "./PresetItems.svelte";
+    import ThrowItemsContainer from "./ThrowsItemContainer.svelte";
 
     export let preset: InventoryPreset
     export let idx: number
 
     const dispatch = createEventDispatcher();
+
+    function handleClearAllThrows() {
+        preset.throws = []
+        dispatch("change")
+    }
 
     function handleChange() {
         dispatch("change")
@@ -38,9 +44,27 @@
                 <img src="img/menu/icon-exit.svg" alt="exit">
             </button>
         </div>
+
         <div class="items-container">
+            <div class="header muted">HOTBAR</div>
+
             <PresetItems
                     bind:items={preset.items}
+                    on:change={handleChange}
+            />
+        </div>
+
+        <div class="throws-items-container">
+            <div class="header">
+                {preset.throws.length}
+                <span class="muted">THROWS</span>
+                {#if preset.throws.length > 0}
+                    <span class="clear-throws" on:click={handleClearAllThrows}>Clear all</span>
+                {/if}
+            </div>
+
+            <ThrowItemsContainer
+                    bind:throws={preset.throws}
                     on:change={handleChange}
             />
         </div>
@@ -80,6 +104,28 @@
 
   .items-container {
     padding: 20px;
+  }
+
+  .throws-items-container {
+    padding: 0 20px 20px;
+  }
+  
+  .clear-throws {
+    cursor: pointer;
+    text-decoration: underline dotted;
+    font-size: 12px;
+  }
+
+  .header {
+    margin-bottom: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: $clickgui-text-color;
+  }
+
+  .muted {
+    color: rgba($clickgui-text-dimmed-color, 0.6);
   }
 
   .title {

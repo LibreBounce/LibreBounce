@@ -41,7 +41,7 @@
     </div>
 
     {#if expanded}
-        <div class="selector-container" transition:scale={{duration: 200, start: 0.9}} on:click|preventDefault>
+        <div class="selector-container-wrapper selector-container" transition:scale={{duration: 200, start: 0.9}} on:click|preventDefault>
             <PresetItemSelector setItem={setItem} />
 
             <div class="slot">
@@ -55,6 +55,7 @@
 <style lang="scss">
   @use "sass:color";
   @use "../../../../../colors.scss" as *;
+  @use "select" as *;
 
   .item {
     position: relative;
@@ -104,15 +105,7 @@
   }
 
   .selector-container {
-    z-index: 9999;
-    position: absolute;
-    width: 250px;
-    height: 470px;
-    padding: 20px;
-    background-color: rgba($clickgui-base-color, 0.95);
-    outline: 1px solid color.adjust($clickgui-text-color, $lightness: -85%);
     transform: translate(calc(-50% + 48px/2), 15px);
-    border-radius: 3px;
   }
 
   .slot {
