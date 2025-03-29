@@ -24,6 +24,10 @@
         },
         {
             type: "CHOOSE",
+            item: "minecraft:ender_pearl"
+        },
+        {
+            type: "CHOOSE",
             item: "minecraft:snowball"
         },
         {
@@ -37,6 +41,10 @@
         {
             type: "CHOOSE",
             item: "minecraft:golden_apple"
+        },
+        {
+            type: "CHOOSE",
+            item: "minecraft:enchanted_golden_apple"
         },
         {
             type: "CHOOSE",
@@ -151,8 +159,8 @@
   .common-item-wrapper {
     border-radius: 3px;
     background-color: color.adjust($clickgui-text-color, $lightness: -90%);
-    width: 25px;
-    height: 25px;
+    width: 28px;
+    height: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
