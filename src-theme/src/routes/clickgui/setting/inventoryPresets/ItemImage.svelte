@@ -15,6 +15,8 @@
     <img class="white" src="{REST_BASE}/api/v1/client/resource/itemTexture?id=minecraft:cooked_beef" alt="Food"/>
 {:else if item.type === "BLOCKS"}
     <img class="white" src="{REST_BASE}/api/v1/client/resource/itemTexture?id=minecraft:oak_log" alt="Block"/>
+{:else if item.type === "ANY"}
+    <img class="white" src="/img/menu/icon-star.svg" alt="Any"/>
 {/if}
 
 <style lang="scss">

@@ -26,7 +26,9 @@
 <div class="preset" on:click={() => configuring = true}>
     {#each preset.items as item, idx (idx)}
         <div class="preset-item">
-            <ItemImage bind:item />
+            {#if item.type !== "ANY"}
+                <ItemImage bind:item />
+            {/if}
         </div>
     {/each}
 </div>

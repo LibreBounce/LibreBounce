@@ -1,6 +1,6 @@
 <script lang="ts">
     import type {GenericPresetItem, PresetItem} from "../../../../../integration/types";
-    import {spaceSeperatedNames} from "../../../../../theme/theme_config";
+    import {convertToSpacedString, spaceSeperatedNames} from "../../../../../theme/theme_config";
     import ItemImage from "../ItemImage.svelte";
 
     export let setItem: (item: PresetItem) => void
@@ -98,6 +98,18 @@
 
     <div>
         <span class="items-group-title">{$spaceSeperatedNames ? "Generic Items" : "GenericItems"}</span>
+        <div class="generic-wrapper">
+            {#each genericItems as genericItem}
+                <div class="generic-item" on:click={() => setItem(genericItem.item)}>
+                    <div class="img-wrapper">
+                        <div class="img">
+                            <ItemImage bind:item={genericItem.item} />
+                        </div>
+                    </div>
+                    <span>{$spaceSeperatedNames ? convertToSpacedString(genericItem.name) : genericItem.name}</span>
+                </div>
+            {/each}
+        </div>
     </div>
 </div>
 
@@ -150,5 +162,46 @@
   .common-item {
     width: 20px;
     height: 20px;
+  }
+
+  .generic-wrapper {
+    margin-top: 5px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .generic-item {
+    display: flex;
+    width: 100%;
+    height: 30px;
+    align-items: center;
+    gap: 5px;
+
+    & > .img-wrapper {
+      width: 25px;
+      height: 25px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      & > .img {
+        width: 20px;
+        height: 20px;
+      }
+    }
+
+    & > span {
+      color: $clickgui-text-dimmed-color;
+      display: flex;
+      font-size: 14px;
+      transition: color 0.3s ease;
+    }
+
+    &:hover {
+
+      & > span {
+        color: $clickgui-text-color;
+      }
+    }
   }
 </style>
