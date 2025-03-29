@@ -28,6 +28,7 @@ import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
 import net.ccbluex.liquidbounce.features.cosmetic.ClientAccountManager
 import net.ccbluex.liquidbounce.lang.translation
 import net.ccbluex.liquidbounce.utils.client.chat
+import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.liquidbounce.utils.client.regular
 import net.ccbluex.liquidbounce.utils.client.variable
 import java.io.File
@@ -37,6 +38,7 @@ import java.io.File
  */
 object UploadRevisionCommand : CommandFactory {
 
+    @Suppress("LongMethod")
     override fun createCommand() = CommandBuilder
         .begin("upload")
         .parameter(
@@ -112,7 +114,9 @@ object UploadRevisionCommand : CommandFactory {
                             )
                         )
                     )
-                } catch (e: Exception) {
+                } catch (@Suppress("SwallowedException") e: Exception) {
+                    logger.error("Failed to upload marketplace item revision", e)
+
                     throw CommandException(translation(
                         "liquidbounce.command.marketplace.error.updateFailed",
                         id.toString(),

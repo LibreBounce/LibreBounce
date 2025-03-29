@@ -48,7 +48,7 @@ import net.ccbluex.liquidbounce.features.itemgroup.ClientItemGroups
 import net.ccbluex.liquidbounce.features.itemgroup.groups.heads
 import net.ccbluex.liquidbounce.features.misc.AccountManager
 import net.ccbluex.liquidbounce.features.misc.FriendManager
-import net.ccbluex.liquidbounce.features.misc.MarketplaceSubscriptionManager
+import net.ccbluex.liquidbounce.features.misc.MarketplaceManager
 import net.ccbluex.liquidbounce.features.misc.proxy.ProxyManager
 import net.ccbluex.liquidbounce.features.module.ModuleManager
 import net.ccbluex.liquidbounce.features.module.modules.client.ipcConfiguration
@@ -221,6 +221,7 @@ object LiquidBounce : EventListener {
         ConfigSystem.root(LanguageManager)
         ConfigSystem.root(ClientAccountManager)
         ConfigSystem.root(SpooferManager)
+        ConfigSystem.root(MarketplaceManager)
         PostRotationExecutor
         TpsObserver
         ItemImageAtlas
@@ -288,9 +289,6 @@ object LiquidBounce : EventListener {
                         ConfigSystem.storeConfigurable(ClientAccountManager)
                     }
                 }
-            },
-            scope.async {
-                ConfigSystem.root(MarketplaceSubscriptionManager)
             },
             scope.async {
                 ThemeManager.themesFolder.listFiles()

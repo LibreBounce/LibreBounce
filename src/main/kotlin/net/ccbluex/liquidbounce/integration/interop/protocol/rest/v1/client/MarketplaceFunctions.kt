@@ -27,7 +27,7 @@ import net.ccbluex.liquidbounce.api.models.marketplace.MarketplaceItemType
 import net.ccbluex.liquidbounce.api.services.marketplace.MarketplaceApi
 import net.ccbluex.liquidbounce.config.gson.interopGson
 import net.ccbluex.liquidbounce.features.cosmetic.ClientAccountManager
-import net.ccbluex.liquidbounce.features.misc.MarketplaceSubscriptionManager
+import net.ccbluex.liquidbounce.features.misc.MarketplaceManager
 import net.ccbluex.liquidbounce.utils.client.logger
 import net.ccbluex.netty.http.model.RequestObject
 import net.ccbluex.netty.http.util.httpForbidden
@@ -51,7 +51,7 @@ fun getMarketplaceItems(requestObject: RequestObject) = runBlocking {
     val items = response.items.map { item ->
         JsonObject().apply {
             add("item", interopGson.toJsonTree(item))
-            addProperty("isSubscribed", MarketplaceSubscriptionManager.isSubscribed(item.id))
+            addProperty("isSubscribed", MarketplaceManager.isSubscribed(item.id))
             addProperty("hasUpdate", false) // TODO: Implement version check
         }
     }
@@ -78,7 +78,7 @@ fun getFeaturedMarketplaceItems(requestObject: RequestObject) = runBlocking {
     val items = response.items.map { item ->
         JsonObject().apply {
             add("item", interopGson.toJsonTree(item))
-            addProperty("isSubscribed", MarketplaceSubscriptionManager.isSubscribed(item.id))
+            addProperty("isSubscribed", MarketplaceManager.isSubscribed(item.id))
             addProperty("hasUpdate", false) // TODO: Implement version check
         }
     }
@@ -98,7 +98,7 @@ fun getMarketplaceItem(requestObject: RequestObject) = runBlocking {
     val item = MarketplaceApi.getMarketplaceItem(id)
     JsonObject().apply {
         add("item", interopGson.toJsonTree(item))
-        addProperty("isSubscribed", MarketplaceSubscriptionManager.isSubscribed(id))
+        addProperty("isSubscribed", MarketplaceManager.isSubscribed(id))
         addProperty("hasUpdate", false) // TODO: Implement version check
     }.let { httpOk(it) }
 }
@@ -134,7 +134,7 @@ fun subscribeMarketplaceItem(requestObject: RequestObject) = runBlocking {
     val id = requestObject.params["id"]?.toIntOrNull() ?: return@runBlocking httpForbidden("Invalid ID")
 
     try {
-        if (MarketplaceSubscriptionManager.isSubscribed(id)) {
+        if (MarketplaceManager.isSubscribed(id)) {
             return@runBlocking httpForbidden("Already subscribed")
         }
 
@@ -144,7 +144,7 @@ fun subscribeMarketplaceItem(requestObject: RequestObject) = runBlocking {
             return@runBlocking httpForbidden("Item is not active")
         }
 
-        MarketplaceSubscriptionManager.subscribe(id, item.type)
+        MarketplaceManager.subscribe(id, item.type)
         httpOk(interopGson.toJsonTree(item))
     } catch (e: Exception) {
         logger.error("Failed to subscribe to marketplace item", e)
@@ -159,11 +159,11 @@ fun unsubscribeMarketplaceItem(requestObject: RequestObject) = runBlocking {
     val id = requestObject.params["id"]?.toIntOrNull() ?: return@runBlocking httpForbidden("Invalid ID")
 
     try {
-        if (!MarketplaceSubscriptionManager.isSubscribed(id)) {
+        if (!MarketplaceManager.isSubscribed(id)) {
             return@runBlocking httpForbidden("Not subscribed")
         }
 
-        MarketplaceSubscriptionManager.unsubscribe(id)
+        MarketplaceManager.unsubscribe(id)
         httpOk(interopGson.toJsonTree(requestObject))
     } catch (e: Exception) {
         logger.error("Failed to unsubscribe from marketplace item", e)
@@ -178,11 +178,11 @@ fun updateMarketplaceItem(requestObject: RequestObject) = runBlocking {
     val id = requestObject.params["id"]?.toIntOrNull() ?: return@runBlocking httpForbidden("Invalid ID")
 
     try {
-        if (!MarketplaceSubscriptionManager.isSubscribed(id)) {
+        if (!MarketplaceManager.isSubscribed(id)) {
             return@runBlocking httpForbidden("Not subscribed")
         }
 
-        MarketplaceSubscriptionManager.updateItem(id)
+        MarketplaceManager.updateItem(id)
         httpOk(interopGson.toJsonTree(requestObject))
     } catch (e: Exception) {
         logger.error("Failed to update marketplace item", e)

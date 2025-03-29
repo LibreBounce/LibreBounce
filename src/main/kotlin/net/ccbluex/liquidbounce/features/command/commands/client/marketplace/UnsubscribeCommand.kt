@@ -22,7 +22,7 @@ import net.ccbluex.liquidbounce.api.core.withScope
 import net.ccbluex.liquidbounce.features.command.CommandFactory
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
-import net.ccbluex.liquidbounce.features.misc.MarketplaceSubscriptionManager
+import net.ccbluex.liquidbounce.features.misc.MarketplaceManager
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.regular
 import net.ccbluex.liquidbounce.utils.client.variable
@@ -43,13 +43,13 @@ object UnsubscribeCommand : CommandFactory {
         .handler { command, args ->
             val id = args[0] as Int
 
-            if (!MarketplaceSubscriptionManager.isSubscribed(id)) {
+            if (!MarketplaceManager.isSubscribed(id)) {
                 chat(regular(command.result("notSubscribed", variable(id.toString()))))
                 return@handler
             }
 
             withScope {
-                MarketplaceSubscriptionManager.unsubscribe(id)
+                MarketplaceManager.unsubscribe(id)
                 chat(regular(command.result("success", variable(id.toString()))))
             }
         }

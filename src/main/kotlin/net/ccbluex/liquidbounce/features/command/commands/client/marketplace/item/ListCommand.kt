@@ -25,7 +25,7 @@ import net.ccbluex.liquidbounce.features.command.CommandException
 import net.ccbluex.liquidbounce.features.command.CommandFactory
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
-import net.ccbluex.liquidbounce.features.misc.MarketplaceSubscriptionManager
+import net.ccbluex.liquidbounce.features.misc.MarketplaceManager
 import net.ccbluex.liquidbounce.lang.translation
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.regular
@@ -79,7 +79,7 @@ object ListCommand : CommandFactory {
                 )))
 
                 for (item in response.items) {
-                    val subscribed = if (MarketplaceSubscriptionManager.isSubscribed(item.id)) "*" else ""
+                    val subscribed = if (MarketplaceManager.isSubscribed(item.id)) "*" else ""
                     chat(
                         regular(
                             command.result(

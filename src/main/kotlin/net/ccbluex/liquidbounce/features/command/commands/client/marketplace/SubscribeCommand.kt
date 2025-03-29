@@ -25,7 +25,7 @@ import net.ccbluex.liquidbounce.features.command.CommandException
 import net.ccbluex.liquidbounce.features.command.CommandFactory
 import net.ccbluex.liquidbounce.features.command.builder.CommandBuilder
 import net.ccbluex.liquidbounce.features.command.builder.ParameterBuilder
-import net.ccbluex.liquidbounce.features.misc.MarketplaceSubscriptionManager
+import net.ccbluex.liquidbounce.features.misc.MarketplaceManager
 import net.ccbluex.liquidbounce.lang.translation
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.regular
@@ -47,7 +47,7 @@ object SubscribeCommand : CommandFactory {
         .handler { command, args ->
             val id = args[0] as Int
 
-            if (MarketplaceSubscriptionManager.isSubscribed(id)) {
+            if (MarketplaceManager.isSubscribed(id)) {
                 chat(regular(command.result("alreadySubscribed", variable(id.toString()))))
                 return@handler
             }
@@ -60,7 +60,7 @@ object SubscribeCommand : CommandFactory {
                         throw CommandException(translation("liquidbounce.command.marketplace.error.itemPending"))
                     }
 
-                    MarketplaceSubscriptionManager.subscribe(id, item.type)
+                    MarketplaceManager.subscribe(id, item.type)
                     chat(regular(command.result("success", variable(id.toString()))))
                 } catch (e: Exception) {
                     chat(regular(command.result("error.updateFailed",

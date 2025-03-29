@@ -37,6 +37,7 @@ import net.ccbluex.liquidbounce.utils.client.variable
  */
 object EditItemCommand : CommandFactory {
 
+    @Suppress("LongMethod")
     override fun createCommand() = CommandBuilder.begin("edit")
         .parameter(
             ParameterBuilder
@@ -84,7 +85,7 @@ object EditItemCommand : CommandFactory {
 
             val type = try {
                 MarketplaceItemType.valueOf(typeStr.uppercase())
-            } catch (e: IllegalArgumentException) {
+            } catch (_: IllegalArgumentException) {
                 throw CommandException(translation("liquidbounce.command.marketplace.error.invalidItemType"))
             }
 

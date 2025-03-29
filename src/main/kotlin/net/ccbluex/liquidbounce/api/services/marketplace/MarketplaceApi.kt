@@ -34,6 +34,7 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
 
+@Suppress("TooManyFunctions")
 object MarketplaceApi : BaseApi(API_V3_ENDPOINT) {
 
     private data class MarketplaceParams(
@@ -61,6 +62,7 @@ object MarketplaceApi : BaseApi(API_V3_ENDPOINT) {
     }
 
     // Marketplace Items
+    @Suppress("LongParameterList")
     suspend fun getMarketplaceItems(
         page: Int = 1,
         limit: Int = 10,
@@ -74,6 +76,7 @@ object MarketplaceApi : BaseApi(API_V3_ENDPOINT) {
         return get("/marketplace${params.buildQueryString()}")
     }
 
+    @Suppress("LongParameterList")
     suspend fun getFeaturedMarketplaceItems(
         page: Int = 1,
         limit: Int = 10,
@@ -130,6 +133,7 @@ object MarketplaceApi : BaseApi(API_V3_ENDPOINT) {
     suspend fun getMarketplaceItemRevision(id: Int, revisionId: Int) =
         get<MarketplaceItemRevision>("/marketplace/$id/revisions/$revisionId")
 
+    @Suppress("LongParameterList")
     suspend fun createMarketplaceItemRevision(
         session: OAuthSession,
         id: Int,
