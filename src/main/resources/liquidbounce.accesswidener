@@ -19,6 +19,8 @@ accessible method net/minecraft/entity/LivingEntity tickActiveItemStack ()V
 mutable field net/minecraft/util/math/Vec3d x D
 mutable field net/minecraft/util/math/Vec3d y D
 mutable field net/minecraft/util/math/Vec3d z D
+mutable field net/minecraft/util/math/Vec2f x F
+mutable field net/minecraft/util/math/Vec2f y F
 
 mutable field net/minecraft/network/packet/c2s/common/KeepAliveC2SPacket id J
 accessible field net/minecraft/network/packet/c2s/common/KeepAliveC2SPacket id J

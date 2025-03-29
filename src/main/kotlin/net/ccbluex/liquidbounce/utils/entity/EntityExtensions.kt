@@ -497,6 +497,7 @@ fun LivingEntity.getExposureToExplosion(
     val shapeContext = entityBoundingBox1?.let {
         EntityShapeContext(
             isDescending,
+            true, // TODO: wtf is "placement"?
             entityBoundingBox1.minY,
             mainHandStack,
             { state -> canWalkOnFluid(state) },

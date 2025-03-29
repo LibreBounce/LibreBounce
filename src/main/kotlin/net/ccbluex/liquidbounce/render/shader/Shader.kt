@@ -18,7 +18,7 @@
  */
 package net.ccbluex.liquidbounce.render.shader
 
-import com.mojang.blaze3d.platform.GlConst
+import com.mojang.blaze3d.opengl.GlConst
 import com.mojang.blaze3d.opengl.GlStateManager
 import java.io.Closeable
 

@@ -53,7 +53,8 @@ object OutlineShader : FramebufferShader(Shader(
         }
 
         if (dirty) {
-            framebuffers[0].clear()
+            // TODO: probably broke something, find `clear`
+//            framebuffers[0].clear()
         }
 
         dirty = false

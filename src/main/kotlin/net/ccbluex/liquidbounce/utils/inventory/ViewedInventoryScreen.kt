@@ -50,7 +50,7 @@ class ViewedInventoryScreen(private val player: () -> PlayerEntity?) : Screen(Te
         super.render(context, mouseX, mouseY, delta)
 
         val handler = handler ?: return
-        RenderSystem.disableDepthTest()
+//        RenderSystem.disableDepthTest()
         context.matrices.push()
         context.matrices.translate(x.toFloat(), y.toFloat(), 0.0f)
         var hoveredSlot: Slot? = null
@@ -79,7 +79,7 @@ class ViewedInventoryScreen(private val player: () -> PlayerEntity?) : Screen(Te
         }
 
         context.matrices.pop()
-        RenderSystem.enableDepthTest()
+//        RenderSystem.enableDepthTest()
 
         if (cursorStack.isEmpty && hoveredSlot != null && hoveredSlot.hasStack()) {
             val hoveredItemStack = hoveredSlot.stack

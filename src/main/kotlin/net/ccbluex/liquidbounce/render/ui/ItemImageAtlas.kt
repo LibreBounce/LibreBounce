@@ -121,12 +121,13 @@ private class ItemFramebufferRenderer(
 
     val framebuffer: Framebuffer = run {
         val fb = SimpleFramebuffer(
+            "Item Framebuffer",
             NATIVE_ITEM_SIZE * scale * itemsPerDimension,
             NATIVE_ITEM_SIZE * scale * itemsPerDimension,
             true
         )
 
-        fb.setClearColor(0.0f, 0.0f, 0.0f, 0.0f)
+//        fb.setClearColor(0.0f, 0.0f, 0.0f, 0.0f)
 
         fb
     }
@@ -134,7 +135,8 @@ private class ItemFramebufferRenderer(
     val itemPixelSizeOnFramebuffer = NATIVE_ITEM_SIZE * scale
 
     fun render(ctx: DrawContext): Map<Item, Pair<Vec2i, Vec2i>> {
-        this.framebuffer.beginWrite(true)
+        // TODO: fix this AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+//        this.framebuffer.beginWrite(true)
 
         ctx.matrices.push()
 
@@ -176,7 +178,7 @@ private class ItemFramebufferRenderer(
         ctx.matrices.pop()
 
         GlobalFramebuffer.pop()
-        mc.framebuffer.beginWrite(true)
+//        mc.framebuffer.beginWrite(true)
 
         RenderSystem.setProjectionMatrix(projectionMatrix, ProjectionType.ORTHOGRAPHIC)
 
@@ -186,10 +188,10 @@ private class ItemFramebufferRenderer(
     fun getImage(): NativeImage {
         val ss = NativeImage(this.framebuffer.textureWidth, this.framebuffer.textureHeight, false)
 
-        RenderSystem.bindTexture(this.framebuffer.colorAttachment)
+//        RenderSystem.bindTexture(this.framebuffer.colorAttachment)
 
-        ss.loadFromTextureImage(0, false)
-        ss.mirrorVertically()
+//        ss.loadFromTextureImage(0, false)
+//        ss.mirrorVertically()
 
         return ss
     }
