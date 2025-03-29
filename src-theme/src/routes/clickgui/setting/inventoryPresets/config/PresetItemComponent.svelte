@@ -13,9 +13,10 @@
 
     let expanded = false;
 
-    function handleChange(newItem: PresetItem) {
+    function setItem(newItem: PresetItem) {
         item = newItem;
         expanded = false;
+
         dispatch("change");
     }
 </script>
@@ -34,7 +35,7 @@
 
     {#if expanded}
         <div class="selector-container" transition:scale={{duration: 200, start: 0.9}} on:click|preventDefault>
-            <PresetItemSelector bind:setItem={handleChange} />
+            <PresetItemSelector setItem={setItem} />
 
             <div class="slot">
                 <span>{idx === 0 ? "Offhand" : idx}</span>

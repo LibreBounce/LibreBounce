@@ -8,6 +8,7 @@
     const dispatch = createEventDispatcher();
 
     function handleChange() {
+        items = [...items]
         dispatch("change")
     }
 </script>
