@@ -33,13 +33,8 @@ import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
 import net.ccbluex.liquidbounce.render.utils.rainbow
 import net.ccbluex.liquidbounce.utils.kotlin.component1
 import net.ccbluex.liquidbounce.utils.kotlin.component2
-import net.minecraft.client.gl.GlUsage
-import net.minecraft.client.gl.ShaderProgramKeys
-import net.minecraft.client.gl.VertexBuffer
 import net.minecraft.client.render.BufferBuilder
 import net.minecraft.client.render.Camera
-import com.mojang.blaze3d.vertex.VertexFormat.DrawMode
-import com.mojang.blaze3d.vertex.VertexFormats
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.entity.Entity
 import org.joml.Matrix4f
@@ -58,7 +53,7 @@ object ModuleBreadcrumbs : ClientModule("Breadcrumbs", Category.RENDER, aliases 
     private val color by color("Color", Color4b(70, 119, 255, 120))
     private val colorRainbow by boolean("Rainbow", false)
     private val height by float("Height", 0.5f, 0f..2f)
-    private val vertexBuffer = VertexBuffer(GlUsage.DYNAMIC_WRITE)
+//    private val vertexBuffer = VertexBuffer(GlBufferUsage.DYNAMIC_WRITE)
 
     internal object TemporaryConfigurable : ToggleableConfigurable(this, "Temporary", true) {
         val alive by int("Alive", 900, 10..10000, "ms")
@@ -91,33 +86,35 @@ object ModuleBreadcrumbs : ClientModule("Breadcrumbs", Category.RENDER, aliases 
         }
 
         if (height > 0) {
-            RenderSystem.disableCull()
+            // TODO: find disableCull
+//            RenderSystem.disableCull()
         }
 
         val matrix = matrixStack.peek().positionMatrix
 
         @Suppress("SpellCheckingInspection")
-        val tessellator = RenderSystem.renderThreadTesselator()
+//        TODO: find renderThreadTesselator
+//        val tessellator = RenderSystem.renderThreadTesselator()
         val camera = mc.entityRenderDispatcher.camera ?: return
         val time = System.currentTimeMillis()
         val colorF = Vector4f(color.r / 255f, color.g / 255f, color.b / 255f, color.a / 255f)
         val lines = height == 0f
-        val buffer = tessellator.begin(if (lines) DrawMode.DEBUG_LINES else DrawMode.QUADS,
-            VertexFormats.POSITION_COLOR)
-        val renderData = RenderData(matrix, buffer, colorF, lines)
+//        val buffer = tessellator.begin(if (lines) DrawMode.DEBUG_LINES else DrawMode.QUADS,
+//            VertexFormats.POSITION_COLOR)
+//        val renderData = RenderData(matrix, buffer, colorF, lines)
 
-        RenderSystem.setShader(ShaderProgramKeys.POSITION_COLOR)
+//        RenderSystem.setShader(ShaderProgramKeys.POSITION_COLOR)
 
-        trails.forEach { (entity, trail) ->
-            trail.verifyAndRenderTrail(renderData, camera, entity, time)
-        }
+//        trails.forEach { (entity, trail) ->
+//            trail.verifyAndRenderTrail(renderData, camera, entity, time)
+//        }
 
         // TODO: idk if this is right, probably could do this better but yes
-        vertexBuffer.upload(buffer.endNullable() ?: return)
-        vertexBuffer.draw()
+//        vertexBuffer.upload(buffer.endNullable() ?: return)
+//        vertexBuffer.draw()
 
         if (height > 0) {
-            RenderSystem.enableCull()
+//            RenderSystem.enableCull()
         }
     }
 
