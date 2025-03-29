@@ -18,6 +18,9 @@
  */
 package net.ccbluex.liquidbounce.integration.browser.supports.tab
 
+import com.mojang.blaze3d.systems.RenderSystem
+import com.mojang.blaze3d.textures.GpuTexture
+import com.mojang.blaze3d.textures.TextureFormat
 import net.ccbluex.liquidbounce.features.module.MinecraftShortcuts
 import net.ccbluex.liquidbounce.integration.browser.supports.JcefBrowser
 import net.ccbluex.liquidbounce.mcef.MCEF
@@ -64,7 +67,8 @@ class JcefTab(
 
     init {
         mc.textureManager.registerTexture(texture, object : AbstractTexture() {
-            override fun getGlId() = mcefBrowser.renderer.textureID
+            // TODO: fix this
+//            override fun getGlId() = mcefBrowser.renderer.textureID
         })
     }
 

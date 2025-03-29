@@ -190,6 +190,12 @@ val Item.isPickaxe
 val ItemStack.isPickaxe
     get() = this.isIn(ItemTags.PICKAXES)
 
+val Item.isTool
+    get() = this.defaultStack.isTool
+
+val ItemStack.isTool
+    get() = this.components.get(DataComponentTypes.TOOL) != null
+
 val Item.isArmor
     get() = this.defaultStack.isArmor
 
