@@ -170,8 +170,8 @@
                         </div>
 
                         <span class="name">
-                        {item.name}
-                    </span>
+                            {item.name}
+                        </span>
                     </div>
                 </VirtualList>
             </div>
