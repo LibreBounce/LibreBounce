@@ -8,24 +8,20 @@
 {#if item.type === "CHOOSE"}
     <img src="{REST_BASE}/api/v1/client/resource/itemTexture?id={item.item}" alt={item.item}/>
 {:else if item.type === "WEAPONS"}
-    <img class="white" src="{REST_BASE}/api/v1/client/resource/itemTexture?id=minecraft:diamond_sword" alt="Sword"/>
+    <img src="img/clickgui/icon-weapons.svg" alt="Weapons"/>
 {:else if item.type === "TOOLS"}
-    <img class="white" src="{REST_BASE}/api/v1/client/resource/itemTexture?id=minecraft:diamond_pickaxe" alt="Pickaxe"/>
+    <img src="img/clickgui/item-tools.svg" alt="Tools"/>
 {:else if item.type === "FOOD"}
-    <img class="white" src="{REST_BASE}/api/v1/client/resource/itemTexture?id=minecraft:cooked_beef" alt="Food"/>
+    <img src="img/clickgui/item-food.svg" alt="Food"/>
 {:else if item.type === "BLOCKS"}
-    <img class="white" src="{REST_BASE}/api/v1/client/resource/itemTexture?id=minecraft:oak_log" alt="Block"/>
+    <img src="img/clickgui/item-blocks.svg" alt="Blocks"/>
 {:else if item.type === "ANY"}
-    <img class="white" src="/img/menu/icon-star.svg" alt="Any"/>
+    <img src="img/clickgui/item-any.svg" alt="Any"/>
 {/if}
 
 <style lang="scss">
   img {
     width: 100%;
     height: 100%;
-  }
-
-  .white {
-    filter: grayscale(1);
   }
 </style>
