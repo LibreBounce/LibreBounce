@@ -141,8 +141,6 @@ accessible method net/minecraft/client/render/OutlineVertexConsumerProvider$Outl
 accessible field net/minecraft/network/packet/s2c/common/CommonPingS2CPacket parameter I
 mutable field net/minecraft/network/packet/s2c/common/CommonPingS2CPacket parameter I
 
-accessible field net/minecraft/entity/LimbAnimator pos F
-
 accessible field net/minecraft/network/packet/c2s/play/PlayerInteractEntityC2SPacket entityId I
 accessible method net/minecraft/network/packet/c2s/play/PlayerInteractEntityC2SPacket <init> (IZLnet/minecraft/network/packet/c2s/play/PlayerInteractEntityC2SPacket$InteractTypeHandler;)V
 accessible class net/minecraft/network/packet/c2s/play/PlayerInteractEntityC2SPacket$InteractTypeHandler
