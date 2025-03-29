@@ -74,6 +74,7 @@ export interface InventoryPreset {
 }
 
 export interface InventoryPresets {
+    name: string;
     valueType: string;
     value: InventoryPreset[];
 }
