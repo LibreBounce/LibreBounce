@@ -5,6 +5,7 @@
     import {scale} from "svelte/transition";
     import {clickOutside, portal} from "../../../../../util/utils";
     import {getRegistries, setTyping} from "../../../../../integration/rest";
+    import {scaleFactor} from "../../../clickgui_store";
     import VirtualList from "../../blocks/VirtualList.svelte";
 
     export let throws: ThrowItem[];
@@ -29,7 +30,7 @@
     let searchQuery = "";
 
     let addRef: HTMLElement;
-    let addElementPosition = { top: 0, left: 0 };
+    let addElementPosition = { top: 0, left: 0, width: 0, height: 0 };
 
 
     function updatePosition() {
@@ -39,6 +40,8 @@
         addElementPosition = {
             top: rect.top + window.scrollY,
             left: rect.left + window.scrollX,
+            width: rect.width,
+            height: rect.height
         };
     }
 
@@ -56,6 +59,12 @@
 
     $: {
         dispatch('renderedUpdate', rendered.length)
+    }
+
+    $: {
+        if (expanded) {
+            updatePosition()
+        }
     }
 
     $: {
@@ -120,7 +129,11 @@
             {#if expanded}
                 <div
                         class="selector-container-wrapper selector-container"
-                        style="top: {addElementPosition.top}px; left: {addElementPosition.left}px"
+                        style="
+                            transform: translateX(-50%) scale({$scaleFactor * 50}%);
+                            top: {addElementPosition.top + addElementPosition.height + 15}px;
+                            left: {addElementPosition.left + addElementPosition.width / 2}px
+                        "
                         transition:scale={{duration: 200, start: 0.9}}
                         use:clickOutside={() => expanded = false}
                         use:portal
@@ -226,7 +239,7 @@
   }
 
   .selector-container {
-    transform: translate(calc(-50% + 32px/2), 47px);
+    transform-origin: top;
   }
 
   .add {

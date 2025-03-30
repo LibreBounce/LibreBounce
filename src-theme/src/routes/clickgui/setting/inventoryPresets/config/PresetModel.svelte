@@ -6,6 +6,7 @@
     import {backOut} from "svelte/easing";
     import PresetItems from "./PresetItems.svelte";
     import ThrowItemsContainer from "./ThrowsItemContainer.svelte";
+    import {scaleFactor} from "../../../clickgui_store";
 
     export let preset: InventoryPreset
     export let idx: number
@@ -35,7 +36,7 @@
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div class="modal" use:portal on:click={handleClose} transition:fly={{duration: 200}}>
-    <div class="container" on:click|stopPropagation transition:scale={{duration: 200, easing: backOut, start: 0.9}}>
+    <div class="container" on:click|stopPropagation transition:scale={{duration: 200, easing: backOut, start: 0.9}} style="transform: translateX(-50%) scale({$scaleFactor * 50}%)">
         <div class="title">
             <span>Inventory #{idx+1}</span>
             <button class="button danger right" on:click={handleDelete}>
@@ -74,6 +75,18 @@
 <style lang="scss">
   @use "../../../../../colors.scss" as *;
 
+  .container {
+    transform-origin: top;
+    position: fixed;
+    border-radius: 3px;
+    width: 700px;
+    min-width: 700px;
+    box-shadow: 0 0 10px rgba($clickgui-base-color, 0.5);
+    background-color: rgba($clickgui-base-color, 0.9);
+    left: 50%;
+    top: 20px;
+  }
+
   .modal {
     z-index: 9999;
     position: fixed;
@@ -83,10 +96,6 @@
     bottom: 0;
     background-color: rgba($clickgui-base-color, 0.3);
     backdrop-filter: blur(5px);
-    display: flex;
-    align-items: flex-start;
-    padding-top: 50px;
-    justify-content: center;
     color: $clickgui-text-color;
   }
 
@@ -158,13 +167,5 @@
     &:hover {
       background: rgba($menu-error-color, 0.9) !important;
     }
-  }
-
-  .container {
-    border-radius: 3px;
-    width: 700px;
-    min-width: 700px;
-    box-shadow: 0 0 10px rgba($clickgui-base-color, 0.5);
-    background-color: rgba($clickgui-base-color, 0.9);
   }
 </style>
