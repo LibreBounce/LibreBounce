@@ -1,7 +1,7 @@
 package net.ccbluex.liquidbounce.utils.movement
 
 
-@Suppress("LongParameterList")
+
 class MovementClass(
     val angle : Double,
     val jumpInput: Boolean,
