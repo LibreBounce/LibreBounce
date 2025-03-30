@@ -108,70 +108,72 @@
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div class="items-container">
-    <div class="add-container" bind:this={addRef}>
-        <div
-                class="item-container add"
-                on:click={() => expanded = !expanded}
-        >
-            <img src="img/menu/icon-plus.svg" alt="Add">
-        </div>
-
-        {#if expanded}
+    <div class="items">
+        <div class="add-container" bind:this={addRef}>
             <div
-                    class="selector-container-wrapper selector-container"
-                    style="top: {addElementPosition.top}px; left: {addElementPosition.left}px"
-                    transition:scale={{duration: 200, start: 0.9}}
-                    use:clickOutside={() => expanded = false}
-                    use:portal
+                    class="item-container add"
+                    on:click={() => expanded = !expanded}
             >
-                <div class="select-selector">
-                    <div class="select-title">Search</div>
+                <img src="img/menu/icon-plus.svg" alt="Add">
+            </div>
 
-                    <div class="search-wrapper">
-                        <div class="search">
-                            <input
-                                    type="text"
-                                    placeholder="Search items..."
-                                    class="search-input"
-                                    bind:value={searchQuery}
-                                    on:focusin={async () => await setTyping(true)}
-                                    on:focusout={async () => await setTyping(false)}
-                                    spellcheck="false">
-                            <div class="search-icon">
-                                <img src="img/menu/icon-pen.svg" alt="Search" />
+            {#if expanded}
+                <div
+                        class="selector-container-wrapper selector-container"
+                        style="top: {addElementPosition.top}px; left: {addElementPosition.left}px"
+                        transition:scale={{duration: 200, start: 0.9}}
+                        use:clickOutside={() => expanded = false}
+                        use:portal
+                >
+                    <div class="select-selector">
+                        <div class="select-title">Search</div>
+
+                        <div class="search-wrapper">
+                            <div class="search">
+                                <input
+                                        type="text"
+                                        placeholder="Search items..."
+                                        class="search-input"
+                                        bind:value={searchQuery}
+                                        on:focusin={async () => await setTyping(true)}
+                                        on:focusout={async () => await setTyping(false)}
+                                        spellcheck="false">
+                                <div class="search-icon">
+                                    <img src="img/menu/icon-pen.svg" alt="Search" />
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    {#if renderedItems.length > 0}
-                        <div class="results">
-                            <VirtualList items={renderedItems} let:item>
-                                <div class="result-item" on:click={() => handleAdd(item.identifier)}>
-                                    <div class="icon-wrapper">
-                                        <img class="icon" src="{REST_BASE}/api/v1/client/resource/itemTexture?id={item.identifier}" alt={item.identifier}/>
-                                    </div>
+                        {#if renderedItems.length > 0}
+                            <div class="results">
+                                <VirtualList items={renderedItems} let:item>
+                                    <div class="result-item" on:click={() => handleAdd(item.identifier)}>
+                                        <div class="icon-wrapper">
+                                            <img class="icon" src="{REST_BASE}/api/v1/client/resource/itemTexture?id={item.identifier}" alt={item.identifier}/>
+                                        </div>
 
-                                    <span class="name">
+                                        <span class="name">
                                         {item.name}
                                     </span>
-                                </div>
-                            </VirtualList>
-                        </div>
-                    {:else}
-                        <span class="items-group-title">No Results</span>
-                    {/if}
+                                    </div>
+                                </VirtualList>
+                            </div>
+                        {:else}
+                            <span class="items-group-title">No Results</span>
+                        {/if}
+                    </div>
+                </div>
+            {/if}
+        </div>
+
+        {#each rendered as item}
+            <div class="item-container" on:click={() => handleRemove(item)}>
+                <div class="item">
+                    <img src="{REST_BASE}/api/v1/client/resource/itemTexture?id={item}" alt={item}/>
                 </div>
             </div>
-        {/if}
+        {/each}
     </div>
-
-    {#each rendered as item}
-        <div class="item-container" on:click={() => handleRemove(item)}>
-            <div class="item">
-                <img src="{REST_BASE}/api/v1/client/resource/itemTexture?id={item}" alt={item}/>
-            </div>
-        </div>
-    {/each}
 </div>
 
 <style lang="scss">
@@ -180,16 +182,24 @@
   @use "select" as *;
 
   .items-container {
-    overflow: scroll;
-    max-height: 330px;
-    width: 100%;
-    background-color: rgba($clickgui-base-color, 0.85);
-    outline: 1px solid color.adjust($clickgui-text-color, $lightness: -85%);
     border-radius: 6px;
+    overflow: hidden;
+    outline: 1px solid color.adjust($clickgui-text-color, $lightness: -85%);
+    background-color: rgba($clickgui-base-color, 0.85);
+  }
+
+  .items {
+    overflow-y: scroll;
+    max-height: 184px;
+    width: 100%;
     display: flex;
     gap: 11px;
-    padding: 13px;
+    padding: 12px;
     flex-wrap: wrap;
+  }
+
+  .items::-webkit-scrollbar {
+    width: 2px;
   }
 
   .item-container {
