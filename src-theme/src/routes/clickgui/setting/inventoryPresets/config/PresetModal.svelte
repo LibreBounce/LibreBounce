@@ -7,6 +7,7 @@
     import PresetItems from "./PresetItems.svelte";
     import ThrowItemsContainer from "./ThrowsItemContainer.svelte";
     import {scaleFactor} from "../../../clickgui_store";
+    import PresetDeleteButton from "./PresetDeleteButton.svelte";
 
     export let preset: InventoryPreset
     export let idx: number
@@ -39,9 +40,11 @@
     <div class="container" on:click|stopPropagation transition:scale={{duration: 200, easing: backOut, start: 0.9}} style="transform: translateX(-50%) scale({$scaleFactor * 50}%)">
         <div class="title">
             <span>Inventory #{idx+1}</span>
-            <button class="button danger right" on:click={handleDelete}>
-                Delete
-            </button>
+            <div class="right">
+                <PresetDeleteButton on:delete={handleDelete}>
+                    Delete
+                </PresetDeleteButton>
+            </div>
         </div>
 
         <div class="items-container">
@@ -145,27 +148,6 @@
       font-weight: 500;
       letter-spacing: 1px;
       font-size: 16px;
-    }
-  }
-
-  button {
-    cursor: pointer;
-    border: none;
-    padding: 5px 15px;
-    background: $accent-color;
-    color: $menu-text-color;
-    border-radius: 3px;
-
-    &:hover {
-      background: rgba($accent-color, 0.9);
-    }
-  }
-
-  .danger {
-    background: $menu-error-color !important;
-
-    &:hover {
-      background: rgba($menu-error-color, 0.9) !important;
     }
   }
 </style>
