@@ -24,7 +24,7 @@
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div class="wrapper" use:clickOutside={() => expanded = false}>
-    <div class="item"
+    <div class="item item-background"
          class:active={expanded}
          class:hided={!expanded}
          on:click|preventDefault={() => expanded = !expanded}
@@ -56,13 +56,12 @@
   @use "sass:color";
   @use "../../../../../colors.scss" as *;
   @use "select" as *;
+  @use "item" as *;
 
   .item {
     position: relative;
     width: 48px;
     height: 48px;
-    background-color: rgba($clickgui-base-color, 0.85);
-    outline: 1px solid color.adjust($clickgui-text-color, $lightness: -85%);
     border-radius: 6px;
     cursor: pointer;
     display: flex;
@@ -71,8 +70,6 @@
     transition: 0.3s all ease;
 
     &:hover {
-      outline: 1px solid color.adjust($clickgui-text-color, $lightness: -70%);
-
       &.hided .delete {
         opacity: 1;
         pointer-events: all;

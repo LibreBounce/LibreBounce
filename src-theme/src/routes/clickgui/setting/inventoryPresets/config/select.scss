@@ -32,7 +32,8 @@
 
 .icon-wrapper {
   transition: background-color 0.3s ease;
-  background-color: color.adjust($clickgui-text-color, $lightness: -90%);
+  background-color: rgba($clickgui-base-color, 0.85);
+  border: 1px solid color.adjust($clickgui-text-color, $lightness: -85%);
   border-radius: 3px;
   min-width: 30px;
   min-height: 30px;

@@ -148,7 +148,7 @@
             <span class="items-group-title">Common Items</span>
             <div class="common-wrapper">
                 {#each commonItems as commonItem}
-                    <div class="common-item-wrapper" on:click={() => setItem(commonItem)}>
+                    <div class="item-background common-item-wrapper" on:click={() => setItem(commonItem)}>
                         <div class="common-item">
                             <ItemImage bind:item={commonItem} />
                         </div>
@@ -197,6 +197,7 @@
   @use "sass:color";
   @use "../../../../../colors.scss" as *;
   @use "select" as *;
+  @use "item" as *;
 
   .common-wrapper {
     margin-top: 5px;
@@ -208,7 +209,6 @@
 
   .common-item-wrapper {
     border-radius: 3px;
-    background-color: color.adjust($clickgui-text-color, $lightness: -90%);
     width: 28px;
     height: 28px;
     display: flex;

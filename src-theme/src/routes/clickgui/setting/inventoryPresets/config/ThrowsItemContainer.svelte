@@ -183,7 +183,7 @@
         </div>
 
         {#each rendered as item}
-            <div class="item-container" on:click={() => handleRemove(item)}>
+            <div class="item-background item-container" on:click={() => handleRemove(item)}>
                 <div class="item">
                     <img src="{REST_BASE}/api/v1/client/resource/itemTexture?id={item}" alt={item}/>
                 </div>
@@ -196,6 +196,7 @@
   @use "sass:color";
   @use "../../../../../colors.scss" as *;
   @use "select" as *;
+  @use "item" as *;
 
   .items-container {
     border-radius: 6px;
@@ -228,7 +229,6 @@
     justify-content: center;
     cursor: pointer;
     transition: background-color 0.3s ease;
-    outline: 1px solid color.adjust($clickgui-text-color, $lightness: -90%);
 
     &:hover {
       background-color: color.adjust($menu-error-color, $lightness: -30%);
