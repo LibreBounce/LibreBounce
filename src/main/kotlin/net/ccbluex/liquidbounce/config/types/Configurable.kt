@@ -296,7 +296,7 @@ open class Configurable(
         choices: EnumSet<T>,
         canBeNone: Boolean = true
     ) where T : Enum<T>, T : NamedChoice =
-        MultiChooseListValue(name, default, choices, canBeNone).apply { this@Configurable.inner.add(this@apply) }
+        MultiChooseEnumListValue(name, default, choices, canBeNone).apply { this@Configurable.inner.add(this@apply) }
 
     inline fun <reified T> enumChoice(name: String, default: T): ChooseListValue<T>
         where T : Enum<T>, T : NamedChoice = enumChoice(name, default, enumValues<T>())
