@@ -8,6 +8,12 @@
     import VirtualList from "../../blocks/VirtualList.svelte";
 
     export let throws: ThrowItem[];
+    export let rendered: ThrowItem[] = throws
+    export let renderedLength = throws.length
+
+    $: {
+        renderedLength = rendered.length
+    }
 
     const dispatch = createEventDispatcher();
 
@@ -23,9 +29,10 @@
     let searchQuery = "";
 
     let addRef: HTMLElement;
-    let addElementPosition = { top: 0, left: 0 }
+    let addElementPosition = { top: 0, left: 0 };
 
-    const updatePosition = () => {
+
+    function updatePosition() {
         if (!addRef) return;
 
         const rect = addRef.getBoundingClientRect();
@@ -33,7 +40,7 @@
             top: rect.top + window.scrollY,
             left: rect.left + window.scrollX,
         };
-    };
+    }
 
     const resizeObserver = new ResizeObserver(updatePosition);
     onMount(() => {
@@ -48,13 +55,17 @@
     });
 
     $: {
+        dispatch('renderedUpdate', rendered.length)
+    }
+
+    $: {
         let filteredItems = items;
 
         if (searchQuery) {
             filteredItems = filteredItems.filter(b => b.name.toLowerCase().includes(searchQuery.toLowerCase()));
         }
 
-        filteredItems = filteredItems.filter(b => !throws.includes(b.identifier) && b.identifier !== "minecraft:air")
+        filteredItems = filteredItems.filter(b => !rendered.includes(b.identifier) && b.identifier !== "minecraft:air")
 
         renderedItems = filteredItems;
     }
@@ -68,16 +79,28 @@
     });
 
     function handleAdd(item: ThrowItem) {
-        if (throws.includes(item)) {
+        if (rendered.includes(item)) {
             return
         }
 
-        throws = [...throws, item]
-        dispatch("change")
+        rendered = [...rendered, item]
     }
 
     function handleRemove(item: ThrowItem) {
-        throws = throws.filter((e) => e != item)
+        rendered = rendered.filter((e) => e != item)
+    }
+
+    export function clear() {
+        rendered = []
+        flush()
+    }
+
+    export function flush() {
+        if (JSON.stringify(throws) === JSON.stringify(rendered)) {
+            return
+        }
+
+        throws = [...rendered]
         dispatch("change")
     }
 </script>
@@ -142,7 +165,7 @@
         {/if}
     </div>
 
-    {#each throws as item}
+    {#each rendered as item}
         <div class="item-container" on:click={() => handleRemove(item)}>
             <div class="item">
                 <img src="{REST_BASE}/api/v1/client/resource/itemTexture?id={item}" alt={item}/>

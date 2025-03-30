@@ -11,10 +11,11 @@
     export let idx: number
 
     const dispatch = createEventDispatcher();
+    let throwsContainer: ThrowItemsContainer;
+    let throwsRendered: number
 
     function handleClearAllThrows() {
-        preset.throws = []
-        dispatch("change")
+        throwsContainer.clear();
     }
 
     function handleChange() {
@@ -22,11 +23,8 @@
     }
 
     function handleClose() {
+        throwsContainer.flush();
         dispatch("close")
-    }
-
-    function handleCopy() {
-        dispatch("copy")
     }
 
     function handleDelete() {
@@ -56,15 +54,17 @@
 
         <div class="throws-items-container">
             <div class="header">
-                {preset.throws.length}
+                {throwsRendered}
                 <span class="muted">THROWS</span>
-                {#if preset.throws.length > 0}
+                {#if throwsRendered > 0}
                     <span class="clear-throws" on:click={handleClearAllThrows}>Clear all</span>
                 {/if}
             </div>
 
             <ThrowItemsContainer
+                    bind:this={throwsContainer}
                     bind:throws={preset.throws}
+                    bind:renderedLength={throwsRendered}
                     on:change={handleChange}
             />
         </div>
