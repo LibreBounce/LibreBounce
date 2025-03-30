@@ -71,7 +71,10 @@
         let filteredItems = items;
 
         if (searchQuery) {
-            filteredItems = filteredItems.filter(b => b.name.toLowerCase().includes(searchQuery.toLowerCase()));
+            filteredItems = filteredItems.filter(b =>
+                b.name.toLowerCase().includes(searchQuery.toLowerCase())
+                || b.identifier.toLowerCase().includes(searchQuery.toLowerCase())
+            );
         }
 
         filteredItems = filteredItems.filter(b => !rendered.includes(b.identifier) && b.identifier !== "minecraft:air")
