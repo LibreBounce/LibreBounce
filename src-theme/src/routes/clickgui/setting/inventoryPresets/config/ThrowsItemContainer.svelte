@@ -223,8 +223,13 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: color.adjust($clickgui-text-color, $lightness: -90%);
     cursor: pointer;
+    transition: background-color 0.3s ease;
+    outline: 1px solid color.adjust($clickgui-text-color, $lightness: -90%);
+
+    &:hover {
+      background-color: color.adjust($menu-error-color, $lightness: -30%);
+    }
   }
 
   .add-container {
@@ -245,6 +250,7 @@
   .add {
     background: $accent-color;
     position: relative;
+    outline: none;
 
     &:hover {
       background-color: color.adjust(color.adjust($accent-color, $saturation: -30%), $lightness: -10%);
