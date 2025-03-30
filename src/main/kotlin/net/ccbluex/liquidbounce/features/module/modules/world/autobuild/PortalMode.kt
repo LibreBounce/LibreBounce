@@ -80,13 +80,13 @@ object PortalMode : ModuleAutoBuild.AutoBuildMode("Portal") {
         for (direction in Direction.HORIZONTAL) {
             for (yOffset in -1 until 1) {
                 for (dirOffset in 0 downTo  -1) {
-                    var portalOrigin = pos.offset(direction)
+                    val portalOrigin = pos.mutableCopy().move(direction)
                     val rotated = direction.rotateYClockwise()
                     if (dirOffset == -1) {
-                        portalOrigin = portalOrigin.offset(rotated.opposite)
+                        portalOrigin.move(rotated.opposite)
                     }
                     if (yOffset == -1) {
-                        portalOrigin = portalOrigin.down()
+                        portalOrigin.move(Direction.DOWN)
                     }
 
                     val portal = NetherPortal(portalOrigin, yOffset == -1, direction, rotated)
@@ -96,11 +96,11 @@ object PortalMode : ModuleAutoBuild.AutoBuildMode("Portal") {
             }
         }
 
-        return portals.filter { it.isValid() }.maxByOrNull { it.score }
+        return portals.maxByOrNull { if (it.isValid()) it.score else Int.MIN_VALUE }
     }
 
     override fun getSlot(): HotbarItemSlot? {
-        Slots.Hotbar.forEach {
+        Slots.OffhandWithHotbar.forEach {
             val item = it.itemStack.item
             if (phase == Phase.IGNITE) {
                 if (item == Items.FLINT_AND_STEEL) {
