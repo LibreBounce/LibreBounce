@@ -22,7 +22,7 @@ import net.minecraft.util.math.Vec3d
 
 @Suppress("MagicNumber")
 object ModuleEasyPearl : ClientModule("EasyPearl", Category.MISC) {
-    // Settings should be declared first
+    // Settings
     private val aimOffThreshold by float("AimOffThreshold", 2f, 0.5f..10f)
     private val maxDistance by float("MaxDistance", 10f, 0.5f..100f)
 
