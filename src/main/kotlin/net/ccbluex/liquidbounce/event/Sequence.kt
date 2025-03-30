@@ -94,8 +94,8 @@ open class Sequence(val owner: EventListener, val handler: SuspendableHandler) {
     init {
         // Note: It is important that this is in the constructor and NOT in the variable declaration, because
         // otherwise there is an edge case where the first time a time-dependent suspension occurs it will be
-        // overwritten by the initialization of the `totalTicks` field which results in one or fewer ticks of actual wait
-        // time.
+        // overwritten by the initialization of the `totalTicks` field
+        // which results in one or fewer ticks of actual wait time.
         this.coroutine = GlobalScope.launch(Dispatchers.Unconfined) {
             SequenceManager.sequences += this@Sequence
             coroutineRun()
