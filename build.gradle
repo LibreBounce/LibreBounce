@@ -295,14 +295,6 @@ sourceSets {
     }
 }
 
-// Idk but tests compile fix
-afterEvaluate {
-    def genSourcesTask = tasks.findByName('genSourcesWithVineflower')
-    if (genSourcesTask != null) {
-        compileJava.dependsOn genSourcesTask
-    }
-}
-
 processResources.dependsOn bundleTheme
 
 // ensure that the encoding is set to UTF-8, no matter what the system default is
