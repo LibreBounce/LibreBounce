@@ -10,20 +10,38 @@ class InventoryPresetsValue : Value<List<InventoryPreset>>("InventoryPresets",
     listType = ListValueType.InventoryPreset
 ) {
     /**
-     * Combines the [InventoryPreset] list into a single preset, applying priority rules:
-     * - Items from presets with a lower index in the list have the highest priority.
-     * - [NonePresetItem] can be replaced by an item from a lower priority preset
-     * - Non-[NonePresetItem] items are protected from being overwritten
-     *   if according to the results of [predicate] this item exists,
-     *   if it does not exist, rewriting is allowed.
+     * Merges a list of [InventoryPreset] objects into a single preset
+     * according to priority rules and predicate validation.
      *
-     * @param predicate Must check whether such an item is in the inventory or not.
-     *                  Based on its results,
-     *                  it will be determined which item will dominate
+     * ## Merging Rules:
+     * 1. **Priority Order**: Presets are processed from first to last in the list.
+     *    The first preset has the highest priority.
      *
-     * @return `null` if presets is empty, otherwise the merged presets
+     * 2. **Slot Processing**:
+     *    - For each slot index (from 0 to max slot count across all presets):
+     *      - Iterate through presets in priority order.
+     *      - Select the first non-[NonePresetItem] that satisfies the [predicate].
+     *      - If a valid item is found, it cannot be overridden by lower-priority presets.
+     *      - If all items in the slot are [NonePresetItem], the slot remains [NonePresetItem].
      *
-     * @see [net.ccbluex.liquidbounce.presetItems.InventoryPresetsMergingTests]
+     * 3. **NonePresetItem Handling**:
+     *    - [NonePresetItem] slots are treated as "empty"
+     *      and can always be replaced by valid items from lower-priority presets.
+     *
+     * ## Examples
+     * - See [net.ccbluex.liquidbounce.presetItems.InventoryPresetsMergingTests]
+     *
+     * ## Parameters
+     * @param predicate A condition that determines whether an item is valid for inclusion in the merged preset.
+     *   - Return `true` to allow the item to be selected.
+     *   - Return `false` to skip the item and continue searching in lower-priority presets.
+     *   - **Important**: [predicate] should return `false` for [NonePresetItem] to avoid logical errors.
+     *
+     * @return A new [InventoryPreset] containing:
+     *   - Merged `items` array following the rules above.
+     *   - Merged `throws` set (union of all `throws` with duplicates removed).
+     *
+     *   If [get()] returned a non-empty list of presets, otherwise `null`turned a non-empty list of presets
      */
     fun merged(predicate: (PresetItem) -> Boolean = { it !is NonePresetItem }): InventoryPreset? {
         val presets = get()
