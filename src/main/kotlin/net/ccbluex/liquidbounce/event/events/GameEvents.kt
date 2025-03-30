@@ -59,6 +59,8 @@ class KeyEvent(val key: InputUtil.Key, val action: Int) : Event()
 @Nameable("inputHandle")
 object InputHandleEvent : Event()
 
+
+
 @Nameable("movementInput")
 class MovementInputEvent(
     var directionalInput: DirectionalInput,
@@ -90,6 +92,9 @@ class UseCooldownEvent(var cooldown: Int) : Event()
 
 @Nameable("cancelBlockBreaking")
 class CancelBlockBreakingEvent : CancellableEvent()
+
+@Nameable("interactItem")
+class InteractItemEvent : CancellableEvent()
 
 @Nameable("autoJump")
 class MinecraftAutoJumpEvent(var autoJump: Boolean) : Event()

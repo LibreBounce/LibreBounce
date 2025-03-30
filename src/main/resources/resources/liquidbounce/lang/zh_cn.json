@@ -460,6 +460,7 @@
   "liquidbounce.module.disabler.messages.grimSpectateMessage": "你被服务器检测了！现在应该关闭Disabler模块。",
   "liquidbounce.module.disabler.messages.grimSpectateEnableMessage": "在重生期间——当你具有飞行能力时，启用此禁用器。你应该能够飞行和破坏方块，在此期间不能攻击其他玩家。你需要尽快关闭它，否则你将连接超时。",
   "liquidbounce.module.eagle.description": "自动在方块边缘潜行。",
+  "liquidbounce.module.easypearl.description": "将末影珍珠投向你看着的地方。",
   "liquidbounce.module.elytraRecast.description": "按住跳跃键时重新施放鞘翅。",
   "liquidbounce.module.elytraFly.description": "使鞘翅更加容易控制。",
   "liquidbounce.module.elytraTarget.description": "鞘翅滑翔时跟随目标。",
