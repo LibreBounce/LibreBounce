@@ -1,9 +1,9 @@
 <script lang="ts">
     import type {ThrowItem} from "../../../../../integration/types";
-    import {createEventDispatcher, onMount} from "svelte";
+    import {createEventDispatcher, onDestroy, onMount} from "svelte";
     import {REST_BASE} from "../../../../../integration/host";
     import {scale} from "svelte/transition";
-    import {clickOutside} from "../../../../../util/utils";
+    import {clickOutside, portal} from "../../../../../util/utils";
     import {getRegistries, setTyping} from "../../../../../integration/rest";
     import VirtualList from "../../blocks/VirtualList.svelte";
 
@@ -21,6 +21,31 @@
 
     let expanded = false;
     let searchQuery = "";
+
+    let addRef: HTMLElement;
+    let addElementPosition = { top: 0, left: 0 }
+
+    const updatePosition = () => {
+        if (!addRef) return;
+
+        const rect = addRef.getBoundingClientRect();
+        addElementPosition = {
+            top: rect.top + window.scrollY,
+            left: rect.left + window.scrollX,
+        };
+    };
+
+    const resizeObserver = new ResizeObserver(updatePosition);
+    onMount(() => {
+        window.addEventListener('resize', updatePosition);
+        if (addRef) resizeObserver.observe(addRef);
+        updatePosition();
+    });
+
+    onDestroy(() => {
+        window.removeEventListener('resize', updatePosition);
+        resizeObserver.disconnect();
+    });
 
     $: {
         let filteredItems = items;
@@ -60,7 +85,7 @@
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div class="items-container">
-    <div class="add-container">
+    <div class="add-container" bind:this={addRef}>
         <div
                 class="item-container add"
                 on:click={() => expanded = !expanded}
@@ -71,8 +96,10 @@
         {#if expanded}
             <div
                     class="selector-container-wrapper selector-container"
+                    style="top: {addElementPosition.top}px; left: {addElementPosition.left}px"
                     transition:scale={{duration: 200, start: 0.9}}
                     use:clickOutside={() => expanded = false}
+                    use:portal
             >
                 <div class="select-selector">
                     <div class="select-title">Search</div>
@@ -130,6 +157,8 @@
   @use "select" as *;
 
   .items-container {
+    overflow: scroll;
+    max-height: 330px;
     width: 100%;
     background-color: rgba($clickgui-base-color, 0.85);
     outline: 1px solid color.adjust($clickgui-text-color, $lightness: -85%);
@@ -164,8 +193,7 @@
   }
 
   .selector-container {
-    top: 100%;
-    transform: translate(calc(-50% + 32px/2), 15px);
+    transform: translate(calc(-50% + 32px/2), 47px);
   }
 
   .add {
