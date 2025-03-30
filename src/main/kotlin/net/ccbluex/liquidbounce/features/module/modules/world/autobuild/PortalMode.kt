@@ -73,12 +73,12 @@ object PortalMode : ModuleAutoBuild.AutoBuildMode("Portal") {
         portal = null
     }
 
-    @Suppress("NestedBlockDepth")
+    @Suppress("NestedBlockDepth", "CognitiveComplexMethod")
     private fun getPortal(): NetherPortal? {
-        val portals = mutableListOf<NetherPortal>()
+        var result: NetherPortal? = null
         val pos = BlockPos.ofFloored(player.pos)
         for (direction in Direction.HORIZONTAL) {
-            for (yOffset in -1 until 1) {
+            for (yOffset in -1..0) {
                 for (dirOffset in 0 downTo  -1) {
                     val portalOrigin = pos.mutableCopy().move(direction)
                     val rotated = direction.rotateYClockwise()
@@ -91,29 +91,33 @@ object PortalMode : ModuleAutoBuild.AutoBuildMode("Portal") {
 
                     val portal = NetherPortal(portalOrigin, yOffset == -1, direction, rotated)
                     portal.calculateScore()
-                    portals.add(portal)
+                    if (!portal.isValid()) continue
+
+                    if (result == null || result.score < portal.score) {
+                        result = portal
+                    }
                 }
             }
         }
 
-        return portals.maxByOrNull { if (it.isValid()) it.score else Int.MIN_VALUE }
+        return result
     }
 
     override fun getSlot(): HotbarItemSlot? {
-        Slots.OffhandWithHotbar.forEach {
+        for (it in Slots.OffhandWithHotbar) {
             val item = it.itemStack.item
             if (phase == Phase.IGNITE) {
                 if (item == Items.FLINT_AND_STEEL) {
                     return it
                 }
 
-                return@forEach
+                continue
             }
 
             // build phase...
 
             if (item !is BlockItem) {
-                return@forEach
+                continue
             }
 
             if (item.block == Blocks.OBSIDIAN) {
