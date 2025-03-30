@@ -59,8 +59,6 @@ class KeyEvent(val key: InputUtil.Key, val action: Int) : Event()
 @Nameable("inputHandle")
 object InputHandleEvent : Event()
 
-
-
 @Nameable("movementInput")
 class MovementInputEvent(
     var directionalInput: DirectionalInput,
