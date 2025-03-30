@@ -34,10 +34,7 @@ import net.ccbluex.liquidbounce.utils.client.MovePacketType
 import net.ccbluex.liquidbounce.utils.client.PacketQueueManager
 import net.ccbluex.liquidbounce.utils.client.Timer
 import net.ccbluex.liquidbounce.utils.client.chat
-import net.ccbluex.liquidbounce.utils.entity.airTicks
-import net.ccbluex.liquidbounce.utils.entity.blockVecPosition
-import net.ccbluex.liquidbounce.utils.entity.canStep
-import net.ccbluex.liquidbounce.utils.entity.withStrafe
+import net.ccbluex.liquidbounce.utils.entity.*
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.minecraft.stat.Stats
 import kotlin.math.round
@@ -296,13 +293,13 @@ object ModuleStep : ClientModule("Step", Category.MOVEMENT) {
                 stepping = true
                 player.velocity.y = 0.42
                 waitTicks(1)
-                player.velocity.y += 0.061
+                if(currentStepHeight  > 1.0) { player.velocity.y += 0.061 }
                 waitTicks(2)
-                if (currentStepHeight == 1.0) {
+                if (currentStepHeight  == 1.0) {
                     player.velocity.y -= 0.14
                 } else {
                     player.velocity.y -= 0.095
-                    if (currentStepHeight > 1.25) {
+                    if (currentStepHeight  > 1.25) {
                         waitTicks(5)
                         if(alternateBypass) {
                             player.isOnGround = true
@@ -312,6 +309,7 @@ object ModuleStep : ClientModule("Step", Category.MOVEMENT) {
                     }
                 }
                 stepping = false
+                player.velocity = player.velocity.withStrafe(speed = 0.1838601407459074)
             }
         }
 
