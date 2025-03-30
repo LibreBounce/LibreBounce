@@ -293,7 +293,9 @@ object ModuleStep : ClientModule("Step", Category.MOVEMENT) {
                 stepping = true
                 player.velocity.y = 0.42
                 waitTicks(1)
-                if(currentStepHeight > 1.0) { player.velocity.y += 0.061 }
+                if(currentStepHeight > 1.0) {
+                    player.velocity.y += 0.061
+                }
                 waitTicks(2)
                 if (currentStepHeight == 1.0) {
                     player.velocity.y -= 0.14
