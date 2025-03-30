@@ -290,8 +290,6 @@ object ModuleStep : ClientModule("Step", Category.MOVEMENT) {
                 val currentStepHeight = stepHeight
                 event.jump = true
 
-                chat(currentStepHeight.toString())
-
                 stepping = true
                 player.velocity.y = 0.42
                 waitTicks(1)
