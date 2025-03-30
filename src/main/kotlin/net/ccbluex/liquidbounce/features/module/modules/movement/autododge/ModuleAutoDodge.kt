@@ -102,7 +102,7 @@ object ModuleAutoDodge : ClientModule("AutoDodge", Category.COMBAT) {
                 return@mapNotNull null
             }
 
-            if (it.isInGround()) {
+            if (it.isInGround) {
                 return@mapNotNull null
             }
 
