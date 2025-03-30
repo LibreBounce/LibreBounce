@@ -69,7 +69,11 @@ import net.ccbluex.liquidbounce.script.ScriptManager
 import net.ccbluex.liquidbounce.utils.aiming.PostRotationExecutor
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.block.ChunkScanner
-import net.ccbluex.liquidbounce.utils.client.*
+import net.ccbluex.liquidbounce.utils.client.InteractionTracker
+import net.ccbluex.liquidbounce.utils.client.PacketQueueManager
+import net.ccbluex.liquidbounce.utils.client.TpsObserver
+import net.ccbluex.liquidbounce.utils.client.error.ErrorHandler
+import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.combat.CombatManager
 import net.ccbluex.liquidbounce.utils.entity.RenderedEntities
 import net.ccbluex.liquidbounce.utils.input.InputTracker
@@ -400,7 +404,9 @@ object LiquidBounce : EventListener {
                 // Run resource reloader directly as fallback
                 clientInitializer.reload(resourceManager)
             }
-        }.onFailure(ErrorHandler::fatal)
+        }.onFailure {
+            ErrorHandler.fatal(it, additionalMessage = "Client start")
+        }
     }
 
     @Suppress("unused")
@@ -426,7 +432,9 @@ object LiquidBounce : EventListener {
         override fun reload(manager: ResourceManager) {
             runCatching(::initializeClient).onSuccess {
                 logger.info("$CLIENT_NAME has been successfully initialized.")
-            }.onFailure(ErrorHandler::fatal)
+            }.onFailure {
+                ErrorHandler.fatal(it, additionalMessage = "Client resource reloader")
+            }
         }
     }
 
