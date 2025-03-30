@@ -1,7 +1,7 @@
 <script lang="ts">
     import type {InventoryPreset} from "../../../../integration/types";
     import ItemImage from "./ItemImage.svelte";
-    import PresetModel from "./config/PresetModel.svelte";
+    import PresetModal from "./config/PresetModal.svelte";
     import {createEventDispatcher} from "svelte";
 
     export let preset: InventoryPreset
@@ -36,7 +36,7 @@
 </div>
 
 {#if configuring}
-    <PresetModel
+    <PresetModal
             bind:preset
             bind:idx
             on:close={() => configuring = false}
