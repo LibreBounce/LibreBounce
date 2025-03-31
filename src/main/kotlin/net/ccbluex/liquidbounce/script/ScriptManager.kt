@@ -36,6 +36,8 @@ import java.io.File
  */
 object ScriptManager {
 
+    private var isInitialized = false
+
     /**
      * A list that holds all the loaded scripts.
      */
@@ -60,6 +62,7 @@ object ScriptManager {
                 "[ScriptAPI] Engine Version: ${engine.version}, " +
                     "Supported languages: [ ${engine.languages.keys.joinToString(", ")} ]"
             )
+            isInitialized = true
         } catch (e: Exception) {
             logger.error("Failed to initialize the script engine.", e)
         }
@@ -70,6 +73,8 @@ object ScriptManager {
      * and directories containing a main script file. It then loads and enables all found scripts.
      */
     fun loadAll() {
+        require(isInitialized) { "Cannot load scripts before the script engine is initialized." }
+
         root.listFiles { file ->
             Source.findLanguage(file) != null || file.isDirectory
         }?.forEach { file ->
@@ -128,6 +133,8 @@ object ScriptManager {
         language: String = Source.findLanguage(file),
         debugOptions: ScriptDebugOptions = ScriptDebugOptions()
     ): PolyglotScript {
+        require(isInitialized) { "Cannot load scripts before the script engine is initialized." }
+
         val script = PolyglotScript(language, file, debugOptions)
         script.initScript()
 
@@ -152,9 +159,9 @@ object ScriptManager {
     fun enableAll() {
         scripts.forEach(PolyglotScript::enable)
 
-        // Reload the ClickGUI to update the module list.
-        RenderSystem.recordRenderCall {
-            ModuleClickGui.reloadView()
+        if (scripts.isNotEmpty()) {
+            // Reload the ClickGUI to update the module list.
+            RenderSystem.recordRenderCall(ModuleClickGui::reloadView)
         }
     }
 

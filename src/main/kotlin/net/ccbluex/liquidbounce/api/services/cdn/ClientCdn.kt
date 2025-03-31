@@ -23,11 +23,11 @@ package net.ccbluex.liquidbounce.api.services.cdn
 import net.ccbluex.liquidbounce.api.core.BaseApi
 import net.ccbluex.liquidbounce.api.core.CLIENT_CDN
 import net.ccbluex.liquidbounce.api.models.cdn.IpcConfiguration
-import java.io.InputStream
+import okio.BufferedSource
 
 object ClientCdn : BaseApi(CLIENT_CDN) {
     suspend fun requestDiscordConfiguration() = get<IpcConfiguration>("/discord.json")
-    suspend fun requestStaffList(address: String) = get<InputStream>("/staffs/$address").use { stream ->
-        stream.bufferedReader().lineSequence().toHashSet()
+    suspend fun requestStaffList(address: String): Set<String> = get<BufferedSource>("/staffs/$address").use {
+        generateSequence { it.readUtf8Line() }.toHashSet()
     }
 }

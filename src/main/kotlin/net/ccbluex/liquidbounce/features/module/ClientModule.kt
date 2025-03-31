@@ -171,7 +171,7 @@ open class ClientModule(
 
     // Tag to be displayed on the HUD
     open val tag: String?
-        get() = this.tagValue?.getValue()?.toString()
+        get() = this.tagValue?.getTagValue()?.toString()
 
     private var tagValue: Value<*>? = null
 
@@ -237,6 +237,6 @@ open class ClientModule(
         choicesCallback: (ChoiceConfigurable<T>) -> Array<T>
     ) = choices(this, name, activeIndex, choicesCallback)
 
-    fun message(key: String, vararg args: Any) = translation("$baseKey.messages.$key", *args)
+    fun message(key: String, vararg args: Any) = translation("$baseKey.messages.$key", args = args)
 
 }

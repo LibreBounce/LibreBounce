@@ -35,8 +35,6 @@ import net.ccbluex.liquidbounce.features.module.modules.player.ModuleReach;
 import net.ccbluex.liquidbounce.features.module.modules.player.nofall.modes.NoFallNoGround;
 import net.ccbluex.liquidbounce.features.module.modules.world.ModuleNoSlowBreak;
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager;
-import net.ccbluex.liquidbounce.utils.aiming.RotationTarget;
-import net.ccbluex.liquidbounce.utils.aiming.data.Rotation;
 import net.ccbluex.liquidbounce.utils.aiming.features.MovementCorrection;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
@@ -93,11 +91,11 @@ public abstract class MixinPlayerEntity extends MixinLivingEntity {
             return original;
         }
 
-        RotationManager rotationManager = RotationManager.INSTANCE;
-        Rotation rotation = rotationManager.getCurrentRotation();
-        RotationTarget configurable = rotationManager.getActiveRotationTarget();
+        var rotationManager = RotationManager.INSTANCE;
+        var rotation = rotationManager.getCurrentRotation();
+        var rotationTarget = rotationManager.getActiveRotationTarget();
 
-        if (configurable == null || configurable.getMovementCorrection() == MovementCorrection.OFF || rotation == null) {
+        if (rotationTarget == null || rotationTarget.getMovementCorrection() == MovementCorrection.OFF || rotation == null) {
             return original;
         }
 
@@ -125,8 +123,7 @@ public abstract class MixinPlayerEntity extends MixinLivingEntity {
     @ModifyExpressionValue(method = "getBlockBreakingSpeed", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/entity/player/PlayerEntity;hasStatusEffect(Lnet/minecraft/registry/entry/RegistryEntry;)Z"))
     private boolean injectFatigueNoSlow(boolean original) {
-        ModuleNoSlowBreak module = ModuleNoSlowBreak.INSTANCE;
-        if ((Object) this == MinecraftClient.getInstance().player && module.getRunning() && module.getMiningFatigue()) {
+        if ((Object) this == MinecraftClient.getInstance().player && ModuleNoSlowBreak.getMiningFatigue()) {
             return false;
         }
 
@@ -137,8 +134,7 @@ public abstract class MixinPlayerEntity extends MixinLivingEntity {
     @ModifyExpressionValue(method = "getBlockBreakingSpeed", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/entity/player/PlayerEntity;isSubmergedIn(Lnet/minecraft/registry/tag/TagKey;)Z"))
     private boolean injectWaterNoSlow(boolean original) {
-        ModuleNoSlowBreak module = ModuleNoSlowBreak.INSTANCE;
-        if ((Object) this == MinecraftClient.getInstance().player && module.getRunning() && module.getWater()) {
+        if ((Object) this == MinecraftClient.getInstance().player && ModuleNoSlowBreak.getWater()) {
             return false;
         }
 
@@ -149,7 +145,7 @@ public abstract class MixinPlayerEntity extends MixinLivingEntity {
             target = "Lnet/minecraft/entity/player/PlayerEntity;isOnGround()Z"))
     private boolean injectOnAirNoSlow(boolean original) {
         if ((Object) this == MinecraftClient.getInstance().player) {
-            if (ModuleNoSlowBreak.INSTANCE.getRunning() && ModuleNoSlowBreak.INSTANCE.getOnAir()) {
+            if (ModuleNoSlowBreak.getOnAir()) {
                 return true;
             }
 

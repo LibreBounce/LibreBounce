@@ -67,6 +67,11 @@ object Slots {
     )
 
     @JvmField
+    val OffhandWithHotbar = SlotGroup(
+        (OffHand + Hotbar).map { it as HotbarItemSlot }
+    )
+
+    @JvmField
     val All = Hotbar + OffHand + Inventory + Armor
 }
 

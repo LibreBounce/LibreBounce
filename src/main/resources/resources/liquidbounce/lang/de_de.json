@@ -430,10 +430,10 @@
   "liquidbounce.module.fly.messages.vulcanGhostOldMessage": "Flieg überall hin, wohin du willst. Wenn du landen möchtest, geh von einer Kante herunter oder spring hoch und geh in eine beliebige Richtung. Wenn AutoDisable deaktiviert ist, deaktivier das Modul.",
   "liquidbounce.module.fly.messages.cubecraft20thAprBoostUsage": "Der Fly funktioniert nur durch Schadensmissbrauch. Warte ein paar Sekunden, bis du bereit bist zum Fliegen am Rundstart!",
   "liquidbounce.module.fly.messages.cubecraft20thAprBoostMessage": "Du wurdest verletzt, boosten..",
-  "liquidbounce.module.focus.description": "Lässt dich nur einen bestimmten Feind angreifen.",
-  "liquidbounce.module.focus.messages.focused": "Konzentriert sich für %s Sekunden lang auf %s.",
-  "liquidbounce.module.focus.messages.timeUp": "Nicht mehr auf %s konzentriert, da die Zeit abgelaufen ist.",
-  "liquidbounce.module.focus.messages.outOfRange": "Nicht mehr auf %s konzentriert, da er außerhalb der Reichweite ist.",
+  "liquidbounce.module.targetLock.description": "Lässt dich nur einen bestimmten Feind angreifen.",
+  "liquidbounce.module.targetLock.messages.lockedOn": "Konzentriert sich für %s Sekunden lang auf %s.",
+  "liquidbounce.module.targetLock.messages.timeUp": "Nicht mehr auf %s konzentriert, da die Zeit abgelaufen ist.",
+  "liquidbounce.module.targetLock.messages.outOfRange": "Nicht mehr auf %s konzentriert, da er außerhalb der Reichweite ist.",
   "liquidbounce.module.betterChat.description": "Verbesserungen am In-Game-Chat.",
   "liquidbounce.module.betterChat.screenshot.saved": "Screenshot gespeichert",
   "liquidbounce.module.betterChat.screenshot.copy": "kopieren",
@@ -629,6 +629,7 @@
   "liquidbounce.command.tps.description": "Schätzt die TPS des Servers ab.",
   "liquidbounce.command.tps.result.tpsCheck": "Die TPS des Servers betragen %s.",
   "liquidbounce.command.tps.result.nan": "noch nicht berechnet",
+  "liquidbounce.module.logoffSpot.description": "Ermöglicht es, Spieler zu sehen, die den Server verlassen haben oder außerhalb der Sichtweite sind.",
   "liquidbounce.module.anchor.description": "Geht automatisch in sichere Löcher für Crystal PvP.",
   "liquidbounce.module.replenish.description": "Füllt deine Hotbar automatisch mit Items aus deinem Inventar auf, wenn die Anzahl des Items einen bestimmten Wert erreicht hat.",
   "liquidbounce.module.autoConfig.messages.loading": "Läd Konfiguration für %s...",
@@ -638,6 +639,33 @@
   "liquidbounce.module.voidEsp.description": "Markiert alle Positionen, die Void sein könnten.",
   "liquidbounce.module.blockIn.description": "Baut Blöcke um dich herum, um dich zu schützen.",
   "liquidbounce.module.blockIn.messages.filled": "Fertig!",
+  "liquidbounce.module.blockTrap.description": "Baut Gegner mit Blöcken ein.",
   "liquidbounce.module.blockIn.messages.positionChanged": "Deine Position hat sich geändert!",
-  "liquidbounce.module.packetMine.messages.noVfp": "Wähle eine andere Wechselmethode aus oder installier ViaFabricPlus!"
+  "liquidbounce.module.packetMine.messages.noVfp": "Wähle eine andere Wechselmethode aus oder installier ViaFabricPlus!",
+  "liquidbounce.module.phase.description": "Ermöglicht dir, durch Blöcke zu gehen.",
+  "liquidbounce.module.aspect.description": "Passt das horizontale Seitenverhältnis an.",
+  "liquidbounce.module.extendedFirework.description": "Ändert die Geschwindigkeit des Feuerwerkraketen-Boosts.",
+
+  "liquidbounce.command.models.subcommand.create.result.modelExists": "❌ Das Modell %s existiert bereits.",
+  "liquidbounce.command.models.subcommand.create.result.trainingStart": "⚡ Training wurde für das Modell %s gestartet...",
+  "liquidbounce.command.models.subcommand.create.result.samplesLoaded": "✔ %s Exemplare in %s geladen.",
+  "liquidbounce.command.models.subcommand.create.result.preparedData": "✔ Datenset vorbereitet in %s.",
+  "liquidbounce.command.models.subcommand.create.result.trainingEnd": "✔ Das Modell %s wurde trainiert und erfolgreich in %s gespeichert.",
+  "liquidbounce.command.models.subcommand.create.result.trainingFailed": "❌ Das Training ist mit dem Fehlercode %s fehlgeschlagen.",
+  "liquidbounce.command.models.subcommand.create.result.invalidName": "❌ Ungültiger Modellname. Der Modellname muss alphanumerisch sein und darf keine Leerzeichen enthalten.",
+
+  "liquidbounce.command.models.subcommand.improve.result.modelNotFound": "❌ Das Modell %s konnte nicht gefunden werden.",
+  "liquidbounce.command.models.subcommand.improve.result.trainingStart": "⚡ Training wurde für das Modell %s gestartet...",
+  "liquidbounce.command.models.subcommand.improve.result.samplesLoaded": "✔ %s Exemplare in %s geladen.",
+  "liquidbounce.command.models.subcommand.improve.result.preparedData": "✔ Datenset vorbereitet in %s.",
+  "liquidbounce.command.models.subcommand.improve.result.trainingEnd": "✔ Das Modell %s wurde trainiert und erfolgreich in %s gespeichert.",
+  "liquidbounce.command.models.subcommand.improve.result.trainingFailed": "❌ Das Training ist mit dem Fehlercode %s fehlgeschlagen.",
+
+  "liquidbounce.command.models.subcommand.reload.result.modelsReloaded": "✔ Modelle wurden neu geladen.",
+
+  "liquidbounce.command.models.subcommand.delete.result.modelNotFound": "❌ Das Modell %s konnte nicht gefunden werden.",
+  "liquidbounce.command.models.subcommand.delete.result.modelDeleted": "✔ Das Modell %s wurde gelöscht.",
+
+  "liquidbounce.module.particles.description": "Zeigt Partikel beim Angriff eines z.B. Spielers an.",
+  "liquidbounce.module.elytraTarget.description": "Verfolgt dein Ziel mit einer Elytra."
 }

@@ -27,6 +27,7 @@ import org.graalvm.polyglot.Value
 import java.util.function.BiFunction
 import java.util.function.Function
 import java.util.function.IntFunction
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * The main hub of the ScriptAPI that provides access to a useful set of members.
@@ -34,6 +35,7 @@ import java.util.function.IntFunction
 object ScriptContextProvider {
 
     private lateinit var scriptAsyncUtil: ScriptAsyncUtil
+    private val localStorage = ConcurrentHashMap<String, Any>()
 
     internal fun Context.setupContext(language: String, bindings: Value) {
         val isJs = language.equals("js", true)
@@ -70,6 +72,9 @@ object ScriptContextProvider {
             putMember("ParameterValidator", ScriptParameterValidator(bindings))
             putMember("UnsafeThread", ScriptUnsafeThread)
 
+            // Global variables
+            putMember("localStorage", localStorage)
+
             // Async support
             if (::scriptAsyncUtil.isInitialized && isJs) {
                 putMember("ticks", IntFunction(scriptAsyncUtil::ticks))
@@ -78,6 +83,5 @@ object ScriptContextProvider {
                 putMember("conditional", BiFunction(scriptAsyncUtil::conditional))
             }
         }
-    }
 
 }

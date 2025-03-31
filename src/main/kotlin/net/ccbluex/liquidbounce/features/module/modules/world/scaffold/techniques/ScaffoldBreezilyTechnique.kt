@@ -114,7 +114,7 @@ object ScaffoldBreezilyTechnique : ScaffoldTechnique("Breezily") {
 
         if (lastSideways != currentSideways && currentSideways != 0f) {
             lastSideways = currentSideways
-            currentEdgeDistanceRandom = edgeDistance.random()
+            currentEdgeDistanceRandom = edgeDistance.random().toDouble()
         }
 
         event.directionalInput = DirectionalInput(

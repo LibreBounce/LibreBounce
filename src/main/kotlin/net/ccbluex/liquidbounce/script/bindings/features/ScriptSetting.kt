@@ -40,14 +40,14 @@ object ScriptSetting {
     @JvmName("float")
     fun float(value: PolyglotValue): RangedValue<Float> {
         val name = value.getMember("name").asString()
-        val default = value.getMember("default").asFloat()
+        val default = value.getMember("default").asDouble()
         val range = value.getMember("range").`as`(Array<Double>::class.java)
         val suffix = value.getMember("suffix")?.asString() ?: ""
 
         require(range.size == 2)
         return rangedValue(
             name,
-            default,
+            default.toFloat(),
             range.first().toFloat()..range.last().toFloat(),
             suffix,
             ValueType.FLOAT
@@ -145,6 +145,24 @@ object ScriptSetting {
         return ChooseListValue(name, defaultValue = default, choices = choices)
     }
 
+    @JvmName("multiChoose")
+    fun multiChoose(value: PolyglotValue): MultiChooseStringListValue {
+        val name = value.getMember("name").asString()
+        val choices = value.getMember("choices").`as`(Array<String>::class.java)
+            .toHashSet()
+
+        val default = value.getMember("default")?.`as`(Array<String>::class.java)
+            ?.toCollection(LinkedHashSet()) ?: LinkedHashSet()
+
+        val canBeNone = value.getMember("canBeNone")?.asBoolean() ?: true
+
+        return MultiChooseStringListValue(
+            name,
+            value = default,
+            choices = choices,
+            canBeNone = canBeNone
+        )
+    }
 
     private fun <T : Any> value(
         name: String,

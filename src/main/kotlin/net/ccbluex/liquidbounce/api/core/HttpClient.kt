@@ -33,7 +33,7 @@ import java.io.File
 import java.io.InputStream
 import java.util.concurrent.TimeUnit
 
-private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
 fun withScope(block: suspend CoroutineScope.() -> Unit) = scope.launch { block() }
 
@@ -46,6 +46,9 @@ object HttpClient {
     val JSON_MEDIA_TYPE = "application/json; charset=utf-8".toMediaType()
     val FORM_MEDIA_TYPE = "application/x-www-form-urlencoded".toMediaType()
 
+    /**
+     * Client default [OkHttpClient]
+     */
     val client: OkHttpClient = OkHttpClient.Builder()
         .connectTimeout(3, TimeUnit.SECONDS)
         .readTimeout(10, TimeUnit.SECONDS)
@@ -54,18 +57,17 @@ object HttpClient {
         .followSslRedirects(true)
         .build()
 
-    private fun createRequest(
-        url: String,
-        method: HttpMethod,
-        agent: String = DEFAULT_AGENT,
-        headers: Headers = Headers.Builder().build(),
-        body: RequestBody? = null
-    ) = Request.Builder()
-        .url(url)
-        .method(method.name, body)
-        .header("User-Agent", agent)
-        .headers(headers)
-        .build()
+    /**
+     * New [OkHttpClient.Builder] from [client],
+     * with default settings and shared connection pool / dispatcher / cache
+     */
+    @JvmStatic
+    fun newBuilder(): OkHttpClient.Builder = client.newBuilder()
+        .connectTimeout(3, TimeUnit.SECONDS)
+        .readTimeout(10, TimeUnit.SECONDS)
+        .writeTimeout(10, TimeUnit.SECONDS)
+        .followRedirects(true)
+        .followSslRedirects(true)
 
     suspend fun request(
         url: String,
@@ -74,7 +76,12 @@ object HttpClient {
         headers: Headers.Builder.() -> Unit = {},
         body: RequestBody? = null
     ): Response = withContext(Dispatchers.IO) {
-        val request = createRequest(url, method, agent, Headers.Builder().apply(headers).build(), body)
+        val request = Request.Builder()
+            .url(url)
+            .method(method.name, body)
+            .headers(Headers.Builder().apply(headers).build())
+            .header("User-Agent", agent)
+            .build()
 
         val response = client.newCall(request).execute()
         if (!response.isSuccessful) {

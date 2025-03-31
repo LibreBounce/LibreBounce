@@ -20,11 +20,9 @@ package net.ccbluex.liquidbounce.features.module.modules.combat.killaura.feature
 
 import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
-import net.ccbluex.liquidbounce.event.events.GameTickEvent
-import net.ccbluex.liquidbounce.event.events.PacketEvent
-import net.ccbluex.liquidbounce.event.events.QueuePacketEvent
-import net.ccbluex.liquidbounce.event.events.TransferOrigin
+import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleSwordBlock
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura.RaycastMode.*
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura.range
@@ -37,10 +35,12 @@ import net.ccbluex.liquidbounce.utils.aiming.utils.facingEnemy
 import net.ccbluex.liquidbounce.utils.aiming.utils.raycast
 import net.ccbluex.liquidbounce.utils.aiming.utils.raytraceEntity
 import net.ccbluex.liquidbounce.utils.client.PacketQueueManager
+import net.ccbluex.liquidbounce.utils.client.isOlderThanOrEqual1_8
 import net.ccbluex.liquidbounce.utils.client.isOlderThanOrEquals1_7_10
 import net.ccbluex.liquidbounce.utils.combat.shouldBeAttacked
 import net.ccbluex.liquidbounce.utils.entity.isBlockAction
 import net.ccbluex.liquidbounce.utils.entity.rotation
+import net.ccbluex.liquidbounce.utils.input.InputTracker.isPressedOnAny
 import net.ccbluex.liquidbounce.utils.input.shouldSwingHand
 import net.minecraft.item.ItemStack
 import net.minecraft.item.consume.UseAction
@@ -55,13 +55,23 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
     private val blockMode by enumChoice("BlockMode", BlockMode.INTERACT)
     private val unblockMode by enumChoice("UnblockMode", UnblockMode.STOP_USING_ITEM)
 
-    val tickOff by int("TickOff", 0, 0..2, "ticks")
-    val tickOn by int("TickOn", 0, 0..2, "ticks")
+    val tickOffRange by intRange("TickOff", 0..0, 0..5, "ticks").onChanged { range ->
+        currentTickOff = range.random()
+    }
+    val tickOnRange by intRange("TickOn", 0..0, 0..5, "ticks").onChanged { range ->
+        currentTickOn = range.random()
+    }
+
+    var currentTickOff: Int = tickOffRange.random()
+    var currentTickOn: Int = tickOnRange.random()
+
     val chance by float("Chance", 100f, 0f..100f, "%")
     val blink by int("Blink", 0, 0..10, "ticks")
 
     val onScanRange by boolean("OnScanRange", true)
     private val onlyWhenInDanger by boolean("OnlyWhenInDanger", false)
+
+    private var blockingTicks = 0
 
     /**
      * Enforces the blocking state on the Input
@@ -88,13 +98,13 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
      * @see net.minecraft.client.render.item.HeldItemRenderer renderFirstPersonItem
      */
     var blockVisual = false
-        get() = field && super.running
+        get() = field && super.running && (isOlderThanOrEqual1_8 || ModuleSwordBlock.running)
 
     val shouldUnblockToHit
         get() = unblockMode != UnblockMode.NONE
 
     val blockImmediate
-        get() = tickOn == 0 || blockMode == BlockMode.HYPIXEL117
+        get() = currentTickOn == 0 || blockMode == BlockMode.HYPIXEL
 
     /**
      * Make it seem like the player is blocking.
@@ -112,7 +122,7 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
      */
     @Suppress("ReturnCount", "CognitiveComplexMethod")
     fun startBlocking() {
-        if (!enabled || (player.isBlockAction && blockMode != BlockMode.HYPIXEL117)) {
+        if (!enabled || (player.isBlockAction && blockMode != BlockMode.HYPIXEL)) {
             return
         }
 
@@ -139,12 +149,14 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
         }
 
         when (blockMode) {
-            BlockMode.HYPIXEL117 -> {
-                val currentSlot = player.inventory.selectedSlot
-                val nextSlot = (currentSlot + 1) % 8
+            BlockMode.HYPIXEL -> {
+                val target = targetTracker.target
 
-                network.sendPacket(UpdateSelectedSlotC2SPacket(nextSlot))
-                network.sendPacket(UpdateSelectedSlotC2SPacket(currentSlot))
+                if (target == null) {
+                    interaction.interactItem(player, Hand.MAIN_HAND)
+                } else {
+                    interaction.interactEntity(player, target, Hand.MAIN_HAND)
+                }
             }
             BlockMode.FAKE -> {
                 blockVisual = true
@@ -153,7 +165,7 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
             else -> { }
         }
 
-        if (blockMode == BlockMode.INTERACT || blockMode == BlockMode.HYPIXEL117) {
+        if (blockMode == BlockMode.INTERACT || blockMode == BlockMode.HYPIXEL) {
             interactWithFront()
         }
 
@@ -162,6 +174,7 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
 
         if (actionResult.isAccepted) {
             if (actionResult.shouldSwingHand()) {
+                currentTickOn = tickOnRange.random()
                 player.swingHand(blockHand)
             }
         }
@@ -175,6 +188,19 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
     @Suppress("unused")
     private val gameTickHandler = handler<GameTickEvent> {
         flushTicks++
+
+        if (blockingStateEnforced) {
+            blockingTicks++
+        }
+
+        if (blockMode == BlockMode.HYPIXEL && blockingTicks % 5 == 0 && blockingStateEnforced) {
+            interaction.interactItem(player, Hand.MAIN_HAND)
+        }
+    }
+
+    @Suppress("unused")
+    private val worldChangeHandler = handler<WorldChangeEvent> {
+        blockingStateEnforced = false
     }
 
     @Suppress("unused")
@@ -208,7 +234,7 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
         if (!pauses) {
             blockVisual = false
 
-            if (mc.options.useKey.isPressed) {
+            if (mc.options.useKey.isPressedOnAny) {
                 return false
             }
         }
@@ -217,6 +243,8 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
         if (!player.isBlockAction) {
             return false
         }
+
+        currentTickOff = tickOffRange.random()
 
         return when {
             unblockMode == UnblockMode.STOP_USING_ITEM -> {
@@ -251,6 +279,7 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
 
         if (packet is UpdateSelectedSlotC2SPacket) {
             blockVisual = false
+            blockingStateEnforced = false
         }
     }
 
@@ -313,7 +342,7 @@ object KillAuraAutoBlock : ToggleableConfigurable(ModuleKillAura, "AutoBlocking"
     enum class BlockMode(override val choiceName: String) : NamedChoice {
         BASIC("Basic"),
         INTERACT("Interact"),
-        HYPIXEL117("Hypixel117"),
+        HYPIXEL("Hypixel"),
         FAKE("Fake"),
     }
 

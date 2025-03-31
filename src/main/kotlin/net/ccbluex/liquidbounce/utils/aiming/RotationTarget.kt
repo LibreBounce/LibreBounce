@@ -19,16 +19,13 @@
 package net.ccbluex.liquidbounce.utils.aiming
 
 import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
-import net.ccbluex.liquidbounce.utils.aiming.features.FailFocus
 import net.ccbluex.liquidbounce.utils.aiming.features.MovementCorrection
-import net.ccbluex.liquidbounce.utils.aiming.features.ShortStop
-import net.ccbluex.liquidbounce.utils.aiming.features.SlowStart
-import net.ccbluex.liquidbounce.utils.aiming.features.anglesmooth.AngleSmoothMode
+import net.ccbluex.liquidbounce.utils.aiming.features.processors.RotationProcessor
+import net.ccbluex.liquidbounce.utils.aiming.features.processors.ShortStopRotationProcessor
 import net.ccbluex.liquidbounce.utils.client.RestrictedSingleUseAction
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.entity.rotation
 import net.minecraft.entity.Entity
-import net.minecraft.util.math.Vec3d
 
 /**
  * An aim plan is a plan to aim at a certain rotation.
@@ -40,19 +37,23 @@ import net.minecraft.util.math.Vec3d
 @Suppress("LongParameterList")
 class RotationTarget(
     val rotation: Rotation,
-    val vec3d: Vec3d? = null,
     val entity: Entity? = null,
     /**
-     * If we do not want to smooth the angle, we can set this to null.
+     * The rotation processors which are being used to calculate the next rotation.
+     * This list should start with [net.ccbluex.liquidbounce.utils.aiming.features.processors.anglesmooth.AngleSmooth]
+     * and then continue with other processors like [ShortStopRotationProcessor] and [FailFocus].
      */
-    val angleSmooth: AngleSmoothMode?,
-    val slowStart: SlowStart?,
-    val failFocus: FailFocus?,
-    val shortStop: ShortStop?,
+    val processors: List<RotationProcessor> = emptyList(),
+    /**
+     * The ticks until reset defines the amount of ticks until we are rotating back.
+     */
     val ticksUntilReset: Int,
     /**
      * The reset threshold defines the threshold at which we are going to reset the aim plan.
      * The threshold is being calculated by the distance between the current rotation and the rotation we want to aim.
+     *
+     * TODO: Replace this with a fixed check that checks if our current mouse movement
+     *   outperforms the threshold.
      */
     val resetThreshold: Float,
     /**
@@ -68,34 +69,31 @@ class RotationTarget(
 
     /**
      * Calculates the next rotation to aim at.
-     * [fromRotation] is the current rotation or rather last rotation we aimed at. It is being used to calculate the
+     * [currentRotation] is the current rotation or rather last rotation we aimed at. It is being used to calculate the
      * next rotation.
      *
      * We might even return null if we do not want to aim at anything yet.
      */
-    fun nextRotation(fromRotation: Rotation, isResetting: Boolean): Rotation {
-        if (shortStop?.isInStopState == true) {
-            return fromRotation
-        }
-
-        val angleSmooth = angleSmooth ?: return rotation
-        val factorModifier = if (failFocus?.isInFailState == true) {
-            failFocus.failFactor
-        } else {
-            slowStart?.rotationFactor ?: 1f
-        }
-
+    fun towards(currentRotation: Rotation, isResetting: Boolean): Rotation {
         if (isResetting) {
-            return angleSmooth.limitAngleChange(factorModifier, fromRotation, player.rotation)
+            return process(currentRotation, player.rotation)
         }
 
-        val rotation = if (failFocus?.isInFailState == true) {
-            failFocus.shiftRotation(rotation)
-        } else {
-            rotation
+        return process(currentRotation, rotation)
+    }
+
+    private fun process(currentRotation: Rotation, targetRotation: Rotation): Rotation {
+        var targetRotation = targetRotation
+
+        if (processors.isEmpty()) {
+            return targetRotation
         }
 
-        return angleSmooth.limitAngleChange(factorModifier, fromRotation, rotation, vec3d, entity)
+        for (processor in processors) {
+            // We process the rotation with the processor but only the [targetRotation] is being updated.
+            targetRotation = processor.process(this, currentRotation, targetRotation)
+        }
+        return targetRotation
     }
 
 }

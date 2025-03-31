@@ -31,7 +31,7 @@ import net.ccbluex.liquidbounce.features.module.modules.fun.ModuleDankBobbing;
 import net.ccbluex.liquidbounce.features.module.modules.render.*;
 import net.ccbluex.liquidbounce.features.module.modules.world.ModuleLiquidPlace;
 import net.ccbluex.liquidbounce.interfaces.LightmapTextureManagerAddition;
-import net.ccbluex.liquidbounce.render.engine.UiRenderer;
+import net.ccbluex.liquidbounce.render.engine.BlurEffectRenderer;
 import net.ccbluex.liquidbounce.render.shader.shaders.OutlineEffectShader;
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager;
 import net.ccbluex.liquidbounce.utils.aiming.data.Rotation;
@@ -59,7 +59,9 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArgs;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 @Mixin(GameRenderer.class)
 public abstract class MixinGameRenderer {
@@ -104,7 +106,7 @@ public abstract class MixinGameRenderer {
         Rotation rotation;
         if (RotationManager.INSTANCE.getCurrentRotation() != null) {
             rotation = RotationManager.INSTANCE.getCurrentRotation();
-        } if (ModuleFreeCam.INSTANCE.getRunning()) {
+        } else if (ModuleFreeCam.INSTANCE.getRunning()) {
             var serverRotation = RotationManager.INSTANCE.getServerRotation();
             rotation = ModuleFreeCam.INSTANCE.shouldDisableCameraInteract() ? serverRotation : cameraRotation;
         } else {
@@ -199,25 +201,25 @@ public abstract class MixinGameRenderer {
     }
 
     @Inject(method = "onResized", at = @At("HEAD"))
-    private void injectResizeUIBlurShader(int width, int height, CallbackInfo ci) {
-        UiRenderer.INSTANCE.setupDimensions(width, height);
+    private void hookBlurEffectResize(int width, int height, CallbackInfo ci) {
+        BlurEffectRenderer.INSTANCE.setupDimensions(width, height);
     }
 
     @Inject(method = "render", at = @At(value = "RETURN"))
-    private void hookRenderEventStop(RenderTickCounter tickCounter, boolean tick, CallbackInfo ci) {
-        UiRenderer.INSTANCE.endUIOverlayDrawing();
+    private void hookBlurEffectEnd(RenderTickCounter tickCounter, boolean tick, CallbackInfo ci) {
+        BlurEffectRenderer.INSTANCE.endOverlayDrawing();
     }
 
     @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;renderWithTooltip(Lnet/minecraft/client/gui/DrawContext;IIF)V", shift = At.Shift.BEFORE))
-    private void injectRenderBlur(CallbackInfo ci) {
+    private void hookBlurEffectEndAlternative(CallbackInfo ci) {
         if (!(client.currentScreen instanceof ChatScreen)) {
-            UiRenderer.INSTANCE.endUIOverlayDrawing();
+            BlurEffectRenderer.INSTANCE.endOverlayDrawing();
         }
     }
 
     @Inject(method = "showFloatingItem", at = @At("HEAD"), cancellable = true)
     private void hookShowFloatingItem(ItemStack floatingItem, CallbackInfo ci) {
-        if (ModuleAntiBlind.INSTANCE.getRunning() && ModuleAntiBlind.INSTANCE.getFloatingItems()) {
+        if (!ModuleAntiBlind.canRender(DoRender.FLOATING_ITEMS)) {
             ci.cancel();
         }
     }
@@ -246,8 +248,7 @@ public abstract class MixinGameRenderer {
 
     @ModifyExpressionValue(method = "renderWorld", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/MathHelper;lerp(FFF)F"))
     private float hookNausea(float original) {
-        var antiBlind = ModuleAntiBlind.INSTANCE;
-        if (antiBlind.getRunning() && antiBlind.getAntiNausea()) {
+        if (!ModuleAntiBlind.canRender(DoRender.NAUSEA)) {
             return 0f;
         }
 
@@ -283,6 +284,16 @@ public abstract class MixinGameRenderer {
         }
 
         return original;
+    }
+
+    @ModifyArgs(
+            method = "getBasicProjectionMatrix",
+            at = @At(value = "INVOKE", target = "Lorg/joml/Matrix4f;perspective(FFFF)Lorg/joml/Matrix4f;")
+    )
+    private void hookBasicProjectionMatrix(Args args) {
+        if (ModuleAspect.INSTANCE.getRunning()) {
+            args.set(1, (float) args.get(1) / ModuleAspect.getRatioMultiplier());
+        }
     }
 
 }

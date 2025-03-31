@@ -196,7 +196,7 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
 
     object SimulatePlacementAttempts : ToggleableConfigurable(this, "SimulatePlacementAttempts", false) {
 
-        internal val clicker = tree(Clicker(ModuleScaffold, false, maxCps = 100))
+        internal val clicker = tree(Clicker(ModuleScaffold, mc.options.useKey, false, maxCps = 100))
         val failedAttemptsOnly by boolean("FailedAttemptsOnly", true)
     }
 
@@ -471,9 +471,9 @@ object ModuleScaffold : ClientModule("Scaffold", Category.WORLD) {
             arrayOf(Hand.MAIN_HAND, Hand.OFF_HAND).firstOrNull { isValidBlock(player.getStackInHand(it)) }
 
         if (simulatePlacementAttempts(currentCrosshairTarget, suitableHand) && player.moving
-            && SimulatePlacementAttempts.clicker.isGoingToClick
+            && SimulatePlacementAttempts.clicker.isClickTick
         ) {
-            SimulatePlacementAttempts.clicker.clicks {
+            SimulatePlacementAttempts.clicker.click {
                 doPlacement(currentCrosshairTarget!!, suitableHand!!, swingMode = swingMode)
                 true
             }

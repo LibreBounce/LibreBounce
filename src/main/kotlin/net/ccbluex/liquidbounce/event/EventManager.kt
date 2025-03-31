@@ -31,6 +31,7 @@ import kotlin.reflect.KClass
 val ALL_EVENT_CLASSES: Array<KClass<out Event>> = arrayOf(
     GameTickEvent::class,
     GameRenderTaskQueueEvent::class,
+    TickPacketProcessEvent::class,
     BlockChangeEvent::class,
     ChunkLoadEvent::class,
     ChunkDeltaUpdateEvent::class,
@@ -77,6 +78,7 @@ val ALL_EVENT_CLASSES: Array<KClass<out Event>> = arrayOf(
     PlayerAfterJumpEvent::class,
     PlayerUseMultiplier::class,
     PlayerInteractedItem::class,
+    ClientPlayerInventoryEvent::class,
     PlayerVelocityStrafe::class,
     PlayerStrideEvent::class,
     PlayerSafeWalkEvent::class,
@@ -105,8 +107,6 @@ val ALL_EVENT_CLASSES: Array<KClass<out Event>> = arrayOf(
     FpsChangeEvent::class,
     ClientPlayerDataEvent::class,
     RotationUpdateEvent::class,
-    SplashOverlayEvent::class,
-    SplashProgressEvent::class,
     RefreshArrayListEvent::class,
     BrowserReadyEvent::class,
     ServerConnectEvent::class,
@@ -137,7 +137,8 @@ val ALL_EVENT_CLASSES: Array<KClass<out Event>> = arrayOf(
     ClickGuiValueChangeEvent::class,
     BlockAttackEvent::class,
     QueuePacketEvent::class,
-    MinecraftAutoJumpEvent::class
+    MinecraftAutoJumpEvent::class,
+    WorldEntityRemoveEvent::class,
 )
 
 /**

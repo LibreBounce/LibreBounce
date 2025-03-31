@@ -117,6 +117,10 @@ object CriticalsJump : Choice("Jump") {
             return false
         }
 
+        if (player.isGliding) {
+            return false
+        }
+
         if (!allowsCriticalHit() || player.velocity.y < -0.08) {
             return false
         }

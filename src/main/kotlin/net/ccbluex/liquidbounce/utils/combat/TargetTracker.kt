@@ -34,7 +34,7 @@ import net.minecraft.entity.player.PlayerEntity
 /**
  * A target tracker to choose the best enemy to attack
  */
-class TargetTracker(
+open class TargetTracker(
     defaultPriority: TargetPriority = TargetPriority.HEALTH,
     rangeValue: RangedValueProvider = NoneRangedValueProvider
 ) : TargetSelector(defaultPriority, rangeValue) {

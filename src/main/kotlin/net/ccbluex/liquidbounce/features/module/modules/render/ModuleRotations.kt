@@ -49,36 +49,23 @@ object ModuleRotations : ClientModule("Rotations", Category.RENDER) {
     /**
      * Body part to modify the rotation of.
      */
-    val bodyParts by enumChoice("BodyParts", BodyPart.BOTH)
+    private val bodyPart by multiEnumChoice("BodyPart", BodyPart.entries)
 
     @Suppress("unused")
     enum class BodyPart(
         override val choiceName: String,
-        val head: Boolean,
-        val body: Boolean
     ) : NamedChoice {
-        BOTH("Both", true, true),
-        HEAD("Head", true, false),
-        BODY("Body", false, true);
-
-        fun allows(part: BodyPart) = when (part) {
-            BOTH -> head && body
-            HEAD -> head
-            BODY -> body
-        }
-
+        HEAD("Head"),
+        BODY("Body");
     }
+
+    fun isPartAllowed(part: BodyPart) = part in bodyPart
 
     /**
      * Smoothes the rotation visually only.
      */
     private val smooth by float("Smooth", 0.0f, 0.0f..0.3f)
 
-    /**
-     * Changes the perspective of the camera to match the Rotation Manager perspective
-     * without changing the player perspective.
-     */
-    val camera by boolean("Camera", false)
     private val vectorLine by color("VectorLine", Color4b.WHITE.with(a = 0)) // alpha 0 means OFF
     private val vectorDot by color("VectorDot", Color4b(0x00, 0x80, 0xFF, 0x00))
 
