@@ -49,17 +49,20 @@ object ModuleRotations : ClientModule("Rotations", Category.RENDER) {
     /**
      * Body part to modify the rotation of.
      */
-    private val bodyPart by multiEnumChoice("BodyPart", BodyPart.entries)
+    private val bodyParts by multiEnumChoice("BodyPart", BodyPart.entries).apply {
+        tagBy(this)
+    }
 
     @Suppress("unused")
     enum class BodyPart(
         override val choiceName: String,
     ) : NamedChoice {
         HEAD("Head"),
-        BODY("Body");
+        BODY("Body"),
+        VISUAL_360("Visual360");
     }
 
-    fun isPartAllowed(part: BodyPart) = part in bodyPart
+    fun isPartAllowed(part: BodyPart) = part in bodyParts
 
     /**
      * Smoothes the rotation visually only.
@@ -89,10 +92,14 @@ object ModuleRotations : ClientModule("Rotations", Category.RENDER) {
             return@handler
         }
 
-        val next = if (smooth > 0f) {
-            interpolate(prev, current, 1f - smooth)
+        val next = if (BodyPart.VISUAL_360 in bodyParts) {
+            current.deviateYaw(player.getAttackCooldownProgress(0.0f))
         } else {
-            current
+            if (smooth > 0f) {
+                interpolate(prev, current, 1f - smooth)
+            } else {
+                current
+            }
         }
 
         prevModelRotation = modelRotation
@@ -137,6 +144,22 @@ object ModuleRotations : ClientModule("Rotations", Category.RENDER) {
                 }
             }
         }
+    }
+
+    /**
+     * 0 <= factor <= 1
+     */
+    @Suppress("unused", "MagicNumber")
+    private fun Rotation.deviateYaw(factor: Float): Rotation {
+        val deviation = 360f * factor
+        var newYaw = yaw + deviation
+
+        newYaw = (newYaw % 360 + 360f) % 360f
+        if (newYaw > 180f) {
+            newYaw -= 360f
+        }
+
+        return Rotation(newYaw, pitch)
     }
 
     private fun interpolate(from: Rotation, to: Rotation, factor: Float): Rotation {
