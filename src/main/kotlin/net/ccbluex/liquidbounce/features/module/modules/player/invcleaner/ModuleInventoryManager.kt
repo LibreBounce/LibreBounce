@@ -63,7 +63,10 @@ object ModuleInventoryManager : ClientModule("InventoryManager", Category.PLAYER
                     && slot !in futureUsed
                 } ?: return@merged false
 
-                futureUsed.add(slot)
+                if (presetItem !is AnyPresetItem) {
+                    futureUsed.add(slot)
+                }
+
                 true
             }
         } ?: return@handler
@@ -86,7 +89,10 @@ object ModuleInventoryManager : ClientModule("InventoryManager", Category.PLAYER
 
         for ((slot, item) in sorted) {
             if (item is AnyPresetItem) {
-                usedSlots.add(slot)
+                if (item.satisfies(slot.itemStack)) {
+                    usedSlots.add(slot)
+                }
+
                 continue
             }
 
