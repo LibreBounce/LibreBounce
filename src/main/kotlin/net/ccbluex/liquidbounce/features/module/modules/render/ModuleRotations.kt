@@ -49,7 +49,7 @@ object ModuleRotations : ClientModule("Rotations", Category.RENDER) {
     /**
      * Body part to modify the rotation of.
      */
-    private val bodyParts by multiEnumChoice("BodyPart", BodyPart.entries).apply {
+    private val bodyParts by multiEnumChoice("BodyPart", BodyPart.HEAD, BodyPart.BODY).apply {
         tagBy(this)
     }
 
