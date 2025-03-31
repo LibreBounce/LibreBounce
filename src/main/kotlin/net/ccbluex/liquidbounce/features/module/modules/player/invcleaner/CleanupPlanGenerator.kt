@@ -156,10 +156,6 @@ class CleanupPlanPlacementTemplate(
      * the given constraint. More info on how constraints work at [ItemNumberContraintGroup].
      */
     val itemAmountConstraintProvider: (ItemFacet) -> ArrayList<ItemConstraintInfo>,
-    /**
-     * If false, slots which also contains items of that category, those items are not replaced with other items.
-     */
-    val isGreedy: Boolean,
     val forbiddenSlots: Set<ItemSlot>,
     val forbiddenSlotsToFill: Set<ItemSlot>
 )

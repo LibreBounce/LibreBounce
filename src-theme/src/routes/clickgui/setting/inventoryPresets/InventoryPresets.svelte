@@ -59,7 +59,7 @@
   }
 
   .head {
-    margin-bottom: 5px;
+    margin-bottom: 10px;
   }
 
   .presets {

@@ -18,7 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.world.scaffold
 
-import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.ModuleInventoryCleaner
+import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.ModuleInventoryManager
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.inventory.DISALLOWED_BLOCKS_TO_PLACE
 import net.ccbluex.liquidbounce.utils.inventory.UNFAVORABLE_BLOCKS_TO_PLACE
@@ -52,7 +52,7 @@ object ScaffoldBlockItemSelection {
     /**
      * Special handling for unfavourable blocks (like crafting tables, slabs, etc.):
      * - [ModuleScaffold]: Unfavourable blocks are only used when there is no other option left
-     * - [ModuleInventoryCleaner]: Unfavourable blocks are not used as blocks by inv-cleaner.
+     * - [ModuleInventoryManager]: Unfavourable blocks are not used as blocks by inv-cleaner.
      */
     fun isBlockUnfavourable(stack: ItemStack): Boolean {
         val block = stack.getBlock() ?: return true

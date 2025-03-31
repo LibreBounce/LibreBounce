@@ -69,7 +69,7 @@ import net.ccbluex.liquidbounce.features.module.modules.player.autobuff.ModuleAu
 import net.ccbluex.liquidbounce.features.module.modules.player.autoqueue.ModuleAutoQueue
 import net.ccbluex.liquidbounce.features.module.modules.player.autoshop.ModuleAutoShop
 import net.ccbluex.liquidbounce.features.module.modules.player.cheststealer.ModuleChestStealer
-import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.ModuleInventoryCleaner
+import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.ModuleInventoryManager
 import net.ccbluex.liquidbounce.features.module.modules.player.nofall.ModuleNoFall
 import net.ccbluex.liquidbounce.features.module.modules.player.offhand.ModuleOffhand
 import net.ccbluex.liquidbounce.features.module.modules.render.*
@@ -324,7 +324,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleEagle,
             ModuleFastExp,
             ModuleFastUse,
-            ModuleInventoryCleaner,
+            ModuleInventoryManager,
             ModuleNoFall,
             ModuleNoRotateSet,
             ModuleReach,
