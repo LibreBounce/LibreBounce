@@ -60,12 +60,11 @@ class InventoryPresetsValue : Value<List<InventoryPreset>>("InventoryPresets",
         }
 
         val mergedItems = Array(10) { index ->
-            // We search for the first item that satisfies the predicate, starting with the highest priority presets
             var selectedItem: PresetItem = NonePresetItem
 
             @Suppress("LoopWithTooManyJumpStatements")
             for (preset in this) {
-                val item = preset.items[index]
+                val item = preset.items[index].second
 
                 when {
                     item == NonePresetItem && selectedItem == NonePresetItem -> continue

@@ -8,22 +8,24 @@ import net.minecraft.item.Item
 
 @Suppress("MagicNumber")
 class InventoryPreset(
-    val items: Array<PresetItem>,
+    items: Array<PresetItem>,
     val throws: Set<Item> = emptySet()
 ) {
+    val items: List<Pair<HotbarItemSlot, PresetItem>>
+
     init {
         /**
          * 0 - offhand
          * 1..9 - hotbar
          */
         require(items.size == 10)
-    }
 
-    fun itemAsHotbarItemSlot(index: Int): HotbarItemSlot {
-        require(index in 0..9)
-        return when (index) {
-            0 -> OffHandSlot
-            else -> HotbarItemSlot(index - 1)
+        this.items = items.mapIndexed { index, item ->
+            when (index) {
+                0 -> OffHandSlot to item
+                else -> HotbarItemSlot(index - 1) to item
+            }
         }
     }
 }
+

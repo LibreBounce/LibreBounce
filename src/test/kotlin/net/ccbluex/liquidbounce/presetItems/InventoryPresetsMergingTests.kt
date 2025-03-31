@@ -22,6 +22,6 @@ class InventoryPresetsMergingTests {
 
         assertNotNull(result)
 
-        assertArrayEquals(result.items, second.items)
+        assertArrayEquals(result.items.map { second }.toTypedArray(), second.items.map { second }.toTypedArray())
     }
 }

@@ -54,7 +54,7 @@ object ModuleInventoryManager : ClientModule("InventoryManager", Category.PLAYER
         // because in the future it can be guaranteed that this slot will be empty.
         val futureUsed = mutableSetOf<ItemSlot>()
 
-        val preset = inventoryPresets.merged() { presetItem ->
+        val preset = inventoryPresets.merged { presetItem ->
             return@merged if (presetItem == NonePresetItem) {
                 false
             } else {
@@ -82,40 +82,36 @@ object ModuleInventoryManager : ClientModule("InventoryManager", Category.PLAYER
     @Suppress("LoopWithTooManyJumpStatements", "CyclomaticComplexMethod")
     private fun ScheduleInventoryActionEvent.swapToHotbar(preset: InventoryPreset) {
         val usedSlots = mutableSetOf<ItemSlot>()
+        val sorted = preset.items.sortedBy { (_, item) -> item is NonePresetItem }
 
-        for (i in preset.items.indices) {
-            val presetItem = preset.items[i]
-            val targetSlot = preset.itemAsHotbarItemSlot(i)
-
-            if (presetItem is AnyPresetItem) {
-                usedSlots.add(targetSlot)
+        for ((slot, item) in sorted) {
+            if (item is AnyPresetItem) {
+                usedSlots.add(slot)
                 continue
             }
 
-            val candidates = presetItem.findCandidates()
+            val candidates = item.findCandidates()
                 .filterNot { candidate -> candidate in usedSlots }
-                .filterNot { candidate -> presetItem is NonePresetItem && candidate is HotbarItemSlot }
+                .filterNot { candidate -> item is NonePresetItem && candidate is HotbarItemSlot }
                 .takeIf { it.isNotEmpty() } ?: continue
 
-            val candidate = candidates.findCandidate(presetItem) ?: continue
+            val candidate = candidates.findCandidate(item) ?: continue
 
-            if (presetItem.satisfies(targetSlot.itemStack)) {
-                if (presetItem.comparatorChain.compare(
-                    targetSlot.itemStack, candidate.itemStack
-                ) >= 0) {
-                    usedSlots.add(targetSlot)
+            if (item.satisfies(slot.itemStack)) {
+                if (item.comparatorChain.compare(slot.itemStack, candidate.itemStack) >= 0) {
+                    usedSlots.add(slot)
                     continue
                 }
             }
 
-            if (candidate == targetSlot) {
+            if (candidate == slot) {
                 continue
             }
 
             usedSlots.add(candidate)
             schedule(
                 inventoryConstraints,
-                ClickInventoryAction.performSwap(null, candidate, targetSlot)
+                ClickInventoryAction.performSwap(null, candidate, slot)
             )
         }
     }

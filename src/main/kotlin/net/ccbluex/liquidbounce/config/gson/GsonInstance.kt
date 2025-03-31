@@ -32,6 +32,7 @@ import net.ccbluex.liquidbounce.config.gson.stategies.ProtocolExclusionStrategy
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.config.types.NamedChoice
+import net.ccbluex.liquidbounce.features.inventoryPresets.InventoryPreset
 import net.ccbluex.liquidbounce.features.inventoryPresets.items.PresetItem
 import net.ccbluex.liquidbounce.integration.theme.component.Component
 import net.ccbluex.liquidbounce.render.engine.Color4b
@@ -140,6 +141,7 @@ internal fun GsonBuilder.registerCommonTypeAdapters() =
     registerTypeHierarchyAdapter(ClosedRange::class.javaObjectType, RangeAdapter)
         .registerTypeHierarchyAdapter(IntRange::class.javaObjectType, IntRangeAdapter)
         .registerTypeHierarchyAdapter(Item::class.javaObjectType, ItemAdapter)
+        .registerTypeHierarchyAdapter(InventoryPreset::class.javaObjectType, InventoryPresetAdapter)
         .registerTypeHierarchyAdapter(PresetItem::class.javaObjectType, PresetItemAdapter)
         .registerTypeHierarchyAdapter(Color4b::class.javaObjectType, ColorAdapter)
         .registerTypeHierarchyAdapter(Vec3d::class.javaObjectType, Vec3dAdapter)
