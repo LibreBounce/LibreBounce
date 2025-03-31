@@ -19,8 +19,6 @@ import net.minecraft.entity.EntityDimensions
 import net.minecraft.item.Items
 import net.minecraft.util.math.Vec3d
 
-
-@Suppress("MagicNumber")
 object ModuleEasyPearl : ClientModule("EasyPearl", Category.MISC) {
     // Settings
     private val aimOffThreshold by float("AimOffThreshold", 2f, 0.5f..10f)
