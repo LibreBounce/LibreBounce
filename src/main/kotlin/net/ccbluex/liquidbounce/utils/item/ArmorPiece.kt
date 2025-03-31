@@ -20,11 +20,13 @@ package net.ccbluex.liquidbounce.utils.item
 
 import net.ccbluex.liquidbounce.utils.inventory.ItemSlot
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.ItemSlotType
+import net.minecraft.component.DataComponentTypes
 import net.minecraft.entity.EquipmentSlot
 
 class ArmorPiece(val itemSlot: ItemSlot) {
     val slotType: EquipmentSlot
-        get() = itemSlot.itemStack.item.type().equipmentSlot
+        get() = itemSlot.itemStack.get(DataComponentTypes.EQUIPPABLE)?.slot
+            ?: error("Armor piece doesn't have equippable component???")
     val entitySlotId: Int
         get() = this.slotType.entitySlotId
     val inventorySlot: Int
@@ -33,13 +35,4 @@ class ArmorPiece(val itemSlot: ItemSlot) {
         get() = itemSlot.slotType == ItemSlotType.ARMOR
     val isReachableByHand: Boolean
         get() = itemSlot.slotType == ItemSlotType.HOTBAR
-
-    val toughness: Float
-        get() = itemSlot.itemStack.item.material().toughness
-    val defensePoints: Float
-        get() {
-            val item = itemSlot.itemStack.item
-
-            return item.material().defense.getOrDefault(item.type, 0).toFloat()
-        }
 }
