@@ -52,7 +52,11 @@ class ScriptAsyncUtil(
         }
     }
 
-    private val defaultPromise: Value = jsPromiseConstructor.invokeMember("resolve", 0);
+    /**
+     * `Promise.resolve(0)`
+     */
+    private val PROMISE_OF_ZERO: Value =
+        jsPromiseConstructor.invokeMember("resolve", 0)
 
     /**
      * Example: `await ticks(10)`
@@ -62,7 +66,7 @@ class ScriptAsyncUtil(
     @ScriptApiRequired
     fun ticks(n: Int): Value {
         if (n == 0) {
-            return defaultPromise
+            return PROMISE_OF_ZERO
         }
 
         var remains = n
@@ -110,14 +114,13 @@ class ScriptAsyncUtil(
      *
      * @return `Promise<number>`
      */
-    @JvmOverloads
     @ScriptApiRequired
     fun conditional(
         ticks: Int,
-        breakLoop: BooleanSupplier = BooleanSupplier { false }
+        breakLoop: BooleanSupplier
     ): Value {
         if (ticks == 0) {
-            return defaultPromise
+            return PROMISE_OF_ZERO
         }
 
         var remains = ticks

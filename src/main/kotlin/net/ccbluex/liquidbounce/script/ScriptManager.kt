@@ -52,20 +52,16 @@ object ScriptManager {
         }
     }
 
-    init {
+    fun initializeEngine() {
         ScriptAsyncUtil.TickScheduler
 
-        try {
-            // Initialize the script engine and log its version and supported languages.
-            val engine = Engine.create()
-            logger.info(
-                "[ScriptAPI] Engine Version: ${engine.version}, " +
-                    "Supported languages: [ ${engine.languages.keys.joinToString(", ")} ]"
-            )
-            isInitialized = true
-        } catch (e: Exception) {
-            logger.error("Failed to initialize the script engine.", e)
-        }
+        // Initialize the script engine and log its version and supported languages.
+        val engine = Engine.create()
+        logger.info(
+            "[ScriptAPI] Engine Version: ${engine.version}, " +
+                "Supported languages: [ ${engine.languages.keys.joinToString(", ")} ]"
+        )
+        isInitialized = true
     }
 
     /**

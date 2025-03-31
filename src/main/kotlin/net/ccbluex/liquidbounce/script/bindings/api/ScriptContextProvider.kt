@@ -83,5 +83,5 @@ object ScriptContextProvider {
                 putMember("conditional", BiFunction(scriptAsyncUtil::conditional))
             }
         }
-
+    }
 }
