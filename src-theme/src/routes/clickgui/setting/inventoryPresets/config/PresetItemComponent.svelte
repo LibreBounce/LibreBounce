@@ -23,7 +23,7 @@
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
-<div class="wrapper" use:clickOutside={() => expanded = false}>
+<div class="wrapper">
     <div class="item item-background"
          class:active={expanded}
          class:hided={!expanded}
@@ -41,7 +41,12 @@
     </div>
 
     {#if expanded}
-        <div class="selector-container-wrapper selector-container" transition:scale={{duration: 200, start: 0.9}} on:click|preventDefault>
+        <div
+                class="selector-container-wrapper selector-container"
+                transition:scale={{duration: 200, start: 0.9}}
+                on:click|preventDefault
+                use:clickOutside={() => expanded = false}
+        >
             <PresetItemSelector setItem={setItem} />
 
             <div class="slot">

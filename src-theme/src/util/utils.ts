@@ -14,11 +14,19 @@ export function clickOutside(node: HTMLElement, callback: (event: MouseEvent) =>
         }
     };
 
+    const handleDrag = (event: DragEvent) => {
+        if (!node.contains(event.target as Node)) {
+            callback(event);
+        }
+    };
+
     document.addEventListener('click', handleClick, true);
+    document.addEventListener('dragstart', handleDrag, true);
 
     return {
         destroy() {
             document.removeEventListener('click', handleClick, true);
+            document.removeEventListener('dragstart', handleDrag, true);
         }
     };
 }
