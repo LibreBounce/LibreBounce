@@ -200,7 +200,7 @@ object ModuleChestStealer : ClientModule("ChestStealer", Category.PLAYER) {
         if (ModuleInventoryManager.running) {
             val ignored = ModuleInventoryManager.itemsToThrowOut()
             usefulItems.removeIf {
-                it.itemStack.item in ignored
+                ignored.any { item -> item.satisfies(it.itemStack) }
             }
         }
 

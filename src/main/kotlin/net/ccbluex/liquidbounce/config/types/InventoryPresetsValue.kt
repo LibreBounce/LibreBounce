@@ -80,9 +80,11 @@ class InventoryPresetsValue : Value<List<InventoryPreset>>("InventoryPresets",
             selectedItem
         }
 
+        // TODO: Improved merge logic: take into account item priority
         val mergedThrows = this
-            .flatMap { it.throws }
-            .toSet()
+            .flatMap { it.maxStacks.toList() }
+            .distinct()
+            .toTypedArray()
 
         return InventoryPreset(mergedItems, mergedThrows)
     }

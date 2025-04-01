@@ -134,7 +134,18 @@ object ModuleInventoryManager : ClientModule("InventoryManager", Category.PLAYER
         preset: InventoryPreset
     ) = affectedSlots
         .filter { !it.itemStack.isEmpty }
-        .filter { it.itemStack.item in preset.throws }
+        .filter {
+            // TODO: implement correctly
+            val group = preset.maxStacks.find { group ->
+                group.items.any { throwItem ->
+                    throwItem.satisfies(it.itemStack)
+                }
+            } ?: return@filter false
+            return@filter it.itemStack.count > group.stacks
+        }
 
-    fun itemsToThrowOut() = inventoryPresets.get().flatMap { it.throws }.toSet()
+    // TODO: implement correctly
+    fun itemsToThrowOut() = inventoryPresets.get().flatMap { group ->
+        group.maxStacks.flatMap { it.items }
+    }.toSet()
 }

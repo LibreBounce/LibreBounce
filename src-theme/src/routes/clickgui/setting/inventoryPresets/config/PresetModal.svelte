@@ -5,32 +5,38 @@
     import {fly, scale} from "svelte/transition"
     import {backOut} from "svelte/easing";
     import PresetItems from "./PresetItems.svelte";
-    import ThrowItemsContainer from "./ThrowsItemContainer.svelte";
     import {scaleFactor} from "../../../clickgui_store";
     import PresetDeleteButton from "./PresetDeleteButton.svelte";
+    import MaxStacksContainer from "./maxStacks/MaxStacksContainer.svelte";
 
     export let preset: InventoryPreset
     export let idx: number
 
     const dispatch = createEventDispatcher();
-    let throwsContainer: ThrowItemsContainer;
-    let throwsRendered: number
-
-    function handleClearAllThrows() {
-        throwsContainer.clear();
-    }
 
     function handleChange() {
         dispatch("change")
     }
 
     function handleClose() {
-        throwsContainer.flush();
         dispatch("close")
     }
 
     function handleDelete() {
         dispatch("delete")
+    }
+
+    function createNewMaxStacksGroup() {
+        if (preset.maxStacks.length >= 50) {
+            return
+        }
+
+        preset.maxStacks = [...preset.maxStacks, {
+            stacks: 0,
+            items: []
+        }]
+
+        handleChange()
     }
 </script>
 
@@ -58,17 +64,17 @@
 
         <div class="throws-items-container">
             <div class="header">
-                {throwsRendered}
-                <span class="muted">THROWS</span>
-                {#if throwsRendered > 0}
-                    <span class="clear-throws" on:click={handleClearAllThrows}>Clear all</span>
-                {/if}
+                <span class="muted">LIMITS</span>
+                <span class="createMaxStacksRule"
+                      class:disabled={preset.maxStacks.length >= 50}
+                      on:click={createNewMaxStacksGroup}
+                >
+                    CREATE NEW LIMIT
+                </span>
             </div>
 
-            <ThrowItemsContainer
-                    bind:this={throwsContainer}
-                    bind:throws={preset.throws}
-                    bind:renderedLength={throwsRendered}
+            <MaxStacksContainer
+                    bind:groups={preset.maxStacks}
                     on:change={handleChange}
             />
         </div>
@@ -76,7 +82,23 @@
 </div>
 
 <style lang="scss">
+  @use "sass:color";
   @use "../../../../../colors.scss" as *;
+
+  .createMaxStacksRule {
+    color: white;
+    background-color: $accent-color;
+    padding: 2px;
+    font-size: 8px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-left: 10px;
+
+    &:hover {
+      background-color: color.adjust(color.adjust($accent-color, $saturation: -30%), $lightness: -10%);
+    }
+  }
 
   .container {
     transform-origin: top;
@@ -100,6 +122,11 @@
     background-color: rgba($clickgui-base-color, 0.3);
     backdrop-filter: blur(5px);
     color: $clickgui-text-color;
+  }
+
+  .disabled {
+    cursor: not-allowed;
+    opacity: 0.3;
   }
 
   .right {
@@ -126,6 +153,8 @@
     font-weight: 600;
     text-transform: uppercase;
     color: $clickgui-text-color;
+    display: flex;
+    align-items: center;
   }
 
   .muted {

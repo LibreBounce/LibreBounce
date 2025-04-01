@@ -8,6 +8,7 @@
     import {REST_BASE} from "../../../../../integration/host";
 
     export let setItem: (item: PresetItem) => void
+    export let filter: ((item: string) => boolean) | null = null
 
     const commonItems: PresetItem[] = [
         {
@@ -106,9 +107,20 @@
             );
         }
 
-        filteredItems = filteredItems.filter(b => b.identifier !== "minecraft:air")
+        filteredItems = filteredItems.filter(item =>
+            item.identifier !== "minecraft:air"
+            && filter ? filter(item.identifier) : true
+        )
 
         renderedItems = filteredItems;
+    }
+
+    function setItemProxy(item: PresetItem) {
+        setItem(item)
+
+        if (filter && item.type == "CHOOSE") {
+            renderedItems = renderedItems.filter(it => it.identifier != item.item)
+        }
     }
 
     onMount(async () => {
@@ -148,7 +160,7 @@
             <span class="items-group-title">Common Items</span>
             <div class="common-wrapper">
                 {#each commonItems as commonItem}
-                    <div class="item-background common-item-wrapper" on:click={() => setItem(commonItem)}>
+                    <div class="item-background common-item-wrapper" on:click={() => setItemProxy(commonItem)}>
                         <div class="common-item">
                             <ItemImage bind:item={commonItem} />
                         </div>
@@ -161,7 +173,7 @@
             <span class="items-group-title">Generic Items</span>
             <div class="generic-wrapper">
                 {#each genericItems as genericItem}
-                    <div class="generic-item" on:click={() => setItem(genericItem.item)}>
+                    <div class="generic-item" on:click={() => setItemProxy(genericItem.item)}>
                         <div class="img-wrapper">
                             <div class="img">
                                 <ItemImage bind:item={genericItem.item} />
@@ -176,7 +188,7 @@
         {#if renderedItems.length > 0}
             <div class="results">
                 <VirtualList items={renderedItems} let:item>
-                    <div class="result-item" on:click={() => setItem({type: "CHOOSE", item: item.identifier})}>
+                    <div class="result-item" on:click={() => setItemProxy({type: "CHOOSE", item: item.identifier})}>
                         <div class="icon-wrapper">
                             <img class="icon" src="{REST_BASE}/api/v1/client/resource/itemTexture?id={item.identifier}" alt={item.identifier}/>
                         </div>

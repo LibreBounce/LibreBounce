@@ -10,7 +10,7 @@
     function addNewPreset() {
         value = [...value, {
             items: Array.from({ length: 10 }, (): NonePresetItem => ({ type: "NONE" })),
-            throws: []
+            maxStacks: []
         }]
 
         dispatch("change")
@@ -36,6 +36,7 @@
     justify-content: center;
     gap: 5px;
     cursor: pointer;
+    transition: background-color 0.3s ease;
 
     &:hover {
       background-color: color.adjust(color.adjust($accent-color, $saturation: -30%), $lightness: -10%);
