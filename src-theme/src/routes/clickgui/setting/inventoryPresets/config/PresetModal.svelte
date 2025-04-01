@@ -69,7 +69,7 @@
                       class:disabled={preset.maxStacks.length >= 50}
                       on:click={createNewMaxStacksGroup}
                 >
-                    CREATE NEW LIMIT
+                    CREATE A NEW LIMIT
                 </span>
             </div>
 
