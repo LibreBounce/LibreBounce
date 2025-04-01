@@ -144,7 +144,7 @@
         <div class="slider-wrapper">
             <div class="slider-container">
                 <div class="slider-top">
-                    <span class="slider-left">Limit</span>
+                    <span class="slider-left">Max</span>
                     <div class="slider-right">
                         <ValueInput valueType="int" value={group.stacks}
                                     on:change={(e) => apiSlider.set(e.detail.value)}/>
