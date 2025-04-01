@@ -9,8 +9,7 @@
 
     const stages: string[] = [
         "Delete",
-        "Are you sure?",
-        "ARE YOU SURE?"
+        "Are you sure?"
     ]
 
     $: {
