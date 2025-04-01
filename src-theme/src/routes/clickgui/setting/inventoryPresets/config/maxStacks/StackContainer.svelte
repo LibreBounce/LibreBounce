@@ -148,7 +148,13 @@
                     <div class="slider-right">
                         <ValueInput valueType="int" value={group.stacks}
                                     on:change={(e) => apiSlider.set(e.detail.value)}/>
-                        <span>items</span>
+                        <span>
+                            {#if group.stacks === 1}
+                                item
+                            {:else}
+                                items
+                            {/if}
+                        </span>
                     </div>
                 </div>
                 <div bind:this={slider} class="slider"></div>
