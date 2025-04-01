@@ -19,20 +19,23 @@
 
 package net.ccbluex.liquidbounce.common;
 
-import com.mojang.blaze3d.opengl.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.pipeline.BlendFunction;
+import com.mojang.blaze3d.pipeline.RenderPipeline;
+import com.mojang.blaze3d.platform.DestFactor;
+import com.mojang.blaze3d.platform.SourceFactor;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import net.ccbluex.liquidbounce.render.engine.BlurEffectRenderer;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.RenderPhase;
-import com.mojang.blaze3d.vertex.VertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormats;
+import net.minecraft.client.render.VertexFormats;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.TriState;
 import net.minecraft.util.Util;
 
 import java.util.function.Function;
 
-import static net.minecraft.client.render.RenderPhase.*;
+import static net.minecraft.client.render.RenderPhase.TRANSLUCENT_TARGET;
+import static net.minecraft.client.render.RenderPhase.Texture;
 
 /**
  * Extensions to RenderLayer for custom render layers.
@@ -42,13 +45,10 @@ public class RenderLayerExtensions {
     /**
      * Blend mode for JCEF compatible blending.
      */
-    private static final RenderPhase.Transparency JCEF_COMPATIBLE_BLEND = new RenderPhase.Transparency("jcef_compatible_blend", () -> {
-        RenderSystem.enableBlend();
-        RenderSystem.blendFunc(GlStateManager.SrcFactor.ONE, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA);
-    }, () -> {
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.disableBlend();
-    });
+	private static final BlendFunction JCEF_COMPATIBLE_BLEND = new BlendFunction(
+			SourceFactor.ONE,
+			DestFactor.ONE_MINUS_SRC_ALPHA
+	);
 
     /**
      * Render Layer for smoother textures using bilinear filtering.
@@ -57,14 +57,13 @@ public class RenderLayerExtensions {
             textureId ->
                     RenderLayer.of(
                             "smooth_textured",
-                            VertexFormats.POSITION_TEXTURE_COLOR,
-                            VertexFormat.DrawMode.QUADS,
-                            786432,
+							786432,
+							RenderPipeline.builder()
+									.withVertexFormat(VertexFormats.POSITION_TEXTURE_COLOR,
+											VertexFormat.DrawMode.QUADS).build(),
                             RenderLayer.MultiPhaseParameters.builder()
                                     .texture(new RenderPhase.Texture(textureId, TriState.DEFAULT, false))
-                                    .program(POSITION_TEXTURE_COLOR_PROGRAM)
-                                    .transparency(TRANSLUCENT_TRANSPARENCY)
-                                    .depthTest(ALWAYS_DEPTH_TEST)
+									.target(TRANSLUCENT_TARGET)
                                     .build(false)
                     ));
 
@@ -75,16 +74,14 @@ public class RenderLayerExtensions {
             textureId ->
                     RenderLayer.of(
                             "blurred_ui_layer",
-                            VertexFormats.POSITION_TEXTURE_COLOR,
-                            VertexFormat.DrawMode.QUADS,
-                            786432,
-                            RenderLayer.MultiPhaseParameters.builder()
-                                    .texture(new Texture(textureId, TriState.FALSE, false))
-                                    .program(RenderPhase.POSITION_TEXTURE_COLOR_PROGRAM)
-                                    .transparency(JCEF_COMPATIBLE_BLEND)
-                                    .depthTest(RenderPhase.LEQUAL_DEPTH_TEST)
-                                    .target(BlurEffectRenderer.getOutlineTarget())
-                                    .build(false)
+							786432,
+							RenderPipeline.builder()
+									.withVertexFormat(VertexFormats.POSITION_TEXTURE_COLOR, VertexFormat.DrawMode.QUADS)
+									.withBlend(JCEF_COMPATIBLE_BLEND).build(),
+							RenderLayer.MultiPhaseParameters.builder()
+									.texture(new Texture(textureId, TriState.FALSE, false))
+									.target(BlurEffectRenderer.getOutlineTarget())
+									.build(false)
                     ));
 
     public static RenderLayer getSmoothTextureLayer(Identifier textureId) {

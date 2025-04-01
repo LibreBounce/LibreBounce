@@ -20,13 +20,13 @@ package net.ccbluex.liquidbounce.injection.mixins.minecraft.render;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.textures.GpuTexture;
 import net.ccbluex.liquidbounce.features.module.modules.render.*;
 import net.ccbluex.liquidbounce.interfaces.LightmapTextureManagerAddition;
 import net.minecraft.client.gl.SimpleFramebuffer;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.registry.entry.RegistryEntry;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -40,11 +40,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(LightmapTextureManager.class)
 public abstract class MixinLightmapTextureManager implements LightmapTextureManagerAddition {
 
-    @Final
-    @Shadow
-    private SimpleFramebuffer lightmapFramebuffer;
+	@Shadow
+	public abstract GpuTexture getGlTexture();
 
-    @Unique
+	@Unique
     private boolean liquid_bounce$customLightMap = false;
 
     @ModifyExpressionValue(method = "update(F)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/option/SimpleOption;getValue()Ljava/lang/Object;", ordinal = 1))
@@ -95,8 +94,8 @@ public abstract class MixinLightmapTextureManager implements LightmapTextureMana
     @Unique
     @Override
     public void liquid_bounce$restoreLightMap() {
-        if (RenderSystem.getShaderTexture(2) != 0) {
-            RenderSystem.setShaderTexture(2, lightmapFramebuffer.getColorAttachment());
+        if (RenderSystem.getShaderTexture(2) != null) {
+            RenderSystem.setShaderTexture(2, getGlTexture());
         }
         liquid_bounce$customLightMap = false;
     }
@@ -107,13 +106,13 @@ public abstract class MixinLightmapTextureManager implements LightmapTextureMana
     }
 
     // Turns off blinking when the darkness effect is active.
-    @Redirect(method = "getDarknessFactor", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;getStatusEffect(Lnet/minecraft/registry/entry/RegistryEntry;)Lnet/minecraft/entity/effect/StatusEffectInstance;"))
-    private StatusEffectInstance injectAntiDarkness(ClientPlayerEntity instance, RegistryEntry<StatusEffect> registryEntry) {
+    @Redirect(method = "update", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;hasStatusEffect(Lnet/minecraft/registry/entry/RegistryEntry;)Z"))
+    private boolean injectAntiDarkness(ClientPlayerEntity instance, RegistryEntry<StatusEffect> registryEntry) {
         if (!ModuleAntiBlind.canRender(DoRender.DARKNESS)) {
-            return null;
+            return true;
         }
 
-        return instance.getStatusEffect(registryEntry);
+        return instance.hasStatusEffect(registryEntry);
     }
 
 }
