@@ -19,6 +19,7 @@
 
 package net.ccbluex.liquidbounce.common;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import com.mojang.blaze3d.pipeline.BlendFunction;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.platform.DestFactor;
@@ -60,7 +61,12 @@ public class RenderLayerExtensions {
 							786432,
 							RenderPipeline.builder()
 									.withVertexFormat(VertexFormats.POSITION_TEXTURE_COLOR,
-											VertexFormat.DrawMode.QUADS).build(),
+											VertexFormat.DrawMode.QUADS)
+									// TODO: these are required, if you remove them, it will throw an exception
+									.withLocation(RandomStringUtils.randomAlphabetic(12).toLowerCase() + "_lb")
+									.withVertexShader(RandomStringUtils.randomAlphabetic(12).toLowerCase() + "_lb")
+									.withFragmentShader(RandomStringUtils.randomAlphabetic(12).toLowerCase() + "_lb")
+									.build(),
                             RenderLayer.MultiPhaseParameters.builder()
                                     .texture(new RenderPhase.Texture(textureId, TriState.DEFAULT, false))
 									.target(TRANSLUCENT_TARGET)
@@ -77,7 +83,8 @@ public class RenderLayerExtensions {
 							786432,
 							RenderPipeline.builder()
 									.withVertexFormat(VertexFormats.POSITION_TEXTURE_COLOR, VertexFormat.DrawMode.QUADS)
-									.withBlend(JCEF_COMPATIBLE_BLEND).build(),
+									.withBlend(JCEF_COMPATIBLE_BLEND)
+									.withLocation("blurred_ui_layer").build(),
 							RenderLayer.MultiPhaseParameters.builder()
 									.texture(new Texture(textureId, TriState.FALSE, false))
 									.target(BlurEffectRenderer.getOutlineTarget())

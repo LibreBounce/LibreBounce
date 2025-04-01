@@ -38,13 +38,13 @@ public class MixinBlockEntityRenderDispatcher {
      * @author 1zuna
      */
     @ModifyArg(
-            method = "render(Lnet/minecraft/client/render/block/entity/BlockEntityRenderer;Lnet/minecraft/block/entity/BlockEntity;FLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;)V",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/block/entity/BlockEntityRenderer;render(Lnet/minecraft/block/entity/BlockEntity;FLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;II)V")
+            method = "render(Lnet/minecraft/block/entity/BlockEntity;FLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;)V",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/block/entity/BlockEntityRenderDispatcher;render(Lnet/minecraft/client/render/block/entity/BlockEntityRenderer;Lnet/minecraft/block/entity/BlockEntity;FLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;Lnet/minecraft/util/math/Vec3d;)V")
     )
-    private static <T extends BlockEntity> VertexConsumerProvider render(
-            VertexConsumerProvider vertexConsumerProvider,
-            @Local(argsOnly = true) T blockEntity
-    ) {
+    private <T extends BlockEntity> VertexConsumerProvider render(
+			VertexConsumerProvider vertexConsumerProvider,
+			@Local(argsOnly = true) T blockEntity
+	) {
         if (ModuleStorageESP.Glow.INSTANCE.getRunning()) {
             var type = ModuleStorageESP.categorize(blockEntity);
 
