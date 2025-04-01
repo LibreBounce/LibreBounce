@@ -77,7 +77,7 @@ public abstract class MixinLightmapTextureManager implements LightmapTextureMana
         var customLightColor = ModuleCustomAmbience.CustomLightColor.INSTANCE;
         if (customLightColor.getRunning()) {
             liquid_bounce$customLightMap = true;
-            if (RenderSystem.getShaderTexture(2) == lightmapFramebuffer.getColorAttachment()) {
+            if (RenderSystem.getShaderTexture(2) == getGlTexture()) {
                 RenderSystem.setShaderTexture(2, customLightColor.getFramebuffer().getColorAttachment());
             }
         }
