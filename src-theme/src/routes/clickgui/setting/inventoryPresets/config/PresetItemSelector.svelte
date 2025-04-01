@@ -140,7 +140,8 @@
     </div>
 
     <div class="search-wrapper">
-        <div class="search">
+        <span class="items-group-title">Specific Items</span>
+        <div class="search margin">
             <input
                     type="text"
                     placeholder="Search items..."
@@ -153,22 +154,23 @@
                 <img src="img/menu/icon-pen.svg" alt="Search" />
             </div>
         </div>
+
+        {#if searchQuery === ""}
+            <div>
+                <div class="common-wrapper">
+                    {#each commonItems as commonItem}
+                        <div class="item-background common-item-wrapper" on:click={() => setItemProxy(commonItem)}>
+                            <div class="common-item">
+                                <ItemImage bind:item={commonItem} />
+                            </div>
+                        </div>
+                    {/each}
+                </div>
+            </div>
+        {/if}
     </div>
 
     {#if searchQuery === ""}
-        <div>
-            <span class="items-group-title">Common Items</span>
-            <div class="common-wrapper">
-                {#each commonItems as commonItem}
-                    <div class="item-background common-item-wrapper" on:click={() => setItemProxy(commonItem)}>
-                        <div class="common-item">
-                            <ItemImage bind:item={commonItem} />
-                        </div>
-                    </div>
-                {/each}
-            </div>
-        </div>
-
         <div>
             <span class="items-group-title">Generic Items</span>
             <div class="generic-wrapper">
@@ -211,8 +213,12 @@
   @use "select" as *;
   @use "item" as *;
 
-  .common-wrapper {
+  .margin {
     margin-top: 5px;
+  }
+
+  .common-wrapper {
+    margin-top: 8px;
     display: flex;
     gap: 8px;
     justify-content: space-between;
