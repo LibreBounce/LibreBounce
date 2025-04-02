@@ -679,6 +679,7 @@
   "liquidbounce.module.fastExp.description": "Automatically repairs your armor.",
   "liquidbounce.module.bookBot.description": "Automatically writes in books.",
   "liquidbounce.module.itemChams.description": "Applies visual effects to your held items.",
+  "liquidbounce.module.autoRod.description": "Auto use fishing rod to PVP.",
   "liquidbounce.module.crystalView.description": "Tweaks how crystal models behave.",
   "liquidbounce.module.betterTab.description": "Multiple improvements to the tab list.",
   "liquidbounce.module.autoPearl.description": "Aims and throws a pearl at an enemies pearl trajectory.",
