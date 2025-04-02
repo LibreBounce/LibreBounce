@@ -42,7 +42,7 @@ object ModuleInventoryManager : ClientModule("InventoryManager", Category.PLAYER
     private val inventoryConstraints = tree(PlayerInventoryConstraints())
 
     @Suppress("unused")
-    private val inventoryPresets = inventoryPreset()
+    private val inventoryPresets by inventoryPreset()
 
     private val maxBlocks by int("MaximumBlocks", 512, 0..2500)
     private val maxArrows by int("MaximumArrows", 128, 0..2500)
