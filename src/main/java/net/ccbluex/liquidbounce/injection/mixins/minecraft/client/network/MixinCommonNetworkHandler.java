@@ -19,7 +19,7 @@
  */
 package net.ccbluex.liquidbounce.injection.mixins.minecraft.client.network;
 
-import net.ccbluex.liquidbounce.features.module.modules.exploit.ModuleIgnoreProtocolKick;
+import net.ccbluex.liquidbounce.features.module.modules.player.ModuleAntiExploit;
 import net.minecraft.client.network.ClientCommonNetworkHandler;
 import net.minecraft.network.packet.Packet;
 import org.spongepowered.asm.mixin.Mixin;
@@ -32,7 +32,8 @@ public class MixinCommonNetworkHandler {
 
     @Inject(method = "onPacketException", at = @At(value = "HEAD"), cancellable = true)
     private void packetExceptionCancel(Packet packet, Exception exception, CallbackInfo ci) {
-        if (ModuleIgnoreProtocolKick.INSTANCE.getRunning()) {
+        var antiExploit = ModuleAntiExploit.INSTANCE;
+        if (antiExploit.getRunning() && antiExploit.getIgnoreProtocol()) {
             ci.cancel();
         }
     }
