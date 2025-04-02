@@ -1,6 +1,5 @@
 package net.ccbluex.liquidbounce.features.inventoryPreset.items.types
 
-import net.ccbluex.liquidbounce.utils.sorting.ComparatorChain
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
@@ -8,11 +7,7 @@ import net.minecraft.item.Items
 class ChoosePresetItem(
     val item: Item,
 ) : PresetItem(
-    type = ItemType.CHOOSE,
-    comparatorChain = ComparatorChain(
-        compareBy { it.count },
-        STABILIZE_COMPARISON
-    )
+    type = ItemType.CHOOSE
 ) {
     init {
         check(item != Items.AIR) {
