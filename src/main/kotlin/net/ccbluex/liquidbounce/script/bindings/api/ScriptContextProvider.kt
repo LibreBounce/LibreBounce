@@ -22,7 +22,11 @@ import net.ccbluex.liquidbounce.script.bindings.features.ScriptSetting
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.minecraft.util.Hand
 import net.minecraft.util.math.*
+import org.graalvm.polyglot.Context
 import org.graalvm.polyglot.Value
+import java.util.function.BiFunction
+import java.util.function.Function
+import java.util.function.IntFunction
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -30,38 +34,54 @@ import java.util.concurrent.ConcurrentHashMap
  */
 object ScriptContextProvider {
 
+    private lateinit var scriptAsyncUtil: ScriptAsyncUtil
     private val localStorage = ConcurrentHashMap<String, Any>()
 
-    internal fun setupContext(bindings: Value) = bindings.apply {
-        // Class bindings
-        // -> Client API
-        putMember("Setting", ScriptSetting)
+    internal fun Context.setupContext(language: String, bindings: Value) {
+        val isJs = language.equals("js", true)
+        if (!::scriptAsyncUtil.isInitialized && isJs) {
+            // Init Promise constructor
+            scriptAsyncUtil = ScriptAsyncUtil(this.getBindings(language).getMember("Promise"))
+        }
 
-        // -> Minecraft API
-        putMember("Vec3i", Vec3i::class.java)
-        putMember("Vec3d", Vec3d::class.java)
-        putMember("MathHelper", MathHelper::class.java)
-        putMember("BlockPos", BlockPos::class.java)
-        putMember("Hand", Hand::class.java)
-        putMember("RotationAxis", RotationAxis::class.java)
+        bindings.apply {
+            // Class bindings
+            // -> Client API
+            putMember("Setting", ScriptSetting)
 
-        // Variable bindings
-        putMember("mc", mc)
-        putMember("Client", ScriptClient)
+            // -> Minecraft API
+            putMember("Vec3i", Vec3i::class.java)
+            putMember("Vec3d", Vec3d::class.java)
+            putMember("MathHelper", MathHelper::class.java)
+            putMember("BlockPos", BlockPos::class.java)
+            putMember("Hand", Hand::class.java)
+            putMember("RotationAxis", RotationAxis::class.java)
 
-        // Register utilities
-        putMember("RotationUtil", ScriptRotationUtil)
-        putMember("ItemUtil", ScriptItemUtil)
-        putMember("NetworkUtil", ScriptNetworkUtil)
-        putMember("InteractionUtil", ScriptInteractionUtil)
-        putMember("BlockUtil", ScriptBlockUtil)
-        putMember("MovementUtil", ScriptMovementUtil)
-        putMember("ReflectionUtil", ScriptReflectionUtil())
-        putMember("ParameterValidator", ScriptParameterValidator(bindings))
-        putMember("UnsafeThread", ScriptUnsafeThread)
+            // Variable bindings
+            putMember("mc", mc)
+            putMember("Client", ScriptClient)
 
-        // Global variables
-        putMember("localStorage", localStorage) // Script scope
+            // Register utilities
+            putMember("RotationUtil", ScriptRotationUtil)
+            putMember("ItemUtil", ScriptItemUtil)
+            putMember("NetworkUtil", ScriptNetworkUtil)
+            putMember("InteractionUtil", ScriptInteractionUtil)
+            putMember("BlockUtil", ScriptBlockUtil)
+            putMember("MovementUtil", ScriptMovementUtil)
+            putMember("ReflectionUtil", ScriptReflectionUtil())
+            putMember("ParameterValidator", ScriptParameterValidator(bindings))
+            putMember("UnsafeThread", ScriptUnsafeThread)
+
+            // Global variables
+            putMember("localStorage", localStorage)
+
+            // Async support
+            if (::scriptAsyncUtil.isInitialized && isJs) {
+                putMember("ticks", IntFunction(scriptAsyncUtil::ticks))
+                putMember("seconds", IntFunction(scriptAsyncUtil::seconds))
+                putMember("until", Function(scriptAsyncUtil::until))
+                putMember("conditional", BiFunction(scriptAsyncUtil::conditional))
+            }
+        }
     }
-
 }
