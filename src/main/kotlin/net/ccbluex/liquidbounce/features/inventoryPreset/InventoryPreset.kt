@@ -1,17 +1,17 @@
 @file:Suppress("WildcardImport")
-package net.ccbluex.liquidbounce.features.inventoryPresets
+package net.ccbluex.liquidbounce.features.inventoryPreset
 
-import net.ccbluex.liquidbounce.features.inventoryPresets.items.PresetItem
-import net.ccbluex.liquidbounce.features.inventoryPresets.throwing.MaxStackGroup
+import net.ccbluex.liquidbounce.features.inventoryPreset.items.PresetItemGroup
+import net.ccbluex.liquidbounce.features.inventoryPreset.throwing.MaxStackGroup
 import net.ccbluex.liquidbounce.utils.inventory.HotbarItemSlot
 import net.ccbluex.liquidbounce.utils.inventory.OffHandSlot
 
 @Suppress("MagicNumber")
 class InventoryPreset(
-    items: Array<PresetItem>,
+    items: Array<PresetItemGroup> = Array(10) { PresetItemGroup() },
     val maxStacks: Array<MaxStackGroup> = emptyArray()
 ) {
-    val items: List<Pair<HotbarItemSlot, PresetItem>>
+    val items: List<Pair<HotbarItemSlot, PresetItemGroup>>
 
     init {
         /**

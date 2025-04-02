@@ -1,4 +1,4 @@
-package net.ccbluex.liquidbounce.features.inventoryPresets.items
+package net.ccbluex.liquidbounce.features.inventoryPreset.items.types
 
 import net.ccbluex.liquidbounce.utils.item.EnchantmentValueEstimator
 import net.ccbluex.liquidbounce.utils.item.material

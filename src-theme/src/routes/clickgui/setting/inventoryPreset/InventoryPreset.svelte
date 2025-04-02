@@ -5,17 +5,11 @@
     import {createEventDispatcher} from "svelte";
 
     export let preset: InventoryPreset
-    export let idx: number
 
     const dispatch = createEventDispatcher();
 
     function handleChange() {
         dispatch("change")
-    }
-
-    function handleDelete() {
-        configuring = false
-        dispatch("delete")
     }
 
     let configuring = false
@@ -24,12 +18,15 @@
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div class="preset" on:click={() => configuring = true}>
-    {#each preset.items as item, idx (idx)}
+    {#each preset.items as group, idx (idx)}
         <div class="preset-item">
-            {#if item.type !== "NONE"}
-                <div class="img-wrapper">
-                    <ItemImage bind:item />
-                </div>
+            {#if group.items[0]}
+                {@const firstItem = group.items[0]}
+                {#if firstItem.type !== "NONE"}
+                    <div class="img-wrapper">
+                        <ItemImage item={firstItem} />
+                    </div>
+                {/if}
             {/if}
         </div>
     {/each}
@@ -38,10 +35,8 @@
 {#if configuring}
     <PresetModal
             bind:preset
-            bind:idx
             on:close={() => configuring = false}
             on:change={handleChange}
-            on:delete={handleDelete}
     />
 {/if}
 

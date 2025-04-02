@@ -430,7 +430,7 @@ enum class ValueType(
     ITEM(HumanInputDeserializer.itemDeserializer), ITEMS(HumanInputDeserializer.itemListDeserializer),
     KEY(HumanInputDeserializer.keyDeserializer),
     BIND,
-    INVENTORY_PRESETS,
+    INVENTORY_PRESET,
     VECTOR_I,
     VECTOR_D,
     CHOICE(completer = AutoCompletionProvider.choiceCompleter),
@@ -451,7 +451,6 @@ enum class ListValueType(val type: Class<*>?) {
     Friend(FriendManager.Friend::class.java),
     Proxy(net.ccbluex.liquidbounce.features.misc.proxy.Proxy::class.java),
     Account(MinecraftAccount::class.java),
-    InventoryPreset(net.ccbluex.liquidbounce.features.inventoryPresets.InventoryPreset::class.java),
     Enums(Enum::class.java),
     None(null)
 }

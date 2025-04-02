@@ -254,7 +254,7 @@ open class Configurable(
     fun items(name: String, default: MutableList<Item>) =
         value(name, default, ValueType.ITEMS, ListValueType.Item)
 
-    fun inventoryPresets() = InventoryPresetsValue().apply {
+    fun inventoryPreset() = InventoryPresetValue().apply {
         require(this@Configurable is ClientModule) {
             "Requires that it only be in a module, " +
             "it can't be a child of anything else because the design might go " +
@@ -262,7 +262,7 @@ open class Configurable(
             "but for now it is like this)"
         }
 
-        require(this@Configurable.inner.find { it is InventoryPresetsValue } == null) {
+        require(this@Configurable.inner.find { it is InventoryPresetValue } == null) {
             "It can only be one for, it is not possible to specify it twice yet."
         }
 

@@ -59,7 +59,6 @@ object ModuleChestStealer : ClientModule("ChestStealer", Category.PLAYER) {
         super.disable()
     }
 
-    @Suppress("unused")
     val scheduleInventoryAction = handler<ScheduleInventoryActionEvent> { event ->
         // Check if we are in a chest screen
         val screen = getChestScreen() ?: return@handler
@@ -77,7 +76,7 @@ object ModuleChestStealer : ClientModule("ChestStealer", Category.PLAYER) {
 
         for (slot in sortedItemsToCollect) {
             if (!hasInventorySpace() && stillRequiredSpace > 0) {
-                break
+                event.schedule(inventoryConstrains, throwItem(cleanupPlan, screen) ?: break)
             }
 
             val emptySlot = findEmptyStorageSlotsInInventory().firstOrNull() ?: break
@@ -114,6 +113,20 @@ object ModuleChestStealer : ClientModule("ChestStealer", Category.PLAYER) {
                 ClickInventoryAction.performPickup(screen, to),
             )
         }
+    }
+
+    /**
+     * @return if we should wait
+     */
+    private fun throwItem(
+        cleanupPlan: InventoryCleanupPlan,
+        screen: GenericContainerScreen
+    ): InventoryAction? {
+        val itemsInInv = findNonEmptySlotsInInventory()
+        val itemToThrowOut = ModuleInventoryManager.findItemsToThrowOut(cleanupPlan, itemsInInv)
+            .firstOrNull { it.getIdForServer(screen) != null } ?: return null
+
+        return ClickInventoryAction.performThrow(screen, itemToThrowOut)
     }
 
     /**
@@ -190,21 +203,20 @@ object ModuleChestStealer : ClientModule("ChestStealer", Category.PLAYER) {
     }
 
     /**
-     * # Currently unimplemented
      * Either asks [ModuleInventoryManager] what to do or just takes everything.
      */
     private fun createCleanupPlan(screen: GenericContainerScreen): InventoryCleanupPlan {
-        val maybeUsefulItems = findItemsInContainer(screen)
-        val usefulItems: MutableSet<ItemSlot> = maybeUsefulItems.toMutableSet()
+        val cleanupPlan = if (!ModuleInventoryManager.running) {
+            val usefulItems = findItemsInContainer(screen)
 
-        if (ModuleInventoryManager.running) {
-            val ignored = ModuleInventoryManager.itemsToThrowOut()
-            usefulItems.removeIf {
-                ignored.any { item -> item.satisfies(it.itemStack) }
-            }
+            InventoryCleanupPlan(usefulItems.toMutableSet(), mutableListOf(), hashMapOf())
+        } else {
+            val availableItems = findNonEmptySlotsInInventory() + findItemsInContainer(screen)
+
+            CleanupPlanGenerator(ModuleInventoryManager.cleanupTemplateFromSettings, availableItems).generatePlan()
         }
 
-        return InventoryCleanupPlan(usefulItems, mutableListOf(), hashMapOf())
+        return cleanupPlan
     }
 
     @Suppress("unused")

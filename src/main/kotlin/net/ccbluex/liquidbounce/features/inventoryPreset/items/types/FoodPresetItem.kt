@@ -1,4 +1,4 @@
-package net.ccbluex.liquidbounce.features.inventoryPresets.items
+package net.ccbluex.liquidbounce.features.inventoryPreset.items.types
 
 import net.ccbluex.liquidbounce.utils.item.foodComponent
 import net.ccbluex.liquidbounce.utils.item.isFood

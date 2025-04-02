@@ -2,7 +2,7 @@
 package net.ccbluex.liquidbounce.config.gson.adapter
 
 import com.google.gson.*
-import net.ccbluex.liquidbounce.features.inventoryPresets.items.*
+import net.ccbluex.liquidbounce.features.inventoryPreset.items.types.*
 import net.minecraft.item.Item
 import java.lang.reflect.Type
 

@@ -1,4 +1,4 @@
-package net.ccbluex.liquidbounce.features.inventoryPresets.items
+package net.ccbluex.liquidbounce.features.inventoryPreset.items.types
 
 import net.ccbluex.liquidbounce.utils.sorting.ComparatorChain
 import net.minecraft.item.ItemStack

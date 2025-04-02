@@ -1,40 +1,51 @@
 <script lang="ts">
-    import type {PresetItem} from "../../../../../integration/types";
-    import ItemImage from "../ItemImage.svelte";
+    import type {PresetItemGroup} from "../../../../../integration/types";
     import {clickOutside} from "../../../../../util/utils";
-    import PresetItemSelector from "./PresetItemSelector.svelte";
     import {scale} from "svelte/transition";
     import {createEventDispatcher} from "svelte";
+    import PresetItemGroupPreview from "./PresetItemGroupPreview.svelte";
+    import PresetItemGroupCandidateSelector from "./PresetItemGroupCandidateSelector.svelte";
 
     const dispatch = createEventDispatcher();
 
-    export let item: PresetItem;
+    export let group: PresetItemGroup;
     export let idx: number;
 
     let expanded = false;
 
-    function setItem(newItem: PresetItem) {
-        item = newItem;
+    function clearItems() {
+        group.items = [];
         expanded = false;
 
         dispatch("change");
+    }
+
+    function handleChange() {
+        dispatch("change")
+    }
+
+    function handleClickOutside(event: MouseEvent) {
+        const target = event.target as HTMLElement
+        if (!target.closest(".group-candidate-selector")) {
+            expanded = false
+        }
     }
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div class="wrapper">
-    <div class="item item-background"
+    <div class="item-container item-background"
          class:active={expanded}
          class:hided={!expanded}
          on:click|preventDefault={() => expanded = !expanded}
     >
         <div class="image-wrapper">
-            <ItemImage bind:item />
+            <PresetItemGroupPreview bind:group />
         </div>
 
-        {#if item.type !== "NONE"}
-            <button class="delete" on:click|stopPropagation={() => setItem({type: "NONE"})}>
+        {#if group.items.length > 0}
+            <button class="delete" on:click|stopPropagation={clearItems}>
                 <img src="img/menu/icon-exit-danger.svg" alt="exit">
             </button>
         {/if}
@@ -45,9 +56,13 @@
                 class="selector-container-wrapper selector-container"
                 transition:scale={{duration: 200, start: 0.9}}
                 on:click|preventDefault
-                use:clickOutside={() => expanded = false}
+                use:clickOutside={handleClickOutside}
         >
-            <PresetItemSelector setItem={setItem} />
+            <PresetItemGroupCandidateSelector
+                    bind:parentExpanded={expanded}
+                    bind:items={group.items}
+                    on:change={handleChange}
+            />
 
             <div class="slot">
                 <span>{idx === 0 ? "Offhand" : idx}</span>
@@ -63,7 +78,11 @@
   @use "select" as *;
   @use "item" as *;
 
-  .item {
+  .wrapper {
+    position: relative;
+  }
+
+  .item-container {
     position: relative;
     width: 48px;
     height: 48px;
@@ -104,10 +123,17 @@
 
   .active {
     outline: 1px solid $accent-color !important;
+
+    & > .image-wrapper {
+      filter: opacity(0.5);
+    }
   }
 
   .selector-container {
-    transform: translate(calc(-50% + 48px/2), 15px);
+    left: 50%;
+    top: 50%;
+    cursor: auto;
+    transform-origin: left top;
   }
 
   .slot {

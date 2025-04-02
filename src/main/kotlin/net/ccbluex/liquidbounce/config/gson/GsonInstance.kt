@@ -32,8 +32,8 @@ import net.ccbluex.liquidbounce.config.gson.stategies.ProtocolExclusionStrategy
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.config.types.NamedChoice
-import net.ccbluex.liquidbounce.features.inventoryPresets.InventoryPreset
-import net.ccbluex.liquidbounce.features.inventoryPresets.items.PresetItem
+import net.ccbluex.liquidbounce.features.inventoryPreset.InventoryPreset
+import net.ccbluex.liquidbounce.features.inventoryPreset.items.types.PresetItem
 import net.ccbluex.liquidbounce.integration.theme.component.Component
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.input.InputBind

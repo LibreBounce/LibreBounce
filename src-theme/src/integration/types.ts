@@ -15,7 +15,7 @@ export interface GroupedModules {
 
 export type ModuleSetting =
     BlocksSetting
-    | InventoryPresets
+    | InventoryPresetValue
     | BooleanSetting
     | FloatSetting
     | FloatRangeSetting
@@ -79,15 +79,19 @@ export interface MaxStacksGroup {
     items: PresetItem[];
 }
 
-export interface InventoryPreset {
-    items: PresetItem[]
-    maxStacks: MaxStacksGroup[]
+export interface PresetItemGroup {
+    items: PresetItem[];
 }
 
-export interface InventoryPresets {
+export interface InventoryPreset {
+    items: PresetItemGroup[];
+    maxStacks: MaxStacksGroup[];
+}
+
+export interface InventoryPresetValue {
     name: string;
     valueType: string;
-    value: InventoryPreset[];
+    value: InventoryPreset;
 }
 
 export interface BlocksSetting {

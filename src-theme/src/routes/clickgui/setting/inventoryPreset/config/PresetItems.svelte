@@ -1,9 +1,9 @@
 <script lang="ts">
-    import type {PresetItem} from "../../../../../integration/types";
+    import type {PresetItemGroup} from "../../../../../integration/types";
     import {createEventDispatcher} from "svelte";
-    import PresetItemComponent from "./PresetItemComponent.svelte";
+    import PresetItemGroupComponent from "./PresetItemGroupComponent.svelte";
 
-    export let items: PresetItem[]
+    export let items: PresetItemGroup[]
     let draggedIndex: number | null = null;
 
     const dispatch = createEventDispatcher();
@@ -30,14 +30,13 @@
 
     function handleDragEnd() {
         draggedIndex = null;
-        console.log("dragend")
     }
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div class="items" on:mouseup|capture={handleDragEnd}>
-    {#each items as item, idx (idx)}
+    {#each items as group, idx (idx)}
         <div
                 class="draggable"
                 draggable="true"
@@ -46,7 +45,7 @@
                 on:dragover={(e) => handleDragOver(e, idx)}
                 on:dragend={handleDragEnd}
         >
-            <PresetItemComponent bind:item idx={idx} on:change={handleChange} />
+            <PresetItemGroupComponent bind:group idx={idx} on:change={handleChange} />
         </div>
 
         {#if idx === 0}

@@ -13,13 +13,12 @@
     import TextSetting from "../TextSetting.svelte";
     import BlocksSetting from "../blocks/BlocksSetting.svelte";
     import {slide} from "svelte/transition";
-    import {onMount} from "svelte";
     import TextArraySetting from "../TextArraySetting.svelte";
     import BindSetting from "../BindSetting.svelte";
     import VectorSetting from "../VectorSetting.svelte";
     import KeySetting from "../KeySetting.svelte";
     import MultiChooseSetting from "../MultiChooseSetting.svelte";
-    import InventoryPresets from "../inventoryPresets/InventoryPresets.svelte";
+    import InventoryPresetValue from "../inventoryPreset/InventoryPresetValue.svelte";
 
     export let setting: ModuleSetting;
     export let path: string;
@@ -29,8 +28,8 @@
 <div in:slide|global={{duration: 200, axis: "y"}} out:slide|global={{duration: 200, axis: "y"}}>
     {#if setting.valueType === "BOOLEAN"}
         <BooleanSetting bind:setting={setting} on:change/>
-    {:else if setting.valueType === "INVENTORY_PRESETS"}
-        <InventoryPresets bind:setting={setting} on:change/>
+    {:else if setting.valueType === "INVENTORY_PRESET"}
+        <InventoryPresetValue bind:setting={setting} on:change/>
     {:else if setting.valueType === "CHOICE"}
         <ChoiceSetting {path} bind:setting={setting} on:change/>
     {:else if setting.valueType === "CHOOSE"}

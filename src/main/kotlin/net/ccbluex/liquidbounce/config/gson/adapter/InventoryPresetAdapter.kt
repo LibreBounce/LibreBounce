@@ -2,9 +2,9 @@ package net.ccbluex.liquidbounce.config.gson.adapter
 
 import com.google.gson.*
 import com.google.gson.reflect.TypeToken
-import net.ccbluex.liquidbounce.features.inventoryPresets.InventoryPreset
-import net.ccbluex.liquidbounce.features.inventoryPresets.items.PresetItem
-import net.ccbluex.liquidbounce.features.inventoryPresets.throwing.MaxStackGroup
+import net.ccbluex.liquidbounce.features.inventoryPreset.InventoryPreset
+import net.ccbluex.liquidbounce.features.inventoryPreset.items.PresetItemGroup
+import net.ccbluex.liquidbounce.features.inventoryPreset.throwing.MaxStackGroup
 import java.lang.reflect.Type
 
 object InventoryPresetAdapter : JsonSerializer<InventoryPreset>, JsonDeserializer<InventoryPreset> {
@@ -22,7 +22,7 @@ object InventoryPresetAdapter : JsonSerializer<InventoryPreset>, JsonDeserialize
         typeOfT: Type,
         context: JsonDeserializationContext
     ): InventoryPreset = with (json.asJsonObject) {
-        val items = context.decode<Array<PresetItem>>(get("items"))
+        val items = context.decode<Array<PresetItemGroup>>(get("items"))
         val throws = context.decode<Array<MaxStackGroup>>(get("maxStacks"))
 
         return InventoryPreset(items, throws)
