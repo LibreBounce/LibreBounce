@@ -224,6 +224,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleDamage,
             ModuleDisabler,
             ModuleGhostHand,
+            ModuleIgnoreProtocolKick,
             ModuleKick,
             ModuleMoreCarry,
             ModuleMultiActions,
