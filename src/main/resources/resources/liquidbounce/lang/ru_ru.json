@@ -473,6 +473,7 @@
   "liquidbounce.module.fastBreak.description": "Позволяет ломать блоки быстрее.",
   "liquidbounce.module.fastPlace.description": "Позволяет ставить блоки быстрее.",
   "liquidbounce.module.fastUse.description": "Позволяет использовать предметы быстрее.",
+  "liquidbounce.module.itemScroller.description": "Быстро перемещает предметы в инвенторе с зажатым шифром и лкм",
   "liquidbounce.module.flagCheck.description": "Оповещает вас о флагах.",
   "liquidbounce.module.flagCheck.messages.alert": "Обнаружено %s (%s раз)",
   "liquidbounce.module.flagCheck.messages.alertWithExtra": "Обнаружено %s %s (%s раз)",
