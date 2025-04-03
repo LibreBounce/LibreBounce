@@ -110,8 +110,8 @@ internal object ModuleTickBase : ClientModule("TickBase", Category.COMBAT) {
         var possibleTicks = tickBuffer
             .withIndex()
             .filter { (_, tick) ->
-                tick.position.squaredDistanceTo(nearbyEnemy.pos) < currentDistance
-                    && tick.position.squaredDistanceTo(nearbyEnemy.pos) in rangeSq
+                val distSq = tick.position.squaredDistanceTo(nearbyEnemy.pos)
+                distSq < currentDistance && distSq in rangeSq
             }
 
         if (forceGround) {
