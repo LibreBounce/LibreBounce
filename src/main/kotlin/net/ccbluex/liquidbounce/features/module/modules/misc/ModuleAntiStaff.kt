@@ -131,6 +131,7 @@ object ModuleAntiStaff : ClientModule("AntiStaff", Category.MISC) {
                         NotificationEvent.Severity.ERROR)
                 }
             } catch (exception: Exception) {
+                logger.error("Failed to load staff list of $address", exception)
                 notification("AntiStaff", message("staffsFailed", address, exception.javaClass.simpleName),
                     NotificationEvent.Severity.ERROR)
             }
