@@ -31,6 +31,7 @@ import okio.buffer
 import okio.sink
 import java.io.File
 import java.io.InputStream
+import java.io.Reader
 import java.util.concurrent.TimeUnit
 
 val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
@@ -99,24 +100,50 @@ enum class HttpMethod {
     GET, POST, PUT, DELETE, PATCH
 }
 
+/**
+ * Parse body from [Response].
+ *
+ * If [T] is one of following types, it should be closed after using:
+ * [InputStream] / [BufferedSource] / [Reader]
+ */
 inline fun <reified T> Response.parse(): T {
-    return use {
-        when (T::class.java) {
-            String::class.java -> body.string() as T
-            Unit::class.java -> Unit as T
-            InputStream::class.java -> body.byteStream() as T
-            BufferedSource::class.java -> body.source() as T
-            NativeImageBackedTexture::class.java -> body.byteStream().use { stream ->
-                // TODO: please work
+    return when (T::class.java) {
+        String::class.java -> body.string()
+        Unit::class.java -> close()
+        InputStream::class.java -> body.byteStream()
+        BufferedSource::class.java -> body.source()
+        Reader::class.java -> body.charStream()
+        NativeImageBackedTexture::class.java -> body.byteStream().use { stream ->
+            // TODO: please work
                 NativeImageBackedTexture({
                     return@NativeImageBackedTexture ""
-                }, NativeImage.read(stream)) as T
-            }
-            else -> decode<T>(body.charStream())
+                }, NativeImage.read(stream))
         }
-    }
+        else -> decode(body.charStream())
+    } as T
 }
 
+/**
+ * Read all UTF-8 lines from [BufferedSource] as an [Iterator].
+ *
+ * When there are no more lines to read, the source is closed automatically.
+ */
+fun BufferedSource.utf8Lines(): Iterator<String> =
+    object : AbstractIterator<String>() {
+        override fun computeNext() {
+            val nextLine = readUtf8Line()
+            if (nextLine != null) {
+                setNext(nextLine)
+            } else {
+                close()
+                done()
+            }
+        }
+    }
+
+/**
+ * Save response body to file.
+ */
 fun Response.toFile(file: File) = use { response ->
     file.sink().buffer().use(response.body.source()::readAll)
 }

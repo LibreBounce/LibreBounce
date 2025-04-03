@@ -107,8 +107,10 @@ object ConfigSystem {
     /**
      * Create a ZIP file of root configurable files
      */
-    fun backup(fileName: String) {
+    fun backup(fileName: String) = runCatching {
         configurables.map { it.jsonFile }.createZipArchive(File(rootFolder, fileName))
+    }.onFailure {
+        logger.error("Unable to create backup", it)
     }
 
     /**
