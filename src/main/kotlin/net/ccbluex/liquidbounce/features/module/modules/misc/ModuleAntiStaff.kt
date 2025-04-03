@@ -72,7 +72,7 @@ object ModuleAntiStaff : ClientModule("AntiStaff", Category.MISC) {
             if (serverStaffList.containsKey(address)) {
                 return
             }
-            serverStaffList[address] = emptySet<String>()
+            serverStaffList[address] = emptySet()
 
             withScope {
                 loadStaffList(address)
@@ -87,7 +87,7 @@ object ModuleAntiStaff : ClientModule("AntiStaff", Category.MISC) {
             if (serverStaffList.containsKey(address)) {
                 return@sequenceHandler
             }
-            serverStaffList[address] = emptySet<String>()
+            serverStaffList[address] = emptySet()
 
             // Keeps us from loading the staff list multiple times
             waitUntil { inGame && mc.currentScreen != null }
