@@ -37,6 +37,7 @@ import net.ccbluex.liquidbounce.render.withColor
 import net.ccbluex.liquidbounce.utils.combat.findEnemy
 import net.ccbluex.liquidbounce.utils.entity.PlayerSimulationCache
 import net.ccbluex.liquidbounce.utils.kotlin.mapArray
+import net.ccbluex.liquidbounce.utils.math.sq
 import net.ccbluex.liquidbounce.utils.math.toVec3
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket
 import net.minecraft.util.math.Vec3d
@@ -57,7 +58,7 @@ internal object ModuleTickBase : ClientModule("TickBase", Category.COMBAT) {
      * The range defines where we want to tickbase into. The first value is the minimum range, which we can
      * tick into, and the second value is the range where we cannot tickbase at all.
      */
-    private val range by floatRange("Range", 2.5f..4f, 0f..12f)
+    private val range by floatRange("Range", 2.5f..4f, 0f..8f)
 
     private val balanceRecoveryIncrement by float("BalanceRecoverIncrement", 1f, 0f..2f)
     private val balanceMaxValue by int("BalanceMaxValue", 20, 0..200)
@@ -76,6 +77,10 @@ internal object ModuleTickBase : ClientModule("TickBase", Category.COMBAT) {
     private var reachedTheLimit = false
 
     private val tickBuffer = mutableListOf<TickData>()
+
+    override fun disable() {
+        tickBuffer.clear()
+    }
 
     @Suppress("unused")
     private val playerTickHandler = handler<PlayerTickEvent> { event ->
@@ -98,40 +103,36 @@ internal object ModuleTickBase : ClientModule("TickBase", Category.COMBAT) {
 
         val nearbyEnemy = world.findEnemy(0f..range.endInclusive) ?: return@tickHandler
         val currentDistance = player.pos.squaredDistanceTo(nearbyEnemy.pos)
+        val rangeSq = range.start.sq()..range.endInclusive.sq()
 
         // Find the best tick that is able to hit the target and is not too far away from the player, as well as
         // able to crit the target
-        val possibleTicks = tickBuffer
-            .mapIndexed { index, tick -> index to tick }
+        var possibleTicks = tickBuffer
+            .withIndex()
             .filter { (_, tick) ->
                 tick.position.squaredDistanceTo(nearbyEnemy.pos) < currentDistance
-                    && tick.position.squaredDistanceTo(nearbyEnemy.pos) in range
-            }
-            .filter { (_, tick) ->
-                !forceGround || tick.onGround
+                    && tick.position.squaredDistanceTo(nearbyEnemy.pos) in rangeSq
             }
 
-        val criticalTick = possibleTicks
-            .filter { (_, tick) ->
-                tick.fallDistance > 0.0f
+        if (forceGround) {
+            possibleTicks = possibleTicks.filter { (_, tick) ->
+                tick.onGround
             }
-            .minByOrNull { (index, _) ->
-                index
-            }
+        }
 
-        val (bestTick, _) = criticalTick ?: possibleTicks.minByOrNull { (index, _) ->
-            index
-        } ?: return@tickHandler
+        val criticalTick = possibleTicks.firstOrNull { (_, tick) ->
+            tick.fallDistance > 0.0f
+        }
+
+        val (bestTick, _) = criticalTick ?: possibleTicks.firstOrNull() ?: return@tickHandler
 
         if (bestTick == 0) {
             return@tickHandler
         }
 
         // We do not want to tickbase if killaura is not ready to attack
-        val breakRequirement = {
-            requiresKillAura && !(ModuleKillAura.running &&
+        fun breakRequirement() = requiresKillAura && !(ModuleKillAura.running &&
                 ModuleKillAura.clickScheduler.willClickAt(bestTick))
-        }
 
         if (breakRequirement()) {
             return@tickHandler
@@ -204,8 +205,8 @@ internal object ModuleTickBase : ClientModule("TickBase", Category.COMBAT) {
         val tickRange = 0 until min(tickBalance.toInt(), maxTicksAtATime)
         val snapshots = simulatedPlayer.getSnapshotsBetween(tickRange)
 
-        snapshots.forEach { snapshot ->
-            tickBuffer += TickData(
+        snapshots.mapTo(tickBuffer) { snapshot ->
+            TickData(
                 snapshot.pos,
                 snapshot.fallDistance,
                 snapshot.velocity,
@@ -216,25 +217,29 @@ internal object ModuleTickBase : ClientModule("TickBase", Category.COMBAT) {
 
     @Suppress("unused")
     private val renderHandler = handler<WorldRenderEvent> { event ->
-        if (lineColor.a > 0) {
-            renderEnvironmentForWorld(event.matrixStack) {
-                withColor(lineColor) {
-                    drawLineStrip(positions = tickBuffer.mapArray { tick ->
-                        relativeToCamera(tick.position).toVec3()
-                    })
-                }
+        if (lineColor.a <= 0) {
+            return@handler
+        }
+
+        renderEnvironmentForWorld(event.matrixStack) {
+            withColor(lineColor) {
+                drawLineStrip(positions = tickBuffer.mapArray { tick ->
+                    relativeToCamera(tick.position).toVec3()
+                })
             }
         }
     }
 
-    val packetHandler = handler<PacketEvent> {
+    @Suppress("unused")
+    private val packetHandler = handler<PacketEvent> {
         // Stops when you got flagged
         if (it.packet is PlayerPositionLookS2CPacket && pauseOnFlag) {
             tickBalance = 0f
         }
     }
 
-    data class TickData(
+    @JvmRecord
+    private data class TickData(
         val position: Vec3d,
         val fallDistance: Float,
         val velocity: Vec3d,
