@@ -10,6 +10,13 @@ import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.FIRST_PRIORITY
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.kotlin.RequestHandler
+import net.ccbluex.liquidbounce.utils.movement.utils.KeyInput
+import net.ccbluex.liquidbounce.utils.movement.utils.KeyInput.setBackwardKeyPressed
+import net.ccbluex.liquidbounce.utils.movement.utils.KeyInput.setForwardKeyPressed
+import net.ccbluex.liquidbounce.utils.movement.utils.KeyInput.setKeyPressed
+import net.ccbluex.liquidbounce.utils.movement.utils.KeyInput.setLeftKeyPressed
+import net.ccbluex.liquidbounce.utils.movement.utils.KeyInput.setNoneKeyPressed
+import net.ccbluex.liquidbounce.utils.movement.utils.KeyInput.setRightKeyPressed
 import net.minecraft.client.option.KeyBinding
 import kotlin.math.abs
 import kotlin.math.cos
@@ -196,53 +203,29 @@ object MovementManager : EventListener {
         )
     }
 
-    fun setKeyPressed(keyBinding: KeyBinding, pressed: Boolean) {
-        if (keyBinding.isPressed != pressed) {
-            KeyBinding.setKeyPressed(keyBinding.boundKey, pressed)
-        }
-    }
-
     fun update() {
 
-        setKeyPressed(mc.options.forwardKey, false)
-        setKeyPressed(mc.options.backKey, false)
-        setKeyPressed(mc.options.rightKey, false)
-        setKeyPressed(mc.options.leftKey, false)
+        setNoneKeyPressed()
         val movement = movement ?: return
         when (currentDirectionalInput) {
             DirectionalInput.FORWARDS -> {
-                setKeyPressed(mc.options.forwardKey, true)
-                setKeyPressed(mc.options.backKey, false)
-                setKeyPressed(mc.options.rightKey, false)
-                setKeyPressed(mc.options.leftKey, false)
+               setForwardKeyPressed()
             }
 
             DirectionalInput.BACKWARDS -> {
-                setKeyPressed(mc.options.forwardKey, false)
-                setKeyPressed(mc.options.backKey, true)
-                setKeyPressed(mc.options.rightKey, false)
-                setKeyPressed(mc.options.leftKey, false)
+                setBackwardKeyPressed()
             }
 
             DirectionalInput.RIGHT -> {
-                setKeyPressed(mc.options.rightKey, true)
-                setKeyPressed(mc.options.leftKey, false)
-                setKeyPressed(mc.options.forwardKey, false)
-                setKeyPressed(mc.options.backKey, false)
+                setRightKeyPressed()
             }
 
             DirectionalInput.LEFT -> {
-                setKeyPressed(mc.options.leftKey, true)
-                setKeyPressed(mc.options.rightKey, false)
-                setKeyPressed(mc.options.forwardKey, false)
-                setKeyPressed(mc.options.backKey, false)
+               setLeftKeyPressed()
             }
 
             DirectionalInput.NONE -> {
-                setKeyPressed(mc.options.forwardKey, false)
-                setKeyPressed(mc.options.backKey, false)
-                setKeyPressed(mc.options.rightKey, false)
-                setKeyPressed(mc.options.leftKey, false)
+               setNoneKeyPressed()
             }
         }
 
