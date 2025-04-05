@@ -43,7 +43,7 @@ internal object LiquidWalkVulcan291 : Choice("Vulcan291") {
     @Suppress("unused")
     private val tickHandler = tickHandler {
         // It DOES NOT bypass with Lava - do not use [player.isInFluid].
-        if (player.isInsideWaterOrBubbleColumn) {
+        if (player.isSubmergedInWater) {
             // One tick speed-up for extra speed
             Timer.requestTimerSpeed(1.125f, Priority.IMPORTANT_FOR_USAGE_1, ModuleLiquidWalk)
 

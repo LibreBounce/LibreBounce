@@ -61,7 +61,7 @@ fun getWorlds(requestObject: RequestObject): FullHttpResponse {
                 addProperty("name", summary.name)
                 addProperty("displayName", summary.displayName)
                 addProperty("lastPlayed", summary.lastPlayed)
-                addProperty("gameMode", summary.levelInfo.gameMode.getName())
+                addProperty("gameMode", summary.levelInfo.gameMode.name)
                 addProperty("difficulty", summary.levelInfo.difficulty.getName())
                 addProperty("icon", runCatching { readImageAsBase64(summary.iconPath) }.onFailure {
                     //logger.error("Failed to read icon for world ${summary.name}", it)
@@ -85,7 +85,7 @@ fun getWorlds(requestObject: RequestObject): FullHttpResponse {
 fun postJoinWorld(requestObject: RequestObject): FullHttpResponse {
     val request = requestObject.asJson<LevelRequest>()
 
-    RenderSystem.recordRenderCall {
+    mc.execute {
         runCatching {
             mc.createIntegratedServerLoader().start(request.name) {
                 mc.setScreen(SelectWorldScreen(TitleScreen()))
@@ -103,7 +103,7 @@ fun postJoinWorld(requestObject: RequestObject): FullHttpResponse {
 fun postEditWorld(requestObject: RequestObject): FullHttpResponse {
     val request = requestObject.asJson<LevelRequest>()
 
-    RenderSystem.recordRenderCall {
+    mc.execute {
         val session = runCatching {
             mc.levelStorage.createSession(request.name)
         }.onFailure { exception ->
@@ -120,7 +120,7 @@ fun postEditWorld(requestObject: RequestObject): FullHttpResponse {
                     logger.error("Failed to access level ${request.name}", exception)
                 }
             }
-        }.getOrNull() ?: return@recordRenderCall
+        }.getOrNull() ?: return@execute
 
         runCatching {
             EditWorldScreen.create(mc, session) { _ ->

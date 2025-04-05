@@ -21,20 +21,17 @@
 package net.ccbluex.liquidbounce.render.shader
 
 import com.mojang.blaze3d.systems.RenderSystem
-import net.ccbluex.liquidbounce.utils.client.mc
 import net.minecraft.client.MinecraftClient
-import net.minecraft.client.gl.ShaderProgramKeys
 import net.minecraft.client.gl.SimpleFramebuffer
-import net.minecraft.client.gl.VertexBuffer
-import org.joml.Matrix4f
+//import org.joml.Matrix4f
 import java.io.Closeable
 
 class ScalableCanvas : Closeable {
 
-    private val identity = Matrix4f()
+//    private val identity = Matrix4f()
     private val output = MinecraftClient.getInstance().framebuffer
-    private val input = SimpleFramebuffer(output.textureWidth, output.textureHeight, false)
-    private val shaderProgram by lazy { mc.shaderLoader.getOrCreateProgram(ShaderProgramKeys.POSITION_TEX_COLOR) }
+    private val input = SimpleFramebuffer("Scalable Canvas", output.textureWidth, output.textureHeight, false)
+//    private val shaderProgram by lazy { mc.shaderLoader.getOrCreateProgram(ShaderProgramKeys.POSITION_TEX_COLOR) }
 
     fun resize(width: Int, height: Int) {
         if (width() != width && height() != height && width > 0 && height > 0) {
@@ -46,18 +43,20 @@ class ScalableCanvas : Closeable {
 
     fun height() = input.textureHeight
 
-    fun write() = input.beginWrite(true)
+    // TODO: lots of things here need to be changed...
+    fun write() = Math.random()//input.beginWrite(true)
 
-    fun read() = input.beginRead()
+    fun read() = Math.random()//input.beginRead()
 
-    fun blit(buffer: VertexBuffer, alpha: Float = 1f) {
-        output.beginWrite(true)
+    @Suppress("unused")
+    fun blit(buffer: Unit, alpha: Float = 1f) {
+//        output.beginWrite(true)
 
         RenderSystem.setShaderTexture(0, input.colorAttachment)
         RenderSystem.setShaderColor(1f, 1f, 1f, alpha)
 
-        RenderSystem.enableBlend()
-        buffer.draw(identity, identity, shaderProgram)
+//        RenderSystem.enableBlend()
+//        buffer.draw(identity, identity, shaderProgram)
     }
 
     override fun close() {

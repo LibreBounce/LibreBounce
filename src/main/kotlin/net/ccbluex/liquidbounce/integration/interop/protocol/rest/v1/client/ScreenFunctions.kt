@@ -97,13 +97,13 @@ fun deleteScreen(requestObject: RequestObject): FullHttpResponse {
     val screen = mc.currentScreen ?: return httpForbidden("No screen")
 
     if (screen is VirtualDisplayScreen && screen.parentScreen != null) {
-        RenderSystem.recordRenderCall {
+        mc.execute {
             mc.setScreen(screen.parentScreen)
         }
         return httpNoContent()
     }
 
-    RenderSystem.recordRenderCall {
+    mc.execute {
         mc.setScreen(
             if (inGame) {
                 null

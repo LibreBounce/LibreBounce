@@ -22,6 +22,7 @@
 package net.ccbluex.liquidbounce.utils.item
 
 import com.mojang.brigadier.StringReader
+import net.ccbluex.liquidbounce.interfaces.ItemAddition
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.client.regular
@@ -42,9 +43,12 @@ import net.minecraft.entity.attribute.EntityAttributes
 import net.minecraft.entity.effect.StatusEffectInstance
 import net.minecraft.item.*
 import net.minecraft.item.consume.UseAction
+import net.minecraft.item.equipment.ArmorMaterial
 import net.minecraft.registry.RegistryKey
 import net.minecraft.registry.RegistryKeys
 import net.minecraft.registry.entry.RegistryEntry
+import net.minecraft.registry.tag.ItemTags
+import net.minecraft.registry.tag.TagKey
 import net.minecraft.util.math.BlockPos
 import java.util.*
 import kotlin.contracts.ExperimentalContracts
@@ -107,14 +111,22 @@ val ItemStack.foodComponent: FoodComponent?
 
 fun isHotbarSlot(slot: Int) = slot == 45 || slot in 36..44
 
-val MiningToolItem.type: Int
-    get() = when (this) {
-        is AxeItem -> 0
-        is PickaxeItem -> 1
-        is ShovelItem -> 2
-        is HoeItem -> 3
-        else -> error("Unknown tool item $this (WTF?)")
+val Item.type: Int
+    get() {
+        return when (this) {
+            is AxeItem -> 0
+            is ShovelItem -> 2
+            is HoeItem -> 3
+            else -> if (this.isIn(ItemTags.PICKAXES)) {
+                return 1
+            }
+            else {
+                error("Unknown tool item $this (WTF?)")
+            }
+        }
     }
+val Item.dataPackBypass: DataPackBypass?
+    get() = (this as ItemAddition).`liquid_bounce$getArmorItem`()
 
 fun ItemStack.getAttributeValue(attribute: RegistryEntry<EntityAttribute>) = item.components
     .getOrDefault(
@@ -167,6 +179,35 @@ private fun Item.getAttributeValue(attribute: RegistryEntry<EntityAttribute>): F
 
     return attribInstance.value.toFloat()
 }
+
+fun Item.isIn(tag: TagKey<Item>): Boolean {
+    return this.defaultStack.isIn(tag)
+}
+
+val Item.isSword
+    get() = this.defaultStack.isSword
+
+val ItemStack.isSword
+    get() = this.isIn(ItemTags.SWORDS)
+
+val Item.isPickaxe
+    get() = this.defaultStack.isPickaxe
+
+val ItemStack.isPickaxe
+    get() = this.isIn(ItemTags.PICKAXES)
+
+val Item.isTool
+    get() = this.defaultStack.isTool
+
+val ItemStack.isTool
+    get() = this.components.get(DataComponentTypes.TOOL) != null
+
+val Item.isArmor
+    get() = this.defaultStack.isArmor
+
+// TODO: please be enough
+val ItemStack.isArmor
+    get() = this.isIn(ItemTags.TRIMMABLE_ARMOR) || this.isIn(ItemTags.ARMOR_ENCHANTABLE)
 
 fun RegistryKey<Enchantment>.toRegistryEntry(): RegistryEntry<Enchantment> {
     val world = mc.world

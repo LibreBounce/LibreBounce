@@ -1,6 +1,6 @@
 package net.ccbluex.liquidbounce.render.engine.font.dynamic
 
-import com.mojang.blaze3d.platform.GlStateManager
+import com.mojang.blaze3d.opengl.GlStateManager
 import kotlinx.atomicfu.locks.ReentrantLock
 import kotlinx.atomicfu.locks.withLock
 import net.ccbluex.liquidbounce.render.FontManager
@@ -8,6 +8,7 @@ import net.ccbluex.liquidbounce.render.engine.font.FontGlyph
 import net.ccbluex.liquidbounce.render.engine.font.GlyphDescriptor
 import net.ccbluex.liquidbounce.utils.client.logger
 import net.minecraft.client.texture.NativeImage
+import org.lwjgl.opengl.GL11
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
@@ -53,7 +54,7 @@ class DynamicFontCacheManager(
         }
 
         val changes = this.glyphPageLock.withLock {
-            this.dynamicGlyphPage.texture.bindTexture()
+            this.dynamicGlyphPage.texture.upload()
 
             val requiredUpdateCount = this.glyphPageChanges.count { !it.removed }
 
@@ -81,13 +82,13 @@ class DynamicFontCacheManager(
                             false, false
                         )
 
-                        chunkImage.upload(
-                            0,
-                            bb.xMin.toInt(), bb.yMin.toInt(),
-                            0, 0,
-                            width, height,
-                            false
-                        )
+//                        chunkImage.upload(
+//                            0,
+//                            bb.xMin.toInt(), bb.yMin.toInt(),
+//                            0, 0,
+//                            width, height,
+//                            false
+//                        )
                     }
 
                 }

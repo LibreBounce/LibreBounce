@@ -182,13 +182,14 @@ class ItemCategorization(
 
         val specificItemFacets: Array<ItemFacet> = when (val item = slot.itemStack.item) {
             // Treat animal armor as a normal item
-            is AnimalArmorItem -> arrayOf(ItemFacet(slot))
-            is ArmorItem -> arrayOf(ArmorItemFacet(slot, this.futureArmorToKeep, this.armorComparator))
-            is SwordItem -> arrayOf(SwordItemFacet(slot))
+            // TODO: fix these
+//            is AnimalArmorItem -> arrayOf(ItemFacet(slot))
+//            is ArmorItem -> arrayOf(ArmorItemFacet(slot, this.futureArmorToKeep, this.armorComparator))
+//            is SwordItem -> arrayOf(SwordItemFacet(slot))
             is BowItem -> arrayOf(BowItemFacet(slot))
             is CrossbowItem -> arrayOf(CrossbowItemFacet(slot))
             is ArrowItem -> arrayOf(ArrowItemFacet(slot))
-            is MiningToolItem -> arrayOf(MiningToolItemFacet(slot))
+//            is MiningToolItem -> arrayOf(MiningToolItemFacet(slot))
             is FishingRodItem -> arrayOf(RodItemFacet(slot))
             is ShieldItem -> arrayOf(ShieldItemFacet(slot))
             is BlockItem -> {

@@ -1,12 +1,18 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat.autoarmor
 
+import net.ccbluex.liquidbounce.mcef.MCEF.mc
 import net.ccbluex.liquidbounce.utils.inventory.ItemSlot
 import net.ccbluex.liquidbounce.utils.inventory.Slots
 import net.ccbluex.liquidbounce.utils.item.ArmorComparator
 import net.ccbluex.liquidbounce.utils.item.ArmorKitParameters
 import net.ccbluex.liquidbounce.utils.item.ArmorPiece
+import net.minecraft.component.DataComponentTypes
+import net.minecraft.component.type.AttributeModifiersComponent
 import net.minecraft.entity.EquipmentSlot
-import net.minecraft.item.ArmorItem
+import net.minecraft.entity.attribute.EntityAttributeModifier
+import net.minecraft.entity.attribute.EntityAttributes
+import net.minecraft.registry.tag.ItemTags
+
 
 object ArmorEvaluation {
     /**
@@ -46,14 +52,14 @@ object ArmorEvaluation {
 
     private fun groupArmorByType(slots: List<ItemSlot>): Map<EquipmentSlot, List<ArmorPiece>> {
         val armorPiecesGroupedByType = slots.mapNotNull { slot ->
-            when (slot.itemStack.item) {
-                // Filter out animal armor which is an armor item but not for the player
-                // Note: in 1.21.4 [AnimalArmorItem] is not a subclass of [ArmorItem]
-                is ArmorItem -> ArmorPiece(slot)
-                else -> null
+            if (slot.itemStack.isIn(ItemTags.TRIMMABLE_ARMOR)) {
+                return@mapNotNull ArmorPiece(slot)
+            } else {
+                return@mapNotNull null
             }
-        }.groupBy(ArmorPiece::slotType)
+        }.groupBy { t -> t.slotType }
 
+        // TODO: please work lol
         return armorPiecesGroupedByType
     }
 

@@ -21,6 +21,7 @@ package net.ccbluex.liquidbounce.utils.inventory
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.ItemSlotType
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.client.player
+import net.ccbluex.liquidbounce.utils.entity.getArmor
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen
 import net.minecraft.item.ItemStack
 import net.minecraft.util.Hand
@@ -174,7 +175,7 @@ class InventoryItemSlot(private val inventorySlot: Int) : ItemSlot() {
 
 class ArmorItemSlot(private val armorType: Int) : ItemSlot() {
     override val itemStack: ItemStack
-        get() = player.inventory.armor[this.armorType]
+        get() = player.equipment.getArmor()[this.armorType]
 
     override val slotType: ItemSlotType
         get() = ItemSlotType.ARMOR

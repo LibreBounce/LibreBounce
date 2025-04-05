@@ -51,7 +51,7 @@ object Reconnect : EventListener {
         val serverInfo = lastServer ?: error("no known last server")
         val serverAddress = ServerAddress.parse(serverInfo.address)
 
-        RenderSystem.recordRenderCall {
+        mc.execute {
             ConnectScreen.connect(
                 MultiplayerScreen(TitleScreen()),
                 mc,

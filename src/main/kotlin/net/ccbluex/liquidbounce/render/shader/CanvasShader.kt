@@ -20,10 +20,12 @@ package net.ccbluex.liquidbounce.render.shader
 
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.minecraft.client.gl.GlUniform
-import net.minecraft.client.gl.GlUsage
-import net.minecraft.client.gl.VertexBuffer
+//import net.minecraft.client.gl.GlUsage
+//import net.minecraft.client.gl.VertexBuffer
 import net.minecraft.client.render.Tessellator
-import net.minecraft.client.render.VertexFormat
+import com.mojang.blaze3d.vertex.VertexFormat
+//import com.mojang.blaze3d.vertex.VertexFormats
+//import net.caffeinemc.mods.sodium.client.gl.buffer.GlBufferUsage
 import net.minecraft.client.render.VertexFormats
 import org.lwjgl.opengl.GL30
 
@@ -37,7 +39,7 @@ open class CanvasShader(vertex: String, fragment: String, uniforms: Array<Unifor
     : Shader(vertex, fragment, uniforms) {
 
     private var canvas = ScalableCanvas()
-    private var buffer = VertexBuffer(GlUsage.DYNAMIC_WRITE)
+//    private var buffer = VertexBuffer(GlBufferUsage.DYNAMIC_DRAW)
 
     private val timeLocation: Int
     private val mouseLocation: Int
@@ -58,9 +60,9 @@ open class CanvasShader(vertex: String, fragment: String, uniforms: Array<Unifor
         buffer.vertex(-1.0f, 1.0f, 1.0f).texture(0f, 1f)
             .color(1f, 1f, 1f, 1f)
 
-        this.buffer.bind()
-        this.buffer.upload(buffer.end())
-        VertexBuffer.unbind()
+//        this.buffer.bind()
+//        this.buffer.upload(buffer.end())
+//        VertexBuffer.unbind()
 
         // get uniform pointers
         timeLocation = GlUniform.getUniformLocation(program, "time")
@@ -89,14 +91,14 @@ open class CanvasShader(vertex: String, fragment: String, uniforms: Array<Unifor
         }
 
         // draw
-        buffer.bind()
-        buffer.draw()
-        canvas.blit(buffer)
+//        buffer.bind()
+//        buffer.draw()
+//        canvas.blit(buffer)
     }
 
     override fun close() {
         super.close()
-        buffer.close()
+//        buffer.close()
         canvas.close()
     }
 

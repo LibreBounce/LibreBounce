@@ -76,7 +76,7 @@ class OverlayTrainingListener(
             .append(withColor("░".repeat(25 - progress / 4), Formatting.DARK_GRAY))
             .append(withColor("]", Formatting.GRAY))
 
-        RenderSystem.recordRenderCall {
+        mc.execute {
             mc.inGameHud.setOverlayMessage(progressBar, false)
         }
     }

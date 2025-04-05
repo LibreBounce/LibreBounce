@@ -6,6 +6,7 @@ import net.minecraft.client.texture.NativeImage
 import net.minecraft.client.texture.NativeImageBackedTexture
 import net.minecraft.util.Identifier
 import java.io.InputStream
+import java.util.function.Supplier
 
 /**
  * @param path prefix /resources/liquidbounce/$path
@@ -26,6 +27,14 @@ inline fun Identifier.registerDynamicImage(image: InputStream) {
     this.registerDynamicImage(NativeImage.read(image))
 }
 
+val Identifier.combined: String
+    inline get() = "${this.namespace}:${this.path}"
+
 inline fun Identifier.registerDynamicImage(image: NativeImage) {
-    mc.textureManager.registerTexture(this, NativeImageBackedTexture(image))
+    mc.textureManager.registerTexture(
+        this,
+        NativeImageBackedTexture(Supplier { return@Supplier this.combined },
+            image
+        )
+    )
 }

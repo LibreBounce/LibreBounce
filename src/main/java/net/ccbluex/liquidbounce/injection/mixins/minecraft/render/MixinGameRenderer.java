@@ -137,7 +137,7 @@ public abstract class MixinGameRenderer {
 
         newMatStack.multiplyPositionMatrix(matrix4f2);
 
-        EventManager.INSTANCE.callEvent(new WorldRenderEvent(newMatStack, this.camera, tickCounter.getTickDelta(false)));
+        EventManager.INSTANCE.callEvent(new WorldRenderEvent(newMatStack, this.camera, tickCounter.getTickProgress(false)));
     }
 
     @Inject(method = "renderHand", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/LightmapTextureManager;enable()V", shift = At.Shift.AFTER))
@@ -163,7 +163,7 @@ public abstract class MixinGameRenderer {
             target = "Lnet/minecraft/client/gui/screen/Screen;renderWithTooltip(Lnet/minecraft/client/gui/DrawContext;IIF)V",
             shift = At.Shift.AFTER))
     public void hookScreenRender(RenderTickCounter tickCounter, boolean tick, CallbackInfo ci, @Local DrawContext drawContext) {
-        EventManager.INSTANCE.callEvent(new ScreenRenderEvent(drawContext, tickCounter.getTickDelta(false)));
+        EventManager.INSTANCE.callEvent(new ScreenRenderEvent(drawContext, tickCounter.getTickProgress(false)));
     }
 
     @Inject(method = "tiltViewWhenHurt", at = @At("HEAD"), cancellable = true)
@@ -192,7 +192,7 @@ public abstract class MixinGameRenderer {
 
         float g = playerEntity.distanceMoved - playerEntity.lastDistanceMoved;
         float h = -(playerEntity.distanceMoved + g * f);
-        float i = MathHelper.lerp(f, playerEntity.prevStrideDistance, playerEntity.strideDistance);
+        float i = MathHelper.lerp(f, playerEntity.lastStrideDistance, playerEntity.strideDistance);
         matrixStack.translate((MathHelper.sin(h * MathHelper.PI) * i * 0.5F), -Math.abs(MathHelper.cos(h * MathHelper.PI) * i), 0.0D);
         matrixStack.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(MathHelper.sin(h * MathHelper.PI) * i * (3.0F + additionalBobbing)));
         matrixStack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(Math.abs(MathHelper.cos(h * MathHelper.PI - (0.2F + additionalBobbing)) * i) * 5.0F));

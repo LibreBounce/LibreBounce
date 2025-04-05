@@ -37,7 +37,7 @@ import net.minecraft.entity.effect.StatusEffects
 class SpeedVulcan286(override val parent: ChoiceConfigurable<*>) : SpeedBHopBase("Vulcan286", parent) {
 
     private inline val goingSideways: Boolean
-        get() = player.input.movementSideways != 0f
+        get() = player.input.playerInput.right || player.input.playerInput.left
 
     @Suppress("unused")
     private val afterJumpHandler = sequenceHandler<PlayerAfterJumpEvent> {

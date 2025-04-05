@@ -144,8 +144,9 @@ object ModuleTeams : ClientModule("Teams", Category.MISC) {
          */
         @Suppress("ReturnCount")
         fun matchesArmorColor(suspected: PlayerEntity): Boolean {
-            val ownStack = player.inventory.getArmorStack(slot)
-            val otherStack = suspected.inventory.getArmorStack(slot)
+            // TODO: hopefully works
+            val ownStack = player.inventory.getStack(slot)
+            val otherStack = suspected.inventory.getStack(slot)
 
             // returns false if the armor is not dyeable (e.g., iron armor)
             // to avoid a false positive from `null == null`

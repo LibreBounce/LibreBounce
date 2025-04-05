@@ -88,7 +88,7 @@ internal enum class InventoryRequirements(
     val testRequirement: (action: InventoryAction) -> Boolean
 ) : NamedChoice {
     NO_MOVEMENT("NoMovement", { _ ->
-        player.input.movementForward == 0.0f && player.input.movementSideways == 0.0f
+        !player.input.hasForwardMovement() && (player.input.playerInput.left || player.input.playerInput.right)
     }),
 
     NO_ROTATION("NoRotation", { _ ->
@@ -114,7 +114,7 @@ internal enum class InventoryRequirements(
     })
 }
 
-fun hasInventorySpace() = player.inventory.main.any { it.isEmpty }
+fun hasInventorySpace() = player.inventory.mainStacks.any { it.isEmpty }
 
 fun findEmptyStorageSlotsInInventory(): List<ItemSlot> {
     return (Slots.Inventory + Slots.Hotbar).filter { it.itemStack.isEmpty }

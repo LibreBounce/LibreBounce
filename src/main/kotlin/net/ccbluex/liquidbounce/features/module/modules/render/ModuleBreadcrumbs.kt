@@ -33,12 +33,8 @@ import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
 import net.ccbluex.liquidbounce.render.utils.rainbow
 import net.ccbluex.liquidbounce.utils.kotlin.component1
 import net.ccbluex.liquidbounce.utils.kotlin.component2
-import net.minecraft.client.gl.ShaderProgramKeys
 import net.minecraft.client.render.BufferBuilder
-import net.minecraft.client.render.BufferRenderer
 import net.minecraft.client.render.Camera
-import net.minecraft.client.render.VertexFormat.DrawMode
-import net.minecraft.client.render.VertexFormats
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.entity.Entity
 import org.joml.Matrix4f
@@ -57,6 +53,7 @@ object ModuleBreadcrumbs : ClientModule("Breadcrumbs", Category.RENDER, aliases 
     private val color by color("Color", Color4b(70, 119, 255, 120))
     private val colorRainbow by boolean("Rainbow", false)
     private val height by float("Height", 0.5f, 0f..2f)
+//    private val vertexBuffer = VertexBuffer(GlBufferUsage.DYNAMIC_WRITE)
 
     internal object TemporaryConfigurable : ToggleableConfigurable(this, "Temporary", true) {
         val alive by int("Alive", 900, 10..10000, "ms")
@@ -83,38 +80,42 @@ object ModuleBreadcrumbs : ClientModule("Breadcrumbs", Category.RENDER, aliases 
         }
     }
 
+    @Suppress("UnusedParameter")
     private fun draw(matrixStack: MatrixStack, color: Color4b) {
         if (trails.isEmpty()) {
             return
         }
 
         if (height > 0) {
-            RenderSystem.disableCull()
+            // TODO: find disableCull
+//            RenderSystem.disableCull()
         }
 
         val matrix = matrixStack.peek().positionMatrix
 
-        @Suppress("SpellCheckingInspection")
-        val tessellator = RenderSystem.renderThreadTesselator()
-        val camera = mc.entityRenderDispatcher.camera ?: return
-        val time = System.currentTimeMillis()
-        val colorF = Vector4f(color.r / 255f, color.g / 255f, color.b / 255f, color.a / 255f)
-        val lines = height == 0f
-        val buffer = tessellator.begin(if (lines) DrawMode.DEBUG_LINES else DrawMode.QUADS,
-            VertexFormats.POSITION_COLOR)
-        val renderData = RenderData(matrix, buffer, colorF, lines)
+//        @Suppress("SpellCheckingInspection")
+//        TODO: find renderThreadTesselator
+//        val tessellator = RenderSystem.renderThreadTesselator()
+//        val camera = mc.entityRenderDispatcher.camera ?: return
+//        val time = System.currentTimeMillis()
+//        val colorF = Vector4f(color.r / 255f, color.g / 255f, color.b / 255f, color.a / 255f)
+//        val lines = height == 0f
+//        val buffer = tessellator.begin(if (lines) DrawMode.DEBUG_LINES else DrawMode.QUADS,
+//            VertexFormats.POSITION_COLOR)
+//        val renderData = RenderData(matrix, buffer, colorF, lines)
 
-        RenderSystem.setShader(ShaderProgramKeys.POSITION_COLOR)
+//        RenderSystem.setShader(ShaderProgramKeys.POSITION_COLOR)
 
-        trails.forEach { (entity, trail) ->
-            trail.verifyAndRenderTrail(renderData, camera, entity, time)
-        }
+//        trails.forEach { (entity, trail) ->
+//            trail.verifyAndRenderTrail(renderData, camera, entity, time)
+//        }
 
-        BufferRenderer.drawWithGlobalProgram(buffer.endNullable() ?: return)
+//        vertexBuffer.upload(buffer.endNullable() ?: return)
+//        vertexBuffer.draw()
 
-        if (height > 0) {
-            RenderSystem.enableCull()
-        }
+//        if (height > 0) {
+//            RenderSystem.enableCull()
+//        }
     }
 
     /**
@@ -203,7 +204,7 @@ object ModuleBreadcrumbs : ClientModule("Breadcrumbs", Category.RENDER, aliases 
                 ObjectFloatMutablePair.of(point, alpha)
             }
 
-            val interpolatedPos = entity.getLerpedPos(mc.renderTickCounter.getTickDelta(true))
+            val interpolatedPos = entity.getLerpedPos(mc.renderTickCounter.getTickProgress(true))
             val point = calculatePoint(camera, interpolatedPos.x, interpolatedPos.y, interpolatedPos.z)
             pointsWithAlpha.last().left(point)
 

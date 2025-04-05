@@ -62,7 +62,7 @@ object ModuleSuperKnockback : ClientModule("SuperKnockback", Category.COMBAT, al
             player.isOnGround
         }),
         NOT_IN_WATER("NotInWater", { _ ->
-            !player.isInsideWaterOrBubbleColumn
+            !player.isSubmergedInWater
         }),
     }
 
@@ -210,8 +210,9 @@ object ModuleSuperKnockback : ClientModule("SuperKnockback", Category.COMBAT, al
     @Suppress("ReturnCount")
     private fun shouldOperate(target: Entity): Boolean {
         if (OnlyOnMove.enabled) {
-            val isMovingSideways = player.input.movementSideways != 0f
-            val isMoving = player.input.movementForward != 0f || isMovingSideways
+            // TODO: probably should revisit this?
+            val isMovingSideways = player.input.playerInput.left || player.input.playerInput.right
+            val isMoving = player.input.playerInput.forward || player.input.playerInput.backward || isMovingSideways
 
             if (!isMoving || (OnlyOnMove.onlyForward && isMovingSideways)) {
                 return false

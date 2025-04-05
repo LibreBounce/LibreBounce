@@ -19,6 +19,8 @@
 package net.ccbluex.liquidbounce.features.module.modules.render.nametags
 
 import net.ccbluex.liquidbounce.render.engine.Vec3
+import net.ccbluex.liquidbounce.utils.entity.getArmor
+import net.ccbluex.liquidbounce.utils.entity.handItems
 import net.ccbluex.liquidbounce.utils.entity.interpolateCurrentPosition
 import net.ccbluex.liquidbounce.utils.render.WorldToScreen
 import net.minecraft.entity.Entity
@@ -66,7 +68,7 @@ data class Nametag private constructor(
             val firstHandItem = itemIterator.next()
             val secondHandItem = itemIterator.next()
 
-            val armorItems = entity.armorItems.reversed()
+            val armorItems = entity.equipment.getArmor().reversed()
 
             return listOf(firstHandItem) + armorItems + secondHandItem
         }

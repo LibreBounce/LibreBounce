@@ -90,8 +90,8 @@ object CommandFriend : CommandFactory {
 
                         val formattedFriendName = bypassNameProtection(variable(friend.name))
                         val friendTextWithEvent = formattedFriendName.styled {
-                            it.withClickEvent(ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, friend.name))
-                                .withHoverEvent(HoverEvent(HoverEvent.Action.SHOW_TEXT, copyText))
+                            it.withClickEvent(ClickEvent.CopyToClipboard(friend.name))
+                                .withHoverEvent(HoverEvent.ShowText(copyText))
                                 .withItalic(true)
                         }
 
@@ -102,8 +102,8 @@ object CommandFriend : CommandFactory {
                             it
                                 .withFormatting(Formatting.RED)
                                 .withBold(true)
-                                .withHoverEvent(HoverEvent(HoverEvent.Action.SHOW_TEXT, removeText))
-                                .withClickEvent(ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, removeCommand))
+                                .withHoverEvent(HoverEvent.ShowText(removeText))
+                                .withClickEvent(ClickEvent.SuggestCommand(removeCommand))
                         }
 
                         chat(

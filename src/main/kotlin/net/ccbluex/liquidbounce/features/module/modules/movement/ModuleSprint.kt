@@ -114,7 +114,8 @@ object ModuleSprint : ClientModule("Sprint", Category.MOVEMENT) {
     @Suppress("MagicNumber")
     fun shouldPreventSprint(): Boolean {
         val deltaYaw = player.yaw - (RotationManager.currentRotation ?: return false).yaw
-        val (forward, sideways) = Pair(player.input.movementForward, player.input.movementSideways)
+        // TODO: please work lol
+        val (forward, sideways) = Pair(player.input.movementInput.x, player.input.movementInput.y)
 
         val hasForwardMovement = forward * MathHelper.cos(deltaYaw * 0.017453292f) + sideways *
             MathHelper.sin(deltaYaw * 0.017453292f) > 1.0E-5

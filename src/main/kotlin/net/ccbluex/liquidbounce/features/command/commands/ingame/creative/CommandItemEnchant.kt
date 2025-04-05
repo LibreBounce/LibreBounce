@@ -181,7 +181,8 @@ object CommandItemEnchant : CommandFactory, MinecraftShortcuts {
     }
 
     private fun creativeOrThrow(command: Command) {
-        if (mc.interactionManager?.hasCreativeInventory() == false) {
+        // TODO: you can probably have creative inventory in survival through abilities or something, "hack fix" I guess
+        if (!player.isInCreativeMode) {
             throw CommandException(command.resultWithTree("mustBeCreative"))
         }
     }

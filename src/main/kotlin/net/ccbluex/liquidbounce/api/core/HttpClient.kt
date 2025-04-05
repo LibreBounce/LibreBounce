@@ -114,7 +114,10 @@ inline fun <reified T> Response.parse(): T {
         BufferedSource::class.java -> body.source()
         Reader::class.java -> body.charStream()
         NativeImageBackedTexture::class.java -> body.byteStream().use { stream ->
-            NativeImageBackedTexture(NativeImage.read(stream))
+            // TODO: please work
+                NativeImageBackedTexture({
+                    return@NativeImageBackedTexture ""
+                }, NativeImage.read(stream))
         }
         else -> decode(body.charStream())
     } as T

@@ -33,10 +33,10 @@ import net.ccbluex.liquidbounce.utils.client.isOlderThanOrEqual1_8
 import net.ccbluex.liquidbounce.utils.inventory.HotbarItemSlot
 import net.ccbluex.liquidbounce.utils.inventory.Slots
 import net.ccbluex.liquidbounce.utils.item.isConsumable
+import net.ccbluex.liquidbounce.utils.item.isSword
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.item.AxeItem
-import net.minecraft.item.SwordItem
 import net.minecraft.util.Hand
 
 /**
@@ -62,7 +62,7 @@ object ModuleAutoWeapon : ClientModule("AutoWeapon", Category.COMBAT) {
         val filter: (WeaponItemFacet) -> Boolean
     ): NamedChoice {
         ANY("Any", { true }),
-        SWORD("Sword", { it.itemStack.item is SwordItem }),
+        SWORD("Sword", { it.itemStack.isSword }),
         AXE("Axe", { it.itemStack.item is AxeItem }),
 
         /**
@@ -160,10 +160,12 @@ object ModuleAutoWeapon : ClientModule("AutoWeapon", Category.COMBAT) {
         }
     }
 
+    @Suppress("detekt:UnusedParameter")
     private fun determineWeaponSlot(target: LivingEntity?, enforceShield: Boolean = false): HotbarItemSlot? {
         val itemCategorization = ItemCategorization(Slots.Hotbar)
-        val blockedByShield = enforceShield || !isOlderThanOrEqual1_8 &&
-            target?.blockedByShield(world.damageSources.playerAttack(player)) == true
+        // TODO: find `blockedByShield`
+        val blockedByShield = enforceShield /*|| !isOlderThanOrEqual1_8 &&
+            target?.blockedByShield(world.damageSources.playerAttack(player)) == true*/
 
         val bestSlot = Slots.Hotbar
             .flatMap { slot -> itemCategorization.getItemFacets(slot).filterIsInstance<WeaponItemFacet>() }

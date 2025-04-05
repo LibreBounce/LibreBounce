@@ -23,6 +23,7 @@ package net.ccbluex.liquidbounce.integration.theme.component.types.minimap
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.engine.font.BoundingBox2f
 import net.ccbluex.liquidbounce.utils.math.Vec2i
+import net.minecraft.client.texture.GlTexture
 import net.minecraft.client.texture.NativeImage
 import net.minecraft.client.texture.NativeImageBackedTexture
 import net.minecraft.util.math.ChunkPos
@@ -46,7 +47,7 @@ private const val MAX_ATLAS_POSITIONS: Int = ATLAS_SIZE * ATLAS_SIZE - 1
 private val NOT_LOADED_ATLAS_POSITION = MinimapTextureAtlasManager.AtlasPosition(0, 0)
 
 class MinimapTextureAtlasManager {
-    private val texture = NativeImageBackedTexture(ATLAS_SIZE * 16, ATLAS_SIZE * 16, false)
+    private val texture = NativeImageBackedTexture("Minimap Texture", ATLAS_SIZE * 16, ATLAS_SIZE * 16, false)
     private val availableAtlasPositions: ArrayBlockingQueue<AtlasPosition>
     private val dirtyAtlasPositions = hashSetOf<AtlasPosition>()
     private val chunkPosAtlasPosMap = hashMapOf<ChunkPos, AtlasPosition>()
@@ -136,10 +137,10 @@ class MinimapTextureAtlasManager {
     fun prepareRendering(): Int {
         lock.read {
             if (this.dirtyAtlasPositions.isEmpty()) {
-                return this.texture.glId
+                return (this.texture as GlTexture).glId
             }
 
-            this.texture.bindTexture()
+            (this.texture as GlTexture).glId
 
             val dirtyChunks = this.dirtyAtlasPositions.size
 
@@ -153,7 +154,7 @@ class MinimapTextureAtlasManager {
             this.dirtyAtlasPositions.clear()
         }
 
-        return this.texture.glId
+        return (this.texture.glTexture as GlTexture).glId
     }
 
     private fun uploadFullTexture() {
@@ -177,13 +178,14 @@ class MinimapTextureAtlasManager {
                     false, false
                 )
 
-                chunkImage.upload(
-                    0,
-                    dirtyAtlasPosition.baseXOnAtlas, dirtyAtlasPosition.baseYOnAtlas,
-                    0, 0,
-                    16, 16,
-                    false
-                )
+                // TODO: find NativeImage.upload
+//                chunkImage.upload(
+//                    0,
+//                    dirtyAtlasPosition.baseXOnAtlas, dirtyAtlasPosition.baseYOnAtlas,
+//                    0, 0,
+//                    16, 16,
+//                    false
+//                )
             }
         }
     }

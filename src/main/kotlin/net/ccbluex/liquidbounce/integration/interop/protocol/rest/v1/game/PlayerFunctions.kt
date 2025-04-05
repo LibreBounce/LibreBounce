@@ -29,6 +29,7 @@ import net.ccbluex.liquidbounce.utils.client.interaction
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.entity.getActualHealth
+import net.ccbluex.liquidbounce.utils.entity.getArmor
 import net.ccbluex.liquidbounce.utils.entity.netherPosition
 import net.ccbluex.liquidbounce.utils.entity.ping
 import net.ccbluex.netty.http.model.RequestObject
@@ -116,7 +117,7 @@ data class PlayerData(
             player.statusEffects.toList(),
             player.mainHandStack,
             if (shouldHideOffhand(player = player) && hideShieldSlot) ItemStack.EMPTY else player.offHandStack,
-            player.armorItems.toList(),
+            player.equipment.getArmor().toList(),
             if (mc.player == player) ScoreboardData.fromScoreboard(player.scoreboard) else null
         )
     }
@@ -131,8 +132,8 @@ data class PlayerInventoryData(
 
     companion object {
         fun fromPlayer(player: PlayerEntity) = PlayerInventoryData(
-            armor = player.inventory.armor.map(ItemStack::copy),
-            main = player.inventory.main.map(ItemStack::copy),
+            armor = player.equipment.getArmor().map(ItemStack::copy),
+            main = player.inventory.mainStacks.map(ItemStack::copy),
             crafting = player.playerScreenHandler.craftingInput.heldStacks.map(ItemStack::copy)
         )
     }

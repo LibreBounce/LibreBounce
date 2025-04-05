@@ -51,24 +51,25 @@ open class FakePlayer(
      */
     fun loadAttributes(snapshot: PosPoseSnapshot) {
         this.setPosition(snapshot.x, snapshot.y, snapshot.z)
-        this.prevX = snapshot.prevX
-        this.prevY = snapshot.prevY
-        this.prevZ = snapshot.prevZ
+        this.lastX = snapshot.prevX
+        this.lastY = snapshot.prevY
+        this.lastZ = snapshot.prevZ
         this.handSwinging = snapshot.handSwinging
         this.handSwingTicks = snapshot.handSwingTicks
         this.handSwingProgress = snapshot.handSwingProgress
-        this.prevYaw = snapshot.yaw
+        this.lastYaw = snapshot.yaw
         this.yaw = snapshot.prevYaw
-        this.prevPitch = snapshot.pitch
+        this.lastPitch = snapshot.pitch
         this.pitch = snapshot.prevPitch
-        this.prevBodyYaw = snapshot.bodyYaw
+        this.lastBodyYaw = snapshot.bodyYaw
         this.bodyYaw = snapshot.prevBodyYaw
-        this.prevHeadYaw = snapshot.headYaw
+        this.lastHeadYaw = snapshot.headYaw
         this.headYaw = snapshot.prevHeadYaw
         this.pose = snapshot.pose
         this.preferredHand = snapshot.preferredHand
         this.inventory.clone(snapshot.inventory)
-        this.limbAnimator.pos = snapshot.limbPos
+        // TODO: find limbAnimator.pos
+//        this.limbAnimator.pos = snapshot.limbPos
     }
 
     override fun setHealth(health: Float) {

@@ -30,7 +30,7 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.ModuleAntiBot
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.ModuleAntiBot.isADuplicate
-import net.ccbluex.liquidbounce.utils.item.material
+import net.ccbluex.liquidbounce.utils.entity.getArmor
 import net.ccbluex.liquidbounce.utils.math.sq
 import net.minecraft.block.AbstractSkullBlock
 import net.minecraft.entity.player.PlayerEntity
@@ -94,9 +94,10 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
             PUMPKIN("Pumpkin", Items.CARVED_PUMPKIN),
             SKULL("Skull", { (it.item as? BlockItem)?.block is AbstractSkullBlock });
 
+            @Suppress("UnusedPrivateProperty")
             constructor(choiceName: String, material: ArmorMaterial) : this(
                 choiceName,
-                { (it.item as? ArmorItem)?.material() == material }
+                { true } // TODO: find a replacement for ArmorItem.material()
             )
 
             constructor(choiceName: String, item: Item) : this(choiceName, { it.item === item })
@@ -132,7 +133,7 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
         )
 
         fun isValid(entity: PlayerEntity): Boolean {
-            return entity.armorItems.withIndex().all { (index, armor) ->
+            return entity.equipment.getArmor().withIndex().all { (index, armor) ->
                 val predicates = values[values.lastIndex - index].get()
                 // Nothing selected = skip this part
                 return predicates.isEmpty() || predicates.any {
@@ -218,7 +219,7 @@ object CustomAntiBotMode : Choice("Custom"), ModuleAntiBot.IAntiBotMode {
                 val entity = packet.getEntity(world) ?: return@handler
                 val id = entity.id
                 val currentValue = flyingSet.getOrDefault(id, 0)
-                if (entity.isOnGround && entity.prevY != entity.y) {
+                if (entity.isOnGround && entity.lastY != entity.y) {
                     flyingSet.put(id, currentValue + 1)
                 } else if (!entity.isOnGround && currentValue > 0) {
                     val newVL = currentValue / 2

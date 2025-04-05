@@ -96,16 +96,17 @@ public abstract class MixinWorldRenderer {
         try {
             OutlineShader outlineShader = OutlineShader.INSTANCE;
             outlineShader.update();
-            outlineShader.getHandle().get().beginWrite(false);
+			// TODO: find beginWrite
+//            outlineShader.getHandle().get().beginWrite(false);
 
-            var event = new DrawOutlinesEvent(new MatrixStack(), camera, tickCounter.getTickDelta(false), DrawOutlinesEvent.OutlineType.INBUILT_OUTLINE);
+            var event = new DrawOutlinesEvent(new MatrixStack(), camera, tickCounter.getTickProgress(false), DrawOutlinesEvent.OutlineType.INBUILT_OUTLINE);
             EventManager.INSTANCE.callEvent(event);
 
             if (event.getDirtyFlag()) {
                 outlineShader.setDirty(true);
             }
 
-            client.getFramebuffer().beginWrite(false);
+//            client.getFramebuffer().beginWrite(false);
         } catch (Throwable e) {
             ClientUtilsKt.getLogger().error("Failed to begin outline shader", e);
         }
@@ -151,13 +152,13 @@ public abstract class MixinWorldRenderer {
     }
 
     @Inject(method = "method_62214", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/OutlineVertexConsumerProvider;draw()V"))
-    private void onDrawOutlines(Fog fog, RenderTickCounter renderTickCounter, Camera camera, Profiler profiler, Matrix4f matrix4f, Matrix4f matrix4f2, Handle handle, Handle handle2, Handle handle3, Handle handle4, boolean bl, Frustum frustum, Handle handle5, CallbackInfo ci) {
+    private void onDrawOutlines(Fog fog, RenderTickCounter renderTickCounter, Camera camera, Profiler profiler, Matrix4f matrix4f, Matrix4f matrix4f2, Handle handle, Handle handle2, boolean bl, Frustum frustum, Handle handle3, Handle handle4, CallbackInfo ci) {
         if (OutlineShader.INSTANCE.getDirty()) {
             OutlineShader.INSTANCE.draw();
         }
     }
 
-    @Inject(method = "drawEntityOutlinesFramebuffer", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gl/Framebuffer;drawInternal(II)V"))
+    @Inject(method = "drawEntityOutlinesFramebuffer", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gl/Framebuffer;drawBlit(Lcom/mojang/blaze3d/textures/GpuTexture;)V"))
     private void onDrawEntityOutlinesFramebuffer(CallbackInfo info) {
         if (OutlineShader.INSTANCE.getDirty()) {
             OutlineShader.INSTANCE.apply(false);
@@ -241,17 +242,17 @@ public abstract class MixinWorldRenderer {
     }
 
     @Inject(method = "method_62214", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/OutlineVertexConsumerProvider;draw()V", shift = At.Shift.BEFORE))
-    private void onRenderOutline(Fog fog, RenderTickCounter renderTickCounter, Camera camera, Profiler profiler, Matrix4f matrix4f, Matrix4f matrix4f2, Handle handle, Handle handle2, Handle handle3, Handle handle4, boolean bl, Frustum frustum, Handle handle5, CallbackInfo ci) {
+    private void onRenderOutline(Fog fog, RenderTickCounter renderTickCounter, Camera camera, Profiler profiler, Matrix4f matrix4f, Matrix4f matrix4f2, Handle handle, Handle handle2, boolean bl, Frustum frustum, Handle handle3, Handle handle4, CallbackInfo ci) {
         if (!this.canDrawEntityOutlines()) {
             return;
         }
 
-        //noinspection DataFlowIssue
-        this.getEntityOutlinesFramebuffer().beginWrite(false);
-        var event = new DrawOutlinesEvent(new MatrixStack(), camera, renderTickCounter.getTickDelta(false), DrawOutlinesEvent.OutlineType.MINECRAFT_GLOW);
+		// TODO: find begin write
+//        this.getEntityOutlinesFramebuffer().beginWrite(false);
+        var event = new DrawOutlinesEvent(new MatrixStack(), camera, renderTickCounter.getTickProgress(false), DrawOutlinesEvent.OutlineType.MINECRAFT_GLOW);
         EventManager.INSTANCE.callEvent(event);
         OutlineFlag.drawOutline |= event.getDirtyFlag();
-        client.getFramebuffer().beginWrite(false);
+//        client.getFramebuffer().beginWrite(false);
     }
 
     @ModifyVariable(method = "render", at = @At(

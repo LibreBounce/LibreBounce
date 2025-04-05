@@ -18,8 +18,8 @@
  */
 package net.ccbluex.liquidbounce.utils.render
 
-import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
+import com.mojang.blaze3d.vertex.VertexFormat
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
@@ -34,9 +34,8 @@ import net.ccbluex.liquidbounce.utils.entity.lastRenderPos
 import net.ccbluex.liquidbounce.utils.math.interpolate
 import net.ccbluex.liquidbounce.utils.math.plus
 import net.ccbluex.liquidbounce.utils.render.WorldToScreen.calculateScreenPos
-import net.minecraft.client.gl.ShaderProgramKeys
-import net.minecraft.client.render.VertexFormat
 import net.minecraft.client.render.VertexFormats
+import net.minecraft.client.texture.GlTexture
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
@@ -81,7 +80,7 @@ class WorldTargetRenderer(module: ClientModule) : TargetRenderer<WorldRenderEnvi
 
     inner class Ghost : WorldTargetRenderAppearance("Ghost") {
 
-        private val glow = "particles/glow.png".registerAsDynamicImageFromClientResources()
+//        private val glow = "particles/glow.png".registerAsDynamicImageFromClientResources()
 
         private var lastTime = System.currentTimeMillis()
 
@@ -94,15 +93,16 @@ class WorldTargetRenderer(module: ClientModule) : TargetRenderer<WorldRenderEnvi
 
         override fun render(env: WorldRenderEnvironment, entity: Entity, partialTicks: Float) {
             env.matrixStack.push()
-            RenderSystem.depthMask(false)
-            RenderSystem.disableCull()
-            mc.gameRenderer.lightmapTextureManager.disable()
-            RenderSystem.blendFuncSeparate(
-                GlStateManager.SrcFactor.SRC_ALPHA,
-                GlStateManager.DstFactor.ONE,
-                GlStateManager.SrcFactor.ZERO,
-                GlStateManager.DstFactor.ONE
-            )
+            // TODO: fix this
+//            RenderSystem.depthMask(false)
+//            RenderSystem.disableCull()
+//            mc.gameRenderer.lightmapTextureManager.disable()
+//            RenderSystem.blendFuncSeparate(
+//                GlStateManager.SrcFactor.SRC_ALPHA,
+//                GlStateManager.DstFactor.ONE,
+//                GlStateManager.SrcFactor.ZERO,
+//                GlStateManager.DstFactor.ONE
+//            )
 
             with(mc.gameRenderer.camera.pos) {
                 env.matrixStack.translate(-this.x, -this.y, -this.z)
@@ -119,7 +119,8 @@ class WorldTargetRenderer(module: ClientModule) : TargetRenderer<WorldRenderEnvi
                 )
             }
 
-            RenderSystem.setShaderTexture(0, glow)
+//            TODO: also fix this
+//            RenderSystem.setShaderTexture(0, glow)
 
             with(env) {
                 drawParticle(
@@ -138,10 +139,10 @@ class WorldTargetRenderer(module: ClientModule) : TargetRenderer<WorldRenderEnvi
                 )
             }
 
-            RenderSystem.depthMask(true)
-            RenderSystem.defaultBlendFunc()
+//            RenderSystem.depthMask(true)
+//            RenderSystem.defaultBlendFunc()
             mc.gameRenderer.lightmapTextureManager.enable()
-            RenderSystem.enableCull()
+//            RenderSystem.enableCull()
             env.matrixStack.pop()
         }
 
@@ -175,7 +176,7 @@ class WorldTargetRenderer(module: ClientModule) : TargetRenderer<WorldRenderEnvi
                 drawCustomMesh(
                     VertexFormat.DrawMode.QUADS,
                     VertexFormats.POSITION_TEXTURE_COLOR,
-                    ShaderProgramKeys.POSITION_TEX_COLOR
+//                    ShaderProgramKeys.POSITION_TEX_COLOR
                 ) { matrix ->
                     vertex(matrix, 0.0f, -size, 0.0f)
                         .texture(0.0f, 0.0f)
@@ -421,23 +422,23 @@ class OverlayTargetRenderer(module: ClientModule) : TargetRenderer<GUIRenderEnvi
         private val size by float("Size", 1.5f, 0.5f..20f)
 
         override fun render(env: GUIRenderEnvironment, entity: Entity, partialTicks: Float) {
-            val pos =
-                entity.interpolateCurrentPosition(partialTicks) +
-                    Vec3d(0.0, entity.height.toDouble(), 0.0)
+//            val pos =
+//                entity.interpolateCurrentPosition(partialTicks) +
+//                    Vec3d(0.0, entity.height.toDouble(), 0.0)
 
-            val screenPos = calculateScreenPos(pos) ?: return
+//            val screenPos = calculateScreenPos(pos) ?: return
 
             with(env) {
                 withColor(color) {
-                    drawCustomMesh(
-                        VertexFormat.DrawMode.TRIANGLE_STRIP,
-                        VertexFormats.POSITION,
-                        ShaderProgramKeys.POSITION
-                    ) {
-                        vertex(it, screenPos.x - 5 * size, screenPos.y - 10 * size, 1f)
-                        vertex(it, screenPos.x, screenPos.y, 1f)
-                        vertex(it, screenPos.x + 5 * size, screenPos.y - 10 * size, 1f)
-                    }
+//                    drawCustomMesh(
+//                        VertexFormat.DrawMode.TRIANGLE_STRIP,
+//                        VertexFormats.POSITION,
+//                        ShaderProgramKeys.POSITION
+//                    ) {
+//                        vertex(it, screenPos.x - 5 * size, screenPos.y - 10 * size, 1f)
+//                        vertex(it, screenPos.x, screenPos.y, 1f)
+//                        vertex(it, screenPos.x + 5 * size, screenPos.y - 10 * size, 1f)
+//                    }
                 }
             }
         }

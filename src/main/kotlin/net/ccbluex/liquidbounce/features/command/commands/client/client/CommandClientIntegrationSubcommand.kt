@@ -12,6 +12,7 @@ import net.ccbluex.liquidbounce.utils.client.regular
 import net.ccbluex.liquidbounce.utils.client.variable
 import net.minecraft.text.ClickEvent
 import net.minecraft.text.HoverEvent
+import java.net.URI
 
 object CommandClientIntegrationSubcommand {
      fun integrationCommand() = CommandBuilder.begin("integration")
@@ -47,10 +48,9 @@ object CommandClientIntegrationSubcommand {
                 regular("Base URL: ")
                     .append(variable(baseUrl).styled {
                         it.withUnderline(true)
-                            .withClickEvent(ClickEvent(ClickEvent.Action.OPEN_URL, baseUrl))
+                            .withClickEvent(ClickEvent.OpenUrl(URI(baseUrl)))
                             .withHoverEvent(
-                                HoverEvent(
-                                    HoverEvent.Action.SHOW_TEXT,
+                                HoverEvent.ShowText(
                                     regular("Click to open the integration URL in your browser.")
                                 )
                             )
@@ -72,10 +72,9 @@ object CommandClientIntegrationSubcommand {
                     regular("-> $upperFirstName (")
                         .append(variable("Browser").styled {
                             it.withUnderline(true)
-                                .withClickEvent(ClickEvent(ClickEvent.Action.OPEN_URL, url))
+                                .withClickEvent(ClickEvent.OpenUrl(URI(url)))
                                 .withHoverEvent(
-                                    HoverEvent(
-                                        HoverEvent.Action.SHOW_TEXT,
+                                    HoverEvent.ShowText(
                                         regular("Click to open the URL in your browser.")
                                     )
                                 )
@@ -83,10 +82,9 @@ object CommandClientIntegrationSubcommand {
                         .append(regular(", "))
                         .append(variable("Clipboard").styled {
                             it.withUnderline(true)
-                                .withClickEvent(ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, url))
+                                .withClickEvent(ClickEvent.CopyToClipboard(url))
                                 .withHoverEvent(
-                                    HoverEvent(
-                                        HoverEvent.Action.SHOW_TEXT,
+                                    HoverEvent.ShowText(
                                         regular("Click to copy the URL to your clipboard.")
                                     )
                                 )

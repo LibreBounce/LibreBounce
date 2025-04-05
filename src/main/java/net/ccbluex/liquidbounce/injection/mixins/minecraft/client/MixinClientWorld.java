@@ -48,8 +48,8 @@ public class MixinClientWorld {
         return original;
     }
 
-    @Inject(method = "addParticle(Lnet/minecraft/particle/ParticleEffect;DDDDDD)V", at = @At("HEAD"), cancellable = true)
-    private void injectNoExplosionParticles(ParticleEffect parameters, double x, double y, double z, double velocityX, double velocityY, double velocityZ, CallbackInfo ci) {
+    @Inject(method = "addParticle(DDDDDLnet/minecraft/particle/ParticleEffect;)V", at = @At("HEAD"), cancellable = true)
+    private void injectNoExplosionParticles(double minX, double maxX, double minZ, double maxZ, double y, ParticleEffect parameters, CallbackInfo ci) {
         var type = parameters.getType();
         if (!ModuleAntiBlind.canRender(DoRender.EXPLOSION_PARTICLES) && (type == ParticleTypes.EXPLOSION || type == ParticleTypes.EXPLOSION_EMITTER)) {
             ci.cancel();

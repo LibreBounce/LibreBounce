@@ -85,7 +85,7 @@ public abstract class MixinInGameHud {
      */
     @Inject(method = "renderMainHud", at = @At("HEAD"))
     private void hookRenderEventStart(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
-        BlurEffectRenderer.INSTANCE.startOverlayDrawing(context, tickCounter.getTickDelta(false));
+        BlurEffectRenderer.INSTANCE.startOverlayDrawing(context, tickCounter.getTickProgress(false));
 
         // Draw after overlay event
         var component = ComponentOverlay.getComponentWithTweak(FeatureTweak.TWEAK_HOTBAR);
@@ -234,7 +234,7 @@ public abstract class MixinInGameHud {
         for (int m = 0; m < 9; ++m) {
             var x = center - offset + m * itemWidth;
             this.renderHotbarItem(context, (int) x, (int) y, tickCounter, playerEntity,
-                    playerEntity.getInventory().main.get(m), l++);
+                    playerEntity.getInventory().getMainStacks().get(m), l++);
         }
 
         var offHandStack = playerEntity.getOffHandStack();

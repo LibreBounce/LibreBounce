@@ -91,14 +91,12 @@ object CommandConfig : CommandFactory {
                         variable(settingName).styled { style ->
                             style
                                 .withClickEvent(
-                                    ClickEvent(
-                                        ClickEvent.Action.SUGGEST_COMMAND,
+                                    ClickEvent.SuggestCommand(
                                         ".config load $settingName"
                                     )
                                 )
                                 .withHoverEvent(
-                                    HoverEvent(
-                                        HoverEvent.Action.SHOW_TEXT,
+                                    HoverEvent.ShowText(
                                         Text.of("§7Click to load $settingName")
                                     )
                                 )
@@ -111,8 +109,7 @@ object CommandConfig : CommandFactory {
                             style
                                 .withFormatting(it.statusType.formatting)
                                 .withHoverEvent(
-                                    HoverEvent(
-                                        HoverEvent.Action.SHOW_TEXT,
+                                    HoverEvent.ShowText(
                                         Text.of(it.statusDateFormatted)
                                     )
                                 )

@@ -18,29 +18,37 @@
  */
 package net.ccbluex.liquidbounce.utils.item
 
-import net.ccbluex.liquidbounce.utils.inventory.ItemSlot
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.ItemSlotType
+import net.ccbluex.liquidbounce.utils.inventory.ItemSlot
+import net.minecraft.component.DataComponentTypes
 import net.minecraft.entity.EquipmentSlot
-import net.minecraft.item.ArmorItem
 
 class ArmorPiece(val itemSlot: ItemSlot) {
     val slotType: EquipmentSlot
-        get() = (itemSlot.itemStack.item as ArmorItem).type().equipmentSlot
+        get() = itemSlot.itemStack.get(DataComponentTypes.EQUIPPABLE)?.slot
+            ?: error("Armor piece doesn't have equippable component???")
     val entitySlotId: Int
         get() = this.slotType.entitySlotId
+
     val inventorySlot: Int
         get() = 36 + entitySlotId
+
     val isAlreadyEquipped: Boolean
         get() = itemSlot.slotType == ItemSlotType.ARMOR
+
     val isReachableByHand: Boolean
         get() = itemSlot.slotType == ItemSlotType.HOTBAR
 
+    private val dataPackBypass: DataPackBypass
+        inline get() = itemSlot.itemStack.item.dataPackBypass!!
+
     val toughness: Float
-        get() = (itemSlot.itemStack.item as ArmorItem).material().toughness
+        get() = dataPackBypass.material.toughness
+
     val defensePoints: Float
         get() {
-            val item = itemSlot.itemStack.item as ArmorItem
-
-            return item.material().defense.getOrDefault(item.type(), 0).toFloat()
+            return dataPackBypass.material.defense.getOrDefault(
+                dataPackBypass.type, 0
+            ).toFloat()
         }
 }

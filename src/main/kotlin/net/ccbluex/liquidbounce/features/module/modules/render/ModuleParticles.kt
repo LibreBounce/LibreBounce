@@ -27,8 +27,7 @@ import net.ccbluex.liquidbounce.utils.kotlin.random
 import net.ccbluex.liquidbounce.utils.math.interpolate
 import net.ccbluex.liquidbounce.utils.math.times
 import net.ccbluex.liquidbounce.utils.math.toBlockPos
-import net.minecraft.client.gl.ShaderProgramKeys
-import net.minecraft.client.render.VertexFormat
+import com.mojang.blaze3d.vertex.VertexFormat
 import net.minecraft.client.render.VertexFormats
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.MathHelper
@@ -79,10 +78,10 @@ object ModuleParticles : ClientModule("Particles", category = Category.RENDER) {
     @Suppress("unused", "MagicNumber")
     private val displayHandler = handler<WorldRenderEvent> { event ->
         renderEnvironmentForWorld(event.matrixStack) {
-            RenderSystem.depthMask(true)
-            RenderSystem.disableCull()
+//            RenderSystem.depthMask(true)
+//            RenderSystem.disableCull()
             mc.gameRenderer.lightmapTextureManager.disable()
-            RenderSystem.defaultBlendFunc()
+//            RenderSystem.defaultBlendFunc()
 
             particles.removeIf { particle ->
                 val flag = particle.alpha <= 0 || player.pos.distanceTo(particle.pos) > 30
@@ -92,7 +91,8 @@ object ModuleParticles : ClientModule("Particles", category = Category.RENDER) {
                     mc.cameraEntity?.let { camera ->
                         if (canSeePointFrom(camera.eyePos, particle.pos)) {
                             matrixStack.push()
-                            RenderSystem.setShaderTexture(0, particle.particleImage.texture)
+                            // TODO: Identifier -> GPUTexture yes
+//                            RenderSystem.setShaderTexture(0, particle.particleImage.texture)
                             render(particle, event.partialTicks)
                             matrixStack.pop()
                         }
@@ -102,9 +102,9 @@ object ModuleParticles : ClientModule("Particles", category = Category.RENDER) {
                 return@removeIf flag
             }
 
-            RenderSystem.depthMask(true)
-            RenderSystem.enableCull()
-            RenderSystem.defaultBlendFunc()
+//            RenderSystem.depthMask(true)
+//            RenderSystem.enableCull()
+//            RenderSystem.defaultBlendFunc()
             mc.gameRenderer.lightmapTextureManager.enable()
         }
     }
@@ -224,10 +224,11 @@ private fun WorldRenderEnvironment.render(particle: Particle, partialTicks: Floa
 
     val renderColor = color.alpha(MathHelper.clamp((particle.alpha * color.a.toFloat()).toInt(), 0, color.a))
 
+    // TODO: find a replacement for ShaderProgramKeys
     drawCustomMesh(
         VertexFormat.DrawMode.QUADS,
         VertexFormats.POSITION_TEXTURE_COLOR,
-        ShaderProgramKeys.POSITION_TEX_COLOR
+//        ShaderProgramKeys.POSITION_TEX_COLOR
     ) { matrix ->
         vertex(matrix, 0.0f, -size, 0.0f)
             .texture(0.0f, 0.0f)

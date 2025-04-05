@@ -28,10 +28,12 @@ import net.ccbluex.liquidbounce.render.engine.font.processor.MinecraftTextProces
 import net.ccbluex.liquidbounce.render.engine.font.processor.TextProcessor
 import net.ccbluex.liquidbounce.utils.client.asText
 import net.minecraft.client.render.Tessellator
-import net.minecraft.client.render.VertexFormat
+import com.mojang.blaze3d.vertex.VertexFormat
+import net.minecraft.client.texture.GlTexture
 import net.minecraft.text.Text
 import net.minecraft.util.math.Vec3d
 import org.joml.Vector3f
+import org.lwjgl.opengl.GL11
 import java.awt.Font
 import java.util.*
 import kotlin.math.max
@@ -318,9 +320,10 @@ class FontRendererBuffers {
         this.textBuffers.forEach { (glyphPage, bufferBuilder) ->
             val tex = glyphPage.texture
 
-            RenderSystem.bindTexture(tex.glId)
+            // TODO: please work or find `RenderSystem.bindTexture`
+            GL11.glBindTexture(0, (tex.glTexture as GlTexture).glId)
 
-            RenderSystem.setShaderTexture(0, tex.glId)
+            RenderSystem.setShaderTexture(0, tex.glTexture)
 
             bufferBuilder.draw()
         }

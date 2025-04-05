@@ -34,7 +34,7 @@ import net.minecraft.client.option.KeyBinding
 import net.minecraft.entity.Entity
 import net.minecraft.item.AxeItem
 import net.minecraft.item.BlockItem
-import net.minecraft.item.SwordItem
+import net.minecraft.registry.tag.ItemTags
 import net.minecraft.util.hit.BlockHitResult
 import net.minecraft.util.hit.EntityHitResult
 
@@ -91,9 +91,9 @@ object ModuleAutoClicker : ClientModule("AutoClicker", Category.COMBAT, aliases 
             val item = player.mainHandStack.item
 
             return when (weapon) {
-                Weapon.SWORD -> item is SwordItem
+                Weapon.SWORD -> player.mainHandStack.isIn(ItemTags.SWORDS)
                 Weapon.AXE -> item is AxeItem
-                Weapon.BOTH -> item is SwordItem || item is AxeItem
+                Weapon.BOTH -> player.mainHandStack.isIn(ItemTags.SWORDS) || item is AxeItem
                 Weapon.ANY -> true
             }
         }

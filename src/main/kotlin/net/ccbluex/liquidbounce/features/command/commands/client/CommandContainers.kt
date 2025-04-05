@@ -100,7 +100,8 @@ object CommandContainers : CommandFactory {
         )
         .handler { command, args ->
             val tag = args[0] as String
-            val nbtCompound = StringNbtReader.parse(tag)
+            // TODO: please work lol
+            val nbtCompound = StringNbtReader.readCompound(tag)
 
             if (!nbtCompound.contains("BlockEntityTag")) {
                 throw CommandException(command.result("noBlockEntityTag"))

@@ -45,7 +45,7 @@ data class PosPoseSnapshot(
     val pose: EntityPose,
     val preferredHand: Hand,
     val inventory: PlayerInventory,
-    val limbPos: Float
+//    val limbPos: Float
 )
 
 fun fromPlayer(entity: AbstractClientPlayerEntity): PosPoseSnapshot {
@@ -70,34 +70,35 @@ fun fromPlayer(entity: AbstractClientPlayerEntity): PosPoseSnapshot {
         entity.pose,
         entity.preferredHand ?: Hand.MAIN_HAND,
         entity.inventory,
-        entity.limbAnimator.pos
+//        entity.limbAnimator.pos
     )
 }
 
 fun fromPlayerMotion(entity: AbstractClientPlayerEntity): PosPoseSnapshot {
-    val playerInventory = PlayerInventory(null)
+    // TODO: Is this correct?
+    val playerInventory = PlayerInventory(null, null)
     playerInventory.clone(entity.inventory)
     return PosPoseSnapshot(
         entity.x,
         entity.y,
         entity.z,
-        entity.prevX,
-        entity.prevY,
-        entity.prevZ,
+        entity.lastX,
+        entity.lastY,
+        entity.lastZ,
         entity.handSwinging,
         entity.handSwingTicks,
         entity.handSwingProgress,
         entity.yaw,
-        entity.prevYaw,
+        entity.lastYaw,
         entity.pitch,
-        entity.prevPitch,
+        entity.lastPitch,
         entity.bodyYaw,
-        entity.prevBodyYaw,
+        entity.lastBodyYaw,
         entity.headYaw,
-        entity.prevHeadYaw,
+        entity.lastHeadYaw,
         entity.pose,
         entity.preferredHand ?: Hand.MAIN_HAND,
         playerInventory,
-        entity.limbAnimator.pos
+//        entity.limbAnimator.pos
     )
 }

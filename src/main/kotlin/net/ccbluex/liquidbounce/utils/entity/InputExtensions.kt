@@ -65,3 +65,14 @@ fun Input.set(
         sprint
     )
 }
+
+var Input.movementForward
+    get() = this.movementVector.y
+    set(value) {
+        this.movementVector.y = value
+    }
+var Input.movementSideways
+    get() = this.movementVector.x
+    set(value) {
+        this.movementVector.x = value
+    }

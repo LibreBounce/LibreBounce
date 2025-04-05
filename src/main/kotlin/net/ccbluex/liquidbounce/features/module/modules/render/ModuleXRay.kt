@@ -220,7 +220,7 @@ object ModuleXRay : ClientModule("XRay", Category.RENDER) {
 
     @Suppress("UNUSED_PARAMETER")
     fun valueChangedReload(it: Any) {
-        RenderSystem.recordRenderCall {
+        mc.execute {
             // Reload world renderer on block list change
             mc.worldRenderer.reload()
         }

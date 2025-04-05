@@ -21,7 +21,7 @@ object CommandClientBrowserSubcommand {
                 .build()
         ).handler { command, args ->
             chat(regular("Opening browser..."))
-            RenderSystem.recordRenderCall {
+            mc.execute {
                 mc.setScreen(BrowserScreen(args[0] as String))
             }
         }.build()

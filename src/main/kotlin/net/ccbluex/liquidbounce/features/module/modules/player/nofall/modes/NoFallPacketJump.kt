@@ -38,7 +38,8 @@ internal object NoFallPacketJump : Choice("PacketJump") {
             falling = false
             network.sendPacket(packetType.generatePacket().apply {
                 x = player.lastX
-                y = player.lastBaseY + 1.0E-9
+                // TODO: please work
+                y = player.lastY + 1.0E-9
                 z = player.lastZ
                 onGround = false
             })

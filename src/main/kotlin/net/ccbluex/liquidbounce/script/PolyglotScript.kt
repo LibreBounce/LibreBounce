@@ -79,10 +79,9 @@ class PolyglotScript(
                             regular(translation("liquidbounce.scripts.debug.support", variable(file.toString())))
                                 .append(variable(devtoolURL).styled {
                                     it.withUnderline(true)
-                                        .withClickEvent(ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, devtoolURL))
+                                        .withClickEvent(ClickEvent.CopyToClipboard(devtoolURL))
                                         .withHoverEvent(
-                                            HoverEvent(
-                                                HoverEvent.Action.SHOW_TEXT,
+                                            HoverEvent.ShowText(
                                                 regular(translation("liquidbounce.scripts.debug.inspect.url"))
                                             )
                                         )

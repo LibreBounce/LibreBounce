@@ -31,6 +31,7 @@ import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.entity.*
 import net.ccbluex.liquidbounce.utils.math.times
+import net.ccbluex.liquidbounce.utils.math.toBlockPos
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.LivingEntity
@@ -115,10 +116,10 @@ object MinaraiTrainer : ModuleDebugRecorder.DebugRecorderMode<TrainingData>("Min
     }
 
     /**
-     * Spawns a slime entity about 2.0 - 3.0 blocks away from the player,
+     * Spawns a slime entity about 2.0-3.0 blocks away from the player,
      * in a random direction and at a different height.
      */
-    fun spawn(): LivingEntity {
+    private fun spawn(): LivingEntity {
         val slime = SlimeEntity(EntityType.SLIME, world)
         slime.uuid = UUID.randomUUID()
 
@@ -138,14 +139,12 @@ object MinaraiTrainer : ModuleDebugRecorder.DebugRecorderMode<TrainingData>("Min
 
         // Play sound at position
         world.playSound(
-            position.x,
-            position.y,
-            position.z,
+            null,
+            position.toBlockPos(),
             SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP,
             SoundCategory.NEUTRAL,
             1f,
-            1f,
-            false
+            1f
         )
 
         return slime

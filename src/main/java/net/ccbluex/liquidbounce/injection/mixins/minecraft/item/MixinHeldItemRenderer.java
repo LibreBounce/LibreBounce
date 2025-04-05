@@ -24,6 +24,7 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleAnimations;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleSilentHotbar;
 import net.ccbluex.liquidbounce.utils.client.SilentHotbar;
+import net.ccbluex.liquidbounce.utils.item.ItemExtensionsKt;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -33,7 +34,6 @@ import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.item.SwordItem;
 import net.minecraft.item.consume.UseAction;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Hand;
@@ -110,7 +110,7 @@ public abstract class MixinHeldItemRenderer {
     ))
     private UseAction hookUseAction(ItemStack instance) {
         var item = instance.getItem();
-        if (item instanceof SwordItem && KillAuraAutoBlock.INSTANCE.getBlockVisual()) {
+        if (ItemExtensionsKt.isSword(item.asItem()) && KillAuraAutoBlock.INSTANCE.getBlockVisual()) {
             return UseAction.BLOCK;
         }
 
@@ -125,7 +125,7 @@ public abstract class MixinHeldItemRenderer {
     private boolean hookIsUseItem(AbstractClientPlayerEntity instance) {
         var item = instance.getMainHandStack().getItem();
 
-        if (item instanceof SwordItem && KillAuraAutoBlock.INSTANCE.getBlockVisual()) {
+        if (ItemExtensionsKt.isSword(item.asItem()) && KillAuraAutoBlock.INSTANCE.getBlockVisual()) {
             return true;
         }
 
@@ -140,7 +140,7 @@ public abstract class MixinHeldItemRenderer {
     private Hand hookActiveHand(AbstractClientPlayerEntity instance) {
         var item = instance.getMainHandStack().getItem();
 
-        if (item instanceof SwordItem && KillAuraAutoBlock.INSTANCE.getBlockVisual()) {
+        if (ItemExtensionsKt.isSword(item.asItem()) && KillAuraAutoBlock.INSTANCE.getBlockVisual()) {
             return Hand.MAIN_HAND;
         }
 
@@ -155,7 +155,7 @@ public abstract class MixinHeldItemRenderer {
     private int hookItemUseItem(AbstractClientPlayerEntity instance) {
         var item = instance.getMainHandStack().getItem();
 
-        if (item instanceof SwordItem && KillAuraAutoBlock.INSTANCE.getBlockVisual()) {
+        if (ItemExtensionsKt.isSword(item.asItem()) && KillAuraAutoBlock.INSTANCE.getBlockVisual()) {
             return 7200;
         }
 
@@ -184,7 +184,7 @@ public abstract class MixinHeldItemRenderer {
     private Item preventConflictingCode(Item item) {
         // only applies to sword items,
         // so that future items won't be affected if minecraft decides to actually make use out of this
-        if (item instanceof SwordItem) {
+        if (ItemExtensionsKt.isSword(item.asItem())) {
             return Items.SHIELD; // makes the instanceof return true and therefore not do the transformation
         }
 
@@ -200,7 +200,7 @@ public abstract class MixinHeldItemRenderer {
                                                 CallbackInfo ci) {
         var shouldAnimate = ModuleSwordBlock.INSTANCE.getRunning() || KillAuraAutoBlock.INSTANCE.getBlockVisual();
 
-        if (shouldAnimate && item.getItem() instanceof SwordItem) {
+        if (shouldAnimate && ItemExtensionsKt.isSword(item.getItem())) {
             final Arm arm = (hand == Hand.MAIN_HAND) ? player.getMainArm() : player.getMainArm().getOpposite();
 
             if (ModuleAnimations.INSTANCE.getRunning()) {
@@ -219,7 +219,7 @@ public abstract class MixinHeldItemRenderer {
     private ItemStack injectSilentHotbar(ItemStack original) {
         if (ModuleSilentHotbar.INSTANCE.getRunning()) {
             // noinspection DataFlowIssue
-            return client.player.getInventory().main.get(SilentHotbar.INSTANCE.getClientsideSlot());
+            return client.player.getInventory().getMainStacks().get(SilentHotbar.INSTANCE.getClientsideSlot());
         }
 
         return original;
