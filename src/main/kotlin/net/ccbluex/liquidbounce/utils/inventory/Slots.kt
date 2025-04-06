@@ -66,10 +66,9 @@ object Slots {
         List(4) { ArmorItemSlot(it) }
     )
 
+    @Suppress("UNCHECKED_CAST")
     @JvmField
-    val OffhandWithHotbar = SlotGroup(
-        (OffHand + Hotbar).map { it as HotbarItemSlot }
-    )
+    val OffhandWithHotbar = (OffHand + Hotbar) as SlotGroup<HotbarItemSlot>
 
     @JvmField
     val All = Hotbar + OffHand + Inventory + Armor
