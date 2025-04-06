@@ -139,6 +139,7 @@ val ALL_EVENT_CLASSES: Array<KClass<out Event>> = arrayOf(
     QueuePacketEvent::class,
     MinecraftAutoJumpEvent::class,
     WorldEntityRemoveEvent::class,
+    InteractItemEvent::class,
 )
 
 /**
@@ -204,7 +205,7 @@ object EventManager {
 
         for (eventHook in target) {
             if (!eventHook.handlerClass.running) {
-                continue
+                 continue
             }
 
             runCatching {
