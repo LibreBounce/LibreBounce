@@ -52,7 +52,7 @@ class BlockChangeEvent(val blockPos: BlockPos, val newState: BlockState) : Event
 class BlockShapeEvent(var state: BlockState, var pos: BlockPos, var shape: VoxelShape) : Event()
 
 @Nameable("blockBreakingProgress")
-class BlockBreakingProgressEvent(val pos: BlockPos) : Event()
+class BlockBreakingProgressEvent(val pos: BlockPos) : CancellableEvent()
 
 @Nameable("blockBreakingProgress")
 class BlockAttackEvent(val pos: BlockPos) : CancellableEvent()
