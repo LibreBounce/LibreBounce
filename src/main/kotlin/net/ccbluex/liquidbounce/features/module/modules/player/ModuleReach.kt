@@ -72,8 +72,11 @@ object ModuleReach : ClientModule("Reach", Category.PLAYER) {
                 return
             }
 
-            combatReach = if (player.age - lastReachTick >= delay && Random.nextFloat() * 100 <= chance)
-                reach.random() else null
+            combatReach = if (player.age - lastReachTick >= delay && Random.nextFloat() * 100 <= chance) {
+                reach.random()
+            } else {
+                null
+            }
         }
     }
 
