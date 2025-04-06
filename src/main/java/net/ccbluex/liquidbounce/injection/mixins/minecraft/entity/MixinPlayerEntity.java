@@ -194,7 +194,7 @@ public abstract class MixinPlayerEntity extends MixinLivingEntity {
 
     @ModifyReturnValue(method = "getEntityInteractionRange", at = @At("RETURN"))
     private double hookEntityInteractionRange(double original) {
-        if ((Object) this == MinecraftClient.getInstance().player && ModuleReach.INSTANCE.getRunning()) {
+        if ((Object) this == MinecraftClient.getInstance().player && ModuleReach.INSTANCE.getRunning() && ModuleReach.INSTANCE.getCombatReach() != null) {
             return ModuleReach.INSTANCE.getCombatReach();
         }
 
