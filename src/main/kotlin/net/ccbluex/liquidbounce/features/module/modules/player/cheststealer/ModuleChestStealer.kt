@@ -123,7 +123,7 @@ object ModuleChestStealer : ClientModule("ChestStealer", Category.PLAYER) {
         screen: GenericContainerScreen
     ): InventoryAction? {
         val itemsInInv = findNonEmptySlotsInInventory()
-        val itemToThrowOut = ModuleInventoryCleaner.findItemsToThrowOut(cleanupPlan, itemsInInv)
+        val itemToThrowOut = ModuleInventoryManager.findItemsToThrowOut(cleanupPlan, itemsInInv)
             .firstOrNull { it.getIdForServer(screen) != null } ?: return null
 
         return ClickInventoryAction.performThrow(screen, itemToThrowOut)
@@ -203,17 +203,17 @@ object ModuleChestStealer : ClientModule("ChestStealer", Category.PLAYER) {
     }
 
     /**
-     * Either asks [ModuleInventoryCleaner] what to do or just takes everything.
+     * Either asks [ModuleInventoryManager] what to do or just takes everything.
      */
     private fun createCleanupPlan(screen: GenericContainerScreen): InventoryCleanupPlan {
-        val cleanupPlan = if (!ModuleInventoryCleaner.running) {
+        val cleanupPlan = if (!ModuleInventoryManager.running) {
             val usefulItems = findItemsInContainer(screen)
 
             InventoryCleanupPlan(usefulItems.toMutableSet(), mutableListOf(), hashMapOf())
         } else {
             val availableItems = findNonEmptySlotsInInventory() + findItemsInContainer(screen)
 
-            CleanupPlanGenerator(ModuleInventoryCleaner.cleanupTemplateFromSettings, availableItems).generatePlan()
+            CleanupPlanGenerator(ModuleInventoryManager.cleanupTemplateFromSettings, availableItems).generatePlan()
         }
 
         return cleanupPlan

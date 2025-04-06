@@ -31,15 +31,18 @@ import net.ccbluex.liquidbounce.utils.kotlin.component2
 import net.minecraft.screen.slot.SlotActionType
 
 /**
- * InventoryCleaner module
+ * InventoryManager module
  *
  * Automatically throws away useless items and sorts them.
  */
-object ModuleInventoryCleaner : ClientModule("InventoryCleaner", Category.PLAYER,
-    aliases = arrayOf("InventoryManager")
+object ModuleInventoryManager : ClientModule("InventoryManager", Category.PLAYER,
+    aliases = arrayOf("InventoryCleaner")
 ) {
-  
+
     private val inventoryConstraints = tree(PlayerInventoryConstraints())
+
+    @Suppress("unused")
+    private val inventoryPresets by inventoryPreset()
 
     private val maxBlocks by int("MaximumBlocks", 512, 0..2500)
     private val maxArrows by int("MaximumArrows", 128, 0..2500)
@@ -202,5 +205,4 @@ object ModuleInventoryCleaner : ClientModule("InventoryCleaner", Category.PLAYER
             return constraints
         }
     }
-
 }

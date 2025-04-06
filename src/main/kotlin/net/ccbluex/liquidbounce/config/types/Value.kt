@@ -26,6 +26,7 @@ import net.ccbluex.liquidbounce.config.gson.stategies.Exclude
 import net.ccbluex.liquidbounce.config.gson.stategies.ProtocolExclude
 import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.ValueChangedEvent
+import net.ccbluex.liquidbounce.features.inventoryPreset.InventoryPreset
 import net.ccbluex.liquidbounce.features.misc.FriendManager
 import net.ccbluex.liquidbounce.lang.translation
 import net.ccbluex.liquidbounce.script.ScriptApiRequired
@@ -328,6 +329,11 @@ open class Value<T : Any>(
 
 }
 
+class InventoryPresetValue : Value<InventoryPreset>("InventoryPreset",
+    defaultValue = InventoryPreset(),
+    valueType = ValueType.INVENTORY_PRESET,
+)
+
 /**
  * Ranged value adds support for closed ranges
  */
@@ -433,6 +439,7 @@ enum class ValueType(
     ITEM(HumanInputDeserializer.itemDeserializer), ITEMS(HumanInputDeserializer.itemListDeserializer),
     KEY(HumanInputDeserializer.keyDeserializer),
     BIND,
+    INVENTORY_PRESET,
     VECTOR_I,
     VECTOR_D,
     CHOICE(completer = AutoCompletionProvider.choiceCompleter),

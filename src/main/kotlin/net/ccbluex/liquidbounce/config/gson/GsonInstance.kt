@@ -18,7 +18,7 @@
  *
  *
  */
-
+@file:Suppress("WildcardImport")
 package net.ccbluex.liquidbounce.config.gson
 
 import com.google.gson.Gson
@@ -32,6 +32,8 @@ import net.ccbluex.liquidbounce.config.gson.stategies.ProtocolExclusionStrategy
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.config.types.NamedChoice
+import net.ccbluex.liquidbounce.features.inventoryPreset.InventoryPreset
+import net.ccbluex.liquidbounce.features.inventoryPreset.items.types.PresetItem
 import net.ccbluex.liquidbounce.integration.theme.component.Component
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.utils.input.InputBind
@@ -139,6 +141,8 @@ internal fun GsonBuilder.registerCommonTypeAdapters() =
     registerTypeHierarchyAdapter(ClosedRange::class.javaObjectType, RangeAdapter)
         .registerTypeHierarchyAdapter(IntRange::class.javaObjectType, IntRangeAdapter)
         .registerTypeHierarchyAdapter(Item::class.javaObjectType, ItemAdapter)
+        .registerTypeHierarchyAdapter(InventoryPreset::class.javaObjectType, InventoryPresetAdapter)
+        .registerTypeHierarchyAdapter(PresetItem::class.javaObjectType, PresetItemAdapter)
         .registerTypeHierarchyAdapter(Color4b::class.javaObjectType, ColorAdapter)
         .registerTypeHierarchyAdapter(Vec3d::class.javaObjectType, Vec3dAdapter)
         .registerTypeHierarchyAdapter(Vec3i::class.javaObjectType, Vec3iAdapter)
