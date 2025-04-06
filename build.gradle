@@ -165,9 +165,9 @@ dependencies {
 
     // ScriptAPI
     includeDependency "net.fabricmc:tiny-mappings-parser:0.3.0+build.17"
-    includeDependency "org.graalvm.polyglot:polyglot:24.0.2"
-    includeDependency "org.graalvm.polyglot:js-community:24.0.2"
-    includeDependency "org.graalvm.polyglot:tools-community:24.0.2"
+    includeDependency "org.graalvm.polyglot:polyglot:24.2.0"
+    includeDependency "org.graalvm.polyglot:js-community:24.2.0"
+    includeDependency "org.graalvm.polyglot:tools-community:24.2.0"
 //    includeDependency "org.graalvm.polyglot:python-community:24.0.2"
 //    includeDependency "org.graalvm.polyglot:wasm-community:24.0.2"
 //    includeDependency "org.graalvm.polyglot:java-community:24.0.2"
