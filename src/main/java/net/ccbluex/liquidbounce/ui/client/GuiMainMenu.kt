@@ -39,8 +39,6 @@ class GuiMainMenu : AbstractScreen() {
         private var popupOnce = false
         var lastWarningTime: Long? = null
         private val warningInterval = TimeUnit.DAYS.toMillis(7)
-
-        fun shouldShowWarning() = lastWarningTime == null || Instant.now().toEpochMilli() - lastWarningTime!! > warningInterval
     }
 
     init {
@@ -54,7 +52,6 @@ class GuiMainMenu : AbstractScreen() {
             when {
                 FileManager.firstStart -> showWelcomePopup()
                 hasUpdate() -> showUpdatePopup()
-                shouldShowWarning() -> showDiscontinuedWarning()
             }
             popupOnce = true
         }
@@ -135,37 +132,6 @@ class GuiMainMenu : AbstractScreen() {
             """.trimIndent())
             button("§aDownload") { MiscUtils.showURL(newestVersion.url) }
             onClose { popup = null }
-        }
-    }
-
-    private fun showDiscontinuedWarning() {
-        popup = PopupScreen {
-            title("§c§lUnsupported version")
-            message("""
-                §6§lThis version is discontinued and unsupported.§r
-                
-                §eWe strongly recommend switching to §bLiquidBounce Nextgen§e, 
-                which offers the following benefits:
-                
-                §a- §fSupports all Minecraft versions from §71.7§f to §71.21+§f.
-                §a- §fFrequent updates with the latest bypasses and features.
-                §a- §fActive development and official support.
-                §a- §fImproved performance and compatibility.
-                
-                §cWhy upgrade?§r
-                - No new bypasses or features will be introduced in this version.
-                - Auto config support will not be actively maintained.
-                - Unofficial forks of this version are discouraged as they lack the full feature set of Nextgen and cannot be trusted.
-        
-                §9Upgrade to LiquidBounce Nextgen today for a better experience!§r
-            """.trimIndent())
-            button("§aDownload Nextgen") { MiscUtils.showURL("https://liquidbounce.net/download") }
-            button("§eInstallation Tutorial") { MiscUtils.showURL("https://www.youtube.com/watch?v=i_r1i4m-NZc") }
-            onClose {
-                popup = null
-                lastWarningTime = Instant.now().toEpochMilli()
-                FileManager.saveConfig(valuesConfig)
-            }
         }
     }
 

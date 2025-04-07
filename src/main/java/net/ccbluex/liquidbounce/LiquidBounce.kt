@@ -69,11 +69,11 @@ object LiquidBounce {
      *
      * This has all the basic information.
      */
-    const val CLIENT_NAME = "LiquidBounce"
+    const val CLIENT_NAME = "LibreBounce"
     const val CLIENT_AUTHOR = "CCBlueX"
     const val CLIENT_CLOUD = "https://cloud.liquidbounce.net/LiquidBounce"
     const val CLIENT_WEBSITE = "liquidbounce.net"
-    const val CLIENT_GITHUB = "https://github.com/CCBlueX/LiquidBounce"
+    const val CLIENT_GITHUB = "https://github.com/LibreBounce/LibreBounce"
 
     const val MINECRAFT_VERSION = "1.8.9"
     
@@ -88,7 +88,7 @@ object LiquidBounce {
      */
     const val IN_DEV = false
 
-    val clientTitle = CLIENT_NAME + " Legacy " + clientVersionText + " " + clientCommit + "  (Unsupported) | " + MINECRAFT_VERSION + if (IN_DEV) " | DEVELOPMENT BUILD" else ""
+    val clientTitle = CLIENT_NAME + clientVersionText + " " + clientCommit + " | " + MINECRAFT_VERSION + if (IN_DEV) " | DEVELOPMENT BUILD" else ""
 
     var isStarting = true
 
@@ -220,7 +220,7 @@ object LiquidBounce {
                 HeadsTab()
             }
 
-            // Disable Optifine FastRender
+            // Disable OptiFine's Fast Render option
             disableFastRender()
 
             // Setup Discord RPC
