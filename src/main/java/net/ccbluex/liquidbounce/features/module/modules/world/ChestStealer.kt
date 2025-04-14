@@ -96,7 +96,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
     private var stacks = emptyList<ItemStack?>()
 
-    val isCustomGUI = false
+    var isCustomGUI = false
 
     private suspend fun shouldOperate(): Boolean {
         while (true) {
