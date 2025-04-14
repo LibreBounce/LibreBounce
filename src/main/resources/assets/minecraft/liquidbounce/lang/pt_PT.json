@@ -2,7 +2,7 @@
     "locale": "pt_PT",
     "contributors": [
         "1zuna",
-        "gabrielvicenteYT"
+        "thatonecoder"
     ],
     "translations": {
         "menu.altManager": "Alt Manager",
@@ -11,16 +11,16 @@
         "menu.configuration": "Configuração",
         "menu.contributors": "Contribuidores",
 
-        "menu.discordRPC.typeBox": "UNTRANSLATED: Type Here..",
+        "menu.discordRPC.typeBox": "Escreva Aqui..",
 
         "menu.altManager.typeCustomPrefix": "UNTRANSLATED: Type Custom Alt Prefix Here..",
 
-        "notification.moduleEnabled": "Ligaste %s",
-        "notification.moduleDisabled": "Desligastes %s",
+        "notification.moduleEnabled": "%s Ligado",
+        "notification.moduleDisabled": "%s Desligado",
 
-        "module.aimbot.description": "Automaticamente olha nas entidades selecionadas á volta de ti.",
+        "module.aimbot.description": "Automaticamente olha nas entidades selecionadas á volta de si.",
 
-        "module.autoArmor.description": "Automaticamente equipa a melhor armadura no teu inventário.",
+        "module.autoArmor.description": "Automaticamente equipa a melhor armadura no seu inventário.",
 
         "module.autoBow.description": "Automaticamente dispara uma seta sempre que o teu árco estiver completamente carregado.",
 
@@ -38,9 +38,9 @@
 
         "module.backtrack.description": "Permite que tu ataques jogadores por clicar nas posições anteriores registades deles.",
 
-        "module.bedDefender.description": "UNTRANSLATED: Automatically defends bed with blocks",
+        "module.bedDefender.description": "Automaticamente defende a cama com blocos.",
 
-        "module.bedPlates.description": "UNTRANSLATED: Allows you to see blocks around beds.",
+        "module.bedPlates.description": "Permite que veja os blocos usados numa defensa de cama.",
 
         "module.projectileAimbot.description": "Automaticamente olha nas entidades selecionadas enquanto se usa um arco.",
 
@@ -76,13 +76,13 @@
         
         "module.animations.description": "UNTRANSLATED: Customizes your blocking animation.",
         
-        "module.antiAFK.description": "UNTRANSLATED: Prevents you from getting kicked for being AFK.",
+        "module.antiAFK.description": "Prevém desconnecções por estar AFK.",
         
         "module.antiBlind.description": "Cancela efeitos de cegueira.",
         
         "module.antiBot.description": "Prevém o KillAura de atacar bots dos AntiCheats.",
 
-        "module.antiExploit.description": "UNTRANSLATED: Prevents server from crashing you.",
+        "module.antiExploit.description": "Prevém o servidor de crashar o seu jogo.",
         
         "module.antiCactus.description": "Prevém cactos de te magoar.",
         

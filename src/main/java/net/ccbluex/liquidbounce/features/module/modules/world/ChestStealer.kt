@@ -64,7 +64,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
     private val noMoveAir by +InventoryManager.noMoveAirValue
     private val noMoveGround by +InventoryManager.noMoveGroundValue
 
-    private val chestTitle by boolean("ChestTitle", true)
+    val chestTitle by boolean("ChestTitle", true)
 
     private val randomSlot by boolean("RandomSlot", true)
 
@@ -95,6 +95,8 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
     private var receivedId: Int? = null
 
     private var stacks = emptyList<ItemStack?>()
+
+    val isCustomGUI = chestTitle && Blocks.chest.localizedName !in (screen.lowerChestInventory ?: return).name
 
     private suspend fun shouldOperate(): Boolean {
         while (true) {
@@ -131,8 +133,8 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
         if (screen !is GuiChest || !shouldOperate())
             return
 
-        // Check if chest isn't a custom gui
-        if (chestTitle && Blocks.chest.localizedName !in (screen.lowerChestInventory ?: return).name)
+        // Check if chest isn't a custom GUI
+        if (isCustomGUI)
             return
 
         progress = 0f
