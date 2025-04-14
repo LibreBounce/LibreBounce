@@ -96,7 +96,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
     private var stacks = emptyList<ItemStack?>()
 
-    val isCustomGUI = chestTitle && Blocks.chest.localizedName !in (screen.lowerChestInventory ?: return).name
+    val isCustomGUI = false
 
     private suspend fun shouldOperate(): Boolean {
         while (true) {
@@ -130,11 +130,13 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
         val screen = mc.currentScreen ?: return
 
-        if (screen !is GuiChest || !shouldOperate())
+        if (screen !is GuiChest)
             return
 
-        // Check if chest isn't a custom GUI
-        if (isCustomGUI)
+        isCustomGUI = chestTitle && Blocks.chest.localizedName !in (screen.lowerChestInventory ?: return).name
+
+        // Check if chest isn't a custom GUI or shouldn't operate for another reason
+        if (isCustomGUI || !shouldOperate())
             return
 
         progress = 0f
