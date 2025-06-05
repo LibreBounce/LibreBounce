@@ -73,7 +73,7 @@ object HUD : Module("HUD", Category.RENDER, gameDetecting = false, defaultState 
         ) mc.entityRenderer.loadShader(
             ResourceLocation(CLIENT_NAME.lowercase() + "/blur.json")
         ) else if (mc.entityRenderer.shaderGroup != null &&
-            "liquidbounce/blur.json" in mc.entityRenderer.shaderGroup.shaderGroupName
+            "librebounce/blur.json" in mc.entityRenderer.shaderGroup.shaderGroupName
         ) mc.entityRenderer.stopUseShader()
     }
 

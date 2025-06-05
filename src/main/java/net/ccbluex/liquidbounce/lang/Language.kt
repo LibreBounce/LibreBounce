@@ -40,12 +40,12 @@ object LanguageManager : MinecraftInstance {
      * Load all languages which are pre-defined in [knownLanguages] and stored in assets.
      * If a language is not found, it will be logged as error.
      *
-     * Languages are stored in assets/minecraft/liquidbounce/lang and when loaded will be stored in [languageMap]
+     * Languages are stored in assets/minecraft/librebounce/lang and when loaded will be stored in [languageMap]
      */
     fun loadLanguages() {
         for (language in knownLanguages) {
             runCatching {
-                languageMap[language] = javaClass.getResourceAsStream("/assets/minecraft/liquidbounce/lang/$language.json")!!
+                languageMap[language] = javaClass.getResourceAsStream("/assets/minecraft/librebounce/lang/$language.json")!!
                     .bufferedReader().use { it.decodeJson() }
             }.onSuccess {
                 LOGGER.info("Loaded language $language")

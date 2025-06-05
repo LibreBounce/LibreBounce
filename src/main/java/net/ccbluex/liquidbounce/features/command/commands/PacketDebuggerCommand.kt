@@ -16,7 +16,7 @@ object PacketDebuggerCommand : Command("packetdebugger", "debug") {
 
     init {
         runCatching {
-            javaClass.getResourceAsStream("/assets/minecraft/liquidbounce/packets.txt")!!.bufferedReader().use {
+            javaClass.getResourceAsStream("/assets/minecraft/librebounce/packets.txt")!!.bufferedReader().use {
                 packetList = it.readLines().toSet()
             }
         }.onFailure {
