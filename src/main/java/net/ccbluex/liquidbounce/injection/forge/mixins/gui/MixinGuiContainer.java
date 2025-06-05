@@ -31,11 +31,16 @@ public abstract class MixinGuiContainer extends MixinGuiScreen {
     final TickTimer tick1 = new TickTimer();
     @Unique
     final TickTimer tick2 = new TickTimer();
-    final boolean shouldSilentGUI = ChestStealer.INSTANCE.handleEvents() && ChestStealer.INSTANCE.getSilentGUI() && (!ChestStealer.INSTANCE.isCustomGUI() || !ChestStealer.INSTANCE.getChestTitle());
-
+    @Unique
+    private boolean shouldSilentGUI() {
+        return ChestStealer.INSTANCE.handleEvents()
+            && ChestStealer.INSTANCE.getSilentGUI()
+            && (!ChestStealer.INSTANCE.isCustomGUI() || !ChestStealer.INSTANCE.getChestTitle());
+    }
+    
     @Inject(method = "initGui", at = @At("RETURN"), cancellable = true)
     private void init(CallbackInfo ci) {
-        if (shouldSilentGUI) {
+        if (shouldSilentGUI()) {
             if (mc.currentScreen instanceof GuiChest) {
                 ci.cancel();
             }
@@ -44,7 +49,7 @@ public abstract class MixinGuiContainer extends MixinGuiScreen {
 
     @Inject(method = "drawScreen", at = @At("HEAD"), cancellable = true)
     private void drawScreen(int mouseX, int mouseY, float partialTicks, CallbackInfo ci) {
-        if (shouldSilentGUI) {
+        if (shouldSilentGUI()) {
             if (mc.currentScreen instanceof GuiChest) {
                 ci.cancel();
             }
