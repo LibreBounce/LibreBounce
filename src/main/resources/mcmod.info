@@ -1,13 +1,13 @@
 [
   {
-    "modid": "liquidbounce",
+    "modid": "librebounce",
     "name": "LiquidBounce",
-    "description": "A free mixin-based injection hacked-client",
+    "description": "A libre, mixin-based, injection hacked client",
     "version": "${version}",
     "mcversion": "1.8.9",
-    "url": "https://liquidbounce.net",
+    "url": "https://github.com/LibreBounce/LibreBounce",
     "updateUrl": "",
-    "authorList": ["CCBlueX"],
+    "authorList": ["CCBlueX", "thatonecoder"],
     "credits": "",
     "logoFile": "",
     "screenshots": [],
