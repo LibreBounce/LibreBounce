@@ -9,8 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- European Portuguese translation.
 - Fix the `RenderBoxOnSwingFail` option (and some of its adjacent settings) in KillAura not being subjective.
+
+## [0.1.0]
+
+### Fixed
+
+- Improve European Portuguese translation.
 - Fix the `SilentGUI` option in ChestStealer ignoring the ChestTitle option.
 
 ### Changed
