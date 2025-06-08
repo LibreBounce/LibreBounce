@@ -72,7 +72,7 @@ object LiquidBounce {
     const val CLIENT_NAME = "LibreBounce"
     const val CLIENT_AUTHOR = "CCBlueX"
     const val CLIENT_CLOUD = "https://cloud.liquidbounce.net/LiquidBounce"
-    const val CLIENT_WEBSITE = "liquidbounce.net"
+    const val CLIENT_WEBSITE = "https://github.com/LibreBounce/LibreBounce"
     const val CLIENT_GITHUB = "https://github.com/LibreBounce/LibreBounce"
 
     const val MINECRAFT_VERSION = "1.8.9"
