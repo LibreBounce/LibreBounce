@@ -20,13 +20,13 @@ _Initial release, forked from LiquidBounce Legacy._
 
 ### Fixed
 
-- Improve European Portuguese translation. (thatonecoder)
-- Fix the `SilentGUI` option in ChestStealer ignoring the ChestTitle option. (MarkGG, thatonecoder)
+- Improve European Portuguese translation (thatonecoder)
+- Fix the `SilentGUI` option in ChestStealer ignoring the ChestTitle option (MarkGG, thatonecoder)
 
 ### Changed
 
-- Switch from build-based versioning to Semantic versioning (starting by 0.1.0). (thatonecoder)
-- Rename project to `LibreBounce`. (thatonecoder)
+- Switch from build-based versioning to Semantic versioning (starting by 0.1.0) (thatonecoder)
+- Rename project to `LibreBounce` (thatonecoder)
 
 ### Removed
 
