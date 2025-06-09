@@ -336,6 +336,8 @@ object RotationUtils : MinecraftInstance, Listenable {
             hSpeed,
             vSpeed,
             !settings.instant && settings.legitimize,
+            settings.legitimizeHICF,
+            settings.legitimizeVICF,
             settings.minRotationDifference,
             settings.minRotationDifferenceResetTiming
         )
@@ -347,6 +349,8 @@ object RotationUtils : MinecraftInstance, Listenable {
         hSpeed: Float,
         vSpeed: Float = hSpeed,
         legitimize: Boolean,
+        legitimizeHICF: Float,
+        legitimizeVICF: Float,
         minRotationDiff: Float,
         minRotationDiffResetTiming: String,
     ): Rotation {
@@ -380,8 +384,8 @@ object RotationUtils : MinecraftInstance, Listenable {
 
             // Apply imperfect correlation
             if (legitimize) {
-                baseYawSpeed * (0.9F..1.1F).random()
-                basePitchSpeed * (0.9F..1.1F).random()
+                baseYawSpeed * legitimizeHICF
+                basePitchSpeed * legitimizeVICF
             }
 
             baseYawSpeed to basePitchSpeed

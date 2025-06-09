@@ -38,6 +38,8 @@ open class RotationSettings(owner: Module, generalApply: () -> Boolean = { true 
     }
 
     open val legitimizeValue = boolean("Legitimize", false) { rotationsActive && generalApply() }
+    open val legitimizeHorizontalImperfectCorrelationFactorValue = floatRange("LegitimizeHorizontalImperfectCorrelationFactor", 0.9f..1.1f, 0f..2f) { rotationsActive && generalApply() && legitimize }
+    open val legitimizeVerticalImperfectCorrelationFactorValue = floatRange("LegitimizeVerticalImperfectCorrelationFactor", 0.9f..1.1f, 0f..2f) { rotationsActive && generalApply() && legitimize }
 
     open val horizontalAngleChangeValue =
         floatRange("HorizontalAngleChange", 180f..180f, 1f..180f) { rotationsActive && generalApply() }
@@ -68,6 +70,8 @@ open class RotationSettings(owner: Module, generalApply: () -> Boolean = { true 
     val keepRotation by keepRotationValue
     val resetTicks by resetTicksValue
     val legitimize by legitimizeValue
+    val legitimizeHorizontalImperfectCorrelationFactor by legitimizeHorizontalImperfectCorrelationFactorValue
+    val legitimizeVerticalImperfectCorrelationFactor by legitimizeVerticalImperfectCorrelationFactorValue
     val horizontalAngleChange by horizontalAngleChangeValue
     val verticalAngleChange by verticalAngleChangeValue
     val angleResetDifference by angleResetDifferenceValue
@@ -83,6 +87,12 @@ open class RotationSettings(owner: Module, generalApply: () -> Boolean = { true 
 
     open val rotationsActive
         get() = rotations
+
+    val legitimizeHICF
+        get() = legitimizeHorizontalImperfectCorrelationFactor.random()
+
+    val legitimizeVICF
+        get() = legitimizeVerticalImperfectCorrelationFactor.random()
 
     val horizontalSpeed
         get() = horizontalAngleChange.random()
