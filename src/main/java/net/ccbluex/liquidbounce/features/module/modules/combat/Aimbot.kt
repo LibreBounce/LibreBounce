@@ -32,8 +32,8 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
     private val horizontalAim by boolean("HorizontalAim", true)
     private val verticalAim by boolean("VerticalAim", true)
     private val legitimize by boolean("Legitimize", true) { horizontalAim || verticalAim }
-    private val legitimizeHorizontalImperfectCorrelationFactor by float("LegitimizeHorizontalImperfectCorrelationFactor", 0.9f..1.1f, 0f..2f) { legitimize }
-    private val legitimizeVerticalImperfectCorrelationFactor by float("LegitimizeVerticalImperfectCorrelationFactor", 0.9f..1.1f, 0f..2f) { legitimize }
+    private val legitimizeHorizontalImperfectCorrelationFactor by floatRange("LegitimizeHorizontalImperfectCorrelationFactor", 0.9f..1.1f, 0f..2f) { legitimize }
+    private val legitimizeVerticalImperfectCorrelationFactor by floatRange("LegitimizeVerticalImperfectCorrelationFactor", 0.9f..1.1f, 0f..2f) { legitimize }
     private val maxAngleChange by float("MaxAngleChange", 10f, 1F..180F) { horizontalAim || verticalAim }
     private val inViewMaxAngleChange by float("InViewMaxAngleChange", 35f, 1f..180f) { horizontalAim || verticalAim }
     private val generateSpotBasedOnDistance by boolean(

@@ -38,8 +38,8 @@ open class RotationSettings(owner: Module, generalApply: () -> Boolean = { true 
     }
 
     open val legitimizeValue = boolean("Legitimize", false) { rotationsActive && generalApply() && legitimize }
-    open val legitimizeHorizontalImperfectCorrelationFactorValue = float("LegitimizeHorizontalImperfectCorrelationFactor", 0.9f..1.1f, 0f..2f) { rotationsActive && generalApply() && legitimize }
-    open val legitimizeVerticalImperfectCorrelationFactorValue = float("LegitimizeVerticalImperfectCorrelationFactor", 0.9f..1.1f, 0f..2f) { rotationsActive && generalApply() && legitimize }
+    open val legitimizeHorizontalImperfectCorrelationFactorValue = floatRange("LegitimizeHorizontalImperfectCorrelationFactor", 0.9f..1.1f, 0f..2f) { rotationsActive && generalApply() && legitimize }
+    open val legitimizeVerticalImperfectCorrelationFactorValue = floatRange("LegitimizeVerticalImperfectCorrelationFactor", 0.9f..1.1f, 0f..2f) { rotationsActive && generalApply() && legitimize }
 
     open val horizontalAngleChangeValue =
         floatRange("HorizontalAngleChange", 180f..180f, 1f..180f) { rotationsActive && generalApply() }
