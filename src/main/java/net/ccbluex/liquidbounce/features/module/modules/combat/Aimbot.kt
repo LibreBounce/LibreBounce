@@ -213,8 +213,8 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
             destinationRotation,
             realisticTurnSpeed.toFloat(),
             legitimize = legitimize,
-            legitimizeHICF = legitimizeHorizontalIncorrectCorrelationFactor.random(),
-            legitimizeVICF = legitimizeVerticalIncorrectCorrelationFactor.random(),
+            legitimizeHICF = legitimizeHICF,
+            legitimizeVICF = legitimizeVICF,
             minRotationDiff = minRotationDifference,
             minRotationDiffResetTiming = minRotationDifferenceResetTiming,
         )
