@@ -37,7 +37,7 @@ open class RotationSettings(owner: Module, generalApply: () -> Boolean = { true 
         rotationsActive && applyServerSide && generalApply()
     }
 
-    open val legitimizeValue = boolean("Legitimize", false) { rotationsActive && generalApply() && legitimize }
+    open val legitimizeValue = boolean("Legitimize", false) { rotationsActive && generalApply() }
     open val legitimizeHorizontalImperfectCorrelationFactorValue = floatRange("LegitimizeHorizontalImperfectCorrelationFactor", 0.9f..1.1f, 0f..2f) { rotationsActive && generalApply() && legitimize }
     open val legitimizeVerticalImperfectCorrelationFactorValue = floatRange("LegitimizeVerticalImperfectCorrelationFactor", 0.9f..1.1f, 0f..2f) { rotationsActive && generalApply() && legitimize }
 
