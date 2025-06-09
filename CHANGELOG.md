@@ -12,6 +12,8 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 ## [0.1.0] - 2025-06-09
 
+_Initial release, forked from LiquidBounce Legacy._
+
 ### Added
 
 - Added `LegitimizeHorizontalImperfectCorrelationFactor` and `LegitimizeHorizontalImperfectCorrelationFactor` values to all rotation modules, previously hard-coded (thatonecoder)
