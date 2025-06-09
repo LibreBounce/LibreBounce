@@ -10,7 +10,7 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 - Fix the `RenderBoxOnSwingFail` option (and some of its adjacent settings) in KillAura not being subjective, NOT DONE YET (thatonecoder)
 
-## [0.1.0] - 2025-06-08
+## [0.1.0] - 2025-06-09
 
 ### Added
 
