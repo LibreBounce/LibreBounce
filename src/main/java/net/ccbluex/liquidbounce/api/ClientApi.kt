@@ -41,7 +41,7 @@ private val client = OkHttpClient.Builder()
  */
 object ClientApi {
 
-    fun getNewestBuild(branch: String = HARD_CODED_BRANCH, release: Boolean = false): Build {
+    fun getNewestBuild(branch: String = HARD_CODED_BRANCH, prerelease: Boolean = true): Build {
         val url = "https://api.github.com/repos/LibreBounce/LibreBounce/releases/latest"
         client.get(url).use { response ->
             if (!response.isSuccessful) error("Request failed: ${response.code}")

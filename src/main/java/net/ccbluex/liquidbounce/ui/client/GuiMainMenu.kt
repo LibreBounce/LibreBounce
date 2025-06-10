@@ -8,7 +8,7 @@ package net.ccbluex.liquidbounce.ui.client
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME
 import net.ccbluex.liquidbounce.LiquidBounce.clientVersionText
 import net.ccbluex.liquidbounce.api.ClientUpdate
-import net.ccbluex.liquidbounce.api.ClientUpdate.hasUpdate
+import net.ccbluex.liquidbounce.api.ClientUpdate.update
 import net.ccbluex.liquidbounce.file.FileManager
 import net.ccbluex.liquidbounce.file.FileManager.valuesConfig
 import net.ccbluex.liquidbounce.lang.translationMenu
@@ -51,7 +51,7 @@ class GuiMainMenu : AbstractScreen() {
             }
             when {
                 FileManager.firstStart -> showWelcomePopup()
-                hasUpdate() -> showUpdatePopup()
+                update -> showUpdatePopup()
             }
             popupOnce = true
         }
@@ -118,7 +118,7 @@ class GuiMainMenu : AbstractScreen() {
         popup = PopupScreen {
             title("§bNew Update Available!")
             message("""
-                §eA new $updateType of LiquidBounce is available!
+                §eA new $updateType of LibreBounce is available!
         
                 - ${if (isReleaseBuild) "§aVersion" else "§aBuild ID"}:§r ${if (isReleaseBuild) newestVersion.lbVersion else newestVersion.buildId}
                 - §aMinecraft Version:§r ${newestVersion.mcVersion}
