@@ -50,7 +50,7 @@ object ClientUpdate {
 
             val newestSemVersion = Semver(newestVersion?.tagName, Semver.SemverType.LOOSE)
 
-            val isNewer = if (LiquidBounce.IN_DEV) { // check if new build is newer than current build
+            return if (LiquidBounce.IN_DEV) { // check if new build is newer than current build
                 val newestBuildDate = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(newestVersion?.date)
                 val currentBuildDate =
                     SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").parse(gitInfo["git.commit.time"].toString())
@@ -61,12 +61,6 @@ object ClientUpdate {
                 val clientSemVersion = Semver(LiquidBounce.clientVersionText, Semver.SemverType.LOOSE)
 
                 newestSemVersion.isGreaterThan(clientSemVersion)
-            }
-
-            if (isNewer) {
-                newestVersion
-            } else {
-                null
             }
         } catch (e: Exception) {
             LOGGER.error("Failed to check for update", e)
