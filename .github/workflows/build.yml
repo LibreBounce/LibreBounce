@@ -21,7 +21,7 @@ jobs:
       - name: Build
         run: ./gradlew build
       - name: Rename artifact
-        run: mv build/libs/liquidbounce-*.jar build/libs/LibreBounce.jar
+        run: mv build/libs/librebounce-*.jar build/libs/LibreBounce.jar
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
