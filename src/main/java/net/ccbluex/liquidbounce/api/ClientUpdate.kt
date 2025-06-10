@@ -34,10 +34,7 @@ object ClientUpdate {
         }
     }
 
-    var newestVersion: Version? = null
-        private set
-
-    var newestBuild: Build? = null
+    var newestVersion: Build? = null
         private set
 
     fun hasUpdate(): Boolean {
@@ -54,7 +51,7 @@ object ClientUpdate {
             val newestSemVersion = Semver(newestVersion.tagName, Semver.SemverType.LOOSE)
 
             val isNewer = if (LiquidBounce.IN_DEV) { // check if new build is newer than current build
-                val newestBuildDate = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(newestBuild.date)
+                val newestBuildDate = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(newestVersion.date)
                 val currentBuildDate =
                     SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").parse(gitInfo["git.commit.time"].toString())
 
@@ -67,7 +64,7 @@ object ClientUpdate {
             }
 
             if (isNewer) {
-                newestBuild
+                newestVersion
             } else {
                 null
             }
