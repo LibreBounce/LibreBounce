@@ -46,7 +46,7 @@ object ClientUpdate {
                 val currentBuildDate =
                     SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").parse(gitInfo["git.commit.time"].toString())
 
-                newestBuildDate?.after(currentBuildDate)
+                newestBuildDate.after(currentBuildDate)
             } else {
                 // check if version number is higher than current version number (on release builds only!)
                 val clientSemVersion = Semver(LiquidBounce.clientVersionText, Semver.SemverType.LOOSE)

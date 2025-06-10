@@ -65,7 +65,7 @@ object ClientApi {
         }
     }
 
-    fun getNewestBuildDate(branch: String = HARD_CODED_BRANCH): Date? {
+    fun getNewestBuildDate(branch: String = HARD_CODED_BRANCH): Date {
         val url = "$GITHUB_API_ENDPOINT/commits/$branch"
         client.get(url).use { response ->
             if (!response.isSuccessful) error("Request failed: ${response.code}")
