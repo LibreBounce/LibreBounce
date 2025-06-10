@@ -9,7 +9,8 @@ import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
-import org.json.JSONObject
+import com.google.gson.Gson
+import com.google.gson.JsonObject
 import java.util.*
 import java.util.concurrent.TimeUnit
 import java.text.SimpleDateFormat
@@ -66,13 +67,15 @@ object ClientApi {
 
     fun getNewestBuildDate(branch: String = HARD_CODED_BRANCH): Date? {
         val url = "$GITHUB_API_ENDPOINT/commits/$branch"
-        val request = Request.Builder().url(url).build()
         client.get(url).use { response ->
             if (!response.isSuccessful) error("Request failed: ${response.code}")
-            val json = JSONObject(response.body?.string() ?: return null)
-            val dateString = json.getJSONObject("commit")
-                .getJSONObject("committer")
-                .getString("date")
+            val body = response.body?.string() ?: return null
+            val gson = Gson()
+            val json = gson.fromJson(body, JsonObject::class.java)
+            val dateString = json
+                .getAsJsonObject("commit")
+                .getAsJsonObject("committer")
+                .get("date").asString
             return SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ")
                 .parse(dateString)
         }
