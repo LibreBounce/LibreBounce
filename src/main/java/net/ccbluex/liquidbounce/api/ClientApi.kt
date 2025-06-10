@@ -61,6 +61,20 @@ object ClientApi {
         }
     }
 
+    fun getNewestBuildDate(branch: String = HARD_CODED_BRANCH): Date? {
+        val url = "$GITHUB_API_ENDPOINT/commits/$branch"
+        val request = Request.Builder().url(url).build()
+        client.get(url).use { response ->
+            if (!response.isSuccessful) error("Request failed: ${response.code}")
+            val json = JSONObject(response.body?.string() ?: return null)
+            val dateString = json.getJSONObject("commit")
+                .getJSONObject("committer")
+                .getString("date")
+            return SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ")
+                .parse(dateString)
+        }
+    }
+
     fun getSettingsList(branch: String = HARD_CODED_BRANCH): List<AutoSettings> {
         val url = "$API_V1_ENDPOINT/client/$branch/settings"
         client.get(url).use { response ->
