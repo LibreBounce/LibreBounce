@@ -14,8 +14,6 @@ data class Build(
     val branch: String,
     @SerializedName("tag_name")
     val tagName: String,
-    @SerializedName("mc_version")
-    val mcVersion: String,
     val prerelease: Boolean,
     val date: String,
     val message: String,

@@ -28,7 +28,7 @@ object ClientUpdate {
     fun reloadNewestVersion() {
         // https://api.liquidbounce.net/api/v1/version/builds/legacy
         try {
-            newestVersion = ClientApi.getNewestBuild(release = !IN_DEV)
+            newestVersion = ClientApi.getNewestBuild(prerelease = IN_DEV)
         } catch (e: Exception) {
             LOGGER.error("Unable to receive update information", e)
         }
@@ -59,7 +59,7 @@ object ClientUpdate {
         }
     } */
 
-    val update {
+    fun hasUpdate(): Boolean {
         try {
             /* val newestBuild = runCatching {
                 ClientApi.requestNewestBuildEndpoint(
@@ -82,7 +82,7 @@ object ClientUpdate {
                 // check if version number is higher than current version number (on release builds only!)
                 val clientSemVersion = Semver(LiquidBounce.clientVersionText, Semver.SemverType.LOOSE)
 
-                newestBuild.release && newestSemVersion.isGreaterThan(clientSemVersion)
+                !newestBuild.prerelease && newestSemVersion.isGreaterThan(clientSemVersion)
             }
 
             if (isNewer) {
