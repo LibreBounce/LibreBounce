@@ -11,7 +11,7 @@ import okhttp3.Request
 import okhttp3.RequestBody
 import java.util.concurrent.TimeUnit
 
-private const val HARD_CODED_BRANCH = "legacy"
+private const val HARD_CODED_BRANCH = "main"
 
 private const val API_V1_ENDPOINT = "https://api.liquidbounce.net/api/v1"
 
@@ -41,8 +41,16 @@ private val client = OkHttpClient.Builder()
  */
 object ClientApi {
 
-    fun getNewestBuild(branch: String = HARD_CODED_BRANCH, prerelease: Boolean = true): Build {
+    fun getNewestRelease(branch: String = HARD_CODED_BRANCH): Build {
         val url = "https://api.github.com/repos/LibreBounce/LibreBounce/releases/latest"
+        client.get(url).use { response ->
+            if (!response.isSuccessful) error("Request failed: ${response.code}")
+            return response.body.charStream().decodeJson()
+        }
+    }
+
+    fun getNewestBuild(branch: String = HARD_CODED_BRANCH): Build {
+        val url = "https://api.github.com/repos/LibreBounce/LibreBounce/branches/$branch"
         client.get(url).use { response ->
             if (!response.isSuccessful) error("Request failed: ${response.code}")
             return response.body.charStream().decodeJson()
