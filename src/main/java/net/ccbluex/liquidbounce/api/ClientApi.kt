@@ -15,6 +15,8 @@ private const val HARD_CODED_BRANCH = "main"
 
 private const val API_V1_ENDPOINT = "https://api.liquidbounce.net/api/v1"
 
+private const val GITHUB_API_ENDPOINT = "https://api.github.com/repos/LibreBounce/LibreBounce"
+
 
 /**
  * Session token
@@ -41,16 +43,18 @@ private val client = OkHttpClient.Builder()
  */
 object ClientApi {
 
+    // Get the latest "stable" release
     fun getNewestRelease(branch: String = HARD_CODED_BRANCH): Build {
-        val url = "https://api.github.com/repos/LibreBounce/LibreBounce/releases/latest"
+        val url = "$GITHUB_API_ENDPOINT/releases/latest"
         client.get(url).use { response ->
             if (!response.isSuccessful) error("Request failed: ${response.code}")
             return response.body.charStream().decodeJson()
         }
     }
 
+    // Get the latest "unstable" build
     fun getNewestBuild(branch: String = HARD_CODED_BRANCH): Build {
-        val url = "https://api.github.com/repos/LibreBounce/LibreBounce/branches/$branch"
+        val url = "$GITHUB_API_ENDPOINT/branches/$branch"
         client.get(url).use { response ->
             if (!response.isSuccessful) error("Request failed: ${response.code}")
             return response.body.charStream().decodeJson()

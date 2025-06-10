@@ -29,6 +29,7 @@ object ClientUpdate {
         // https://api.liquidbounce.net/api/v1/version/builds/legacy
         try {
             newestVersion = ClientApi.getNewestRelease()
+            newestBuild = ClientApi.getNewestBuild()
         } catch (e: Exception) {
             LOGGER.error("Unable to receive update information", e)
         }
@@ -37,21 +38,15 @@ object ClientUpdate {
     var newestVersion: Build? = null
         private set
 
+    var newestBuild: Build? = null
+        private set
+
     fun hasUpdate(): Boolean {
         try {
-            /* val newestBuild = runCatching {
-                ClientApi.requestNewestBuildEndpoint(
-                    branch = LiquidBounce.clientBranch,
-                    prerelease = LiquidBounce.IN_DEV
-                )
-            }.onFailure { exception ->
-                logger.error("Unable to receive update information", exception)
-            }.getOrNull() ?: return@AsyncLazy null */
-
             val newestSemVersion = Semver(newestVersion?.tagName, Semver.SemverType.LOOSE)
 
             return if (LiquidBounce.IN_DEV) { // check if new build is newer than current build
-                val newestBuildDate = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(newestVersion?.date)
+                val newestBuildDate = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(newestBuild?.date)
                 val currentBuildDate =
                     SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").parse(gitInfo["git.commit.time"].toString())
 
