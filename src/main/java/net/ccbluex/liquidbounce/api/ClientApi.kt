@@ -69,7 +69,7 @@ object ClientApi {
         val url = "$GITHUB_API_ENDPOINT/commits/$branch"
         client.get(url).use { response ->
             if (!response.isSuccessful) error("Request failed: ${response.code}")
-            val body = response.body?.string() ?: return null
+            val body = response.body?.string() // ?: return null
             val gson = Gson()
             val json = gson.fromJson(body, JsonObject::class.java)
             val dateString = json
