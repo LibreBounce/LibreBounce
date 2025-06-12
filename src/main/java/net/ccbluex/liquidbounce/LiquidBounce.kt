@@ -88,7 +88,7 @@ object LiquidBounce {
      */
     const val IN_DEV = true
 
-    val clientTitle = CLIENT_NAME + clientVersionText + " " + clientCommit + " | " + MINECRAFT_VERSION + if (IN_DEV) " | DEVELOPMENT BUILD" else ""
+    val clientTitle = CLIENT_NAME + " " + clientVersionText + " " + clientCommit + " | " + MINECRAFT_VERSION + if (IN_DEV) " | DEVELOPMENT BUILD" else ""
 
     var isStarting = true
 
