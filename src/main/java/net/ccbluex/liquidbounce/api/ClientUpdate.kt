@@ -5,6 +5,7 @@
  */
 package net.ccbluex.liquidbounce.api
 
+import com.vdurmont.semver4j.Semver
 import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.LiquidBounce.IN_DEV
 import net.ccbluex.liquidbounce.LiquidBounce.clientVersionNumber
@@ -27,7 +28,7 @@ object ClientUpdate {
     fun reloadNewestVersion() {
         // https://api.liquidbounce.net/api/v1/version/builds/legacy
         try {
-            newestVersion = ClientApi.getNewestBuild(release = !IN_DEV)
+            newestVersion = ClientApi.getNewestRelease()
         } catch (e: Exception) {
             LOGGER.error("Unable to receive update information", e)
         }
@@ -38,25 +39,24 @@ object ClientUpdate {
 
     fun hasUpdate(): Boolean {
         try {
-            val newestVersion = newestVersion ?: return false
-            val actualVersionNumber =
-                newestVersion.lbVersion.removePrefix("b").toIntOrNull() ?: 0 // version format: "b<VERSION>" on legacy
+            val newestSemVersion = Semver(newestVersion?.tagName, Semver.SemverType.LOOSE)
 
-            return if (IN_DEV) { // check if new build is newer than current build
-                val newestVersionDate = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(newestVersion.date)
-                val currentVersionDate =
+            return if (LiquidBounce.IN_DEV) { // check if new build is newer than current build
+                val newestBuildDate = ClientApi.getNewestBuildDate()
+                val currentBuildDate =
                     SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").parse(gitInfo["git.commit.time"].toString())
 
-                newestVersionDate.after(currentVersionDate)
+                newestBuildDate.after(currentBuildDate)
             } else {
                 // check if version number is higher than current version number (on release builds only!)
-                newestVersion.release && actualVersionNumber > clientVersionNumber
+                val clientSemVersion = Semver(LiquidBounce.clientVersionText, Semver.SemverType.LOOSE)
+
+                newestSemVersion.isGreaterThan(clientSemVersion)
             }
         } catch (e: Exception) {
-            LOGGER.error("Unable to check for update", e)
+            LOGGER.error("Failed to check for update", e)
             return false
         }
     }
-
 }
 

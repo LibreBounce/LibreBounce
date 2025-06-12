@@ -12,11 +12,9 @@ data class Build(
     @SerializedName("commit_id")
     val commitId: String,
     val branch: String,
-    @SerializedName("lb_version")
-    val lbVersion: String,
-    @SerializedName("mc_version")
-    val mcVersion: String,
-    val release: Boolean,
+    @SerializedName("tag_name")
+    val tagName: String,
+    val prerelease: Boolean,
     val date: String,
     val message: String,
     val url: String

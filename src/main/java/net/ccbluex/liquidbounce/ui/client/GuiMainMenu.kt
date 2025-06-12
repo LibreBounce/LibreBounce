@@ -108,7 +108,7 @@ class GuiMainMenu : AbstractScreen() {
     private fun showUpdatePopup() {
         val newestVersion = ClientUpdate.newestVersion ?: return
 
-        val isReleaseBuild = newestVersion.release
+        val isReleaseBuild = !newestVersion.prerelease
         val updateType = if (isReleaseBuild) "version" else "development build"
 
         val dateFormatter = SimpleDateFormat("EEEE, MMMM dd, yyyy, h a z", Locale.ENGLISH)
@@ -118,10 +118,9 @@ class GuiMainMenu : AbstractScreen() {
         popup = PopupScreen {
             title("§bNew Update Available!")
             message("""
-                §eA new $updateType of LiquidBounce is available!
+                §eA new $updateType of LibreBounce is available!
         
-                - ${if (isReleaseBuild) "§aVersion" else "§aBuild ID"}:§r ${if (isReleaseBuild) newestVersion.lbVersion else newestVersion.buildId}
-                - §aMinecraft Version:§r ${newestVersion.mcVersion}
+                - ${if (isReleaseBuild) "§aVersion" else "§aBuild ID"}:§r ${if (isReleaseBuild) newestVersion.tagName else newestVersion.buildId}
                 - §aBranch:§r ${newestVersion.branch}
                 - §aDate:§r $formattedNewestDate
         

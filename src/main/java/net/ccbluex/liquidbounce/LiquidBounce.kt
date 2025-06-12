@@ -78,7 +78,7 @@ object LiquidBounce {
     const val MINECRAFT_VERSION = "1.8.9"
     
     val clientVersionText = gitInfo["git.build.version"]?.toString() ?: "unknown"
-    val clientVersionNumber = clientVersionText.substring(1).toIntOrNull() ?: 0 // version format: "b<VERSION>" on legacy
+    val clientVersionNumber = clientVersionText.substring(1).toIntOrNull() ?: 0 // version format: "v<VERSION>"
     val clientCommit = gitInfo["git.commit.id.abbrev"]?.let { "git-$it" } ?: "unknown"
     val clientBranch = gitInfo["git.branch"]?.toString() ?: "unknown"
 
@@ -86,7 +86,7 @@ object LiquidBounce {
      * Defines if the client is in development mode.
      * This will enable update checking on commit time instead of regular legacy versioning.
      */
-    const val IN_DEV = false
+    const val IN_DEV = true
 
     val clientTitle = CLIENT_NAME + clientVersionText + " " + clientCommit + " | " + MINECRAFT_VERSION + if (IN_DEV) " | DEVELOPMENT BUILD" else ""
 
