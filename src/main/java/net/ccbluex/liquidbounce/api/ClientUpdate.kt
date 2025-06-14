@@ -39,7 +39,7 @@ object ClientUpdate {
 
     fun hasUpdate(): Boolean {
         try {
-            val newestSemVersion = Semver.coerce(newestVersion?.tagName)
+            val newestSemVersion = Semver.parse(newestVersion?.tagName)
 
             return if (LiquidBounce.IN_DEV) { // check if new build is newer than current build
                 val newestBuildDate = ClientApi.getNewestBuildDate()
