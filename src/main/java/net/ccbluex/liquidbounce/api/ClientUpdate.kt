@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.api
 
-import com.vdurmont.semver4j.Semver
+import org.semver4j.Semver
 import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.LiquidBounce.IN_DEV
 import net.ccbluex.liquidbounce.LiquidBounce.clientVersionNumber
@@ -39,7 +39,7 @@ object ClientUpdate {
 
     fun hasUpdate(): Boolean {
         try {
-            val newestSemVersion = Semver(newestVersion?.tagName, Semver.SemverType.LOOSE)
+            val newestSemVersion = Semver.parse(newestVersion?.tagName)
 
             return if (LiquidBounce.IN_DEV) { // check if new build is newer than current build
                 val newestBuildDate = ClientApi.getNewestBuildDate()
@@ -49,7 +49,7 @@ object ClientUpdate {
                 newestBuildDate.after(currentBuildDate)
             } else {
                 // check if version number is higher than current version number (on release builds only!)
-                val clientSemVersion = Semver(LiquidBounce.clientVersionText, Semver.SemverType.LOOSE)
+                val clientSemVersion = Semver(LiquidBounce.clientVersionText)
 
                 newestSemVersion.isGreaterThan(clientSemVersion)
             }
