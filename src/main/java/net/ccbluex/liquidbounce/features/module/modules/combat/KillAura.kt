@@ -98,7 +98,9 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     private val range: Float by float("Range", 3.7f, 1f..8f).onChanged {
         blockRange = blockRange.coerceAtMost(it)
     }
-    private val scanRange by float("ScanRange", 2f, 0f..10f)
+    private val scanRange by floatRange("ScanRange", 2f..2f, 0f..10f).onChanged {
+        randomizedScanRange = it.random()
+    }
     private val throughWallsRange by float("ThroughWallsRange", 3f, 0f..8f)
     private val rangeSprintReduction by float("RangeSprintReduction", 0f, 0f..0.4f)
 
@@ -320,6 +322,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     var target: EntityLivingBase? = null
     private var hittable = false
     private val prevTargetEntities = mutableListOf<Int>()
+    private var randomizedScanRange: Float = scanRange.random()
 
     // Attack delay
     private val attackTimer = MSTimer()
@@ -854,6 +857,9 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             startBlocking(entity, interactAutoBlock, autoBlock == "Fake")
         }
 
+        // Randomizes scan range after hit
+        randomizedScanRange = scanRange.random()
+
         resetLastAttackedTicks()
     }
 
@@ -913,7 +919,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             outBorder && !attackTimer.hasTimePassed(attackDelay / 2),
             randomization,
             predict = false,
-            lookRange = range + scanRange,
+            lookRange = range + randomizedScanRange,
             attackRange = range,
             throughWallsRange = throughWallsRange,
             bodyPoints = listOf(highestBodyPointToTarget, lowestBodyPointToTarget),
@@ -1305,10 +1311,10 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
      * Range
      */
     private val maxRange
-        get() = max(range + scanRange, throughWallsRange)
+        get() = max(range + randomizedScanRange, throughWallsRange)
 
     private fun getRange(entity: Entity) =
-        (if (mc.thePlayer.getDistanceToEntityBox(entity) >= throughWallsRange) range + scanRange else throughWallsRange) - if (mc.thePlayer.isSprinting) rangeSprintReduction else 0F
+        (if (mc.thePlayer.getDistanceToEntityBox(entity) >= throughWallsRange) range + randomizedScanRange else throughWallsRange) - if (mc.thePlayer.isSprinting) rangeSprintReduction else 0F
 
     /**
      * HUD Tag
