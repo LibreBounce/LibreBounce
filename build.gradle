@@ -76,7 +76,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlin_coroutines_version")
 
     // Update Checker - Semver Implementation
-    implementation("org.semver4j:semver4j:5.7.1")
+    implementation("org.semver4j:semver4j:6.0.0")
 
     // Swing LookAndFeel
     implementation("com.formdev:flatlaf:3.6.1")
