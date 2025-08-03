@@ -24,17 +24,8 @@ val kotlinCoroutinesVersion: String by project
 group = mavenGroup
 version = modVersion
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
-}
-
 tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"
-}
-
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8"
 }
 
 configure<net.minecraftforge.gradle.common.tasks.MinecraftForgeExtension> {
@@ -167,6 +158,19 @@ tasks.register<net.minecraftforge.gradle.tasks.ReobfTask>("reobfShadowJar") {
     mustRunAfter(tasks.named("shadowJar"))
 }
 
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+
+kotlin {
+    compilerOptions {
+        jvmToolchain(8)
+    }
+}
+
+
 tasks.jar {
     dependsOn(tasks.named("shadowJar"))
 }
@@ -175,6 +179,7 @@ tasks.register<Copy>("copyZipInclude") {
     from("zip_include/")
     into("build/libs/zip")
 }
-tasks.build {
+
+tasks.named("build") {
     dependsOn("copyZipInclude")
 }
