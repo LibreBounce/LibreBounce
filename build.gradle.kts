@@ -1,7 +1,7 @@
 plugins {
     java
     idea
-    id("org.jetbrains.kotlin.jvm") version "kotlin_version"
+    kotlin("jvm")
     id("com.github.johnrengelman.shadow") version "6.1.0"
     id("net.minecraftforge.gradle.forge") version "forge_gradle_version"
     id("org.spongepowered.mixin") version "mixin_gradle_version"
