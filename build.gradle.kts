@@ -153,8 +153,11 @@ configure<org.spongepowered.asm.gradle.plugins.MixinExtension> {
     add(sourceSets.main.get(), "liquidbounce.mixins.refmap.json")
 }
 
-tasks.register<net.minecraftforge.gradle.tasks.ReobfTask>("reobfShadowJar") {
-    mappingType = "SEARGE"
+val reobfShadowJar = tasks.register<net.minecraftforge.gradle.tasks.ReobfTask>("reobfShadowJar") {
+    // If mappingType is a property, set it like this (check ForgeGradle docs for correct usage)
+    mappingType.set("SEARGE")
+}
+tasks.named("reobfShadowJar") {
     mustRunAfter(tasks.named("shadowJar"))
 }
 
