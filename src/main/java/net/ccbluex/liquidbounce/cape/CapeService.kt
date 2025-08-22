@@ -17,7 +17,7 @@ import net.ccbluex.liquidbounce.utils.login.UserUtils
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
-import okhttp3.internal.commonEmptyRequestBody
+import okhttp3.RequestBody
 import java.util.*
 import java.util.concurrent.atomic.AtomicLong
 

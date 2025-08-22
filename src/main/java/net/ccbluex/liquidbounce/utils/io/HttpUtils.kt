@@ -14,7 +14,6 @@ import kotlinx.coroutines.withContext
 import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.utils.client.ClientUtils
 import okhttp3.*
-import okhttp3.internal.commonEmptyRequestBody
 import okio.buffer
 import okio.sink
 import okio.source
