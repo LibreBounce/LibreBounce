@@ -66,7 +66,7 @@ dependencies {
     implementation("org.knowm.xchart:xchart:3.8.8")
 
     // HTTP Client
-    implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.14") {
+    implementation("com.squareup.okhttp3:okhttp:5.1.0") {
         exclude module: "kotlin-stdlib"
     }
 
@@ -109,16 +109,16 @@ processResources {
     rename "(.+_at.cfg)", "META-INF/\$1"
 }
 
-task moveResources {
+tasks.register('moveResources') {
     doLast {
         copy {
             from "${buildDir}/resources/main"
             into "${buildDir}/classes/java"
         }
     }
+    it.dependsOn(processResources)
 }
 
-moveResources.dependsOn(processResources)
 classes.dependsOn(moveResources)
 
 jar {
@@ -135,6 +135,8 @@ jar {
     )
 
     enabled = false
+
+    dependsOn("shadowJar")
 }
 
 mixin {
@@ -149,13 +151,12 @@ reobf {
     }
 }
 
-jar.dependsOn("shadowJar")
+tasks.reobfShadowJar.mustRunAfter("shadowJar")
+tasks.reobfJar.dependsOn("shadowJar")
 
-tasks.reobfShadowJar.mustRunAfter shadowJar
-
-task copyZipInclude(type: Copy) {
+tasks.register('copyZipInclude', Copy) {
     from 'zip_include/'
     into 'build/libs/zip'
 }
 
-build.dependsOn copyZipInclude
+tasks.build.dependsOn("copyZipInclude")

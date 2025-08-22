@@ -167,7 +167,7 @@ object CapeService : Listenable, MinecraftInstance {
                 .url(SELF_CAPE_URL)
                 .apply {
                     if (capeUser.enabled) delete()
-                    else put(commonEmptyRequestBody)
+                    else put(RequestBody.EMPTY)
                 }
                 .addHeader("Content-Type", "application/json")
                 .addHeader("Authorization", capeUser.token)

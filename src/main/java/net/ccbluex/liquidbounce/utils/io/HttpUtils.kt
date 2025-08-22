@@ -56,19 +56,19 @@ fun OkHttpClient.head(url: String) = newCall {
     url(url).defaultAgent().head()
 }.execute()
 
-fun OkHttpClient.post(url: String, body: RequestBody = commonEmptyRequestBody) = newCall {
+fun OkHttpClient.post(url: String, body: RequestBody = RequestBody.EMPTY) = newCall {
     url(url).defaultAgent().post(body)
 }.execute()
 
-fun OkHttpClient.delete(url: String, body: RequestBody? = commonEmptyRequestBody) = newCall {
+fun OkHttpClient.delete(url: String, body: RequestBody? = RequestBody.EMPTY) = newCall {
     url(url).defaultAgent().delete(body)
 }.execute()
 
-fun OkHttpClient.put(url: String, body: RequestBody = commonEmptyRequestBody) = newCall {
+fun OkHttpClient.put(url: String, body: RequestBody = RequestBody.EMPTY) = newCall {
     url(url).defaultAgent().put(body)
 }.execute()
 
-fun OkHttpClient.patch(url: String, body: RequestBody = commonEmptyRequestBody) = newCall {
+fun OkHttpClient.patch(url: String, body: RequestBody = RequestBody.EMPTY) = newCall {
     url(url).defaultAgent().patch(body)
 }.execute()
 
