@@ -35,7 +35,6 @@ private val client = OkHttpClient.Builder()
     .applyBypassHttps()
     .addInterceptor { chain ->
         val original = chain.request()
-        requireNotNull(original) { "source (request) must not be null" }
         val request: Request = original.newBuilder()
             .header("X-Session-Token", SESSION_TOKEN)
             .build()
