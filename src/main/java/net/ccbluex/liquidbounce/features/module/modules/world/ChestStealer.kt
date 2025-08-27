@@ -145,8 +145,6 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
         delay(startDelay.random().toLong())
 
-        smartDelay(smartDelay.random().toLong())
-
         debug("Stealing items...")
 
         // Go through the chest multiple times, till there are no useful items anymore
