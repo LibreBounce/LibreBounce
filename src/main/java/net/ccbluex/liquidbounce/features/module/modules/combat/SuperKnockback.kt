@@ -57,6 +57,8 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
     val onlyMove by boolean("OnlyMove", true)
     val onlyMoveForward by boolean("OnlyMoveForward", true) { onlyMove }
     private val onlyWhenTargetGoesBack by boolean("OnlyWhenTargetGoesBack", false)
+    private val onWeb by boolean("OnWeb", false)
+    private val onLiquid by boolean("OnLiquid", false)
 
     private var ticks = 0
     private var forceSprintState = 0
@@ -90,7 +92,7 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
         val rotationToPlayer = toRotation(player.hitBox.center, false, target).fixedSensitivity().yaw
         val angleDifferenceToPlayer = abs(angleDifference(rotationToPlayer, target.rotationYaw))
 
-        if (event.targetEntity.hurtTime > hurtTime || !timer.hasTimePassed(delay) || onlyGround && !player.onGround || RandomUtils.nextInt(
+        if (event.targetEntity.hurtTime > hurtTime || !timer.hasTimePassed(delay) || onlyGround && !player.onGround || !onWeb && player.isInWeb || !onLiquid && player.isInLiquid || RandomUtils.nextInt(
                 endExclusive = 100
             ) > chance
         ) return@handler

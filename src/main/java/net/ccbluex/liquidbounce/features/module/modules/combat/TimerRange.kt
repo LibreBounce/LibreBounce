@@ -34,6 +34,7 @@ import net.minecraft.network.play.server.S12PacketEntityVelocity
 import net.minecraft.network.play.server.S27PacketExplosion
 import java.awt.Color
 
+// TODO: Refactor entirely
 object TimerRange : Module("TimerRange", Category.COMBAT) {
 
     private var playerTicks = 0
@@ -94,7 +95,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
 
     // Optional
     private val onWeb by boolean("OnWeb", false)
-    private val onLiquid by boolean("onLiquid", false)
+    private val onLiquid by boolean("OnLiquid", false)
     private val onForwardOnly by boolean("OnForwardOnly", true)
     private val resetOnlagBack by boolean("ResetOnLagback", false)
     private val resetOnKnockback by boolean("ResetOnKnockback", false)

@@ -6,11 +6,26 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 ## [Unreleased]
 
+### Added
+
+- BREAKING CHANGE: Configurable randomizability to SmartDelay in ChestStealer (thatonecoder)
+- OnWeb and OnLiquid to SuperKnockback (thatonecoder)
+
 ### Fixed
 
 - Fix the update checker not working ([#8](https://github.com/LibreBounce/LibreBounce/pull/8)) (thatonecoder)
 - Fix the `RenderBoxOnSwingFail` option (and some of its adjacent settings) in KillAura not being subjective, NOT DONE YET (thatonecoder)
 - Fix there not being a space between the name and version, in the window title ([#12](https://github.com/LibreBounce/LibreBounce/pull/12)) (halflin)
+
+### Changed
+
+- BREAKING CHANGE: Rename ForceGround to OnlyGround in TickBase (thatonecoder)
+- BREAKING CHANGE: Rename onlyGround to OnlyGround in TimerRange (thatonecoder)
+- Allow interoperability between smart and normal delay in ChestStealer (thatonecoder)
+
+### Removed
+
+- Remove the flag check in the BoostHypixel fly; use FlagCheck + AutoDisable instead (thatonecoder)
 
 ## [0.1.0] - 2025-06-09
 

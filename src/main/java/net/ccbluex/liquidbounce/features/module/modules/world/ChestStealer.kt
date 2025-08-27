@@ -52,12 +52,12 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
     // TODO: Make SmartDelay and normal Delay interoperable, to bypass advanced anti-cheats
     private val smartDelay by boolean("SmartDelay", false)
-    private val multiplier by int("DelayMultiplier", 120, 0..500) { smartDelay }
+    private val multiplier by intRange("DelayMultiplier", 120..140, 0..500) { smartDelay }
     private val smartOrder by boolean("SmartOrder", true) { smartDelay }
 
     private val simulateShortStop by boolean("SimulateShortStop", false)
 
-    private val delay by intRange("Delay", 50..50, 0..500) { !smartDelay }
+    private val delay by intRange("Delay", 50..50, 0..500)
     private val startDelay by intRange("StartDelay", 50..100, 0..500)
     private val closeDelay by intRange("CloseDelay", 50..100, 0..500)
 
@@ -113,7 +113,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
             if (mc.thePlayer?.openContainer?.windowId != receivedId)
                 return false
 
-            // Wait till NoMove check isn't violated
+            // Wait until NoMove check isn't violated
             if (canClickInventory())
                 return true
 
@@ -138,13 +138,16 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
         // Check if chest isn't a custom GUI or shouldn't operate for another reason
         if (isCustomGUI || !shouldOperate())
+            debug("Custom title chest opened, likely a server GUI. Aborting.")
             return
 
         progress = 0f
 
         delay(startDelay.random().toLong())
 
-        debug("Stealing items..")
+        smartDelay(smartDelay.random().toLong())
+
+        debug("Stealing items...")
 
         // Go through the chest multiple times, till there are no useful items anymore
         while (true) {
@@ -181,8 +184,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
                     val stealingDelay = if (smartDelay && index + 1 < itemsToSteal.size) {
                         val dist = squaredDistanceOfSlots(slot, itemsToSteal[index + 1].index)
-                        val trueDelay = sqrt(dist.toDouble()) * multiplier
-                        randomDelay(trueDelay.toInt(), trueDelay.toInt() + 20)
+                        delay.random() + (sqrt(dist.toDouble()) * multiplier.random())
                     } else {
                         delay.random()
                     }
