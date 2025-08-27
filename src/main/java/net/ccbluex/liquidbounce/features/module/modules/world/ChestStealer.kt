@@ -50,6 +50,7 @@ import kotlin.math.sqrt
 
 object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
+    // TODO: Make SmartDelay and normal Delay interoperable, to bypass advanced anti-cheats
     private val smartDelay by boolean("SmartDelay", false)
     private val multiplier by int("DelayMultiplier", 120, 0..500) { smartDelay }
     private val smartOrder by boolean("SmartOrder", true) { smartDelay }

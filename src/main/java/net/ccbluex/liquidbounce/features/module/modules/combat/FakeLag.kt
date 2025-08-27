@@ -41,6 +41,7 @@ import kotlin.math.min
 
 object  FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
 
+    // TODO: Make an option for FakeLag to only work during combat
     private val delay by int("Delay", 550, 0..1000)
     private val recoilTime by int("RecoilTime", 750, 0..2000)
 

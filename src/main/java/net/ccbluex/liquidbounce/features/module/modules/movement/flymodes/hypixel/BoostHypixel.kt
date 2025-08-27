@@ -132,6 +132,7 @@ object BoostHypixel : FlyMode("BoostHypixel") {
     }
 
     override fun onPacket(event: PacketEvent) {
+        // TODO: Make this dependant on FlagCheck, maybe remove it
         when (val packet = event.packet) {
             is S08PacketPlayerPosLook -> {
                 Fly.state = false

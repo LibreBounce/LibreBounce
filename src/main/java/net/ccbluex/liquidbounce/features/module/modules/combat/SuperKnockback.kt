@@ -34,6 +34,7 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
         "Old"
     )
 
+    // TODO: Make it dependant on distance, to hold combos
     private val ticksUntilBlock by intRange("TicksUntilBlock", 0..2, 0..5) { mode == "WTap" }
     private val reSprintTicks by intRange("ReSprintTicks", 1..2, 1..5) { mode == "WTap" }
 
