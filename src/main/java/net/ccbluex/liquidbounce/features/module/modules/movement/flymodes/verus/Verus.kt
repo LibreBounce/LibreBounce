@@ -17,16 +17,19 @@ import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
 import net.minecraft.network.play.client.C03PacketPlayer.C06PacketPlayerPosLook
 
 /**
- * Modified code ported from VerusDamage Script by Arcane
+ * Ported from the VerusDamage Script by Arcane
  *
- * Note:
- * - Getting below block (Like NCPLatest Fly Method), should help to temporarily bypass Speed(A) Checks
- * - Turning off Damage should bypass Fly(G) Checks
+ * Notes:
+ * - Going below a block (Like the Updated NCP fly), should help to temporarily bypass Speed A Checks
+ * - Turning off Damage should bypass Fly G Checks
  */
 object Verus : FlyMode("Verus") {
     private var boostTicks = 0
 
     override fun onEnable() {
+        val player = mc.thePlayer ?: return
+        val (x, y, z) = player
+
         boostTicks = 0
         if (mc.theWorld.getCollidingBoundingBoxes(
                 mc.thePlayer,
@@ -34,37 +37,11 @@ object Verus : FlyMode("Verus") {
             ).isEmpty()
         ) {
             if (damage)
-                sendPacket(
-                    C04PacketPlayerPosition(
-                        mc.thePlayer.posX,
-                        mc.thePlayer.posY + 3.0001,
-                        mc.thePlayer.posZ,
-                        false
-                    )
-                )
-
-            sendPacket(
-                C06PacketPlayerPosLook(
-                    mc.thePlayer.posX,
-                    mc.thePlayer.posY,
-                    mc.thePlayer.posZ,
-                    mc.thePlayer.rotationYaw,
-                    mc.thePlayer.rotationPitch,
-                    false
-                )
-            )
-            sendPacket(
-                C06PacketPlayerPosLook(
-                    mc.thePlayer.posX,
-                    mc.thePlayer.posY,
-                    mc.thePlayer.posZ,
-                    mc.thePlayer.rotationYaw,
-                    mc.thePlayer.rotationPitch,
-                    true
-                )
-            )
+                C04PacketPlayerPosition(x, y + 3.0001, z, false),
+                C06PacketPlayerPosLook(x, y, z, player.rotationYaw, player.rotationPitch, false),
+                C06PacketPlayerPosLook(x, y, z, player.rotationYaw, player.rotationPitch, true)
         }
-        mc.thePlayer.setPosition(mc.thePlayer.posX, mc.thePlayer.posY + yBoost.toDouble(), mc.thePlayer.posZ)
+        player.setPosition(player.posX, player.posY + yBoost.toDouble(), player.posZ)
     }
 
     override fun onDisable() {

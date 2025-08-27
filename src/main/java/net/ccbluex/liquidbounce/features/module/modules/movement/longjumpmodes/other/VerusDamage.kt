@@ -22,34 +22,18 @@ object VerusDamage : LongJumpMode("VerusDamage") {
 
     override fun onEnable() {
         val player = mc.thePlayer ?: return
-        // Otherwise you'll get flagged.
+        val (x, y, z) = player
+
+        // Otherwise you'll get flagged
         if (!player.isMoving) {
-            chat("Pls move while toggling LongJump. Using AutoJump option is recommended.")
+            chat("§8[§c§lVerusDamage-§a§lFly§8] §cPlease move while toggling LongJump. Using AutoJump option is recommended.")
             return
         }
 
-        // Note: you'll flag once for Fly(G) | Loyisa Test Server
-        sendPacket(C04PacketPlayerPosition(player.posX, player.posY + 3.0001, player.posZ, false))
-        sendPacket(
-            C06PacketPlayerPosLook(
-                player.posX,
-                player.posY,
-                player.posZ,
-                player.rotationYaw,
-                player.rotationPitch,
-                false
-            )
-        )
-        sendPacket(
-            C06PacketPlayerPosLook(
-                player.posX,
-                player.posY,
-                player.posZ,
-                player.rotationYaw,
-                player.rotationPitch,
-                true
-            )
-        )
+        // Note: you'll flag once for Fly G (tested on the CCBlueX Test Server)
+        C04PacketPlayerPosition(x, y + 3.0001, z, false),
+        C06PacketPlayerPosLook(x, y, z, player.rotationYaw, player.rotationPitch, false),
+        C06PacketPlayerPosLook(x, y, z, player.rotationYaw, player.rotationPitch, true)
         damaged = true
     }
 
@@ -71,7 +55,7 @@ object VerusDamage : LongJumpMode("VerusDamage") {
             player.jumpMovementFactor = 0.15f
             player.motionY += 0.015f
 
-            // player onGround checks will not work due to sendPacket ground, so for temporary. I'll be using player motionY.
+            // player onGround checks will not work due to sendPacket ground, therefore motionY is used instead
             if (autoDisable && player.motionY <= -0.4330104027478734) {
                 player.stopXZ()
                 LongJump.state = false

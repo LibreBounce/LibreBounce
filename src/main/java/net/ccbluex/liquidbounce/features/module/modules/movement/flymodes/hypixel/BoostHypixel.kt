@@ -38,11 +38,11 @@ object BoostHypixel : FlyMode("BoostHypixel") {
         val (x, y, z) = mc.thePlayer
 
         repeat(10) {
-            //Imagine flagging to NCP.
+            // Imagine flagging to NCP
             sendPacket(C04PacketPlayerPosition(x, y, z, true))
         }
 
-        var fallDistance = 3.0125 //add 0.0125 to ensure we get the fall dmg
+        var fallDistance = 3.0125 // +0.0125 Y ensures we get the fall damage
 
         while (fallDistance > 0) {
             sendPackets(
@@ -129,18 +129,6 @@ object BoostHypixel : FlyMode("BoostHypixel") {
 
         mc.thePlayer.motionX = event.x
         mc.thePlayer.motionZ = event.z
-    }
-
-    override fun onPacket(event: PacketEvent) {
-        // TODO: Make this dependant on FlagCheck, maybe remove it
-        when (val packet = event.packet) {
-            is S08PacketPlayerPosLook -> {
-                Fly.state = false
-                chat("§8[§c§lBoostHypixel-§a§lFly§8] §cSetback detected.")
-            }
-
-            is C03PacketPlayer -> packet.onGround = false
-        }
     }
 
     override fun onBB(event: BlockBBEvent) {
