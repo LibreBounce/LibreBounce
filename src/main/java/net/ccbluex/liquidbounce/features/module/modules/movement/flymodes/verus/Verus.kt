@@ -8,7 +8,7 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.Fly.damage
 import net.ccbluex.liquidbounce.features.module.modules.movement.Fly.timerSlow
 import net.ccbluex.liquidbounce.features.module.modules.movement.Fly.yBoost
 import net.ccbluex.liquidbounce.features.module.modules.movement.flymodes.FlyMode
-import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
+import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPackets
 import net.ccbluex.liquidbounce.utils.extensions.stop
 import net.ccbluex.liquidbounce.utils.extensions.stopXZ
 import net.ccbluex.liquidbounce.utils.extensions.component1
@@ -40,9 +40,11 @@ object Verus : FlyMode("Verus") {
             ).isEmpty()
         ) {
             if (damage)
-                C04PacketPlayerPosition(x, y + 3.0001, z, false),
-                C06PacketPlayerPosLook(x, y, z, player.rotationYaw, player.rotationPitch, false),
-                C06PacketPlayerPosLook(x, y, z, player.rotationYaw, player.rotationPitch, true)
+                sendPackets(
+                    C04PacketPlayerPosition(x, y + 3.0001, z, false),
+                    C06PacketPlayerPosLook(x, y, z, player.rotationYaw, player.rotationPitch, false),
+                    C06PacketPlayerPosLook(x, y, z, player.rotationYaw, player.rotationPitch, true)
+                )
         }
         player.setPosition(player.posX, player.posY + yBoost.toDouble(), player.posZ)
     }

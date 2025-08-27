@@ -8,7 +8,7 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.longjumpmodes.
 import net.ccbluex.liquidbounce.features.module.modules.movement.LongJump
 import net.ccbluex.liquidbounce.features.module.modules.movement.LongJump.autoDisable
 import net.ccbluex.liquidbounce.features.module.modules.movement.longjumpmodes.LongJumpMode
-import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
+import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPackets
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.extensions.isInLiquid
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
@@ -34,9 +34,11 @@ object VerusDamage : LongJumpMode("VerusDamage") {
         }
 
         // Note: you'll flag once for Fly G (tested on the CCBlueX Test Server)
-        C04PacketPlayerPosition(x, y + 3.0001, z, false),
-        C06PacketPlayerPosLook(x, y, z, player.rotationYaw, player.rotationPitch, false),
-        C06PacketPlayerPosLook(x, y, z, player.rotationYaw, player.rotationPitch, true)
+        sendPackets(
+            C04PacketPlayerPosition(x, y + 3.0001, z, false),
+            C06PacketPlayerPosLook(x, y, z, player.rotationYaw, player.rotationPitch, false),
+            C06PacketPlayerPosLook(x, y, z, player.rotationYaw, player.rotationPitch, true)
+        )
         damaged = true
     }
 
