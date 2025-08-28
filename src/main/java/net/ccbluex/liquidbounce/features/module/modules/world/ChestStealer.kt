@@ -138,7 +138,6 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
         // Check if chest isn't a custom GUI or shouldn't operate for another reason
         if (isCustomGUI || !shouldOperate())
-            debug("Custom title chest opened, likely a server GUI. Aborting.")
             return
 
         progress = 0f
@@ -238,7 +237,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
             // Wait till all scheduled clicks were sent
             awaitTicked()
 
-            // Before closing the chest, check all items once more, whether server hadn't cancelled some of the actions.
+            // Before closing the chest, check all items once more, to see whether the server cancelled some of the actions.
             stacks = thePlayer.openContainer.inventory
         }
 
