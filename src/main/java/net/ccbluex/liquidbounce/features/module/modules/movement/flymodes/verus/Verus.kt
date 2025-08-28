@@ -27,7 +27,9 @@ import net.minecraft.network.play.client.C03PacketPlayer.C06PacketPlayerPosLook
  * - Turning off Damage should bypass Fly G Checks
  */
 object Verus : FlyMode("Verus") {
+
     private var boostTicks = 0
+    private var damaged = false
 
     override fun onEnable() {
         val player = mc.thePlayer ?: return
@@ -39,17 +41,23 @@ object Verus : FlyMode("Verus") {
                 mc.thePlayer.entityBoundingBox.offset(0.0, 3.0001, 0.0).expand(0.0, 0.0, 0.0)
             ).isEmpty()
         ) {
-            if (damage)
+            if (damage) {
                 sendPackets(
                     C04PacketPlayerPosition(x, y + 3.0001, z, false),
                     C06PacketPlayerPosLook(x, y, z, player.rotationYaw, player.rotationPitch, false),
                     C06PacketPlayerPosLook(x, y, z, player.rotationYaw, player.rotationPitch, true)
                 )
+                damaged = true
+            } else {
+                damaged = true
+            }
         }
         player.setPosition(player.posX, player.posY + yBoost.toDouble(), player.posZ)
     }
 
     override fun onDisable() {
+        damaged = false
+
         if (boostTicks > 0) {
             mc.thePlayer?.stopXZ()
             mc.timer.timerSpeed = 1f
@@ -80,7 +88,7 @@ object Verus : FlyMode("Verus") {
     override fun onPacket(event: PacketEvent) {
         val packet = event.packet
 
-        if (packet is C03PacketPlayer) {
+        if (packet is C03PacketPlayer && damaged) {
             packet.onGround = true
         }
     }

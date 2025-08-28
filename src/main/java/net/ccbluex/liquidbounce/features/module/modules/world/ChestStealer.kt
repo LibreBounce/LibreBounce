@@ -50,7 +50,8 @@ import kotlin.math.sqrt
 
 object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
-    // TODO: Make SmartDelay and normal Delay interoperable, to bypass advanced anti-cheats
+    // TODO: Make the ChestStealer miss, once in a while
+    // It would need to, for example, underflick or (more rarely) overflick to items
     private val smartDelay by boolean("SmartDelay", false)
     private val multiplier by intRange("DelayMultiplier", 120..140, 0..500) { smartDelay }
     private val smartOrder by boolean("SmartOrder", true) { smartDelay }
@@ -146,7 +147,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
         debug("Stealing items...")
 
-        // Go through the chest multiple times, till there are no useful items anymore
+        // Go through the chest multiple times, until there are no useful items
         while (true) {
             if (!shouldOperate())
                 return
@@ -215,6 +216,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
                     delay(stealingDelay.toLong())
 
+                    // TODO: Make this configurable
                     if (simulateShortStop && Math.random() > 0.75) {
                         val minDelays = randomDelay(150, 300)
                         val maxDelays = randomDelay(minDelays, 500)
@@ -234,10 +236,10 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
                 break
             }
 
-            // Wait till all scheduled clicks were sent
+            // Wait untill ll scheduled clicks were sent
             awaitTicked()
 
-            // Before closing the chest, check all items once more, to see whether the server cancelled some of the actions.
+            // Before closing the chest, check all items once more; the server may have cancelled some of the actions
             stacks = thePlayer.openContainer.inventory
         }
 

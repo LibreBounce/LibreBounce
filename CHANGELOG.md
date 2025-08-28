@@ -8,24 +8,24 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 ### Added
 
-- BREAKING CHANGE: Configurable randomizability to SmartDelay in ChestStealer (thatonecoder)
-- OnWeb and OnLiquid to SuperKnockback (thatonecoder)
+- `OnWeb` and `OnLiquid` to SuperKnockback (thatonecoder)
 
 ### Fixed
 
-- Fix the update checker not working ([#8](https://github.com/LibreBounce/LibreBounce/pull/8)) (thatonecoder)
-- Fix the `RenderBoxOnSwingFail` option (and some of its adjacent settings) in KillAura not being subjective, NOT DONE YET (thatonecoder)
-- Fix there not being a space between the name and version, in the window title ([#12](https://github.com/LibreBounce/LibreBounce/pull/12)) (halflin)
+- `RenderBoxOnSwingFail` option (and some of its adjacent settings) in KillAura not being subjective, NOT DONE YET (thatonecoder)
+- `Verus` fly not damaging (thatonecoder)
+- Broken update checker ([#8](https://github.com/LibreBounce/LibreBounce/pull/8)) (thatonecoder)
+- No space between the name and version, in the window title ([#12](https://github.com/LibreBounce/LibreBounce/pull/12)) (halflin)
 
 ### Changed
 
-- BREAKING CHANGE: Rename ForceGround to OnlyGround in TickBase (thatonecoder)
-- BREAKING CHANGE: Rename onlyGround to OnlyGround in TimerRange (thatonecoder)
-- Allow interoperability between smart and normal delay in ChestStealer (thatonecoder)
+- **Breaking:** Rename `ForceGround` to `OnlyGround` in TickBase (thatonecoder)
+- **Breaking:** Rename `onlyGround` to `OnlyGround` in TimerRange (thatonecoder)
+- **Breaking:** Configurable randomizability to SmartDelay in ChestStealer, along with normal delay interoperability (thatonecoder)
 
 ### Removed
 
-- Remove the flag check in the BoostHypixel fly; use FlagCheck + AutoDisable instead (thatonecoder)
+- The flag check in the BoostHypixel fly; use FlagCheck + AutoDisable instead (thatonecoder)
 
 ## [0.1.0] - 2025-06-09
 
@@ -33,16 +33,16 @@ _Initial release, forked from LiquidBounce Legacy._
 
 ### Added
 
-- Added `LegitimizeHorizontalImperfectCorrelationFactor` and `LegitimizeHorizontalImperfectCorrelationFactor` values to all rotation modules, previously hard-coded (thatonecoder)
+- `LegitimizeHorizontalImperfectCorrelationFactor` and `LegitimizeHorizontalImperfectCorrelationFactor` values to all rotation modules, previously hard-coded (thatonecoder)
 
 ### Fixed
 
-- Improve European Portuguese translation (thatonecoder)
-- Fix the `SilentGUI` option in ChestStealer ignoring the ChestTitle option (MarkGG, thatonecoder)
+- `SilentGUI` option in ChestStealer ignoring the `ChestTitle` option (MarkGG, thatonecoder)
 
 ### Changed
 
 - Switch from build-based versioning to Semantic versioning (starting by 0.1.0) (thatonecoder)
+- Improve European Portuguese translation (thatonecoder)
 - Rename project to `LibreBounce` (thatonecoder)
 
 ### Removed
