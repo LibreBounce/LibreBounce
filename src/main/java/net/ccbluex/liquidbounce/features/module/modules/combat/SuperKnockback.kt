@@ -28,6 +28,7 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
     private val delay by int("Delay", 0, 0..500)
     private val hurtTime by int("HurtTime", 10, 0..10)
 
+    // TODO: Fix SprintTap flagging on prediction anti-cheats
     private val mode by choices(
         "Mode",
         arrayOf("WTap", "SprintTap", "SprintTap2", "Old", "Silent", "Packet", "SneakPacket"),

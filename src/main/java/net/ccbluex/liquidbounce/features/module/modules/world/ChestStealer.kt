@@ -22,6 +22,7 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.extensions.component1
 import net.ccbluex.liquidbounce.utils.extensions.component2
+import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.nextInt
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.canClickInventory
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.chestStealerCurrentSlot
@@ -57,6 +58,8 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
     private val smartOrder by boolean("SmartOrder", true) { smartDelay }
 
     private val simulateShortStop by boolean("SimulateShortStop", false)
+    private val shortStopChance by int("ShortStopChance", 75, 0..100) { simulateShortStop }
+    private val shortStopLength by intRange("ShortStopLength", 150..500, 0..500)
 
     private val delay by intRange("Delay", 50..50, 0..500)
     private val startDelay by intRange("StartDelay", 50..100, 0..500)
@@ -128,7 +131,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
         if (!handleEvents())
             return
 
-        val thePlayer = mc.thePlayer ?: return
+        val player = mc.thePlayer ?: return
 
         val screen = mc.currentScreen ?: return
 
@@ -198,13 +201,13 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
                         val item = stack.item
 
-                        if (item !is ItemArmor || thePlayer.inventory.armorInventory[getArmorPosition(stack) - 1] != null)
+                        if (item !is ItemArmor || player.inventory.armorInventory[getArmorPosition(stack) - 1] != null)
                             return@clickNextTick
 
                         // TODO: should the stealing be suspended until the armor gets equipped and some delay on top of that, maybe toggleable?
                         // Try to equip armor piece from hotbar 1 tick after stealing it
                         nextTick {
-                            val hotbarStacks = thePlayer.inventory.mainInventory.take(9)
+                            val hotbarStacks = player.inventory.mainInventory.take(9)
 
                             // Can't get index of stack instance, because it is different even from the one returned from windowClick()
                             val newIndex = hotbarStacks.indexOfFirst { it?.getIsItemStackEqual(stack) == true }
@@ -217,7 +220,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
                     delay(stealingDelay.toLong())
 
                     // TODO: Make this configurable
-                    if (simulateShortStop && Math.random() > 0.75) {
+                    if (simulateShortStop && nextInt(endExclusive = 100) < shortStopChance) {
                         val minDelays = randomDelay(150, 300)
                         val maxDelays = randomDelay(minDelays, 500)
                         val randomDelay = randomDelay(minDelays, maxDelays).toLong()
@@ -240,14 +243,14 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
             awaitTicked()
 
             // Before closing the chest, check all items once more; the server may have cancelled some of the actions
-            stacks = thePlayer.openContainer.inventory
+            stacks = player.openContainer.inventory
         }
 
         // Wait before the chest gets closed (if it gets closed out of tick loop it could throw npe)
         nextTick {
             chestStealerCurrentSlot = -1
             chestStealerLastSlot = -1
-            thePlayer.closeScreen()
+            player.closeScreen()
             progress = null
 
             debug("Chest closed")

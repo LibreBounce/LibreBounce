@@ -44,6 +44,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
 object Backtrack : Module("Backtrack", Category.COMBAT) {
 
     private val nextBacktrackDelay by int("NextBacktrackDelay", 0, 0..2000) { mode == "Modern" }
+    // TODO: Make this an int range instead
     private val maxDelay: Value<Int> = int("MaxDelay", 80, 0..2000).onChange { _, new ->
         new.coerceAtLeast(minDelay.get())
     }
@@ -64,7 +65,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
     ) { mode == "Legacy" }
 
     // Modern
-    // TODO: Make the Smart option fully tweakable, add an option to stop BackTrack on low HP
+    // TODO: Make the Smart option fully tweakable, add a more conditions, and an option to stop BackTrack on low HP
     private val style by choices("Style", arrayOf("Pulse", "Smooth"), "Smooth") { mode == "Modern" }
     private val distance by floatRange("Distance", 2f..3f, 0f..6f) { mode == "Modern" }
     private val smart by boolean("Smart", true) { mode == "Modern" }

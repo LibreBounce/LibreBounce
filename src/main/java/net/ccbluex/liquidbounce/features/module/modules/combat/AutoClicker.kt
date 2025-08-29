@@ -76,16 +76,16 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT) {
     }
 
     val onRender3D = handler<Render3DEvent> {
-        mc.thePlayer?.let { thePlayer ->
+        mc.thePlayer?.let { player ->
             val time = System.currentTimeMillis()
             val doubleClick = if (simulateDoubleClicking) RandomUtils.nextInt(-1, 1) else 0
 
-            if (block && thePlayer.swingProgress > 0 && !mc.gameSettings.keyBindUseItem.isKeyDown) {
+            if (block && player.swingProgress > 0 && !mc.gameSettings.keyBindUseItem.isKeyDown) {
                 mc.gameSettings.keyBindUseItem.pressTime = 0
             }
 
             if (right && mc.gameSettings.keyBindUseItem.isKeyDown && time - rightLastSwing >= rightDelay) {
-                if (!onlyBlocks || thePlayer.heldItem?.item is ItemBlock) {
+                if (!onlyBlocks || player.heldItem?.item is ItemBlock) {
                     handleRightClick(time, doubleClick)
                 }
             }
@@ -110,18 +110,18 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT) {
     }
 
     val onTick = handler<UpdateEvent> {
-        mc.thePlayer?.let { thePlayer ->
+        mc.thePlayer?.let { player ->
 
             shouldJitter = !mc.objectMouseOver.typeOfHit.isBlock &&
-                    (thePlayer.isSwingInProgress || mc.gameSettings.keyBindAttack.pressTime != 0)
+                    (player.isSwingInProgress || mc.gameSettings.keyBindAttack.pressTime != 0)
 
             if (jitter && ((left && shouldAutoClick && shouldJitter)
-                        || (right && !thePlayer.isUsingItem && mc.gameSettings.keyBindUseItem.isKeyDown
-                        && ((onlyBlocks && thePlayer.heldItem.item is ItemBlock) || !onlyBlocks)))
+                        || (right && !player.isUsingItem && mc.gameSettings.keyBindUseItem.isKeyDown
+                        && ((onlyBlocks && player.heldItem.item is ItemBlock) || !onlyBlocks)))
             ) {
 
-                if (nextBoolean()) thePlayer.fixedSensitivityYaw += nextFloat(-1F, 1F)
-                if (nextBoolean()) thePlayer.fixedSensitivityPitch += nextFloat(-1F, 1F)
+                if (nextBoolean()) player.fixedSensitivityYaw += nextFloat(-1F, 1F)
+                if (nextBoolean()) player.fixedSensitivityPitch += nextFloat(-1F, 1F)
             }
         }
     }
