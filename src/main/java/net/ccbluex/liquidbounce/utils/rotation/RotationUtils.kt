@@ -336,6 +336,10 @@ object RotationUtils : MinecraftInstance, Listenable {
             hSpeed,
             vSpeed,
             !settings.instant && settings.legitimize,
+            settings.legitimizeHorizontalJitter,
+            settings.legitimizeVerticalJitter,
+            settings.legitimizeHorizontalSlowdown,
+            settings.legitimizeVerticalSlowdown,
             settings.legitimizeHICF,
             settings.legitimizeVICF,
             settings.minRotationDifference,
@@ -349,6 +353,10 @@ object RotationUtils : MinecraftInstance, Listenable {
         hSpeed: Float,
         vSpeed: Float = hSpeed,
         legitimize: Boolean,
+        legitimizeHorizontalJitter: Float,
+        legitimizeVerticalJitter: Float,
+        legitimizeHorizontalSlowdown: Float,
+        legitimizeVerticalSlowdown: Float,
         legitimizeHICF: Float,
         legitimizeVICF: Float,
         minRotationDiff: Float,
@@ -371,11 +379,8 @@ object RotationUtils : MinecraftInstance, Listenable {
 
             activeSettings?.resetSimulateShortStopData()
 
-            val yawSlowdown = (0F..0.1F).random()
-            val pitchSlowdown = (0F..0.1F).random()
-
-            yawDiff = (yawDiff * yawSlowdown).withGCD()
-            pitchDiff = (pitchDiff * pitchSlowdown).withGCD()
+            yawDiff = (yawDiff * legitimizeHorizontalSlowdown).withGCD()
+            pitchDiff = (pitchDiff * legitimizeVerticalSlowdown).withGCD()
         }
 
         var (straightLineYaw, straightLinePitch) = run {
@@ -397,11 +402,8 @@ object RotationUtils : MinecraftInstance, Listenable {
         // Humans usually have some small jitter when moving their mouse from point A to point B.
         // Usually when a rotation axis' difference is prioritized.
         if (rotationDifference > 0F) {
-            val yawJitter = (-0.03F..0.03F).random() * straightLineYaw
-            val pitchJitter = (-0.02F..0.02F).random() * straightLinePitch
-
-            straightLineYaw += yawJitter
-            straightLinePitch += pitchJitter
+            straightLineYaw += (legitimizeHorizontalJitter * straightLineYaw)
+            straightLinePitch += (legitimizeVerticalJitter * straightLinePitch)
         }
 
         val minYaw = nextFloat(min(minRotationDiff, getFixedAngleDelta()), minRotationDiff).withGCD()

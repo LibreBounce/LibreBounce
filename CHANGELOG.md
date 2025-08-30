@@ -8,6 +8,11 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 ### Added
 
+The following values to all rotation modules; previously hardcoded (thatonecoder):
+
+- `LegitimizeHorizontalJitter` and `LegitimizeVerticalJitter`
+- `LegitimizeHorizontalSlowdown` and `LegitimizeVerticalSlowdown`
+
 - `OnWeb` and `OnLiquid` to SuperKnockback (thatonecoder)
 
 ### Fixed
@@ -33,7 +38,7 @@ _Initial release, forked from LiquidBounce Legacy._
 
 ### Added
 
-- `LegitimizeHorizontalImperfectCorrelationFactor` and `LegitimizeHorizontalImperfectCorrelationFactor` values to all rotation modules, previously hard-coded (thatonecoder)
+- `LegitimizeHorizontalImperfectCorrelationFactor` and `LegitimizeVerticalImperfectCorrelationFactor` vto all rotation modules; previously hardcoded (thatonecoder)
 
 ### Fixed
 

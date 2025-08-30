@@ -38,9 +38,11 @@ Mixins can be used to modify classes at runtime before they are loaded. LibreBou
 
 ## Contributing
 We appreciate contributions. So if you want to support us, feel free to make changes to LibreBounce's source code and submit a pull request. Currently, our main goals are the following:
-1. Make clicking and rotation patterns that bypass advanced anti-cheats (such as Polar).
-2. Add full backwards-compatibility with historical LiquidBounce versions (b68, b72)
 
+1. Make clicking and rotation patterns that bypass advanced anti-cheats (such as Polar).
+2. Add full backwards-compatibility with historical LiquidBounce versions (b68, b72).
+
+Any additional goals are easily found by code searching "TODO", and they are equally as important
 If you have experience in one or more of these fields, we would highly appreciate your support.
 
 ## Stats

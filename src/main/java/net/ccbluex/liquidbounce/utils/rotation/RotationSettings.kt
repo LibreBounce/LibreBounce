@@ -25,10 +25,12 @@ open class RotationSettings(owner: Module, generalApply: () -> Boolean = { true 
 
     open val rotationsValue = boolean("Rotations", true) { generalApply() }
     open val applyServerSideValue = boolean("ApplyServerSide", true) { rotationsActive && generalApply() }
+
     open val simulateShortStopValue = boolean("SimulateShortStop", false) { rotationsActive && generalApply() }
     open val rotationDiffBuildUpToStopValue = float("RotationDiffBuildUpToStop", 180f, 50f..720f) { simulateShortStop }
     open val maxThresholdAttemptsToStopValue = int("MaxThresholdAttemptsToStop", 1, 0..5) { simulateShortStop }
     open val shortStopDurationValue = intRange("ShortStopDuration", 1..2, 1..5) { simulateShortStop }
+
     open val strafeValue = boolean("Strafe", false) { rotationsActive && applyServerSide && generalApply() }
     open val strictValue = boolean("Strict", false) { strafeValue.isActive() && generalApply() }
     open val keepRotationValue = boolean("KeepRotation", true) { rotationsActive && applyServerSide && generalApply() }
@@ -37,9 +39,21 @@ open class RotationSettings(owner: Module, generalApply: () -> Boolean = { true 
         rotationsActive && applyServerSide && generalApply()
     }
 
+    // TODO: Currently, using Scaffold with the Legitimize option causes any consequent rotations to wobble afterwards, unless you use a module like KillAura
+    // This should be fixed ASAP
     open val legitimizeValue = boolean("Legitimize", false) { rotationsActive && generalApply() }
-    open val legitimizeHorizontalImperfectCorrelationFactorValue = floatRange("LegitimizeHorizontalImperfectCorrelationFactor", 0.9f..1.1f, 0f..2f) { rotationsActive && generalApply() && legitimize }
-    open val legitimizeVerticalImperfectCorrelationFactorValue = floatRange("LegitimizeVerticalImperfectCorrelationFactor", 0.9f..1.1f, 0f..2f) { rotationsActive && generalApply() && legitimize }
+    open val legitimizeHorizontalJitterValue = 
+        floatRange("LegitimizeHorizontalJitter", -0.03f..0.03f, -1f..1f) { rotationsActive && generalApply() && legitimize }
+    open val legitimizeVerticalJitterValue = 
+        floatRange("LegitimizeVerticalJitter", -0.02f..0.02f, -1f..1f) { rotationsActive && generalApply() && legitimize }
+    open val legitimizeHorizontalSlowdownValue = 
+        floatRange("LegitimizeHorizontalSlowdown", 0f..0.1f, 0f..1f) { rotationsActive && generalApply() && legitimize }
+    open val legitimizeVerticalSlowdownValue = 
+        floatRange("LegitimizeVerticalSlowdown", 0f..0.1f, 0f..1f) { rotationsActive && generalApply() && legitimize }
+    open val legitimizeHorizontalImperfectCorrelationFactorValue = 
+        floatRange("LegitimizeHorizontalImperfectCorrelationFactor", 0.9f..1.1f, 0f..2f) { rotationsActive && generalApply() && legitimize }
+    open val legitimizeVerticalImperfectCorrelationFactorValue = 
+        floatRange("LegitimizeVerticalImperfectCorrelationFactor", 0.9f..1.1f, 0f..2f) { rotationsActive && generalApply() && legitimize }
 
     open val horizontalAngleChangeValue =
         floatRange("HorizontalAngleChange", 180f..180f, 1f..180f) { rotationsActive && generalApply() }
@@ -70,8 +84,6 @@ open class RotationSettings(owner: Module, generalApply: () -> Boolean = { true 
     val keepRotation by keepRotationValue
     val resetTicks by resetTicksValue
     val legitimize by legitimizeValue
-    val legitimizeHorizontalImperfectCorrelationFactor by legitimizeHorizontalImperfectCorrelationFactorValue
-    val legitimizeVerticalImperfectCorrelationFactor by legitimizeVerticalImperfectCorrelationFactorValue
     val horizontalAngleChange by horizontalAngleChangeValue
     val verticalAngleChange by verticalAngleChangeValue
     val angleResetDifference by angleResetDifferenceValue
@@ -88,11 +100,23 @@ open class RotationSettings(owner: Module, generalApply: () -> Boolean = { true 
     open val rotationsActive
         get() = rotations
 
+    val legitimizeHorizontalJitter
+        get() = legitimizeHorizontalJitterValue.random()
+
+    val legitimizeVerticalJitter
+        get() = legitimizeVerticalJitterValue.random()
+
+    val legitimizeHorizontalSlowdown
+        get() = legitimizeVerticalSlowdownValue.random()
+
+    val legitimizeVerticalSlowdown
+        get() = legitimizeVerticalSlowdownValue.random()
+
     val legitimizeHICF
-        get() = legitimizeHorizontalImperfectCorrelationFactor.random()
+        get() = legitimizeHorizontalImperfectCorrelationFactorValue.random()
 
     val legitimizeVICF
-        get() = legitimizeVerticalImperfectCorrelationFactor.random()
+        get() = legitimizeVerticalImperfectCorrelationFactorValue.random()
 
     val horizontalSpeed
         get() = horizontalAngleChange.random()
