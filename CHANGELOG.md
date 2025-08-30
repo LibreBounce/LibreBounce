@@ -8,11 +8,7 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 ### Added
 
-The following values to all rotation modules; previously hardcoded (thatonecoder):
-
-- `LegitimizeHorizontalJitter` and `LegitimizeVerticalJitter`
-- `LegitimizeHorizontalSlowdown` and `LegitimizeVerticalSlowdown`
-
+- `LegitimizeHorizontalJitter`, `LegitimizeVerticalJitter`, `LegitimizeHorizontalSlowdown` and `LegitimizeVerticalSlowdown` values to all rotation modules; previously hardcoded (thatonecoder)
 - `OnWeb` and `OnLiquid` to SuperKnockback (thatonecoder)
 
 ### Fixed
