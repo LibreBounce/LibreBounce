@@ -34,7 +34,7 @@ _Initial release, forked from LiquidBounce Legacy._
 
 ### Added
 
-- `LegitimizeHorizontalImperfectCorrelationFactor` and `LegitimizeVerticalImperfectCorrelationFactor` vto all rotation modules; previously hardcoded (thatonecoder)
+- `LegitimizeHorizontalImperfectCorrelationFactor` and `LegitimizeVerticalImperfectCorrelationFactor` to all rotation modules; previously hardcoded (thatonecoder)
 
 ### Fixed
 
