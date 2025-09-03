@@ -22,7 +22,10 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 - **Breaking:** Rename `ForceGround` to `OnlyGround` in TickBase (thatonecoder)
 - **Breaking:** Rename `onlyGround` to `OnlyGround` in TimerRange (thatonecoder)
-- **Breaking:** Configurable randomizability to SmartDelay in ChestStealer, along with normal delay interoperability (thatonecoder)
+
+ChestStealer:
+- **Breaking:** Configurable randomizability to SmartDelay, along with normal delay interoperability (thatonecoder)
+- **Breaking:** Rename `Highlight-Slot` to `HighlightSlot`, `Border-Strength` to `BorderStrength`, `Chest-Debug` to `ChestDebug`, and `ItemStolen-Debug` to `ItemStolenDebug` (thatonecoder)
 
 ### Removed
 

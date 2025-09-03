@@ -51,8 +51,8 @@ import kotlin.math.sqrt
 
 object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
-    // TODO: Make the ChestStealer miss, once in a while
-    // It would need to, for example, underflick or (more rarely) overflick to items
+    // TODO: Make the ChestStealer occasionally miss
+    // It would need to underflick or (more rarely) overflick to items, for instance
     private val smartDelay by boolean("SmartDelay", false)
     private val multiplier by intRange("DelayMultiplier", 120..140, 0..500) { smartDelay }
     private val smartOrder by boolean("SmartOrder", true) { smartDelay }
@@ -77,15 +77,15 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
     val silentGUI by boolean("SilentGUI", false).subjective()
 
-    val highlightSlot by boolean("Highlight-Slot", false) { !silentGUI }.subjective()
+    val highlightSlot by boolean("HighlightSlot", false) { !silentGUI }.subjective()
     val backgroundColor =
         color("BackgroundColor", Color(128, 128, 128)) { highlightSlot && !silentGUI }.subjective()
 
-    val borderStrength by int("Border-Strength", 3, 1..5) { highlightSlot && !silentGUI }.subjective()
+    val borderStrength by int("BorderStrength", 3, 1..5) { highlightSlot && !silentGUI }.subjective()
     val borderColor = color("BorderColor", Color(128, 128, 128)) { highlightSlot && !silentGUI }.subjective()
 
-    private val chestDebug by choices("Chest-Debug", arrayOf("Off", "Text", "Notification"), "Off").subjective()
-    private val itemStolenDebug by boolean("ItemStolen-Debug", false) { chestDebug != "Off" }.subjective()
+    private val chestDebug by choices("ChestDebug", arrayOf("Off", "Text", "Notification"), "Off").subjective()
+    private val itemStolenDebug by boolean("ItemStolenDebug", false) { chestDebug != "Off" }.subjective()
 
     private var progress: Float? = null
         set(value) {

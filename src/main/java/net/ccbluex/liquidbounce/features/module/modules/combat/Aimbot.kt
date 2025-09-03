@@ -28,14 +28,15 @@ import kotlin.math.atan
 
 object Aimbot : Module("Aimbot", Category.COMBAT) {
 
+    // TODO: Use RotationSettings?
     private val range by float("Range", 4.4F, 1F..8F)
     private val horizontalAim by boolean("HorizontalAim", true)
     private val verticalAim by boolean("VerticalAim", true)
     private val legitimize by boolean("Legitimize", true) { horizontalAim || verticalAim }
-    private val legitimizeHorizontalJitterValue by floatRange("LegitimizeHorizontalJitter", -0.03f..0.03f, -1f..1f) { rotationsActive && generalApply() && legitimize }
-    private val legitimizeVerticalJitterValue by floatRange("LegitimizeVerticalJitter", -0.02f..0.02f, -1f..1f) { rotationsActive && generalApply() && legitimize }
-    private val legitimizeHorizontalSlowdownValue by floatRange("LegitimizeHorizontalSlowdown", 0f..0.1f, 0f..1f) { rotationsActive && generalApply() && legitimize }
-    private val legitimizeVerticalSlowdownValue by floatRange("LegitimizeVerticalSlowdown", 0f..0.1f, 0f..1f) { rotationsActive && generalApply() && legitimize }
+    private val legitimizeHorizontalJitter by floatRange("LegitimizeHorizontalJitter", -0.03f..0.03f, -1f..1f) { legitimize }
+    private val legitimizeVerticalJitter by floatRange("LegitimizeVerticalJitter", -0.02f..0.02f, -1f..1f) { legitimize }
+    private val legitimizeHorizontalSlowdown by floatRange("LegitimizeHorizontalSlowdown", 0f..0.1f, 0f..1f) { legitimize }
+    private val legitimizeVerticalSlowdown by floatRange("LegitimizeVerticalSlowdown", 0f..0.1f, 0f..1f) { legitimize }
     private val legitimizeHorizontalImperfectCorrelationFactor by floatRange("LegitimizeHorizontalImperfectCorrelationFactor", 0.9f..1.1f, 0f..2f) { legitimize }
     private val legitimizeVerticalImperfectCorrelationFactor by floatRange("LegitimizeVerticalImperfectCorrelationFactor", 0.9f..1.1f, 0f..2f) { legitimize }
     private val maxAngleChange by float("MaxAngleChange", 10f, 1F..180F) { horizontalAim || verticalAim }
@@ -91,6 +92,18 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
     private val breakBlocks by boolean("BreakBlocks", true)
 
     private val clickTimer = MSTimer()
+
+    val legitimizeHJitter
+        get() = legitimizeHorizontalJitter.random()
+
+    val legitimizeVJitter
+        get() = legitimizeVerticalJitter.random()
+
+    val legitimizeHSlow
+        get() = legitimizeHorizontalSlowdown.random()
+
+    val legitimizeVSlow
+        get() = legitimizeVerticalSlowdown.random()
 
     val legitimizeHICF
         get() = legitimizeHorizontalImperfectCorrelationFactor.random()
@@ -200,7 +213,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
         // Figure out the best turn speed suitable for the distance and configured turn speed
         val rotationDiff = rotationDifference(playerRotation, destinationRotation)
 
-        // is enemy visible to player on screen. Fov is about to be right with that you can actually see on the screen. Still not 100% accurate, but it is fast check.
+        // Checks whether the enemy is visible on-screen. Not perfectly accurate, but accurate enough and very fast.
         val supposedTurnSpeed = if (rotationDiff < mc.gameSettings.fovSetting) {
             inViewMaxAngleChange
         } else {
@@ -217,6 +230,10 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
             destinationRotation,
             realisticTurnSpeed.toFloat(),
             legitimize = legitimize,
+            legitimizeHorizontalJitter = legitimizeHJitter,
+            legitimizeVerticalJitter = legitimizeVJitter,
+            legitimizeHorizontalSlowdown = legitimizeHSlowdown,
+            legitimizeVerticalSlowdown = legitimizeVSlowdown,
             legitimizeHICF = legitimizeHICF,
             legitimizeVICF = legitimizeVICF,
             minRotationDiff = minRotationDifference,

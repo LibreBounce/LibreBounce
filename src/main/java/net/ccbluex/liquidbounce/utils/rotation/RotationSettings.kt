@@ -84,6 +84,12 @@ open class RotationSettings(owner: Module, generalApply: () -> Boolean = { true 
     val keepRotation by keepRotationValue
     val resetTicks by resetTicksValue
     val legitimize by legitimizeValue
+    val legitimizeHorizontalJitter by legitimizeHorizontalJitterValue
+    val legitimizeVerticalJitter by legitimizeVerticalJitterValue
+    val legitimizeHorizontalSlowdown by legitimizeHorizontalSlowdownValue
+    val legitimizeVerticalSlowdown by legitimizeVerticalSlowdownValue
+    val legitimizeHorizontalImperfectCorrelationFactor by legitimizeHorizontalImperfectCorrelationFactorValue
+    val legitimizeVerticalImperfectCorrelationFactor by legitimizeVerticalImperfectCorrelationFactorValue
     val horizontalAngleChange by horizontalAngleChangeValue
     val verticalAngleChange by verticalAngleChangeValue
     val angleResetDifference by angleResetDifferenceValue
@@ -100,19 +106,23 @@ open class RotationSettings(owner: Module, generalApply: () -> Boolean = { true 
     open val rotationsActive
         get() = rotations
 
-    val legitimizeHorizontalJitter by legitimizeHorizontalJitterValue.random()
+    val legitimizeHJitter
+        get() = legitimizeHorizontalJitter.random()
 
-    val legitimizeVerticalJitter by legitimizeVerticalJitterValue.random()
+    val legitimizeVJitter
+        get() = legitimizeVerticalJitter.random()
 
-    val legitimizeHorizontalSlowdown by legitimizeVerticalSlowdownValue.random()
+    val legitimizeHSlowdown
+        get() = legitimizeHorizontalSlowdown.random()
 
-    val legitimizeVerticalSlowdown by legitimizeVerticalSlowdownValue.random()
+    val legitimizeVSlowdown
+        get() = legitimizeVerticalSlowdown.random()
 
     val legitimizeHICF
-        get() = legitimizeHorizontalImperfectCorrelationFactorValue.random()
+        get() = legitimizeHorizontalImperfectCorrelationFactor.random()
 
     val legitimizeVICF
-        get() = legitimizeVerticalImperfectCorrelationFactorValue.random()
+        get() = legitimizeVerticalImperfectCorrelationFactor.random()
 
     val horizontalSpeed
         get() = horizontalAngleChange.random()
