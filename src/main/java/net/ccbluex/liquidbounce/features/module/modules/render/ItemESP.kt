@@ -31,10 +31,10 @@ object ItemESP : Module("ItemESP", Category.RENDER) {
 
     private val itemText by boolean("ItemText", false)
 
-    private val glowRenderScale by float("Glow-Renderscale", 1f, 0.5f..2f) { mode == "Glow" }
-    private val glowRadius by int("Glow-Radius", 4, 1..5) { mode == "Glow" }
-    private val glowFade by int("Glow-Fade", 10, 0..30) { mode == "Glow" }
-    private val glowTargetAlpha by float("Glow-Target-Alpha", 0f, 0f..1f) { mode == "Glow" }
+    private val glowRenderScale by float("GlowRenderscale", 1f, 0.5f..2f) { mode == "Glow" }
+    private val glowRadius by int("GlowRadius", 4, 1..5) { mode == "Glow" }
+    private val glowFade by int("GlowFade", 10, 0..30) { mode == "Glow" }
+    private val glowTargetAlpha by float("GlowTargetAlpha", 0f, 0f..1f) { mode == "Glow" }
 
     private val color by color("Color", Color.GREEN)
 

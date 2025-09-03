@@ -13,9 +13,9 @@ import net.ccbluex.liquidbounce.features.module.Module
 object PerfectHorseJump : Module("PerfectHorseJump", Category.MOVEMENT, subjective = true, gameDetecting = false) {
 
     val onUpdate = handler<UpdateEvent> {
-        val thePlayer = mc.thePlayer ?: return@handler
+        val player = mc.thePlayer ?: return@handler
 
-        thePlayer.horseJumpPowerCounter = 9
-        thePlayer.horseJumpPower = 1f
+        player.horseJumpPowerCounter = 9
+        playr.horseJumpPower = 1f
     }
 }

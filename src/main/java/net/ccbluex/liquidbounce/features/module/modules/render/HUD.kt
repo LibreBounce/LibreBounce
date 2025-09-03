@@ -25,27 +25,27 @@ object HUD : Module("HUD", Category.RENDER, gameDetecting = false, defaultState 
     val roundedHotbarRadius by float("RoundedHotbar-Radius", 3F, 0F..5F) { customHotbar }
 
     val hotbarMode by choices("Hotbar-Color", arrayOf("Custom", "Rainbow", "Gradient"), "Custom") { customHotbar }
-    val hbHighlightColors = ColorSettingsInteger(this, "Hotbar-Highlight-Colors", applyMax = true)
+    val hbHighlightColors = ColorSettingsInteger(this, "HotbarHighlightColors", applyMax = true)
     { customHotbar }.with(a = 0)
-    val hbBackgroundColors = ColorSettingsInteger(this, "Hotbar-Background-Colors")
+    val hbBackgroundColors = ColorSettingsInteger(this, "HotbarBackgroundColors")
     { customHotbar && hotbarMode == "Custom" }.with(a = 190)
-    val gradientHotbarSpeed by float("Hotbar-Gradient-Speed", 1f, 0.5f..10f)
+    val gradientHotbarSpeed by float("HotbarGradientSpeed", 1f, 0.5f..10f)
     { customHotbar && hotbarMode == "Gradient" }
-    val maxHotbarGradientColors by int("Max-Hotbar-Gradient-Colors", 4, 1..MAX_GRADIENT_COLORS)
+    val maxHotbarGradientColors by int("MaxHotbarGradientColors", 4, 1..MAX_GRADIENT_COLORS)
     { customHotbar && hotbarMode == "Gradient" }
-    val bgGradColors = ColorSettingsFloat.create(this, "Hotbar-Gradient")
+    val bgGradColors = ColorSettingsFloat.create(this, "HotbarGradient")
     { customHotbar && hotbarMode == "Gradient" && it <= maxHotbarGradientColors }
-    val hbHighlightBorder by float("HotbarBorder-Highlight-Width", 2F, 0.5F..5F) { customHotbar }
+    val hbHighlightBorder by float("HotbarBorderHighlightWidth", 2F, 0.5F..5F) { customHotbar }
     val hbHighlightBorderColors = ColorSettingsInteger(this, "HotbarBorder-Highlight-Colors")
     { customHotbar }.with(a = 255, g = 111, b = 255)
-    val hbBackgroundBorder by float("HotbarBorder-Background-Width", 0.5F, 0.5F..5F) { customHotbar }
+    val hbBackgroundBorder by float("HotbarBorderBackgroundWidth", 0.5F, 0.5F..5F) { customHotbar }
     val hbBackgroundBorderColors = ColorSettingsInteger(this, "HotbarBorder-Background-Colors")
     { customHotbar }.with(a = 0)
 
-    val rainbowX by float("Rainbow-X", -1000F, -2000F..2000F) { customHotbar && hotbarMode == "Rainbow" }
-    val rainbowY by float("Rainbow-Y", -1000F, -2000F..2000F) { customHotbar && hotbarMode == "Rainbow" }
-    val gradientX by float("Gradient-X", -1000F, -2000F..2000F) { customHotbar && hotbarMode == "Gradient" }
-    val gradientY by float("Gradient-Y", -1000F, -2000F..2000F) { customHotbar && hotbarMode == "Gradient" }
+    val rainbowX by float("RainbowX", -1000F, -2000F..2000F) { customHotbar && hotbarMode == "Rainbow" }
+    val rainbowY by float("RainbowY", -1000F, -2000F..2000F) { customHotbar && hotbarMode == "Rainbow" }
+    val gradientX by float("GradientX", -1000F, -2000F..2000F) { customHotbar && hotbarMode == "Gradient" }
+    val gradientY by float("GradientY", -1000F, -2000F..2000F) { customHotbar && hotbarMode == "Gradient" }
 
     val inventoryParticle by boolean("InventoryParticle", false)
     private val blur by boolean("Blur", false)

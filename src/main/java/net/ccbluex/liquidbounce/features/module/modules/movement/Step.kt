@@ -67,30 +67,30 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
     private val timer = MSTimer()
 
     override fun onDisable() {
-        val thePlayer = mc.thePlayer ?: return
+        val player = mc.thePlayer ?: return
 
         // Change step height back to default (0.6 is default)
-        thePlayer.stepHeight = 0.6F
+        player.stepHeight = 0.6F
     }
 
     val onUpdate = loopSequence {
         val mode = mode
-        val thePlayer = mc.thePlayer ?: return@loopSequence
+        val player = mc.thePlayer ?: return@loopSequence
 
-        if (thePlayer.isOnLadder || thePlayer.isInLiquid || thePlayer.isInWeb) return@loopSequence
+        if (player.isOnLadder || player.isInLiquid || player.isInWeb) return@loopSequence
 
-        if (!thePlayer.isMoving) return@loopSequence
+        if (!player.isMoving) return@loopSequence
 
         // Motion steps
         when (mode) {
             "Jump" ->
-                if (thePlayer.isCollidedHorizontally && thePlayer.onGround && !mc.gameSettings.keyBindJump.isKeyDown) {
+                if (player.isCollidedHorizontally && player.onGround && !mc.gameSettings.keyBindJump.isKeyDown) {
                     fakeJump()
-                    thePlayer.motionY = jumpHeight.toDouble()
+                    player.motionY = jumpHeight.toDouble()
                 }
 
             "BlocksMCTimer" ->
-                if (thePlayer.onGround && thePlayer.isCollidedHorizontally) {
+                if (player.onGround && player.isCollidedHorizontally) {
                     val chest = BlockUtils.searchBlocks(2, setOf(chest, ender_chest, trapped_chest))
 
                     if (!couldStep() || chest.isNotEmpty()) {
@@ -99,7 +99,7 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
                     }
 
                     fakeJump()
-                    thePlayer.tryJump()
+                    player.tryJump()
 
                     // TODO: Improve Timer Balancing
                     mc.timer.timerSpeed = 5f
@@ -113,52 +113,51 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
                 }
 
             "LAAC" ->
-                if (thePlayer.isCollidedHorizontally) {
-                    if (thePlayer.onGround && timer.hasTimePassed(delay)) {
+                if (player.isCollidedHorizontally) {
+                    if (player.onGround && timer.hasTimePassed(delay)) {
                         isStep = true
 
                         fakeJump()
-                        thePlayer.motionY += 0.620000001490116
+                        player.motionY += 0.620000001490116
 
-                        val yaw = direction
-                        thePlayer.motionX -= sin(yaw) * 0.2
-                        thePlayer.motionZ += cos(yaw) * 0.2
+                        player.motionX -= sin(direction) * 0.2
+                        player.motionZ += cos(direction) * 0.2
                         timer.reset()
                     }
 
-                    thePlayer.onGround = true
+                    player.onGround = true
                 } else isStep = false
 
             "AAC3.3.4" ->
-                if (thePlayer.isCollidedHorizontally && thePlayer.isMoving) {
-                    if (thePlayer.onGround && couldStep()) {
-                        thePlayer.motionX *= 1.26
-                        thePlayer.motionZ *= 1.26
-                        thePlayer.tryJump()
+                if (player.isCollidedHorizontally && player.isMoving) {
+                    if (player.onGround && couldStep()) {
+                        player.motionX *= 1.26
+                        player.motionZ *= 1.26
+                        player.tryJump()
                         isAACStep = true
                     }
 
                     if (isAACStep) {
-                        thePlayer.motionY -= 0.015
+                        player.motionY -= 0.015
 
-                        if (!thePlayer.isUsingItem && thePlayer.movementInput.moveStrafe == 0F)
-                            thePlayer.jumpMovementFactor = 0.3F
+                        if (!player.isUsingItem && player.movementInput.moveStrafe == 0F)
+                            player.jumpMovementFactor = 0.3F
                     }
                 } else isAACStep = false
         }
     }
 
     val onMove = handler<MoveEvent> { event ->
-        val thePlayer = mc.thePlayer ?: return@handler
+        val player = mc.thePlayer ?: return@handler
 
-        if (mode != "MotionNCP" || !thePlayer.isCollidedHorizontally || mc.gameSettings.keyBindJump.isKeyDown)
+        if (mode != "MotionNCP" || !player.isCollidedHorizontally || mc.gameSettings.keyBindJump.isKeyDown)
             return@handler
 
         // Motion steps
         when {
-            thePlayer.onGround && couldStep() -> {
+            player.onGround && couldStep() -> {
                 fakeJump()
-                thePlayer.motionY = 0.0
+                player.motionY = 0.0
                 event.y = 0.41999998688698
                 ncpNextStep = 1
             }
@@ -169,11 +168,9 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
             }
 
             ncpNextStep == 2 -> {
-                val yaw = direction
-
                 event.y = 1.001335979112147 - 0.7531999805212
-                event.x = -sin(yaw) * 0.7
-                event.z = cos(yaw) * 0.7
+                event.x = -sin(direction) * 0.7
+                event.z = cos(direction) * 0.7
 
                 ncpNextStep = 0
             }
@@ -181,7 +178,7 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
     }
 
     val onStep = handler<StepEvent> { event ->
-        val thePlayer = mc.thePlayer ?: return@handler
+        val player = mc.thePlayer ?: return@handler
 
         // Phase should disable step
         if (Phase.handleEvents()) {
@@ -192,12 +189,9 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
         // Some fly modes should disable step
         if (Fly.handleEvents() && Fly.mode in arrayOf(
                 "Hypixel",
-                "OtherHypixel",
-                "LatestHypixel",
-                "Rewinside",
                 "Mineplex"
             )
-            && thePlayer.inventory.getCurrentItem() == null
+            && player.inventory.getCurrentItem() == null
         ) {
             event.stepHeight = 0F
             return@handler
@@ -206,35 +200,35 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
         val mode = mode
 
         // Set step to default in some cases
-        if (!thePlayer.onGround || !timer.hasTimePassed(delay) ||
+        if (!player.onGround || !timer.hasTimePassed(delay) ||
             mode in arrayOf("Jump", "MotionNCP", "LAAC", "AAC3.3.4", "BlocksMCTimer")
         ) {
-            thePlayer.stepHeight = 0.6F
+            player.stepHeight = 0.6F
             event.stepHeight = 0.6F
             return@handler
         }
 
         // Set step height
         val height = height
-        thePlayer.stepHeight = height
+        player.stepHeight = height
         event.stepHeight = height
 
         // Detect possible step
         if (event.stepHeight > 0.6F) {
             isStep = true
-            stepX = thePlayer.posX
-            stepY = thePlayer.posY
-            stepZ = thePlayer.posZ
+            stepX = player.posX
+            stepY = player.posY
+            stepZ = player.posZ
         }
     }
 
     val onStepConfirm = handler<StepConfirmEvent>(always = true) {
-        val thePlayer = mc.thePlayer
+        val player = mc.thePlayer
 
-        if (thePlayer == null || !isStep) // Check if step
+        if (player == null || !isStep) // Check if step
             return@handler
 
-        if (thePlayer.entityBoundingBox.minY - stepY > 0.6) { // Check if full block step
+        if (player.entityBoundingBox.minY - stepY > 0.6) { // Check if full block step
 
             when (mode) {
                 "NCP", "AAC" -> {
@@ -301,10 +295,10 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
 
     // There could be some anti cheats which tries to detect step by checking for achievements and stuff
     private fun fakeJump() {
-        val thePlayer = mc.thePlayer ?: return
+        val player = mc.thePlayer ?: return
 
-        thePlayer.isAirBorne = true
-        thePlayer.triggerAchievement(StatList.jumpStat)
+        player.isAirBorne = true
+        player.triggerAchievement(StatList.jumpStat)
     }
 
     private fun couldStep(): Boolean {

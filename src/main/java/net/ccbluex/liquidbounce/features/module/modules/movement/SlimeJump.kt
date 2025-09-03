@@ -18,14 +18,14 @@ object SlimeJump : Module("SlimeJump", Category.MOVEMENT) {
     private val mode by choices("Mode", arrayOf("Set", "Add"), "Add")
 
     val onJump = handler<JumpEvent> { event ->
-        val thePlayer = mc.thePlayer ?: return@handler
+        val player = mc.thePlayer ?: return@handler
 
-        if (mc.thePlayer != null && mc.theWorld != null && thePlayer.position.down().block is BlockSlime) {
+        if (mc.theWorld != null && player.position.down().block is BlockSlime) {
             event.cancelEvent()
 
             when (mode.lowercase()) {
-                "set" -> thePlayer.motionY = motion.toDouble()
-                "add" -> thePlayer.motionY += motion
+                "set" -> player.motionY = motion.toDouble()
+                "add" -> player.motionY += motion
             }
         }
     }

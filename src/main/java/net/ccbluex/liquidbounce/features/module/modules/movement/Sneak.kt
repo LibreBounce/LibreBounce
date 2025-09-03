@@ -27,7 +27,9 @@ object Sneak : Module("Sneak", Category.MOVEMENT) {
     private var sneaking = false
 
     val onMotion = handler<MotionEvent> { event ->
-        if (stopMove && mc.thePlayer.isMoving) {
+        val player = mc.thePlayer ?: return@handler
+
+        if (stopMove && player.isMoving) {
             if (sneaking)
                 onDisable()
             return@handler
@@ -39,22 +41,22 @@ object Sneak : Module("Sneak", Category.MOVEMENT) {
                 if (sneaking)
                     return@handler
 
-                sendPacket(C0BPacketEntityAction(mc.thePlayer, START_SNEAKING))
+                sendPacket(C0BPacketEntityAction(player, START_SNEAKING))
             }
 
             "switch" -> {
                 when (event.eventState) {
                     EventState.PRE -> {
                         sendPackets(
-                            C0BPacketEntityAction(mc.thePlayer, START_SNEAKING),
-                            C0BPacketEntityAction(mc.thePlayer, STOP_SNEAKING)
+                            C0BPacketEntityAction(player, START_SNEAKING),
+                            C0BPacketEntityAction(player, STOP_SNEAKING)
                         )
                     }
 
                     EventState.POST -> {
                         sendPackets(
-                            C0BPacketEntityAction(mc.thePlayer, STOP_SNEAKING),
-                            C0BPacketEntityAction(mc.thePlayer, START_SNEAKING)
+                            C0BPacketEntityAction(player, STOP_SNEAKING),
+                            C0BPacketEntityAction(player, START_SNEAKING)
                         )
                     }
 
@@ -66,7 +68,7 @@ object Sneak : Module("Sneak", Category.MOVEMENT) {
                 if (event.eventState == EventState.PRE)
                     return@handler
 
-                sendPacket(C0BPacketEntityAction(mc.thePlayer, START_SNEAKING))
+                sendPacket(C0BPacketEntityAction(player, START_SNEAKING))
             }
         }
     }

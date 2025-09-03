@@ -27,6 +27,11 @@ ChestStealer:
 - **Breaking:** Configurable randomizability to SmartDelay, along with normal delay interoperability (thatonecoder)
 - **Breaking:** Rename `Highlight-Slot` to `HighlightSlot`, `Border-Strength` to `BorderStrength`, `Chest-Debug` to `ChestDebug`, and `ItemStolen-Debug` to `ItemStolenDebug` (thatonecoder)
 
+- **Breaking:** Rename  `Outline-Width` to `OutlineWidth`, `WireFrame-Width` to `WireFrameWidth`, `Glow-Renderscale` to `GlowRenderscale`, `Glow-Radius` to `GlowRadius`, `Glow-Fade` to `GlowFade`, and `Glow-Target-Alpha` to `GlowTargetAlpha` in ProphuntESP (thatonecoder)
+- **Breaking:** Rename `Glow-Renderscale` to `GlowRenderscale`, `Glow-Radius` to `GlowRadius`, `Glow-Fade` to `GlowFade`, `Glow-Target-Alpha` to `GlowTargetAlpha`, and `ESP-ColorMode` to `ESPColorMode` in StorageESP (thatonecoder)
+- **Breaking:** Rename `Glow-Renderscale` to `GlowRenderscale`, `Glow-Radius` to `GlowRadius`, `Glow-Fade` to `GlowFade`, and `Glow-Target-Alpha` to `GlowTargetAlpha` in ProphuntESP (thatonecoder)
+- **Breaking:** Rename `Health-Mode` to `HealthMode` in PointerESP (thatonecoder)
+
 ### Removed
 
 - The flag check in the BoostHypixel fly; use FlagCheck + AutoDisable instead (thatonecoder)

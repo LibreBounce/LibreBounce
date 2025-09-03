@@ -32,7 +32,7 @@ object PointerESP : Module("PointerESP", Category.RENDER) {
 
     private val colors = ColorSettingsInteger(this, "Colors") { healthMode == "None" }.with(255, 111, 255)
 
-    private val healthMode by choices("Health-Mode", arrayOf("None", "Custom"), "Custom")
+    private val healthMode by choices("HealthMode", arrayOf("None", "Custom"), "Custom")
     private val healthColors = ColorSettingsInteger(this, "Health")
     { healthMode == "Custom" }.with(255, 255, 0)
 
