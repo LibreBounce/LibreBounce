@@ -99,10 +99,10 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
     val legitimizeVJitter
         get() = legitimizeVerticalJitter.random()
 
-    val legitimizeHSlow
+    val legitimizeHSlowdown
         get() = legitimizeHorizontalSlowdown.random()
 
-    val legitimizeVSlow
+    val legitimizeVSlowdown
         get() = legitimizeVerticalSlowdown.random()
 
     val legitimizeHICF
