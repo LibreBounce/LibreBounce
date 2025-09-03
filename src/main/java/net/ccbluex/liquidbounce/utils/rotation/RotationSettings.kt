@@ -100,17 +100,13 @@ open class RotationSettings(owner: Module, generalApply: () -> Boolean = { true 
     open val rotationsActive
         get() = rotations
 
-    val legitimizeHorizontalJitter
-        get() = legitimizeHorizontalJitterValue.random()
+    val legitimizeHorizontalJitter by legitimizeHorizontalJitterValue.random()
 
-    val legitimizeVerticalJitter
-        get() = legitimizeVerticalJitterValue.random()
+    val legitimizeVerticalJitter by legitimizeVerticalJitterValue.random()
 
-    val legitimizeHorizontalSlowdown
-        get() = legitimizeVerticalSlowdownValue.random()
+    val legitimizeHorizontalSlowdown by legitimizeVerticalSlowdownValue.random()
 
-    val legitimizeVerticalSlowdown
-        get() = legitimizeVerticalSlowdownValue.random()
+    val legitimizeVerticalSlowdown by legitimizeVerticalSlowdownValue.random()
 
     val legitimizeHICF
         get() = legitimizeHorizontalImperfectCorrelationFactorValue.random()

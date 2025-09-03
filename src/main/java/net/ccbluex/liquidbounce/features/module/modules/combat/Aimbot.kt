@@ -32,6 +32,10 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
     private val horizontalAim by boolean("HorizontalAim", true)
     private val verticalAim by boolean("VerticalAim", true)
     private val legitimize by boolean("Legitimize", true) { horizontalAim || verticalAim }
+    private val legitimizeHorizontalJitterValue by floatRange("LegitimizeHorizontalJitter", -0.03f..0.03f, -1f..1f) { rotationsActive && generalApply() && legitimize }
+    private val legitimizeVerticalJitterValue by floatRange("LegitimizeVerticalJitter", -0.02f..0.02f, -1f..1f) { rotationsActive && generalApply() && legitimize }
+    private val legitimizeHorizontalSlowdownValue by floatRange("LegitimizeHorizontalSlowdown", 0f..0.1f, 0f..1f) { rotationsActive && generalApply() && legitimize }
+    private val legitimizeVerticalSlowdownValue by floatRange("LegitimizeVerticalSlowdown", 0f..0.1f, 0f..1f) { rotationsActive && generalApply() && legitimize }
     private val legitimizeHorizontalImperfectCorrelationFactor by floatRange("LegitimizeHorizontalImperfectCorrelationFactor", 0.9f..1.1f, 0f..2f) { legitimize }
     private val legitimizeVerticalImperfectCorrelationFactor by floatRange("LegitimizeVerticalImperfectCorrelationFactor", 0.9f..1.1f, 0f..2f) { legitimize }
     private val maxAngleChange by float("MaxAngleChange", 10f, 1F..180F) { horizontalAim || verticalAim }
