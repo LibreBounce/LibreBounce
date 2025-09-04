@@ -23,7 +23,6 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 ### Changed
 
-
 - **Breaking:** Rename `Highlight-Slot` to `HighlightSlot`, `Border-Strength` to `BorderStrength`, `Chest-Debug` to `ChestDebug`, and `ItemStolen-Debug` to `ItemStolenDebug` in ChestStealer (thatonecoder)
 - **Breaking:** Rename `Highlight-Slot` to `HighlightSlot`, and `Border-Strength` to `BorderStrength` in AutoArmor & InventoryCleaner (thatonecoder)
 - **Breaking:** Rename `ForceGround` to `OnlyGround` in TickBase (thatonecoder)
