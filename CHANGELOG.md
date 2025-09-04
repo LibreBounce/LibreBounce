@@ -6,14 +6,17 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 ## [Unreleased]
 
+## [0.2.0] 2025-09-04
+
 ### Added
 
+- **Breaking:** Configurable randomizability to `SmartDelay` and interoperability with normal delay in ChestStealer (thatonecoder)
+- **Breaking:** Configurable `SimulateShortStop` values in ChestStealer; previously hardcoded (thatonecoder)
 - `LegitimizeHorizontalJitter`, `LegitimizeVerticalJitter`, `LegitimizeHorizontalSlowdown` and `LegitimizeVerticalSlowdown` values to all rotation modules; previously hardcoded (thatonecoder)
 - `OnWeb` and `OnLiquid` options to SuperKnockback (thatonecoder)
 
 ### Fixed
 
-- `RenderBoxOnSwingFail` option (and some of its adjacent settings) in KillAura not being subjective, NOT DONE YET (thatonecoder)
 - `Verus` fly not damaging (thatonecoder)
 - Broken update checker ([#8](https://github.com/LibreBounce/LibreBounce/pull/8)) (thatonecoder)
 - No space between the name and version, in the window title ([#12](https://github.com/LibreBounce/LibreBounce/pull/12)) (halflin)
@@ -21,7 +24,6 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 ### Changed
 
 
-- **Breaking:** Configurable randomizability to SmartDelay, along with normal delay interoperability in ChestStealer (thatonecoder)
 - **Breaking:** Rename `Highlight-Slot` to `HighlightSlot`, `Border-Strength` to `BorderStrength`, `Chest-Debug` to `ChestDebug`, and `ItemStolen-Debug` to `ItemStolenDebug` in ChestStealer (thatonecoder)
 - **Breaking:** Rename `Highlight-Slot` to `HighlightSlot`, and `Border-Strength` to `BorderStrength` in AutoArmor & InventoryCleaner (thatonecoder)
 - **Breaking:** Rename `ForceGround` to `OnlyGround` in TickBase (thatonecoder)
@@ -63,5 +65,6 @@ _Initial release, forked from LiquidBounce Legacy._
 
 - Warning to upgrade from `LiquidBounce` Legacy to Nextgen (thatonecoder)
 
-[unreleased]: https://github.com/LibreBounce/LibreBounce/compare/v0.1.0...HEAD
+[unreleased]: https://github.com/LibreBounce/LibreBounce/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/LibreBounce/LibreBounce/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/LibreBounce/LibreBounce/releases/tag/v0.1.0
