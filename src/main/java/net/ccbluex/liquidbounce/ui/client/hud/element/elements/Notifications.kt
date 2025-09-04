@@ -75,7 +75,7 @@ class Notifications(
             }
 
             exampleNotification.fadeState = Notification.FadeState.STAY
-            exampleNotification.textLength = Fonts.fontSemibold40.getStringWidth(exampleNotification.longestString)
+            exampleNotification.textLength = titleFont.getStringWidth(exampleNotification.longestString)
 
             val notificationHeight = Notification.MAX_HEIGHT
 
@@ -104,14 +104,15 @@ class Notification(
     var severityType: Notifications.SeverityType = Notifications.SeverityType.INFO
 ) {
     var x = 0F
-    val titleFont = titleFont
-    val descriptionFont = descriptionFont
+    val titleFont = Notifications.titleFont
+    val descriptionFont = Notifications.descriptionFont
+
     // Spawn the notification 32 pixels above the last one - if exists.
     var y: Float = (notifications.lastOrNull()?.y ?: 0F) + MAX_HEIGHT * 2
     var textLength = 0
 
     val longestString
-        get() = arrayOf(title, description).maxBy { Fonts.fontSemibold40.getStringWidth(it) }
+        get() = arrayOf(title, description).maxBy { titleFont.getStringWidth(it) }
 
     private var stay = delay
     private var fadeStep = 0F
@@ -195,7 +196,7 @@ class Notification(
             description, ICON_SIZE + 8F - currentX, nearTopSpot + titleFont.fontHeight - 2, Int.MAX_VALUE
         )
 
-        if (showIcon) {
+        if (Notifications.showIcon) {
             RenderUtils.drawImage(
                 severityType.path, -currentX + 2, -y - MAX_HEIGHT + 4, ICON_SIZE, ICON_SIZE, radius = element.roundRadius
             )
