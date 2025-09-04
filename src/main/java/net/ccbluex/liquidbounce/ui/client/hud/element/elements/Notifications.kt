@@ -34,6 +34,9 @@ class Notifications(
     x: Double = 0.0, y: Double = 30.0, scale: Float = 1F, side: Side = Side(Side.Horizontal.RIGHT, Side.Vertical.DOWN)
 ) : Element("Notifications", x, y, scale, side) {
 
+    val titleFont by font("TitleFont", Fonts.fontSemibold40)
+    val descriptionFont by font("DescriptionFont", Fonts.fontSemibold35)
+    val showIcon by boolean("ShowIcon", true)
     val horizontalFade by choices("HorizontalFade", arrayOf("InOnly", "OutOnly", "Both", "None"), "OutOnly")
     val padding by int("Padding", 5, 1..20)
     val roundRadius by float("RoundRadius", 3f, 0f..10f)
@@ -101,7 +104,8 @@ class Notification(
     var severityType: Notifications.SeverityType = Notifications.SeverityType.INFO
 ) {
     var x = 0F
-
+    val titleFont = titleFont
+    val descriptionFont = descriptionFont
     // Spawn the notification 32 pixels above the last one - if exists.
     var y: Float = (notifications.lastOrNull()?.y ?: 0F) + MAX_HEIGHT * 2
     var textLength = 0
@@ -127,7 +131,7 @@ class Notification(
         this.title = title
         this.description = description
 
-        textLength = Fonts.fontSemibold40.getStringWidth(longestString)
+        textLength = titleFont.getStringWidth(longestString)
         maxTextLength = maxOf(textLength, maxTextLength)
 
         notifications.sortBy { it.stay }
@@ -156,7 +160,7 @@ class Notification(
     }
 
     init {
-        textLength = Fonts.fontSemibold40.getStringWidth(longestString)
+        textLength = titleFont.getStringWidth(longestString)
         maxTextLength = maxOf(maxTextLength, textLength)
     }
 
@@ -186,14 +190,16 @@ class Notification(
 
         val nearTopSpot = -y - MAX_HEIGHT + 10
 
-        Fonts.fontSemibold40.drawString(title, ICON_SIZE + 8F - currentX, nearTopSpot - 5, Color.WHITE.rgb)
-        Fonts.fontSemibold35.drawString(
-            description, ICON_SIZE + 8F - currentX, nearTopSpot + Fonts.fontSemibold40.fontHeight - 2, Int.MAX_VALUE
+        titleFont.drawString(title, ICON_SIZE + 8F - currentX, nearTopSpot - 5, Color.WHITE.rgb)
+        descriptionFont.drawString(
+            description, ICON_SIZE + 8F - currentX, nearTopSpot + titleFont.fontHeight - 2, Int.MAX_VALUE
         )
 
-        RenderUtils.drawImage(
-            severityType.path, -currentX + 2, -y - MAX_HEIGHT + 4, ICON_SIZE, ICON_SIZE, radius = element.roundRadius
-        )
+        if (showIcon) {
+            RenderUtils.drawImage(
+                severityType.path, -currentX + 2, -y - MAX_HEIGHT + 4, ICON_SIZE, ICON_SIZE, radius = element.roundRadius
+            )
+        }
 
         val delta = deltaTime
 

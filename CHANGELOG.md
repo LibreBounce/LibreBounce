@@ -9,7 +9,8 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 ### Added
 
 - `LegitimizeHorizontalJitter`, `LegitimizeVerticalJitter`, `LegitimizeHorizontalSlowdown` and `LegitimizeVerticalSlowdown` values to all rotation modules; previously hardcoded (thatonecoder)
-- `OnWeb` and `OnLiquid` to SuperKnockback (thatonecoder)
+- `TitleFont`, `DescriptionFont`, and `ShowIcon` to Notifications (thatonecoder)
+- `OnWeb` and `OnLiquid` options to SuperKnockback (thatonecoder)
 
 ### Fixed
 
@@ -34,6 +35,7 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 - **Breaking:** Rename `Health-Mode` to `HealthMode` in PointerESP (thatonecoder)
 - **Breaking:** Rename `Text-ColorMode` to `TextColorMode`, `Text-Gradient-Speed` to `TextGradientSpeed`, `Max-Text-Gradient-Colors` to `MaxTextGradientColors`, `Text-Gradient` to `TextGradient`, `Rounded-Radius` to `RoundedRadius`, `Background-Mode` to `BackgroundMode`, `Background-Gradient-Speed` to `BackgroundGradientSpeed`, `Max-Background-Gradient-Colors` to `MaxBackgroundGradientColors`, `Background-Gradient` to `BackgroundGradient`, `Rainbow-X` to `RainbowX`, `Rainbow-Y` to `RainbowY`, `Gradient-X` to `GradientX`, and `Gradient-Y` to `GradientY` in BedPlates (thatonecoder)
 - **Breaking:** Rename `Hotbar-Highlight-Colors` to `HotbarHightlightColors`, `Hotbar-Background-Colors` to `HotbarBackgroundColors`, `Hotbar-Gradient-Speed` to `HotbarGradientSpeed`, `Max-Hotbar-Gradient-Colors` to `MaxHotbarGradientColors`, `Hotbar-Gradient` to `HotbarGradient`, `HotbarBorder-Highlight-Width` to `HotbarBorderHighlightWidth`, `HotbarBorder-Highlight-Colors` to `HotbarBorderHighlightColors`, `HotbarBorder-Background-Width` to `HotbarBorderBackgroundWidth`, `HotbarBorder-Background-Colors` to `HotbarBorderBackgroundColors`, `Rainbow-X` to `RainbowX`, `Rainbow-Y` to `RainbowY`, `Gradient-X` to `GradientX`, and `Gradient-Y` to `GradientY` in BedPlates (thatonecoder)
+- **Breaking:** Rename a lot of things in the Arraylist, Text, and Inventory HUD elements; just check the git log, at this point (thatonecoder)
 - **Breaking:** Rename `Scrolls` to `Scrolling` in ClickGUI (thatonecoder)
 
 ### Removed
