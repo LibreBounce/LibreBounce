@@ -104,8 +104,8 @@ class Notification(
     var severityType: Notifications.SeverityType = Notifications.SeverityType.INFO
 ) {
     var x = 0F
-    val titleFont = element.titleFont
-    val descriptionFont = element.descriptionFont
+    val titleFont
+    val descriptionFont
 
     // Spawn the notification 32 pixels above the last one - if exists.
     var y: Float = (notifications.lastOrNull()?.y ?: 0F) + MAX_HEIGHT * 2
@@ -168,6 +168,8 @@ class Notification(
     fun drawNotification(element: Notifications): Boolean {
         val notificationWidth = maxTextLength + ICON_SIZE + 16F
         val extraSpace = 4F
+        titleFont = element.titleFont
+        descriptionFont = element.descriptionFont
 
         val currentX = when (fadeState) {
             FadeState.IN -> if (element.horizontalFade in arrayOf("InOnly", "Both")) x else notificationWidth
