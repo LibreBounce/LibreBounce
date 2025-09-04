@@ -23,14 +23,21 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 - **Breaking:** Rename `ForceGround` to `OnlyGround` in TickBase (thatonecoder)
 - **Breaking:** Rename `onlyGround` to `OnlyGround` in TimerRange (thatonecoder)
 
+- **Breaking:** Rename `CustomDamage-Packet1Clip` to `CustomDamagePacket1Clip`, `CustomDamage-Packet2Clip` to `CustomDamagePacket2Clip`, and `CustomDamage-Packet3Clip` to `CustomDamagePacket3Clip` in Damage (thatonecoder)
+
 ChestStealer:
 - **Breaking:** Configurable randomizability to SmartDelay, along with normal delay interoperability (thatonecoder)
 - **Breaking:** Rename `Highlight-Slot` to `HighlightSlot`, `Border-Strength` to `BorderStrength`, `Chest-Debug` to `ChestDebug`, and `ItemStolen-Debug` to `ItemStolenDebug` (thatonecoder)
 
+Render Modules:
 - **Breaking:** Rename  `Outline-Width` to `OutlineWidth`, `WireFrame-Width` to `WireFrameWidth`, `Glow-Renderscale` to `GlowRenderscale`, `Glow-Radius` to `GlowRadius`, `Glow-Fade` to `GlowFade`, and `Glow-Target-Alpha` to `GlowTargetAlpha` in ProphuntESP (thatonecoder)
 - **Breaking:** Rename `Glow-Renderscale` to `GlowRenderscale`, `Glow-Radius` to `GlowRadius`, `Glow-Fade` to `GlowFade`, `Glow-Target-Alpha` to `GlowTargetAlpha`, and `ESP-ColorMode` to `ESPColorMode` in StorageESP (thatonecoder)
+- **Breaking:** Rename `Glow-Renderscale` to `GlowRenderscale`, `Glow-Radius` to `GlowRadius`, `Glow-Fade` to `GlowFade`, and `Glow-Target-Alpha` to `GlowTargetAlpha` in ItemESP (thatonecoder)
 - **Breaking:** Rename `Glow-Renderscale` to `GlowRenderscale`, `Glow-Radius` to `GlowRadius`, `Glow-Fade` to `GlowFade`, and `Glow-Target-Alpha` to `GlowTargetAlpha` in ProphuntESP (thatonecoder)
 - **Breaking:** Rename `Health-Mode` to `HealthMode` in PointerESP (thatonecoder)
+- **Breaking:** Rename `Text-ColorMode` to `TextColorMode`, `Text-Gradient-Speed` to `TextGradientSpeed`, `Max-Text-Gradient-Colors` to `MaxTextGradientColors`, `Text-Gradient` to `TextGradient`, `Rounded-Radius` to `RoundedRadius`, `Background-Mode` to `BackgroundMode`, `Background-Gradient-Speed` to `BackgroundGradientSpeed`, `Max-Background-Gradient-Colors` to `MaxBackgroundGradientColors`, `Background-Gradient` to `BackgroundGradient`, `Rainbow-X` to `RainbowX`, `Rainbow-Y` to `RainbowY`, `Gradient-X` to `GradientX`, and `Gradient-Y` to `GradientY` in BedPlates (thatonecoder)
+- **Breaking:** Rename `Hotbar-Highlight-Colors` to `HotbarHightlightColors`, `Hotbar-Background-Colors` to `HotbarBackgroundColors`, `Hotbar-Gradient-Speed` to `HotbarGradientSpeed`, `Max-Hotbar-Gradient-Colors` to `MaxHotbarGradientColors`, `Hotbar-Gradient` to `HotbarGradient`, `HotbarBorder-Highlight-Width` to `HotbarBorderHighlightWidth`, `HotbarBorder-Background-Width` to `HotbarBorderBackgroundWidth`, `Rainbow-X` to `RainbowX`, `Rainbow-Y` to `RainbowY`, `Gradient-X` to `GradientX`, and `Gradient-Y` to `GradientY` in BedPlates (thatonecoder)
+- **Breaking:** Rename `Scrolls` to `Scrolling` in ClickGUI (thatonecoder)
 
 ### Removed
 
@@ -46,7 +53,7 @@ _Initial release, forked from LiquidBounce Legacy._
 
 ### Fixed
 
-- `SilentGUI` option in ChestStealer ignoring the `ChestTitle` option (MarkGG, thatonecoder)
+- `SilentGUI` option in ChestStealer ignoring the `ChestTitle` option (thatonecoder, MarkGG)
 
 ### Changed
 

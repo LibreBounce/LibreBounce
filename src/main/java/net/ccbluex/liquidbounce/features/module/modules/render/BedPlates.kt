@@ -69,7 +69,7 @@ object BedPlates : Module("BedPlates", Category.RENDER) {
 
     private val maxTextGradientColors by int("MaxTextGradientColors", 4, 1..MAX_GRADIENT_COLORS)
     { textMode == "Gradient" }
-    private val textGradColors = ColorSettingsFloat.create(this, "Text-Gradient")
+    private val textGradColors = ColorSettingsFloat.create(this, "TextGradient")
     { textMode == "Gradient" && it <= maxTextGradientColors }
 
     private val roundedRectRadius by float("RoundedRadius", 3F, 0F..5F)
@@ -82,7 +82,7 @@ object BedPlates : Module("BedPlates", Category.RENDER) {
 
     private val maxBackgroundGradientColors by int("MaxBackgroundGradientColors", 4, 1..MAX_GRADIENT_COLORS)
     { backgroundMode == "Gradient" }
-    private val bgGradColors = ColorSettingsFloat.create(this, "Background-Gradient")
+    private val bgGradColors = ColorSettingsFloat.create(this, "BackgroundGradient")
     { backgroundMode == "Gradient" && it <= maxBackgroundGradientColors }
 
     private val textFont by font("Font", Fonts.fontSemibold35)
