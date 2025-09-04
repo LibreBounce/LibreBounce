@@ -37,16 +37,16 @@ object Rotations : Module("Rotations", Category.RENDER, gameDetecting = false) {
         if (event.eventState != EventState.POST)
             return@handler
 
-        val thePlayer = mc.thePlayer ?: return@handler
+        val player = mc.thePlayer ?: return@handler
         val targetRotation = getRotation() ?: serverRotation
 
         prevHeadPitch = headPitch
         headPitch = targetRotation.pitch
 
-        thePlayer.rotationYawHead = targetRotation.yaw
+        player.rotationYawHead = targetRotation.yaw
 
         if (shouldRotate() && body && !realistic) {
-            thePlayer.renderYawOffset = thePlayer.rotationYawHead
+            player.renderYawOffset = player.rotationYawHead
         }
 
         lastRotation = targetRotation

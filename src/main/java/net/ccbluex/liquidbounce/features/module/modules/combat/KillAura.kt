@@ -757,19 +757,19 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
         val switchMode = targetMode == "Switch"
 
-        val theWorld = mc.theWorld ?: return
-        val thePlayer = mc.thePlayer ?: return
+        val world = mc.theWorld ?: return
+        val player = mc.thePlayer ?: return
 
         var bestTarget: EntityLivingBase? = null
         var bestValue: Double? = null
 
-        for (entity in theWorld.loadedEntityList) {
+        for (entity in world.loadedEntityList) {
             if (entity !is EntityLivingBase || !isSelected(
                     entity, true
                 ) || switchMode && entity.entityId in prevTargetEntities
             ) continue
 
-            val distance = Backtrack.runWithNearestTrackedDistance(entity) { thePlayer.getDistanceToEntityBox(entity) }
+            val distance = Backtrack.runWithNearestTrackedDistance(entity) { player.getDistanceToEntityBox(entity) }
 
             if (switchMode && distance > range && prevTargetEntities.isNotEmpty()) continue
 
@@ -821,11 +821,11 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
      * Attack [entity]
      */
     private fun attackEntity(entity: EntityLivingBase, isLastClick: Boolean) {
-        val thePlayer = mc.thePlayer
+        val player = mc.thePlayer
 
         if (shouldPrioritize()) return
 
-        if (thePlayer.isBlocking && (autoBlock == "Off" && blockStatus || autoBlock == "Packet" && releaseAutoBlock)) {
+        if (player.isBlocking && (autoBlock == "Off" && blockStatus || autoBlock == "Packet" && releaseAutoBlock)) {
             stopBlocking()
 
             if (!ignoreTickRule || autoBlock == "Off") {
@@ -841,19 +841,19 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         if (!blinkAutoBlock || !BlinkUtils.isBlinking) {
             val affectSprint = false.takeIf { KeepSprint.handleEvents() || keepSprint }
 
-            thePlayer.attackEntityWithModifiedSprint(entity, affectSprint) { if (swing) thePlayer.swingItem() }
+            player.attackEntityWithModifiedSprint(entity, affectSprint) { if (swing) player.swingItem() }
 
             // Apply enchantment critical effect if FakeSharp is enabled
             if (EnchantmentHelper.getModifierForCreature(
-                    thePlayer.heldItem, entity.creatureAttribute
+                    player.heldItem, entity.creatureAttribute
                 ) <= 0F && fakeSharp
             ) {
-                thePlayer.onEnchantmentCritical(entity)
+                player.onEnchantmentCritical(entity)
             }
         }
 
         // Start blocking after attack
-        if (autoBlock != "Off" && (thePlayer.isBlocking || canBlock) && (!blinkAutoBlock && isLastClick || blinkAutoBlock && (!blinked || !BlinkUtils.isBlinking))) {
+        if (autoBlock != "Off" && (player.isBlocking || canBlock) && (!blinkAutoBlock && isLastClick || blinkAutoBlock && (!blinked || !BlinkUtils.isBlinking))) {
             startBlocking(entity, interactAutoBlock, autoBlock == "Fake")
         }
 

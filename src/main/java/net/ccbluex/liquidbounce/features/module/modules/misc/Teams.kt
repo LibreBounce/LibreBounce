@@ -21,14 +21,14 @@ object Teams : Module("Teams", Category.MISC, gameDetecting = false) {
      * Check if [entity] is in your own team using scoreboard, name/armor color or team prefix
      */
     fun isInYourTeam(entity: EntityLivingBase): Boolean {
-        val thePlayer = mc.thePlayer ?: return false
+        val player = mc.thePlayer ?: return false
 
-        if (scoreboard && thePlayer.team != null && entity.team != null &&
-            thePlayer.team.isSameTeam(entity.team)
+        if (scoreboard && player.team != null && entity.team != null &&
+            player.team.isSameTeam(entity.team)
         )
             return true
 
-        val displayName = thePlayer.displayName
+        val displayName = player.displayName
 
         if (gommeSW && displayName != null && entity.displayName != null) {
             val targetName = entity.displayName.formattedText.replace("§r", "")
@@ -46,7 +46,7 @@ object Teams : Module("Teams", Category.MISC, gameDetecting = false) {
 
         if (armorColor) {
             for (i in 0..3) {
-                val playerArmor = thePlayer.getCurrentArmor(i) ?: continue
+                val playerArmor = player.getCurrentArmor(i) ?: continue
                 val entityArmor = entity.getCurrentArmor(i) ?: continue
 
                 val playerItem = playerArmor.item as? ItemArmor ?: continue

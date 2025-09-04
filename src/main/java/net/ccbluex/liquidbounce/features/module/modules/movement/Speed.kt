@@ -179,25 +179,25 @@ object Speed : Module("Speed", Category.MOVEMENT) {
     val safeY by boolean("SafeY", true) { mode.get() == "BlocksMCHop" }
 
     val onUpdate = handler<UpdateEvent> {
-        val thePlayer = mc.thePlayer ?: return@handler
+        val player = mc.thePlayer ?: return@handler
 
-        if (thePlayer.isSneaking)
+        if (player.isSneaking)
             return@handler
 
-        if (thePlayer.isMoving && !sprintManually)
-            thePlayer.isSprinting = true
+        if (player.isMoving && !sprintManually)
+            player.isSprinting = true
 
         modeModule.onUpdate()
     }
 
     val onMotion = handler<MotionEvent> { event ->
-        val thePlayer = mc.thePlayer ?: return@handler
+        val player = mc.thePlayer ?: return@handler
 
-        if (thePlayer.isSneaking || event.eventState != EventState.PRE)
+        if (player.isSneaking || event.eventState != EventState.PRE)
             return@handler
 
-        if (thePlayer.isMoving && !sprintManually)
-            thePlayer.isSprinting = true
+        if (player.isMoving && !sprintManually)
+            player.isSprinting = true
 
         modeModule.onMotion()
     }

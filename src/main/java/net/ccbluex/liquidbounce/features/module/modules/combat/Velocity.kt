@@ -695,21 +695,21 @@ object Velocity : Module("Velocity", Category.COMBAT) {
     }
 
     val onJump = handler<JumpEvent> { event ->
-        val thePlayer = mc.thePlayer
+        val player = mc.thePlayer
 
-        if (thePlayer == null || thePlayer.isInLiquid || thePlayer.isInWeb)
+        if (player == null || player.isInLiquid || player.isInWeb)
             return@handler
 
         when (mode.lowercase()) {
             "aacpush" -> {
                 jump = true
 
-                if (!thePlayer.isCollidedVertically)
+                if (!player.isCollidedVertically)
                     event.cancelEvent()
             }
 
             "aaczero" ->
-                if (thePlayer.hurtTime > 0)
+                if (player.hurtTime > 0)
                     event.cancelEvent()
         }
     }

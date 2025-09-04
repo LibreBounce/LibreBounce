@@ -20,16 +20,13 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 ### Changed
 
+
+- **Breaking:** Configurable randomizability to SmartDelay, along with normal delay interoperability in ChestStealer (thatonecoder)
+- **Breaking:** Rename `Highlight-Slot` to `HighlightSlot`, `Border-Strength` to `BorderStrength`, `Chest-Debug` to `ChestDebug`, and `ItemStolen-Debug` to `ItemStolenDebug` in ChestStealer (thatonecoder)
+- **Breaking:** Rename `Highlight-Slot` to `HighlightSlot`, and `Border-Strength` to `BorderStrength` in AutoArmor & InventoryCleaner (thatonecoder)
 - **Breaking:** Rename `ForceGround` to `OnlyGround` in TickBase (thatonecoder)
 - **Breaking:** Rename `onlyGround` to `OnlyGround` in TimerRange (thatonecoder)
-
 - **Breaking:** Rename `CustomDamage-Packet1Clip` to `CustomDamagePacket1Clip`, `CustomDamage-Packet2Clip` to `CustomDamagePacket2Clip`, and `CustomDamage-Packet3Clip` to `CustomDamagePacket3Clip` in Damage (thatonecoder)
-
-ChestStealer:
-- **Breaking:** Configurable randomizability to SmartDelay, along with normal delay interoperability (thatonecoder)
-- **Breaking:** Rename `Highlight-Slot` to `HighlightSlot`, `Border-Strength` to `BorderStrength`, `Chest-Debug` to `ChestDebug`, and `ItemStolen-Debug` to `ItemStolenDebug` (thatonecoder)
-
-Render Modules:
 - **Breaking:** Rename  `Outline-Width` to `OutlineWidth`, `WireFrame-Width` to `WireFrameWidth`, `Glow-Renderscale` to `GlowRenderscale`, `Glow-Radius` to `GlowRadius`, `Glow-Fade` to `GlowFade`, and `Glow-Target-Alpha` to `GlowTargetAlpha` in ProphuntESP (thatonecoder)
 - **Breaking:** Rename `Glow-Renderscale` to `GlowRenderscale`, `Glow-Radius` to `GlowRadius`, `Glow-Fade` to `GlowFade`, `Glow-Target-Alpha` to `GlowTargetAlpha`, and `ESP-ColorMode` to `ESPColorMode` in StorageESP (thatonecoder)
 - **Breaking:** Rename `Glow-Renderscale` to `GlowRenderscale`, `Glow-Radius` to `GlowRadius`, `Glow-Fade` to `GlowFade`, and `Glow-Target-Alpha` to `GlowTargetAlpha` in ItemESP (thatonecoder)

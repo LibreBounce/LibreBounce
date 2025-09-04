@@ -78,7 +78,7 @@ object BlockUtils : MinecraftInstance {
         maxBlocksLimit: Int? = null,
         predicate: (BlockPos, Block) -> Boolean = { _, _ -> true }
     ): MutableMap<BlockPos, Block> {
-        val thePlayer = mc.thePlayer ?: return mutableMapOf()
+        val player = mc.thePlayer ?: return mutableMapOf()
 
         val blocks = mutableMapOf<BlockPos, Block>()
 
@@ -90,7 +90,7 @@ object BlockUtils : MinecraftInstance {
                         return blocks
                     }
 
-                    mutable.set(thePlayer.posX.toInt() + x, thePlayer.posY.toInt() + y, thePlayer.posZ.toInt() + z)
+                    mutable.set(player.posX.toInt() + x, player.posY.toInt() + y, player.posZ.toInt() + z)
 
                     val block = mutable.block ?: continue
 
@@ -111,12 +111,12 @@ object BlockUtils : MinecraftInstance {
      * Check if [axisAlignedBB] has collidable blocks using custom [collide] check
      */
     fun collideBlock(axisAlignedBB: AxisAlignedBB, collide: Collidable): Boolean {
-        val thePlayer = mc.thePlayer
+        val player = mc.thePlayer
 
         val y = axisAlignedBB.minY.toInt()
         val mutable = BlockPos.MutableBlockPos(0, 0, 0)
-        for (x in thePlayer.entityBoundingBox.minX.toInt() until thePlayer.entityBoundingBox.maxX.toInt() + 1) {
-            for (z in thePlayer.entityBoundingBox.minZ.toInt() until thePlayer.entityBoundingBox.maxZ.toInt() + 1) {
+        for (x in player.entityBoundingBox.minX.toInt() until player.entityBoundingBox.maxX.toInt() + 1) {
+            for (z in player.entityBoundingBox.minZ.toInt() until player.entityBoundingBox.maxZ.toInt() + 1) {
                 val blockPos = mutable.set(x, y, z)
                 val block = blockPos.block
 
@@ -132,13 +132,13 @@ object BlockUtils : MinecraftInstance {
      * Check if [axisAlignedBB] has collidable blocks using custom [collide] check
      */
     fun collideBlockIntersects(axisAlignedBB: AxisAlignedBB, collide: Collidable): Boolean {
-        val thePlayer = mc.thePlayer
+        val player = mc.thePlayer
         val world = mc.theWorld
 
         val y = axisAlignedBB.minY.toInt()
         val mutable = BlockPos.MutableBlockPos(0, 0, 0)
-        for (x in thePlayer.entityBoundingBox.minX.toInt() until thePlayer.entityBoundingBox.maxX.toInt() + 1) {
-            for (z in thePlayer.entityBoundingBox.minZ.toInt() until thePlayer.entityBoundingBox.maxZ.toInt() + 1) {
+        for (x in player.entityBoundingBox.minX.toInt() until player.entityBoundingBox.maxX.toInt() + 1) {
+            for (z in player.entityBoundingBox.minZ.toInt() until player.entityBoundingBox.maxZ.toInt() + 1) {
                 val blockPos = mutable.set(x, y, z)
                 val block = blockPos.block
 
@@ -146,7 +146,7 @@ object BlockUtils : MinecraftInstance {
                     val boundingBox = blockPos.state?.let { block?.getCollisionBoundingBox(world, blockPos, it) }
                         ?: continue
 
-                    if (thePlayer.entityBoundingBox.intersectsWith(boundingBox))
+                    if (player.entityBoundingBox.intersectsWith(boundingBox))
                         return true
                 }
             }

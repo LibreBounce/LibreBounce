@@ -49,10 +49,10 @@ object Projectiles : Module("Projectiles", Category.RENDER, gameDetecting = fals
     private val trailPositions = mutableMapOf<Entity, ArrayDeque<ProjectilePos>>()
 
     val onRender3D = handler<Render3DEvent> {
-        val theWorld = mc.theWorld ?: return@handler
+        val world = mc.theWorld ?: return@handler
         val renderManager = mc.renderManager
 
-        for (entity in theWorld.loadedEntityList) {
+        for (entity in world.loadedEntityList) {
             if (entity !is EntityLivingBase) continue
             val heldStack = entity.heldItem ?: continue
             
@@ -169,7 +169,7 @@ object Projectiles : Module("Projectiles", Category.RENDER, gameDetecting = fals
                 var posAfter = Vec3(posX + motionX, posY + motionY, posZ + motionZ)
 
                 // Get landing position
-                landingPosition = theWorld.rayTraceBlocks(
+                landingPosition = world.rayTraceBlocks(
                     posBefore, posAfter, false,
                     true, false
                 )
@@ -200,7 +200,7 @@ object Projectiles : Module("Projectiles", Category.RENDER, gameDetecting = fals
 
                 for (x in chunkMinX..chunkMaxX)
                     for (z in chunkMinZ..chunkMaxZ)
-                        theWorld.getChunkFromChunkCoords(x, z)
+                        world.getChunkFromChunkCoords(x, z)
                             .getEntitiesWithinAABBForEntity(entity, arrowBox, collidedEntities, null)
 
                 // Check all possible entities

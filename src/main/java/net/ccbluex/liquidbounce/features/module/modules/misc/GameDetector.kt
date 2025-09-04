@@ -53,13 +53,13 @@ object GameDetector : Module("GameDetector", Category.MISC, gameDetecting = fals
     val onUpdate = handler<UpdateEvent>(priority = 1) {
         isPlaying = false
 
-        val thePlayer = mc.thePlayer ?: return@handler
-        val theWorld = mc.theWorld ?: return@handler
+        val player = mc.thePlayer ?: return@handler
+        val world = mc.theWorld ?: return@handler
         val netHandler = mc.netHandler ?: return@handler
-        val capabilities = thePlayer.capabilities
+        val capabilities = player.capabilities
 
         val slots = slot - 1
-        val itemSlot = mc.thePlayer.inventory.getStackInSlot(slots)
+        val itemSlot = player.inventory.getStackInSlot(slots)
 
         if (gameMode && !mc.playerController.gameIsSurvivalOrAdventure())
             return@handler
@@ -72,14 +72,14 @@ object GameDetector : Module("GameDetector", Category.MISC, gameDetecting = fals
         if (tabList && netHandler.playerInfoMap.size <= 1)
             return@handler
 
-        if (teams && thePlayer.team?.allowFriendlyFire == false && theWorld.scoreboard.teams.size == 1)
+        if (teams && player.team?.allowFriendlyFire == false && world.scoreboard.teams.size == 1)
             return@handler
 
-        if (invisibility && thePlayer.getActivePotionEffect(Potion.invisibility)?.isPotionDurationMax == true)
+        if (invisibility && player.getActivePotionEffect(Potion.invisibility)?.isPotionDurationMax == true)
             return@handler
 
         if (compass) {
-            if (checkAllSlots && mc.thePlayer.inventory.hasItemStack(ItemStack(Items.compass)))
+            if (checkAllSlots && player.inventory.hasItemStack(ItemStack(Items.compass)))
                 return@handler
 
             if (!checkAllSlots && itemSlot?.item == Items.compass)
@@ -87,18 +87,18 @@ object GameDetector : Module("GameDetector", Category.MISC, gameDetecting = fals
         }
 
         if (scoreboard) {
-            if (LOBBY_SUBSTRINGS in theWorld.scoreboard.getObjectiveInDisplaySlot(1)?.displayName)
+            if (LOBBY_SUBSTRINGS in world.scoreboard.getObjectiveInDisplaySlot(1)?.displayName)
                 return@handler
 
-            if (theWorld.scoreboard.objectiveNames.any { LOBBY_SUBSTRINGS in it })
+            if (world.scoreboard.objectiveNames.any { LOBBY_SUBSTRINGS in it })
                 return@handler
 
-            if (theWorld.scoreboard.teams.any { LOBBY_SUBSTRINGS in it.colorPrefix })
+            if (world.scoreboard.teams.any { LOBBY_SUBSTRINGS in it.colorPrefix })
                 return@handler
         }
 
         if (entity) {
-            for (entity in theWorld.loadedEntityList) {
+            for (entity in world.loadedEntityList) {
                 if (entity !is IBossDisplayData && entity !is EntityArmorStand)
                     continue
 

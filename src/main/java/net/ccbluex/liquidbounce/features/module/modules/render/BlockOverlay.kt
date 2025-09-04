@@ -67,9 +67,9 @@ object BlockOverlay : Module("BlockOverlay", Category.RENDER, gameDetecting = fa
 
         block.setBlockBoundsBasedOnState(mc.theWorld, blockPos)
 
-        val thePlayer = mc.thePlayer ?: return@handler
+        val player = mc.thePlayer ?: return@handler
 
-        val pos = thePlayer.interpolatedPosition(thePlayer.lastTickPos)
+        val pos = player.interpolatedPosition(player.lastTickPos)
 
         val f = 0.002F.toDouble()
 
