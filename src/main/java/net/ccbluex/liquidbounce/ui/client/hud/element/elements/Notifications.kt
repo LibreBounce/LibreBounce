@@ -104,8 +104,8 @@ class Notification(
     var severityType: Notifications.SeverityType = Notifications.SeverityType.INFO
 ) {
     var x = 0F
-    val titleFont = Notifications.titleFont
-    val descriptionFont = Notifications.descriptionFont
+    val titleFont = element.titleFont
+    val descriptionFont = element.descriptionFont
 
     // Spawn the notification 32 pixels above the last one - if exists.
     var y: Float = (notifications.lastOrNull()?.y ?: 0F) + MAX_HEIGHT * 2
@@ -196,7 +196,7 @@ class Notification(
             description, ICON_SIZE + 8F - currentX, nearTopSpot + titleFont.fontHeight - 2, Int.MAX_VALUE
         )
 
-        if (Notifications.showIcon) {
+        if (element.showIcon) {
             RenderUtils.drawImage(
                 severityType.path, -currentX + 2, -y - MAX_HEIGHT + 4, ICON_SIZE, ICON_SIZE, radius = element.roundRadius
             )
