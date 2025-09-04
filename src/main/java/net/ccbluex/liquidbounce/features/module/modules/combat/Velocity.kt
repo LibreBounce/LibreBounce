@@ -323,7 +323,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
             }
 
             "hypixel" -> {
-                if (hasReceivedVelocity && thePlayer.onGround) {
+                if (hasReceivedVelocity && player.onGround) {
                     absorbedVelocity = false
                 }
             }

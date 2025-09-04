@@ -79,7 +79,7 @@ object WallClimb : Module("WallClimb", Category.MOVEMENT) {
                     player.motionY = 0.43
                 if (waited == 23)
                     player.motionY = 0.43
-                if (player == 29)
+                if (waited == 29)
                     player.setPosition(player.posX, player.posY + 0.5, player.posZ)
                 if (waited >= 30)
                     waited = 0

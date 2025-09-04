@@ -107,11 +107,11 @@ object AutoSoup : Module("AutoSoup", Category.COMBAT) {
 
         if (soupInInventory != null && InventoryUtils.hasSpaceInHotbar()) {
             if (isFirstInventoryClick && !startTimer.hasTimePassed(startDelay)) {
-                // GuiInventory checks, have to be put separately due to problem with reseting timer.
+                // GuiInventory checks have to be put separately due to problems with resetting timer.
                 if (mc.currentScreen is GuiInventory)
                     return@handler
             } else {
-                // GuiInventory checks, have to be put separately due to problem with reseting timer.
+                // GuiInventory checks have to be put separately due to problems with resetting timer.
                 if (mc.currentScreen is GuiInventory)
                     isFirstInventoryClick = false
 
@@ -126,7 +126,7 @@ object AutoSoup : Module("AutoSoup", Category.COMBAT) {
             if (simulateInventory)
                 serverOpenInventory = true
 
-            mc.playerController.windowClick(0, soupInInventory, 0, 1, thePlayer)
+            mc.playerController.windowClick(0, soupInInventory, 0, 1, player)
 
             if (simulateInventory && mc.currentScreen !is GuiInventory)
                 serverOpenInventory = false
@@ -141,7 +141,7 @@ object AutoSoup : Module("AutoSoup", Category.COMBAT) {
             if (!autoCloseNoSoup && soupInInventory == null) return@handler
 
             if (mc.currentScreen is GuiInventory) {
-                mc.thePlayer?.closeScreen()
+                player?.closeScreen()
             }
 
             closeTimer.reset()

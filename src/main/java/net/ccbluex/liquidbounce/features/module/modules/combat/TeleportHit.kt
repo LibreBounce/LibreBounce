@@ -46,7 +46,7 @@ object TeleportHit : Module("TeleportHit", Category.COMBAT) {
 
             if (player.fallDistance > 0F) {
                 val rotationVector: Vec3 = RotationUtils.getVectorForRotation(player.rotationYaw, 0f)
-                val x = player.posX + rotationVector.xCoord * (playerr.getDistanceToEntity(it) - 1f)
+                val x = player.posX + rotationVector.xCoord * (player.getDistanceToEntity(it) - 1f)
                 val z = player.posZ + rotationVector.zCoord * (player.getDistanceToEntity(it) - 1f)
                 val y = it.posY + 0.25
 

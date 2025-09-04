@@ -127,7 +127,7 @@ object AntiVoid : Module("AntiVoid", Category.MOVEMENT) {
         }
 
         if (mode == "Blink") {
-            val simPlayer = SimulatedPlayer.fromClientPlayer(thePlayer.movementInput)
+            val simPlayer = SimulatedPlayer.fromClientPlayer(player.movementInput)
 
             repeat(20) {
                 simPlayer.tick()
