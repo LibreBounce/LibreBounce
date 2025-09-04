@@ -20,31 +20,31 @@ import kotlin.math.sin
 
 object AACHop3313 : SpeedMode("AACHop3.3.13") {
     override fun onUpdate() {
-        val thePlayer = mc.thePlayer ?: return
+        val player = mc.thePlayer ?: return
 
-        if (!thePlayer.isMoving || thePlayer.isInLiquid ||
-            thePlayer.isOnLadder || thePlayer.isRiding || thePlayer.hurtTime > 0
+        if (!player.isMoving || player.isInLiquid ||
+            player.isOnLadder || player.isRiding || player.hurtTime > 0
         ) return
-        if (thePlayer.onGround && thePlayer.isCollidedVertically) {
+        if (player.onGround && player.isCollidedVertically) {
             // MotionXYZ
-            val yawRad = thePlayer.rotationYaw.toRadians()
-            thePlayer.motionX -= sin(yawRad) * 0.202f
-            thePlayer.motionZ += cos(yawRad) * 0.202f
-            thePlayer.motionY = 0.405
+            val yawRad = player.rotationYaw.toRadians()
+            player.motionX -= sin(yawRad) * 0.202f
+            player.motionZ += cos(yawRad) * 0.202f
+            player.motionY = 0.405
             call(JumpEvent(0.405f, EventState.PRE))
             strafe()
-        } else if (thePlayer.fallDistance < 0.31f) {
-            if (thePlayer.position.block is BlockCarpet) // why?
+        } else if (player.fallDistance < 0.31f) {
+            if (player.position.block is BlockCarpet) // why?
                 return
 
             // Motion XZ
-            thePlayer.jumpMovementFactor = if (thePlayer.moveStrafing == 0f) 0.027f else 0.021f
-            thePlayer.motionX *= 1.001
-            thePlayer.motionZ *= 1.001
+            player.jumpMovementFactor = if (player.moveStrafing == 0f) 0.027f else 0.021f
+            player.motionX *= 1.001
+            player.motionZ *= 1.001
 
             // Motion Y
-            if (!thePlayer.isCollidedHorizontally) thePlayer.motionY -= 0.014999993f
-        } else thePlayer.jumpMovementFactor = 0.02f
+            if (!player.isCollidedHorizontally) player.motionY -= 0.014999993f
+        } else player.jumpMovementFactor = 0.02f
     }
 
     override fun onDisable() {

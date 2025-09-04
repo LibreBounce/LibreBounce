@@ -22,13 +22,13 @@ object KeepAlive : Module("KeepAlive", Category.PLAYER) {
     private var runOnce = false
 
     val onMotion = handler<MotionEvent> {
-        val thePlayer = mc.thePlayer ?: return@handler
+        val player = mc.thePlayer ?: return@handler
 
-        if (thePlayer.isDead || thePlayer.health <= 0) {
+        if (player.isDead || player.health <= 0) {
             if (runOnce) return@handler
 
             when (mode.lowercase()) {
-                "/heal" -> thePlayer.sendChatMessage("/heal")
+                "/heal" -> player.sendChatMessage("/heal")
                 "soup" -> {
                     val soupInHotbar = InventoryUtils.findItem(36, 44, Items.mushroom_stew)
 
@@ -40,7 +40,7 @@ object KeepAlive : Module("KeepAlive", Category.PLAYER) {
                             render = false,
                             resetManually = true
                         )
-                        sendPacket(C08PacketPlayerBlockPlacement(thePlayer.heldItem))
+                        sendPacket(C08PacketPlayerBlockPlacement(player.heldItem))
                         SilentHotbar.resetSlot(this)
                     }
                 }

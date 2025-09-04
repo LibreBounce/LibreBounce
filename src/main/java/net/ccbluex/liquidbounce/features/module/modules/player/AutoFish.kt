@@ -17,12 +17,12 @@ object AutoFish : Module("AutoFish", Category.PLAYER, subjective = true, gameDet
     private val rodOutTimer = MSTimer()
 
     val onUpdate = handler<UpdateEvent> {
-        val thePlayer = mc.thePlayer
+        val player = mc.thePlayer
 
-        if (thePlayer?.heldItem == null || mc.thePlayer.heldItem.item !is ItemFishingRod)
+        if (player?.heldItem == null || player.heldItem.item !is ItemFishingRod)
             return@handler
 
-        val fishEntity = thePlayer.fishEntity
+        val fishEntity = player.fishEntity
 
         if (rodOutTimer.hasTimePassed(500) && fishEntity == null || (fishEntity != null && fishEntity.motionX == 0.0 && fishEntity.motionZ == 0.0 && fishEntity.motionY != 0.0)) {
             mc.rightClickMouse()

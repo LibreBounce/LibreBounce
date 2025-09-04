@@ -15,26 +15,29 @@ object Frame : SpeedMode("Frame") {
     private var motionTicks = 0
     private var move = false
     private val tickTimer = TickTimer()
+
     override fun onMotion() {
-        if (mc.thePlayer.isMoving) {
+        val player = mc.thePlayer
+
+        if (player.isMoving) {
             val speed = 4.25
-            if (mc.thePlayer.onGround) {
-                mc.thePlayer.tryJump()
+            if (player.onGround) {
+                player.tryJump()
                 if (motionTicks == 1) {
                     tickTimer.reset()
                     if (move) {
-                        mc.thePlayer.motionX = 0.0
-                        mc.thePlayer.motionZ = 0.0
+                        player.motionX = 0.0
+                        player.motionZ = 0.0
                         move = false
                     }
                     motionTicks = 0
                 } else motionTicks = 1
             } else if (!move && motionTicks == 1 && tickTimer.hasTimePassed(5)) {
-                mc.thePlayer.motionX *= speed
-                mc.thePlayer.motionZ *= speed
+                player.motionX *= speed
+                player.motionZ *= speed
                 move = true
             }
-            if (!mc.thePlayer.onGround) strafe()
+            if (!player.onGround) strafe()
             tickTimer.update()
         }
     }

@@ -39,15 +39,15 @@ object Regen : Module("Regen", Category.PLAYER) {
             resetTimer = false
         }
 
-        val thePlayer = mc.thePlayer ?: return@handler
+        val player = mc.thePlayer ?: return@handler
 
         if (
             !mc.playerController.gameIsSurvivalOrAdventure()
             || noAir && !serverOnGround
-            || thePlayer.foodStats.foodLevel <= food
-            || !thePlayer.isEntityAlive
-            || thePlayer.health >= health
-            || (potionEffect && !thePlayer.isPotionActive(Potion.regeneration))
+            || player.foodStats.foodLevel <= food
+            || !player.isEntityAlive
+            || player.health >= health
+            || (potionEffect && !player.isPotionActive(Potion.regeneration))
             || !timer.hasTimePassed(delay)
         ) return@handler
 
@@ -59,7 +59,7 @@ object Regen : Module("Regen", Category.PLAYER) {
             }
 
             "spartan" -> {
-                if (!thePlayer.isMoving && serverOnGround) {
+                if (!player.isMoving && serverOnGround) {
                     repeat(9) {
                         sendPacket(C03PacketPlayer(serverOnGround))
                     }

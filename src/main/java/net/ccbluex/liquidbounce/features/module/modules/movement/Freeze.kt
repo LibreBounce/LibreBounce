@@ -22,14 +22,14 @@ object Freeze : Module("Freeze", Category.MOVEMENT) {
     private var z = 0.0
 
     override fun onEnable() {
-        mc.thePlayer ?: return
+        val player = mc.thePlayer ?: return
 
-        x = mc.thePlayer.posX
-        y = mc.thePlayer.posY
-        z = mc.thePlayer.posZ
-        motionX = mc.thePlayer.motionX
-        motionY = mc.thePlayer.motionY
-        motionZ = mc.thePlayer.motionZ
+        x = player.posX
+        y = player.posY
+        z = player.posZ
+        motionX = player.motionX
+        motionY = player.motionY
+        motionZ = player.motionZ
     }
 
     val onUpdate = handler<UpdateEvent> {

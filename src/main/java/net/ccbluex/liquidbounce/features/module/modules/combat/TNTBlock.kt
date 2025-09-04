@@ -25,7 +25,7 @@ object TNTBlock : Module("TNTBlock", Category.COMBAT, spacedName = "TNT Block") 
         .filter { mc.thePlayer.getDistanceSqToEntity(it) <= range * range }
 
     val onMotion = handler<MotionEvent> {
-        val thePlayer = mc.thePlayer ?: return@handler
+        val player = mc.thePlayer ?: return@handler
         val theWorld = mc.theWorld ?: return@handler
 
         for (entity in entities) {
@@ -33,7 +33,7 @@ object TNTBlock : Module("TNTBlock", Category.COMBAT, spacedName = "TNT Block") 
                 var slot = -1
                 var bestDamage = 1f
                 for (i in 0..8) {
-                    val itemStack = thePlayer.inventory.getStackInSlot(i)
+                    val itemStack = player.inventory.getStackInSlot(i)
 
                     if (itemStack?.item is ItemSword) {
                         val itemDamage = (itemStack.item as ItemSword).damageVsEntity + 4F
@@ -45,13 +45,13 @@ object TNTBlock : Module("TNTBlock", Category.COMBAT, spacedName = "TNT Block") 
                     }
                 }
 
-                if (slot != -1 && slot != thePlayer.inventory.currentItem) {
-                    thePlayer.inventory.currentItem = slot
+                if (slot != -1 && slot != player.inventory.currentItem) {
+                    player.inventory.currentItem = slot
                     mc.playerController.syncCurrentPlayItem()
                 }
             }
 
-            if (mc.thePlayer.heldItem?.item is ItemSword) {
+            if (player.heldItem?.item is ItemSword) {
                 mc.gameSettings.keyBindUseItem.pressed = true
                 blocked = true
             }

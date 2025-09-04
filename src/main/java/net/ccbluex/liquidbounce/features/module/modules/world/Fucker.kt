@@ -339,10 +339,10 @@ object Fucker : Module("Fucker", Category.WORLD) {
      * Checks if the block is hittable (or allowed to be hit through walls)
      */
     private fun isHittable(blockPos: BlockPos): Boolean {
-        val thePlayer = mc.thePlayer ?: return false
+        val player = mc.thePlayer ?: return false
         return when (throughWalls.lowercase()) {
             "raycast" -> {
-                val eyesPos = thePlayer.eyes
+                val eyesPos = player.eyes
                 val movingObjectPosition = mc.theWorld.rayTraceBlocks(eyesPos, blockPos.center, false, true, false)
                 movingObjectPosition != null && movingObjectPosition.blockPos == blockPos
             }

@@ -21,12 +21,12 @@ object AutoBow : Module("AutoBow", Category.COMBAT, subjective = true) {
     private val waitForBowAimbot by boolean("WaitForBowAimbot", true)
 
     val onUpdate = handler<UpdateEvent> {
-        val thePlayer = mc.thePlayer
+        val player = mc.thePlayer
 
-        if (thePlayer.isUsingItem && thePlayer.heldItem?.item is ItemBow && thePlayer.itemInUseDuration > 20
+        if (player.isUsingItem && player.heldItem?.item is ItemBow && player.itemInUseDuration > 20
             && (!waitForBowAimbot || !ProjectileAimbot.handleEvents() || ProjectileAimbot.hasTarget())
         ) {
-            thePlayer.stopUsingItem()
+            player.stopUsingItem()
             sendPacket(C07PacketPlayerDigging(RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN))
         }
     }

@@ -77,48 +77,48 @@ object AntiVoid : Module("AntiVoid", Category.MOVEMENT) {
     val onUpdate = handler<UpdateEvent> {
         detectedLocation = null
 
-        val thePlayer = mc.thePlayer ?: return@handler
+        val player = mc.thePlayer ?: return@handler
 
-        if (thePlayer.onGround && BlockPos(thePlayer).down().block !is BlockAir) {
-            prevX = thePlayer.prevPosX
-            prevY = thePlayer.prevPosY
-            prevZ = thePlayer.prevPosZ
+        if (player.onGround && BlockPos(player).down().block !is BlockAir) {
+            prevX = player.prevPosX
+            prevY = player.prevPosY
+            prevZ = player.prevPosZ
             shouldSimulateBlock = false
         }
 
-        if (!thePlayer.onGround && !thePlayer.isOnLadder && !thePlayer.isInWater) {
-            val fallingPlayer = FallingPlayer(thePlayer)
+        if (!player.onGround && !player.isOnLadder && !player.isInWater) {
+            val fallingPlayer = FallingPlayer(player)
 
             detectedLocation = fallingPlayer.findCollision(60)?.pos
 
-            if (detectedLocation != null && abs(thePlayer.posY - detectedLocation!!.y) +
-                thePlayer.fallDistance <= maxFallDistance
+            if (detectedLocation != null && abs(player.posY - detectedLocation!!.y) +
+                player.fallDistance <= maxFallDistance
             ) {
-                lastFound = thePlayer.fallDistance
+                lastFound = player.fallDistance
             }
 
-            if (thePlayer.fallDistance - lastFound > maxDistanceWithoutGround) {
+            if (player.fallDistance - lastFound > maxDistanceWithoutGround) {
                 when (mode.lowercase()) {
                     "teleportback" -> {
-                        thePlayer.setPositionAndUpdate(prevX, prevY, prevZ)
-                        thePlayer.fallDistance = 0F
-                        thePlayer.motionY = 0.0
+                        player.setPositionAndUpdate(prevX, prevY, prevZ)
+                        player.fallDistance = 0F
+                        player.motionY = 0.0
                     }
 
                     "flyflag" -> {
-                        thePlayer.motionY += 0.1
-                        thePlayer.fallDistance = 0F
+                        player.motionY += 0.1
+                        player.fallDistance = 0F
                     }
 
                     "ongroundspoof" -> sendPacket(C03PacketPlayer(true))
 
                     "motionteleport-flag" -> {
-                        thePlayer.setPositionAndUpdate(thePlayer.posX, thePlayer.posY + 1f, thePlayer.posZ)
-                        sendPacket(C04PacketPlayerPosition(thePlayer.posX, thePlayer.posY, thePlayer.posZ, true))
-                        thePlayer.motionY = 0.1
+                        player.setPositionAndUpdate(player.posX, player.posY + 1f, player.posZ)
+                        sendPacket(C04PacketPlayerPosition(player.posX, player.posY, player.posZ, true))
+                        player.motionY = 0.1
 
                         strafe()
-                        thePlayer.fallDistance = 0f
+                        player.fallDistance = 0f
                     }
 
                     "ghostblock" -> shouldSimulateBlock = true
@@ -138,7 +138,7 @@ object AntiVoid : Module("AntiVoid", Category.MOVEMENT) {
                 return@handler
             }
 
-            if (thePlayer.fallDistance < 1.5f && !simPlayer.onGround && simPlayer.fallDistance >= maxFallDistance) {
+            if (player.fallDistance < 1.5f && !simPlayer.onGround && simPlayer.fallDistance >= maxFallDistance) {
                 shouldBlink = true
             } else if (BlinkUtils.isBlinking) {
                 WaitTickUtils.schedule(blinkDelay) {
@@ -211,10 +211,10 @@ object AntiVoid : Module("AntiVoid", Category.MOVEMENT) {
     }
 
     val onRender3D = handler<Render3DEvent> {
-        val thePlayer = mc.thePlayer ?: return@handler
+        val player = mc.thePlayer ?: return@handler
 
         if (detectedLocation == null || !indicator ||
-            thePlayer.fallDistance + (thePlayer.posY - (detectedLocation!!.y + 1)) < 3
+            player.fallDistance + (player.posY - (detectedLocation!!.y + 1)) < 3
         ) return@handler
 
         val (x, y, z) = detectedLocation ?: return@handler
@@ -245,7 +245,7 @@ object AntiVoid : Module("AntiVoid", Category.MOVEMENT) {
         glDepthMask(true)
         glDisable(GL_BLEND)
 
-        val fallDist = floor(thePlayer.fallDistance + (thePlayer.posY - (y + 0.5))).toInt()
+        val fallDist = floor(player.fallDistance + (player.posY - (y + 0.5))).toInt()
 
         renderNameTag("${fallDist}m (~${max(0, fallDist - 3)} damage)", x + 0.5, y + 1.7, z + 0.5)
 

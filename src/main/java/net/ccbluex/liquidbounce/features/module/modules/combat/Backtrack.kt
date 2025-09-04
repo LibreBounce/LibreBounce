@@ -72,11 +72,11 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
 
     // ESP
     private val espMode by choices(
-        "ESP-Mode",
+        "ESPMode",
         arrayOf("None", "Box", "Model", "Wireframe"),
         "Box"
     ) { mode == "Modern" }.subjective()
-    private val wireframeWidth by float("WireFrame-Width", 1f, 0.5f..5f) { espMode == "Wireframe" }
+    private val wireframeWidth by float("WireFrameWidth", 1f, 0.5f..5f) { espMode == "Wireframe" }
 
     private val espColor =
         ColorSettingsInteger(this, "ESPColor") { espMode != "Model" && mode == "Modern" }.with(0, 255, 0)

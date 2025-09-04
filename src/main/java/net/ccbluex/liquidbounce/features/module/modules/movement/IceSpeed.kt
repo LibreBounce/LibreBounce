@@ -34,33 +34,33 @@ object IceSpeed : Module("IceSpeed", Category.MOVEMENT) {
             Blocks.packed_ice.slipperiness = 0.98f
         }
 
-        val thePlayer = mc.thePlayer ?: return@handler
+        val player = mc.thePlayer ?: return@handler
 
-        if (!thePlayer.onGround || thePlayer.isOnLadder || thePlayer.isSneaking || !thePlayer.isSprinting || !thePlayer.isMoving) {
+        if (!player.onGround || player.isOnLadder || player.isSneaking || !player.isSprinting || !player.isMoving) {
             return@handler
         }
 
-        if (thePlayer.position.down().block.let { it != Blocks.ice && it != Blocks.packed_ice }) {
+        if (player.position.down().block.let { it != Blocks.ice && it != Blocks.packed_ice }) {
             return@handler
         }
 
         when (mode) {
             "AAC" -> {
-                thePlayer.motionX *= 1.342
-                thePlayer.motionZ *= 1.342
+                player.motionX *= 1.342
+                player.motionZ *= 1.342
                 Blocks.ice.slipperiness = 0.6f
                 Blocks.packed_ice.slipperiness = 0.6f
             }
 
             "Spartan" -> {
-                val upBlock = BlockPos(thePlayer).up(2).block
+                val upBlock = BlockPos(player).up(2).block
 
                 if (upBlock != Blocks.air) {
-                    thePlayer.motionX *= 1.342
-                    thePlayer.motionZ *= 1.342
+                    player.motionX *= 1.342
+                    player.motionZ *= 1.342
                 } else {
-                    thePlayer.motionX *= 1.18
-                    thePlayer.motionZ *= 1.18
+                    player.motionX *= 1.18
+                    player.motionZ *= 1.18
                 }
 
                 Blocks.ice.slipperiness = 0.6f

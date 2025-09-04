@@ -20,9 +20,9 @@ object AutoLeave : Module("AutoLeave", Category.COMBAT, subjective = true) {
     private val mode by choices("Mode", arrayOf("Quit", "InvalidPacket", "SelfHurt", "IllegalChat"), "Quit")
 
     val onUpdate = handler<UpdateEvent> {
-        val thePlayer = mc.thePlayer ?: return@handler
+        val player = mc.thePlayer ?: return@handler
 
-        if (thePlayer.health <= health && !thePlayer.capabilities.isCreativeMode && !mc.isIntegratedServerRunning) {
+        if (player.health <= health && !player.capabilities.isCreativeMode && !mc.isIntegratedServerRunning) {
             when (mode.lowercase()) {
                 "quit" -> mc.theWorld.sendQuittingDisconnectingPacket()
                 "invalidpacket" -> sendPacket(
@@ -30,12 +30,12 @@ object AutoLeave : Module("AutoLeave", Category.COMBAT, subjective = true) {
                         Double.NaN,
                         Double.NEGATIVE_INFINITY,
                         Double.POSITIVE_INFINITY,
-                        !mc.thePlayer.onGround
+                        !player.onGround
                     )
                 )
 
-                "selfhurt" -> sendPacket(C02PacketUseEntity(mc.thePlayer, ATTACK))
-                "illegalchat" -> thePlayer.sendChatMessage(nextInt().toString() + "§§§" + nextInt())
+                "selfhurt" -> sendPacket(C02PacketUseEntity(player, ATTACK))
+                "illegalchat" -> player.sendChatMessage(nextInt().toString() + "§§§" + nextInt())
             }
 
             state = false

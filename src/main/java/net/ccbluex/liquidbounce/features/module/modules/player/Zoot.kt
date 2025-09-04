@@ -20,14 +20,14 @@ object Zoot : Module("Zoot", Category.PLAYER) {
     private val noAir by boolean("NoAir", false)
 
     val onUpdate = handler<UpdateEvent> {
-        val thePlayer = mc.thePlayer ?: return@handler
+        val player = mc.thePlayer ?: return@handler
 
         if (noAir && !serverOnGround)
             return@handler
 
         if (badEffects) {
 
-            val effect = thePlayer.activePotionEffects
+            val effect = player.activePotionEffects
                 .filter { it.potionID in NEGATIVE_EFFECT_IDS }
                 .maxByOrNull { it.duration }
 
@@ -39,7 +39,7 @@ object Zoot : Module("Zoot", Category.PLAYER) {
         }
 
 
-        if (fire && mc.playerController.gameIsSurvivalOrAdventure() && thePlayer.isBurning) {
+        if (fire && mc.playerController.gameIsSurvivalOrAdventure() && player.isBurning) {
             repeat(9) {
                 sendPacket(C03PacketPlayer(serverOnGround))
             }

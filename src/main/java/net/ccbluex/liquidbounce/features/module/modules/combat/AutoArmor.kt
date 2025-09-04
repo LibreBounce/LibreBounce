@@ -74,12 +74,12 @@ object AutoArmor : Module("AutoArmor", Category.COMBAT) {
             return
         }
 
-        val thePlayer = mc.thePlayer ?: return
+        val player = mc.thePlayer ?: return
 
         var hasClickedHotbar = false
 
         val stacks = withContext(Dispatchers.Main) {
-            thePlayer.openContainer.inventorySlots.map { it.stack }
+            player.openContainer.inventorySlots.map { it.stack }
         }
 
         val bestArmorSet = getBestArmorSet(stacks) ?: return
@@ -99,7 +99,7 @@ object AutoArmor : Module("AutoArmor", Category.COMBAT) {
             val armorPos = getArmorPosition(stack) - 1
 
             // Check if target armor slot isn't occupied
-            if (thePlayer.inventory.armorInventory[armorPos] != null)
+            if (player.inventory.armorInventory[armorPos] != null)
                 continue
 
             hasClickedHotbar = true
@@ -120,8 +120,8 @@ object AutoArmor : Module("AutoArmor", Category.COMBAT) {
                 sendPacket(C08PacketPlayerBlockPlacement(stack))
 
                 // Instantly update inventory on client-side to prevent repetitive clicking because of ping
-                thePlayer.inventory.armorInventory[armorPos] = stack
-                thePlayer.inventory.mainInventory[hotbarIndex] = null
+                player.inventory.armorInventory[armorPos] = stack
+                player.inventory.mainInventory[hotbarIndex] = null
             }
 
             // Schedule hotbar click
@@ -148,7 +148,7 @@ object AutoArmor : Module("AutoArmor", Category.COMBAT) {
             return
         }
 
-        val thePlayer = mc.thePlayer ?: return
+        val player = mc.thePlayer ?: return
 
         for (armorType in 0..3) {
             if (!shouldOperate()) {
@@ -158,7 +158,7 @@ object AutoArmor : Module("AutoArmor", Category.COMBAT) {
             }
 
             val stacks = withContext(Dispatchers.Main) {
-                thePlayer.openContainer.inventorySlots.map { it.stack }
+                player.openContainer.inventorySlots.map { it.stack }
             }
 
             val armorSet = getBestArmorSet(stacks) ?: continue

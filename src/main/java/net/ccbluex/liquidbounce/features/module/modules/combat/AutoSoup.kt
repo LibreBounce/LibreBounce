@@ -49,17 +49,17 @@ object AutoSoup : Module("AutoSoup", Category.COMBAT) {
         get() = health.toString()
 
     val onGameTick = handler<GameTickEvent>(priority = -1) {
-        val thePlayer = mc.thePlayer ?: return@handler
+        val player = mc.thePlayer ?: return@handler
 
         if (!timer.hasTimePassed(delay))
             return@handler
 
         val soupInHotbar = InventoryUtils.findItem(36, 44, Items.mushroom_stew)
 
-        if (thePlayer.health <= health && soupInHotbar != null) {
+        if (player.health <= health && soupInHotbar != null) {
             SilentHotbar.selectSlotSilently(this, soupInHotbar, 1, true)
 
-            thePlayer.sendUseItem(thePlayer.inventory.mainInventory[SilentHotbar.currentSlot])
+            player.sendUseItem(player.inventory.mainInventory[SilentHotbar.currentSlot])
 
             // Schedule slot switch the next tick as we violate vanilla logic if we do it now.
             nextTick {
@@ -87,7 +87,7 @@ object AutoSoup : Module("AutoSoup", Category.COMBAT) {
             var bowlMovable = false
 
             for (i in 9..36) {
-                val itemStack = thePlayer.inventory.getStackInSlot(i)
+                val itemStack = player.inventory.getStackInSlot(i)
 
                 if (itemStack == null || (itemStack.item == Items.bowl && itemStack.stackSize < 64)) {
                     bowlMovable = true
@@ -99,7 +99,7 @@ object AutoSoup : Module("AutoSoup", Category.COMBAT) {
                 if (simulateInventory)
                     serverOpenInventory = true
 
-                mc.playerController.windowClick(0, bowlInHotbar, 0, 1, thePlayer)
+                mc.playerController.windowClick(0, bowlInHotbar, 0, 1, player)
             }
         }
 

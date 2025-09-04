@@ -17,7 +17,7 @@ object AvoidHazards : Module("AvoidHazards", Category.WORLD) {
     private val snow by boolean("Snow", true)
 
     val onBlockBB = handler<BlockBBEvent> { e ->
-        val thePlayer = mc.thePlayer ?: return@handler
+        val player = mc.thePlayer ?: return@handler
 
         when (e.block) {
             Blocks.fire -> if (!fire) return@handler
@@ -30,7 +30,7 @@ object AvoidHazards : Module("AvoidHazards", Category.WORLD) {
 
             Blocks.water, Blocks.flowing_water ->
                 // Don't prevent water from cancelling fall damage.
-                if (!water || thePlayer.fallDistance >= 3.34627 || thePlayer.isInWater) return@handler
+                if (!water || player.fallDistance >= 3.34627 || player.isInWater) return@handler
 
             Blocks.lava, Blocks.flowing_lava -> if (!lava) return@handler
 

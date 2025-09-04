@@ -24,12 +24,12 @@ object Eagle : Module("Eagle", Category.PLAYER) {
     private val sneakTimer = TickTimer()
 
     val onUpdate = handler<UpdateEvent> {
-        val thePlayer = mc.thePlayer ?: return@handler
+        val player = mc.thePlayer ?: return@handler
 
         if (GameSettings.isKeyDown(mc.gameSettings.keyBindSneak)) return@handler
 
-        if (thePlayer.onGround && BlockPos(thePlayer).down().block == air) {
-            val shouldSneak = !onlyWhenLookingDown || thePlayer.rotationPitch >= lookDownThreshold
+        if (player.onGround && BlockPos(player).down().block == air) {
+            val shouldSneak = !onlyWhenLookingDown || player.rotationPitch >= lookDownThreshold
 
             mc.gameSettings.keyBindSneak.pressed = shouldSneak && !GameSettings.isKeyDown(mc.gameSettings.keyBindSneak)
         } else {

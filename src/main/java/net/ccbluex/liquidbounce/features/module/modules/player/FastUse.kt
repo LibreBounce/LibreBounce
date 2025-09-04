@@ -30,7 +30,7 @@ object FastUse : Module("FastUse", Category.PLAYER) {
     private var usedTimer = false
 
     val onUpdate = handler<UpdateEvent> {
-        val thePlayer = mc.thePlayer ?: return@handler
+        val player = mc.thePlayer ?: return@handler
 
         if (usedTimer) {
             mc.timer.timerSpeed = 1F
@@ -48,15 +48,15 @@ object FastUse : Module("FastUse", Category.PLAYER) {
                     sendPacket(C03PacketPlayer(serverOnGround))
                 }
 
-                mc.playerController.onStoppedUsingItem(thePlayer)
+                mc.playerController.onStoppedUsingItem(player)
             }
 
-            "ncp" -> if (thePlayer.itemInUseDuration > 14) {
+            "ncp" -> if (player.itemInUseDuration > 14) {
                 repeat(20) {
                     sendPacket(C03PacketPlayer(serverOnGround))
                 }
 
-                mc.playerController.onStoppedUsingItem(thePlayer)
+                mc.playerController.onStoppedUsingItem(player)
             }
 
             "aac" -> {

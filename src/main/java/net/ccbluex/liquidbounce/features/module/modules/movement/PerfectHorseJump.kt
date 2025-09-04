@@ -16,6 +16,6 @@ object PerfectHorseJump : Module("PerfectHorseJump", Category.MOVEMENT, subjecti
         val player = mc.thePlayer ?: return@handler
 
         player.horseJumpPowerCounter = 9
-        playr.horseJumpPower = 1f
+        player.horseJumpPower = 1f
     }
 }

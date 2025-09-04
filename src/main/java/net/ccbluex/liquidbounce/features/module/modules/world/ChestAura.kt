@@ -106,11 +106,11 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
         if (Blink.handleEvents() || KillAura.isBlockingChestAura || !timer.hasTimePassed(delay))
             return@handler
 
-        val thePlayer = mc.thePlayer ?: return@handler
+        val player = mc.thePlayer ?: return@handler
 
         // Check if there is an opponent in range
         if (mc.theWorld.loadedEntityList.any {
-                isSelected(it, true) && thePlayer.getDistanceSqToEntity(it) < minDistanceFromOpponentSq
+                isSelected(it, true) && player.getDistanceSqToEntity(it) < minDistanceFromOpponentSq
             }) return@handler
 
         if (serverOpenContainer && tileTarget != null) {
@@ -119,7 +119,7 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
             return@handler
         }
 
-        val eyes = thePlayer.eyes
+        val eyes = player.eyes
         val (eyeX, eyeY, eyeZ) = eyes
 
         mc.theWorld.tickableTileEntities
