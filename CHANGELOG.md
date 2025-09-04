@@ -9,7 +9,6 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 ### Added
 
 - `LegitimizeHorizontalJitter`, `LegitimizeVerticalJitter`, `LegitimizeHorizontalSlowdown` and `LegitimizeVerticalSlowdown` values to all rotation modules; previously hardcoded (thatonecoder)
-- `TitleFont`, `DescriptionFont`, and `ShowIcon` to Notifications (thatonecoder)
 - `OnWeb` and `OnLiquid` options to SuperKnockback (thatonecoder)
 
 ### Fixed

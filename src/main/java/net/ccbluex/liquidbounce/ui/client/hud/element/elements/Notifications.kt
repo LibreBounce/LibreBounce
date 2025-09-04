@@ -34,9 +34,6 @@ class Notifications(
     x: Double = 0.0, y: Double = 30.0, scale: Float = 1F, side: Side = Side(Side.Horizontal.RIGHT, Side.Vertical.DOWN)
 ) : Element("Notifications", x, y, scale, side) {
 
-    val titleFont by font("TitleFont", Fonts.fontSemibold40)
-    val descriptionFont by font("DescriptionFont", Fonts.fontSemibold35)
-    val showIcon by boolean("ShowIcon", true)
     val horizontalFade by choices("HorizontalFade", arrayOf("InOnly", "OutOnly", "Both", "None"), "OutOnly")
     val padding by int("Padding", 5, 1..20)
     val roundRadius by float("RoundRadius", 3f, 0f..10f)
@@ -75,7 +72,7 @@ class Notifications(
             }
 
             exampleNotification.fadeState = Notification.FadeState.STAY
-            exampleNotification.textLength = titleFont.getStringWidth(exampleNotification.longestString)
+            exampleNotification.textLength = Fonts.fontSemibold40.getStringWidth(exampleNotification.longestString)
 
             val notificationHeight = Notification.MAX_HEIGHT
 
@@ -104,15 +101,13 @@ class Notification(
     var severityType: Notifications.SeverityType = Notifications.SeverityType.INFO
 ) {
     var x = 0F
-    val titleFont
-    val descriptionFont
 
     // Spawn the notification 32 pixels above the last one - if exists.
     var y: Float = (notifications.lastOrNull()?.y ?: 0F) + MAX_HEIGHT * 2
     var textLength = 0
 
     val longestString
-        get() = arrayOf(title, description).maxBy { titleFont.getStringWidth(it) }
+        get() = arrayOf(title, description).maxBy { Fonts.fontSemibold40.getStringWidth(it) }
 
     private var stay = delay
     private var fadeStep = 0F
@@ -132,7 +127,7 @@ class Notification(
         this.title = title
         this.description = description
 
-        textLength = titleFont.getStringWidth(longestString)
+        textLength = Fonts.fontSemibold40.getStringWidth(longestString)
         maxTextLength = maxOf(textLength, maxTextLength)
 
         notifications.sortBy { it.stay }
@@ -161,15 +156,13 @@ class Notification(
     }
 
     init {
-        textLength = titleFont.getStringWidth(longestString)
+        textLength = Fonts.fontSemibold40.getStringWidth(longestString)
         maxTextLength = maxOf(maxTextLength, textLength)
     }
 
     fun drawNotification(element: Notifications): Boolean {
         val notificationWidth = maxTextLength + ICON_SIZE + 16F
         val extraSpace = 4F
-        titleFont = element.titleFont
-        descriptionFont = element.descriptionFont
 
         val currentX = when (fadeState) {
             FadeState.IN -> if (element.horizontalFade in arrayOf("InOnly", "Both")) x else notificationWidth
@@ -193,16 +186,14 @@ class Notification(
 
         val nearTopSpot = -y - MAX_HEIGHT + 10
 
-        titleFont.drawString(title, ICON_SIZE + 8F - currentX, nearTopSpot - 5, Color.WHITE.rgb)
-        descriptionFont.drawString(
-            description, ICON_SIZE + 8F - currentX, nearTopSpot + titleFont.fontHeight - 2, Int.MAX_VALUE
+        Fonts.fontSemibold40.drawString(title, ICON_SIZE + 8F - currentX, nearTopSpot - 5, Color.WHITE.rgb)
+        Fonts.fontSemibold35.drawString(
+            description, ICON_SIZE + 8F - currentX, nearTopSpot + Fonts.fontSemibold40.fontHeight - 2, Int.MAX_VALUE
         )
 
-        if (element.showIcon) {
-            RenderUtils.drawImage(
-                severityType.path, -currentX + 2, -y - MAX_HEIGHT + 4, ICON_SIZE, ICON_SIZE, radius = element.roundRadius
-            )
-        }
+        RenderUtils.drawImage(
+            severityType.path, -currentX + 2, -y - MAX_HEIGHT + 4, ICON_SIZE, ICON_SIZE, radius = element.roundRadius
+        )
 
         val delta = deltaTime
 
