@@ -30,10 +30,7 @@ import kotlin.math.sin
 
 object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
 
-    /**
-     * OPTIONS
-     */
-
+    // TODO: Make this have the same system as Fly, Speed, etc
     private val mode by choices(
         "Mode",
         arrayOf(
@@ -50,10 +47,6 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
     { mode == "Jump" }
 
     private val delay by int("Delay", 0, 0..500)
-
-    /**
-     * VALUES
-     */
 
     private var isStep = false
     private var stepX = 0.0

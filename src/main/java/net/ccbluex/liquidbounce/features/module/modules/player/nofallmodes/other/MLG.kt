@@ -30,7 +30,8 @@ import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.getVectorForRotatio
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.toRotation
 import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
 import net.ccbluex.liquidbounce.utils.timing.WaitTickUtils
-import net.minecraft.init.Blocks
+import net.minecraft.init.Blocks.web
+import net.minecraft.init.Blocks.water
 import net.minecraft.init.Items
 import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemStack
@@ -108,8 +109,8 @@ object MLG : NoFallMode("MLG") {
                         bestOffset?.let {
                             suitablePos = pos.add(it)
 
-                            if (suitablePos?.state?.block == Blocks.web ||
-                                suitablePos?.up()?.block == Blocks.water
+                            if (suitablePos?.state?.block == web ||
+                                suitablePos?.up()?.block == water
                             ) {
                                 return
                             }
@@ -161,7 +162,7 @@ object MLG : NoFallMode("MLG") {
 
         val wasWaterBucket = item == Items.water_bucket
 
-        if (wasWaterBucket || (item as? ItemBlock)?.block == Blocks.web) {
+        if (wasWaterBucket || (item as? ItemBlock)?.block == web) {
             performBlockRaytrace(currRotation, reach)?.let {
                 if (it.blockPos != target || it.sideHit != EnumFacing.UP) {
                     return@let
@@ -318,7 +319,7 @@ object MLG : NoFallMode("MLG") {
 
         player.hotBarSlot(SilentHotbar.currentSlot).stack?.item.let {
             // Already have required item? Why change slot?
-            if (it == bucket || (it as? ItemBlock)?.block in arrayOf(Blocks.web)) {
+            if (it == bucket || (it as? ItemBlock)?.block in arrayOf(web)) {
                 return SilentHotbar.currentSlot
             }
         }
@@ -326,7 +327,7 @@ object MLG : NoFallMode("MLG") {
         for (i in 36..44) {
             val item = player.inventorySlot(i).stack?.item ?: continue
 
-            if (item == bucket || !onlyBucket && (item as? ItemBlock)?.block in arrayOf(Blocks.web)) {
+            if (item == bucket || !onlyBucket && (item as? ItemBlock)?.block in arrayOf(web)) {
                 return i - 36
             }
         }

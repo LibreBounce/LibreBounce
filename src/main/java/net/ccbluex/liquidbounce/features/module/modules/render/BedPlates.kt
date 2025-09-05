@@ -36,7 +36,7 @@ import net.minecraft.block.Block
 import net.minecraft.block.BlockBed
 import net.minecraft.client.gui.Gui
 import net.minecraft.client.renderer.GlStateManager.resetColor
-import net.minecraft.init.Blocks
+import net.minecraft.init.Blocks.bed
 import net.minecraft.item.ItemStack
 import net.minecraft.util.BlockPos
 import net.minecraft.util.Vec3
@@ -122,7 +122,7 @@ object BedPlates : Module("BedPlates", Category.RENDER) {
 
         // Invalidate blocks
         bedStates.keys.removeIf {
-            it.block != Blocks.bed || searchCenter.distanceSq(it) > radiusSq
+            it.block != bed || searchCenter.distanceSq(it) > radiusSq
         }
 
         val maxLayers = maxLayers
@@ -135,14 +135,14 @@ object BedPlates : Module("BedPlates", Category.RENDER) {
                 return@forEach
 
             val blockState = world.getBlockState(it)
-            if (blockState.block != Blocks.bed || blockState.getValue(BlockBed.PART) != BlockBed.EnumPartType.FOOT)
+            if (blockState.block != bed || blockState.getValue(BlockBed.PART) != BlockBed.EnumPartType.FOOT)
                 return@forEach
 
             val facing = blockState.getValue(BlockBed.FACING)
             val headPos = it.offset(facing)
 
             // Invalid Bed
-            if (world.getBlockState(headPos).block != Blocks.bed) {
+            if (world.getBlockState(headPos).block != bed) {
                 return@forEach
             }
 
@@ -164,7 +164,7 @@ object BedPlates : Module("BedPlates", Category.RENDER) {
             }
 
             val surrounding = ArrayList<SurroundingBlock>()
-            surrounding += SurroundingBlock(Blocks.bed, layer = 0, count = 1)
+            surrounding += SurroundingBlock(bed, layer = 0, count = 1)
             layers.forEachIndexed { index, blockCount ->
                 blockCount.forEach { (block, count) ->
                     surrounding += SurroundingBlock(block, layer = index + 1, count = count)

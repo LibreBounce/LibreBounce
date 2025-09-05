@@ -26,7 +26,8 @@ import net.minecraft.entity.ai.attributes.ServersideAttributeMap
 import net.minecraft.entity.item.EntityBoat
 import net.minecraft.entity.item.EntityMinecart
 import net.minecraft.entity.player.PlayerCapabilities
-import net.minecraft.init.Blocks
+import net.minecraft.init.Blocks.stone
+import net.minecraft.init.Blocks.ladder
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.potion.Potion
 import net.minecraft.potion.PotionEffect
@@ -735,7 +736,7 @@ class SimulatedPlayer(
                 val d12 = posX - d0
                 var d13 = posY - d1
                 val d14 = posZ - d2
-                if (block1 !== Blocks.ladder) {
+                if (block1 !== ladder) {
                     d13 = 0.0
                 }
                 if (block1 != null && onGround) {
@@ -1055,7 +1056,7 @@ class SimulatedPlayer(
         val worldborder: WorldBorder = this.getWorldBorder()
         val flag = this.isOutsideBorder
         val flag1 = isInsideBorder(worldborder, flag)
-        val iblockstate = Blocks.stone.defaultState
+        val iblockstate = stone.defaultState
         val blockPos = MutableBlockPos()
         for (k1 in i until j) {
             for (l1 in i1 until j1) {

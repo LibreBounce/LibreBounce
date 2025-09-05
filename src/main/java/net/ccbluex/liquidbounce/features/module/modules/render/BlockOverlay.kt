@@ -20,7 +20,9 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
 import net.minecraft.block.Block
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.renderer.GlStateManager.resetColor
-import net.minecraft.init.Blocks
+import net.minecraft.init.Blocks.air
+import net.minecraft.init.Blocks.lava
+import net.minecraft.init.Blocks.water
 import net.minecraft.util.BlockPos
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
@@ -40,9 +42,9 @@ object BlockOverlay : Module("BlockOverlay", Category.RENDER, gameDetecting = fa
             val blockPos = mc.objectMouseOver?.blockPos ?: return null
 
             if (blockPos.block !in arrayOf(
-                    Blocks.air,
-                    Blocks.water,
-                    Blocks.lava
+                    air,
+                    water,
+                    lava
                 ) && world.worldBorder.contains(blockPos)
             )
                 return blockPos

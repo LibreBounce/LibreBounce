@@ -16,7 +16,7 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.utils.timing.WaitTickUtils
 import net.minecraft.block.BlockBush
-import net.minecraft.init.Blocks
+import net.minecraft.init.Blocks.*
 import net.minecraft.item.Item
 import net.minecraft.item.ItemBlock
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
@@ -58,26 +58,26 @@ object InventoryUtils : MinecraftInstance, Listenable {
     val CLICK_TIMER = MSTimer()
 
     val BLOCK_BLACKLIST = setOf(
-        Blocks.chest,
-        Blocks.ender_chest,
-        Blocks.trapped_chest,
-        Blocks.anvil,
-        Blocks.sand,
-        Blocks.web,
-        Blocks.torch,
-        Blocks.crafting_table,
-        Blocks.furnace,
-        Blocks.waterlily,
-        Blocks.dispenser,
-        Blocks.stone_pressure_plate,
-        Blocks.wooden_pressure_plate,
-        Blocks.noteblock,
-        Blocks.dropper,
-        Blocks.tnt,
-        Blocks.standing_banner,
-        Blocks.wall_banner,
-        Blocks.redstone_torch,
-        Blocks.ladder
+        chest,
+        ender_chest,
+        trapped_chest,
+        anvil,
+        sand,
+        web,
+        torch,
+        crafting_table,
+        furnace,
+        waterlily,
+        dispenser,
+        stone_pressure_plate,
+        wooden_pressure_plate,
+        noteblock,
+        dropper,
+        tnt,
+        standing_banner,
+        wall_banner,
+        redstone_torch,
+        ladder
     )
 
     fun findItemArray(startInclusive: Int, endInclusive: Int, items: Array<Item>): Int? {

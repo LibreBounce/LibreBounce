@@ -12,7 +12,7 @@ import net.minecraft.block.BlockGlass
 import net.minecraft.block.BlockSoulSand
 import net.minecraft.block.BlockStainedGlass
 import net.minecraft.block.state.IBlockState
-import net.minecraft.init.Blocks
+import net.minecraft.init.Blocks.*
 import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.BlockPos
 import net.minecraft.util.ResourceLocation
@@ -158,15 +158,15 @@ object BlockUtils : MinecraftInstance {
      * Bedwars Blocks List
      */
     val BEDWARS_BLOCKS = setOf(
-        Blocks.wool,
-        Blocks.stained_hardened_clay,
-        Blocks.stained_glass,
-        Blocks.planks,
-        Blocks.log,
-        Blocks.log2,
-        Blocks.end_stone,
-        Blocks.obsidian,
-        Blocks.water
+        wool,
+        stained_hardened_clay,
+        stained_glass,
+        planks,
+        log,
+        log2,
+        end_stone,
+        obsidian,
+        water
     )
 
     /**
@@ -174,14 +174,14 @@ object BlockUtils : MinecraftInstance {
      */
     fun getBlockTexture(block: Block): ResourceLocation {
         return when (block) {
-            Blocks.bed -> ResourceLocation("minecraft:textures/items/bed.png")
-            Blocks.obsidian -> ResourceLocation("minecraft:textures/blocks/obsidian.png")
-            Blocks.end_stone -> ResourceLocation("minecraft:textures/blocks/end_stone.png")
-            Blocks.stained_hardened_clay -> ResourceLocation("minecraft:textures/blocks/hardened_clay_stained_white.png")
-            Blocks.stained_glass -> ResourceLocation("minecraft:textures/blocks/glass.png")
-            Blocks.water -> ResourceLocation("minecraft:textures/blocks/water_still.png")
-            Blocks.planks -> ResourceLocation("minecraft:textures/blocks/planks_oak.png")
-            Blocks.wool -> ResourceLocation("minecraft:textures/blocks/wool_colored_white.png")
+            bed -> ResourceLocation("minecraft:textures/items/bed.png")
+            obsidian -> ResourceLocation("minecraft:textures/blocks/obsidian.png")
+            end_stone -> ResourceLocation("minecraft:textures/blocks/end_stone.png")
+            stained_hardened_clay -> ResourceLocation("minecraft:textures/blocks/hardened_clay_stained_white.png")
+            stained_glass -> ResourceLocation("minecraft:textures/blocks/glass.png")
+            water -> ResourceLocation("minecraft:textures/blocks/water_still.png")
+            planks -> ResourceLocation("minecraft:textures/blocks/planks_oak.png")
+            wool -> ResourceLocation("minecraft:textures/blocks/wool_colored_white.png")
             else -> ResourceLocation("minecraft:textures/blocks/stone.png")
         }
     }

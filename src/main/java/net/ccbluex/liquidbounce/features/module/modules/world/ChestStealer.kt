@@ -39,7 +39,7 @@ import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomDelay
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.gui.inventory.GuiChest
 import net.minecraft.entity.EntityLiving.getArmorPosition
-import net.minecraft.init.Blocks
+import net.minecraft.init.Blocks.chest
 import net.minecraft.item.ItemArmor
 import net.minecraft.item.ItemStack
 import net.minecraft.network.play.client.C0DPacketCloseWindow
@@ -138,7 +138,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
         if (screen !is GuiChest)
             return
 
-        isCustomGUI = chestTitle && Blocks.chest.localizedName !in (screen.lowerChestInventory ?: return).name
+        isCustomGUI = chestTitle && chest.localizedName !in (screen.lowerChestInventory ?: return).name
 
         // Check if chest isn't a custom GUI or shouldn't operate for another reason
         if (isCustomGUI || !shouldOperate())
@@ -233,7 +233,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
                 break
             }
 
-            // Wait untill all scheduled clicks were sent
+            // Wait until all scheduled clicks were sent
             awaitTicked()
 
             // Before closing the chest, check all items once more; the server may have cancelled some of the actions

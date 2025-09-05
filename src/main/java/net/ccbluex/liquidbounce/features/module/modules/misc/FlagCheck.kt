@@ -18,7 +18,7 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawPosBox
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.enableGlCap
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.resetCaps
 import net.minecraft.client.gui.GuiGameOver
-import net.minecraft.init.Blocks
+import net.minecraft.init.Blocks.air
 import net.minecraft.network.login.server.S00PacketDisconnect
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
 import net.minecraft.network.play.server.S01PacketJoinGame
@@ -190,7 +190,7 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true) {
                         if (blockPos < BlockPos.ORIGIN) return@removeIf false
                         val block = world.getBlockState(blockPos).block
 
-                        if (block == Blocks.air && successfulPlacements.contains(blockPos)) {
+                        if (block == air && successfulPlacements.contains(blockPos)) {
                             flagCount++
                             chat("§dDetected §3GhostBlock §b(§c${flagCount}x§b)")
                             successfulPlacements.clear()

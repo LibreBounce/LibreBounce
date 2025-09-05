@@ -11,15 +11,16 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.block.block
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
-import net.minecraft.init.Blocks
+import net.minecraft.init.Blocks.ice
+import net.minecraft.init.Blocks.packed_ice
 import net.minecraft.util.BlockPos
 
 object IceSpeed : Module("IceSpeed", Category.MOVEMENT) {
     private val mode by choices("Mode", arrayOf("NCP", "AAC", "Spartan"), "NCP")
     override fun onEnable() {
         if (mode == "NCP") {
-            Blocks.ice.slipperiness = 0.39f
-            Blocks.packed_ice.slipperiness = 0.39f
+            ice.slipperiness = 0.39f
+            packed_ice.slipperiness = 0.39f
         }
         super.onEnable()
     }
@@ -27,11 +28,11 @@ object IceSpeed : Module("IceSpeed", Category.MOVEMENT) {
     val onUpdate = handler<UpdateEvent> {
         val mode = mode
         if (mode == "NCP") {
-            Blocks.ice.slipperiness = 0.39f
-            Blocks.packed_ice.slipperiness = 0.39f
+            ice.slipperiness = 0.39f
+            packed_ice.slipperiness = 0.39f
         } else {
-            Blocks.ice.slipperiness = 0.98f
-            Blocks.packed_ice.slipperiness = 0.98f
+            ice.slipperiness = 0.98f
+            packed_ice.slipperiness = 0.98f
         }
 
         val player = mc.thePlayer ?: return@handler
@@ -48,8 +49,8 @@ object IceSpeed : Module("IceSpeed", Category.MOVEMENT) {
             "AAC" -> {
                 player.motionX *= 1.342
                 player.motionZ *= 1.342
-                Blocks.ice.slipperiness = 0.6f
-                Blocks.packed_ice.slipperiness = 0.6f
+                ice.slipperiness = 0.6f
+                packed_ice.slipperiness = 0.6f
             }
 
             "Spartan" -> {
@@ -63,8 +64,8 @@ object IceSpeed : Module("IceSpeed", Category.MOVEMENT) {
                     player.motionZ *= 1.18
                 }
 
-                Blocks.ice.slipperiness = 0.6f
-                Blocks.packed_ice.slipperiness = 0.6f
+                ice.slipperiness = 0.6f
+                packed_ice.slipperiness = 0.6f
             }
         }
     }

@@ -12,7 +12,7 @@ import net.ccbluex.liquidbounce.utils.block.blockById
 import net.ccbluex.liquidbounce.utils.block.id
 import net.ccbluex.liquidbounce.utils.io.readJson
 import net.ccbluex.liquidbounce.utils.io.writeJson
-import net.minecraft.init.Blocks
+import net.minecraft.init.Blocks.air
 import java.io.*
 
 class XRayConfig(file: File) : FileConfig(file) {
@@ -29,7 +29,7 @@ class XRayConfig(file: File) : FileConfig(file) {
         XRay.xrayBlocks.clear()
 
         json.mapNotNullTo(XRay.xrayBlocks) {
-            it.asInt.blockById.takeIf { b -> b != Blocks.air }
+            it.asInt.blockById.takeIf { b -> b != air }
         }
     }
 

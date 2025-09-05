@@ -7,7 +7,7 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.minecraft.block.Block
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.effect.EntityLightningBolt
-import net.minecraft.init.Blocks
+import net.minecraft.init.Blocks.redstone_block
 import net.minecraft.network.play.server.S2CPacketSpawnGlobalEntity
 import net.minecraft.util.EnumParticleTypes
 
@@ -65,7 +65,7 @@ object AttackEffects : Module("AttackEffects", Category.RENDER) {
             particleType,
             target.posX, target.posY + target.height - 0.75, target.posZ,
             0.0, 0.0, 0.0,
-            Block.getStateId(Blocks.redstone_block.defaultState)
+            Block.getStateId(redstone_block.defaultState)
         )
     }
 

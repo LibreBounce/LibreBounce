@@ -19,6 +19,7 @@ import net.minecraft.network.play.client.C0BPacketEntityAction
 import net.minecraft.network.play.client.C0BPacketEntityAction.Action.START_SNEAKING
 import net.minecraft.network.play.client.C0BPacketEntityAction.Action.STOP_SNEAKING
 
+// TODO: Port all the sneak modes other than Legit to NoSlow, and a customizable speed
 object Sneak : Module("Sneak", Category.MOVEMENT) {
 
     val mode by choices("Mode", arrayOf("Legit", "Vanilla", "Switch", "MineSecure"), "MineSecure")

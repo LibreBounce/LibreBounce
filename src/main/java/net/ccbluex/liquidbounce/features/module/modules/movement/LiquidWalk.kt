@@ -12,7 +12,8 @@ import net.ccbluex.liquidbounce.utils.block.BlockUtils.collideBlock
 import net.ccbluex.liquidbounce.utils.block.block
 import net.minecraft.block.BlockLiquid
 import net.minecraft.block.material.Material
-import net.minecraft.init.Blocks
+import net.minecraft.init.Blocks.air
+import net.minecraft.init.Blocks.water
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.BlockPos
@@ -39,7 +40,7 @@ object LiquidWalk : Module("LiquidWalk", Category.MOVEMENT, Keyboard.KEY_J) {
 
             "aac" -> {
                 val blockPos = player.position.down()
-                if (!player.onGround && blockPos.block == Blocks.water || player.isInWater) {
+                if (!player.onGround && blockPos.block == water || player.isInWater) {
                     if (!player.isSprinting) {
                         player.motionX *= 0.99999
                         player.motionY *= 0.0
@@ -83,7 +84,7 @@ object LiquidWalk : Module("LiquidWalk", Category.MOVEMENT, Keyboard.KEY_J) {
                 player.motionZ *= 1.17
                 if (player.isCollidedHorizontally)
                     player.motionY = 0.24
-                else if (BlockPos(player).up().block != Blocks.air)
+                else if (BlockPos(player).up().block != air)
                     player.motionY += 0.04
             }
 

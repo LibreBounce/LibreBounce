@@ -11,7 +11,7 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.block.block
 import net.minecraft.client.settings.GameSettings
-import net.minecraft.init.Blocks
+import net.minecraft.init.Blocks.air
 
 object AutoBreak : Module("AutoBreak", Category.WORLD, subjective = true, gameDetecting = false) {
 
@@ -20,7 +20,7 @@ object AutoBreak : Module("AutoBreak", Category.WORLD, subjective = true, gameDe
 
         val target = mc.objectMouseOver?.blockPos ?: return@handler
 
-        mc.gameSettings.keyBindAttack.pressed = target.block != Blocks.air
+        mc.gameSettings.keyBindAttack.pressed = target.block != air
     }
 
     override fun onDisable() {

@@ -18,7 +18,7 @@ import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 import net.minecraft.block.BlockSlab
 import net.minecraft.block.BlockSlime
 import net.minecraft.block.BlockStairs
-import net.minecraft.init.Blocks
+import net.minecraft.init.Blocks.*
 import net.minecraft.network.play.server.S08PacketPlayerPosLook
 import net.minecraft.util.BlockPos
 
@@ -155,17 +155,17 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT) {
             }
             legitHop = true
 
-            if (headBlock && blockPos.up(2).block != Blocks.air) {
+            if (headBlock && blockPos.up(2).block != air) {
                 boost(headBlockBoost)
                 return@handler
             }
 
-            if (ice && blockPos.down().block.let { it == Blocks.ice || it == Blocks.packed_ice }) {
+            if (ice && blockPos.down().block.let { it == ice || it == packed_ice }) {
                 boost(iceBoost)
                 return@handler
             }
 
-            if (snow && blockPos.block == Blocks.snow_layer && (snowPort || player.posY - player.posY.toInt() >= 0.12500)) {
+            if (snow && blockPos.block == snow_layer && (snowPort || player.posY - player.posY.toInt() >= 0.12500)) {
                 if (player.posY - player.posY.toInt() >= 0.12500) {
                     boost(snowBoost)
                 } else {
@@ -177,7 +177,7 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT) {
 
             if (wall) {
                 when (wallMode.lowercase()) {
-                    "old" -> if (player.isCollidedVertically && isNearBlock || BlockPos(player).up(2).block != Blocks.air) {
+                    "old" -> if (player.isCollidedVertically && isNearBlock || BlockPos(player).up(2).block != air) {
                         boost(wallBoost)
                         return@handler
                     }
@@ -259,8 +259,8 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT) {
 
                 if ((collisionBoundingBox == null || collisionBoundingBox.maxX ==
                             collisionBoundingBox.minY + 1) &&
-                    !blockState.block.isTranslucent && blockState.block == Blocks.water &&
-                    blockState.block !is BlockSlab || blockState.block == Blocks.barrier
+                    !blockState.block.isTranslucent && blockState.block == water &&
+                    blockState.block !is BlockSlab || blockState.block == barrier
                 ) return true
             }
             return false

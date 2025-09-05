@@ -4,7 +4,7 @@ import net.ccbluex.liquidbounce.event.BlockBBEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.minecraft.init.Blocks
+import net.minecraft.init.Blocks.*
 import net.minecraft.util.AxisAlignedBB
 
 object AvoidHazards : Module("AvoidHazards", Category.WORLD) {
@@ -20,21 +20,21 @@ object AvoidHazards : Module("AvoidHazards", Category.WORLD) {
         val player = mc.thePlayer ?: return@handler
 
         when (e.block) {
-            Blocks.fire -> if (!fire) return@handler
+            fire -> if (!fire) return@handler
 
-            Blocks.web -> if (!cobweb) return@handler
+            web -> if (!cobweb) return@handler
 
-            Blocks.snow -> if (!snow) return@handler
+            snow -> if (!snow) return@handler
 
-            Blocks.cactus -> if (!cactus) return@handler
+            cactus -> if (!cactus) return@handler
 
-            Blocks.water, Blocks.flowing_water ->
+            water, flowing_water ->
                 // Don't prevent water from cancelling fall damage.
                 if (!water || player.fallDistance >= 3.34627 || player.isInWater) return@handler
 
-            Blocks.lava, Blocks.flowing_lava -> if (!lava) return@handler
+            lava, flowing_lava -> if (!lava) return@handler
 
-            Blocks.wooden_pressure_plate, Blocks.stone_pressure_plate, Blocks.light_weighted_pressure_plate, Blocks.heavy_weighted_pressure_plate -> {
+            wooden_pressure_plate, stone_pressure_plate, light_weighted_pressure_plate, heavy_weighted_pressure_plate -> {
                 if (plate)
                     e.boundingBox =
                         AxisAlignedBB(e.x.toDouble(), e.y.toDouble(), e.z.toDouble(), e.x + 1.0, e.y + 0.25, e.z + 1.0)

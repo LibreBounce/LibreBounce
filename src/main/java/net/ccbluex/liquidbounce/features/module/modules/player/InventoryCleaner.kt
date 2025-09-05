@@ -32,7 +32,7 @@ import net.minecraft.block.BlockWorkbench
 import net.minecraft.client.gui.inventory.GuiInventory
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.entity.item.EntityItem
-import net.minecraft.init.Blocks
+import net.minecraft.init.Blocks.*
 import net.minecraft.init.Items
 import net.minecraft.item.*
 import net.minecraft.potion.Potion
@@ -501,9 +501,9 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
 
             is ItemTool -> {
                 val blockType = when (item) {
-                    is ItemAxe -> Blocks.log
-                    is ItemPickaxe -> Blocks.stone
-                    else -> Blocks.dirt
+                    is ItemAxe -> log
+                    is ItemPickaxe -> stone
+                    else -> dirt
                 }
 
                 return hasBestParameters(stack, stacks, entityStacksMap) {
@@ -1010,7 +1010,7 @@ private val SORTING_TARGETS: Map<String, ((Item?) -> Boolean)?> = mapOf(
     "Potion" to { it is ItemPotion },
     "Throwable" to { it is ItemEgg || it is ItemSnowball },
     "FishingRod" to { it is ItemFishingRod },
-    "TNT" to { it == Item.getItemFromBlock(Blocks.tnt) },
+    "TNT" to { it == Item.getItemFromBlock(tnt) },
     "Shears" to { it is ItemShears },
     "Ignore" to null
 )

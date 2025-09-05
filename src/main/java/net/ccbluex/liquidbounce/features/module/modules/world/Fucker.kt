@@ -29,7 +29,7 @@ import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.toRotation
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.utils.timing.TickedActions.nextTick
 import net.minecraft.block.Block
-import net.minecraft.init.Blocks
+import net.minecraft.init.Blocks.air
 import net.minecraft.network.play.client.C07PacketPlayerDigging
 import net.minecraft.network.play.client.C07PacketPlayerDigging.Action.*
 import net.minecraft.network.play.client.C0APacketAnimation
@@ -142,7 +142,7 @@ object Fucker : Module("Fucker", Category.WORLD) {
         if (surroundings || hypixel) {
             if (hypixel && obstructingPos == null) {
                 val abovePos = currentPos.up()
-                if (abovePos.block != Blocks.air && isHittable(abovePos)) {
+                if (abovePos.block != air && isHittable(abovePos)) {
                     obstructingPos = abovePos
                     currentPos = obstructingPos!!
                 }
@@ -150,7 +150,7 @@ object Fucker : Module("Fucker", Category.WORLD) {
                 val eyes = player.eyes
                 val spotToBed = faceBlock(currentPos) ?: return@handler
                 val blockPos = world.rayTraceBlocks(eyes, spotToBed.vec, false, false, true)?.blockPos
-                if (blockPos != null && blockPos.block != Blocks.air && blockPos != currentPos) {
+                if (blockPos != null && blockPos.block != air && blockPos != currentPos) {
                     obstructingPos = blockPos
                     currentPos = obstructingPos!!
                 }

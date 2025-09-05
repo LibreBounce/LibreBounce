@@ -12,7 +12,7 @@ import net.ccbluex.liquidbounce.utils.block.BlockUtils.collideBlockIntersects
 import net.ccbluex.liquidbounce.utils.extensions.isInLiquid
 import net.ccbluex.liquidbounce.utils.extensions.tryJump
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils.direction
-import net.minecraft.init.Blocks
+import net.minecraft.init.Blocks.air
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.util.AxisAlignedBB
 import kotlin.math.cos
@@ -52,7 +52,6 @@ object WallClimb : Module("WallClimb", Category.MOVEMENT) {
                     when (clipMode.lowercase()) {
                         "jump" -> if (player.onGround)
                             player.tryJump()
-
                         "fast" -> if (player.onGround)
                             player.motionY = 0.42
                         else if (player.motionY < 0)
@@ -63,7 +62,7 @@ object WallClimb : Module("WallClimb", Category.MOVEMENT) {
 
             "checkerclimb" -> {
                 val isInsideBlock = collideBlockIntersects(player.entityBoundingBox) {
-                    it != Blocks.air
+                    it != air
                 }
                 val motion = checkerClimbMotion
 
@@ -113,7 +112,7 @@ object WallClimb : Module("WallClimb", Category.MOVEMENT) {
         when (mode.lowercase()) {
             "checkerclimb" -> if (event.y > player.posY) event.boundingBox = null
             "clip" ->
-                if (event.block == Blocks.air && event.y < player.posY && player.isCollidedHorizontally
+                if (event.block == air && event.y < player.posY && player.isCollidedHorizontally
                     && !player.isOnLadder && !player.isInLiquid
                 )
                     event.boundingBox = AxisAlignedBB.fromBounds(0.0, 0.0, 0.0, 1.0, 1.0, 1.0)

@@ -28,7 +28,7 @@ import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.utils.timing.TickedActions.nextTick
 import net.minecraft.block.BlockBush
 import net.minecraft.client.settings.GameSettings
-import net.minecraft.init.Blocks
+import net.minecraft.init.Blocks.bed
 import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemStack
 import net.minecraft.network.play.client.C0APacketAnimation
@@ -103,7 +103,7 @@ object BedDefender : Module("BedDefender", Category.WORLD) {
                 for (z in posZ - radius..posZ + radius) {
                     val blockPos = BlockPos(x, y, z)
                     val block = world.getBlockState(blockPos).block
-                    if (block == Blocks.bed) {
+                    if (block == bed) {
                         val metadata = block.getMetaFromState(world.getBlockState(blockPos))
 
                         if (metadata >= 8) {
