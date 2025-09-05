@@ -40,8 +40,8 @@ object AntiAFK : Module("AntiAFK", Category.PLAYER, gameDetecting = false) {
     val onUpdate = handler<UpdateEvent> {
         val player = mc.thePlayer ?: return@handler
 
-        when (mode.lowercase()) {
-            "old" -> {
+        when (mode) {
+            "Old" -> {
                 mc.gameSettings.keyBindForward.pressed = true
 
                 if (delayTimer.hasTimePassed(500)) {
@@ -50,7 +50,7 @@ object AntiAFK : Module("AntiAFK", Category.PLAYER, gameDetecting = false) {
                 }
             }
 
-            "random" -> {
+            "Random" -> {
                 getRandomMoveKeyBind().pressed = shouldMove
 
                 if (!delayTimer.hasTimePassed(randomTimerDelay)) return@handler
@@ -91,7 +91,7 @@ object AntiAFK : Module("AntiAFK", Category.PLAYER, gameDetecting = false) {
                 }
             }
 
-            "custom" -> {
+            "Custom" -> {
                 if (move)
                     mc.gameSettings.keyBindForward.pressed = true
 

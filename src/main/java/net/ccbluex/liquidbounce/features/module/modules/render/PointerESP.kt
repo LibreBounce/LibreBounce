@@ -167,8 +167,8 @@ object PointerESP : Module("PointerESP", Category.RENDER) {
 
             glRotatef(arrowAngle, 0f, 0f, 1f)
 
-            when (mode.lowercase()) {
-                "solid" -> {
+            when (mode) {
+                "Solid" -> {
                     glBegin(GL_TRIANGLES)
                     glVertex2f(0f, arrowRadius)
                     glVertex2d(
@@ -182,7 +182,7 @@ object PointerESP : Module("PointerESP", Category.RENDER) {
                     glEnd()
                 }
 
-                "line", "loopline" -> {
+                "Line", "LoopLine" -> {
                     glLineWidth(thickness)
                     glBegin(GL_LINE_STRIP)
                     glVertex2d(

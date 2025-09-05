@@ -42,8 +42,8 @@ object FastUse : Module("FastUse", Category.PLAYER) {
             return@handler
         }
 
-        when (mode.lowercase()) {
-            "instant" -> {
+        when (mode) {
+            "Instant" -> {
                 repeat(35) {
                     sendPacket(C03PacketPlayer(serverOnGround))
                 }
@@ -51,7 +51,7 @@ object FastUse : Module("FastUse", Category.PLAYER) {
                 mc.playerController.onStoppedUsingItem(player)
             }
 
-            "ncp" -> if (player.itemInUseDuration > 14) {
+            "NCP" -> if (player.itemInUseDuration > 14) {
                 repeat(20) {
                     sendPacket(C03PacketPlayer(serverOnGround))
                 }
@@ -59,12 +59,12 @@ object FastUse : Module("FastUse", Category.PLAYER) {
                 mc.playerController.onStoppedUsingItem(player)
             }
 
-            "aac" -> {
+            "AAC" -> {
                 mc.timer.timerSpeed = 1.22F
                 usedTimer = true
             }
 
-            "custom" -> {
+            "Custom" -> {
                 mc.timer.timerSpeed = customTimer
                 usedTimer = true
 

@@ -154,8 +154,8 @@ object Projectiles : Module("Projectiles", Category.RENDER, gameDetecting = fals
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
             glHint(GL_LINE_SMOOTH_HINT, GL_NICEST)
             glColor(
-                when (colorMode.lowercase()) {
-                    "bowpower" -> interpolateHSB(Color.RED, Color.GREEN, (motionFactor / 30) * 10)
+                when (colorMode) {
+                    "BowPower" -> interpolateHSB(Color.RED, Color.GREEN, (motionFactor / 30) * 10)
                     else -> color
                 }
             )

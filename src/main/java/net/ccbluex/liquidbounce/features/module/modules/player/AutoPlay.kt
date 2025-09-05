@@ -63,13 +63,13 @@ object AutoPlay : Module("AutoPlay", Category.PLAYER, gameDetecting = false) {
 
             "Hypixel" -> {
                 if (delayTick >= delay) {
-                    when (hypixelMode.lowercase()) {
-                        "skywars" -> when (skywarsMode) {
+                    when (hypixelMode) {
+                        "Skywars" -> when (skywarsMode) {
                             "SoloNormal" -> player.sendChatMessage("/play solo_normal")
                             "SoloInsane" -> player.sendChatMessage("/play solo_insane")
                         }
 
-                        "bedwars" -> when (bedwarsMode) {
+                        "Bedwars" -> when (bedwarsMode) {
                             "Solo" -> player.sendChatMessage("/play bedwars_eight_one")
                             "Double" -> player.sendChatMessage("/play bedwars_eight_two")
                             "Trio" -> player.sendChatMessage("/play bedwars_four_three")

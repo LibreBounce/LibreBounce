@@ -36,8 +36,8 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT) {
     private val slabsMode by choices("SlabsMode", arrayOf("Old", "New"), "New") { slabs }
     private val slabsBoost by float("SlabsBoost", 1.87f, 1f..2f) { slabs && slabsMode == "Old" }
 
-    private val ice by boolean("Ice", false)
-    private val iceBoost by float("IceBoost", 1.342f, 1f..2f) { ice }
+    private val doIce by boolean("Ice", false)
+    private val iceBoost by float("IceBoost", 1.342f, 1f..2f) { doIce }
 
     private val snow by boolean("Snow", true)
     private val snowBoost by float("SnowBoost", 1.87f, 1f..2f) { snow }
@@ -104,13 +104,13 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT) {
                 return@handler
             }
             if (slabs && blockPos.block is BlockSlab) {
-                when (slabsMode.lowercase()) {
-                    "old" -> {
+                when (slabsMode) {
+                    "Old" -> {
                         boost(slabsBoost)
                         return@handler
                     }
 
-                    "new" -> {
+                    "New" -> {
                         fastHop = true
                         if (legitHop) {
                             player.tryJump()
@@ -129,13 +129,13 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT) {
                 }
             }
             if (stairs && (blockPos.down().block is BlockStairs || blockPos.block is BlockStairs)) {
-                when (stairsMode.lowercase()) {
-                    "old" -> {
+                when (stairsMode) {
+                    "Old" -> {
                         boost(stairsBoost)
                         return@handler
                     }
 
-                    "new" -> {
+                    "New" -> {
                         fastHop = true
 
                         if (legitHop) {
@@ -160,7 +160,7 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT) {
                 return@handler
             }
 
-            if (ice && blockPos.down().block.let { it == ice || it == packed_ice }) {
+            if (doIce && blockPos.down().block.let { it == ice || it == packed_ice }) {
                 boost(iceBoost)
                 return@handler
             }
@@ -176,13 +176,13 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT) {
             }
 
             if (wall) {
-                when (wallMode.lowercase()) {
-                    "old" -> if (player.isCollidedVertically && isNearBlock || BlockPos(player).up(2).block != air) {
+                when (wallMode) {
+                    "Old" -> if (player.isCollidedVertically && isNearBlock || BlockPos(player).up(2).block != air) {
                         boost(wallBoost)
                         return@handler
                     }
 
-                    "new" ->
+                    "New" ->
                         if (isNearBlock && !player.movementInput.jump) {
                             player.tryJump()
                             player.motionY = 0.08

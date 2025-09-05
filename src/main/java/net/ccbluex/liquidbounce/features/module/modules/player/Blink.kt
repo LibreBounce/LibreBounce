@@ -45,16 +45,16 @@ object Blink : Module("Blink", Category.PLAYER, gameDetecting = false) {
         if (mc.thePlayer == null || mc.thePlayer.isDead)
             return@handler
 
-        when (mode.lowercase()) {
-            "sent" -> {
+        when (mode) {
+            "Sent" -> {
                 BlinkUtils.blink(packet, event, sent = true, receive = false)
             }
 
-            "received" -> {
+            "Received" -> {
                 BlinkUtils.blink(packet, event, sent = false, receive = true)
             }
 
-            "both" -> {
+            "Both" -> {
                 BlinkUtils.blink(packet, event)
             }
         }
@@ -68,12 +68,12 @@ object Blink : Module("Blink", Category.PLAYER, gameDetecting = false) {
                 BlinkUtils.unblink()
             }
 
-            when (mode.lowercase()) {
-                "sent" -> {
+            when (mode) {
+                "Sent" -> {
                     BlinkUtils.syncSent()
                 }
 
-                "received" -> {
+                "Received" -> {
                     BlinkUtils.syncReceived()
                 }
             }

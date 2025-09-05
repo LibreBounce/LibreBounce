@@ -23,9 +23,9 @@ object SlimeJump : Module("SlimeJump", Category.MOVEMENT) {
         if (mc.theWorld != null && player.position.down().block is BlockSlime) {
             event.cancelEvent()
 
-            when (mode.lowercase()) {
-                "set" -> player.motionY = motion.toDouble()
-                "add" -> player.motionY += motion
+            when (mode) {
+                "Set" -> player.motionY = motion.toDouble()
+                "Add" -> player.motionY += motion
             }
         }
     }

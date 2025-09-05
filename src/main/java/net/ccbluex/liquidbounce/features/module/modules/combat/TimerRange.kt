@@ -106,9 +106,9 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
             Backtrack.runWithNearestTrackedDistance(entity) {
                 val distance = mc.thePlayer.getDistanceToEntityBox(entity)
 
-                when (timerBoostMode.lowercase()) {
-                    "normal" -> distance <= rangeValue
-                    "smart", "modern" -> distance <= scanRange + randomRange
+                when (timerBoostMode) {
+                    "Normal" -> distance <= rangeValue
+                    "Smart", "Modern" -> distance <= scanRange + randomRange
                     else -> false
                 }
             }
@@ -321,7 +321,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
     val onRender3D = handler<Render3DEvent> {
         val player = mc.thePlayer ?: return@handler
 
-        if (timerBoostMode.lowercase() != "modern") return@handler
+        if (timerBoostMode != "Modern") return@handler
 
         getNearestEntityInRange()?.let { nearbyEntity ->
             val entityDistance = player.getDistanceToEntityBox(nearbyEntity)

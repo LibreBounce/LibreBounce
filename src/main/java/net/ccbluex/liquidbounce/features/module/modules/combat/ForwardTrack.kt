@@ -76,14 +76,14 @@ object ForwardTrack : Module("ForwardTrack", Category.COMBAT) {
 
             val (x, y, z) = vec - renderManager.renderPos
 
-            when (espMode.lowercase()) {
-                "box" -> {
+            when (espMode) {
+                "Box" -> {
                     val axisAlignedBB = target.entityBoundingBox.offset(Vec3(x, y, z) - target.currPos)
 
                     drawBacktrackBox(axisAlignedBB, color)
                 }
 
-                "model" -> {
+                "Model" -> {
                     glPushMatrix()
                     glPushAttrib(GL_ALL_ATTRIB_BITS)
 
@@ -100,7 +100,7 @@ object ForwardTrack : Module("ForwardTrack", Category.COMBAT) {
                     glPopMatrix()
                 }
 
-                "wireframe" -> {
+                "Wireframe" -> {
                     glPushMatrix()
                     glPushAttrib(GL_ALL_ATTRIB_BITS)
 

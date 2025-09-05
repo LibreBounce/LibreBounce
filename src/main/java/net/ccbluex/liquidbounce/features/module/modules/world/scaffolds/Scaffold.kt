@@ -1112,12 +1112,12 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
             return
         }
 
-        when (zitterMode.lowercase()) {
-            "off" -> {
+        when (zitterMode) {
+            "Off" -> {
                 return
             }
 
-            "smooth" -> {
+            "Smooth" -> {
                 val notOnGround = !player.onGround || !player.isCollidedVertically
 
                 if (player.onGround) {
@@ -1165,7 +1165,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
                 }
             }
 
-            "teleport" -> {
+            "Teleport" -> {
                 MovementUtils.strafe(zitterSpeed)
                 val yaw = (player.rotationYaw + if (zitterDirection) 90.0 else -90.0).toRadians()
                 player.motionX -= sin(yaw) * zitterStrength
@@ -1178,7 +1178,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
     private var isOnRightSide = false
 
     /**
-     * God-bridge rotation generation method from Nextgen
+     * Godbridge rotation generation method from Nextgen
      *
      * Credits to @Ell1ott
      */

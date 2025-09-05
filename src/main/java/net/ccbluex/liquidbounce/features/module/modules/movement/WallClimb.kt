@@ -39,29 +39,26 @@ object WallClimb : Module("WallClimb", Category.MOVEMENT) {
         }
     }
 
-    val onUpdate = handler<MotionEvent> { event ->
-        val player = mc.thePlayer
+    val onUpdate = loopSequence {
+        val player = mc.thePlayer ?: return@loopSequence
 
-        if (event.eventState != EventState.POST || player == null)
-            return@handler
-
-        when (mode.lowercase()) {
-            "clip" -> {
+        when (mode) {
+            "Clip" -> {
                 if (player.motionY < 0)
                     glitch = true
                 if (player.isCollidedHorizontally) {
-                    when (clipMode.lowercase()) {
-                        "jump" -> if (player.onGround)
+                    when (clipMode) {
+                        "Jump" -> if (player.onGround)
                             player.tryJump()
-                        "fast" -> if (player.onGround)
+                        "Fast" -> if (player.onGround)
                             player.motionY = 0.42
-                        else if (player.motionY < 0)
+                        else -> if (player.motionY < 0)
                             player.motionY = -0.3
                     }
                 }
             }
 
-            "checkerclimb" -> {
+            "CheckerClimb" -> {
                 val isInsideBlock = collideBlockIntersects(player.entityBoundingBox) {
                     it != air
                 }
@@ -71,7 +68,7 @@ object WallClimb : Module("WallClimb", Category.MOVEMENT) {
                     player.motionY = motion.toDouble()
             }
 
-            "vulcan2.8.8" -> if (player.isCollidedHorizontally && !player.isOnLadder) {
+            "Vulcan2.8.8" -> if (player.isCollidedHorizontally && !player.isOnLadder) {
                 player.motionY = 0.0
                 waitTicks(2)
                 player.motionY = 9.6599696
@@ -80,7 +77,7 @@ object WallClimb : Module("WallClimb", Category.MOVEMENT) {
                 return@handler
             }
 
-            "aac3.3.12" -> if (player.isCollidedHorizontally && !player.isOnLadder) {
+            "AAC3.3.12" -> if (player.isCollidedHorizontally && !player.isOnLadder) {
                 waited++
                 if (waited == 1)
                     player.motionY = 0.43
@@ -94,7 +91,7 @@ object WallClimb : Module("WallClimb", Category.MOVEMENT) {
                     waited = 0
             } else if (player.onGround) waited = 0
 
-            "aacglide" -> {
+            "AACGlide" -> {
                 if (!player.isCollidedHorizontally || player.isOnLadder) return@handler
                 player.motionY = -0.19
             }
@@ -117,11 +114,9 @@ object WallClimb : Module("WallClimb", Category.MOVEMENT) {
     val onBlockBB = handler<BlockBBEvent> { event ->
         val player = mc.thePlayer ?: return@handler
 
-        val mode = mode
-
-        when (mode.lowercase()) {
-            "checkerclimb" -> if (event.y > player.posY) event.boundingBox = null
-            "clip" ->
+        when (mode) {
+            "CheckerClimb" -> if (event.y > player.posY) event.boundingBox = null
+            "Clip" ->
                 if (event.block == air && event.y < player.posY && player.isCollidedHorizontally
                     && !player.isOnLadder && !player.isInLiquid
                 )

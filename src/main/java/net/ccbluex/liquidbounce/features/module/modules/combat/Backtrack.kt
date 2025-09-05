@@ -122,8 +122,8 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
 
         if (Blink.blinkingReceive() || event.isCancelled) return@handler
 
-        when (mode.lowercase()) {
-            "legacy" -> {
+        when (mode) {
+            "Legacy" -> {
                 when (packet) {
                     // Check if packet is a spawn player packet
                     is S0CPacketSpawnPlayer -> {
@@ -155,7 +155,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
                 }
             }
 
-            "modern" -> {
+            "Modern" -> {
                 if (mc.isSingleplayer || mc.currentServerData == null) {
                     clearPackets()
                     return@handler
@@ -297,8 +297,8 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
     val onRender3D = handler<Render3DEvent> { event ->
         val manager = mc.renderManager ?: return@handler
 
-        when (mode.lowercase()) {
-            "legacy" -> {
+        when (mode) {
+            "Legacy" -> {
                 val color = Color.RED
 
                 for (entity in mc.theWorld.loadedEntityList) {
@@ -331,7 +331,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
                 }
             }
 
-            "modern" -> {
+            "Modern" -> {
                 if (!shouldBacktrack() || !shouldRender) return@handler
 
                 target?.run {
@@ -340,14 +340,14 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
                     val (x, y, z) = targetEntity.interpolatedPosition - manager.renderPos
 
                     if (targetEntity.truePos) {
-                        when (espMode.lowercase()) {
-                            "box" -> {
+                        when (espMode) {
+                            "Box" -> {
                                 val axisAlignedBB = entityBoundingBox.offset(-currPos + Vec3(x, y, z))
 
                                 drawBacktrackBox(axisAlignedBB, color)
                             }
 
-                            "model" -> {
+                            "Model" -> {
                                 glPushMatrix()
                                 glPushAttrib(GL_ALL_ATTRIB_BITS)
 
@@ -366,7 +366,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
                                 glPopMatrix()
                             }
 
-                            "wireframe" -> {
+                            "Wireframe" -> {
                                 glPushMatrix()
                                 glPushAttrib(GL_ALL_ATTRIB_BITS)
 

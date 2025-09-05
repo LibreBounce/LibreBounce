@@ -77,9 +77,9 @@ object BlockOverlay : Module("BlockOverlay", Category.RENDER, gameDetecting = fa
 
         val axisAlignedBB = block.getSelectedBoundingBox(mc.theWorld, blockPos).expand(f, f, f).offset(-pos)
 
-        if (mode.lowercase() in arrayOf("box", "otherbox"))
+        if (mode in arrayOf("Box", "OtherBox"))
             drawFilledBox(axisAlignedBB)
-        if (mode.lowercase() in arrayOf("box", "outline"))
+        if (mode in arrayOf("Box", "Outline"))
             drawSelectionBoundingBox(axisAlignedBB)
 
         if (depth3D) glEnable(GL_DEPTH_TEST)

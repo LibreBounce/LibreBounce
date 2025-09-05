@@ -27,9 +27,9 @@ object KeepAlive : Module("KeepAlive", Category.PLAYER) {
         if (player.isDead || player.health <= 0) {
             if (runOnce) return@handler
 
-            when (mode.lowercase()) {
+            when (mode) {
                 "/heal" -> player.sendChatMessage("/heal")
-                "soup" -> {
+                "Soup" -> {
                     val soupInHotbar = InventoryUtils.findItem(36, 44, Items.mushroom_stew)
 
                     if (soupInHotbar != null) {

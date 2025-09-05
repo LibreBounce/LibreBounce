@@ -28,11 +28,11 @@ object HighJump : Module("HighJump", Category.MOVEMENT) {
         if (glass && BlockPos(player).block !is BlockPane)
             return@handler
 
-        when (mode.lowercase()) {
-            "damage" -> if (player.hurtTime > 0 && player.onGround) player.motionY += 0.42f * height
-            "aacv3" -> if (!player.onGround) player.motionY += 0.059
-            "dac" -> if (!player.onGround) player.motionY += 0.049999
-            "mineplex" -> if (!player.onGround) strafe(0.35f)
+        when (mode) {
+            "Damage" -> if (player.hurtTime > 0 && player.onGround) player.motionY += 0.42f * height
+            "AACv3" -> if (!player.onGround) player.motionY += 0.059
+            "DAC" -> if (!player.onGround) player.motionY += 0.049999
+            "Mineplex" -> if (!player.onGround) strafe(0.35f)
         }
     }
 
@@ -42,7 +42,7 @@ object HighJump : Module("HighJump", Category.MOVEMENT) {
         if (glass && BlockPos(player).block !is BlockPane)
             return@handler
         if (!player.onGround) {
-            if ("mineplex" == mode.lowercase()) {
+            if (mode == "Mineplex") {
                 player.motionY += if (player.fallDistance == 0f) 0.0499 else 0.05
             }
         }
@@ -53,9 +53,9 @@ object HighJump : Module("HighJump", Category.MOVEMENT) {
 
         if (glass && BlockPos(player).block !is BlockPane)
             return@handler
-        when (mode.lowercase()) {
-            "vanilla" -> event.motion *= height
-            "mineplex" -> event.motion = 0.47f
+        when (mode) {
+            "Vanilla" -> event.motion *= height
+            "Mineplex" -> event.motion = 0.47f
         }
     }
 

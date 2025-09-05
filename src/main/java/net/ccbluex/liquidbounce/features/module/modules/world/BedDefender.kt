@@ -248,15 +248,15 @@ object BedDefender : Module("BedDefender", Category.WORLD) {
         val player = mc.thePlayer ?: return false
         val world = mc.theWorld ?: return false
 
-        return when (raycastMode.lowercase()) {
-            "normal" -> {
+        return when (raycastMode) {
+            "Normal" -> {
                 val eyesPos = player.eyes
                 val movingObjectPosition = world.rayTraceBlocks(eyesPos, pos.center, false, true, false)
 
                 movingObjectPosition != null && movingObjectPosition.blockPos == pos
             }
 
-            "around" -> EnumFacing.entries.any { !isBlockBBValid(pos.offset(it)) }
+            "Around" -> EnumFacing.entries.any { !isBlockBBValid(pos.offset(it)) }
 
             else -> true
         }

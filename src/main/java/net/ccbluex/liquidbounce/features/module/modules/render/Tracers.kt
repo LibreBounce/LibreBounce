@@ -80,12 +80,11 @@ object Tracers : Module("Tracers", Category.RENDER) {
         for (entity in entities) {
             val dist = mc.thePlayer.getDistanceSqToEntity(entity).coerceAtMost(255.0).toInt()
 
-            val colorMode = colorMode.lowercase()
             val color = when {
                 entity is EntityPlayer && entity.isClientFriend() -> Color(0, 0, 255, 150)
                 teams && Teams.handleEvents() && Teams.isInYourTeam(entity) -> Color(0, 162, 232)
-                colorMode == "custom" -> color
-                colorMode == "distancecolor" -> Color(255 - dist, dist, 0, 150)
+                colorMode == "Custom" -> color
+                colorMode == "DistanceColor" -> Color(255 - dist, dist, 0, 150)
                 else -> Color(255, 255, 255, 150)
             }
 

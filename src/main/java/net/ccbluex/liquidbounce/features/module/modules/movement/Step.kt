@@ -67,7 +67,6 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
     }
 
     val onUpdate = loopSequence {
-        val mode = mode
         val player = mc.thePlayer ?: return@loopSequence
 
         if (player.isOnLadder || player.isInLiquid || player.isInWeb) return@loopSequence
@@ -245,8 +244,9 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
                             C04PacketPlayerPosition(stepX, stepY + 0.7531999805212, stepZ, false),
                             C04PacketPlayerPosition(stepX, stepY + 1.001335979112147, stepZ, false)
                         )
-                    } else // Force step
+                    } else { // Force step
                         sendPacket(C04PacketPlayerPosition(stepX, stepY + 0.6, stepZ, false))
+                    }
 
                     // Spartan allows one unlegit step so just swap between legit and unlegit
                     spartanSwitch = !spartanSwitch

@@ -98,21 +98,21 @@ object AntiVoid : Module("AntiVoid", Category.MOVEMENT) {
             }
 
             if (player.fallDistance - lastFound > maxDistanceWithoutGround) {
-                when (mode.lowercase()) {
-                    "teleportback" -> {
+                when (mode) {
+                    "TeleportBack" -> {
                         player.setPositionAndUpdate(prevX, prevY, prevZ)
                         player.fallDistance = 0F
                         player.motionY = 0.0
                     }
 
-                    "flyflag" -> {
+                    "FlyFlag" -> {
                         player.motionY += 0.1
                         player.fallDistance = 0F
                     }
 
-                    "ongroundspoof" -> sendPacket(C03PacketPlayer(true))
+                    "OnGroundSpoof" -> sendPacket(C03PacketPlayer(true))
 
-                    "motionteleport-flag" -> {
+                    "MotionTeleport-Flag" -> {
                         player.setPositionAndUpdate(player.posX, player.posY + 1f, player.posZ)
                         sendPacket(C04PacketPlayerPosition(player.posX, player.posY, player.posZ, true))
                         player.motionY = 0.1
@@ -121,7 +121,7 @@ object AntiVoid : Module("AntiVoid", Category.MOVEMENT) {
                         player.fallDistance = 0f
                     }
 
-                    "ghostblock" -> shouldSimulateBlock = true
+                    "GhostBlock" -> shouldSimulateBlock = true
                 }
             }
         }

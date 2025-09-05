@@ -33,12 +33,12 @@ object Fullbright : Module("Fullbright", Category.RENDER, gameDetecting = false)
 
     val onUpdate = handler<UpdateEvent>(always = true) {
         if (state || XRay.handleEvents()) {
-            when (mode.lowercase()) {
-                "gamma" -> when {
+            when (mode) {
+                "Gamma" -> when {
                     mc.gameSettings.gammaSetting <= 100f -> mc.gameSettings.gammaSetting++
                 }
 
-                "nightvision" -> mc.thePlayer?.addPotionEffect(PotionEffect(Potion.nightVision.id, 1337, 1))
+                "NightVision" -> mc.thePlayer?.addPotionEffect(PotionEffect(Potion.nightVision.id, 1337, 1))
             }
         } else if (prevGamma != -1f) {
             mc.gameSettings.gammaSetting = prevGamma

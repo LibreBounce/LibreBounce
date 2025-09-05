@@ -51,14 +51,14 @@ object Regen : Module("Regen", Category.PLAYER) {
             || !timer.hasTimePassed(delay)
         ) return@handler
 
-        when (mode.lowercase()) {
-            "vanilla" -> {
+        when (mode) {
+            "Vanilla" -> {
                 repeat(speed) {
                     sendPacket(C03PacketPlayer(serverOnGround))
                 }
             }
 
-            "spartan" -> {
+            "Spartan" -> {
                 if (!player.isMoving && serverOnGround) {
                     repeat(9) {
                         sendPacket(C03PacketPlayer(serverOnGround))

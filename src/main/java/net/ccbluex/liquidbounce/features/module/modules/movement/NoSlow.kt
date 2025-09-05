@@ -100,23 +100,23 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
             if (heldItem.item !is ItemSword && heldItem.item !is ItemBow && (consumeFoodOnly && heldItem.item is ItemFood ||
                         consumeDrinkOnly && (heldItem.item is ItemPotion || heldItem.item is ItemBucketMilk))
             ) {
-                when (consumeMode.lowercase()) {
-                    "aac5" ->
+                when (consumeMode) {
+                    "AAC5" ->
                         sendPacket(C08PacketPlayerBlockPlacement(BlockPos(-1, -1, -1), 255, heldItem, 0f, 0f, 0f))
 
-                    "switchitem" ->
+                    "SwitchItem" ->
                         if (event.eventState == EventState.PRE) {
                             updateSlot()
                         }
 
-                    "updatedncp" ->
+                    "UpdatedNCP" ->
                         if (event.eventState == EventState.PRE && shouldSwap) {
                             updateSlot()
                             sendPacket(C08PacketPlayerBlockPlacement(BlockPos.ORIGIN, 255, heldItem, 0f, 0f, 0f))
                             shouldSwap = false
                         }
 
-                    "invalidc08" -> {
+                    "InvalidC08" -> {
                         if (event.eventState == EventState.PRE) {
                             if (InventoryUtils.hasSpaceInInventory()) {
                                 if (player.ticksExisted % 3 == 0)
@@ -125,7 +125,7 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
                         }
                     }
 
-                    "intave" -> {
+                    "Intave" -> {
                         if (event.eventState == EventState.PRE) {
                             sendPacket(C07PacketPlayerDigging(RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.UP))
                         }
@@ -135,23 +135,23 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
         }
 
         if (heldItem.item is ItemBow && (isUsingItem || shouldSwap)) {
-            when (bowPacket.lowercase()) {
-                "aac5" ->
+            when (bowPacket) {
+                "AAC5" ->
                     sendPacket(C08PacketPlayerBlockPlacement(BlockPos(-1, -1, -1), 255, heldItem, 0f, 0f, 0f))
 
-                "switchitem" ->
+                "SwitchItem" ->
                     if (event.eventState == EventState.PRE) {
                         updateSlot()
                     }
 
-                "updatedncp" ->
+                "UpdatedNCP" ->
                     if (event.eventState == EventState.PRE && shouldSwap) {
                         updateSlot()
                         sendPacket(C08PacketPlayerBlockPlacement(BlockPos.ORIGIN, 255, heldItem, 0f, 0f, 0f))
                         shouldSwap = false
                     }
 
-                "invalidc08" -> {
+                "InvalidC08" -> {
                     if (event.eventState == EventState.PRE) {
                         if (InventoryUtils.hasSpaceInInventory()) {
                             if (player.ticksExisted % 3 == 0)
@@ -163,8 +163,8 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
         }
 
         if (heldItem.item is ItemSword && isUsingItem) {
-            when (swordMode.lowercase()) {
-                "ncp" ->
+            when (swordMode) {
+                "NCP" ->
                     when (event.eventState) {
                         EventState.PRE -> sendPacket(
                             C07PacketPlayerDigging(RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN)
@@ -179,24 +179,24 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
                         else -> return@handler
                     }
 
-                "updatedncp" ->
+                "UpdatedNCP" ->
                     if (event.eventState == EventState.POST) {
                         sendPacket(C08PacketPlayerBlockPlacement(BlockPos.ORIGIN, 255, heldItem, 0f, 0f, 0f))
                     }
 
-                "aac5" ->
+                "AAC5" ->
                     if (event.eventState == EventState.POST) {
                         sendPacket(
                             C08PacketPlayerBlockPlacement(BlockPos(-1, -1, -1), 255, player.heldItem, 0f, 0f, 0f)
                         )
                     }
 
-                "switchitem" ->
+                "SwitchItem" ->
                     if (event.eventState == EventState.PRE) {
                         updateSlot()
                     }
 
-                "invalidc08" -> {
+                "InvalidC08" -> {
                     if (event.eventState == EventState.PRE) {
                         if (InventoryUtils.hasSpaceInInventory()) {
                             if (player.ticksExisted % 3 == 0)
@@ -279,15 +279,13 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
                 }
 
                 is C03PacketPlayer -> {
-                    if (swordMode == "Blink") {
-                        if (player.isMoving) {
-                            if (player.heldItem?.item is ItemSword && usingItemFunc()) {
-                                if (shouldBlink)
-                                    BlinkUtils.blink(packet, event)
-                            } else {
-                                shouldBlink = true
-                                BlinkUtils.unblink()
-                            }
+                    if (player.isMoving) {
+                        if (player.heldItem?.item is ItemSword && usingItemFunc()) {
+                            if (shouldBlink)
+                                BlinkUtils.blink(packet, event)
+                        } else {
+                            shouldBlink = true
+                            BlinkUtils.unblink()
                         }
                     }
                 }

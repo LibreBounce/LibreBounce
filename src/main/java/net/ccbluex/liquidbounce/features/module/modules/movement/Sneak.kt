@@ -36,16 +36,16 @@ object Sneak : Module("Sneak", Category.MOVEMENT) {
             return@handler
         }
 
-        when (mode.lowercase()) {
-            "legit" -> mc.gameSettings.keyBindSneak.pressed = true
-            "vanilla" -> {
+        when (mode) {
+            "Legit" -> mc.gameSettings.keyBindSneak.pressed = true
+            "Vanilla" -> {
                 if (sneaking)
                     return@handler
 
                 sendPacket(C0BPacketEntityAction(player, START_SNEAKING))
             }
 
-            "switch" -> {
+            "Switch" -> {
                 when (event.eventState) {
                     EventState.PRE -> {
                         sendPackets(
@@ -65,7 +65,7 @@ object Sneak : Module("Sneak", Category.MOVEMENT) {
                 }
             }
 
-            "minesecure" -> {
+            "MineSecure" -> {
                 if (event.eventState == EventState.PRE)
                     return@handler
 
@@ -81,15 +81,14 @@ object Sneak : Module("Sneak", Category.MOVEMENT) {
     override fun onDisable() {
         val player = mc.thePlayer ?: return
 
-        when (mode.lowercase()) {
-            "legit" -> {
-                if (!GameSettings.isKeyDown(mc.gameSettings.keyBindSneak)) {
-                    mc.gameSettings.keyBindSneak.pressed = false
-                }
+        if (mode == "Legit") {
+            if (!GameSettings.isKeyDown(mc.gameSettings.keyBindSneak)) {
+                mc.gameSettings.keyBindSneak.pressed = false
             }
-
-            "vanilla", "switch", "minesecure" -> sendPacket(C0BPacketEntityAction(player, STOP_SNEAKING))
+        } else {
+            (C0BPacketEntityAction(player, STOP_SNEAKING))
         }
+
         sneaking = false
     }
 }

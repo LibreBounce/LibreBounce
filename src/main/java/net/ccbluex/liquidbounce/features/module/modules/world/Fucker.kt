@@ -298,7 +298,7 @@ object Fucker : Module("Fucker", Category.WORLD) {
         isOwnBed = ignoreOwnBed && isBedNearSpawn(posToDraw)
         if (mc.thePlayer == null || isOwnBed) return@handler
 
-        if (block.blockById == Blocks.air) return@handler
+        if (block.blockById == air) return@handler
 
         if (blockProgress) {
             posToDraw.drawBlockDamageText(

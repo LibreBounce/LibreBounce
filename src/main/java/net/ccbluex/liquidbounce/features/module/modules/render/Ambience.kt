@@ -37,25 +37,25 @@ object Ambience : Module("Ambience", Category.RENDER, gameDetecting = false) {
 
 
     val onUpdate = handler<UpdateEvent> {
-        when (timeMode.lowercase()) {
-            "normal" -> {
+        when (timeMode) {
+            "Normal" -> {
                 i += changeWorldTimeSpeed
                 i %= 24000
                 mc.theWorld.worldTime = i
             }
-            "custom" -> {
+            "Custom" -> {
                 mc.theWorld.worldTime = customWorldTime.toLong() * 1000
             }
-            "day" -> {
+            "Day" -> {
                 mc.theWorld.worldTime = 2000
             }
-            "dusk" -> {
+            "Dusk" -> {
                 mc.theWorld.worldTime = 13050
             }
-            "night" -> {
+            "Night" -> {
                 mc.theWorld.worldTime = 16000
             }
-            "dynamic" -> {
+            "Dynamic" -> {
                 if (i < 24000) {
                     i += dynamicSpeed
                 } else {
@@ -67,16 +67,16 @@ object Ambience : Module("Ambience", Category.RENDER, gameDetecting = false) {
 
         val strength = weatherStrength.coerceIn(0F, 1F)
 
-        when (weatherMode.lowercase()) {
-            "sun" -> {
+        when (weatherMode) {
+            "Sun" -> {
                 mc.theWorld.setRainStrength(0f)
                 mc.theWorld.setThunderStrength(0f)
             }
-            "rain" -> {
+            "Rain" -> {
                 mc.theWorld.setRainStrength(strength)
                 mc.theWorld.setThunderStrength(0f)
             }
-            "thunder" -> {
+            "Thunder" -> {
                 mc.theWorld.setRainStrength(strength)
                 mc.theWorld.setThunderStrength(strength)
             }

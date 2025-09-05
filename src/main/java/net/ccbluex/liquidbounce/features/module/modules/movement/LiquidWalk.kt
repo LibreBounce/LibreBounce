@@ -33,12 +33,12 @@ object LiquidWalk : Module("LiquidWalk", Category.MOVEMENT, Keyboard.KEY_J) {
 
         if (player == null || player.isSneaking) return@handler
 
-        when (mode.lowercase()) {
-            "ncp", "vanilla" -> if (collideBlock(player.entityBoundingBox) { it is BlockLiquid } && player.isInsideOfMaterial(
+        when (mode) {
+            "NCP", "Vanilla" -> if (collideBlock(player.entityBoundingBox) { it is BlockLiquid } && player.isInsideOfMaterial(
                     Material.air
                 ) && !player.isSneaking) player.motionY = 0.08
 
-            "aac" -> {
+            "AAC" -> {
                 val blockPos = player.position.down()
                 if (!player.onGround && blockPos.block == water || player.isInWater) {
                     if (!player.isSprinting) {
@@ -60,7 +60,7 @@ object LiquidWalk : Module("LiquidWalk", Category.MOVEMENT, Keyboard.KEY_J) {
                 if (player.hurtTime != 0) player.onGround = false
             }
 
-            "spartan" -> if (player.isInWater) {
+            "Spartan" -> if (player.isInWater) {
                 if (player.isCollidedHorizontally) {
                     player.motionY += 0.15
                     return@handler
@@ -79,7 +79,7 @@ object LiquidWalk : Module("LiquidWalk", Category.MOVEMENT, Keyboard.KEY_J) {
                 player.motionZ *= 1.085
             }
 
-            "aac3.3.11" -> if (player.isInWater) {
+            "AAC3.3.11" -> if (player.isInWater) {
                 player.motionX *= 1.17
                 player.motionZ *= 1.17
                 if (player.isCollidedHorizontally)
@@ -93,7 +93,7 @@ object LiquidWalk : Module("LiquidWalk", Category.MOVEMENT, Keyboard.KEY_J) {
     }
 
     val onMove = handler<MoveEvent> { event ->
-        if ("aacfly" == mode.lowercase() && mc.thePlayer.isInWater) {
+        if (mode == "AACFly" && mc.thePlayer.isInWater) {
             event.y = aacFly.toDouble()
             mc.thePlayer.motionY = aacFly.toDouble()
         }
@@ -104,8 +104,8 @@ object LiquidWalk : Module("LiquidWalk", Category.MOVEMENT, Keyboard.KEY_J) {
             return@handler
 
         if (event.block is BlockLiquid && !collideBlock(mc.thePlayer.entityBoundingBox) { it is BlockLiquid } && !mc.thePlayer.isSneaking) {
-            when (mode.lowercase()) {
-                "ncp", "vanilla" -> event.boundingBox = AxisAlignedBB.fromBounds(
+            when (mode) {
+                "NCP", "Vanilla" -> event.boundingBox = AxisAlignedBB.fromBounds(
                     event.x.toDouble(),
                     event.y.toDouble(),
                     event.z.toDouble(),

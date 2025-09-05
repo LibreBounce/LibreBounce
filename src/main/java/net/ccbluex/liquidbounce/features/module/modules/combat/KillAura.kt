@@ -1101,16 +1101,16 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         if (!forceStop) {
             if (blockStatus && !mc.thePlayer.isBlocking) {
 
-                when (unblockMode.lowercase()) {
-                    "stop" -> {
+                when (unblockMode) {
+                    "Stop" -> {
                         sendPacket(C07PacketPlayerDigging(RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN))
                     }
 
-                    "switch" -> {
+                    "Switch" -> {
                         switchToSlot((SilentHotbar.currentSlot + 1) % 9)
                     }
 
-                    "empty" -> {
+                    "Empty" -> {
                         player.inventory.firstEmptyStack.takeIf { it in 0..8 }.let {
                             if (it == null) {
                                 sendPacket(C07PacketPlayerDigging(RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN))

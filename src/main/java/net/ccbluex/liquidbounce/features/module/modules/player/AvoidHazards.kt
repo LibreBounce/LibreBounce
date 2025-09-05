@@ -8,11 +8,11 @@ import net.minecraft.init.Blocks.*
 import net.minecraft.util.AxisAlignedBB
 
 object AvoidHazards : Module("AvoidHazards", Category.WORLD) {
-    private val fire by boolean("Fire", true)
-    private val cobweb by boolean("Cobweb", true)
-    private val cactus by boolean("Cactus", true)
-    private val lava by boolean("Lava", true)
-    private val water by boolean("Water", true)
+    private val onFire by boolean("Fire", true)
+    private val onCobweb by boolean("Cobweb", true)
+    private val onCactus by boolean("Cactus", true)
+    private val onLava by boolean("Lava", true)
+    private val onWater by boolean("Water", true)
     private val plate by boolean("PressurePlate", true)
     private val snow by boolean("Snow", true)
 
@@ -20,17 +20,17 @@ object AvoidHazards : Module("AvoidHazards", Category.WORLD) {
         val player = mc.thePlayer ?: return@handler
 
         when (e.block) {
-            fire -> if (!fire) return@handler
+            fire -> if (!onFire) return@handler
 
-            web -> if (!cobweb) return@handler
+            web -> if (!onCobweb) return@handler
 
-            snow -> if (!snow) return@handler
+            snow -> if (!onSnow) return@handler
 
-            cactus -> if (!cactus) return@handler
+            cactus -> if (!onCactus) return@handler
 
             water, flowing_water ->
                 // Don't prevent water from cancelling fall damage.
-                if (!water || player.fallDistance >= 3.34627 || player.isInWater) return@handler
+                if (!onWater || player.fallDistance >= 3.34627 || player.isInWater) return@handler
 
             lava, flowing_lava -> if (!lava) return@handler
 

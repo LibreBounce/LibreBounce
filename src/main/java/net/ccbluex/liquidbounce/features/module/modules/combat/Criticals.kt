@@ -62,15 +62,15 @@ object Criticals : Module("Criticals", Category.COMBAT) {
 
             val (x, y, z) = player
 
-            when (mode.lowercase()) {
-                "packet" -> {
+            when (mode) {
+                "Packet" -> {
                     sendPackets(
                         C04PacketPlayerPosition(x, y + 0.0625, z, true),
                         C04PacketPlayerPosition(x, y, z, false)
                     )
                 }
 
-                "ncppacket" -> {
+                "NCPPacket" -> {
                     sendPackets(
                         C04PacketPlayerPosition(x, y + 0.11, z, false),
                         C04PacketPlayerPosition(x, y + 0.1100013579, z, false),
@@ -78,14 +78,14 @@ object Criticals : Module("Criticals", Category.COMBAT) {
                     )
                 }
 
-                "blocksmc" -> {
+                "BlocksMC" -> {
                     sendPackets(
                         C04PacketPlayerPosition(x, y + 0.001091981, z, true),
                         C04PacketPlayerPosition(x, y, z, false)
                     )
                 }
 
-                "blocksmc2" -> {
+                "BlocksMC2" -> {
                     if (player.ticksExisted % 4 == 0) {
                         sendPackets(
                             C04PacketPlayerPosition(x, y + 0.0011, z, true),
@@ -94,13 +94,13 @@ object Criticals : Module("Criticals", Category.COMBAT) {
                     }
                 }
 
-                "hop" -> {
+                "Hop" -> {
                     player.motionY = 0.1
                     player.fallDistance = 0.1f
                     player.onGround = false
                 }
 
-                "tphop" -> {
+                "TPHop" -> {
                     sendPackets(
                         C04PacketPlayerPosition(x, y + 0.02, z, false),
                         C04PacketPlayerPosition(x, y + 0.01, z, false)
@@ -108,10 +108,10 @@ object Criticals : Module("Criticals", Category.COMBAT) {
                     player.setPosition(x, y + 0.01, z)
                 }
 
-                "jump" -> player.motionY = 0.42
-                "lowjump" -> player.motionY = 0.3425
-                "custommotion" -> player.motionY = customMotionY.toDouble()
-                "visual" -> player.onCriticalHit(entity)
+                "Jump" -> player.motionY = 0.42
+                "LowJump" -> player.motionY = 0.3425
+                "CustomMotion" -> player.motionY = customMotionY.toDouble()
+                "Visual" -> player.onCriticalHit(entity)
             }
 
             msTimer.reset()
