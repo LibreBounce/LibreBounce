@@ -45,6 +45,7 @@ class Arraylist(
     side: Side = Side(Horizontal.RIGHT, Vertical.UP),
 ) : Element("Arraylist", x, y, scale, side) {
 
+    // TODO: Fully customizable Arraylist format, editable through the HUD Editor; this should be similar to the Text element.
     private val textColorMode by choices(
         "TextMode", arrayOf("Custom", "Fade", "Random", "Rainbow", "Gradient"), "Custom"
     )

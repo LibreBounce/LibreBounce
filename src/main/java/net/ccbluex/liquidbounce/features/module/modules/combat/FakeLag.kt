@@ -41,14 +41,11 @@ import kotlin.math.min
 
 object  FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
 
-    // TODO: Make an option for FakeLag to only work during combat
+    // TODO: Add an option for FakeLag to only start near combat
     private val delay by int("Delay", 550, 0..1000)
     private val recoilTime by int("RecoilTime", 750, 0..2000)
 
     private val allowedDistToEnemy by floatRange("MinAllowedDistToEnemy", 1.5f..3.5f, 0f..6f)
-
-    private val onlyWhenNearEnemy by boolean("OnlyWhenNearEnemy", true)
-    private val distanceToLag by floatRange("DistanceToLag", 3.5f..4.5f, 0f..6f) { onlyWhenNearEnemy }
 
     private val blinkOnAction by boolean("BlinkOnAction", true)
 
@@ -64,7 +61,6 @@ object  FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
     private val positions = Queues.newArrayDeque<PositionData>()
     private val resetTimer = MSTimer()
     private var wasNearEnemy = false
-    private var enemiesAround = true
     private var ignoreWholeTick = false
 
     private var renderData = ModelRenderData(Vec3_ZERO, Rotation.ZERO)
@@ -84,12 +80,6 @@ object  FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
         }
 
         if (pauseOnNoMove && !player.isMoving) {
-            blink()
-            return@handler
-        }
-
-        // Flush if onlyWhenNearEnemy and no opponent is around
-        if (onlyWhenNearEnemy && !enemiesAround) {
             blink()
             return@handler
         }
@@ -200,14 +190,7 @@ object  FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
             wasNearEnemy = false
 
             world.playerEntities.forEach { otherPlayer ->
-                if (otherPlayer == player) {
-                    if (onlyWhenNearEnemy) {
-                        enemiesAround = false
-                        return@forEach
-                    }
-                } else {
-                    return@forEach
-                }
+                if (otherPlayer == player) return@forEach
 
                 val entityMixin = otherPlayer as? IMixinEntity
 
@@ -217,13 +200,6 @@ object  FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
                     if (eyes.distanceTo(getNearestPointBB(eyes, playerBox)) in allowedDistToEnemy) {
                         blink()
                         wasNearEnemy = true
-                        enemiesAround = true
-                        return@handler
-                    }
-
-                    if (onlyWhenNearEnemy && !eyes.distanceTo(getNearestPointBB(eyes, playerBox)) in distanceToLag && !wasNearEnemy)
-                        blink()
-                        enemiesAround = false
                         return@handler
                     }
                 }

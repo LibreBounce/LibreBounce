@@ -1,13 +1,12 @@
 # LibreBounce
 A [Libre software](https://www.gnu.org/philosophy/free-sw.html), mixin-based injection hacked client for the Forge Mod Loader, version 1.8.9.
-Additionally, this is a fork of [LiquidBounce Legacy](https://github.com/CCBlueX/LiquidBounce/tree/legacy), although it attempts to be backwards-compatible.
+This is a fork of [LiquidBounce Legacy](https://github.com/CCBlueX/LiquidBounce/tree/legacy), although it attempts to remain somewhat backwards-compatible.
 
 ## Issues
 If you notice any bugs or missing features, you can let us know by opening an issue [here](https://github.com/LibreBounce/LibreBounce/issues).
 
 ## License
 This project is subject to the [GNU General Public License v3.0](LICENSE). This does only apply for source code located directly in this clean repository. During the development and compilation process, additional source code may be used to which we have obtained no rights. Such code is not covered by the GPL license.
-a
 For those who are unfamiliar with the license, here is a summary of its main points. This is by no means legal advice nor legally binding.
 
 You are allowed to
@@ -17,10 +16,10 @@ You are allowed to
 
 this project entirely or partially for free and even commercially. However, please consider the following:
 
-- **You must disclose the source code of your modified work and the source code you took from this project. This means you are not allowed to use code from this project (even partially) in a closed-source (or even obfuscated) application.**
-- **Your modified application must also be licensed under the GPL** 
+- **You must distribute the source code of your modified work and the source code you took from this project along with any binary you distribute. This means you are not allowed to use code from this project (even partially) in a closed-source (or even obfuscated) application.**
+- **Your modified application must also be licensed under the GPL**
 
-Do the above and share your source code with everyone; just like we do.
+Do the above and share your source code with everyone, just like we do.
 
 ## Setting up a Workspace
 LibreBounce is using Gradle, so make sure that it is installed properly. Instructions can be found on [Gradle's website](https://gradle.org/install/).
@@ -42,7 +41,7 @@ We appreciate contributions. So if you want to support us, feel free to make cha
 1. Make clicking and rotation patterns that bypass advanced anti-cheats (such as Polar).
 2. Add full backwards-compatibility with historical LiquidBounce versions (b68, b72).
 
-Any additional goals are easily found by code searching "TODO", and they are equally as important
+Any additional goals are easily found by code searching "TODO", and are equally as important, if not more.
 If you have experience in one or more of these fields, we would highly appreciate your support.
 
 ## Stats
