@@ -48,7 +48,7 @@ class BlocksTab : CreativeTabs("Special blocks") {
      *
      * @return icon item
      */
-    override fun getTabIconItem(): Item = ItemStack(Blocks.command_block).item
+    override fun getTabIconItem(): Item = ItemStack(command_block).item
 
     /**
      * Return name of tab

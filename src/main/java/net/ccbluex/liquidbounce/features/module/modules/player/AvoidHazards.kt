@@ -14,7 +14,7 @@ object AvoidHazards : Module("AvoidHazards", Category.WORLD) {
     private val onLava by boolean("Lava", true)
     private val onWater by boolean("Water", true)
     private val plate by boolean("PressurePlate", true)
-    private val snow by boolean("Snow", true)
+    private val onSnow by boolean("Snow", true)
 
     val onBlockBB = handler<BlockBBEvent> { e ->
         val player = mc.thePlayer ?: return@handler

@@ -189,8 +189,6 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
             return@handler
         }
 
-        val mode = mode
-
         // Set step to default in some cases
         if (!player.onGround || !timer.hasTimePassed(delay) ||
             mode in arrayOf("Jump", "MotionNCP", "LAAC", "AAC3.3.4", "BlocksMCTimer")
