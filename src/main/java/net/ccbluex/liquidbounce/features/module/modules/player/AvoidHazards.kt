@@ -32,7 +32,7 @@ object AvoidHazards : Module("AvoidHazards", Category.WORLD) {
                 // Don't prevent water from cancelling fall damage.
                 if (!onWater || player.fallDistance >= 3.34627 || player.isInWater) return@handler
 
-            lava, flowing_lava -> if (!lava) return@handler
+            lava, flowing_lava -> if (!onLava) return@handler
 
             wooden_pressure_plate, stone_pressure_plate, light_weighted_pressure_plate, heavy_weighted_pressure_plate -> {
                 if (plate)

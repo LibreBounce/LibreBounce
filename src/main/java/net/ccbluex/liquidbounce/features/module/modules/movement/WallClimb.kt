@@ -75,7 +75,7 @@ object WallClimb : Module("WallClimb", Category.MOVEMENT) {
                 player.motionY = 9.6599696
                 waitTicks(2)
                 player.motionY = 0.0001
-                return@handler
+                return@loopSequence
             }
 
             "AAC3.3.12" -> if (player.isCollidedHorizontally && !player.isOnLadder) {
@@ -93,7 +93,7 @@ object WallClimb : Module("WallClimb", Category.MOVEMENT) {
             } else if (player.onGround) waited = 0
 
             "AACGlide" -> {
-                if (!player.isCollidedHorizontally || player.isOnLadder) return@handler
+                if (!player.isCollidedHorizontally || player.isOnLadder) return@loopSequence
                 player.motionY = -0.19
             }
         }
