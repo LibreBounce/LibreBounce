@@ -6,6 +6,10 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 ## [Unreleased]
 
+### Fixed
+
+- `ShortStopLength` not doing anything in ChestStealer (thatonecoder)
+
 ## [0.2.0] 2025-09-04
 
 ### Added

@@ -219,14 +219,8 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
                     delay(stealingDelay.toLong())
 
-                    // TODO: Make this configurable
-                    if (simulateShortStop && nextInt(endExclusive = 100) < shortStopChance) {
-                        val minDelays = randomDelay(150, 300)
-                        val maxDelays = randomDelay(minDelays, 500)
-                        val randomDelay = randomDelay(minDelays, maxDelays).toLong()
-
-                        delay(randomDelay)
-                    }
+                    if (simulateShortStop && nextInt(endExclusive = 100) < shortStopChance) 
+                        delay(shortStopLength.random().toLong())                    
                 }
             }
 
@@ -239,7 +233,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
                 break
             }
 
-            // Wait untill ll scheduled clicks were sent
+            // Wait untill all scheduled clicks were sent
             awaitTicked()
 
             // Before closing the chest, check all items once more; the server may have cancelled some of the actions
