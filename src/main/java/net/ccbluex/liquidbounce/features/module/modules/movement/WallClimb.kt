@@ -72,14 +72,12 @@ object WallClimb : Module("WallClimb", Category.MOVEMENT) {
             }
 
             "vulcan2.8.8" -> if (player.isCollidedHorizontally && !player.isOnLadder) {
-                if (waited == 1)
-                    waited++
-                    player.motionY = 0.0
-                    waitTicks(2)
-                    player.motionY = 9.6599696
-                    waitTicks(2)
-                    player.motionY = 0.0001
-                    wiated == 1
+                player.motionY = 0.0
+                waitTicks(2)
+                player.motionY = 9.6599696
+                waitTicks(2)
+                player.motionY = 0.0001
+                return@handler
             }
 
             "aac3.3.12" -> if (player.isCollidedHorizontally && !player.isOnLadder) {
