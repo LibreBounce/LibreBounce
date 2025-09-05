@@ -8,6 +8,7 @@ package net.ccbluex.liquidbounce.features.module.modules.movement
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.event.async.waitTicks
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.collideBlockIntersects
 import net.ccbluex.liquidbounce.utils.extensions.isInLiquid
 import net.ccbluex.liquidbounce.utils.extensions.tryJump
@@ -19,7 +20,7 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 object WallClimb : Module("WallClimb", Category.MOVEMENT) {
-    private val mode by choices("Mode", arrayOf("Simple", "CheckerClimb", "Clip", "AAC3.3.12", "AACGlide"), "Simple")
+    private val mode by choices("Mode", arrayOf("Simple", "CheckerClimb", "Clip", "Vulcan2.8.8", "AAC3.3.12", "AACGlide"), "Simple")
     private val clipMode by choices("ClipMode", arrayOf("Jump", "Fast"), "Fast") { mode == "Clip" }
     private val checkerClimbMotion by float("CheckerClimbMotion", 0f, 0f..1f) { mode == "CheckerClimb" }
 
@@ -68,6 +69,17 @@ object WallClimb : Module("WallClimb", Category.MOVEMENT) {
 
                 if (isInsideBlock && motion != 0f)
                     player.motionY = motion.toDouble()
+            }
+
+            "vulcan2.8.8" -> if (player.isCollidedHorizontally && !player.isOnLadder) {
+                if (waited == 1)
+                    waited++
+                    player.motionY = 0.0
+                    waitTicks(2)
+                    player.motionY = 9.6599696
+                    waitTicks(2)
+                    player.motionY = 0.0001
+                    wiated == 1
             }
 
             "aac3.3.12" -> if (player.isCollidedHorizontally && !player.isOnLadder) {

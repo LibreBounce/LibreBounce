@@ -6,6 +6,11 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 ## [Unreleased]
 
+### Added
+
+- `Vulcan2.8.8` mode to IceSpeed (thatonecoder)
+- `Vanilla` mode, along with `Speed`, `IceSlipperiness`, and `PackedIceSlipperiness` values to IceSpeed (thatonecoder)
+
 ### Fixed
 
 - `ShortStopLength` not doing anything in ChestStealer (thatonecoder)
@@ -14,8 +19,9 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 ### Added
 
-- **Breaking:** Configurable randomizability to `SmartDelay` and interoperability with normal delay in ChestStealer (thatonecoder)
-- **Breaking:** Configurable `SimulateShortStop` values in ChestStealer; previously hardcoded (thatonecoder)
+- **Breaking:** Configurable randomizability for `SmartDelay` to ChestStealer (thatonecoder)
+- Smart delay interoperability with normal delay to ChestStealer (thatonecoder)
+- Configurable `SimulateShortStop` values to ChestStealer; previously hardcoded (thatonecoder)
 - `LegitimizeHorizontalJitter`, `LegitimizeVerticalJitter`, `LegitimizeHorizontalSlowdown` and `LegitimizeVerticalSlowdown` values to all rotation modules; previously hardcoded (thatonecoder)
 - `OnWeb` and `OnLiquid` options to SuperKnockback (thatonecoder)
 

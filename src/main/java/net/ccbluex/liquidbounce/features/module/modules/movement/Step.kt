@@ -41,9 +41,9 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
         "NCP"
     )
 
-    private val height by float("Height", 1F, 0.6F..10F)
+    private val height by float("Height", 1f, 0.6f..10f)
     { mode !in arrayOf("Jump", "MotionNCP", "LAAC", "AAC3.3.4", "BlocksMCTimer") }
-    private val jumpHeight by float("JumpHeight", 0.42F, 0.37F..0.42F)
+    private val jumpHeight by float("JumpHeight", 0.42f, 0.37f..0.42f)
     { mode == "Jump" }
 
     private val delay by int("Delay", 0, 0..500)
