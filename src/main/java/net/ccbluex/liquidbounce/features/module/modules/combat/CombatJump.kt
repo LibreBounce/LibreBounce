@@ -40,7 +40,7 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
         if (!isSelected(event.targetEntity, true)) return@handler
 
         if (event.targetEntity is EntityLivingBase) {
-            atRange = player.getDistanceToEntityBox(event.targetEntity) in targetDistance
+            atRange = mc.thePlayer.getDistanceToEntityBox(event.targetEntity) in targetDistance
         } else {
             atRange = false
         }
