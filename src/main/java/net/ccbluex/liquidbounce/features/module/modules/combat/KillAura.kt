@@ -779,7 +779,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
             if (switchMode && !isLookingOnEntities(entity, maxSwitchFOV.toDouble())) continue
 
-            val optimal = (distance * 2.0) + entity.health.toDouble() + (entity.hurtTime.toDouble() * 4.0) + entity.totalArmorValue.toDouble() + (entityFov.toDouble / 2.0)
+            val optimal = (distance * 2.0) + entity.health.toDouble() + (entity.hurtTime.toDouble() * 4.0) + entity.totalArmorValue.toDouble() + (entityFov.toDouble() / 2.0)
 
             val currentValue = when (priority) {
                 "Optimal" -> optimal
