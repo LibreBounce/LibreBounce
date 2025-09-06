@@ -8,8 +8,10 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 ### Added
 
-- `Vulcan2.8.8` mode to IceSpeed (thatonecoder)
 - `Vanilla` mode, along with `Speed`, `IceSlipperiness`, and `PackedIceSlipperiness` values to IceSpeed (thatonecoder)
+- `Vulcan2.8.8` mode to WallClimb (thatonecoder)
+- `Debug` option to BackTrack (thatonecoder)
+- `Debug` option to TickBase (thatonecoder)
 
 ### Fixed
 

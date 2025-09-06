@@ -13,6 +13,7 @@ import net.ccbluex.liquidbounce.features.module.modules.player.Blink
 import net.ccbluex.liquidbounce.injection.implementations.IMixinEntity
 import net.ccbluex.liquidbounce.utils.attack.EntityUtils.isSelected
 import net.ccbluex.liquidbounce.utils.client.PacketUtils
+import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.realX
 import net.ccbluex.liquidbounce.utils.client.realY
 import net.ccbluex.liquidbounce.utils.client.realZ
@@ -69,7 +70,6 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
     private val style by choices("Style", arrayOf("Pulse", "Smooth"), "Smooth") { mode == "Modern" }
     private val distance by floatRange("Distance", 2f..3f, 0f..6f) { mode == "Modern" }
     private val smart by boolean("Smart", true) { mode == "Modern" }
-
     // ESP
     private val espMode by choices(
         "ESPMode",
@@ -80,6 +80,8 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
 
     private val espColor =
         ColorSettingsInteger(this, "ESPColor") { espMode != "Model" && mode == "Modern" }.with(0, 255, 0)
+
+    private val debug by boolean("Debug", false) { mode == "Modern" }
 
     private val packetQueue = ConcurrentLinkedQueue<QueueData>()
     private val positions = ConcurrentLinkedQueue<Pair<Vec3, Long>>()
@@ -253,6 +255,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
 
                         if (mc.thePlayer.getDistanceToEntityBox(target) in distance) {
                             handlePackets()
+                            if (debug) chat("LAG DIST: ${dist}, TRUE DIST: ${trueDist}")
                         } else {
                             handlePacketsRange()
                         }

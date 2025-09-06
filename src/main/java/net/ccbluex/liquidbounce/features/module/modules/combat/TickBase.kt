@@ -11,6 +11,7 @@ import net.ccbluex.liquidbounce.event.async.waitTicks
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.player.Blink
+import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.attack.EntityUtils
 import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
@@ -41,6 +42,8 @@ object TickBase : Module("TickBase", Category.COMBAT) {
 
     private val line by boolean("Line", true).subjective()
     private val lineColor by color("LineColor", Color.GREEN) { line }.subjective()
+
+    private val debug by boolean("Debug", false)
 
     private var ticksToSkip = 0
     private var tickBalance = 0f
@@ -130,6 +133,9 @@ object TickBase : Module("TickBase", Category.COMBAT) {
                 waitTicks(skipTicks)
                 modificationFlag = true
             }
+
+            if (debug) chat("LAG TICKS: ${skipTicks} (BEST TICKS: ${bestTick}, ADDITIONAL PAUSE TICKS: ${pauseAfterTick})")
+
         }
     }
 
