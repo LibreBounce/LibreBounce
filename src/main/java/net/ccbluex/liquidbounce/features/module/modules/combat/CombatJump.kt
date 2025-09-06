@@ -29,7 +29,7 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
 
         val target = target
 
-        val distance = player.getDistance(target?.posX, target?.posY, target?.posZ) ?: return@handler
+        val distance = player.getDistance(target.posX, target.posY, target.posZ)
 
         if (distance in targetDistance) {
             player.tryJump()
