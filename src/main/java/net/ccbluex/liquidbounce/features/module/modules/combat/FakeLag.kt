@@ -208,6 +208,7 @@ object  FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
                         wasNearEnemy = true
                         return@handler
                     }
+                }
 
                 if (onlyWhenNearEnemy) {
                     if (!distance in distanceToLag) {

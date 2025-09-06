@@ -19,7 +19,7 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
     private val targetDistance by floatRange("TargetDistance", 7f..7.5f, 0f..8f)
     private val onlyMove by boolean("OnlyMove", true)
 
-    private val target as? EntityLivingBase
+    private val target: EntityLivingBase
 
     val onStrafe = handler<StrafeEvent> {
         val player = mc.thePlayer ?: return@handler
