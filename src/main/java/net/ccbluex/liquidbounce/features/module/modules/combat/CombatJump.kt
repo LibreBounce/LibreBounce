@@ -19,15 +19,14 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
     private val targetDistance by floatRange("TargetDistance", 7f..7.5f, 0f..8f)
     private val onlyMove by boolean("OnlyMove", true)
 
-    private val target: EntityLivingBase
+    private val atRange: Boolean
 
-    val onStrafe = handler<StrafeEvent> {
+    val onStrafe = handler<StrafeEvent> { event ->
         val player = mc.thePlayer ?: return@handler
-        target ?: return@handler
 
         if (onlyMove && !player.isMoving) return@handler
 
-        if (!player.getDistanceToEntityBox(target) in targetDistance) {
+        if (atRange) {
             if (player.onGround) {
                 player.tryJump()
 
@@ -42,5 +41,7 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
         if (event.targetEntity is EntityLivingBase) {
             target = event.targetEntity
         }
+
+        atRange = player.getDistanceToEntityBox(target) in targetDistance
     }
 }

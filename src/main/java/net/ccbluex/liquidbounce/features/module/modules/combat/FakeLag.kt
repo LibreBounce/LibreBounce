@@ -200,10 +200,10 @@ object  FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
 
                 val eyes = getTruePositionEyes(otherPlayer)
 
-                val distance = eyes.distanceTo(getNearestPointBB(eyes, playerBox))
+                val playerDistance = eyes.distanceTo(getNearestPointBB(eyes, playerBox))
 
                 if (entityMixin != null) {
-                    if (distance in allowedDistToEnemy) {
+                    if (playerDistance in allowedDistToEnemy) {
                         blink()
                         wasNearEnemy = true
                         return@handler
@@ -211,11 +211,14 @@ object  FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
                 }
 
                 if (onlyWhenNearEnemy) {
-                    if (!distance in distanceToLag) {
+                    val shouldLag = playerDistance in distanceToLag
+
+                    if (!shouldLag) {
                         blink()
                         return@handler
                     }
                 }
+
             }
         }
 
