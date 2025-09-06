@@ -3,7 +3,7 @@
  * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
  * https://github.com/CCBlueX/LiquidBounce/
  */
-package net.ccbluex.liquidbounce.features.module.modules.combat
+/*package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import net.ccbluex.liquidbounce.event.AttackEvent
 import net.ccbluex.liquidbounce.event.StrafeEvent
@@ -41,4 +41,4 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
             target = event.targetEntity
         }
     }
-}
+}*/
