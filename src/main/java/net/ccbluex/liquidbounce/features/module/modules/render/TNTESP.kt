@@ -18,7 +18,7 @@ import net.minecraft.entity.item.EntityTNTPrimed
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 
-object TNTESP : Module("TNTESP", Category.RENDER, spacedName = "TNT ESP") {
+object TNTESP : Module("TNTESP", Category.RENDER) {
 
     private val dangerZoneDome by boolean("DangerZoneDome", false)
     private val mode by choices("Mode", arrayOf("Lines", "Triangles", "Filled"), "Lines") { dangerZoneDome }

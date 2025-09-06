@@ -24,6 +24,7 @@ import net.ccbluex.liquidbounce.utils.rotation.RotationUtils
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.client.gui.inventory.GuiContainer
+import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.network.handshake.client.C00Handshake
 import net.minecraft.network.play.client.*
@@ -46,6 +47,9 @@ object  FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
     private val recoilTime by int("RecoilTime", 750, 0..2000)
 
     private val allowedDistToEnemy by floatRange("MinAllowedDistToEnemy", 1.5f..3.5f, 0f..6f)
+
+    private val onlyWhenNearEnemy by boolean("OnlyWhenNearEnemy", true)
+    private val distanceToLag by floatRange("DistanceToLag", 3.5f..4.5f, 0f..6f) { onlyWhenNearEnemy }
 
     private val blinkOnAction by boolean("BlinkOnAction", true)
 
@@ -79,6 +83,15 @@ object  FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
             return@handler
         }
 
+        if (onlyWhenNearEnemy) {
+            val target = event.targetEntity as? EntityLivingBase ?: return@handler
+
+            if (!player.getDistanceToEntityBox(target) in distanceToLag) {
+                blink()
+                return@handler
+            }
+        }
+
         if (pauseOnNoMove && !player.isMoving) {
             blink()
             return@handler
@@ -92,7 +105,7 @@ object  FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
             }
         }
 
-        // Flush on scaffold/tower usage
+        // Flush on Scaffold/Tower usage
         if (Scaffold.handleEvents() && Scaffold.placeRotation != null) {
             blink()
             return@handler

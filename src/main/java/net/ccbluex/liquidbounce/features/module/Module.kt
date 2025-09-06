@@ -23,12 +23,11 @@ import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.client.asResourceLocation
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.playSound
+import net.ccbluex.liquidbounce.utils.extensions.addSpaces
 import net.ccbluex.liquidbounce.utils.extensions.toLowerCamelCase
 import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.nextFloat
 import net.ccbluex.liquidbounce.utils.timing.TickedActions.clearTicked
 import org.lwjgl.input.Keyboard
-
-private val SPLIT_REGEX = "(?<=[a-z])(?=[A-Z])".toRegex()
 
 open class Module(
     name: String,
@@ -38,7 +37,7 @@ open class Module(
     private val forcedDescription: String? = null,
 
     // Adds spaces between lowercase and uppercase letters (KillAura -> Kill Aura)
-    val spacedName: String = name.splitToSequence(SPLIT_REGEX).joinToString(separator = " "),
+    val spacedName: String = name.addSpaces(),
     subjective: Boolean = category == Category.RENDER,
     val gameDetecting: Boolean = canBeEnabled,
     defaultState: Boolean = false,
