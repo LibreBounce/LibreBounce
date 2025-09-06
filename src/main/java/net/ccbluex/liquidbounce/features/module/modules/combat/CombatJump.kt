@@ -27,6 +27,9 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
 
         if (onlyMove && !player.isMoving) return@handler
 
+        val target = target
+        val targetMixin = target as? IMixinEntity
+
         val distance = player.getDistanceToEntityBox(target) ?: return@handler
 
         if (distance in targetDistance) {
