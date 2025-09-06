@@ -90,6 +90,7 @@ object ModuleManager : Listenable, Collection<Module> by MODULE_REGISTRY {
             CivBreak,
             ClickGUI,
             Clip,
+            CombatJump,
             ComponentOnHover,
             ConsoleSpammer,
             Criticals,
