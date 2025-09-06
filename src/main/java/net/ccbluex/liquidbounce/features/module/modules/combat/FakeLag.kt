@@ -208,17 +208,16 @@ object  FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
                         wasNearEnemy = true
                         return@handler
                     }
-                }
 
-                if (onlyWhenNearEnemy) {
-                    val shouldLag = playerDistance in distanceToLag
+                    if (onlyWhenNearEnemy) {
+                        val shouldLag = playerDistance in distanceToLag
 
-                    if (!shouldLag) {
-                        blink()
-                        return@handler
+                        if (!shouldLag) {
+                            blink()
+                            return@handler
+                        }
                     }
                 }
-
             }
         }
 
