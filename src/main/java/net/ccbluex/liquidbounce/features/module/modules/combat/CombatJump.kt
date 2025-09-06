@@ -10,6 +10,7 @@ import net.ccbluex.liquidbounce.event.StrafeEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.utils.attack.EntityUtils.isSelected
 import net.ccbluex.liquidbounce.utils.extensions.tryJump
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.utils.extensions.getDistanceToEntityBox
@@ -19,7 +20,7 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
     private val targetDistance by floatRange("TargetDistance", 7f..7.5f, 0f..8f)
     private val onlyMove by boolean("OnlyMove", true)
 
-    private val atRange: Boolean
+    private var atRange = false
 
     val onStrafe = handler<StrafeEvent> { event ->
         val player = mc.thePlayer ?: return@handler
@@ -39,9 +40,9 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
         if (!isSelected(event.targetEntity, true)) return@handler
 
         if (event.targetEntity is EntityLivingBase) {
-            target = event.targetEntity
+            atRange = player.getDistanceToEntityBox(event.targetEntity) in targetDistance
+        } else {
+            atRange = false
         }
-
-        atRange = player.getDistanceToEntityBox(target) in targetDistance
     }
 }
