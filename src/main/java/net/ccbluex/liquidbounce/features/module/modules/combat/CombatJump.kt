@@ -27,7 +27,9 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
 
         if (onlyMove && !player.isMoving) return@handler
 
-        if (player.getDistanceToEntityBox(event.targetEntity) in targetDistance) {
+        val distance = player.getDistanceToEntityBox(target) ?: return@handler
+
+        if (distance in targetDistance) {
             player.tryJump()
         }
     }

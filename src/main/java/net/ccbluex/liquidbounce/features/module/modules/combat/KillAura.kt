@@ -106,6 +106,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     // Modes
     private val priority by choices(
         "Priority", arrayOf(
+            "Optimal",
             "Health",
             "Distance",
             "Direction",
@@ -122,9 +123,8 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     )
     private val targetMode by choices("TargetMode", arrayOf("Single", "Switch", "Multi"), "Switch")
     private val limitedMultiTargets by int("LimitedMultiTargets", 0, 0..50) { targetMode == "Multi" }
-    private val maxSwitchFOV by float("MaxSwitchFOV", 90f, 30f..180f) { targetMode == "Switch" }
 
-    // Delay
+    private val maxSwitchFOV by float("MaxSwitchFOV", 90f, 30f..180f) { targetMode == "Switch" }
     private val switchDelay by int("SwitchDelay", 15, 1..1000) { targetMode == "Switch" }
 
     // Bypass
@@ -214,7 +214,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     private val hitDelayTicks by int("HitDelayTicks", 1, 1..5) { useHitDelay }
 
     private val generateClicksBasedOnDist by boolean("GenerateClicksBasedOnDistance", false)
-    private val cpsMultiplier by intRange("CPS-Multiplier", 1..2, 1..10) { generateClicksBasedOnDist }
+    private val cpsMultiplier by intRange("CPSMultiplier", 1..2, 1..10) { generateClicksBasedOnDist }
     private val distanceFactor by floatRange("DistanceFactor", 5F..10F, 1F..10F) { generateClicksBasedOnDist }
 
     private val generateSpotBasedOnDistance by boolean("GenerateSpotBasedOnDistance", false) { options.rotationsActive }
@@ -779,22 +779,25 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
             if (switchMode && !isLookingOnEntities(entity, maxSwitchFOV.toDouble())) continue
 
-            val currentValue = when (priority.lowercase()) {
-                "distance" -> distance
-                "direction" -> entityFov.toDouble()
-                "health" -> entity.health.toDouble()
-                "livingtime" -> -entity.ticksExisted.toDouble()
-                "armor" -> entity.totalArmorValue.toDouble()
-                "hurtresistance" -> entity.hurtResistantTime.toDouble()
-                "hurttime" -> entity.hurtTime.toDouble()
-                "healthabsorption" -> (entity.health + entity.absorptionAmount).toDouble()
-                "regenamplifier" -> if (entity.isPotionActive(Potion.regeneration)) {
+            val optimal = (distance * 2.0) + entity.health.toDouble() + (entity.hurtTime.toDouble() * 4.0) + entity.totalArmorValue.toDouble() + (entityFov.toDouble / 2.0)
+
+            val currentValue = when (priority) {
+                "Optimal" -> optimal
+                "Distance" -> distance
+                "Direction" -> entityFov.toDouble()
+                "Health" -> entity.health.toDouble()
+                "LivingTime" -> -entity.ticksExisted.toDouble()
+                "Armor" -> entity.totalArmorValue.toDouble()
+                "HurtResistance" -> entity.hurtResistantTime.toDouble()
+                "HurtTime" -> entity.hurtTime.toDouble()
+                "HealthAbsorption" -> (entity.health + entity.absorptionAmount).toDouble()
+                "RegenAmplifier" -> if (entity.isPotionActive(Potion.regeneration)) {
                     entity.getActivePotionEffect(Potion.regeneration).amplifier.toDouble()
                 } else -1.0
 
-                "inweb" -> if (entity.isInWeb) -1.0 else Double.MAX_VALUE
-                "onladder" -> if (entity.isOnLadder) -1.0 else Double.MAX_VALUE
-                "inliquid" -> if (entity.isInWater || entity.isInLava) -1.0 else Double.MAX_VALUE
+                "InWeb" -> if (entity.isInWeb) -1.0 else Double.MAX_VALUE
+                "OnLadder" -> if (entity.isOnLadder) -1.0 else Double.MAX_VALUE
+                "InLiquid" -> if (entity.isInWater || entity.isInLava) -1.0 else Double.MAX_VALUE
                 else -> null
             } ?: continue
 

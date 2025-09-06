@@ -9,6 +9,9 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 ### Added
 
 - `Vanilla` mode, along with `Speed`, `IceSlipperiness`, and `PackedIceSlipperiness` values to IceSpeed (thatonecoder)
+- `OnlyWhenNearEnemy` and `DistanceToLag` to FakeLag (thatonecoder)
+- `Optimal` mode for target priority to KillAura (thatonecoder)
+- `CombatJump` module; jumps when near trades to have an advantage (thatonecoder)
 - `Debug` option to BackTrack (thatonecoder)
 - `Debug` option to TickBase (thatonecoder)
 
@@ -16,7 +19,13 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 - `ShortStopLength` not doing anything in ChestStealer (thatonecoder)
 
-## [0.2.0] 2025-09-04
+### Changed
+
+- **Breaking:** Rename `CPS-Multiplier` to `CPSMultiplier` in KillAura (thatonecoder)
+- **Breaking:** Rename `Custom-Y` to `CustomY` in Criticals (thatonecoder)
+
+
+## [0.2.0] - 2025-09-04
 
 ### Added
 
