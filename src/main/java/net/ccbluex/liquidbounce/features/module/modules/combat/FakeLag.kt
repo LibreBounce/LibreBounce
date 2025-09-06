@@ -83,15 +83,6 @@ object  FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
             return@handler
         }
 
-        if (onlyWhenNearEnemy) {
-            val target = event.targetEntity as? EntityLivingBase ?: return@handler
-
-            if (!player.getDistanceToEntityBox(target) in distanceToLag) {
-                blink()
-                return@handler
-            }
-        }
-
         if (pauseOnNoMove && !player.isMoving) {
             blink()
             return@handler
@@ -207,12 +198,20 @@ object  FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
 
                 val entityMixin = otherPlayer as? IMixinEntity
 
-                if (entityMixin != null) {
-                    val eyes = getTruePositionEyes(otherPlayer)
+                val eyes = getTruePositionEyes(otherPlayer)
 
-                    if (eyes.distanceTo(getNearestPointBB(eyes, playerBox)) in allowedDistToEnemy) {
+                val distance = eyes.distanceTo(getNearestPointBB(eyes, playerBox))
+
+                if (entityMixin != null) {
+                    if (distance in allowedDistToEnemy) {
                         blink()
                         wasNearEnemy = true
+                        return@handler
+                    }
+
+                if (onlyWhenNearEnemy) {
+                    if (!distance in distanceToLag) {
+                        blink()
                         return@handler
                     }
                 }
