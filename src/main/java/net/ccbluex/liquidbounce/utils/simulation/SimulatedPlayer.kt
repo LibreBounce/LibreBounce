@@ -44,6 +44,11 @@ import kotlin.math.ceil
 
 /**
  * Compatible with client user ONLY. Useful for predicting movement ticks ahead.
+ *
+ * Here's the code to pick the amount of ticks:
+ * repeat(ticks) {
+ *     simPlayer.tick()
+ * }
  */
 @Suppress("SameParameterValue", "MemberVisibilityCanBePrivate")
 class SimulatedPlayer(
@@ -290,6 +295,7 @@ class SimulatedPlayer(
                 this.updateAITick()
             } else if (this.onGround && this.jumpTicks == 0) {
                 this.jump()
+
                 if (NoJumpDelay.handleEvents()) {
                     this.jumpTicks = 10
                 }
@@ -555,6 +561,7 @@ class SimulatedPlayer(
                 motionY *= 0.800000011920929
                 motionZ *= f5.toDouble()
                 motionY -= 0.02
+
                 if (isCollidedHorizontally && isOffsetPositionInLiquid(motionX,
                         motionY + 0.6000000238418579 - posY + d0,
                         motionZ

@@ -21,7 +21,7 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 object WallClimb : Module("WallClimb", Category.MOVEMENT) {
-    private val mode by choices("Mode", arrayOf("Simple", "CheckerClimb", "Clip", "Vulcan2.8.8", "AAC3.3.12", "AACGlide"), "Simple")
+    private val mode by choices("Mode", arrayOf("Simple", "CheckerClimb", "Clip", "AAC3.3.12", "AACGlide"), "Simple")
     private val clipMode by choices("ClipMode", arrayOf("Jump", "Fast"), "Fast") { mode == "Clip" }
     private val checkerClimbMotion by float("CheckerClimbMotion", 0f, 0f..1f) { mode == "CheckerClimb" }
 
@@ -67,15 +67,6 @@ object WallClimb : Module("WallClimb", Category.MOVEMENT) {
 
                 if (isInsideBlock && motion != 0f)
                     player.motionY = motion.toDouble()
-            }
-
-            "Vulcan2.8.8" -> if (player.isCollidedHorizontally && !player.isOnLadder) {
-                player.motionY = 0.0
-                waitTicks(2)
-                player.motionY = 9.6599696
-                waitTicks(2)
-                player.motionY = 0.0001
-                return@loopSequence
             }
 
             "AAC3.3.12" -> if (player.isCollidedHorizontally && !player.isOnLadder) {
