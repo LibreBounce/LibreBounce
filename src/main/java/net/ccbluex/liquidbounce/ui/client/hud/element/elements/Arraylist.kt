@@ -198,7 +198,7 @@ class Arraylist(
             else -> module.getName()
         }
 
-        var tag = (if (spacedTags) module.tag.addSpaces() else module.tag) ?: ""
+        var tag = (if (spacedTags) module.tag?.addSpaces() else module.tag) ?: ""
 
         tag = when (tagsCase) {
             "Uppercase" -> tag.uppercase()

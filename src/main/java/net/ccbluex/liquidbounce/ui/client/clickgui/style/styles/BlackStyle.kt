@@ -7,6 +7,7 @@ package net.ccbluex.liquidbounce.ui.client.clickgui.style.styles
 
 import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.features.module.modules.render.ClickGUI.scale
+import net.ccbluex.liquidbounce.features.module.modules.render.ClickGUI.spacedValues
 import net.ccbluex.liquidbounce.ui.client.clickgui.ClickGui.clamp
 import net.ccbluex.liquidbounce.ui.client.clickgui.Panel
 import net.ccbluex.liquidbounce.ui.client.clickgui.elements.ButtonElement
