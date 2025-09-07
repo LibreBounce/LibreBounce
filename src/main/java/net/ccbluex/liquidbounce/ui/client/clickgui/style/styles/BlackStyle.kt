@@ -201,7 +201,8 @@ object BlackStyle : Style() {
                             yPos += fontSemibold35.fontHeight + 1
 
                             for (valueOfList in value.values) {
-                                moduleElement.settingsWidth = fontSemibold35.getStringWidth("> $valueOfList") + 12
+                                val valueName = if (spacedValues) valueOfList.addSpaces() else valueOfList
+                                moduleElement.settingsWidth = fontSemibold35.getStringWidth("> $valueName") + 12
 
                                 if (value.openList) {
                                     if (mouseButton == 0 && mouseX in minX..maxX && mouseY in yPos..yPos + 9) {
@@ -211,7 +212,7 @@ object BlackStyle : Style() {
                                     }
 
                                     fontSemibold35.drawString(
-                                        "> $valueOfList",
+                                        "> $valueName",
                                         minX + 2,
                                         yPos + 2,
                                         if (value.get() == valueOfList) Color.WHITE.rgb else Int.MAX_VALUE
@@ -256,7 +257,7 @@ object BlackStyle : Style() {
                             drawRect(x, y, sliderValue, y + 2, color.rgb)
                             drawFilledCircle(sliderValue, y + 1, 3f, color)
 
-                            fontSemibold35.drawString(text, minX + 2, yPos + 3, Color.WHITE.rgb)
+                            fontSemibold35.drawString(floatText, minX + 2, yPos + 3, Color.WHITE.rgb)
 
                             yPos += 19
                         }

@@ -7,6 +7,7 @@ package net.ccbluex.liquidbounce.ui.client.clickgui.style.styles
 
 import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.features.module.modules.render.ClickGUI.scale
+import net.ccbluex.liquidbounce.features.module.modules.render.ClickGUI.spacedValues
 import net.ccbluex.liquidbounce.ui.client.clickgui.ClickGui.clamp
 import net.ccbluex.liquidbounce.ui.client.clickgui.Panel
 import net.ccbluex.liquidbounce.ui.client.clickgui.elements.ButtonElement
@@ -18,6 +19,7 @@ import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlockName
 import net.ccbluex.liquidbounce.utils.extensions.component1
 import net.ccbluex.liquidbounce.utils.extensions.component2
 import net.ccbluex.liquidbounce.utils.extensions.lerpWith
+import net.ccbluex.liquidbounce.utils.extensions.addSpaces
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.blendColors
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.withAlpha
@@ -161,11 +163,10 @@ object SlowlyStyle : Style() {
                     assumeNonVolatile = value.get() is Number
 
                     val suffix = value.suffix ?: ""
+                    val text = if (spacedValues) value.name.addSpaces() else value.name
 
                     when (value) {
                         is BoolValue -> {
-                            val text = value.name
-
                             moduleElement.settingsWidth = fontSemibold35.getStringWidth(text) + 8
 
                             if (mouseButton == 0 && mouseX in minX..maxX && mouseY in yPos..yPos + 12) {
@@ -182,8 +183,6 @@ object SlowlyStyle : Style() {
                         }
 
                         is ListValue -> {
-                            val text = value.name
-
                             moduleElement.settingsWidth = fontSemibold35.getStringWidth(text) + 16
 
                             if (mouseButton == 0 && mouseX in minX..maxX && mouseY in yPos..yPos + fontSemibold35.fontHeight) {
@@ -203,7 +202,8 @@ object SlowlyStyle : Style() {
                             yPos += fontSemibold35.fontHeight + 1
 
                             for (valueOfList in value.values) {
-                                moduleElement.settingsWidth = fontSemibold35.getStringWidth("> $valueOfList") + 12
+                                val valueName = if (spacedValues) valueOfList.addSpaces() else valueOfList
+                                moduleElement.settingsWidth = fontSemibold35.getStringWidth("> $valueName") + 12
 
                                 if (value.openList) {
                                     if (mouseButton == 0 && mouseX in minX..maxX && mouseY in yPos..yPos + 9) {
@@ -213,7 +213,7 @@ object SlowlyStyle : Style() {
                                     }
 
                                     fontSemibold35.drawString(
-                                        "> $valueOfList",
+                                        "> $valueName",
                                         minX + 2,
                                         yPos + 2,
                                         if (value.get() == valueOfList) Color.WHITE.rgb else Int.MAX_VALUE
@@ -228,9 +228,9 @@ object SlowlyStyle : Style() {
                         }
 
                         is FloatValue -> {
-                            val text = value.name + "§f: " + round(value.get()) + " §7${suffix}"
+                            val floatText = text + "§f: " + round(value.get()) + " §7${suffix}"
 
-                            moduleElement.settingsWidth = fontSemibold35.getStringWidth(text) + 8
+                            moduleElement.settingsWidth = fontSemibold35.getStringWidth(floatText) + 8
 
                             val x = minX + 4
                             val y = yPos + 14
@@ -256,16 +256,16 @@ object SlowlyStyle : Style() {
                             drawRect(x, y, sliderValue, y + 2, color.rgb)
                             drawFilledCircle(sliderValue, y + 1, 3f, color)
 
-                            fontSemibold35.drawString(text, minX + 2, yPos + 3, Color.WHITE.rgb)
+                            fontSemibold35.drawString(floatText, minX + 2, yPos + 3, Color.WHITE.rgb)
 
                             yPos += 19
                         }
 
                         is BlockValue -> {
-                            val text =
-                                value.name + "§f: " + getBlockName(value.get()) + " (" + value.get() + ")" + " §7${suffix}"
+                            val blockText =
+                                text + "§f: " + getBlockName(value.get()) + " (" + value.get() + ")" + " §7${suffix}"
 
-                            moduleElement.settingsWidth = fontSemibold35.getStringWidth(text) + 8
+                            moduleElement.settingsWidth = fontSemibold35.getStringWidth(blockText) + 8
 
                             val x = minX + 4
                             val y = yPos + 14
@@ -294,15 +294,15 @@ object SlowlyStyle : Style() {
                             drawRect(x, y, sliderValue, y + 2, color.rgb)
                             drawFilledCircle(sliderValue, y + 1, 3f, color)
 
-                            fontSemibold35.drawString(text, minX + 2, yPos + 3, Color.WHITE.rgb)
+                            fontSemibold35.drawString(blockText, minX + 2, yPos + 3, Color.WHITE.rgb)
 
                             yPos += 19
                         }
 
                         is IntValue -> {
-                            val text = value.name + "§f: " + value.get() + " §7${suffix}"
+                            val intText = text + "§f: " + value.get() + " §7${suffix}"
 
-                            moduleElement.settingsWidth = fontSemibold35.getStringWidth(text) + 8
+                            moduleElement.settingsWidth = fontSemibold35.getStringWidth(intText) + 8
 
                             val x = minX + 4
                             val y = yPos + 14
@@ -331,7 +331,7 @@ object SlowlyStyle : Style() {
                             drawRect(x, y, sliderValue, y + 2, color.rgb)
                             drawFilledCircle(sliderValue, y + 1, 3f, color)
 
-                            fontSemibold35.drawString(text, minX + 2, yPos + 3, Color.WHITE.rgb)
+                            fontSemibold35.drawString(intText, minX + 2, yPos + 3, Color.WHITE.rgb)
 
                             yPos += 19
                         }
@@ -340,8 +340,8 @@ object SlowlyStyle : Style() {
                             val slider1 = value.get().first
                             val slider2 = value.get().last
 
-                            val text = "${value.name}§f: $slider1 - $slider2 §7$suffix"
-                            moduleElement.settingsWidth = fontSemibold35.getStringWidth(text) + 8
+                            val intRangeText = "${text}§f: $slider1 - $slider2 §7$suffix"
+                            moduleElement.settingsWidth = fontSemibold35.getStringWidth(intRangeText) + 8
 
                             val x = minX + 4
                             val y = yPos + 14
@@ -407,7 +407,7 @@ object SlowlyStyle : Style() {
                             drawFilledCircle(sliderValue1, y + 1, 3f, color)
                             drawFilledCircle(sliderValue2, y + 1, 3f, color)
 
-                            fontSemibold35.drawString(text, minX + 2, yPos + 4, Color.WHITE.rgb)
+                            fontSemibold35.drawString(intRangeText, minX + 2, yPos + 4, Color.WHITE.rgb)
 
                             yPos += 19
                         }
@@ -416,8 +416,8 @@ object SlowlyStyle : Style() {
                             val slider1 = value.get().start
                             val slider2 = value.get().endInclusive
 
-                            val text = "${value.name}§f: ${round(slider1)} - ${round(slider2)} §7$suffix"
-                            moduleElement.settingsWidth = fontSemibold35.getStringWidth(text) + 8
+                            val floatRangeText = "${text}§f: ${round(slider1)} - ${round(slider2)} §7$suffix"
+                            moduleElement.settingsWidth = fontSemibold35.getStringWidth(floatRangeText) + 8
 
                             val x = minX + 4
                             val y = yPos + 14
@@ -483,7 +483,7 @@ object SlowlyStyle : Style() {
                             drawFilledCircle(sliderValue1.roundToInt(), y + 1, 3f, backgroundColor)
                             drawFilledCircle(sliderValue2.roundToInt(), y + 1, 3f, backgroundColor)
 
-                            fontSemibold35.drawString(text, minX + 2, yPos + 4, Color.WHITE.rgb)
+                            fontSemibold35.drawString(floatRangeText, minX + 2, yPos + 4, Color.WHITE.rgb)
 
                             yPos += 19
                         }
@@ -572,7 +572,7 @@ object SlowlyStyle : Style() {
                                 }
                             }
 
-                            val startText = "${value.name}: "
+                            val startText = "${text}: "
                             val valueText = "#%08X".format(currentColor.rgb)
                             val combinedText = startText + valueText
 

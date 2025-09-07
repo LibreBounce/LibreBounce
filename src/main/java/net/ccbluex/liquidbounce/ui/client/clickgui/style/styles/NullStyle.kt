@@ -8,6 +8,7 @@ package net.ccbluex.liquidbounce.ui.client.clickgui.style.styles
 import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.features.module.modules.render.ClickGUI.guiColor
 import net.ccbluex.liquidbounce.features.module.modules.render.ClickGUI.scale
+import net.ccbluex.liquidbounce.features.module.modules.render.ClickGUI.spacedValues
 import net.ccbluex.liquidbounce.ui.client.clickgui.ClickGui.clamp
 import net.ccbluex.liquidbounce.ui.client.clickgui.Panel
 import net.ccbluex.liquidbounce.ui.client.clickgui.elements.ButtonElement
@@ -17,6 +18,7 @@ import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolat
 import net.ccbluex.liquidbounce.ui.font.Fonts.fontSemibold35
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlockName
 import net.ccbluex.liquidbounce.utils.extensions.lerpWith
+import net.ccbluex.liquidbounce.utils.extensions.addSpaces
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.blendColors
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.minecraftRed
@@ -129,11 +131,10 @@ object NullStyle : Style() {
                     assumeNonVolatile = value.get() is Number
 
                     val suffix = value.suffix ?: ""
+                    val text = if (spacedValues) value.name.addSpaces() else value.name
 
                     when (value) {
                         is BoolValue -> {
-                            val text = value.name
-
                             moduleElement.settingsWidth = fontSemibold35.getStringWidth(text) + 8
 
                             if (mouseButton == 0 && mouseX in minX..maxX && mouseY in yPos + 2..yPos + 14) {
@@ -150,8 +151,6 @@ object NullStyle : Style() {
                         }
 
                         is ListValue -> {
-                            val text = value.name
-
                             moduleElement.settingsWidth = fontSemibold35.getStringWidth(text) + 16
 
                             if (mouseButton == 0 && mouseX in minX..maxX && mouseY in yPos + 2..yPos + 14) {
@@ -171,7 +170,8 @@ object NullStyle : Style() {
                             yPos += 12
 
                             for (valueOfList in value.values) {
-                                moduleElement.settingsWidth = fontSemibold35.getStringWidth(valueOfList) + 16
+                                val valueName = if (spacedValues) valueOfList.addSpaces() else valueOfList
+                                moduleElement.settingsWidth = fontSemibold35.getStringWidth(valueName) + 16
 
                                 if (value.openList) {
                                     if (mouseButton == 0 && mouseX in minX..maxX && mouseY in yPos + 2..yPos + 14) {
@@ -187,7 +187,7 @@ object NullStyle : Style() {
                                         if (value.get() == valueOfList) guiColor else Int.MAX_VALUE
                                     )
                                     fontSemibold35.drawString(
-                                        valueOfList,
+                                        valueName,
                                         minX + 10,
                                         yPos + 4,
                                         if (value.get() == valueOfList) guiColor else Int.MAX_VALUE
@@ -199,9 +199,9 @@ object NullStyle : Style() {
                         }
 
                         is FloatValue -> {
-                            val text = value.name + "§f: §c" + round(value.get()) + " §8${suffix}§c"
+                            val floatText = text + "§f: §c" + round(value.get()) + " §8${suffix}§c"
 
-                            moduleElement.settingsWidth = fontSemibold35.getStringWidth(text) + 8
+                            moduleElement.settingsWidth = fontSemibold35.getStringWidth(floatText) + 8
 
                             if (mouseButton == 0 && mouseX in minX..maxX && mouseY in yPos + 15..yPos + 21 || sliderValueHeld == value) {
                                 val percentage = (mouseX - minX - 4) / (maxX - minX - 8).toFloat()
@@ -221,16 +221,16 @@ object NullStyle : Style() {
                                 (moduleElement.x + moduleElement.width + (moduleElement.settingsWidth - 12) * (displayValue - value.minimum) / (value.maximum - value.minimum)).roundToInt()
                             drawRect(8 + sliderValue, yPos + 15, sliderValue + 11, yPos + 21, guiColor)
 
-                            fontSemibold35.drawString(text, minX + 2, yPos + 4, Color.WHITE.rgb)
+                            fontSemibold35.drawString(floatText, minX + 2, yPos + 4, Color.WHITE.rgb)
 
                             yPos += 22
                         }
 
                         is BlockValue -> {
-                            val text =
-                                value.name + "§f: §c" + getBlockName(value.get()) + " (" + value.get() + ")" + " §8${suffix}"
+                            val blockText =
+                                text + "§f: §c" + getBlockName(value.get()) + " (" + value.get() + ")" + " §8${suffix}"
 
-                            moduleElement.settingsWidth = fontSemibold35.getStringWidth(text) + 8
+                            moduleElement.settingsWidth = fontSemibold35.getStringWidth(blockText) + 8
 
                             if (mouseButton == 0 && mouseX in minX..maxX && mouseY in yPos + 15..yPos + 21 || sliderValueHeld == value) {
                                 val percentage = (mouseX - minX - 4) / (maxX - minX - 8).toFloat()
@@ -252,15 +252,15 @@ object NullStyle : Style() {
                                 moduleElement.x + moduleElement.width + (moduleElement.settingsWidth - 12) * (displayValue - value.minimum) / (value.maximum - value.minimum)
                             drawRect(8 + sliderValue, yPos + 15, sliderValue + 11, yPos + 21, guiColor)
 
-                            fontSemibold35.drawString(text, minX + 2, yPos + 4, Color.WHITE.rgb)
+                            fontSemibold35.drawString(blockText, minX + 2, yPos + 4, Color.WHITE.rgb)
 
                             yPos += 22
                         }
 
                         is IntValue -> {
-                            val text = value.name + "§f: §c" + value.get() + " §8${suffix}"
+                            val intText = text + "§f: §c" + value.get() + " §8${suffix}"
 
-                            moduleElement.settingsWidth = fontSemibold35.getStringWidth(text) + 8
+                            moduleElement.settingsWidth = fontSemibold35.getStringWidth(intText) + 8
 
                             if (mouseButton == 0 && mouseX in minX..maxX && mouseY in yPos + 15..yPos + 21 || sliderValueHeld == value) {
                                 val percentage = (mouseX - minX - 4) / (maxX - minX - 8).toFloat()
@@ -280,7 +280,7 @@ object NullStyle : Style() {
                                 moduleElement.x + moduleElement.width + (moduleElement.settingsWidth - 12) * (displayValue - value.minimum) / (value.maximum - value.minimum)
                             drawRect(8 + sliderValue, yPos + 15, sliderValue + 11, yPos + 21, guiColor)
 
-                            fontSemibold35.drawString(text, minX + 2, yPos + 4, Color.WHITE.rgb)
+                            fontSemibold35.drawString(intText, minX + 2, yPos + 4, Color.WHITE.rgb)
 
                             yPos += 22
                         }
@@ -289,8 +289,8 @@ object NullStyle : Style() {
                             val slider1 = value.get().first
                             val slider2 = value.get().last
 
-                            val text = "${value.name}§f: §c$slider1 §f- §c$slider2 §8${suffix}"
-                            moduleElement.settingsWidth = fontSemibold35.getStringWidth(text) + 8
+                            val intRangeText = "${text}§f: §c$slider1 §f- §c$slider2 §8${suffix}"
+                            moduleElement.settingsWidth = fontSemibold35.getStringWidth(intRangeText) + 8
 
                             val startX = minX + 4
                             val startY = yPos + 14
@@ -361,7 +361,7 @@ object NullStyle : Style() {
                             drawRect(8 + sliderValue1, yPos + 15, sliderValue1 + 11, yPos + 21, guiColor)
                             drawRect(8 + sliderValue2, yPos + 15, sliderValue2 + 11, yPos + 21, guiColor)
 
-                            fontSemibold35.drawString(text, minX + 2, yPos + 4, Color.WHITE.rgb)
+                            fontSemibold35.drawString(intRangeText, minX + 2, yPos + 4, Color.WHITE.rgb)
 
                             yPos += 22
                         }
@@ -370,7 +370,7 @@ object NullStyle : Style() {
                             val slider1 = value.get().start
                             val slider2 = value.get().endInclusive
 
-                            val text = "${value.name}§f: §c${round(slider1)} §f- §c${round(slider2)} §8${suffix}"
+                            val floatRangeText = "${text}§f: §c${round(slider1)} §f- §c${round(slider2)} §8${suffix}"
                             moduleElement.settingsWidth = fontSemibold35.getStringWidth(text) + 8
 
                             val startX = minX + 4
@@ -442,7 +442,7 @@ object NullStyle : Style() {
                             drawRect(8f + sliderValue1, yPos + 15f, sliderValue1 + 11f, yPos + 21f, guiColor)
                             drawRect(8f + sliderValue2, yPos + 15f, sliderValue2 + 11f, yPos + 21f, guiColor)
 
-                            fontSemibold35.drawString(text, minX + 2, yPos + 4, Color.WHITE.rgb)
+                            fontSemibold35.drawString(floatRangeText, minX + 2, yPos + 4, Color.WHITE.rgb)
 
                             yPos += 22
                         }
@@ -534,7 +534,7 @@ object NullStyle : Style() {
                                 }
                             }
 
-                            val startText = "${value.name}: "
+                            val startText = "${text}: "
                             val valueText = "#%08X".format(currentColor.rgb)
                             val combinedText = startText + valueText
 
@@ -853,7 +853,7 @@ object NullStyle : Style() {
                         }
 
                         else -> {
-                            val startText = value.name + "§f: "
+                            val startText = text + "§f: "
                             var valueText = "${value.get()}"
 
                             val combinedWidth = fontSemibold35.getStringWidth(startText + valueText)

@@ -11,6 +11,8 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 - `Vanilla` mode, along with `Speed`, `IceSlipperiness`, and `PackedIceSlipperiness` values to IceSpeed (thatonecoder)
 - `OnlyWhenNearEnemy` and `DistanceToLag` to FakeLag (thatonecoder)
 - `Optimal` mode for target priority to KillAura (thatonecoder)
+- `SpacedValues` to ClickGUI (thatonecoder)
+- `SpacedTags` to ArrayList (thatonecoder)
 - `Debug` option to BackTrack (thatonecoder)
 - `Debug` option to TickBase (thatonecoder)
 
