@@ -33,6 +33,7 @@ object ClickGUI : Module("ClickGUI", Category.RENDER, Keyboard.KEY_RSHIFT, canBe
     val scrolls by boolean("Scrolling", true)
     // TODO: Spaced value names?
     val spacedModules by boolean("SpacedModules", false)
+    val spacedValues by boolean("SpacedValues", false)
     val panelsForcedInBoundaries by boolean("PanelsForcedInBoundaries", false)
 
     private val color by color("Color", Color(0, 160, 255)) { style !in arrayOf("Slowly", "Black") }

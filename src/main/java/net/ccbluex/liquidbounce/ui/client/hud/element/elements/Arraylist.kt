@@ -19,6 +19,7 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.Side.Vertical
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.extensions.safeDiv
+import net.ccbluex.liquidbounce.utils.extensions.addSpaces
 import net.ccbluex.liquidbounce.utils.render.*
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.fade
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.withAlpha
@@ -152,6 +153,8 @@ class Arraylist(
 
     private val spacedModules: Boolean by +spacedModulesValue
 
+    private val spacedTags by boolean("SpacedTags", false)
+
     private val inactiveStyle by choices(
         "InactiveModulesStyle", arrayOf("Normal", "Color", "Hide"), "Color"
     ) { GameDetector.state }
@@ -195,7 +198,7 @@ class Arraylist(
             else -> module.getName()
         }
 
-        var tag = module.tag ?: ""
+        var tag = (if (spacedTags) module.tag.addSpaces() else module.tag) ?: ""
 
         tag = when (tagsCase) {
             "Uppercase" -> tag.uppercase()
