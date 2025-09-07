@@ -16,7 +16,7 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 ### Fixed
 
-- `ShortStopLength` not doing anything in ChestStealer (thatonecoder)
+- `ShortStopLength` not doing anything, and appearing regardless of whether `SimulateShortStop` was enabled or not in ChestStealer (thatonecoder)
 
 ### Changed
 
