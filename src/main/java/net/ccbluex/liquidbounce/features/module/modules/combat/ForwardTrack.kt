@@ -23,7 +23,7 @@ import org.lwjgl.opengl.GL11.*
 
 object ForwardTrack : Module("ForwardTrack", Category.COMBAT) {
     private val espMode by choices("ESPMode", arrayOf("Box", "Model", "Wireframe"), "Model").subjective()
-    private val wireframeWidth by float("WireFrameWidth", 1f, 0.5f..5f) { espMode == "WireFrame" }
+    private val wireframeWidth by float("WireframeWidth", 1f, 0.5f..5f) { espMode == "Wireframe" }
 
     private val espColor = ColorSettingsInteger(this, "ESPColor") { espMode != "Model" }.with(0, 255, 0)
 

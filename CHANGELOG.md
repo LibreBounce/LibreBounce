@@ -6,13 +6,15 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 ## [Unreleased]
 
+## [0.3.0] - 2025-09-07
+
 ### Added
 
 - `Vanilla` mode, along with `Speed`, `IceSlipperiness`, and `PackedIceSlipperiness` values to IceSpeed (thatonecoder)
 - `OnlyWhenNearEnemy` and `DistanceToLag` to FakeLag (thatonecoder)
 - `Optimal` mode for target priority to KillAura (thatonecoder)
-- `SpacedValues` to ClickGUI (thatonecoder)
-- `SpacedTags` to ArrayList (thatonecoder)
+- `SpacedValues` option to ClickGUI (thatonecoder)
+- `SpacedTags` option to ArrayList (thatonecoder)
 - `Debug` option to BackTrack (thatonecoder)
 - `Debug` option to TickBase (thatonecoder)
 
@@ -24,7 +26,6 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 - **Breaking:** Rename `CPS-Multiplier` to `CPSMultiplier` in KillAura (thatonecoder)
 - **Breaking:** Rename `Custom-Y` to `CustomY` in Criticals (thatonecoder)
-
 
 ## [0.2.0] - 2025-09-04
 
@@ -83,8 +84,9 @@ _Initial release, forked from LiquidBounce Legacy._
 
 ### Removed
 
-- Warning to upgrade from `LiquidBounce` Legacy to Nextgen (thatonecoder)
+- Warning to upgrade from `LiquidBounce` legacy to nextgen (thatonecoder)
 
 [unreleased]: https://github.com/LibreBounce/LibreBounce/compare/v0.2.0...HEAD
+[0.3.0]: https://github.com/LibreBounce/LibreBounce/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/LibreBounce/LibreBounce/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/LibreBounce/LibreBounce/releases/tag/v0.1.0

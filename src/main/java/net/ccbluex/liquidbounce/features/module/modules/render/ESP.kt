@@ -38,12 +38,12 @@ object ESP : Module("ESP", Category.RENDER) {
 
     val mode by choices(
         "Mode",
-        arrayOf("Box", "OtherBox", "WireFrame", "2D", "Real2D", "Gaussian", "Outline", "Glow"), "Box"
+        arrayOf("Box", "OtherBox", "Wireframe", "2D", "Real2D", "Gaussian", "Outline", "Glow"), "Box"
     )
 
     val outlineWidth by float("OutlineWidth", 3f, 0.5f..5f) { mode == "Outline" }
 
-    val wireframeWidth by float("WireFrameWidth", 2f, 0.5f..5f) { mode == "WireFrame" }
+    val wireframeWidth by float("WireframeWidth", 2f, 0.5f..5f) { mode == "Wireframe" }
 
     private val glowRenderScale by float("GlowRenderscale", 1f, 0.5f..2f) { mode == "Glow" }
     private val glowRadius by int("GlowRadius", 4, 1..5) { mode == "Glow" }

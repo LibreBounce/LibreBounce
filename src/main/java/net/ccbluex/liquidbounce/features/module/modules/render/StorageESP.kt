@@ -33,7 +33,7 @@ import kotlin.math.pow
 
 object StorageESP : Module("StorageESP", Category.RENDER) {
     private val mode by
-    choices("Mode", arrayOf("Box", "OtherBox", "Outline", "Glow", "2D", "WireFrame"), "Outline")
+    choices("Mode", arrayOf("Box", "OtherBox", "Outline", "Glow", "2D", "Wireframe"), "Outline")
 
     private val glowRenderScale by float("GlowRenderscale", 1f, 0.5f..2f) { mode == "Glow" }
     private val glowRadius by int("GlowRadius", 4, 1..5) { mode == "Glow" }
@@ -151,7 +151,7 @@ object StorageESP : Module("StorageESP", Category.RENDER) {
                             OutlineUtils.setColor(Color.WHITE)
                         }
 
-                        "WireFrame" -> {
+                        "Wireframe" -> {
                             glPushMatrix()
                             glPushAttrib(GL_ALL_ATTRIB_BITS)
                             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
@@ -210,7 +210,7 @@ object StorageESP : Module("StorageESP", Category.RENDER) {
                                 mc.gameSettings.entityShadows = entityShadow
                             }
 
-                            "WireFrame" -> {
+                            "Wireframe" -> {
                                 val entityShadow = mc.gameSettings.entityShadows
                                 mc.gameSettings.entityShadows = false
                                 glPushMatrix()
