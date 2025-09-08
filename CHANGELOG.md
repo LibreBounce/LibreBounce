@@ -6,6 +6,10 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 ## [Unreleased]
 
+### Fixed
+
+- `PackedIceSlipperiness` being called `IceSlipperiness`; this caused a  bug where the game would crash, if the setting was altered (thatonecoder)
+
 ## [0.3.0] - 2025-09-07
 
 ### Added

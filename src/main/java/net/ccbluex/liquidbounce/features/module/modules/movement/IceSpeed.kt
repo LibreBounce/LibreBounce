@@ -20,7 +20,7 @@ object IceSpeed : Module("IceSpeed", Category.MOVEMENT) {
     private val mode by choices("Mode", arrayOf("Vanilla", "NCP", "AAC", "Spartan"), "NCP")
     private val speed by float("Speed", 0.5f, 0.2f..1.6f) { mode == "Vanilla" }
     private val iceSlipperiness by float("IceSlipperiness", 0.98f, 0.01f..1f) { mode == "Vanilla" }
-    private val packedIceSlipperiness by float("IceSlipperiness", 0.98f, 0.01f..1f) { mode == "Vanilla" }
+    private val packedIceSlipperiness by float("PackedIceSlipperiness", 0.98f, 0.01f..1f) { mode == "Vanilla" }
 
     override fun onEnable() {
         if (mode == "NCP") {
