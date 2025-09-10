@@ -37,7 +37,11 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
 
         if (onlyMove && !player.isMoving) return@handler
 
-        if (shouldJump) {
+        if (!onUsingItem && (player?.isUsingItem == true || KillAura.blockStatus)) {
+            return@handler
+        }
+
+        if (shouldJump && jumpTimer.hasTimePassed(delay)) {
             player.tryJump()
             jumpTimer.reset()
         }
@@ -46,36 +50,19 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
     val onUpdate = handler<UpdateEvent> {
         val player = mc.thePlayer ?: return@handler
 
-        var jump = false
+        var facingEntity = mc.objectMouseOver?.entityHit
+        val nearbyEnemies = getAllNearbyEnemies()
 
-        if (facingEnemy) {
-            var facingEntity = mc.objectMouseOver?.entityHit
-            val nearbyEnemies = getAllNearbyEnemies()
-
-            if (facingEntity == null) {
-                // Check if the player is looking at the enemy
-                facingEntity = raycastEntity(activationDistance.toDouble()) { isSelected(it, true) }
-            }
-
-            // Check whether the player is using items/blocking
-            if (!onUsingItem) {
-                if (player?.isUsingItem == true || KillAura.blockStatus) {
-                    return@handler
-                }
-            }
-
-            if (isSelected(facingEntity, true)) {
-                // Checks how many enemies are nearby, if <= then should jump
-                if (nearbyEnemies.size <= enemiesNearby) {
-                    jump = true
-                }
-            }
-        } else if (!facingEnemy) {
-            jump = false
+        if (facingEntity == null) {
+            // Check if the player is looking at the enemy
+            facingEntity = raycastEntity(activationDistance.toDouble()) { isSelected(it, true) }
         }
 
-        if (jump && jumpTimer.hasTimePassed(delay)) {
-            shouldJump = true
+        if (isSelected(facingEntity, true)) {
+            // Checks how many enemies are nearby, if <= then should jump
+            if (nearbyEnemies.size <= enemiesNearby) {
+                shouldJump = true
+            }
         }
     }
 
@@ -83,7 +70,7 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
         val player = mc.thePlayer ?: return emptyList()
 
         return mc.theWorld.loadedEntityList.filter {
-            isSelected(it, true) && player.getDistanceToEntityBox(it) in activationDistance && rotationDifference(it) > fov
+            isSelected(it, true) && player.getDistanceToEntityBox(it) in distance && rotationDifference(it) > fov
         }
     }
 }
