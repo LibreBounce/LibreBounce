@@ -53,16 +53,15 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
         var facingEntity = mc.objectMouseOver?.entityHit
         val nearbyEnemies = getAllNearbyEnemies()
 
-        if (facingEntity == null) {
-            // Check if the player is looking at the enemy
-            facingEntity = raycastEntity(activationDistance.toDouble()) { isSelected(it, true) }
-        }
-
-        if (isSelected(facingEntity, true)) {
+        if (nearbyEnemies.size > 0) {
             // Checks how many enemies are nearby, if <= then should jump
             if (nearbyEnemies.size <= enemiesNearby) {
                 shouldJump = true
+            } else {
+                shouldJump = false
             }
+        } else {
+            shouldJump = false
         }
     }
 
