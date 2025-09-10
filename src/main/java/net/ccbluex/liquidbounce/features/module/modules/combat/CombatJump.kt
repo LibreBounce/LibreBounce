@@ -33,7 +33,7 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
 
     private var shouldJump = false
     private val jumpTimer = MSTimer()
-    private var randomizedDelay: Int = scanRange.random()
+    private var randomizedDelay: Int = delay.random()
 
 
     // Anti-cheats such as Grim flag when you don't do it on this event
@@ -50,7 +50,7 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
             player.tryJump()
             
             jumpTimer.reset()
-            randomizedScanRange = scanRange.random()
+            randomizedDelay = delay.random()
         }
     }
 
