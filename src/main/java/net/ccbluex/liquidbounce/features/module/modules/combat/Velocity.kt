@@ -97,7 +97,6 @@ object Velocity : Module("Velocity", Category.COMBAT) {
     private val spoofDelay by int("SpoofDelay", 500, 0..5000) { mode == "Delay" }
     var delayMode = false
 
-hurtTimeRange
     // IntaveReduce
     private val reduceFactor by float("Factor", 0.6f, 0.6f..1f) { mode == "IntaveReduce" }
 
