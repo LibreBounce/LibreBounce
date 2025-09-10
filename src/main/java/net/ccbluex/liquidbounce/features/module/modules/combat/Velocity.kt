@@ -64,7 +64,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
     private val reverseStrength by float("ReverseStrength", 1F, 0.1F..1F) { mode == "Reverse" }
     private val reverse2Strength by float("SmoothReverseStrength", 0.05F, 0.02F..0.1F) { mode == "SmoothReverse" }
 
-    private val onLook by boolean("onLook", false) { mode in arrayOf("Reverse", "SmoothReverse") }
+    private val onLook by boolean("OnLook", false) { mode in arrayOf("Reverse", "SmoothReverse") }
     private val range by float("Range", 3.0F, 1F..5.0F) {
         onLook && mode in arrayOf("Reverse", "SmoothReverse")
     }
@@ -93,18 +93,17 @@ object Velocity : Module("Velocity", Category.COMBAT) {
     private val hitsUntilJump by int("ReceivedHitsUntilJump", 2, 0..5)
     { jumpCooldownMode == "ReceivedHits" && mode == "Jump" }
 
-    // Ghost Block
-    private val hurtTimeRange by intRange("HurtTime", 1..9, 1..10) {
-        mode == "GhostBlock"
-    }
-
     // Delay
     private val spoofDelay by int("SpoofDelay", 500, 0..5000) { mode == "Delay" }
     var delayMode = false
 
+hurtTimeRange
     // IntaveReduce
     private val reduceFactor by float("Factor", 0.6f, 0.6f..1f) { mode == "IntaveReduce" }
-    private val hurtTime by int("HurtTime", 9, 1..10) { mode == "IntaveReduce" }
+
+    private val hurtTime by intRange("HurtTime", 1..9, 1..10) {
+        mode in arrayOf("GhostBlock", "IntaveReduce")
+    }
 
     private val pauseOnExplosion by boolean("PauseOnExplosion", true)
     private val ticksToPause by int("TicksToPause", 20, 1..50) { pauseOnExplosion }
@@ -400,7 +399,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
 
         if (mode != "IntaveReduce" || !hasReceivedVelocity) return@handler
 
-        if (player.hurtTime == hurtTime && System.currentTimeMillis() - lastAttackTime <= 8000) {
+        if (player.hurtTime in hurtTime && System.currentTimeMillis() - lastAttackTime <= 8000) {
             player.motionX *= reduceFactor
             player.motionZ *= reduceFactor
         }
@@ -737,7 +736,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
 
         if (mode == "GhostBlock") {
             if (hasReceivedVelocity) {
-                if (player.hurtTime in hurtTimeRange) {
+                if (player.hurtTime in hurtTime) {
                     // Check if there is air exactly 1 level above the player's Y position
                     if (event.block is BlockAir && event.y == mc.thePlayer.posY.toInt() + 1) {
                         event.boundingBox = AxisAlignedBB(

@@ -14,7 +14,7 @@ import net.ccbluex.liquidbounce.utils.attack.EntityUtils.isSelected
 import net.ccbluex.liquidbounce.utils.extensions.getDistanceToEntityBox
 import net.ccbluex.liquidbounce.utils.inventory.hotBarSlot
 import net.ccbluex.liquidbounce.utils.inventory.inventorySlot
-import net.ccbluex.liquidbounce.utils.rotation.RaycastUtils
+import net.ccbluex.liquidbounce.utils.rotation.RaycastUtils.raycastEntity
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
@@ -77,7 +77,7 @@ object AutoRod : Module("AutoRod", Category.COMBAT) {
                 switchBack = -1
                 rodInUse = false
 
-                // Reset push timer. Push will always wait for pullback delay.
+                // Reset push timer; push will always wait for pullback delay
                 pushTimer.reset()
             }
         } else {
@@ -88,11 +88,11 @@ object AutoRod : Module("AutoRod", Category.COMBAT) {
                 val nearbyEnemies = getAllNearbyEnemies()
 
                 if (facingEntity == null) {
-                    // Check if player is looking at enemy.
-                    facingEntity = RaycastUtils.raycastEntity(activationDistance.toDouble()) { isSelected(it, true) }
+                    // Check whether the player is looking at the enemy
+                    facingEntity = raycastEntity(activationDistance.toDouble()) { isSelected(it, true) }
                 }
 
-                // Check whether player is using items/blocking.
+                // Check whether player is using items/blocking
                 if (!onUsingItem) {
                     if (player?.itemInUse?.item != Items.fishing_rod && (player?.isUsingItem == true || KillAura.blockStatus)) {
                         return@handler
@@ -100,10 +100,10 @@ object AutoRod : Module("AutoRod", Category.COMBAT) {
                 }
 
                 if (isSelected(facingEntity, true)) {
-                    // Checks how many enemy is nearby, if <= then should rod.
+                    // Check how many enemies are nearby, if <= then should rod
                     if (nearbyEnemies.size <= enemiesNearby) {
 
-                        // Check if the enemy's health is below the threshold.
+                        // Check if the enemy's health is below the threshold
                         if (ignoreOnEnemyLowHealth) {
                             if (getHealth(
                                     facingEntity as EntityLivingBase,
@@ -119,10 +119,10 @@ object AutoRod : Module("AutoRod", Category.COMBAT) {
                     }
                 }
             } else if (getHealth(player, healthFromScoreboard, absorption) <= escapeHealthThreshold) {
-                // use rod for escaping when health is low.
+                // Use rod for escaping when on low health
                 rod = true
             } else if (!facingEnemy) {
-                // Rod anyway, spam it.
+                // Rod anyway
                 rod = true
             }
 
@@ -156,7 +156,7 @@ object AutoRod : Module("AutoRod", Category.COMBAT) {
         val rod = findRod(36, 45)
 
         mc.thePlayer.inventory.currentItem = rod
-        // We do not need to send our own packet, because sendUseItem will handle it for us.
+        // We do not need to send our own packet, because sendUseItem will handle it for us
         mc.playerController.sendUseItem(mc.thePlayer, mc.theWorld, mc.thePlayer.hotBarSlot(rod).stack)
 
         rodInUse = true

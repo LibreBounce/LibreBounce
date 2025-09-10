@@ -8,7 +8,11 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 ### Fixed
 
-- `PackedIceSlipperiness` being called `IceSlipperiness`; this caused a  bug where the game would crash, if the setting was altered (thatonecoder)
+- `PackedIceSlipperiness` being called `IceSlipperiness`. This caused a bug where the game would crash, if the setting was altered (thatonecoder)
+
+### Changed
+
+- `HurtTime` in the `IntaveReduce` mode is now an IntRange value, and shared with the `GhostBlock` mode, in Velocity (thatonecoder)
 
 ## [0.3.0] - 2025-09-07
 
