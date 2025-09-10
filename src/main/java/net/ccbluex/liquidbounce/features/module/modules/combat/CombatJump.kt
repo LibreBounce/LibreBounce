@@ -26,6 +26,7 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
     private val delay by intRange("Delay", 350..600, 0..1000)
     private val onlyMove by boolean("OnlyMove", true)
     private val onUsingItem by boolean("OnUsingItem", false)
+    private val fov by float("FOV", 180f, 0f..180f)
 
     private var shouldJump = false
     private val jumpTimer = MSTimer()
@@ -35,8 +36,6 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
         val player = mc.thePlayer ?: return@handler
 
         if (onlyMove && !player.isMoving) return@handler
-
-        val target = target
 
         if (shouldJump) {
             player.tryJump()
@@ -84,7 +83,7 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
         val player = mc.thePlayer ?: return emptyList()
 
         return mc.theWorld.loadedEntityList.filter {
-            isSelected(it, true) && player.getDistanceToEntityBox(it) < activationDistance
+            isSelected(it, true) && player.getDistanceToEntityBox(it) in activationDistance && rotationDifference(it) > fov
         }
     }
 }
