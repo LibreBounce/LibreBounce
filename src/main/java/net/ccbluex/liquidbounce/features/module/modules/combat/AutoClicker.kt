@@ -184,7 +184,7 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT) {
                 return true
             }
 
-            if (target!!.hurtTime >= 3 && !target.onGround && player.getDistanceToEntityBox(target) >= 2.5 && player.getDistanceToEntityBox(target) >= 3.0) {
+            if (target!!.hurtTime >= 3 && !target!!.onGround && player.getDistanceToEntityBox(target!!) >= 2.5 && player.getDistanceToEntityBox(target!!) >= 3.0) {
                 return false
             }
 
