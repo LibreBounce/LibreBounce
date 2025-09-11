@@ -167,40 +167,40 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT) {
         }
     }
 
-    private val shouldLeftClick: Boolean {
-        val player = mc.thePlayer ?: return false
+    private val shouldLeftClick: Boolean
+        get() {
+            val player = mc.thePlayer ?: return false
 
-        if (target != null) return true
+            if (target != null) return true
 
+            if (!smart && target!!.hurtTime > hurtTime) return true
 
-        if (!smart && target!!.hurtTime > hurtTime) return true
+            // Credits to Gugustus
+            if (target!!.hurtTime >= 2) {
+            	return false
+            }
 
-        // Credits to Gugustus
-        if (target!!.hurtTime >= 2) {
-        	return false
-        }
+            if (player.hurtTime >= 1) {
+                return true
+            }
 
-        if (player.hurtTime >= 1) {
-            return true
-        }
+            if (target!!.hurtTime >= 3 && !target.onGround && player.getDistanceToEntityBox(target) >= 2.5 && player.getDistanceToEntityBox(target) >= 3.0) {
+                return false
+            }
 
-        if (target!!.hurtTime >= 3 && !target.onGround && player.getDistanceToEntityBox(target) >= 2.5 && player.getDistanceToEntityBox(target) >= 3.0) {
-            return false
-        }
+            if (player.hurtTime == 0 && target!!.hurtTime >= 3) {
+                return false
+            }
 
-        if (player.hurtTime == 0 && target!!.hurtTime >= 3) {
-            return false
-        }
-
-        if (player.hurtTime == 2 && target!!.hurtTime == 4) {
-            return false
-        } else if (player.hurtTime == 3 && target!!.hurtTime == 5) {
-            return false
-        } else if (player.hurtTime >= 5 && target!!.hurtTime >= 7) {
-            return false
-        } else {
-            return true
-        }
+            if (player.hurtTime == 2 && target!!.hurtTime == 4) {
+                return false
+            } else if (player.hurtTime == 3 && target!!.hurtTime == 5) {
+                return false
+            } else if (player.hurtTime >= 5 && target!!.hurtTime >= 7) {
+                return false
+            } else {
+                return true
+            }
 
     }
 
