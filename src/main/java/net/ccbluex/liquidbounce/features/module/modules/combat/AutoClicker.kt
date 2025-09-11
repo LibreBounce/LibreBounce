@@ -33,7 +33,8 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT) {
     private val simulateDoubleClicking by boolean("SimulateDoubleClicking", false)
     private val cps by intRange("CPS", 5..8, 1..50)
 
-    private val hurtTime by int("HurtTime", 10, 0..10) { left }
+    private val smart by bool("Smart", false) { left }
+    private val hurtTime by int("HurtTime", 10, 0..10) { left && !smart }
 
     private val right by boolean("Right", true)
     private val left by boolean("Left", true)
@@ -139,7 +140,7 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT) {
     private fun shouldAutoRightClick() = mc.thePlayer.heldItem?.itemUseAction in arrayOf(EnumAction.BLOCK)
 
     private fun handleLeftClick(time: Long, doubleClick: Int) {
-        if (target != null && target!!.hurtTime > hurtTime) return
+        if (!shouldLeftClick) return
 
         repeat(1 + doubleClick) {
             KeyBinding.onTick(mc.gameSettings.keyBindAttack.keyCode)
@@ -164,6 +165,42 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT) {
 
             lastBlocking = time
         }
+    }
+
+    private fun shouldLeftClick {
+        val player = mc.thePlayer ?: return false
+
+        if (target != null) return true
+
+        if (!smart && target!!.hurtTime > hurtTime) return true
+
+        // Credits to Gugustus
+        if (target.hurtTime >= 2) {
+        	return false
+        }
+
+        if (player.hurtTime >= 1) {
+            return true
+        }
+
+        if (target.hurtTime >= 3 && !target.onGround && player.getDistanceToEntityBox(target) >= 2.5 && player.getDistanceToEntityBox(target) >= 3.0) {
+            return false
+        }
+
+        if (player.hurtTime == 0 && target.hurtTime >= 3) {
+            return false
+        }
+
+        if (player.hurtTime == 2 && target.hurtTime == 4) {
+            return false
+        } else if (player.hurtTime == 3 && target.hurtTime == 5) {
+            return false
+        } else if (player.hurtTime >= 5 && target.hurtTime >= 7) {
+            return false
+        } else {
+            return true
+        }
+
     }
 
     fun generateNewClickTime() = randomClickDelay(cps.first, cps.last)
