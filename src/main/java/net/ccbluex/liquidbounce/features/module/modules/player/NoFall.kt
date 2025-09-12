@@ -55,15 +55,15 @@ object NoFall : Module("NoFall", Category.PLAYER) {
 
     val mode by choices("Mode", modes, "MLG")
 
-    val minFallDistance by float("MinMLGHeight", 5f, 2f..50f) { mode == "MLG" }.subjective()
+    val minFallDistance by float("MinMLGHeight", 5f, 2f..50f, suffix = "blocks") { mode == "MLG" }.subjective()
 
-    val retrieveDelay: Int by int("RetrieveDelayTicks", 5, 1..10) {
+    val retrieveDelay: Int by int("RetrieveDelay", 5, 1..10, suffix = "ticks") {
         mode == "MLG"
     }.onChanged {
         maxRetrievalWaitingTimeValue.set(max(maxRetrievalWaitingTime, it))
     }.subjective()
 
-    private val maxRetrievalWaitingTimeValue = int("MaxRetrievalWaitingTime", 10, 1..20) {
+    private val maxRetrievalWaitingTimeValue = int("MaxRetrievalWaitingTime", 10, 1..20, suffix = "ticks") {
         mode == "MLG"
     }.onChange { _, new ->
         new.coerceAtLeast(retrieveDelay)
@@ -78,7 +78,7 @@ object NoFall : Module("NoFall", Category.PLAYER) {
 
     // Using too many times of simulatePlayer could result timer flag. Hence, why this is disabled by default.
     val checkFallDist by boolean("CheckFallDistance", false) { mode == "Blink" }.subjective()
-    val fallDist by floatRange("FallDistance", 2.5f..20f, 0f..100f) {
+    val fallDist by floatRange("FallDistance", 2.5f..20f, 0f..100f, suffix = "blocks") {
         mode == "Blink" && checkFallDist
     }.subjective()
 

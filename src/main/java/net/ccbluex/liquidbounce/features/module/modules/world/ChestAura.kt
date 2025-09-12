@@ -52,11 +52,11 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
     private val chest by boolean("Chest", true)
     private val enderChest by boolean("EnderChest", false)
 
-    private val range by float("Range", 5F, 1F..5F).onChanged { value ->
+    private val range by float("Range", 5f, 1F..5f, suffix = "blocks").onChanged { value ->
         rangeSq = value.pow(2)
         searchRadiusSq = (value + 1).pow(2)
     }
-    private val delay by int("Delay", 200, 50..500)
+    private val delay by int("Delay", 200, 50..500, suffix = "ms")
 
     private val throughWalls by boolean("ThroughWalls", true)
     private val wallsRange by float("ThroughWallsRange", 3F, 1F..5F) {
@@ -67,7 +67,7 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
         wallsRangeSq = value.pow(2)
     }
 
-    private val minDistanceFromOpponent by float("MinDistanceFromOpponent", 10F, 0F..30F).onChanged { value ->
+    private val minDistanceFromOpponent by float("MinDistanceFromOpponent", 10f, 0f..30f, suffix = "blocks").onChanged { value ->
         minDistanceFromOpponentSq = value.pow(2)
     }
 

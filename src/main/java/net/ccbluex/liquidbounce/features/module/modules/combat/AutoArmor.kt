@@ -34,8 +34,8 @@ import net.minecraft.item.ItemStack
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
 
 object AutoArmor : Module("AutoArmor", Category.COMBAT) {
-    private val delay by intRange("Delay", 50..50, 0..1000)
-    private val minItemAge by int("MinItemAge", 0, 0..2000)
+    private val delay by intRange("Delay", 50..50, 0..1000, suffix = "ms")
+    private val minItemAge by int("MinItemAge", 0, 0..2000, suffix = "ms")
 
     private val invOpen by +InventoryManager.invOpenValue
     private val simulateInventory by +InventoryManager.simulateInventoryValue

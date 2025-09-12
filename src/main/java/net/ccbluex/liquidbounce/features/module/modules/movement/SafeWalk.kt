@@ -17,7 +17,7 @@ import net.minecraft.util.BlockPos
 object SafeWalk : Module("SafeWalk", Category.MOVEMENT) {
 
     private val airSafe by boolean("AirSafe", false)
-    private val maxFallDistanceValue = int("MaxFallDistance", 5, 0..100)
+    private val maxFallDistanceValue = int("MaxFallDistance", 5, 0..100, suffix = "blocks")
 
     private var lastGroundY: Double? = null
     private var lastCollisionY: Int? = null

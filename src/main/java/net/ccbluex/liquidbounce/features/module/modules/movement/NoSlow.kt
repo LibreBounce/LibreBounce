@@ -70,7 +70,7 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
     private val bowStrafeMultiplier by float("BowStrafeMultiplier", 1f, 0.2F..1f)
 
     // Blocks
-    val soulSand by boolean("SoulSand", true)
+    val soulSand by boolean("Soulsand", true)
     val liquidPush by boolean("LiquidPush", true)
 
     private var shouldSwap = false

@@ -43,13 +43,13 @@ import kotlin.math.min
 object  FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
 
     // TODO: Add an option for FakeLag to only start near combat
-    private val delay by int("Delay", 550, 0..1000)
-    private val recoilTime by int("RecoilTime", 750, 0..2000)
+    private val delay by int("Delay", 550, 0..1000, suffix = "ms")
+    private val recoilTime by int("RecoilTime", 750, 0..2000, suffix = "ms")
 
-    private val allowedDistToEnemy by floatRange("MinAllowedDistToEnemy", 1.5f..3.5f, 0f..6f)
+    private val allowedDistToEnemy by floatRange("MinAllowedDistToEnemy", 1.5f..3.5f, 0f..6f, suffix = "blocks")
 
     private val onlyWhenNearEnemy by boolean("OnlyWhenNearEnemy", true)
-    private val distanceToLag by floatRange("DistanceToLag", 3.5f..4.5f, 0f..6f) { onlyWhenNearEnemy }
+    private val distanceToLag by floatRange("DistanceToLag", 3.5f..4.5f, 0f..6f, suffix = "blocks") { onlyWhenNearEnemy }
 
     private val blinkOnAction by boolean("BlinkOnAction", true)
 

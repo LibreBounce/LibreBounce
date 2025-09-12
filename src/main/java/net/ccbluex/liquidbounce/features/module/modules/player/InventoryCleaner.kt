@@ -41,9 +41,9 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
     private val drop by boolean("Drop", true).subjective()
     val sort by boolean("Sort", true).subjective()
 
-    private val delay by intRange("Delay", 50..50, 0..1000)
+    private val delay by intRange("Delay", 50..50, 0..1000, suffix = "ms")
 
-    private val minItemAge by int("MinItemAge", 0, 0..2000)
+    private val minItemAge by int("MinItemAge", 0, 0..2000, suffix = "ms")
 
     private val limitStackCounts by boolean("LimitStackCounts", true).subjective()
     private val maxBlockStacks by int("MaxBlockStacks", 5, 0..36) { limitStackCounts }.subjective()

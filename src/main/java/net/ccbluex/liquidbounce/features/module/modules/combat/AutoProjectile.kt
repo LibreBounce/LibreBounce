@@ -20,10 +20,10 @@ import net.minecraft.init.Items.snowball
 object AutoProjectile : Module("AutoProjectile", Category.COMBAT) {
     private val facingEnemy by boolean("FacingEnemy", true)
 
-    private val range by float("Range", 8F, 1F..20F)
-    private val throwDelay by intRange("ThrowDelay", 1000..1500, 50..2000)
+    private val range by float("Range", 8f, 1f..20f, suffix = "blocks")
+    private val throwDelay by intRange("ThrowDelay", 1000..1500, 50..2000, suffix = "ms")
 
-    private val switchBackDelay by int("SwitchBackDelay", 500, 50..2000)
+    private val switchBackDelay by int("SwitchBackDelay", 500, 50..2000, suffix = "ms")
 
     private val throwTimer = MSTimer()
     private val projectilePullTimer = MSTimer()

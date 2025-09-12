@@ -19,7 +19,7 @@ object Blink : Module("Blink", Category.PLAYER, gameDetecting = false) {
     private val mode by choices("Mode", arrayOf("Sent", "Received", "Both"), "Sent")
 
     private val pulse by boolean("Pulse", false)
-    private val pulseDelay by int("PulseDelay", 1000, 500..5000) { pulse }
+    private val pulseDelay by int("PulseDelay", 1000, 500..5000, suffix = "ms") { pulse }
 
     private val fakePlayerMenu by boolean("FakePlayer", true)
 

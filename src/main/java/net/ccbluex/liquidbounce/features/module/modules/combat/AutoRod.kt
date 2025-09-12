@@ -31,7 +31,7 @@ object AutoRod : Module("AutoRod", Category.COMBAT) {
     ) { facingEnemy && ignoreOnEnemyLowHealth }
     private val absorption by boolean("Absorption", false) { facingEnemy && ignoreOnEnemyLowHealth }
 
-    private val activationDistance by float("ActivationDistance", 8f, 1f..20f)
+    private val activationDistance by float("ActivationDistance", 8f, 1f..20f, suffix = "blocks")
     private val enemiesNearby by int("EnemiesNearby", 1, 1..5)
 
     // Improve health check customization

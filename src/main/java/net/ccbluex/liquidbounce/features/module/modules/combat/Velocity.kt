@@ -83,7 +83,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
     private val legitDisableInAir by boolean("DisableInAir", true) { mode == "Legit" }
 
     // Chance
-    private val chance by int("Chance", 100, 0..100) { mode == "Jump" || mode == "Legit" }
+    private val chance by int("Chance", 100, 0..100, suffix = "%") { mode == "Jump" || mode == "Legit" }
 
     // Jump
     private val jumpCooldownMode by choices("JumpCooldownMode", arrayOf("Ticks", "ReceivedHits"), "Ticks")

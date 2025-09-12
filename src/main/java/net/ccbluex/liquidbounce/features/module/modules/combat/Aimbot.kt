@@ -44,7 +44,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
     private val generateSpotBasedOnDistance by boolean(
         "GenerateSpotBasedOnDistance", false
     ) { horizontalAim || verticalAim }
-    private val predictClientMovement by int("PredictClientMovement", 2, 0..5)
+    private val predictClientMovement by int("PredictClientMovement", 2, 0..5, suffix = "ticks")
     private val predictEnemyPosition by float("PredictEnemyPosition", 1.5f, -1f..2f)
 
     private val highestBodyPointToTargetValue = choices(

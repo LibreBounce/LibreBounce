@@ -44,7 +44,7 @@ object Nuker : Module("Nuker", Category.WORLD, gameDetecting = false) {
     private val allBlocks by boolean("AllBlocks", true)
     private val blocks by block("Block", 1) { !allBlocks }
 
-    private val radius by float("Radius", 5.2F, 1F..6F)
+    private val radius by float("Radius", 5.2f, 1f..6f)
     private val throughWalls by boolean("ThroughWalls", false)
     private val priority by choices("Priority", arrayOf("Distance", "Hardness", "LightOpacity"), "Distance")
 
@@ -56,9 +56,9 @@ object Nuker : Module("Nuker", Category.WORLD, gameDetecting = false) {
     }
 
     private val layer by boolean("Layer", false)
-    private val hitDelay by int("HitDelay", 4, 0..20)
+    private val hitDelay by int("HitDelay", 4, 0..20, suffix = "ticks")
     private val nuke by int("Nuke", 1, 1..20)
-    private val nukeDelay by int("NukeDelay", 1, 1..20)
+    private val nukeDelay by int("NukeDelay", 1, 1..20, suffix = "ticks")
 
     private val blockProgress by boolean("BlockProgress", true).subjective()
 
@@ -116,7 +116,7 @@ object Nuker : Module("Nuker", Category.WORLD, gameDetecting = false) {
                         return@searchBlocks false
                     }
 
-                    // ThroughWalls: Just break blocks in your sight
+                    // Through Walls: Just break blocks in your sight
                     // Raytrace player eyes to block position (through walls check) and check if block is visible
                     throughWalls || world.rayTraceBlocks(eyes, pos.center, false, true, false)?.blockPos == pos
                 } else false // Bad block

@@ -34,7 +34,7 @@ object TickBase : Module("TickBase", Category.COMBAT) {
     private val balanceRecoveryIncrement by float("BalanceRecoveryIncrement", 0.1f, 0.01f..10f)
     private val maxTicksAtATime by int("MaxTicksAtATime", 20, 1..100)
 
-    private val rangeToAttack by floatRange("RangeToAttack", 3f..5f, 0f..10f)
+    private val rangeToAttack by floatRange("RangeToAttack", 3f..5f, 0f..10f, suffix = "blocks")
 
     private val onlyGround by boolean("OnlyGround", false)
     private val pauseAfterTick by int("PauseAfterTick", 0, 0..100)

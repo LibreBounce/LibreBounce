@@ -42,7 +42,7 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true) {
     private val resetFlagCounterTicks by int("ResetCounterTicks", 5000, 1000..10000)
 
     private val ghostBlockCheck by boolean("GhostBlock-Check", true)
-    private val ghostBlockDelay by int("GhostBlockDelay", 750, 500..1000)
+    private val ghostBlockDelay by int("GhostBlockDelay", 750, 500..1000, suffix = "ms")
     { ghostBlockCheck }
 
     private val rubberbandCheck by boolean("Rubberband-Check", false)
@@ -60,7 +60,7 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true) {
         "BoxColor",
     ) { renderServerPos == "Box" }.with(r = 255, g = 255)
 
-    private val scale by float("Scale", 1F, 1F..6F) { renderServerPos == "Box" }
+    private val scale by float("Scale", 1f, 1f..6f) { renderServerPos == "Box" }
     private val font by font("Font", Fonts.fontSemibold40) { renderServerPos == "Box" }
     private val fontShadow by boolean("Shadow", true) { renderServerPos == "Box" }
 

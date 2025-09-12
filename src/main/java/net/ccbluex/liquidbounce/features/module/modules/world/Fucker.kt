@@ -48,13 +48,13 @@ object Fucker : Module("Fucker", Category.WORLD) {
 
     private val block by block("Block", 26)
     private val throughWalls by choices("ThroughWalls", arrayOf("None", "Raycast", "Around"), "None") { !hypixel }
-    private val range by float("Range", 5F, 1F..7F)
+    private val range by float("Range", 5f, 1f..7f, suffix = "blocks")
 
     private val action by choices("Action", arrayOf("Destroy", "Use"), "Destroy")
     private val surroundings by boolean("Surroundings", true) { !hypixel }
     private val instant by boolean("Instant", false) { (action == "Destroy" || surroundings) && !hypixel }
 
-    private val switch by int("SwitchDelay", 250, 0..1000)
+    private val switch by int("SwitchDelay", 250, 0..1000, suffix = "ms")
     private val swing by boolean("Swing", true)
     val noHit by boolean("NoHit", false)
 
@@ -62,14 +62,14 @@ object Fucker : Module("Fucker", Category.WORLD) {
 
     private val blockProgress by boolean("BlockProgress", true).subjective()
 
-    private val scale by float("Scale", 2F, 1F..6F) { blockProgress }.subjective()
+    private val scale by float("Scale", 2f, 1f..6f) { blockProgress }.subjective()
     private val font by font("Font", Fonts.fontSemibold40) { blockProgress }.subjective()
     private val fontShadow by boolean("Shadow", true) { blockProgress }.subjective()
 
     private val color by color("Color", Color(200, 100, 0)) { blockProgress }.subjective()
 
     private val ignoreOwnBed by boolean("IgnoreOwnBed", true)
-    private val ownBedDist by int("MaxBedDistance", 16, 1..32) { ignoreOwnBed }
+    private val ownBedDist by int("MaxBedDistance", 16, 1..32, suffix = "blocks") { ignoreOwnBed }
 
     /**
      * VALUES

@@ -46,9 +46,9 @@ object AntiVoid : Module("AntiVoid", Category.MOVEMENT) {
         arrayOf("Blink", "TeleportBack", "FlyFlag", "OnGroundSpoof", "MotionTeleport-Flag", "GhostBlock"),
         "FlyFlag"
     )
-    private val maxFallDistance by int("MaxFallDistance", 10, 2..255)
-    private val maxDistanceWithoutGround by float("MaxDistanceToSetback", 2.5f, 1f..30f) { mode != "Blink" }
-    private val blinkDelay by int("BlinkDelay", 10, 1..20) { mode == "Blink" }
+    private val maxFallDistance by int("MaxFallDistance", 10, 2..255, suffix = "blocks")
+    private val maxDistanceWithoutGround by float("MaxDistanceToSetback", 2.5f, 1f..30f, suffix = "blocks") { mode != "Blink" }
+    private val blinkDelay by int("BlinkDelay", 10, 1..20, suffix = "ticks") { mode == "Blink" }
     private val onScaffold by boolean("OnScaffold", false) { mode == "Blink" }
     private val ticksToDelay by int("TicksDelay", 5, 1..20) { mode == "Blink" && !onScaffold }
     private val indicator by boolean("Indicator", true).subjective()

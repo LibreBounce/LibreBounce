@@ -38,7 +38,7 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
     private val ticksUntilBlock by intRange("TicksUntilBlock", 0..2, 0..5) { mode == "WTap" }
     private val reSprintTicks by intRange("ReSprintTicks", 1..2, 1..5) { mode == "WTap" }
 
-    private val targetDistance by int("TargetDistance", 3, 1..5) { mode == "WTap" }
+    private val targetDistance by int("TargetDistance", 3, 1..5, suffix = "blocks") { mode == "WTap" }
 
     private val stopTicks: Value<Int> = int("PressBackTicks", 1, 1..5) {
         mode == "SprintTap2"
@@ -51,7 +51,7 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
         new.coerceAtLeast(stopTicks.get())
     }
 
-    private val minEnemyRotDiffToIgnore by float("MinRotationDiffFromEnemyToIgnore", 180f, 0f..180f)
+    private val minEnemyRotDiffToIgnore by float("MinRotationDiffFromEnemyToIgnore", 180f, 0f..180f, suffix = "yaw")
 
     private val onlyGround by boolean("OnlyGround", false)
     val onlyMove by boolean("OnlyMove", true)

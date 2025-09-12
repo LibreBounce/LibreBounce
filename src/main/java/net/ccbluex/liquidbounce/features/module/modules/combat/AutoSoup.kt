@@ -27,7 +27,7 @@ import net.minecraft.util.EnumFacing
 object AutoSoup : Module("AutoSoup", Category.COMBAT) {
 
     private val health by float("Health", 15f, 0f..20f)
-    private val delay by int("Delay", 150, 0..500)
+    private val delay by int("Delay", 150, 0..500, suffix = "ms")
 
     private val openInventory by boolean("OpenInv", true)
     private val startDelay by int("StartDelay", 100, 0..1000) { openInventory }

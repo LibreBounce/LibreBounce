@@ -44,7 +44,7 @@ object BedDefender : Module("BedDefender", Category.WORLD) {
 
     private val autoBlock by choices("AutoBlock", arrayOf("Off", "Pick", "Spoof", "Switch"), "Spoof")
     private val swing by boolean("Swing", true)
-    private val placeDelay by int("PlaceDelay", 500, 0..1000)
+    private val placeDelay by int("PlaceDelay", 500, 0..1000, suffix = "ms")
     private val raycastMode by choices(
         "Raycast",
         arrayOf("None", "Normal", "Around"),

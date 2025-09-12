@@ -23,9 +23,9 @@ import net.minecraft.network.play.server.S08PacketPlayerPosLook
 object AutoDisable : Module("AutoDisable", Category.MISC, gameDetecting = false) {
     private val modulesList = hashSetOf(KillAura, Scaffold, Fly, Speed)
 
-    private val onFlagged by boolean("onFlag", true)
-    private val onWorldChange by boolean("onWorldChange", false)
-    private val onDeath by boolean("onDeath", false)
+    private val onFlagged by boolean("OnFlag", true)
+    private val onWorldChange by boolean("OnWorldChange", false)
+    private val onDeath by boolean("OnDeath", false)
 
     private val warn by choices("Warn", arrayOf("Chat", "Notification"), "Chat")
 

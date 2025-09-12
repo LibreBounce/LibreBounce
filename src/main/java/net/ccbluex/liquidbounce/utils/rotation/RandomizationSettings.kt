@@ -34,9 +34,9 @@ class RandomizationSettings(owner: Module, val generalApply: () -> Boolean = { t
         "YawSpeedIncreaseMultiplier", 50..120, 0..500, suffix = "%"
     ) { !isZigZagActive && randomizationChosen && yawRandomizationChance.start != 1F }
     private val yawPrevSmoothingTicks by intRange(
-        "yawPrevSmoothingTicks",
+        "YawPrevSmoothingTicks",
         2..2,
-        0..5
+        0..2
     ) { randomizationChosen && pitchRandomizationChance.start != 1F }
     private val pitchRandomizationChance by floatRange(
         "PitchRandomizationChance", 0.8f..1.0f, 0f..1f
@@ -49,7 +49,7 @@ class RandomizationSettings(owner: Module, val generalApply: () -> Boolean = { t
     private val pitchPrevSmoothingTicks by intRange(
         "PitchPrevSmoothingTicks",
         2..2,
-        0..5
+        0..2
     ) { randomizationChosen && pitchRandomizationChance.start != 1F }
     private val pitchPrevSmoothingTicksRandom by intRange(
         "PitchPrevSmoothingTicksRandom",

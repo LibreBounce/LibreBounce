@@ -31,7 +31,7 @@ import net.minecraft.potion.Potion
 object AutoPot : Module("AutoPot", Category.COMBAT) {
 
     private val health by float("Health", 15F, 1F..20F) { healPotion || regenerationPotion }
-    private val delay by int("Delay", 500, 500..1000)
+    private val delay by int("Delay", 500, 500..1000, suffix = "ms")
 
     // Useful potion options
     private val healPotion by boolean("HealPotion", true)
@@ -44,7 +44,7 @@ object AutoPot : Module("AutoPot", Category.COMBAT) {
     private val openInventory by boolean("OpenInv", false)
     private val simulateInventory by boolean("SimulateInventory", true) { !openInventory }
 
-    private val groundDistance by float("GroundDistance", 2F, 0F..5F)
+    private val groundDistance by float("GroundDistance", 2f, 0f..5f, suffix = "blocks")
     private val mode by choices("Mode", arrayOf("Normal", "Jump", "Port"), "Normal")
 
     private val options = RotationSettings(this).withoutKeepRotation().apply {

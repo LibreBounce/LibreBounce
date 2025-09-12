@@ -67,13 +67,13 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
     private val chargedDelay by floatRange("ChargedDelay", 0.75f..0.9f, 0.1f..1.0f)
 
     // Normal Mode Settings
-    private val rangeValue by float("Range", 3.5f, 1f..5f) { timerBoostMode == "Normal" }
+    private val rangeValue by float("Range", 3.5f, 1f..5f, suffix = "blocks") { timerBoostMode == "Normal" }
     private val cooldownTickValue by int("CooldownTick", 10, 1..50) { timerBoostMode == "Normal" }
 
     // Smart & Modern Mode Range
-    private val range by floatRange("Range", 2.5f..3f, 2f..8f) { timerBoostMode != "Normal" }
+    private val range by floatRange("Range", 2.5f..3f, 2f..8f, suffix = "blocks") { timerBoostMode != "Normal" }
 
-    private val scanRange by float("ScanRange", 8f, 2f..12f) { timerBoostMode != "Normal" }.onChange { _, new ->
+    private val scanRange by float("ScanRange", 8f, 2f..12f, suffix = "blocks") { timerBoostMode != "Normal" }.onChange { _, new ->
         new.coerceAtLeast(range.endInclusive)
     }
 
@@ -84,10 +84,10 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
     private val blink by boolean("Blink", false)
 
     // Prediction Settings
-    private val predictClientMovement by int("PredictClientMovement", 2, 0..5)
+    private val predictClientMovement by int("PredictClientMovement", 2, 0..5, suffix = "ticks")
     private val predictEnemyPosition by float("PredictEnemyPosition", 1.5f, -1f..2f)
 
-    private val maxAngleDifference by float("MaxAngleDifference", 5f, 5f..90f) { timerBoostMode == "Modern" }
+    private val maxAngleDifference by float("MaxYawDifference", 5f, 5f..90f, suffix = "º") { timerBoostMode == "Modern" }
 
     // Mark Option
     private val markMode by choices("Mark", arrayOf("Off", "Box", "Platform"), "Off") { timerBoostMode == "Modern" }

@@ -78,7 +78,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
     // Placeable delay
     private val placeDelayValue = boolean("PlaceDelay", true) { scaffoldMode != "GodBridge" }
-    private val delay by intRange("Delay", 0..0, 0..1000) { placeDelayValue.isActive() }
+    private val delay by intRange("Delay", 0..0, 0..1000, suffix = "ms") { placeDelayValue.isActive() }
 
     // Extra clicks
     private val extraClicks by boolean("DoExtraClicks", false)

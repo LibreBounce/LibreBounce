@@ -94,14 +94,14 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     private val clickOnly by boolean("ClickOnly", false)
 
     // Range
-    private val range: Float by float("Range", 3.7f, 1f..8f).onChanged {
+    private val range: Float by float("Range", 3.7f, 1f..8f, suffix = "blocks").onChanged {
         blockRange = blockRange.coerceAtMost(it)
     }
-    private val scanRange by floatRange("ScanRange", 2f..2f, 0f..10f).onChanged {
+    private val scanRange by floatRange("ScanRange", 2f..2f, 0f..10f, suffix = "blocks").onChanged {
         randomizedScanRange = it.random()
     }
-    private val throughWallsRange by float("ThroughWallsRange", 3f, 0f..8f)
-    private val rangeSprintReduction by float("RangeSprintReduction", 0f, 0f..0.4f)
+    private val throughWallsRange by float("ThroughWallsRange", 3f, 0f..8f, suffix = "blocks")
+    private val rangeSprintReduction by float("RangeSprintReduction", 0f, 0f..0.4f, suffix = "blocks")
 
     // Modes
     private val priority by choices(
@@ -124,8 +124,8 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     private val targetMode by choices("TargetMode", arrayOf("Single", "Switch", "Multi"), "Switch")
     private val limitedMultiTargets by int("LimitedMultiTargets", 0, 0..50) { targetMode == "Multi" }
 
-    private val maxSwitchFOV by float("MaxSwitchFOV", 90f, 30f..180f) { targetMode == "Switch" }
-    private val switchDelay by int("SwitchDelay", 15, 1..1000) { targetMode == "Switch" }
+    private val maxSwitchFOV by float("MaxSwitchYawDiff", 90f, 30f..180f, suffix = "º") { targetMode == "Switch" }
+    private val switchDelay by int("SwitchDelay", 15, 1..1000, suffix = "ms") { targetMode == "Switch" }
 
     // Bypass
     private val swing by boolean("Swing", true)
@@ -138,7 +138,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
     // AutoBlock
     val autoBlock by choices("AutoBlock", arrayOf("Off", "Packet", "Fake"), "Packet")
-    private val blockMaxRange by float("BlockMaxRange", 3f, 0f..8f) { autoBlock == "Packet" }
+    private val blockMaxRange by float("BlockMaxRange", 3f, 0f..8f, suffix = "blocks") { autoBlock == "Packet" }
     private val unblockMode by choices(
         "UnblockMode", arrayOf("Stop", "Switch", "Empty"), "Stop"
     ) { autoBlock == "Packet" }
@@ -153,7 +153,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             "Off", "Fake"
         ) && releaseAutoBlock
     }
-    private val blockRate by int("BlockRate", 100, 1..100) { autoBlock !in arrayOf("Off", "Fake") && releaseAutoBlock }
+    private val blockRate by int("BlockRate", 100, 1..100, suffix = "%") { autoBlock !in arrayOf("Off", "Fake") && releaseAutoBlock }
 
     private val uncpAutoBlock by boolean("UpdatedNCPAutoBlock", false) {
         autoBlock !in arrayOf(
@@ -183,7 +183,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     private val checkWeapon by boolean("CheckEnemyWeapon", true) { smartAutoBlock }
 
     // TODO: Make block range independent from attack range
-    private var blockRange: Float by float("BlockRange", range, 1f..8f) {
+    private var blockRange: Float by float("BlockRange", range, 1f..8f, suffix = "blocks") {
         smartAutoBlock
     }.onChange { _, new ->
         new.coerceAtMost(this@KillAura.range)
@@ -193,7 +193,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     private val maxOwnHurtTime by int("MaxOwnHurtTime", 3, 0..10) { smartAutoBlock }
 
     // Don't block if target isn't looking at you
-    private val maxDirectionDiff by float("MaxOpponentDirectionDiff", 60f, 30f..180f) { smartAutoBlock }
+    private val maxDirectionDiff by float("MaxOpponentYawDiff", 60f, 30f..180f, suffix = "º") { smartAutoBlock }
 
     // Don't block if target is swinging an item and therefore cannot attack
     private val maxSwingProgress by int("MaxOpponentSwingProgress", 1, 0..5) { smartAutoBlock }
@@ -215,12 +215,12 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
     private val generateClicksBasedOnDist by boolean("GenerateClicksBasedOnDistance", false)
     private val cpsMultiplier by intRange("CPSMultiplier", 1..2, 1..10) { generateClicksBasedOnDist }
-    private val distanceFactor by floatRange("DistanceFactor", 5F..10F, 1F..10F) { generateClicksBasedOnDist }
+    private val distanceFactor by floatRange("DistanceFactor", 5f..10f, 1f..10f) { generateClicksBasedOnDist }
 
     private val generateSpotBasedOnDistance by boolean("GenerateSpotBasedOnDistance", false) { options.rotationsActive }
 
     private val randomization = RandomizationSettings(this) { options.rotationsActive }
-    private val outBorder by boolean("OutBorder", false) { options.rotationsActive }
+    private val outBorder by boolean("Outborder", false) { options.rotationsActive }
 
     private val highestBodyPointToTargetValue = choices(
         "HighestBodyPointToTarget", arrayOf("Head", "Body", "Feet"), "Head"
@@ -251,10 +251,10 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         "HorizontalBodySearchRange", 0f..1f, 0f..1f
     ) { options.rotationsActive }
 
-    private val fov by float("FOV", 180f, 0f..180f)
+    private val fov by float("MaxYawFOV", 180f, 0f..180f, suffix = "º")
 
     // Prediction
-    private val predictClientMovement by int("PredictClientMovement", 2, 0..5)
+    private val predictClientMovement by int("PredictClientMovement", 2, 0..5, suffix = "ticks")
     private val predictOnlyWhenOutOfRange by boolean(
         "PredictOnlyWhenOutOfRange", false
     ) { predictClientMovement != 0 }
@@ -269,7 +269,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     ) { swing && failSwing && options.rotationsActive }
     private val swingOnlyInAir by boolean("SwingOnlyInAir", true) { swing && failSwing && options.rotationsActive }
     private val maxRotationDifferenceToSwing by float(
-        "MaxRotationDifferenceToSwing", 180f, 0f..180f
+        "MaxYawDifferenceToSwing", 180f, 0f..180f
     ) { swing && failSwing && options.rotationsActive }
     private val swingWhenTicksLate = boolean("SwingWhenTicksLate", false) {
         swing && failSwing && maxRotationDifferenceToSwing != 180f && options.rotationsActive
@@ -285,7 +285,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     // Inventory
     private val simulateClosingInventory by boolean("SimulateClosingInventory", false) { !noInventoryAttack }
     private val noInventoryAttack by boolean("NoInvAttack", false)
-    private val noInventoryDelay by int("NoInvDelay", 200, 0..500) { noInventoryAttack }
+    private val noInventoryDelay by int("NoInvDelay", 200, 0..500, suffix = "ms") { noInventoryAttack }
     private val noConsumeAttack by choices(
         "NoConsumeAttack", arrayOf("Off", "NoHits", "NoRotation"), "Off"
     ).subjective()

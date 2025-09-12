@@ -44,12 +44,12 @@ import java.util.concurrent.ConcurrentLinkedQueue
 
 object Backtrack : Module("Backtrack", Category.COMBAT) {
 
-    private val nextBacktrackDelay by int("NextBacktrackDelay", 0, 0..2000) { mode == "Modern" }
+    private val nextBacktrackDelay by int("NextBacktrackDelay", 0, 0..2000, suffix = "ms") { mode == "Modern" }
     // TODO: Make this an int range instead
-    private val maxDelay: Value<Int> = int("MaxDelay", 80, 0..2000).onChange { _, new ->
+    private val maxDelay: Value<Int> = int("MaxDelay", 80, 0..2000, suffix = "ms").onChange { _, new ->
         new.coerceAtLeast(minDelay.get())
     }
-    private val minDelay: Value<Int> = int("MinDelay", 80, 0..2000) {
+    private val minDelay: Value<Int> = int("MinDelay", 80, 0..2000, suffix = "ms") {
         mode == "Modern"
     }.onChange { _, new ->
         new.coerceAtMost(maxDelay.get())

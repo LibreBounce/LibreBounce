@@ -18,7 +18,7 @@ import kotlin.concurrent.withLock
 object AtAllProvider :
     Module("AtAllProvider", Category.MISC, subjective = true, gameDetecting = false) {
 
-    private val delay by intRange("Delay", 500..1000, 0..20000)
+    private val delay by intRange("Delay", 500..1000, 0..20000, suffix = "ms")
 
     private val retry by boolean("Retry", false)
     private val sendQueue = ArrayDeque<String>()

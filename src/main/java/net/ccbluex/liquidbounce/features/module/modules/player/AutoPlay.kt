@@ -30,7 +30,7 @@ object AutoPlay : Module("AutoPlay", Category.PLAYER, gameDetecting = false) {
         hypixelMode == "Bedwars"
     }
 
-    private val delay by int("Delay", 50, 0..200)
+    private val delay by int("Delay", 50, 0..200, suffix = "ticks")
 
     private var delayTick = 0
 

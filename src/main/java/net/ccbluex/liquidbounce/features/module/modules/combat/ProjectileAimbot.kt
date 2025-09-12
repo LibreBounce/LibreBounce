@@ -34,9 +34,9 @@ object ProjectileAimbot : Module("ProjectileAimbot", Category.COMBAT) {
     private val pearl by boolean("EnderPearl", false).subjective()
     private val otherItems by boolean("OtherItems", false).subjective()
 
-    private val range by float("Range", 10f, 0f..30f)
+    private val range by float("Range", 10f, 0f..30f, suffix = "blocks")
     private val throughWalls by boolean("ThroughWalls", false)
-    private val throughWallsRange by float("ThroughWallsRange", 10f, 0f..30f) { throughWalls }
+    private val throughWallsRange by float("ThroughWallsRange", 10f, 0f..30f, suffix = "blocks") { throughWalls }
 
     private val priority by choices(
         "Priority",
@@ -47,7 +47,7 @@ object ProjectileAimbot : Module("ProjectileAimbot", Category.COMBAT) {
     private val gravityType by choices("GravityType", arrayOf("None", "Projectile"), "Projectile")
 
     private val predict by boolean("Predict", true) { gravityType == "Projectile" }
-    private val predictSize by float("PredictSize", 2F, 0.1F..5F)
+    private val predictSize by float("PredictSize", 2f, 0.1f..5f)
     { predict && gravityType == "Projectile" }
 
     private val options = RotationSettings(this).withoutKeepRotation()
