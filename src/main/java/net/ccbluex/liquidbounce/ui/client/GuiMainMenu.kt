@@ -61,9 +61,10 @@ class GuiMainMenu : AbstractScreen() {
                     it.major > 8 -> showJava11Warning()
                 }
             }
-            when {
-                FileManager.firstStart -> showWelcomePopup()
-                hasUpdate() -> showUpdatePopup()
+            if (FileManager.firstStart) {
+                showWelcomePopup()
+            } else {
+                checkGitHubUpdate()
             }
             popupOnce = true
         }
@@ -118,7 +119,7 @@ class GuiMainMenu : AbstractScreen() {
     private fun checkGitHubUpdate() {
         Thread {
             val gitHubRelease = fetchLatestGitHubRelease()
-            val newestVersion = Semver.parse(gitHubRelease.tagName)
+            val newestVersion = Semver.parse(gitHubRelease?.tagName)
             val clientVersion = Semver(clientVersionText)
 
             if (gitHubRelease != null && newestVersion.isGreaterThan(clientVersion)) {
