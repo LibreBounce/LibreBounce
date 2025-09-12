@@ -18,7 +18,8 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 ### Changed
 
-- `HurtTime` in the `IntaveReduce` mode is now an IntRange value, and shared with the `GhostBlock` mode, in Velocity (thatonecoder)
+- **Breaking:** `HurtTime` in the `IntaveReduce` mode is now an IntRange value, and shared with the `GhostBlock` mode, in Velocity (thatonecoder)
+- Fine-tune the `Optimal` target priority mode in KillAura (thatonecoder)
 
 ## [0.3.0] - 2025-09-07
 

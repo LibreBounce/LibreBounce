@@ -7,7 +7,6 @@ package net.ccbluex.liquidbounce
 
 import com.formdev.flatlaf.themes.FlatMacLightLaf
 import kotlinx.coroutines.launch
-import net.ccbluex.liquidbounce.api.ClientUpdate
 import net.ccbluex.liquidbounce.api.ClientUpdate.gitInfo
 import net.ccbluex.liquidbounce.api.loadSettings
 import net.ccbluex.liquidbounce.cape.CapeService
@@ -128,9 +127,6 @@ object LiquidBounce {
 
                 // Download and extract fonts
                 Fonts.downloadFonts()
-
-                // Check update
-                ClientUpdate.reloadNewestVersion()
 
                 // Load languages
                 loadLanguages()

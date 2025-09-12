@@ -27,10 +27,13 @@ import net.minecraft.client.gui.GuiSelectWorld
 import net.minecraft.client.resources.I18n
 import org.lwjgl.input.Mouse
 import org.semver4j.Semver
+import java.net.HttpURLConnection
+import java.net.URL
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.util.*
 import java.util.concurrent.TimeUnit
+import org.json.JSONObject
 
 data class GitHubRelease(
     val tagName: String,
@@ -153,6 +156,7 @@ class GuiMainMenu : AbstractScreen() {
         inputFormatter.timeZone = TimeZone.getTimeZone("UTC")
         val publishedDate = inputFormatter.parse(gitHubRelease.publishedAt)
         val formattedDate = inputFormatter.format(publishedDate)
+        val version = Semver.parse(gitHubRelease.tagName)
 
         popup = PopupScreen {
             title("§bNew Update Available!")
@@ -160,7 +164,7 @@ class GuiMainMenu : AbstractScreen() {
                 """
                 §eA new $updateType of $CLIENT_NAME is available!
         
-                - §aVersion:§r ${gitHubRelease.tagName}
+                - §aVersion:§r $version
                 - §aDate:§r $formattedDate
         
                 §6Changes:§r
