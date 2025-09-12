@@ -26,10 +26,19 @@ import net.minecraft.client.gui.GuiOptions
 import net.minecraft.client.gui.GuiSelectWorld
 import net.minecraft.client.resources.I18n
 import org.lwjgl.input.Mouse
+import org.semver4j.Semver
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.util.*
 import java.util.concurrent.TimeUnit
+
+data class GitHubRelease(
+    val tagName: String,
+    val publishedAt: String,
+    val body: String,
+    val htmlUrl: String,
+    val preRelease: Boolean
+)
 
 class GuiMainMenu : AbstractScreen() {
 
@@ -84,7 +93,7 @@ class GuiMainMenu : AbstractScreen() {
         popup = PopupScreen {
             title("§a§lWelcome!")
             message("""
-                §eThank you for downloading and installing §bLiquidBounce§e!
+                §eThank you for downloading and installing §b$CLIENT_NAME§e!
         
                 §6Here is some information you might find useful:§r
                 §a- §fClickGUI:§r Press §7[RightShift]§f to open ClickGUI.
@@ -93,43 +102,74 @@ class GuiMainMenu : AbstractScreen() {
         
                 §6Important Commands:§r
                 §a- §f.bind <module> <key> / .bind <module> none
-                §a- §f.config load <name> / .config list
+                §a- §f.localconfig load <name> / .localconfig list
         
                 §bNeed help? Contact us!§r
-                - §fYouTube: §9https://youtube.com/ccbluex
-                - §fTwitter: §9https://twitter.com/ccbluex
-                - §fForum: §9https://forums.ccbluex.net/
+                - §fGitHub: §9https://github.com/LibreBounce
             """.trimIndent())
             button("§aOK")
             onClose { popup = null }
         }
     }
 
-    private fun showUpdatePopup() {
-        val newestVersion = ClientUpdate.newestVersion ?: return
+    private fun checkGitHubUpdate() {
+        Thread {
+            val gitHubRelease = fetchLatestGitHubRelease()
+            val newestVersion = Semver.parse(gitHubRelease.tagName)
+            val clientVersion = Semver(clientVersionText)
 
-        val isReleaseBuild = !newestVersion.prerelease
-        val updateType = if (isReleaseBuild) "version" else "development build"
+            if (gitHubRelease != null && newestVersion.isGreaterThan(clientVersion)) {
+                mc.addScheduledTask { showUpdatePopup(gitHubRelease) }
+            }
+        }.start()
+    }
 
-        val dateFormatter = SimpleDateFormat("EEEE, MMMM dd, yyyy, h a z", Locale.ENGLISH)
-        val newestVersionDate = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(newestVersion.date)
-        val formattedNewestDate = dateFormatter.format(newestVersionDate)
+    private fun fetchLatestGitHubRelease(): GitHubRelease? {
+        try {
+            val url = URL("https://api.github.com/repos/LibreBounce/LibreBounce/releases/latest")
+            val connection = url.openConnection() as HttpURLConnection
+            connection.requestMethod = "GET"
+            connection.connectTimeout = 5000
+            connection.readTimeout = 5000
+            if (connection.responseCode == 200) {
+                val response = connection.inputStream.bufferedReader().use { it.readText() }
+                val json = JSONObject(response)
+                val tagName = json.getString("tag_name")
+                val publishedAt = json.getString("published_at")
+                val body = json.getString("body")
+                val htmlUrl = json.getString("html_url")
+                val preRelease = json.getBoolean("prerelease")
+                return GitHubRelease(tagName, publishedAt, body, htmlUrl, preRelease)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return null
+    }
+
+    private fun showUpdatePopup(gitHubRelease: GitHubRelease) {
+        val updateType = if (!gitHubRelease.preRelease) "release" else "pre-release"
+        val inputFormatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.ENGLISH)
+        inputFormatter.timeZone = TimeZone.getTimeZone("UTC")
+        val publishedDate = inputFormatter.parse(gitHubRelease.publishedAt)
+        val formattedDate = inputFormatter.format(publishedDate)
 
         popup = PopupScreen {
             title("§bNew Update Available!")
-            message("""
-                §eA new $updateType of LibreBounce is available!
+            message(
+                """
+                §eA new $updateType of $CLIENT_NAME is available!
         
-                - ${if (isReleaseBuild) "§aVersion" else "§aBuild ID"}:§r ${if (isReleaseBuild) newestVersion.tagName else newestVersion.buildId}
-                - §aBranch:§r ${newestVersion.branch}
-                - §aDate:§r $formattedNewestDate
+                - §aVersion:§r ${gitHubRelease.tagName}
+                - §aDate:§r $formattedDate
         
                 §6Changes:§r
-                ${newestVersion.message}
+                ${gitHubRelease.body}
         
                 §bUpgrade now to enjoy the latest features and improvements!§r
-            """.trimIndent())
-            button("§aDownload") { MiscUtils.showURL(newestVersion.url) }
+                """.trimIndent()
+            )
+            button("§aDownload") { MiscUtils.showURL(gitHubRelease.htmlUrl) }
             onClose { popup = null }
         }
     }

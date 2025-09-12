@@ -6,8 +6,14 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 ## [Unreleased]
 
+### Added
+
+- `Smart` option to AutoClicker (thatonecoder)
+
 ### Fixed
 
+- AutoSettings not working (thatonecoder)
+- Update checker not working; however, it no longer checks for development builds (thatonecoder)
 - `PackedIceSlipperiness` being called `IceSlipperiness`. This caused a bug where the game would crash, if the setting was altered (thatonecoder)
 
 ### Changed
@@ -19,7 +25,7 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 ### Added
 
 - `Vanilla` mode, along with `Speed`, `IceSlipperiness`, and `PackedIceSlipperiness` values to IceSpeed (thatonecoder)
-- `OnlyWhenNearEnemy` and `DistanceToLag` to FakeLag (thatonecoder)
+- `OnlyWhenNearEnemy` and `DistanceToLag` to FakeLag; still rather buggy (thatonecoder)
 - `Optimal` mode for target priority to KillAura (thatonecoder)
 - `SpacedValues` option to ClickGUI (thatonecoder)
 - `SpacedTags` option to ArrayList (thatonecoder)

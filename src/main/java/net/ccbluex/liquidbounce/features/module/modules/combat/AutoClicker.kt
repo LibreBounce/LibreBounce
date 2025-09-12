@@ -173,7 +173,15 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT) {
 
             if (target != null) return true
 
-            if (!smart && target!!.hurtTime > hurtTime) return true
+            if (smart) {
+                continue
+            } else { 
+                if (!smart && target!!.hurtTime > hurtTime) {
+                    return true
+                } else {
+                    return false
+                }
+            }
 
             // Credits to Gugustus
             if (target!!.hurtTime >= 2) {

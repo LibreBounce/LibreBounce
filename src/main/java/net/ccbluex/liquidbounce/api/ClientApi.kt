@@ -15,12 +15,9 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import java.text.SimpleDateFormat
 
-private const val HARD_CODED_BRANCH = "main"
+private const val HARD_CODED_BRANCH = "legacy"
 
 private const val API_V1_ENDPOINT = "https://api.liquidbounce.net/api/v1"
-
-private const val GITHUB_API_ENDPOINT = "https://api.github.com/repos/LibreBounce/LibreBounce"
-
 
 /**
  * Session token
@@ -46,41 +43,6 @@ private val client = OkHttpClient.Builder()
  * ClientApi
  */
 object ClientApi {
-
-    // Get the latest "stable" release
-    fun getNewestRelease(branch: String = HARD_CODED_BRANCH): Build {
-        val url = "$GITHUB_API_ENDPOINT/releases/latest"
-        client.get(url).use { response ->
-            if (!response.isSuccessful) error("Request failed: ${response.code}")
-            return response.body.charStream().decodeJson()
-        }
-    }
-
-    // Get the latest "unstable" build
-    fun getNewestBuild(branch: String = HARD_CODED_BRANCH): Build {
-        val url = "$GITHUB_API_ENDPOINT/branches/$branch"
-        client.get(url).use { response ->
-            if (!response.isSuccessful) error("Request failed: ${response.code}")
-            return response.body.charStream().decodeJson()
-        }
-    }
-
-    fun getNewestBuildDate(branch: String = HARD_CODED_BRANCH): Date {
-        val url = "$GITHUB_API_ENDPOINT/commits/$branch"
-        client.get(url).use { response ->
-            if (!response.isSuccessful) error("Request failed: ${response.code}")
-            val body = response.body?.string() // ?: return null
-            val gson = Gson()
-            val json = gson.fromJson(body, JsonObject::class.java)
-            val dateString = json
-                .getAsJsonObject("commit")
-                .getAsJsonObject("committer")
-                .get("date").asString
-            return SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ")
-                .parse(dateString)
-        }
-    }
-
     fun getSettingsList(branch: String = HARD_CODED_BRANCH): List<AutoSettings> {
         val url = "$API_V1_ENDPOINT/client/$branch/settings"
         client.get(url).use { response ->
