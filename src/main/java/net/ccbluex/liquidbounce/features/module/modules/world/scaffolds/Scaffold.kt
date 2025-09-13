@@ -74,11 +74,10 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
     // Expand
     private val omniDirectionalExpand by boolean("OmniDirectionalExpand", false) { scaffoldMode == "Expand" }
-    private val expandLength by int("ExpandLength", 1, 1..6) { scaffoldMode == "Expand" }
+    private val expandLength by int("ExpandLength", 1, 1..6, suffix = "blocks") { scaffoldMode == "Expand" }
 
-    // Placeable delay
-    private val placeDelayValue = boolean("PlaceDelay", true) { scaffoldMode != "GodBridge" }
-    private val delay by intRange("Delay", 0..0, 0..1000, suffix = "ms") { placeDelayValue.isActive() }
+    // Place delay
+    private val delay by intRange("Delay", 0..0, 0..1000, suffix = "ms") { scaffoldMode != "GodBridge" }
 
     // Extra clicks
     private val extraClicks by boolean("DoExtraClicks", false)
@@ -104,7 +103,10 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
     private val swing by boolean("Swing", true).subjective()
     private val down by boolean("Down", true) { !sameY && scaffoldMode !in arrayOf("GodBridge", "Telly") }
 
-    private val ticksUntilRotation by intRange("TicksUntilRotation", 3..3, 1..8) {
+    private val straightTicksUntilRotation by intRange("StraightTicksUntilRotation", 3..3, 1..8) {
+        scaffoldMode == "Telly"
+    }
+    private val diagonalTicksUntilRotation by intRange("DiagonalTicksUntilRotation", 3..3, 1..8) {
         scaffoldMode == "Telly"
     }
 
@@ -215,7 +217,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
     // Delay
     private val delayTimer = object : DelayTimer(delay.first, delay.last, MSTimer()) {
-        override fun hasTimePassed() = !placeDelayValue.isActive() || super.hasTimePassed()
+        override fun hasTimePassed() = super.hasTimePassed()
     }
 
     private val zitterTickTimer = TickDelayTimer(zitterTicks.first, zitterTicks.last)
@@ -495,9 +497,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
         }
 
         if (target == null) {
-            if (placeDelayValue.isActive()) {
-                delayTimer.reset()
-            }
+            delayTimer.reset()
             return@handler
         }
 
@@ -570,7 +570,9 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
         val player = mc.thePlayer ?: return
 
         if (scaffoldMode == "Telly" && player.isMoving) {
-            if (player.airTicks < ticksUntilRotation.random() && ticksUntilJump >= jumpTicks) {
+            val ticksToStall = if (!isLookingDiagonally) straightTicksUntilRotation.random() else diagonalTicksUntilRotationDiagonal.random()
+
+            if (player.airTicks < ticksToStall && ticksUntilJump >= jumpTicks) {
                 return
             }
         }
