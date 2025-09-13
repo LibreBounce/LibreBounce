@@ -11,12 +11,16 @@ import net.ccbluex.liquidbounce.event.MotionEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.modules.movement.Fly
+import net.ccbluex.liquidbounce.features.module.modules.movement.LongJump
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffolds.Scaffold
 
 object CameraView : Module("CameraView", Category.RENDER, gameDetecting = false) {
 
     private val customY by float("CustomY", 0f, -10f..10f)
     private val saveLastGroundY by boolean("SaveLastGroundY", true)
+    private val onFly by boolean("OnFly", true)
+    private val onLongJump by boolean("OnLongJump", true)
     private val onScaffold by boolean("OnScaffold", true)
     private val onF5 by boolean("OnF5", true)
 
@@ -41,6 +45,8 @@ object CameraView : Module("CameraView", Category.RENDER, gameDetecting = false)
     val onCameraUpdate = handler<CameraPositionEvent> { event ->
         mc.thePlayer?.run {
             val currentLaunchY = launchY ?: return@handler
+            if (onFly && !Fly.handleEvents()) return@handler
+            if (onLongJump && !LongJump.handleEvents()) return@handler
             if (onScaffold && !Scaffold.handleEvents()) return@handler
             if (onF5 && mc.gameSettings.thirdPersonView == 0) return@handler
 
