@@ -8,6 +8,8 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 ### Added
 
+- **Breaking:** `StraightTicksUntilRotation` and `StraightTicksUntilRotation` values to the `Telly` mode in Scaffold; split from `TicksUntilRotation`(thatonecoder)
+- Add suffixes like `ms`, `blocks`, etc to many values; although it does not alter any values directly, many value names have been changed to accomodate for this (thatonecoder)
 - `Smart` option to AutoClicker (thatonecoder)
 
 ### Fixed
@@ -101,7 +103,7 @@ _Initial release, forked from LiquidBounce Legacy._
 
 - Warning to upgrade from `LiquidBounce` legacy to nextgen (thatonecoder)
 
-[unreleased]: https://github.com/LibreBounce/LibreBounce/compare/v0.2.0...HEAD
+[unreleased]: https://github.com/LibreBounce/LibreBounce/compare/v0.3.0...HEAD
 [0.3.0]: https://github.com/LibreBounce/LibreBounce/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/LibreBounce/LibreBounce/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/LibreBounce/LibreBounce/releases/tag/v0.1.0
