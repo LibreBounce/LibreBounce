@@ -570,7 +570,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
         val player = mc.thePlayer ?: return
 
         if (scaffoldMode == "Telly" && player.isMoving) {
-            val ticksToStall = if (!isLookingDiagonally) straightTicksUntilRotation.random() else diagonalTicksUntilRotationDiagonal.random()
+            val ticksToStall = if (!isLookingDiagonally) straightTicksUntilRotation.random() else diagonalTicksUntilRotation.random()
 
             if (player.airTicks < ticksToStall && ticksUntilJump >= jumpTicks) {
                 return
