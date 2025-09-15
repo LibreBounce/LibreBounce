@@ -45,9 +45,9 @@ object CameraView : Module("CameraView", Category.RENDER, gameDetecting = false)
     val onCameraUpdate = handler<CameraPositionEvent> { event ->
         mc.thePlayer?.run {
             val currentLaunchY = launchY ?: return@handler
-            if (onFly && !Fly.handleEvents()) return@handler
-            if (onLongJump && !LongJump.handleEvents()) return@handler
-            if (onScaffold && !Scaffold.handleEvents()) return@handler
+            val shouldOperate = (onFly && Fly.handleEvents()) || (onLongJump && LongJump.handleEvents()) || (onScaffold && Scaffold.handleEvents())
+
+            if (!shouldOperate) return@handler
             if (onF5 && mc.gameSettings.thirdPersonView == 0) return@handler
 
             event.withY(currentLaunchY + customY)
