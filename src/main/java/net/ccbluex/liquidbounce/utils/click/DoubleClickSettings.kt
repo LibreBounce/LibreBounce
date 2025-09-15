@@ -38,38 +38,8 @@ class DoubleClickSettings(owner: Module, val generalApply: () -> Boolean = { tru
                 doubleClicks = 0
             }
 
-            if (isLeftClick) {
-                if (left && shouldAutoClick && time - lastClick >= delay) {
-                    handleClick(time, doubleClick, true)
-                }
-            } else {
-                if (mc.gameSettings.keyBindUseItem.isKeyDown && time - lastClick >= delay) {
-                    if (!onlyBlocks || player.heldItem?.item is ItemBlock) {
-                        handleClick(time, doubleClick, false)
-                    }
-                }
-            }
-            if (right && mc.gameSettings.keyBindUseItem.isKeyDown && time - rightLastSwing >= rightDelay) {
-                if (!onlyBlocks || player.heldItem?.item is ItemBlock) {
-                    handleRightClick(time, doubleClick)
-                }
-            }
-
-            if (requiresNoInput) {
-                val nearbyEntity = getNearestEntityInRange() ?: return@handler
-                if (!isLookingOnEntities(nearbyEntity, maxAngleDifference.toDouble())) return@handler
-
-                if (left && shouldAutoClick && time - lastClick >= delay) {
-                    handleClick(time, doubleClick)
-                } else if (block && !mc.gameSettings.keyBindUseItem.isKeyDown && shouldAutoClick && shouldAutoRightClick() && mc.gameSettings.keyBindAttack.pressTime != 0) {
-                    handleBlock(time)
-                }
-            } else {
-                if (left && mc.gameSettings.keyBindAttack.isKeyDown && !mc.gameSettings.keyBindUseItem.isKeyDown && shouldAutoClick && time - leftLastSwing >= leftDelay) {
-                    handleLeftClick(time, doubleClick)
-                } else if (block && mc.gameSettings.keyBindAttack.isKeyDown && !mc.gameSettings.keyBindUseItem.isKeyDown && shouldAutoClick && shouldAutoRightClick() && mc.gameSettings.keyBindAttack.pressTime != 0) {
-                    handleBlock(time)
-                }
+            if (time - lastClick >= delay) {
+                handleClick(time, doubleClick, isLeftClick)
             }
         }
     }
