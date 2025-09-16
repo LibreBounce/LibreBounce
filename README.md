@@ -36,10 +36,13 @@ LibreBounce is using Gradle, so make sure that it is installed properly. Instruc
 Mixins can be used to modify classes at runtime before they are loaded. LibreBounce is using it to inject its code into the Minecraft client. This way, we do not have to ship Mojang's copyrighted code. If you want to learn more about it, check out its [Documentation](https://docs.spongepowered.org/5.1.0/en/plugin/internals/mixins.html).
 
 ## Contributing
-We appreciate contributions. So if you want to support us, feel free to make changes to LibreBounce's source code and submit a pull request. Currently, our main goals are the following:
+We appreciate contributions. So if you want to support us, feel free to make changes to LibreBounce's source code and submit a pull request. Currently, our main goals are the following, by order of priority:
 
-1. Make clicking and rotation patterns that bypass advanced anti-cheats (such as Polar).
-2. Add full backwards-compatibility with historical LiquidBounce versions (b68, b72).
+1. Make rotation patterns that bypass advanced anti-cheats (such as Polar),
+2. Fix a bug where rotation modules still affect the player after being turned off.
+2. Make a centralized clicking system, with legit patterns.
+
+4. Add full backwards-compatibility with historical LiquidBounce versions (b68, b72).
 
 Any additional goals are easily found by code searching "TODO", and are equally as important, if not more.
 If you have experience in one or more of these fields, we would highly appreciate your support.
