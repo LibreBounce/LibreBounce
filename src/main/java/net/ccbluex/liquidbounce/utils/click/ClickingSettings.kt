@@ -10,13 +10,15 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.extensions.plus
 import net.ccbluex.liquidbounce.utils.extensions.random
 import net.ccbluex.liquidbounce.utils.extensions.times
+import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.nextInt
 import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomClickDelay
+import net.minecraft.client.settings.KeyBinding
 
 import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.Vec3
 import kotlin.math.sign
 
-class ClickingSettings(owner: Module, val generalApply: () -> Boolean = { true }) : Configurable("DoubleClicking") {
+class ClickingSettings(owner: Module, val generalApply: () -> Boolean = { true }) : Configurable("DoubleClicking"), MinecraftInstance, Listenable {
 
     private val cps by intRange("CPS", 5..8, 1..50) { generalApply() }
     private val simulateDoubleClicking by boolean("SimulateDoubleClicking", false) { generalApply() }
@@ -32,7 +34,6 @@ class ClickingSettings(owner: Module, val generalApply: () -> Boolean = { true }
     fun clicking(isLeftClick: Boolean) {
         mc.thePlayer?.let { player ->
             val time = System.currentTimeMillis()
-            var doubleClicks = 0
 
             if (simulateDoubleClicking) {
                 if (nextInt(endExclusive = 100) < noClickingChance) {
@@ -50,8 +51,8 @@ class ClickingSettings(owner: Module, val generalApply: () -> Boolean = { true }
         }
     }
 
-    private fun handleClick(time: Long, doubleClick: Int, isLeftClick: Boolean) {
-        repeat(1 + doubleClick) {
+    private fun handleClick(time: Long, doubleClicks: Int, isLeftClick: Boolean) {
+        repeat(1 + doubleClicks) {
             if (isLeftClick) {
                 KeyBinding.onTick(mc.gameSettings.keyBindAttack.keyCode)
             } else {
