@@ -17,14 +17,14 @@ import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.Vec3
 import kotlin.math.sign
 
-class ClickingSettings(owner: Module, val generalApply: () -> Boolean = { true }) : Configurable("Clicking"), MinecraftInstance, Listenable {
+class ClickingSettings(owner: Module, val generalApply: () -> Boolean = { true }) : Configurable("Clicking"), MinecraftInstance {
 
     private val cps by intRange("CPS", 5..8, 1..50) { generalApply() }
     private val simulateDoubleClicking by boolean("SimulateDoubleClicking", false) { generalApply() }
     private val doubleClickAmount by intRange(
         "DoubleClickAmount", 0..2, 0..4
-    ) { simulateDoubleClicking }
-    private val noClickingChance by int("NoClickingChance", 20, 0..100) { simulateDoubleClicking }
+    ) { simulateDoubleClicking & generalApply }
+    private val noClickingChance by int("NoClickingChance", 20, 0..100) { simulateDoubleClicking & generalApply }
 
     private var doubleClicks = 0
     private var delay = generateNewClickTime()
