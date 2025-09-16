@@ -39,8 +39,8 @@ open class RotationSettings(owner: Module, generalApply: () -> Boolean = { true 
         rotationsActive && applyServerSide && generalApply()
     }
 
-    // TODO: Currently, using Scaffold with the Legitimize option causes any consequent rotations to wobble afterwards, unless you use a module like KillAura
-    // This should be fixed ASAP
+    // TODO: Currently, after toggling a module with rotations on and off,
+    // the rotation speed limiter and randomization still apply. This should be fixed ASAP
     open val legitimizeValue = boolean("Legitimize", false) { rotationsActive && generalApply() }
     open val legitimizeHorizontalJitterValue = 
         floatRange("LegitimizeHorizontalJitter", -0.03f..0.03f, -1f..1f) { rotationsActive && generalApply() && legitimize }

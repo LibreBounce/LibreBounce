@@ -10,20 +10,26 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.extensions.plus
 import net.ccbluex.liquidbounce.utils.extensions.random
 import net.ccbluex.liquidbounce.utils.extensions.times
+import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomClickDelay
 
 import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.Vec3
 import kotlin.math.sign
 
-class DoubleClickSettings(owner: Module, val generalApply: () -> Boolean = { true }) : Configurable("DoubleClicking") {
+class ClickingSettings(owner: Module, val generalApply: () -> Boolean = { true }) : Configurable("DoubleClicking") {
 
+    private val cps by intRange("CPS", 5..8, 1..50) { generalApply() }
     private val simulateDoubleClicking by boolean("SimulateDoubleClicking", false) { generalApply() }
     private val doubleClickAmount by intRange(
         "DoubleClickAmount", 0..2, 0..4
     ) { simulateDoubleClicking }
     private val noClickingChance by int("NoClickingChance", 20, 0..100) { simulateDoubleClicking }
 
-    fun doubleClicks(isLeftClick: Boolean) {
+    private var doubleClicks = 0
+    private var delay = generateNewClickTime()
+    private var lastClick = 0L
+
+    fun clicking(isLeftClick: Boolean) {
         mc.thePlayer?.let { player ->
             val time = System.currentTimeMillis()
             var doubleClicks = 0
@@ -56,6 +62,8 @@ class DoubleClickSettings(owner: Module, val generalApply: () -> Boolean = { tru
             delay = generateNewClickTime()
         }
     }
+
+    fun generateNewClickTime() = randomClickDelay(cps.first, cps.last)
 
     init {
         owner.addValues(this.values)
