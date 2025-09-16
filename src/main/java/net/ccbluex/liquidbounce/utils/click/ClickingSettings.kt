@@ -7,9 +7,8 @@ package net.ccbluex.liquidbounce.utils.rotation
 
 import net.ccbluex.liquidbounce.config.Configurable
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.utils.extensions.plus
+import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.extensions.random
-import net.ccbluex.liquidbounce.utils.extensions.times
 import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.nextInt
 import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomClickDelay
 import net.minecraft.client.settings.KeyBinding
@@ -18,7 +17,7 @@ import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.Vec3
 import kotlin.math.sign
 
-class ClickingSettings(owner: Module, val generalApply: () -> Boolean = { true }) : Configurable("DoubleClicking"), MinecraftInstance, Listenable {
+class ClickingSettings(owner: Module, val generalApply: () -> Boolean = { true }) : Configurable("Clicking"), MinecraftInstance, Listenable {
 
     private val cps by intRange("CPS", 5..8, 1..50) { generalApply() }
     private val simulateDoubleClicking by boolean("SimulateDoubleClicking", false) { generalApply() }
@@ -46,7 +45,7 @@ class ClickingSettings(owner: Module, val generalApply: () -> Boolean = { true }
             }
 
             if (time - lastClick >= delay) {
-                handleClick(time, doubleClick, isLeftClick)
+                handleClick(time, doubleClicks, isLeftClick)
             }
         }
     }
