@@ -8,7 +8,7 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 ### Added
 
-- **Breaking:** `StraightTicksUntilRotation` and `StraightTicksUntilRotation` values to the `Telly` mode in Scaffold; split from `TicksUntilRotation`(thatonecoder)
+- **Breaking:** `StraightTicksUntilRotation` and `DiagonalTicksUntilRotation` values to the `Telly` mode in Scaffold; split from `TicksUntilRotation` (thatonecoder)
 - Add suffixes like `ms`, `blocks`, etc to many values; although it does not alter any values directly, many value names have been changed to accomodate for this (thatonecoder)
 - `Smart` option to AutoClicker (thatonecoder)
 
@@ -20,7 +20,7 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 ### Changed
 
-- **Breaking:** `HurtTime` in the `IntaveReduce` mode is now an IntRange value, and shared with the `GhostBlock` mode, in Velocity (thatonecoder)
+- **Breaking:** `HurtTime` in the `IntaveReduce` and `HurtTimeToClick` modes are now an IntRange value, and shared with the `GhostBlock` mode, in Velocity (thatonecoder)
 - Fine-tune the `Optimal` target priority mode in KillAura (thatonecoder)
 
 ### Removed

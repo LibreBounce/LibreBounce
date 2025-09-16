@@ -97,12 +97,17 @@ object Velocity : Module("Velocity", Category.COMBAT) {
     private val spoofDelay by int("SpoofDelay", 500, 0..5000) { mode == "Delay" }
     var delayMode = false
 
-    // IntaveReduce
+    // Intave Reduce
     private val reduceFactor by float("Factor", 0.6f, 0.6f..1f) { mode == "IntaveReduce" }
 
+    private val clicks by intRange("Clicks", 3..5, 1..20) { mode == "Click" }
     private val hurtTime by intRange("HurtTime", 1..9, 1..10) {
-        mode in arrayOf("GhostBlock", "IntaveReduce")
+        mode in arrayOf("GhostBlock", "IntaveReduce", "Click")
     }
+    private val whenFacingEnemyOnly by boolean("WhenFacingEnemyOnly", true) { mode == "Click" }
+    private val ignoreBlocking by boolean("IgnoreBlocking", false) { mode == "Click" }
+    private val clickRange by float("ClickRange", 3f, 1f..6f) { mode == "Click" }
+    private val swingMode by choices("SwingMode", arrayOf("Off", "Normal", "Packet"), "Normal") { mode == "Click" }
 
     private val pauseOnExplosion by boolean("PauseOnExplosion", true)
     private val ticksToPause by int("TicksToPause", 20, 1..50) { pauseOnExplosion }
@@ -120,13 +125,6 @@ object Velocity : Module("Velocity", Category.COMBAT) {
     // KB 2: 1.4 (no sprint), 1.9 (sprint)
     // Vanilla Y limits
     // 0.36075 (no sprint), 0.46075 (sprint)
-
-    private val clicks by intRange("Clicks", 3..5, 1..20) { mode == "Click" }
-    private val hurtTimeToClick by int("HurtTimeToClick", 10, 0..10) { mode == "Click" }
-    private val whenFacingEnemyOnly by boolean("WhenFacingEnemyOnly", true) { mode == "Click" }
-    private val ignoreBlocking by boolean("IgnoreBlocking", false) { mode == "Click" }
-    private val clickRange by float("ClickRange", 3f, 1f..6f) { mode == "Click" }
-    private val swingMode by choices("SwingMode", arrayOf("Off", "Normal", "Packet"), "Normal") { mode == "Click" }
 
     /**
      * VALUES
@@ -358,7 +356,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
 
         mc.theWorld ?: return@handler
 
-        if (mode != "Click" || player.hurtTime != hurtTimeToClick || ignoreBlocking && (player.isBlocking || KillAura.blockStatus))
+        if (mode != "Click" || !player.hurtTime in hurtTime || ignoreBlocking && (player.isBlocking || KillAura.blockStatus))
             return@handler
 
         var entity = mc.objectMouseOver?.entityHit
