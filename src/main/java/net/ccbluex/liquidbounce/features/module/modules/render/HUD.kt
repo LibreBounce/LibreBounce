@@ -49,7 +49,6 @@ object HUD : Module("HUD", Category.RENDER, gameDetecting = false, defaultState 
 
     val inventoryParticle by boolean("InventoryParticle", false)
     private val blur by boolean("Blur", false)
-    private val fontChat by boolean("FontChat", false)
 
     val onRender2D = handler<Render2DEvent> {
         if (mc.currentScreen is GuiHudDesigner)
@@ -76,6 +75,4 @@ object HUD : Module("HUD", Category.RENDER, gameDetecting = false, defaultState 
             "librebounce/blur.json" in mc.entityRenderer.shaderGroup.shaderGroupName
         ) mc.entityRenderer.stopUseShader()
     }
-
-    fun shouldModifyChatFont() = handleEvents() && fontChat
 }
