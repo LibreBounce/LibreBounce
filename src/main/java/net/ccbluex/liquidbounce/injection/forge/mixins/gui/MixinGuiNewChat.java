@@ -21,31 +21,17 @@ public abstract class MixinGuiNewChat {
 
     @Redirect(method = {"getChatComponent", "drawChat"}, at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/FontRenderer;FONT_HEIGHT:I"))
     private int injectFontChat(FontRenderer instance) {
-        return Chat.INSTANCE.shouldModifyChatFont() ? Fonts.fontSemibold40.getHeight() : instance.FONT_HEIGHT;
+        return Chat.INSTANCE.handleEvents() ? Chat.INSTANCE.getFont().getHeight() : instance.FONT_HEIGHT;
     }
 
     @Redirect(method = "drawChat", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/FontRenderer;drawStringWithShadow(Ljava/lang/String;FFI)I"))
     private int injectFontChatB(FontRenderer instance, String text, float x, float y, int color) {
-        return Chat.INSTANCE.shouldModifyChatFont() ? Fonts.fontSemibold40.drawStringWithShadow(text, x, y, color) : instance.drawStringWithShadow(text, x, y, color);
-    }
-
-    @Redirect(method = "drawScreen", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiChat;drawRect(IIIII)V"))
-    private void backgroundColor(int left, int top, int right, int bottom, int color) {
-        final Chat chat = Chat.INSTANCE;
-        if (chat.handleEvents()) {
-            RenderUtils.INSTANCE.drawRoundedRectInt(
-                left, top,
-                right, bottom,
-                chat.getBackgroundColor().color().getRGB(),
-                chat.getRoundedRadius(),
-                RenderUtils.RoundedCorners.ALL
-            );
-        }
+        return Chat.INSTANCE.handleEvents() ? Chat.INSTANCE.getFont().drawStringWithShadow(text, x, y, color) : instance.drawStringWithShadow(text, x, y, color);
     }
 
     @Redirect(method = "getChatComponent", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/FontRenderer;getStringWidth(Ljava/lang/String;)I"))
     private int injectFontChatC(FontRenderer instance, String text) {
-        return Chat.INSTANCE.shouldModifyChatFont() ? Fonts.fontSemibold40.getStringWidth(text) : instance.getStringWidth(text);
+        return Chat.INSTANCE.handleEvents() ? Chat.INSTANCE.getFont().getStringWidth(text) : instance.getStringWidth(text);
     }
 
     /**

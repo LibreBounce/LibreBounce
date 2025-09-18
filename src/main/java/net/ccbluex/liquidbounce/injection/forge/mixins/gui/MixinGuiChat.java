@@ -140,18 +140,4 @@ public abstract class MixinGuiChat extends MixinGuiScreen {
         if (ichatcomponent != null)
             handleComponentHover(ichatcomponent, mouseX, mouseY);
     }
-
-    @Redirect(method = "drawScreen", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiChat;drawRect(IIIII)V"))
-    private void backgroundColor(int left, int top, int right, int bottom, int color) {
-        final Chat chat = Chat.INSTANCE;
-        if (chat.handleEvents()) {
-            RenderUtils.INSTANCE.drawRoundedRectInt(
-                left, top,
-                right, bottom,
-                chat.getBackgroundColor().color().getRGB(),
-                chat.getRoundedRadius(),
-                RenderUtils.RoundedCorners.ALL
-            );
-        }
-    }
 }
