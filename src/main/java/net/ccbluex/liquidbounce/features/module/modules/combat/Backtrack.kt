@@ -45,15 +45,8 @@ import java.util.concurrent.ConcurrentLinkedQueue
 object Backtrack : Module("Backtrack", Category.COMBAT) {
 
     private val nextBacktrackDelay by int("NextBacktrackDelay", 0, 0..2000, suffix = "ms") { mode == "Modern" }
-    // TODO: Make this an int range instead
-    private val maxDelay: Value<Int> = int("MaxDelay", 80, 0..2000, suffix = "ms").onChange { _, new ->
-        new.coerceAtLeast(minDelay.get())
-    }
-    private val minDelay: Value<Int> = int("MinDelay", 80, 0..2000, suffix = "ms") {
-        mode == "Modern"
-    }.onChange { _, new ->
-        new.coerceAtMost(maxDelay.get())
-    }
+    private val delay by intRange("Delay", 80..80, 0..2000, suffix = "ms")
+    private val legacyDelay by int("Delay", 80, 0..2000, suffix = "ms")
 
     val mode by choices("Mode", arrayOf("Legacy", "Modern"), "Modern").onChanged {
         clearPackets()
@@ -96,10 +89,10 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
 
     private var delayForNextBacktrack = 0L
 
-    private var modernDelay = randomDelay(minDelay.get(), maxDelay.get()) to false
+    private var modernDelay = delay.random() to false
 
     private val supposedDelay
-        get() = if (mode == "Modern") modernDelay.first else maxDelay.get()
+        get() = if (mode == "Modern") modernDelay.first else legacyDelay.get()
 
     // Legacy
     private val maximumCachedPositions by int("MaxCachedPositions", 10, 1..20) { mode == "Legacy" }
@@ -279,7 +272,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
 
         if (shouldChangeDelay && !modernDelay.second && !shouldBacktrack()) {
             delayForNextBacktrack = System.currentTimeMillis() + nextBacktrackDelay
-            modernDelay = randomDelay(minDelay.get(), maxDelay.get()) to true
+            modernDelay = delay.random() to true
         }
     }
 
