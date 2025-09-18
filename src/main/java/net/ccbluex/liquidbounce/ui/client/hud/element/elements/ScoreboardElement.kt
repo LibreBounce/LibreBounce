@@ -42,7 +42,7 @@ class ScoreboardElement(
 ) : Element("Scoreboard", x, y, scale, side) {
     private val textColor by color("TextColor", Color.WHITE)
     private val backgroundColor by color("BackgroundColor", Color.BLACK.withAlpha(128))
-    private val roundedRectRadius by float("Rounded-Radius", 3F, 0F..5F)
+    private val roundedRectRadius by float("RoundedRadius", 3F, 0F..5F)
 
     private val rect by boolean("Rect", true)
     private val rectColor = color("RectangleColor", Color(0, 111, 255)) { rect }

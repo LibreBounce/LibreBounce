@@ -21,7 +21,7 @@ object NoFluid : Module("NoFluid", Category.MOVEMENT) {
     val onUpdate = handler<UpdateEvent> {
         if ((waterValue || lavaValue) && oldGrim) {
             BlockUtils.searchBlocks(2, setOf(water, lava)).keys.forEach {
-                // TODO:only do this for blocks that player touched
+                // TODO: only do this for blocks that player touched
                 sendPacket(C07PacketPlayerDigging(Action.STOP_DESTROY_BLOCK, it, EnumFacing.DOWN))
             }
         }

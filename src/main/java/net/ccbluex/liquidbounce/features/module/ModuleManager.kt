@@ -85,6 +85,7 @@ object ModuleManager : Listenable, Collection<Module> by MODULE_REGISTRY {
             CameraClip,
             CameraView,
             Chams,
+            Chat,
             ChestAura,
             ChestStealer,
             CivBreak,

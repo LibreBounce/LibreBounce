@@ -81,7 +81,7 @@ public abstract class MixinGuiChat extends MixinGuiScreen {
 
     /**
      * Adds client command auto-completion and cancels sending an auto-completion request packet
-     * to the server if the message contains a client command.
+     * to the server, if the message contains a client command.
      *
      * @author NurMarvin
      */
@@ -102,7 +102,7 @@ public abstract class MixinGuiChat extends MixinGuiScreen {
     }
 
     /**
-     * Add this callback, to check if the User complete a Playername or a Liquidbounce command.
+     * Add this callback, to check if the user completes a player name or a command.
      * To fix this bug: https://github.com/CCBlueX/LiquidBounce1.8-Issues/issues/3795
      *
      * @author derech1e
@@ -137,5 +137,18 @@ public abstract class MixinGuiChat extends MixinGuiScreen {
 
         if (ichatcomponent != null)
             handleComponentHover(ichatcomponent, mouseX, mouseY);
+    }
+
+    @Redirect(method = "drawScreen", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiChat;drawRect(IIIII)V"))
+    private void chat$backgroundColor(int left, int top, int right, int bottom, int color) {
+        final Chat chat = Chat.INSTANCE;
+        if (chat.handleEvents()) {
+            render.drawRoundedRectInt(
+                left, top,
+                right, bottom,
+                chat.getBackgroundColor().color().getRGB(),
+                chat.getRoundedRadius(),
+                RenderUtils.RoundedCorners.ALL
+        );
     }
 }

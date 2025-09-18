@@ -22,9 +22,9 @@ object HUD : Module("HUD", Category.RENDER, gameDetecting = false, defaultState 
 
     val smoothHotbarSlot by boolean("SmoothHotbarSlot", true) { customHotbar }
 
-    val roundedHotbarRadius by float("RoundedHotbar-Radius", 3F, 0F..5F) { customHotbar }
+    val roundedHotbarRadius by float("RoundedHotbarRadius", 3f, 0f..5f) { customHotbar }
 
-    val hotbarMode by choices("Hotbar-Color", arrayOf("Custom", "Rainbow", "Gradient"), "Custom") { customHotbar }
+    val hotbarMode by choices("HotbarColor", arrayOf("Custom", "Rainbow", "Gradient"), "Custom") { customHotbar }
     val hbHighlightColors = ColorSettingsInteger(this, "HotbarHighlightColors", applyMax = true)
     { customHotbar }.with(a = 0)
     val hbBackgroundColors = ColorSettingsInteger(this, "HotbarBackgroundColors")
@@ -35,10 +35,10 @@ object HUD : Module("HUD", Category.RENDER, gameDetecting = false, defaultState 
     { customHotbar && hotbarMode == "Gradient" }
     val bgGradColors = ColorSettingsFloat.create(this, "HotbarGradient")
     { customHotbar && hotbarMode == "Gradient" && it <= maxHotbarGradientColors }
-    val hbHighlightBorder by float("HotbarBorderHighlightWidth", 2F, 0.5F..5F) { customHotbar }
+    val hbHighlightBorder by float("HotbarBorderHighlightWidth", 2f, 0.5f..5f) { customHotbar }
     val hbHighlightBorderColors = ColorSettingsInteger(this, "HotbarBorderHighlightColors")
     { customHotbar }.with(a = 255, g = 111, b = 255)
-    val hbBackgroundBorder by float("HotbarBorderBackgroundWidth", 0.5F, 0.5F..5F) { customHotbar }
+    val hbBackgroundBorder by float("HotbarBorderBackgroundWidth", 0.5f, 0.5f..5f) { customHotbar }
     val hbBackgroundBorderColors = ColorSettingsInteger(this, "HotbarBorderBackgroundColors")
     { customHotbar }.with(a = 0)
 

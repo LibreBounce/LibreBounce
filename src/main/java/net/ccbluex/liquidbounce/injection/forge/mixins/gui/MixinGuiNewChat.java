@@ -26,19 +26,24 @@ public abstract class MixinGuiNewChat {
         return Chat.INSTANCE.shouldModifyChatFont() ? Fonts.fontSemibold40.drawStringWithShadow(text, x, y, color) : instance.drawStringWithShadow(text, x, y, color);
     }
 
+    @Redirect(method = "drawChat", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiNewChat;drawRect(IIIII)V"))
+    private void backgroundColor(int left, int top, int right, int bottom, int color) {
+        ChatHooks.drawBackground(left, top, right, bottom, color);
+    }
+
     @Redirect(method = "getChatComponent", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/FontRenderer;getStringWidth(Ljava/lang/String;)I"))
     private int injectFontChatC(FontRenderer instance, String text) {
         return Chat.INSTANCE.shouldModifyChatFont() ? Fonts.fontSemibold40.getStringWidth(text) : instance.getStringWidth(text);
     }
 
     /**
-     * Modifies the message limit constant in the setChatLine method based on ChatControl.
+     * Modifies the message limit constant in the setChatLine method based on the Chat module.
      */
     @ModifyConstant(method = "setChatLine", constant = @Constant(intValue = 100))
     private int fixMsgLimit(int constant) {
         final Chat chat = Chat.INSTANCE;
 
-        if (chat.handleEvents() && chat.getChatClearValue()) {
+        if (chat.handleEvents() && chat.getNoMessageLimitValue()) {
             return 114514; // Adjust this value as needed
         } else {
             return 100;
