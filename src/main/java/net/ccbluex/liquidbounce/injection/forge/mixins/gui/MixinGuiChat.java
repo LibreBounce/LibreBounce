@@ -149,6 +149,7 @@ public abstract class MixinGuiChat extends MixinGuiScreen {
                 chat.getBackgroundColor().color().getRGB(),
                 chat.getRoundedRadius(),
                 RenderUtils.RoundedCorners.ALL
-        );
+            );
+        }
     }
 }
