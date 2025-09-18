@@ -92,7 +92,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
     private var modernDelay = delay.random() to false
 
     private val supposedDelay
-        get() = if (mode == "Modern") modernDelay.first else legacyDelay.get()
+        get() = if (mode == "Modern") modernDelay.first else legacyDelay
 
     // Legacy
     private val maximumCachedPositions by int("MaxCachedPositions", 10, 1..20) { mode == "Legacy" }
