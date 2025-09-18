@@ -7,6 +7,7 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 
 import net.ccbluex.liquidbounce.features.module.modules.render.Chat;
 import net.ccbluex.liquidbounce.ui.font.Fonts;
+import net.ccbluex.liquidbounce.utils.render.RenderUtils;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiNewChat;
 import org.spongepowered.asm.mixin.Mixin;
@@ -26,9 +27,18 @@ public abstract class MixinGuiNewChat {
         return Chat.INSTANCE.shouldModifyChatFont() ? Fonts.fontSemibold40.drawStringWithShadow(text, x, y, color) : instance.drawStringWithShadow(text, x, y, color);
     }
 
-    @Redirect(method = "drawChat", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiNewChat;drawRect(IIIII)V"))
+    @Redirect(method = "drawScreen", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiChat;drawRect(IIIII)V"))
     private void backgroundColor(int left, int top, int right, int bottom, int color) {
-        ChatHooks.drawBackground(left, top, right, bottom, color);
+        final Chat chat = Chat.INSTANCE;
+        if (chat.handleEvents()) {
+            RenderUtils.INSTANCE.drawRoundedRectInt(
+                left, top,
+                right, bottom,
+                chat.getBackgroundColor().color().getRGB(),
+                chat.getRoundedRadius(),
+                RenderUtils.RoundedCorners.ALL
+            );
+        }
     }
 
     @Redirect(method = "getChatComponent", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/FontRenderer;getStringWidth(Ljava/lang/String;)I"))
