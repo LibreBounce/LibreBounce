@@ -16,12 +16,14 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 - AutoSettings not working (thatonecoder)
 - Update checker not working; however, it no longer checks for development builds (thatonecoder)
-- `PackedIceSlipperiness` being called `IceSlipperiness`. This caused a bug where the game would crash, if the setting was altered (thatonecoder)
 
 ### Changed
 
-- **Breaking:** `HurtTime` in the `IntaveReduce` and `HurtTimeToClick` modes are now an IntRange value, and shared with the `GhostBlock` mode, in Velocity (thatonecoder)
+- **Breaking:** Merge `MaxDelay` and `MinDelay`, but split into an integer range and a range value for the `Modern` and `Legacy` modes respectively, in Backtrack (thatonecoder)
+- **Breaking:** `HurtTime` in the `IntaveReduce` and `HurtTimeToClick` modes are now an integer range value, and shared with the `GhostBlock` mode, in Velocity (thatonecoder)
+- **Breaking:** Make the `StartDelay` and `CloseDelay` values in AutoArmor and InventoryCleaner an integer range value (thatonecoder)
 - Fine-tune the `Optimal` target priority mode in KillAura (thatonecoder)
+- Increase the limit on the `ShortStopLength` value to 1000, in ChestStealer (thatonecoder)
 
 ### Removed
 

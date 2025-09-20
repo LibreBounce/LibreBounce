@@ -59,7 +59,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
     private val simulateShortStop by boolean("SimulateShortStop", false)
     private val shortStopChance by int("ShortStopChance", 75, 0..100, suffix = "%") { simulateShortStop }
-    private val shortStopLength by intRange("ShortStopLength", 150..500, 0..500, suffix = "ms") { simulateShortStop }
+    private val shortStopLength by intRange("ShortStopLength", 350..650, 0..1000, suffix = "ms") { simulateShortStop }
 
     private val delay by intRange("Delay", 50..50, 0..500, suffix = "ms")
     private val startDelay by intRange("StartDelay", 50..100, 0..500, suffix = "ms")

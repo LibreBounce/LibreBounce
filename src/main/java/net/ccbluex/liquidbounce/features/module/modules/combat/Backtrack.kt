@@ -45,8 +45,8 @@ import java.util.concurrent.ConcurrentLinkedQueue
 object Backtrack : Module("Backtrack", Category.COMBAT) {
 
     private val nextBacktrackDelay by int("NextBacktrackDelay", 0, 0..2000, suffix = "ms") { mode == "Modern" }
-    private val delay by intRange("Delay", 80..80, 0..2000, suffix = "ms")
-    private val legacyDelay by int("Delay", 80, 0..2000, suffix = "ms")
+    private val delay by intRange("Delay", 80..80, 0..2000, suffix = "ms") { mode == "Modern" }
+    private val legacyDelay by int("Delay", 80, 0..2000, suffix = "ms") { mode == "Legacy" }
 
     val mode by choices("Mode", arrayOf("Legacy", "Modern"), "Modern").onChanged {
         clearPackets()

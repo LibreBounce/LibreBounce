@@ -289,7 +289,7 @@ object AutoArmor : Module("AutoArmor", Category.COMBAT) {
             // Have to set this manually, because it would delay all clicks until a first scheduled click was sent
             isFirstInventoryClick = false
 
-            delay(startDelay.toLong())
+            delay(startDelay.random().toLong())
         }
 
         clickNextTick(slot, button, mode, allowDuplicates)

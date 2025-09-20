@@ -33,10 +33,10 @@ object InventoryManager : Configurable("InventoryManager"), MinecraftInstance, L
     val simulateInventoryValue = boolean("SimulateInventory", true) { !invOpenValue.get() }
     val autoCloseValue = boolean("AutoClose", false) { invOpenValue.get() }
 
-    val postInventoryCloseDelayValue = int("PostInventoryCloseDelay", 0, 0..500)
-    val startDelayValue = int("StartDelay", 0, 0..500)
+    val postInventoryCloseDelayValue = int("PostInventoryCloseDelay", 0, 0..500, suffix = "ms")
+    val startDelayValue = intRange("StartDelay", 50..100, 0..500, suffix = "ms")
     { invOpenValue.get() || simulateInventoryValue.get() }
-    val closeDelayValue = int("CloseDelay", 0, 0..500)
+    val closeDelayValue = intRange("CloseDelay", 50..100, 0..500, suffix = "ms")
     { if (invOpenValue.get()) autoCloseValue.get() else simulateInventoryValue.get() }
 
     // Shared highlight slot values between AutoArmor and InventoryCleaner
@@ -125,7 +125,7 @@ object InventoryManager : Configurable("InventoryManager"), MinecraftInstance, L
         }
 
         // Prepare for closing the inventory
-        delay(closeDelayValue.get().toLong())
+        delay(closeDelayValue.get().random().toLong())
 
         // Try to search through inventory one more time, only close when no actions were scheduled in current iteration
         if (!hasScheduledInLastLoop) {
