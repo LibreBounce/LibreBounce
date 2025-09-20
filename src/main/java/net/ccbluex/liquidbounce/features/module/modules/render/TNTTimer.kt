@@ -29,12 +29,12 @@ object TNTTimer : Module("TNTTimer", Category.RENDER) {
 
     private val color by color("Color", Color.WHITE)
 
-    private val maxRenderDistance by int("MaxRenderDistance", 50, 1..200).onChanged { value ->
+    private val maxRenderDistance by int("MaxRenderDistance", 50, 1..200, suffix = "blocks").onChanged { value ->
         maxRenderDistanceSq = value.toDouble().pow(2)
     }
 
     private val onLook by boolean("OnLook", false)
-    private val maxAngleDifference by float("MaxAngleDifference", 5.0f, 5.0f..90f) { onLook }
+    private val maxAngleDifference by float("MaxAngleDifference", 5.0f, 5.0f..90f, suffix = "º") { onLook }
 
     private var maxRenderDistanceSq = 0.0
         set(value) {

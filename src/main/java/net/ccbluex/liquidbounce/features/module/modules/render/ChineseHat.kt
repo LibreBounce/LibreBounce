@@ -41,10 +41,10 @@ object ChineseHat : Module("ChineseHat", Category.RENDER) {
 
     private val renderSelf by boolean("RenderSelf", false)
 
-    private val maxRenderDistance by int("MaxRenderDistance", 100, 1..200)
+    private val maxRenderDistance by int("MaxRenderDistance", 100, 1..200, suffix = "blocks")
 
     private val onLook by boolean("OnLook", false)
-    private val maxAngleDifference by float("MaxAngleDifference", 90f, 5.0f..90f) { onLook }
+    private val maxAngleDifference by float("MaxAngleDifference", 90f, 5.0f..90f, suffix = "º") { onLook }
 
     private val bots by boolean("Bots", true)
     private val teams by boolean("Teams", false)

@@ -87,7 +87,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
     private val predictClientMovement by int("PredictClientMovement", 2, 0..5, suffix = "ticks")
     private val predictEnemyPosition by float("PredictEnemyPosition", 1.5f, -1f..2f)
 
-    private val maxAngleDifference by float("MaxYawDifference", 5f, 5f..90f, suffix = "º") { timerBoostMode == "Modern" }
+    private val maxAngleDifference by float("MaxAngleDifference", 5f, 5f..90f, suffix = "º") { timerBoostMode == "Modern" }
 
     // Mark Option
     private val markMode by choices("Mark", arrayOf("Off", "Box", "Platform"), "Off") { timerBoostMode == "Modern" }

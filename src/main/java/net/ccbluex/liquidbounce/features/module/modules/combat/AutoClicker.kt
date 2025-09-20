@@ -43,7 +43,7 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT) {
     private val blockDelay by int("BlockDelay", 50, 0..100) { block }
 
     private val requiresNoInput by boolean("RequiresNoInput", false) { left }
-    private val maxAngleDifference by float("MaxYawDifference", 30f, 10f..180f, suffix = "º") { left && requiresNoInput }
+    private val maxAngleDifference by float("MaxAngleDifference", 30f, 10f..180f, suffix = "º") { left && requiresNoInput }
     private val range by float("Range", 3f, 0.1f..5f, suffix = "blocks") { left && requiresNoInput }
 
     private val onlyBlocks by boolean("OnlyBlocks", true) { right }

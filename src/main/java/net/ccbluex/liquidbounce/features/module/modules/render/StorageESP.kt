@@ -44,12 +44,12 @@ object StorageESP : Module("StorageESP", Category.RENDER) {
     private val espColor = ColorSettingsInteger(this, "ESPColor")
     { espColorMode == "Custom" }.with(255, 179, 72)
 
-    private val maxRenderDistance by int("MaxRenderDistance", 100, 1..500).onChanged { value ->
+    private val maxRenderDistance by int("MaxRenderDistance", 100, 1..500, suffix = "blocks").onChanged { value ->
         maxRenderDistanceSq = value.toDouble().pow(2)
     }
 
     private val onLook by boolean("OnLook", false)
-    private val maxAngleDifference by float("MaxAngleDifference", 90f, 5.0f..90f) { onLook }
+    private val maxAngleDifference by float("MaxAngleDifference", 90f, 5.0f..90f, suffix = "º") { onLook }
 
     private val thruBlocks by boolean("ThruBlocks", true)
 

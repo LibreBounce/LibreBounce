@@ -38,7 +38,7 @@ object ItemESP : Module("ItemESP", Category.RENDER) {
 
     private val color by color("Color", Color.GREEN)
 
-    private val maxRenderDistance by int("MaxRenderDistance", 50, 1..200).onChanged { value ->
+    private val maxRenderDistance by int("MaxRenderDistance", 50, 1..200, suffix = "blocks").onChanged { value ->
         maxRenderDistanceSq = value.toDouble().pow(2)
     }
 
@@ -53,7 +53,7 @@ object ItemESP : Module("ItemESP", Category.RENDER) {
         }
 
     private val onLook by boolean("OnLook", false)
-    private val maxAngleDifference by float("MaxAngleDifference", 90f, 5.0f..90f) { onLook }
+    private val maxAngleDifference by float("MaxAngleDifference", 90f, 5.0f..90f, suffix = "º") { onLook }
 
     private val thruBlocks by boolean("ThruBlocks", true)
 

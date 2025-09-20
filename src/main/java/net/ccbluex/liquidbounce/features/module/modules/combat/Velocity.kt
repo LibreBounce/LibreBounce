@@ -68,7 +68,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
     private val range by float("Range", 3.0F, 1F..5.0F) {
         onLook && mode in arrayOf("Reverse", "SmoothReverse")
     }
-    private val maxAngleDifference by float("MaxAngleDifference", 45.0f, 5.0f..90f) {
+    private val maxAngleDifference by float("MaxAngleDifference", 45.0f, 5.0f..90f, suffix = "º") {
         onLook && mode in arrayOf("Reverse", "SmoothReverse")
     }
 

@@ -9,8 +9,11 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 ### Added
 
 - **Breaking:** `StraightTicksUntilRotation` and `DiagonalTicksUntilRotation` values to the `Telly` mode in Scaffold; split from `TicksUntilRotation` (thatonecoder)
-- Add suffixes like `ms`, `blocks`, etc to many values; although it does not alter any values directly, many value names have been changed to accomodate for this (thatonecoder)
+- Suffixes like `ms`, `blocks`, etc to many values; although it does not alter any values directly, many value names have been changed to accomodate for this (thatonecoder)
+- Chat module; originally split from the option `FontChat` in the HUD module (thatonecoder)
+- `YawPrevSmoothingTicks`, `PitchPrevSmoothingTicks`, and `PitchPrevSmoothingTicksRandom` to combat modules with rotations (thatonecoder)
 - `Smart` option to AutoClicker (thatonecoder)
+- `OnFly` and `OnLongJump` options to CameraView (thatonecoder)
 
 ### Fixed
 
@@ -24,10 +27,12 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 - **Breaking:** Make the `StartDelay` and `CloseDelay` values in AutoArmor and InventoryCleaner an integer range value (thatonecoder)
 - Fine-tune the `Optimal` target priority mode in KillAura (thatonecoder)
 - Increase the limit on the `ShortStopLength` value to 1000, in ChestStealer (thatonecoder)
+- Rename `RoundedHotbar-Radius` to `RoundedHotbarRadius`, and `Hotbar-Color` to `HotbarColor` in HUD (thatonecoder)
+- Rename `MaxAngleDifference` to `MaxAngleDifference` in AutoClicker, TimerRange, Velocity, ChineseHat, ESP, ItemESP, NameTags, ProphuntESP, StorageESP, TNTTimer, and Tracers (thatonecoder)
 
 ### Removed
 
-- The `PlaceDelay` option in Scaffold; set the delays both to 0 instead (thatonecoder)
+- `PlaceDelay` option in Scaffold; set the delays both to 0 instead (thatonecoder)
 
 ## [0.3.0] - 2025-09-07
 
