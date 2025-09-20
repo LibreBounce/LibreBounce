@@ -51,7 +51,7 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
         new.coerceAtLeast(stopTicks.get())
     }
 
-    private val minEnemyRotDiffToIgnore by float("MinRotationDiffFromEnemyToIgnore", 180f, 0f..180f, suffix = "yaw")
+    private val minEnemyRotDiffToIgnore by float("MinRotationDiffFromEnemyToIgnore", 180f, 0f..180f, suffix = "º")
 
     private val onlyGround by boolean("OnlyGround", false)
     val onlyMove by boolean("OnlyMove", true)

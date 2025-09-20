@@ -268,11 +268,11 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         "RespectMissCooldown", false
     ) { swing && failSwing && options.rotationsActive }
     private val swingOnlyInAir by boolean("SwingOnlyInAir", true) { swing && failSwing && options.rotationsActive }
-    private val maxRotationDifferenceToSwing by float(
+    private val maxAngleDifferenceToSwing by float(
         "MaxAngleDifferenceToSwing", 180f, 0f..180f
     ) { swing && failSwing && options.rotationsActive }
     private val swingWhenTicksLate = boolean("SwingWhenTicksLate", false) {
-        swing && failSwing && maxRotationDifferenceToSwing != 180f && options.rotationsActive
+        swing && failSwing && maxAngleDifferenceToSwing != 180f && options.rotationsActive
     }
     private val ticksLateToSwing by int(
         "TicksLateToSwing", 4, 0..20
@@ -603,7 +603,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
                 // Can humans keep click consistency when performing massive rotation changes?
                 // (10-30 rotation difference/doing large mouse movements for example)
                 // Maybe apply to attacks too?
-                if (rotationDifference(rotation) > maxRotationDifferenceToSwing) {
+                if (rotationDifference(rotation) > maxAngleDifferenceToSwing) {
                     // At the same time there is also a chance of the user clicking at least once in a while
                     // when the consistency has dropped a lot.
                     val shouldIgnore = swingWhenTicksLate.isActive() && ticksSinceClick() >= ticksLateToSwing
