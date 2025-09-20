@@ -21,7 +21,7 @@ public abstract class MixinGuiNewChat {
 
     @Redirect(method = {"getChatComponent", "drawChat"}, at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/FontRenderer;FONT_HEIGHT:I"))
     private int injectFontChat(FontRenderer instance) {
-        return Chat.INSTANCE.handleEvents() ? Chat.INSTANCE.getFont().fontHeight : instance.FONT_HEIGHT;
+        return Chat.INSTANCE.handleEvents() ? Chat.INSTANCE.getFont().FONT_HEIGHT : instance.FONT_HEIGHT;
     }
 
     @Redirect(method = "drawChat", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/FontRenderer;drawStringWithShadow(Ljava/lang/String;FFI)I"))
