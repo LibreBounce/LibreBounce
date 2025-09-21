@@ -33,6 +33,7 @@ import net.ccbluex.liquidbounce.utils.render.shader.shaders.GradientShader
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowFontShader
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowShader
 import net.minecraft.client.renderer.GlStateManager.resetColor
+import org.lwjgl.input.Keyboard
 import java.awt.Color
 
 /**
@@ -252,9 +253,7 @@ class Arraylist(
 
                 if (!shouldShow && module.slide <= 0f) continue
 
-                val displayString = getDisplayString(module)
-
-                val width = font.getStringWidth(displayString) + padding
+                val width = font.getStringWidth(displayText) + padding
 
                 when (animation) {
                     "Slide" -> {
@@ -309,14 +308,15 @@ class Arraylist(
 
                 val markAsInactive = inactiveStyle == "Color" && !module.isActive
 
-                val displayString = getDisplayString(module)
-                val displayStringWidth = font.getStringWidth(displayString)
+                //val displayString = getDisplayString(module)
+                //val displayStringWidth = font.getStringWidth(displayText)
 
-                val previousDisplayString = getDisplayString(modules[(if (index > 0) index else 1) - 1])
-                val previousDisplayStringWidth = font.getStringWidth(previousDisplayString)
+                //val previousDisplayString = getDisplayString(modules[(if (index > 0) index else 1) - 1])
+                //val previousDisplayStringWidth = font.getStringWidth(previousDisplayString)
 
                 when (side.horizontal) {
                     Horizontal.RIGHT, Horizontal.MIDDLE -> {
+                        val width = font.getStringWidth(displayText)
                         val xPos = -module.slide - if (displayIcons) 2 else 3
 
                         GradientShader.begin(
@@ -377,7 +377,19 @@ class Arraylist(
                                 )
 
                                 if (editMode && mc.currentScreen is GuiHudDesigner && editTicks <= 40) {
-                                    fontRenderer.drawString("_", width - underscoreWidth, 0F, colorToUse, shadow)
+                                    fontRenderer.drawString(
+                                        "_",
+                                        width - underscoreWidth,
+                                        0F,
+                                        when (textColorMode) {
+                                            "Gradient" -> 0
+                                            "Rainbow" -> 0
+                                            "Random" -> moduleColor
+                                            "Fade" -> textFadeColor
+                                            else -> textCustomColor
+                                        },
+                                        textShadow
+                                    )
                                 }
                             }
                         }
@@ -439,7 +451,7 @@ class Arraylist(
                                             }
 
                                             drawRect(
-                                                xPos - 3 - (previousDisplayStringWidth - displayStringWidth),
+                                                xPos - 3, //- (previousDisplayStringWidth - displayStringWidth),
                                                 yPos,
                                                 xPos - 2,
                                                 yPos + 1,
@@ -459,7 +471,7 @@ class Arraylist(
                     }
 
                     Horizontal.LEFT -> {
-                        val width = font.getStringWidth(displayString)
+                        val width = font.getStringWidth(displayText)
                         val xPos = -(width - module.slide) + if (rectMode == "Left") 6 else 3
 
                         GradientShader.begin(
@@ -516,7 +528,18 @@ class Arraylist(
                                 )
 
                                 if (editMode && mc.currentScreen is GuiHudDesigner && editTicks <= 40) {
-                                    fontRenderer.drawString("_", width - underscoreWidth, 0F, colorToUse, shadow)
+                                    fontRenderer.drawString(
+                                        "_", 
+                                        width - underscoreWidth, 
+                                        0F, 
+                                        when (textColorMode) {
+                                            "Gradient" -> 0
+                                            "Rainbow" -> 0
+                                            "Random" -> moduleColor
+                                            "Fade" -> textFadeColor
+                                            else -> textCustomColor
+                                        }, textShadow
+                                        )
                                 }
                             }
                         }
@@ -587,7 +610,7 @@ class Arraylist(
                                             drawRect(
                                                 xPos + width + 1,
                                                 yPos - 1,
-                                                xPos + width + 2 + (previousDisplayStringWidth - displayStringWidth),
+                                                xPos + width + 2, //+ (previousDisplayStringWidth - displayStringWidth),
                                                 yPos,
                                                 rectColor
                                             )
