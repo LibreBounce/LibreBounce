@@ -176,7 +176,7 @@ class GuiContributors(private val prevGui: GuiScreen) : AbstractScreen() {
     private fun loadCredits() {
         try {
             val gitHubContributors = HttpClient.get(
-                "https://api.github.com/repos/CCBlueX/LiquidBounce/stats/contributors"
+                "https://api.github.com/repos/LibreBounce/LibreBounce/stats/contributors"
             ).jsonBody<Array<GitHubContributor>>() ?: run {
                 failed = true
                 return

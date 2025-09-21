@@ -292,10 +292,6 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
     // Visuals
     private val mark by choices("Mark", arrayOf("None", "Platform", "Box", "Circle"), "Circle").subjective()
-    private val fakeSharp by boolean("FakeSharp", true).subjective()
-    private val renderAimPointBox by boolean("RenderAimPointBox", false).subjective()
-    private val aimPointBoxColor by color("AimPointBoxColor", Color.CYAN) { renderAimPointBox }.subjective()
-    private val aimPointBoxSize by float("AimPointBoxSize", 0.1f, 0f..0.2F) { renderAimPointBox }.subjective()
 
     // Circle options
     private val circleStartColor by color("CircleStartColor", Color.BLUE) { mark == "Circle" }.subjective()
@@ -313,6 +309,11 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
     // Box option
     private val boxOutline by boolean("Outline", true) { mark == "Box" }.subjective()
+
+    private val fakeSharp by boolean("FakeSharp", true).subjective()
+    private val renderAimPointBox by boolean("RenderAimPointBox", false).subjective()
+    private val aimPointBoxColor by color("AimPointBoxColor", Color.CYAN) { renderAimPointBox }.subjective()
+    private val aimPointBoxSize by float("AimPointBoxSize", 0.1f, 0f..0.2F) { renderAimPointBox }.subjective()
 
     /**
      * MODULE

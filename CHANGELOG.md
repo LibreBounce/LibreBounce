@@ -17,7 +17,7 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 ### Fixed
 
-- AutoSettings not working (thatonecoder)
+- Online settings not working (thatonecoder)
 - Update checker not working; however, it no longer checks for development builds (thatonecoder)
 
 ### Changed
@@ -26,6 +26,7 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 - **Breaking:** `HurtTime` in the `IntaveReduce` and `HurtTimeToClick` modes are now an integer range value, and shared with the `GhostBlock` mode, in Velocity (thatonecoder)
 - **Breaking:** Make the `StartDelay` and `CloseDelay` values in AutoArmor and InventoryCleaner an integer range value (thatonecoder)
 - **Breaking:** Rename `RoundedHotbar-Radius` to `RoundedHotbarRadius`, and `Hotbar-Color` to `HotbarColor` in HUD (thatonecoder)
+- **Breaking:** Remame `Rounded-Radius` to `RoundedRadius` in the scoreboard element (thatonecoder)
 - **Breaking:** Rename `MaxRotationDifferenceToSwing` to `MaxAngleDifferenceToSwing` in KillAura (thatonecoder)
 - **Breaking:** Rename `RetrieveDelayTicks` to `RetrieveDelay` in NoFall (thatonecoder)
 - Fine-tune the `Optimal` target priority mode in KillAura (thatonecoder)

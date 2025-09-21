@@ -18,7 +18,7 @@ fun main() {
     FlatMacLightLaf.setup()
 
     // Setup instruction frame
-    val frame = JFrame("LiquidBounce | Installation")
+    val frame = JFrame("$LiquidBounce.CLIENT_NAME | Installation")
     frame.defaultCloseOperation = WindowConstants.EXIT_ON_CLOSE
     frame.layout = BorderLayout()
     frame.isResizable = false

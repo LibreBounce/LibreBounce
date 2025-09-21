@@ -201,7 +201,7 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT) {
                     return true
                 }
             } else { 
-                if (!smart && target!!.hurtTime > hurtTime) {
+                if (target!!.hurtTime > hurtTime) {
                     return true
                 } else {
                     return false
