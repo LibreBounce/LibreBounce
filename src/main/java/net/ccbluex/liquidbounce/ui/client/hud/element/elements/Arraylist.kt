@@ -47,6 +47,8 @@ class Arraylist(
 ) : Element("Arraylist", x, y, scale, side) {
 
     // TODO: Fully customizable Arraylist format, editable through the HUD Editor; this should be similar to the Text element.
+    private var displayString by text("DisplayText", "")
+
     private val textColorMode by choices(
         "TextMode", arrayOf("Custom", "Fade", "Random", "Rainbow", "Gradient"), "Custom"
     )
@@ -128,14 +130,7 @@ class Arraylist(
     private val gradientX by float("GradientX", -1000F, -2000F..2000F) { isColorModeUsed("Gradient") }
     private val gradientY by float("GradientY", -1000F, -2000F..2000F) { isColorModeUsed("Gradient") }
 
-    private val tags by boolean("Tags", true)
-    private val tagsStyle by choices("TagsStyle", arrayOf("[]", "()", "<>", "-", "|", "Space"), "Space") {
-        tags
-    }.onChanged { updateTagDetails() }
-    private val tagsCase by choices("TagsCase", arrayOf("Normal", "Uppercase", "Lowercase"), "Normal") { tags }
-    private val tagsArrayColor by boolean("TagsArrayColor", false) {
-        tags
-    }.onChanged { updateTagDetails() }
+    private val tagCase by choices("TagCase", arrayOf("Normal", "Uppercase", "Lowercase"), "Normal")
 
     private val font by font("Font", Fonts.fontSemibold35)
     private val textShadow by boolean("ShadowText", true)
@@ -147,11 +142,7 @@ class Arraylist(
     private val animation by choices("Animation", arrayOf("Slide", "Smooth"), "Smooth") { tags }
     private val animationSpeed by float("AnimationSpeed", 0.2F, 0.01F..1F) { animation == "Smooth" }
 
-    companion object : Configurable("StandaloneArraylist") {
-        val spacedModulesValue = boolean("SpacedModules", false)
-    }
-
-    private val spacedModules: Boolean by +spacedModulesValue
+    private val spacedModules by boolean("SpacedModules", false)
 
     private val spacedTags by boolean("SpacedTags", false)
 
@@ -161,10 +152,6 @@ class Arraylist(
 
     private var x2 = 0
     private var y2 = 0F
-
-    private lateinit var tagPrefix: String
-
-    private lateinit var tagSuffix: String
 
     private var modules = emptyList<Module>()
 
@@ -176,42 +163,84 @@ class Arraylist(
     private val isCustomRectGradientSupported
         get() = rectMode != "None" && rectColorMode == "Gradient"
 
-    init {
-        updateTagDetails()
-    }
+    private var editMode = false
+    private var editTicks = 0
+    private var prevClick = 0L
 
-    fun updateTagDetails() {
-        val pair: Pair<String, String> = when (tagsStyle) {
-            "[]", "()", "<>" -> tagsStyle[0].toString() to tagsStyle[1].toString()
-            "-", "|" -> tagsStyle[0] + " " to ""
-            else -> "" to ""
+    private var displayText = display
+
+    private val display: String
+        get() {
+            val textContent = if (displayString.isEmpty() && !editMode)
+                "Text Element"
+            else
+                displayString
+
+            return multiReplace(textContent)
         }
 
-        tagPrefix = (if (tagsArrayColor) " " else " §7") + pair.first
-        tagSuffix = pair.second
-    }
+    private fun getReplacement(str: String): Any? {
+        var moduleName = (if (spacedModules) module.getName()?.addSpaces() else module.getName()) ?: ""
 
-    private fun getDisplayString(module: Module): String {
-        val moduleName = when (moduleCase) {
-            "Uppercase" -> module.getName().uppercase()
-            "Lowercase" -> module.getName().lowercase()
-            else -> module.getName()
+        moduleName = when (moduleCase) {
+            "Uppercase" -> moduleName.uppercase()
+            "Lowercase" -> moduleName.lowercase()
+            else -> moduleName
         }
 
-        var tag = (if (spacedTags) module.tag?.addSpaces() else module.tag) ?: ""
+        var moduleTag = if (!module.tag.isNullOrEmpty()) {
+            if (spacedTags) module.tag?.addSpaces() else module.tag
+            } else {
+                ""
+            }
 
-        tag = when (tagsCase) {
-            "Uppercase" -> tag.uppercase()
-            "Lowercase" -> tag.lowercase()
-            else -> tag
+        moduleTag = when (tagsCase) {
+            "Uppercase" -> moduleTag.uppercase()
+            "Lowercase" -> moduleTag.lowercase()
+            else -> moduleTag
         }
 
-        val moduleTag = if (tags && !module.tag.isNullOrEmpty()) tagPrefix + tag + tagSuffix else ""
-
-        return moduleName + moduleTag
+        return when (str.lowercase()) {
+            "module_name" -> name
+            "module_tag" -> tag
+            else -> null // Null = don't replace
+        }
     }
+
+    private fun multiReplace(str: String): String {
+        var lastPercent = -1
+        val result = StringBuilder()
+        for (i in str.indices) {
+            if (str[i] == '%') {
+                if (lastPercent != -1) {
+                    if (lastPercent + 1 != i) {
+                        val replacement = getReplacement(str.substring(lastPercent + 1, i))
+
+                        if (replacement != null) {
+                            result.append(replacement)
+                            lastPercent = -1
+                            continue
+                        }
+                    }
+                    result.append(str, lastPercent, i)
+                }
+                lastPercent = i
+            } else if (lastPercent == -1) {
+                result.append(str[i])
+            }
+        }
+
+        if (lastPercent != -1) {
+            result.append(str, lastPercent, str.length)
+        }
+
+        return result.toString()
+    }
+
 
     override fun drawElement(): Border? {
+        val fontHeight = ((fontRenderer as? GameFontRenderer)?.height ?: fontRenderer.FONT_HEIGHT) + 2
+
         assumeNonVolatile {
             // Slide animation - update every render
             val delta = deltaTime
@@ -333,7 +362,7 @@ class Arraylist(
                                 !markAsInactive && textColorMode == "Rainbow", rainbowX, rainbowY, rainbowOffset
                             ).use {
                                 font.drawString(
-                                    displayString,
+                                    displayText,
                                     xPos + 1 - if (rectMode == "Right") 3 else 0,
                                     yPos + textY,
                                     if (markAsInactive) inactiveColor
@@ -346,6 +375,10 @@ class Arraylist(
                                     },
                                     textShadow,
                                 )
+
+                                if (editMode && mc.currentScreen is GuiHudDesigner && editTicks <= 40) {
+                                    fontRenderer.drawString("_", width - underscoreWidth, 0F, colorToUse, shadow)
+                                }
                             }
                         }
 
@@ -472,7 +505,7 @@ class Arraylist(
                                 !markAsInactive && textColorMode == "Rainbow", rainbowX, rainbowY, rainbowOffset
                             ).use {
                                 font.drawString(
-                                    displayString, xPos - 1, yPos + textY, if (markAsInactive) inactiveColor
+                                    displayText, xPos - 1, yPos + textY, if (markAsInactive) inactiveColor
                                     else when (textColorMode) {
                                         "Gradient" -> 0
                                         "Rainbow" -> 0
@@ -481,6 +514,10 @@ class Arraylist(
                                         else -> textCustomColor
                                     }, textShadow
                                 )
+
+                                if (editMode && mc.currentScreen is GuiHudDesigner && editTicks <= 40) {
+                                    fontRenderer.drawString("_", width - underscoreWidth, 0F, colorToUse, shadow)
+                                }
                             }
                         }
 
@@ -580,7 +617,7 @@ class Arraylist(
                 }
 
                 if (displayIcons) {
-                    val width = font.getStringWidth(displayString)
+                    val width = font.getStringWidth(displayText)
 
                     val side = if (side.horizontal == Side.Horizontal.LEFT) {
                         (-width + module.slide) / 6 + if (rectMode == "Left") 3 else 0
@@ -634,6 +671,11 @@ class Arraylist(
 
                 return Border(0F, 0F, x2 - 7F, y2 - if (side.vertical == Vertical.DOWN) 1F else 0F)
             }
+
+            if (editMode && mc.currentScreen !is GuiHudDesigner) {
+                editMode = false
+                updateElement()
+            }
         }
 
         resetColor()
@@ -641,7 +683,40 @@ class Arraylist(
     }
 
     override fun updateElement() {
+        editTicks += 5
+        if (editTicks > 80) editTicks = 0
+
+        displayText = if (editMode) displayString else display
+
         modules = moduleManager.filter { it.slide > 0 && !it.isHidden }
             .sortedBy { -font.getStringWidth(getDisplayString(it)) }
+    }
+
+    override fun handleMouseClick(x: Double, y: Double, mouseButton: Int) {
+        if (isInBorder(x, y) && mouseButton == 0) {
+            if (System.currentTimeMillis() - prevClick <= 250L)
+                editMode = true
+
+            prevClick = System.currentTimeMillis()
+        } else {
+            editMode = false
+        }
+    }
+
+    override fun handleKey(c: Char, keyCode: Int) {
+        if (editMode && mc.currentScreen is GuiHudDesigner) {
+            if (keyCode == Keyboard.KEY_BACK) {
+                if (displayString.isNotEmpty())
+                    displayString = displayString.dropLast(1)
+
+                updateElement()
+                return
+            }
+
+            if (ColorUtils.isAllowedCharacter(c) || c == '§')
+                displayString += c
+
+            updateElement()
+        }
     }
 }
