@@ -264,7 +264,8 @@ class Arraylist(
 
                 if (!shouldShow && module.slide <= 0f) continue
 
-                val width = font.getStringWidth(displayText) + padding
+                val displayString = getDisplayString(module)
+                val width = font.getStringWidth(displayString) + padding
 
                 when (animation) {
                     "Slide" -> {
