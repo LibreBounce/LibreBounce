@@ -141,7 +141,7 @@ class Arraylist(
     private val textHeight by float("TextHeight", 11F, 1F..20F)
     private val textY by float("TextY", 3.25F, 0F..20F)
 
-    private val animation by choices("Animation", arrayOf("Slide", "Smooth"), "Smooth") { tags }
+    private val animation by choices("Animation", arrayOf("Slide", "Smooth"), "Smooth")
     private val animationSpeed by float("AnimationSpeed", 0.2F, 0.01F..1F) { animation == "Smooth" }
 
     companion object : Configurable("StandaloneArraylist") {
@@ -248,7 +248,6 @@ class Arraylist(
 
 
     override fun drawElement(): Border? {
-        val fontHeight = ((fontRenderer as? GameFontRenderer)?.height ?: fontRenderer.FONT_HEIGHT) + 2
         val underscore = if (editMode && mc.currentScreen is GuiHudDesigner && editTicks <= 40) "_" else ""
 
         // Calculate width only once
@@ -385,7 +384,7 @@ class Arraylist(
                                 )
 
                                 if (editMode && mc.currentScreen is GuiHudDesigner && editTicks <= 40) {
-                                    fontRenderer.drawString(
+                                    font.drawString(
                                         "_",
                                         width - underscoreWidth,
                                         0F,
@@ -535,7 +534,7 @@ class Arraylist(
                                 )
 
                                 if (editMode && mc.currentScreen is GuiHudDesigner && editTicks <= 40) {
-                                    fontRenderer.drawString(
+                                    font.drawString(
                                         "_", 
                                         width - underscoreWidth, 
                                         0F, 
