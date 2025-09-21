@@ -175,6 +175,9 @@ class Arraylist(
 
     private var displayText = display
 
+    private var moduleName = ""
+    private var moduleName = ""
+
     private val display: String
         get() {
             val textContent = if (displayString.isEmpty() && !editMode)
@@ -185,7 +188,7 @@ class Arraylist(
             return multiReplace(textContent)
         }
 
-    private fun getReplacement(str: String): Any? {
+    private fun getDisplayString(module: Module): String {
         val moduleName = when (moduleCase) {
             "Uppercase" -> module.getName().uppercase()
             "Lowercase" -> module.getName().lowercase()
@@ -203,7 +206,9 @@ class Arraylist(
             "Lowercase" -> moduleTag.lowercase()
             else -> moduleTag
         }
+    }
 
+    private fun getReplacement(str: String): Any? {
         return when (str.lowercase()) {
             "module_name" -> moduleName
             "module_tag" -> moduleTag
@@ -244,6 +249,10 @@ class Arraylist(
 
     override fun drawElement(): Border? {
         val fontHeight = ((fontRenderer as? GameFontRenderer)?.height ?: fontRenderer.FONT_HEIGHT) + 2
+        val underscore = if (editMode && mc.currentScreen is GuiHudDesigner && editTicks <= 40) "_" else ""
+
+        // Calculate width only once
+        val underscoreWidth = fontRenderer.getStringWidth(underscore).toFloat()
 
         assumeNonVolatile {
             // Slide animation - update every render
@@ -715,7 +724,7 @@ class Arraylist(
         displayText = if (editMode) displayString else display
 
         modules = moduleManager.filter { it.slide > 0 && !it.isHidden }
-            .sortedBy { -font.getStringWidth(getDisplayString(it)) }
+            .sortedBy { -font.getStringWidth(getDisplayStrings(it)) }
     }
 
     override fun handleMouseClick(x: Double, y: Double, mouseButton: Int) {
