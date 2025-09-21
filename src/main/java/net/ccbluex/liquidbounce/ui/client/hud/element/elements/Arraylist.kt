@@ -175,17 +175,14 @@ class Arraylist(
 
     private var displayText = display
 
-    private var moduleName = ""
-    private var moduleName = ""
-
     private val display: String
         get() {
             val textContent = if (displayString.isEmpty() && !editMode)
                 "Text Element"
             else
                 displayString
-
-            return multiReplace(textContent)
+            // For generic display, no module context
+            return multiReplace(textContent, "", "")
         }
 
     private fun getDisplayString(module: Module): String {
@@ -196,19 +193,22 @@ class Arraylist(
         }
 
         var moduleTag = if (!module.tag.isNullOrEmpty()) {
-            if (spacedTags) module.tag?.addSpaces() else module.tag
-            } else {
-                ""
-            }
+            if (spacedTags) module.tag?.addSpaces() ?: "" else module.tag ?: ""
+        } else {
+            ""
+        }
 
         moduleTag = when (tagCase) {
             "Uppercase" -> moduleTag.uppercase()
             "Lowercase" -> moduleTag.lowercase()
             else -> moduleTag
         }
+
+        // Use the multiReplace for display text with module context
+        return multiReplace(displayString, moduleName, moduleTag)
     }
 
-    private fun getReplacement(str: String): Any? {
+    private fun getReplacement(str: String, moduleName: String, moduleTag: String): Any? {
         return when (str.lowercase()) {
             "module_name" -> moduleName
             "module_tag" -> moduleTag
@@ -216,14 +216,14 @@ class Arraylist(
         }
     }
 
-    private fun multiReplace(str: String): String {
+    private fun multiReplace(str: String, moduleName: String, moduleTag: String): String {
         var lastPercent = -1
         val result = StringBuilder()
         for (i in str.indices) {
             if (str[i] == '%') {
                 if (lastPercent != -1) {
                     if (lastPercent + 1 != i) {
-                        val replacement = getReplacement(str.substring(lastPercent + 1, i))
+                        val replacement = getReplacement(str.substring(lastPercent + 1, i), moduleName, moduleTag)
 
                         if (replacement != null) {
                             result.append(replacement)
@@ -320,15 +320,11 @@ class Arraylist(
 
                 val markAsInactive = inactiveStyle == "Color" && !module.isActive
 
-                //val displayString = getDisplayString(module)
-                //val displayStringWidth = font.getStringWidth(displayText)
-
-                //val previousDisplayString = getDisplayString(modules[(if (index > 0) index else 1) - 1])
-                //val previousDisplayStringWidth = font.getStringWidth(previousDisplayString)
+                val displayString = getDisplayString(module)
+                val width = font.getStringWidth(displayString)
 
                 when (side.horizontal) {
                     Horizontal.RIGHT, Horizontal.MIDDLE -> {
-                        val width = font.getStringWidth(displayText)
                         val xPos = -module.slide - if (displayIcons) 2 else 3
 
                         GradientShader.begin(
@@ -374,7 +370,7 @@ class Arraylist(
                                 !markAsInactive && textColorMode == "Rainbow", rainbowX, rainbowY, rainbowOffset
                             ).use {
                                 font.drawString(
-                                    displayText,
+                                    displayString,
                                     xPos + 1 - if (rectMode == "Right") 3 else 0,
                                     yPos + textY,
                                     if (markAsInactive) inactiveColor
@@ -483,7 +479,6 @@ class Arraylist(
                     }
 
                     Horizontal.LEFT -> {
-                        val width = font.getStringWidth(displayText)
                         val xPos = -(width - module.slide) + if (rectMode == "Left") 6 else 3
 
                         GradientShader.begin(
@@ -529,7 +524,7 @@ class Arraylist(
                                 !markAsInactive && textColorMode == "Rainbow", rainbowX, rainbowY, rainbowOffset
                             ).use {
                                 font.drawString(
-                                    displayText, xPos - 1, yPos + textY, if (markAsInactive) inactiveColor
+                                    displayString, xPos - 1, yPos + textY, if (markAsInactive) inactiveColor
                                     else when (textColorMode) {
                                         "Gradient" -> 0
                                         "Rainbow" -> 0
@@ -652,8 +647,6 @@ class Arraylist(
                 }
 
                 if (displayIcons) {
-                    val width = font.getStringWidth(displayText)
-
                     val side = if (side.horizontal == Side.Horizontal.LEFT) {
                         (-width + module.slide) / 6 + if (rectMode == "Left") 3 else 0
                     } else {
@@ -666,7 +659,7 @@ class Arraylist(
                         drawImage(resource, side + xDistance, yPos + yDistance, 12, 12, shadowColor)
                     }
 
-                    val iconColor = if (markAsInactive) {
+                    val iconColorVal = if (markAsInactive) {
                         inactiveColor
                     } else when (iconColorMode) {
                         "Gradient" -> 0
@@ -675,7 +668,7 @@ class Arraylist(
                         else -> this.iconColor.rgb
                     }
 
-                    drawImage(resource, side, yPos, 12, 12, Color(iconColor, true))
+                    drawImage(resource, side, yPos, 12, 12, Color(iconColorVal, true))
                 }
             }
 
@@ -724,7 +717,7 @@ class Arraylist(
         displayText = if (editMode) displayString else display
 
         modules = moduleManager.filter { it.slide > 0 && !it.isHidden }
-            .sortedBy { -font.getStringWidth(getDisplayStrings(it)) }
+            .sortedBy { -font.getStringWidth(getDisplayString(it)) }
     }
 
     override fun handleMouseClick(x: Double, y: Double, mouseButton: Int) {
