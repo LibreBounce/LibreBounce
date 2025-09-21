@@ -18,6 +18,7 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.Side.Horizontal
 import net.ccbluex.liquidbounce.ui.client.hud.element.Side.Vertical
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts
+import net.ccbluex.liquidbounce.ui.font.GameFontRenderer
 import net.ccbluex.liquidbounce.utils.extensions.safeDiv
 import net.ccbluex.liquidbounce.utils.extensions.addSpaces
 import net.ccbluex.liquidbounce.utils.render.*
@@ -143,7 +144,11 @@ class Arraylist(
     private val animation by choices("Animation", arrayOf("Slide", "Smooth"), "Smooth") { tags }
     private val animationSpeed by float("AnimationSpeed", 0.2F, 0.01F..1F) { animation == "Smooth" }
 
-    private val spacedModules by boolean("SpacedModules", false)
+    companion object : Configurable("StandaloneArraylist") {
+        val spacedModulesValue = boolean("SpacedModules", false)
+    }
+
+    private val spacedModules: Boolean by +spacedModulesValue
 
     private val spacedTags by boolean("SpacedTags", false)
 
@@ -181,12 +186,10 @@ class Arraylist(
         }
 
     private fun getReplacement(str: String): Any? {
-        var moduleName = (if (spacedModules) module.getName()?.addSpaces() else module.getName()) ?: ""
-
-        moduleName = when (moduleCase) {
-            "Uppercase" -> moduleName.uppercase()
-            "Lowercase" -> moduleName.lowercase()
-            else -> moduleName
+        val moduleName = when (moduleCase) {
+            "Uppercase" -> module.getName().uppercase()
+            "Lowercase" -> module.getName().lowercase()
+            else -> module.getName()
         }
 
         var moduleTag = if (!module.tag.isNullOrEmpty()) {
@@ -195,15 +198,15 @@ class Arraylist(
                 ""
             }
 
-        moduleTag = when (tagsCase) {
+        moduleTag = when (tagCase) {
             "Uppercase" -> moduleTag.uppercase()
             "Lowercase" -> moduleTag.lowercase()
             else -> moduleTag
         }
 
         return when (str.lowercase()) {
-            "module_name" -> name
-            "module_tag" -> tag
+            "module_name" -> moduleName
+            "module_tag" -> moduleTag
             else -> null // Null = don't replace
         }
     }
