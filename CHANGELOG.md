@@ -6,6 +6,8 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 ## [Unreleased]
 
+## [0.4.0] - 2025-09-21
+
 ### Added
 
 - **Breaking:** `StraightTicksUntilRotation` and `DiagonalTicksUntilRotation` values to the `Telly` mode in Scaffold; split from `TicksUntilRotation` (thatonecoder)
@@ -116,7 +118,8 @@ _Initial release, forked from LiquidBounce Legacy._
 
 - Warning to upgrade from `LiquidBounce` legacy to nextgen (thatonecoder)
 
-[unreleased]: https://github.com/LibreBounce/LibreBounce/compare/v0.3.0...HEAD
+[unreleased]: https://github.com/LibreBounce/LibreBounce/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/LibreBounce/LibreBounce/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/LibreBounce/LibreBounce/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/LibreBounce/LibreBounce/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/LibreBounce/LibreBounce/releases/tag/v0.1.0

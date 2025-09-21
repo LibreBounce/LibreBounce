@@ -85,7 +85,7 @@ object LiquidBounce {
      * Defines if the client is in development mode.
      * This will enable update checking on commit time instead of regular versioning.
      */
-    const val IN_DEV = true
+    const val IN_DEV = false
 
     val clientTitle = CLIENT_NAME + " " + clientVersionText + " " + clientCommit + " | " + MINECRAFT_VERSION + if (IN_DEV) " | DEVELOPMENT BUILD" else ""
 
@@ -209,7 +209,7 @@ object LiquidBounce {
             // Update client window
             updateClientWindow()
 
-            // Tabs (Only for Forge!)
+            // Tabs (Forge only)
             if (hasForge()) {
                 BlocksTab()
                 ExploitsTab()
