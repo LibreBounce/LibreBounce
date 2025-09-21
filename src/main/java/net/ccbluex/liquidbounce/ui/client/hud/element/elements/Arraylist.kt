@@ -49,7 +49,7 @@ class Arraylist(
 ) : Element("Arraylist", x, y, scale, side) {
 
     // TODO: Fully customizable Arraylist format, editable through the HUD Editor; this should be similar to the Text element.
-    private var displayString by text("DisplayText", "")
+    private var displayString by text("DisplayText", "%name%%tag_space%§7%tag%")
 
     private val textColorMode by choices(
         "TextMode", arrayOf("Custom", "Fade", "Random", "Rainbow", "Gradient"), "Custom"
@@ -62,7 +62,7 @@ class Arraylist(
     private val gradientTextSpeed by float("TextGradientSpeed", 1f, 0.5f..10f) { textColorMode == "Gradient" }
 
     private val maxTextGradientColors by int(
-        "Max-Text-Gradient-Colors", 4, 1..MAX_GRADIENT_COLORS
+        "MaxTextGradientColors", 4, 1..MAX_GRADIENT_COLORS
     ) { textColorMode == "Gradient" }
     private val textGradColors =
         ColorSettingsFloat.create(this, "TextGradient") { textColorMode == "Gradient" && it <= maxTextGradientColors }
@@ -70,7 +70,7 @@ class Arraylist(
     private val rectMode by choices("RectMode", arrayOf("None", "Left", "Right", "Outline"), "Right")
     private val roundedRectRadius by float("RoundedRectRadius", 0F, 0F..2F) { rectMode !in setOf("None", "Outline") }
     private val rectColorMode by choices(
-        "Rect-ColorMode", arrayOf("Custom", "Fade", "Random", "Rainbow", "Gradient"), "Custom"
+        "RectColorMode", arrayOf("Custom", "Fade", "Random", "Rainbow", "Gradient"), "Custom"
     ) { rectMode != "None" }
     private val rectColors =
         ColorSettingsInteger(this, "RectColor", applyMax = true) { isCustomRectSupported }.with(blueRibbon)
@@ -193,7 +193,7 @@ class Arraylist(
         }
 
         var moduleTag = if (!module.tag.isNullOrEmpty()) {
-            if (spacedTags) module.tag?.addSpaces() ?: "" else module.tag ?: ""
+            if (spacedTags) module.tag?.addSpaces() else module.tag
         } else {
             ""
         }
@@ -210,8 +210,9 @@ class Arraylist(
 
     private fun getReplacement(str: String, moduleName: String, moduleTag: String): Any? {
         return when (str.lowercase()) {
-            "module_name" -> moduleName
-            "module_tag" -> moduleTag
+            "module_name", "name" -> moduleName
+            "module_tag", "tag" -> moduleTag
+            "module_tag_space", "tag_space" -> if (moduleTag.isEmpty()) "" else " "
             else -> null // Null = don't replace
         }
     }
