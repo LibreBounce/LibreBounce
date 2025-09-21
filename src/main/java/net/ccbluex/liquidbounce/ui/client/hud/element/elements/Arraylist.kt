@@ -251,7 +251,7 @@ class Arraylist(
         val underscore = if (editMode && mc.currentScreen is GuiHudDesigner && editTicks <= 40) "_" else ""
 
         // Calculate width only once
-        val underscoreWidth = fontRenderer.getStringWidth(underscore).toFloat()
+        val underscoreWidth = font.getStringWidth(underscore).toFloat()
 
         assumeNonVolatile {
             // Slide animation - update every render
