@@ -204,9 +204,8 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
                     if (itemStolenDebug) debug("item: ${stack.displayName.lowercase()} | slot: $slot | delay: ${stealingDelay}ms")
 
-                    if (missClick && nextInt(endExclusive = 100) < missClickChance && performMissClick()) {
+                    if (missClick && nextInt(endExclusive = 100) < missClickChance && performMissClick(screen))
                         delay(pauseAfterMissClickLength.random().toLong())
-                    }
 
                     // If target is sortable to a hotbar slot, steal and sort it at the same time, else shift + left-click
                     clickNextTick(slot, sortableTo ?: 0, if (sortableTo != null) 2 else 1) {
@@ -371,17 +370,13 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
         return itemsToSteal
     }
 
-    private fun performMissClick(): Boolean {
-        if (screen !is GuiChest)
-            return
-
+    private fun performMissClick(screen: GuiChest): Boolean {
         val itemsInContainer = screen.getSlotsInContainer()
-        // Find the closest item to the slot which is empty
         val closestEmptySlot = itemsInContainer
             .filter { it.itemStack.isEmpty }
             .minByOrNull { slot.distance(it) } ?: return false
 
-        val slotId = closestEmptySlot.getIdForServer(screen)
+        val slotId = closestEmptySlot.slotNumber // Use the slot number directly
         clickNextTick(slotId, 0, 1)
         return true
     }
