@@ -37,20 +37,20 @@ class TabGUI(x: Double = 16.0, y: Double = 43.0) : Element("TabGUI", x = x, y = 
     private val rectRainbow
         get() = rectColor.rainbow && rectColor.isSupported()
 
-    private val roundedRectRadius by float("Rounded-Radius", 3F, 0F..5F)
+    private val roundedRectRadius by float("RoundedRadius", 3f, 0f..5f)
 
     private val bgColor by color("BackgroundColor", Color.BLACK.withAlpha(150))
 
     private val borderValue by boolean("Border", false)
-    private val borderStrength by float("Border-Strength", 2F, 1F..5F) { borderValue }
+    private val borderStrength by float("BorderStrength", 2f, 1f..5f) { borderValue }
 
     private val borderColor = color("BorderColor", Color.BLACK.withAlpha(150)) { borderValue }
 
     private val borderRainbow
         get() = borderColor.rainbow && borderColor.isSupported()
 
-    private val rainbowX by float("Rainbow-X", -1000F, -2000F..2000F) { rectRainbow || (borderValue && borderRainbow) }
-    private val rainbowY by float("Rainbow-Y", -1000F, -2000F..2000F) { rectRainbow || (borderValue && borderRainbow) }
+    private val rainbowX by float("RainbowX", -1000f, -2000f..2000f) { rectRainbow || (borderValue && borderRainbow) }
+    private val rainbowY by float("RainbowY", -1000f, -2000f..2000f) { rectRainbow || (borderValue && borderRainbow) }
 
     // Icons
     private val displayIcons by boolean("DisplayIcons", true)
@@ -71,10 +71,11 @@ class TabGUI(x: Double = 16.0, y: Double = 43.0) : Element("TabGUI", x = x, y = 
     private val font by font("Font", Fonts.fontSemibold35)
     private val textShadow by boolean("TextShadow", false)
     private val textFade by boolean("TextFade", true)
-    private val textPositionY by float("TextPosition-Y", 2F, 0F..5F)
+    private val textPositionY by float("TextPositionY", 2F, 0F..5F)
     private val width by float("Width", 60F, 55F..100F)
     private val tabHeight by float("TabHeight", 13F, 10F..15F)
-    private val upperCase by boolean("UpperCase", false)
+    private val categoryCase by choices("CategoryCase", arrayOf("Normal", "Uppercase", "Lowercase"), "Normal")
+    private val moduleCase by choices("ModuleCase", arrayOf("Normal", "Uppercase", "Lowercase"), "Normal")
 
     private val tabs = Array(Category.entries.size) {
         val category = Category.entries[it]
@@ -169,7 +170,13 @@ class TabGUI(x: Double = 16.0, y: Double = 43.0) : Element("TabGUI", x = x, y = 
             var y = 1F
 
             tabs.forEachIndexed { index, tab ->
-                val tabName = tab.tabName.let { if (upperCase) it.uppercase() else it }
+                val tabName = tab.tabName.let {
+                    when (categoryCase) {
+                        "Uppercase" -> it.uppercase()
+                        "Lowercase" -> it.lowercase()
+                        else -> it
+                    }
+                }
 
                 val textX = if (side.horizontal == Side.Horizontal.RIGHT) {
                     widthWithPadding - font.getStringWidth(tabName) - tab.textFade - 3
@@ -341,7 +348,13 @@ class TabGUI(x: Double = 16.0, y: Double = 43.0) : Element("TabGUI", x = x, y = 
         }
     }
 
-    fun getDisplayName(module: Module) = if (upperCase) module.getName().uppercase() else module.getName()
+    fun getDisplayName(module: Module) = {
+        when (moduleCase) {
+            "Uppercase" -> module.getName().uppercase()
+            "Lowercase" -> module.getName().lowercase()
+            else -> module.getName()
+        }
+    }
 
     /**
      * TabGUI Tab

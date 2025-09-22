@@ -37,22 +37,22 @@ class Radar(x: Double = 5.0, y: Double = 130.0) : Element("Radar", x, y) {
     }
 
     private val size by float("Size", 90f, 30f..500f)
-    private val viewDistance by float("View Distance", 4F, 0.5F..32F)
+    private val viewDistance by float("ViewDistance", 4f, 0.5f..32f)
 
-    private val playerShape by choices("Player Shape", arrayOf("Triangle", "Rectangle", "Circle"), "Triangle")
-    private val playerSize by float("Player Size", 2f, 0.5f..20F)
-    private val useESPColors by boolean("Use ESP Colors", true)
-    private val fovSize by float("FOV Size", 10F, 0F..50F)
-    private val fovAngle by float("FOV Angle", 70F, 30F..160F)
+    private val playerShape by choices("PlayerShape", arrayOf("Triangle", "Rectangle", "Circle"), "Triangle")
+    private val playerSize by float("PlayerSize", 2f, 0.5f..20F)
+    private val useESPColor by boolean("UseESPColor", true)
+    private val fovSize by float("FOVSize", 10f, 0f..50f)
+    private val fovAngle by float("FOVAngle", 70f, 30f..160f)
 
     private val minimap by boolean("Minimap", true)
 
     private val bgColor by color("BackgroundColor", Color.BLACK.withAlpha(50))
 
-    private val borderStrength by float("Border-Strength", 2F, 1F..5F)
+    private val borderStrength by float("BorderStrength", 2f, 1f..5f)
 
-    private val rainbowX by float("Rainbow-X", -1000F, -2000F..2000F) { borderRainbow }
-    private val rainbowY by float("Rainbow-Y", -1000F, -2000F..2000F) { borderRainbow }
+    private val rainbowX by float("RainbowX", -1000f, -2000f..2000f) { borderRainbow }
+    private val rainbowY by float("RainbowY", -1000f, -2000f..2000f) { borderRainbow }
 
     private val borderColor = color("BorderColor", Color.BLACK.withAlpha(150))
 
@@ -213,7 +213,7 @@ class Radar(x: Double = 5.0, y: Double = 130.0) : Element("Radar", x, y) {
                 }
 
                 if (triangleMode) {
-                    if (useESPColors) {
+                    if (useESPColor) {
                         val color = ESP.getColor(entity)
 
                         glColor4f(color.red / 255f, color.green / 255f, color.blue / 255f, 1f)

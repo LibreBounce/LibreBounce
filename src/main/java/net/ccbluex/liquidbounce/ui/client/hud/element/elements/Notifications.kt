@@ -36,7 +36,7 @@ class Notifications(
 
     val horizontalFade by choices("HorizontalFade", arrayOf("InOnly", "OutOnly", "Both", "None"), "OutOnly")
     val padding by int("Padding", 5, 1..20)
-    val roundRadius by float("RoundRadius", 3f, 0f..10f)
+    val roundedRadius by float("RoundedRadius", 3f, 0f..10f)
     val color by color("BackgroundColor", Color.BLACK.withAlpha(128))
     val renderBorder by boolean("RenderBorder", false)
     val borderColor by color("BorderColor", Color.BLUE.withAlpha(255)) { renderBorder }
@@ -170,7 +170,7 @@ class Notification(
             else -> x
         }
 
-        drawRoundedRect(0F, -y - MAX_HEIGHT, -currentX - extraSpace, -y, element.color.rgb, element.roundRadius)
+        drawRoundedRect(0F, -y - MAX_HEIGHT, -currentX - extraSpace, -y, element.color.rgb, element.roundedRadius)
 
         if (element.renderBorder) {
             drawRoundedBorder(
@@ -180,7 +180,7 @@ class Notification(
                 -y,
                 element.borderWidth,
                 element.borderColor.rgb,
-                element.roundRadius
+                element.roundedRadius
             )
         }
 
@@ -192,7 +192,7 @@ class Notification(
         )
 
         RenderUtils.drawImage(
-            severityType.path, -currentX + 2, -y - MAX_HEIGHT + 4, ICON_SIZE, ICON_SIZE, radius = element.roundRadius
+            severityType.path, -currentX + 2, -y - MAX_HEIGHT + 4, ICON_SIZE, ICON_SIZE, radius = element.roundedRadius
         )
 
         val delta = deltaTime

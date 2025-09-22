@@ -135,7 +135,7 @@ class Arraylist(
     private val tagCase by choices("TagCase", arrayOf("Normal", "Uppercase", "Lowercase"), "Normal")
 
     private val font by font("Font", Fonts.fontSemibold35)
-    private val textShadow by boolean("ShadowText", true)
+    private val textShadow by boolean("TextShadow", true)
     private val moduleCase by choices("ModuleCase", arrayOf("Normal", "Uppercase", "Lowercase"), "Normal")
     private val space by float("Space", 1F, 0F..5F)
     private val textHeight by float("TextHeight", 11F, 1F..20F)

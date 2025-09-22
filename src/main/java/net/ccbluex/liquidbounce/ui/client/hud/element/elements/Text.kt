@@ -154,16 +154,16 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F, side: Side = S
     private val bgGradColors = ColorSettingsFloat.create(this, "BackgroundGradient")
     { backgroundMode == "Gradient" && it <= maxBackgroundGradientColors }
 
-    private val backgroundBorder by float("BackgroundBorderWidth", 0.5F, 0.5F..5F)
+    private val backgroundBorder by float("BackgroundBorderWidth", 0.5f, 0.5f..5f)
 
     private val bgBorderColors = ColorSettingsInteger(this, "BackgroundBorderColor").with(a = 0)
 
     private fun isColorModeUsed(value: String) = textColorMode == value || backgroundMode == value
 
-    private val rainbowX by float("RainbowX", -1000F, -2000F..2000F) { isColorModeUsed("Rainbow") }
-    private val rainbowY by float("RainbowY", -1000F, -2000F..2000F) { isColorModeUsed("Rainbow") }
-    private val gradientX by float("GradientX", -500F, -2000F..2000F) { isColorModeUsed("Gradient") }
-    private val gradientY by float("GradientY", -1500F, -2000F..2000F) { isColorModeUsed("Gradient") }
+    private val rainbowX by float("RainbowX", -1000f, -2000f..2000f) { isColorModeUsed("Rainbow") }
+    private val rainbowY by float("RainbowY", -1000f, -2000f..2000f) { isColorModeUsed("Rainbow") }
+    private val gradientX by float("GradientX", -500f, -2000f..2000f) { isColorModeUsed("Gradient") }
+    private val gradientY by float("GradientY", -1500f, -2000f..2000f) { isColorModeUsed("Gradient") }
 
     private var shadow by boolean("Shadow", true)
     private val font = font("Font", Fonts.fontSemibold40)

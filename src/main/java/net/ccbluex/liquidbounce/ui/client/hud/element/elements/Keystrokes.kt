@@ -21,7 +21,7 @@ import kotlin.math.nextDown
 
 @ElementInfo(name = "Keystrokes")
 class Keystrokes : Element("Keystrokes", 2.0, 34.0) {
-    private val radius by float("RectangleRound-Radius", 3F, 0F..10F)
+    private val radius by float("RoundedRadius", 3F, 0F..10F)
     private val textColors = ColorSettingsInteger(this, "Text", applyMax = true)
     private val rectColors = ColorSettingsInteger(this, "Rectangle").with(a = 150)
     private val pressColors = ColorSettingsInteger(this, "Press").with(Color.BLUE)
@@ -34,7 +34,7 @@ class Keystrokes : Element("Keystrokes", 2.0, 34.0) {
     private val shrinkPercentage by int("ShrinkPercentage", 90, 50..100, suffix = "%") { onPressAnimation == "Shrink" }
     private val shrinkSpeed by int("ShrinkSpeed", 2, 0..5, suffix = "Ticks") { onPressAnimation == "Shrink" }
 
-    private var shadow by boolean("Text-Shadow", true)
+    private var textShadow by boolean("TextShadow", true)
     private val font by font("Font", Fonts.fontSemibold35)
 
     private val textColor
@@ -180,7 +180,7 @@ class Keystrokes : Element("Keystrokes", 2.0, 34.0) {
             val textX = (adjustedStartX + adjustedEndX) / 2 - (font.getStringWidth(key) / 2)
             val textY = adjustedY + (scaledBoxSize / 2) - (fontHeight / 2)
 
-            font.drawString(key, textX, textY + if (font == mc.fontRendererObj) 0 else 2, textColor.rgb, shadow)
+            font.drawString(key, textX, textY + if (font == mc.fontRendererObj) 0 else 2, textColor.rgb, textShadow)
         }
 
         return Border(0F, boxSize + padding, boxSize * 3 + padding * 2, boxSize * 4 + padding * 3)

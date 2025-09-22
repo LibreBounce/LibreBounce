@@ -41,24 +41,24 @@ import kotlin.math.pow
 @ElementInfo(name = "Target")
 class Target : Element("Target") {
 
-    private val roundedRectRadius by float("Rounded-Radius", 3F, 0F..5F)
+    private val roundedRectRadius by float("RoundedRadius", 3f, 0f..5f)
 
-    private val borderStrength by float("Border-Strength", 3F, 1F..5F)
+    private val borderStrength by float("BorderStrength", 3f, 1f..5f)
 
-    private val backgroundMode by choices("Background-ColorMode", arrayOf("Custom", "Rainbow"), "Custom")
-    private val backgroundColor by color("Background-Color", Color.BLACK.withAlpha(150)) { backgroundMode == "Custom" }
+    private val backgroundMode by choices("BackgroundColorMode", arrayOf("Custom", "Rainbow"), "Custom")
+    private val backgroundColor by color("BackgroundColor", Color.BLACK.withAlpha(150)) { backgroundMode == "Custom" }
 
-    private val healthBarColor1 by color("HealthBar-Gradient1", Color(3, 65, 252))
-    private val healthBarColor2 by color("HealthBar-Gradient2", Color(3, 252, 236))
+    private val healthBarColor1 by color("HealthBarGradient1", Color(3, 65, 252))
+    private val healthBarColor2 by color("HealthBarGradient2", Color(3, 252, 236))
 
     private val roundHealthBarShape by boolean("RoundHealthBarShape", true)
 
-    private val borderColor by color("Border-Color", Color.BLACK)
+    private val borderColor by color("BorderColor", Color.BLACK)
 
     private val textColor by color("TextColor", Color.WHITE)
 
-    private val rainbowX by float("Rainbow-X", -1000F, -2000F..2000F) { backgroundMode == "Rainbow" }
-    private val rainbowY by float("Rainbow-Y", -1000F, -2000F..2000F) { backgroundMode == "Rainbow" }
+    private val rainbowX by float("RainbowX", -1000f, -2000f..2000f) { backgroundMode == "Rainbow" }
+    private val rainbowY by float("RainbowY", -1000f, -2000f..2000f) { backgroundMode == "Rainbow" }
 
     private val titleFont by font("TitleFont", Fonts.fontSemibold40)
     private val healthFont by font("HealthFont", Fonts.fontRegular30)
