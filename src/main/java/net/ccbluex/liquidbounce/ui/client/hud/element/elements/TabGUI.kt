@@ -349,10 +349,10 @@ class TabGUI(x: Double = 16.0, y: Double = 43.0) : Element("TabGUI", x = x, y = 
     }
 
     fun getDisplayName(module: Module) {
-        when (moduleCase) {
-            "Uppercase" -> return module.getName().uppercase()
-            "Lowercase" -> return module.getName().lowercase()
-            else -> return module.getName()
+        return when (moduleCase) {
+            "Uppercase" -> module.getName().uppercase()
+            "Lowercase" -> module.getName().lowercase()
+            else -> module.getName()
         }
     }
 
