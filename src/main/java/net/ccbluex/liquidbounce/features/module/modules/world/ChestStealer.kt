@@ -67,6 +67,10 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
     private val shortStopChance by int("ShortStopChance", 75, 0..100, suffix = "%") { simulateShortStop }
     private val shortStopLength by intRange("ShortStopLength", 350..650, 0..1000, suffix = "ms") { simulateShortStop }
 
+    private val missClick by boolean("MissClick", false)
+    private val missClickChance by int("MissClickChance", 75, 0..100, suffix = "%") { missClick }
+    private val pauseAfterMissClickLength by intRange("PauseAfterMissClickLength", 350..650, 0..1000, suffix = "ms") { missClick }
+
     private val delay by intRange("Delay", 50..50, 0..500, suffix = "ms")
     private val startDelay by intRange("StartDelay", 50..100, 0..500, suffix = "ms")
     private val closeDelay by intRange("CloseDelay", 50..100, 0..500, suffix = "ms")
@@ -199,6 +203,10 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
                     }
 
                     if (itemStolenDebug) debug("item: ${stack.displayName.lowercase()} | slot: $slot | delay: ${stealingDelay}ms")
+
+                    if (missClick && nextInt(endExclusive = 100) < missClickChance && performMissClick()) {
+                        delay(pauseAfterMissClickLength.random().toLong())
+                    }
 
                     // If target is sortable to a hotbar slot, steal and sort it at the same time, else shift + left-click
                     clickNextTick(slot, sortableTo ?: 0, if (sortableTo != null) 2 else 1) {
@@ -362,6 +370,22 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
         return itemsToSteal
     }
+
+    private fun performMissClick(): Boolean {
+        if (screen !is GuiChest)
+            return
+
+        val itemsInContainer = screen.getSlotsInContainer()
+        // Find the closest item to the slot which is empty
+        val closestEmptySlot = itemsInContainer
+            .filter { it.itemStack.isEmpty }
+            .minByOrNull { slot.distance(it) } ?: return false
+
+        val slotId = closestEmptySlot.getIdForServer(screen)
+        clickNextTick(slotId, 0, 1)
+        return true
+    }
+
 
     private fun sortBasedOnOptimumPath(itemsToSteal: MutableList<ItemTakeRecord>) {
         for (i in itemsToSteal.indices) {
