@@ -23,6 +23,9 @@ class AlwaysRotationSettings(owner: Module, generalApply: () -> Boolean = { true
 @Suppress("MemberVisibilityCanBePrivate")
 open class RotationSettings(owner: Module, generalApply: () -> Boolean = { true }) : Configurable("RotationSettings") {
 
+    // TODO: Currently, any rotation modules affect legit rotations, even when they're not doing anything
+    // or even turned off
+    // This is a high priority issue
     open val rotationsValue = boolean("Rotations", true) { generalApply() }
     open val applyServerSideValue = boolean("ApplyServerSide", true) { rotationsActive && generalApply() }
 
@@ -39,8 +42,7 @@ open class RotationSettings(owner: Module, generalApply: () -> Boolean = { true 
         rotationsActive && applyServerSide && generalApply()
     }
 
-    // TODO: Currently, using Scaffold with the Legitimize option causes any consequent rotations to wobble afterwards, unless you use a module like KillAura
-    // This should be fixed ASAP
+    // TODO: Add reaction time, and a speed curve
     open val legitimizeValue = boolean("Legitimize", false) { rotationsActive && generalApply() }
     open val legitimizeHorizontalJitterValue = 
         floatRange("LegitimizeHorizontalJitter", -0.03f..0.03f, -1f..1f) { rotationsActive && generalApply() && legitimize }

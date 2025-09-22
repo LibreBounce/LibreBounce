@@ -57,6 +57,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
 
     private val maxFishingRodStacks by int("MaxFishingRodStacks", 1, 1..10).subjective()
 
+    // TODO: Turn wood into planks
     private val mergeStacks by boolean("MergeStacks", true).subjective()
 
     private val repairEquipment by boolean("RepairEquipment", true).subjective()
@@ -526,6 +527,8 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
                     it.durability.toFloat() * it.getEnchantmentLevel(Enchantment.efficiency)
                 }
 
+            // TODO: Knockback and Fire Aspect are also great
+            // For instance, a Sharpness + Knockback/Fire Aspect Diamond Sword is better than a Sharpness 2 Iron Sword
             is ItemSword ->
                 hasBestParameters(stack, stacks, entityStacksMap) {
                     it.attackDamage.toFloat()

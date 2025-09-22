@@ -19,6 +19,7 @@ import kotlin.math.sign
 
 class RandomizationSettings(owner: Module, val generalApply: () -> Boolean = { true }) : Configurable("Randomization") {
 
+    // TODO: Add an option to increase randomization exponentially, with higher movement speeds
     private val randomizationPattern by choices(
         "RandomizationPattern", arrayOf("None", "Zig-Zag", "LazyFlick"), "None"
     ) { generalApply() }

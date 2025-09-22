@@ -52,11 +52,17 @@ import kotlin.math.sqrt
 object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
     // TODO: Make the ChestStealer occasionally miss
-    // It would need to underflick or (more rarely) overflick to items, for instance
+    // It would need to underflick or (more rarely) overflick to items, and click in those miss-flicks
+    // Additionally, after consecutively picking up items adjacent to each other,
+    // there is a higher chance to miss, specifically underflicking (~2/3 and ~1/3 chance, respectively)
+    // After miss-clicking, it needs to do a short stop, and either pick up the item correctly, or miss again
+    // (~2/3 and ~1/3 chance, respectively)
     private val smartDelay by boolean("SmartDelay", false)
     private val multiplier by intRange("DelayMultiplier", 120..140, 0..500) { smartDelay }
     private val smartOrder by boolean("SmartOrder", true) { smartDelay }
 
+    // TODO: This is currently based on a chance option; while it still needs randomness,
+    // it is better to make it stop shortly in a more legit manner, e.g., after taking many items
     private val simulateShortStop by boolean("SimulateShortStop", false)
     private val shortStopChance by int("ShortStopChance", 75, 0..100, suffix = "%") { simulateShortStop }
     private val shortStopLength by intRange("ShortStopLength", 350..650, 0..1000, suffix = "ms") { simulateShortStop }
@@ -73,6 +79,8 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
     private val randomSlot by boolean("RandomSlot", true)
 
+    // TODO: The progress bar currently "show" all the items in the chest
+    // Instead, it should "show" only the items that are planned to be stolen
     private val progressBar by boolean("ProgressBar", true).subjective()
 
     val silentGUI by boolean("SilentGUI", false).subjective()
