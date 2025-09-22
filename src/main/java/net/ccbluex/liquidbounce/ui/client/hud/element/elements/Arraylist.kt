@@ -193,7 +193,7 @@ class Arraylist(
         }
 
         var moduleTag = if (!module.tag.isNullOrEmpty()) {
-            if (spacedTags) module.tag?.addSpaces() else module.tag
+            if (spacedTags) module.tag?.addSpaces() ?: "" else module.tag ?: ""
         } else {
             ""
         }
