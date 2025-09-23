@@ -207,10 +207,11 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
                     if (itemStolenDebug) debug("Stole ${stack.displayName.lowercase()} on slot ${slot}. Delay: ${stealingDelay}ms")
 
-                    if (missClick && nextInt(endExclusive = 100) < missClickChance && performMissClick(screen, screen.inventorySlots.inventorySlots[slot])) {
+                    if (missClick && nextInt(endExclusive = 100) < missClickChance) && performMissClick(screen, screen.inventorySlots.inventorySlots[slot])) {
                         pauseAfterMissClickLength = pauseAfterMissClick.random()
                         delay(pauseAfterMissClickLength.toLong())
                     }
+                    performMissClick(screen, screen.inventorySlots.inventorySlots[slot])
 
                     // If target is sortable to a hotbar slot, steal and sort it at the same time, else shift + left-click
                     clickNextTick(slot, sortableTo ?: 0, if (sortableTo != null) 2 else 1) {
@@ -375,18 +376,21 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
         return itemsToSteal
     }
  
-    private fun performMissClick(screen: GuiChest, targetSlot: Slot): Boolean {
-        val itemsInContainer = screen.inventorySlots.inventorySlots
-        val closestEmptySlot = itemsInContainer
-            .filter { it.stack == null || it.stack.stackSize == 0 }
-            .minByOrNull { otherSlot ->
-                squaredDistanceOfSlots(targetSlot.slotNumber, otherSlot.slotNumber)
-            } ?: return false
+    private fun performMissClick(screen: GuiChest, targetSlot: Slot)Pp {
+        if (missClick && nextInt(endExclusive = 100) < missClickChance)
+            val itemsInContainer = screen.inventorySlots.inventorySlots
+            val closestEmptySlot = itemsInContainer
+                .filter { it.stack == null || it.stack.stackSize == 0 }
+                .minByOrNull { otherSlot ->
+                    squaredDistanceOfSlots(targetSlot.slotNumber, otherSlot.slotNumber)
+                } ?: return
 
-        val slotId = closestEmptySlot.slotNumber
-        clickNextTick(slotId, 0, 1)
-        if (itemStolenDebug) debug("Miss-clicked on slot $slotId. Delay until next click: ${pauseAfterMissClickLength}ms")
-        return true
+            val slotId = closestEmptySlot.slotNumber
+            clickNextTick(slotId, 0, 1)
+            pauseAfterMissClickLength = pauseAfterMissClick.random()
+            delay(pauseAfterMissClickLength.toLong())
+            if (itemStolenDebug) debug("Miss-clicked on slot $slotId. Delay until next click: ${pauseAfterMissClickLength}ms")
+        }
     }
 
     private fun sortBasedOnOptimumPath(itemsToSteal: MutableList<ItemTakeRecord>) {
