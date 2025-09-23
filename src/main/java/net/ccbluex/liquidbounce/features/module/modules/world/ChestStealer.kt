@@ -204,7 +204,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
                     if (itemStolenDebug) debug("item: ${stack.displayName.lowercase()} | slot: $slot | delay: ${stealingDelay}ms")
 
-                    if (missClick && nextInt(endExclusive = 100) < missClickChance && performMissClick(screen))
+                    if (missClick && nextInt(endExclusive = 100) < missClickChance && performMissClick(screen, slot))
                         delay(pauseAfterMissClickLength.random().toLong())
 
                     // If target is sortable to a hotbar slot, steal and sort it at the same time, else shift + left-click
@@ -369,18 +369,19 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
         return itemsToSteal
     }
-
-    private fun performMissClick(screen: GuiChest): Boolean {
-        val itemsInContainer = screen.getSlotsInContainer()
+ 
+    private fun performMissClick(screen: GuiChest, targetSlot: Slot): Boolean {
+        val itemsInContainer = screen.inventorySlots.inventorySlots
         val closestEmptySlot = itemsInContainer
-            .filter { it.itemStack.isEmpty }
-            .minByOrNull { slot.distance(it) } ?: return false
+            .filter { it.stack == null || it.stack.stackSize == 0 }
+            .minByOrNull { otherSlot ->
+                squaredDistanceOfSlots(targetSlot, otherSlot)
+            } ?: return false
 
-        val slotId = closestEmptySlot.slotNumber // Use the slot number directly
+        val slotId = closestEmptySlot.slotNumber
         clickNextTick(slotId, 0, 1)
         return true
     }
-
 
     private fun sortBasedOnOptimumPath(itemsToSteal: MutableList<ItemTakeRecord>) {
         for (i in itemsToSteal.indices) {
