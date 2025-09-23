@@ -38,6 +38,7 @@ import net.ccbluex.liquidbounce.utils.timing.TickedActions.nextTick
 import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomDelay
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.gui.inventory.GuiChest
+import net.minecraft.inventory.Slot
 import net.minecraft.entity.EntityLiving.getArmorPosition
 import net.minecraft.init.Blocks.chest
 import net.minecraft.item.ItemArmor
@@ -375,7 +376,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
         val closestEmptySlot = itemsInContainer
             .filter { it.stack == null || it.stack.stackSize == 0 }
             .minByOrNull { otherSlot ->
-                squaredDistanceOfSlots(targetSlot, otherSlot)
+                squaredDistanceOfSlots(targetSlot.slotNumber, otherSlot.slotNumber)
             } ?: return false
 
         val slotId = closestEmptySlot.slotNumber
