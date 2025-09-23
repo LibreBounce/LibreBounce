@@ -205,7 +205,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
                     if (itemStolenDebug) debug("item: ${stack.displayName.lowercase()} | slot: $slot | delay: ${stealingDelay}ms")
 
-                    if (missClick && nextInt(endExclusive = 100) < missClickChance && performMissClick(screen, slot))
+                    if (missClick && nextInt(endExclusive = 100) < missClickChance && performMissClick(screen, screen.inventorySlots.inventorySlots[slot]))
                         delay(pauseAfterMissClickLength.random().toLong())
 
                     // If target is sortable to a hotbar slot, steal and sort it at the same time, else shift + left-click
