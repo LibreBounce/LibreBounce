@@ -197,6 +197,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
                         performMissClick(screen, screen.inventorySlots.inventorySlots[slot])
                         chestStealerCurrentSlot = -1
                         chestStealerLastSlot = -1
+                        delay(pauseAfterMissClickLength.toLong())
                         return
                     }
 
@@ -388,7 +389,6 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
         val slotId = closestEmptySlot.slotNumber
         clickNextTick(slotId, 0, 1)
         pauseAfterMissClickLength = pauseAfterMissClick.random()
-        delay(pauseAfterMissClickLength.toLong())
         if (itemStolenDebug) debug("Miss-clicked on slot $slotId. Delay until next click: ${pauseAfterMissClickLength}ms")
     }
 
