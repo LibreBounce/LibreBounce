@@ -376,7 +376,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
         return itemsToSteal
     }
  
-    private fun performMissClick(screen: GuiChest, targetSlot: Slot)Pp {
+    private fun performMissClick(screen: GuiChest, targetSlot: Slot) {
         if (missClick && nextInt(endExclusive = 100) < missClickChance)
             val itemsInContainer = screen.inventorySlots.inventorySlots
             val closestEmptySlot = itemsInContainer
