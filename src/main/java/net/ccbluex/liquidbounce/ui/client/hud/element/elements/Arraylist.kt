@@ -185,17 +185,6 @@ class Arraylist(
             return multiReplace(textContent, "", "")
         }
 
-    fun updateTagDetails() {
-        val pair: Pair<String, String> = when (tagsStyle) {
-            "[]", "()", "<>" -> tagsStyle[0].toString() to tagsStyle[1].toString()
-            "-", "|" -> tagsStyle[0] + " " to ""
-            else -> "" to ""
-        }
-
-        tagPrefix = (if (tagsArrayColor) " " else " §7") + pair.first
-        tagSuffix = pair.second
-    }
-
     private fun getDisplayString(module: Module): String {
         val moduleName = when (moduleCase) {
             "Uppercase" -> module.getName().uppercase()
