@@ -193,15 +193,12 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
                         return@scheduler
                     }
 
+                    hasTaken = true
+
                     if (missClick && nextInt(endExclusive = 100) < missClickChance) {
                         performMissClick(screen, screen.inventorySlots.inventorySlots[slot])
-                        chestStealerCurrentSlot = -1
-                        chestStealerLastSlot = -1
                         delay(pauseAfterMissClickLength.toLong())
-                        return
                     }
-
-                    hasTaken = true
 
                     // Set current slot being stolen for highlighting
                     chestStealerCurrentSlot = slot
@@ -390,6 +387,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
         clickNextTick(slotId, 0, 1)
         pauseAfterMissClickLength = pauseAfterMissClick.random()
         if (itemStolenDebug) debug("Miss-clicked on slot $slotId. Delay until next click: ${pauseAfterMissClickLength}ms")
+        chestStealerCurrentSlot = slotId
     }
 
     private fun sortBasedOnOptimumPath(itemsToSteal: MutableList<ItemTakeRecord>) {
