@@ -52,12 +52,8 @@ import kotlin.math.sqrt
 
 object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
-    // TODO: Make the ChestStealer occasionally miss
-    // It would need to underflick or (more rarely) overflick to items, and click in those miss-flicks
-    // Additionally, after consecutively picking up items adjacent to each other,
-    // there is a higher chance to miss, specifically underflicking (~2/3 and ~1/3 chance, respectively)
-    // After miss-clicking, it needs to do a short stop, and either pick up the item correctly, or miss again
-    // (~2/3 and ~1/3 chance, respectively)
+    // TODO: Make SmartOrder prioritize slightly farther but more essential items, e.g, armor
+    // instead of arrows
     private val smartDelay by boolean("SmartDelay", false)
     private val multiplier by intRange("DelayMultiplier", 120..140, 0..500) { smartDelay }
     private val smartOrder by boolean("SmartOrder", true) { smartDelay }
@@ -68,6 +64,8 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
     private val shortStopChance by int("ShortStopChance", 75, 0..100, suffix = "%") { simulateShortStop }
     private val shortStopLength by intRange("ShortStopLength", 350..650, 0..1000, suffix = "ms") { simulateShortStop }
 
+    // TODO: Make it more likely to happen over a longer distance, and the opposite, too
+    // Also add an option to not miss-click consecutively
     private val missClick by boolean("MissClick", false)
     private val missClickChance by int("MissClickChance", 75, 0..100, suffix = "%") { missClick }
     private val pauseAfterMissClick by intRange("PauseAfterMissClick", 350..650, 0..1000, suffix = "ms") { missClick }
