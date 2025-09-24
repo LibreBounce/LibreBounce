@@ -55,7 +55,7 @@ object AutoArmor : Module("AutoArmor", Category.COMBAT) {
 
     private val hotbar by boolean("Hotbar", true)
 
-    private val hotbarSlotSwitchDelay by intRange("HotbarSlotSwitchDelay", 50..50, 0..1000) { hotbar }
+    private val hotbarSlotSwitchDelay by intRange("HotbarSlotSwitchDelay", 50..50, 0..1000, suffix = "ms") { hotbar }
 
     // Prevents AutoArmor from hotbar equipping while any screen is open
     private val notInContainers by boolean("NotInContainers", false) { hotbar }

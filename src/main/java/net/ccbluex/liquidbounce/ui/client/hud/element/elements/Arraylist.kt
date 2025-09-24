@@ -185,6 +185,17 @@ class Arraylist(
             return multiReplace(textContent, "", "")
         }
 
+    fun updateTagDetails() {
+        val pair: Pair<String, String> = when (tagsStyle) {
+            "[]", "()", "<>" -> tagsStyle[0].toString() to tagsStyle[1].toString()
+            "-", "|" -> tagsStyle[0] + " " to ""
+            else -> "" to ""
+        }
+
+        tagPrefix = (if (tagsArrayColor) " " else " §7") + pair.first
+        tagSuffix = pair.second
+    }
+
     private fun getDisplayString(module: Module): String {
         val moduleName = when (moduleCase) {
             "Uppercase" -> module.getName().uppercase()
@@ -210,9 +221,20 @@ class Arraylist(
 
     private fun getReplacement(str: String, moduleName: String, moduleTag: String): Any? {
         return when (str.lowercase()) {
-            "module_name", "name" -> moduleName
-            "module_tag", "tag" -> moduleTag
-            "module_tag_space", "tag_space" -> if (moduleTag.isEmpty()) "" else " "
+            "name" -> moduleName
+            "tag" -> moduleTag
+            "tag_space" -> if (moduleTag.isEmpty()) "" else " "
+            "tag_bar" -> if (moduleTag.isEmpty()) "" else "|"
+            "tag_dash" -> if (moduleTag.isEmpty()) "" else "-"
+            "tag_left_bracket" -> if (moduleTag.isEmpty()) "" else "("
+            "tag_right_bracket" -> if (moduleTag.isEmpty()) "" else ")"
+            "tag_left_square_bracket" -> if (moduleTag.isEmpty()) "" else "["
+            "tag_right_square_bracket" -> if (moduleTag.isEmpty()) "" else "]"
+            "tag_left_brace" -> if (moduleTag.isEmpty()) "" else "{"
+            "tag_right_brace" -> if (moduleTag.isEmpty()) "" else "}"
+            "tag_left_chevron" -> if (moduleTag.isEmpty()) "" else "<"
+            "tag_right_chevron" -> if (moduleTag.isEmpty()) "" else "<"
+            "tag_right_chevron" -> if (moduleTag.isEmpty()) "" else "<"
             else -> null // Null = don't replace
         }
     }

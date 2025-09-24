@@ -8,7 +8,15 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 ### Added
 
+- **Breaking:** `HotbarSlotSwitchDelay` to AutoArmor; replaces `DelayedSlotSwitch`([#28](https://github.com/LibreBounce/LibreBounce/pull/28)) (thatonecoder)
 - Legit-like miss-clicking to ChestStealer ([#28](https://github.com/LibreBounce/LibreBounce/pull/28)) (thatonecoder)
+
+### Changed
+
+- **Breaking:** Rename `Max-Text-Gradient-Colors` to `MaxTextGradientColors`, `Rect-ColorMode` to `RectColorMode`, and `ShadowText` to `TextShadow` in the Arraylist element (thatonecoder)
+- **Breaking:** Rename `RectangleRound-Radius` to `RoundedRadius`, and `Text-Shadow` to `TextShadow` in the Keystrokes element (thatonecoder)
+- **Breaking:** Rename `RoundRadius` to `RoundedRadius` in the Notifications element (thatonecoder)
+- **Breaking:** Rename `View Distance` to `ViewDistance`, `Player Shape` to `PlayerShape`, `Player Size` to `PlayerSize`, `Use ESP Colors` to `UseESPColor`, `FOV Size` to `FOVSize`, `FOV Angle` to `FOVAngle`, `Border-Strength` to `BorderStrength`, `Rainbow-X` to `RainbowX`, and `Rainbow-Y` to `RainbowY`, in the Radar element (thatonecoder)
 
 ## [0.4.0] - 2025-09-21
 
