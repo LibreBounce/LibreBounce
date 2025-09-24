@@ -55,8 +55,7 @@ object AutoArmor : Module("AutoArmor", Category.COMBAT) {
 
     private val hotbar by boolean("Hotbar", true)
 
-    // Sacrifices 1 tick speed for complete undetectability, needed to bypass Vulcan
-    private val delayedSlotSwitch by boolean("DelayedSlotSwitch", true) { hotbar }
+    private val hotbarSlotSwitchDelay by intRange("HotbarSlotSwitchDelay", 50..50, 0..1000) { hotbar }
 
     // Prevents AutoArmor from hotbar equipping while any screen is open
     private val notInContainers by boolean("NotInContainers", false) { hotbar }
@@ -127,9 +126,7 @@ object AutoArmor : Module("AutoArmor", Category.COMBAT) {
             // Schedule hotbar click
             nextTick(action = equippingAction)
 
-            if (delayedSlotSwitch) {
-                delay(delay.random().toLong())
-            }
+            delay(hotbarSlotSwitchDelay.random().toLong())
         }
 
         delay(delay.random().toLong())
