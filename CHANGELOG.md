@@ -6,6 +6,10 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 ## [Unreleased]
 
+### Added
+
+- Legit-like miss-clicking to ChestStealer ([#28](https://github.com/LibreBounce/LibreBounce/pull/28)) (thatonecoder)
+
 ## [0.4.0] - 2025-09-21
 
 ### Added
@@ -123,3 +127,4 @@ _Initial release, forked from LiquidBounce Legacy._
 [0.3.0]: https://github.com/LibreBounce/LibreBounce/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/LibreBounce/LibreBounce/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/LibreBounce/LibreBounce/releases/tag/v0.1.0
+
