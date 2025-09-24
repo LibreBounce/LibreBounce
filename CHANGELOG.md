@@ -10,6 +10,7 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 - **Breaking:** `HotbarSlotSwitchDelay` to AutoArmor; replaces `DelayedSlotSwitch`([#28](https://github.com/LibreBounce/LibreBounce/pull/28)) (thatonecoder)
 - Legit-like miss-clicking to ChestStealer ([#28](https://github.com/LibreBounce/LibreBounce/pull/28)) (thatonecoder)
+- `FontShadow` option to Chat (thatonecoder)
 
 ### Changed
 

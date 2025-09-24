@@ -11,10 +11,16 @@ import net.ccbluex.liquidbounce.ui.font.Fonts
 
 object Chat : Module("Chat", Category.RENDER, gameDetecting = false, subjective = true) {
 
+    /*
+     * For the actual code, see
+     * net/ccbluex/liquidbounce/injection/forge/mixins/gui/MixinGuiNewChat.java
+     */
+
     init {
         state = true
     }
 
     val noMessageLimitValue by boolean("NoMessageLimit", true)
     val font by font("Font", Fonts.fontSemibold40)
+    val textShadow by boolean("TextShadow", true)
 }

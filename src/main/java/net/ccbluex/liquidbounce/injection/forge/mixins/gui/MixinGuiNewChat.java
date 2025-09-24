@@ -26,7 +26,7 @@ public abstract class MixinGuiNewChat {
 
     @Redirect(method = "drawChat", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/FontRenderer;drawStringWithShadow(Ljava/lang/String;FFI)I"))
     private int injectFontChatB(FontRenderer instance, String text, float x, float y, int color) {
-        return Chat.INSTANCE.handleEvents() ? Chat.INSTANCE.getFont().drawStringWithShadow(text, x, y, color) : instance.drawStringWithShadow(text, x, y, color);
+        return Chat.INSTANCE.handleEvents() ? (Chat.INSTANCE.getTextShadow() ? Chat.INSTANCE.getFont().drawStringWithShadow(text, x, y, color) : Chat.INSTANCE.getFont().drawString(text, x, y, color)) : instance.drawStringWithShadow(text, x, y, color);
     }
 
     @Redirect(method = "getChatComponent", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/FontRenderer;getStringWidth(Ljava/lang/String;)I"))
