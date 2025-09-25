@@ -76,6 +76,7 @@ class TabGUI(x: Double = 16.0, y: Double = 43.0) : Element("TabGUI", x = x, y = 
     private val tabHeight by float("TabHeight", 13F, 10F..15F)
     private val categoryCase by choices("CategoryCase", arrayOf("Normal", "Uppercase", "Lowercase"), "Normal")
     private val moduleCase by choices("ModuleCase", arrayOf("Normal", "Uppercase", "Lowercase"), "Normal")
+    private val spacedModules by boolean("SpacedModules", false)
 
     private val tabs = Array(Category.entries.size) {
         val category = Category.entries[it]
@@ -349,10 +350,12 @@ class TabGUI(x: Double = 16.0, y: Double = 43.0) : Element("TabGUI", x = x, y = 
     }
 
     fun getDisplayName(module: Module): String {
+        val moduleName =  module.getName(spacedModules)
+
         return when (moduleCase) {
-            "Uppercase" -> module.getName().uppercase()
-            "Lowercase" -> module.getName().lowercase()
-            else -> module.getName()
+            "Uppercase" -> moduleName.uppercase()
+            "Lowercase" -> moduleName.lowercase()
+            else -> moduleName
         }
     }
 
