@@ -8,7 +8,9 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 ### Added
 
-- **Breaking:** `HotbarSlotSwitchDelay` to AutoArmor; replaces `DelayedSlotSwitch`([#28](https://github.com/LibreBounce/LibreBounce/pull/28)) (thatonecoder)
+- **Breaking:** Revamped the Arraylist element, giving nearly full control over its format; please check the code for a better comprehension (thatonecoder)
+- **Breaking:** `CategoryCase` and `ModuleCase` options to TabGUI; replaces `UpperCase` (thatonecoder)
+- **Breaking:** `HotbarSlotSwitchDelay` to AutoArmor; replaces `DelayedSlotSwitch` ([#28](https://github.com/LibreBounce/LibreBounce/pull/28)) (thatonecoder)
 - Legit-like miss-clicking to ChestStealer ([#28](https://github.com/LibreBounce/LibreBounce/pull/28)) (thatonecoder)
 - `FontShadow` option to Chat (thatonecoder)
 
@@ -18,6 +20,8 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 - **Breaking:** Rename `RectangleRound-Radius` to `RoundedRadius`, and `Text-Shadow` to `TextShadow` in the Keystrokes element (thatonecoder)
 - **Breaking:** Rename `RoundRadius` to `RoundedRadius` in the Notifications element (thatonecoder)
 - **Breaking:** Rename `View Distance` to `ViewDistance`, `Player Shape` to `PlayerShape`, `Player Size` to `PlayerSize`, `Use ESP Colors` to `UseESPColor`, `FOV Size` to `FOVSize`, `FOV Angle` to `FOVAngle`, `Border-Strength` to `BorderStrength`, `Rainbow-X` to `RainbowX`, and `Rainbow-Y` to `RainbowY`, in the Radar element (thatonecoder)
+- **Breaking:** Rename `Rounded-Radius` to `RoundedRadius`, `Border-Strength` to `BorderStrength`, `Rainbow-X` to `RainbowX`, `Rainbow-Y` to `RainbowY`, and `TextPosition-Y` to `TextPositionY` in the TabGUI element (thatonecoder)
+- **Breaking:** Rename `Rounded-Radius` to `RoundedRadius`, `Border-Strength` to `BorderStrength`, `Background-ColorMode` to `BackgroundColorMode`, `Background-Color` to `BackgroundColor`, `HealthBar-Gradient1` to `HealthBarGradient1`, `HealthBar-Gradient2` to `HealthBarGradient2`, `Border-Color` to `BorderColor`, `Rainbow-X` to `RainbowX`, and `Rainbow-Y` to `RainbowY` in the Target element (thatonecoder)
 
 ## [0.4.0] - 2025-09-21
 
