@@ -66,7 +66,7 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true) {
 
     private var lastCheckTime = 0L
 
-    private var flagCount = 0
+    var flagCount = 0
     private var lastYaw = 0F
     private var lastPitch = 0F
 

@@ -10,6 +10,7 @@ import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME
 import net.ccbluex.liquidbounce.LiquidBounce.clientCommit
 import net.ccbluex.liquidbounce.LiquidBounce.clientVersionText
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura.blockStatus
+import net.ccbluex.liquidbounce.features.module.modules.misc.FlagCheck.flagCount
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffolds.Scaffold
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
@@ -212,6 +213,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F, side: Side = S
                 "food" -> return player.foodStats.foodLevel
                 "onground" -> return player.onGround
                 "tbalance", "timerbalance" -> return "${TimerBalanceUtils.balance}ms"
+                "flags", "flagamount", "flagcount" -> return flagCount
                 "block", "blocking" -> return (player.heldItem?.item is ItemSword && (blockStatus || player.isUsingItem || player.isBlocking))
                 "sneak", "sneaking" -> return (player.isSneaking || mc.gameSettings.keyBindSneak.isKeyDown)
                 "sprint", "sprinting" -> return (player.serverSprintState || player.isSprinting || mc.gameSettings.keyBindSprint.isKeyDown)
