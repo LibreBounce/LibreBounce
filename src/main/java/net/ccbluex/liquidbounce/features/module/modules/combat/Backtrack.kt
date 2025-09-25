@@ -63,6 +63,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
     private val style by choices("Style", arrayOf("Pulse", "Smooth"), "Smooth") { mode == "Modern" }
     private val distance by floatRange("Distance", 2f..3f, 0f..6f) { mode == "Modern" }
     private val smart by boolean("Smart", true) { mode == "Modern" }
+
     // ESP
     private val espMode by choices(
         "ESPMode",
@@ -74,7 +75,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
     private val espColor =
         ColorSettingsInteger(this, "ESPColor") { espMode != "Model" && mode == "Modern" }.with(0, 255, 0)
 
-    private val debug by boolean("Debug", false) { mode == "Modern" }
+    private val debug by boolean("Debug", false) { mode == "Modern" }.subjective()
 
     private val packetQueue = ConcurrentLinkedQueue<QueueData>()
     private val positions = ConcurrentLinkedQueue<Pair<Vec3, Long>>()

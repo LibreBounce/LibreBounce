@@ -43,7 +43,7 @@ object TickBase : Module("TickBase", Category.COMBAT) {
     private val line by boolean("Line", true).subjective()
     private val lineColor by color("LineColor", Color.GREEN) { line }.subjective()
 
-    private val debug by boolean("Debug", false)
+    private val debug by boolean("Debug", false).subjective()
 
     private var ticksToSkip = 0
     private var tickBalance = 0f

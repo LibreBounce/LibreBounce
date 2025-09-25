@@ -293,6 +293,9 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     // Visuals
     private val mark by choices("Mark", arrayOf("None", "Platform", "Box", "Circle"), "Circle").subjective()
 
+    private val markColor by color("MarkColor", Color(255, 0, 0, 70)) { mark == "Box" }.subjective()
+    private val markHittableColor by color("MarkHittableColor", Color(37, 126, 255, 70)) { mark == "Box" }.subjective()
+
     // Circle options
     private val circleStartColor by color("CircleStartColor", Color.BLUE) { mark == "Circle" }.subjective()
     private val circleEndColor by color("CircleEndColor", Color.CYAN.withAlpha(0)) { mark == "Circle" }.subjective()
@@ -553,7 +556,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             attackDelay = randomClickDelay(cps.first, cps.last)
         }
 
-        val hittableColor = if (hittable) Color(37, 126, 255, 70) else Color(255, 0, 0, 70)
+        val hittableColor = if (hittable) markHittableColor else markColor
 
         if (targetMode != "Multi") {
             when (mark.lowercase()) {
