@@ -23,6 +23,10 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 - **Breaking:** Rename `Rounded-Radius` to `RoundedRadius`, `Border-Strength` to `BorderStrength`, `Rainbow-X` to `RainbowX`, `Rainbow-Y` to `RainbowY`, and `TextPosition-Y` to `TextPositionY` in the TabGUI element (thatonecoder)
 - **Breaking:** Rename `Rounded-Radius` to `RoundedRadius`, `Border-Strength` to `BorderStrength`, `Background-ColorMode` to `BackgroundColorMode`, `Background-Color` to `BackgroundColor`, `HealthBar-Gradient1` to `HealthBarGradient1`, `HealthBar-Gradient2` to `HealthBarGradient2`, `Border-Color` to `BorderColor`, `Rainbow-X` to `RainbowX`, and `Rainbow-Y` to `RainbowY` in the Target element (thatonecoder)
 
+### Removed
+
+- `Tags` and `TagsStyle` values in the Arraylist element; use the features added simultaneously (thatonecoder)
+
 ## [0.4.0] - 2025-09-21
 
 ### Added
