@@ -293,8 +293,8 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     // Visuals
     private val mark by choices("Mark", arrayOf("None", "Platform", "Box", "Circle"), "Circle").subjective()
 
-    private val markColor by color("MarkColor", Color(255, 0, 0, 70)) { mark == "Box" }.subjective()
-    private val markHittableColor by color("MarkHittableColor", Color(37, 126, 255, 70)) { mark == "Box" }.subjective()
+    private val markColor by color("MarkColor", Color(255, 0, 0, 70)) { mark in arrayOf("Platform", "Box") }.subjective()
+    private val markHittableColor by color("MarkHittableColor", Color(37, 126, 255, 70)) { mark in arrayOf("Platform", "Box") }.subjective()
 
     // Circle options
     private val circleStartColor by color("CircleStartColor", Color.BLUE) { mark == "Circle" }.subjective()

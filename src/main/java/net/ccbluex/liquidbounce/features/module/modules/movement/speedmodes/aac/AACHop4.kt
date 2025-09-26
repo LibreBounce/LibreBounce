@@ -29,6 +29,8 @@ object AACHop4 : SpeedMode("AACHop4") {
             else
                 mc.timer.timerSpeed = 1f
         }
+
+        player.isSprinting = player.movementInput.moveForward > 0.8
     }
 
 }

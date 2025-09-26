@@ -14,6 +14,7 @@ import net.ccbluex.liquidbounce.utils.extensions.tryJump
 
 object AACHop350 : SpeedMode("AACHop3.5.0") {
 
+    // Currently not working properly, for some reason
     fun onMotion(event: MotionEvent) {
         val player = mc.thePlayer ?: return
 

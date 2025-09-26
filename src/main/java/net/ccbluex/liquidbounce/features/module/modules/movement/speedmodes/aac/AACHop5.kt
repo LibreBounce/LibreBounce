@@ -33,6 +33,8 @@ object AACHop5 : SpeedMode("AACHop5") {
             }
             player.speedInAir = 0.02f
         }
+
+        player.isSprinting = player.movementInput.moveForward > 0.8
     }
 
 }
