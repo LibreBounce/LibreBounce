@@ -27,13 +27,13 @@ import net.minecraft.util.EnumFacing
 object AutoSoup : Module("AutoSoup", Category.COMBAT) {
 
     private val health by float("Health", 15f, 0f..20f)
-    private val delay by int("Delay", 150, 0..500, suffix = "ms")
+    private val delay by intRange("Delay", 150..150, 0..500, suffix = "ms")
 
     private val openInventory by boolean("OpenInv", true)
-    private val startDelay by int("StartDelay", 100, 0..1000) { openInventory }
+    private val startDelay by intRange("StartDelay", 100..100, 0..1000, suffix = "ms") { openInventory }
     private val autoClose by boolean("AutoClose", false) { openInventory }
     private val autoCloseNoSoup by boolean("AutoCloseNoSoup", true) { autoClose }
-    private val autoCloseDelay by int("CloseDelay", 500, 0..1000) { openInventory && autoClose }
+    private val autoCloseDelay by intRange("CloseDelay", 500..500, 0..1000, suffix = "ms") { openInventory && autoClose }
 
     private val simulateInventory by boolean("SimulateInventory", false) { !openInventory }
 
@@ -43,6 +43,10 @@ object AutoSoup : Module("AutoSoup", Category.COMBAT) {
     private val startTimer = MSTimer()
     private val closeTimer = MSTimer()
 
+    private var randomizedDelay = delay.random()
+    private var randomizedStartDelay = startDelay.random()
+    private var randomizedCloseDelay = autoCloseDelay.random()
+
     private var canCloseInventory = false
 
     override val tag
@@ -51,10 +55,12 @@ object AutoSoup : Module("AutoSoup", Category.COMBAT) {
     val onGameTick = handler<GameTickEvent>(priority = -1) {
         val player = mc.thePlayer ?: return@handler
 
-        if (!timer.hasTimePassed(delay))
+        if (!timer.hasTimePassed(randomizedDelay))
             return@handler
 
         val soupInHotbar = InventoryUtils.findItem(36, 44, Items.mushroom_stew)
+
+        randomizedDelay = delay.random()
 
         if (player.health <= health && soupInHotbar != null) {
             SilentHotbar.selectSlotSilently(this, soupInHotbar, 1, true)
@@ -106,7 +112,7 @@ object AutoSoup : Module("AutoSoup", Category.COMBAT) {
         val soupInInventory = InventoryUtils.findItem(9, 35, Items.mushroom_stew)
 
         if (soupInInventory != null && InventoryUtils.hasSpaceInHotbar()) {
-            if (isFirstInventoryClick && !startTimer.hasTimePassed(startDelay)) {
+            if (isFirstInventoryClick && !startTimer.hasTimePassed(randomizedStartDelay)) {
                 // GuiInventory checks have to be put separately due to problems with resetting timer.
                 if (mc.currentScreen is GuiInventory)
                     return@handler
@@ -116,6 +122,7 @@ object AutoSoup : Module("AutoSoup", Category.COMBAT) {
                     isFirstInventoryClick = false
 
                 startTimer.reset()
+                randomizedStartDelay = startDelay.random()
             }
 
             if (openInventory && mc.currentScreen !is GuiInventory)
@@ -137,7 +144,7 @@ object AutoSoup : Module("AutoSoup", Category.COMBAT) {
             canCloseInventory = true
         }
 
-        if (autoClose && canCloseInventory && closeTimer.hasTimePassed(autoCloseDelay)) {
+        if (autoClose && canCloseInventory && closeTimer.hasTimePassed(randomizedCloseDelay)) {
             if (!autoCloseNoSoup && soupInInventory == null) return@handler
 
             if (mc.currentScreen is GuiInventory) {
@@ -145,6 +152,7 @@ object AutoSoup : Module("AutoSoup", Category.COMBAT) {
             }
 
             closeTimer.reset()
+            randomizedCloseDelay = autoCloseDelay.random()
             canCloseInventory = false
         }
     }

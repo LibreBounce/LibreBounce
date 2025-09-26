@@ -43,8 +43,8 @@ object AutoRod : Module("AutoRod", Category.COMBAT) {
     ) { facingEnemy && ignoreOnEnemyLowHealth }
     private val escapeHealthThreshold by int("EscapeHealthThreshold", 10, 1..20)
 
-    private val pushDelay by int("PushDelay", 100, 50..1000)
-    private val pullbackDelay by int("PullbackDelay", 500, 50..1000)
+    private val pushDelay by int("PushDelay", 100, 50..1000, suffix = "ms")
+    private val pullbackDelay by int("PullbackDelay", 500, 50..1000, suffix = "ms")
 
     private val onUsingItem by boolean("OnUsingItem", false)
 

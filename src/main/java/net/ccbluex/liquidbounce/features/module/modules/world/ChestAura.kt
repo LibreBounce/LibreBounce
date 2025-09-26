@@ -59,7 +59,7 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
     private val delay by int("Delay", 200, 50..500, suffix = "ms")
 
     private val throughWalls by boolean("ThroughWalls", true)
-    private val wallsRange by float("ThroughWallsRange", 3F, 1F..5F) {
+    private val wallsRange by float("ThroughWallsRange", 3f, 1f..5f) {
         throughWalls
     }.onChange { _, new ->
         new.coerceAtMost(this@ChestAura.range)

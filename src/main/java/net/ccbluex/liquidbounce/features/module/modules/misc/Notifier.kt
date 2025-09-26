@@ -31,7 +31,7 @@ object Notifier : Module("Notifier", Category.MISC) {
     private val onHeldExplosive by boolean("HeldExplosive", true)
     private val onPlayerTool by boolean("HeldTools", false)
 
-    private val warnDelay by int("WarnDelay", 5000, 1000..50000)
+    private val warnDelay by int("WarnDelay", 5000, 1000..50000, suffix = "ms")
     { onPlayerDeath || onHeldExplosive || onPlayerTool }
 
     private val recentlyWarned = ConcurrentHashMap<String, Long>()

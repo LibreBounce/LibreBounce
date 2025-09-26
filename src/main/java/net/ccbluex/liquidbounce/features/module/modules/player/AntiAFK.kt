@@ -22,11 +22,11 @@ object AntiAFK : Module("AntiAFK", Category.PLAYER, gameDetecting = false) {
     private val mode by choices("Mode", arrayOf("Old", "Random", "Custom"), "Random")
 
     private val rotateValue = boolean("Rotate", true) { mode == "Custom" }
-    private val rotationDelay by int("RotationDelay", 100, 0..1000) { rotateValue.isActive() }
-    private val rotationAngle by float("RotationAngle", 1f, -180F..180F) { rotateValue.isActive() }
+    private val rotationDelay by int("RotationDelay", 100, 0..1000, suffix = "ms") { rotateValue.isActive() }
+    private val rotationAngle by float("RotationAngle", 1f, -180f..180f, suffix = "º") { rotateValue.isActive() }
 
     private val swingValue = boolean("Swing", true) { mode == "Custom" }
-    private val swingDelay by int("SwingDelay", 100, 0..1000) { swingValue.isActive() }
+    private val swingDelay by int("SwingDelay", 100, 0..1000, suffix = "ms") { swingValue.isActive() }
 
     private val jump by boolean("Jump", true) { mode == "Custom" }
     private val move by boolean("Move", true) { mode == "Custom" }

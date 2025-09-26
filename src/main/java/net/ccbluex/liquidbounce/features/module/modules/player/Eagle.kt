@@ -19,7 +19,7 @@ object Eagle : Module("Eagle", Category.PLAYER) {
 
     private val maxSneakTime by intRange("MaxSneakTime", 1..5, 0..20, suffix = "ticks")
     private val onlyWhenLookingDown by boolean("OnlyWhenLookingDown", false)
-    private val lookDownThreshold by float("LookDownThreshold", 45f, 0f..90f) { onlyWhenLookingDown }
+    private val lookDownThreshold by float("LookDownThreshold", 45f, 0f..90f, suffix = "º") { onlyWhenLookingDown }
 
     private val sneakTimer = TickTimer()
 

@@ -21,7 +21,7 @@ object Regen : Module("Regen", Category.PLAYER) {
     private val mode by choices("Mode", arrayOf("Vanilla", "Spartan"), "Vanilla")
     private val speed by int("Speed", 100, 1..100) { mode == "Vanilla" }
 
-    private val delay by int("Delay", 0, 0..10000)
+    private val delay by int("Delay", 0, 0..10000, suffix = "ms")
     private val health by int("Health", 18, 0..20)
     private val food by int("Food", 18, 0..20)
 

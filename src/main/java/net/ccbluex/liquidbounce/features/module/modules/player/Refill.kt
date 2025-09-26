@@ -21,9 +21,9 @@ import net.minecraft.item.ItemStack
 import net.minecraft.network.play.client.C0EPacketClickWindow
 
 object Refill : Module("Refill", Category.PLAYER) {
-    private val delay by int("Delay", 400, 10..1000)
+    private val delay by int("Delay", 400, 10..1000, suffix = "ms")
 
-    private val minItemAge by int("MinItemAge", 400, 0..1000)
+    private val minItemAge by int("MinItemAge", 400, 0..1000, suffix = "ms")
 
     private val mode by choices("Mode", arrayOf("Swap", "Merge"), "Swap")
 

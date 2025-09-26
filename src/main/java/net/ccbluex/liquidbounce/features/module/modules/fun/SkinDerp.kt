@@ -14,7 +14,7 @@ import kotlin.random.Random.Default.nextBoolean
 
 object SkinDerp : Module("SkinDerp", Category.FUN, subjective = true) {
 
-    private val delay by int("Delay", 0, 0..1000)
+    private val delay by int("Delay", 0, 0..1000, suffix = "ms")
     private val hat by boolean("Hat", true)
     private val jacket by boolean("Jacket", true)
     private val leftPants by boolean("LeftPants", true)

@@ -16,12 +16,14 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 ### Changed
 
+- **Breaking:** Make the `Delay`, `StartDelay`, and `CloseDelay` values in AutoSoup to integer ranges (thatonecoder)
 - **Breaking:** Rename `Max-Text-Gradient-Colors` to `MaxTextGradientColors`, `Rect-ColorMode` to `RectColorMode`, and `ShadowText` to `TextShadow` in the Arraylist element (thatonecoder)
 - **Breaking:** Rename `RectangleRound-Radius` to `RoundedRadius`, and `Text-Shadow` to `TextShadow` in the Keystrokes element (thatonecoder)
 - **Breaking:** Rename `RoundRadius` to `RoundedRadius` in the Notifications element (thatonecoder)
 - **Breaking:** Rename `View Distance` to `ViewDistance`, `Player Shape` to `PlayerShape`, `Player Size` to `PlayerSize`, `Use ESP Colors` to `UseESPColor`, `FOV Size` to `FOVSize`, `FOV Angle` to `FOVAngle`, `Border-Strength` to `BorderStrength`, `Rainbow-X` to `RainbowX`, and `Rainbow-Y` to `RainbowY`, in the Radar element (thatonecoder)
 - **Breaking:** Rename `Rounded-Radius` to `RoundedRadius`, `Border-Strength` to `BorderStrength`, `Rainbow-X` to `RainbowX`, `Rainbow-Y` to `RainbowY`, and `TextPosition-Y` to `TextPositionY` in the TabGUI element (thatonecoder)
 - **Breaking:** Rename `Rounded-Radius` to `RoundedRadius`, `Border-Strength` to `BorderStrength`, `Background-ColorMode` to `BackgroundColorMode`, `Background-Color` to `BackgroundColor`, `HealthBar-Gradient1` to `HealthBarGradient1`, `HealthBar-Gradient2` to `HealthBarGradient2`, `Border-Color` to `BorderColor`, `Rainbow-X` to `RainbowX`, and `Rainbow-Y` to `RainbowY` in the Target element (thatonecoder)
+- Make even more values have sufixes (thatonecoder)
 
 ### Removed
 
@@ -47,7 +49,7 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 - **Breaking:** Merge `MaxDelay` and `MinDelay`, but split into an integer range and a range value for the `Modern` and `Legacy` modes respectively, in Backtrack (thatonecoder)
 - **Breaking:** `HurtTime` in the `IntaveReduce` and `HurtTimeToClick` modes are now an integer range value, and shared with the `GhostBlock` mode, in Velocity (thatonecoder)
-- **Breaking:** Make the `StartDelay` and `CloseDelay` values in AutoArmor and InventoryCleaner an integer range value (thatonecoder)
+- **Breaking:** Make the `StartDelay` and `CloseDelay` values in AutoArmor and InventoryCleaner integer ranges (thatonecoder)
 - **Breaking:** Rename `RoundedHotbar-Radius` to `RoundedHotbarRadius`, and `Hotbar-Color` to `HotbarColor` in HUD (thatonecoder)
 - **Breaking:** Rename `Rounded-Radius` to `RoundedRadius` in the scoreboard element (thatonecoder)
 - **Breaking:** Rename `MaxRotationDifferenceToSwing` to `MaxAngleDifferenceToSwing` in KillAura (thatonecoder)

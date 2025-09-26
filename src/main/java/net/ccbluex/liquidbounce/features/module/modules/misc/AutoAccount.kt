@@ -55,14 +55,14 @@ object AutoAccount :
     private val password by passwordValue
 
     // Needed for Gamster
-    private val sendDelay by intRange("SendDelay", 150..300, 0..500) { passwordValue.isSupported() }
+    private val sendDelay by intRange("SendDelay", 150..300, 0..500, suffix = "ms") { passwordValue.isSupported() }
 
     private val autoSession by boolean("AutoSession", false)
     private val startupValue = boolean("RandomAccountOnStart", false) { autoSession }
     private val relogInvalidValue = boolean("RelogWhenPasswordInvalid", true) { autoSession }
     private val relogKickedValue = boolean("RelogWhenKicked", false) { autoSession }
 
-    private val reconnectDelayValue = int("ReconnectDelay", 1000, 0..2500)
+    private val reconnectDelayValue = int("ReconnectDelay", 1000, 0..2500, suffix = "ms")
     { relogInvalidValue.isActive() || relogKickedValue.isActive() }
     private val reconnectDelay by reconnectDelayValue
 

@@ -24,8 +24,8 @@ import kotlin.math.abs
 
 object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
 
-    private val chance by int("Chance", 100, 0..100)
-    private val delay by int("Delay", 0, 0..500)
+    private val chance by int("Chance", 100, 0..100, suffix = "%")
+    private val delay by int("Delay", 0, 0..500, suffix = "ms")
     private val hurtTime by int("HurtTime", 10, 0..10)
 
     // TODO: Fix SprintTap flagging on prediction anti-cheats

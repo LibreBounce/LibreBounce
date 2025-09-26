@@ -17,7 +17,7 @@ object Derp : Module("Derp", Category.FUN, subjective = true) {
 
     private val headless by boolean("Headless", false)
     private val spinny by boolean("Spinny", false)
-    private val increment by float("Increment", 1F, 0F..50F) { spinny }
+    private val increment by float("Increment", 1f, 0f..50f) { spinny }
 
     override fun onDisable() {
         syncSpecialModuleRotations()

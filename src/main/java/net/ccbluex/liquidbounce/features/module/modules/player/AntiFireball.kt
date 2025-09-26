@@ -35,7 +35,7 @@ import org.lwjgl.opengl.GL11
 object AntiFireball : Module("AntiFireball", Category.PLAYER) {
 
     private val indicators by boolean("Indicator", true)
-    private val range by float("Range", 4.5f, 3f..8f)
+    private val range by float("Range", 4.5f, 3f..8f, suffix = "blocks")
     private val swing by choices("Swing", arrayOf("Normal", "Packet", "None"), "Normal")
     private val options = RotationSettings(this).withoutKeepRotation()
     private val fireballTickCheck by boolean("FireballTickCheck", true)
