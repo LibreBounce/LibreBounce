@@ -30,6 +30,7 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 ### Removed
 
 - `Tags` and `TagsStyle` values in the Arraylist element; use the features added simultaneously (thatonecoder)
+- `Smart` option in AutoClicker; far too buggy (thatonecoder)
 
 ## [0.4.0] - 2025-09-21
 
