@@ -33,14 +33,13 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT) {
     private val simulateDoubleClicking by boolean("SimulateDoubleClicking", false)
     private val cps by intRange("CPS", 5..8, 1..50)
 
-    private val smart by boolean("Smart", false) { left }
-    private val hurtTime by int("HurtTime", 10, 0..10) { left && !smart }
+    private val hurtTime by int("HurtTime", 10, 0..10) { left }
 
     private val right by boolean("Right", true)
     private val left by boolean("Left", true)
     private val jitter by boolean("Jitter", false)
     private val block by boolean("AutoBlock", false) { left }
-    private val blockDelay by int("BlockDelay", 50, 0..100) { block }
+    private val blockDelay by int("BlockDelay", 50, 0..100, suffix = "ms") { block }
 
     private val requiresNoInput by boolean("RequiresNoInput", false) { left }
     private val maxAngleDifference by float("MaxAngleDifference", 30f, 10f..180f, suffix = "º") { left && requiresNoInput }
@@ -140,7 +139,7 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT) {
     private fun shouldAutoRightClick() = mc.thePlayer.heldItem?.itemUseAction in arrayOf(EnumAction.BLOCK)
 
     private fun handleLeftClick(time: Long, doubleClick: Int) {
-        if (!shouldLeftClick) return
+        if (target != null && target!!.hurtTime > hurtTime) return
 
         repeat(1 + doubleClick) {
             KeyBinding.onTick(mc.gameSettings.keyBindAttack.keyCode)
@@ -165,49 +164,6 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT) {
 
             lastBlocking = time
         }
-    }
-
-    private val shouldLeftClick: Boolean
-        get() {
-            val player = mc.thePlayer ?: return false
-
-            if (target != null) return true
-
-            if (smart) {
-                // Credits to Gugustus
-                if (target!!.hurtTime >= 2) {
-            	    return false
-                }
-
-                if (player.hurtTime >= 1) {
-                    return true
-                }
-
-                if (target!!.hurtTime >= 3 && !target!!.onGround && player.getDistanceToEntityBox(target!!) >= 2.5 && player.getDistanceToEntityBox(target!!) >= 3.0) {
-                    return false
-                }
-
-                if (player.hurtTime == 0 && target!!.hurtTime >= 3) {
-                    return false
-                }
-
-                if (player.hurtTime == 2 && target!!.hurtTime == 4) {
-                    return false
-                } else if (player.hurtTime == 3 && target!!.hurtTime == 5) {
-                    return false
-                } else if (player.hurtTime >= 5 && target!!.hurtTime >= 7) {
-                    return false
-                } else {
-                    return true
-                }
-            } else { 
-                if (target!!.hurtTime > hurtTime) {
-                    return true
-                } else {
-                    return false
-                }
-            }
-
     }
 
     fun generateNewClickTime() = randomClickDelay(cps.first, cps.last)
