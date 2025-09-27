@@ -12,6 +12,8 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 - **Breaking:** `CategoryCase` and `ModuleCase` options to TabGUI; replaces `UpperCase` (thatonecoder)
 - **Breaking:** `HotbarSlotSwitchDelay` to AutoArmor; replaces `DelayedSlotSwitch` ([#28](https://github.com/LibreBounce/LibreBounce/pull/28)) (thatonecoder)
 - Legit-like miss-clicking to ChestStealer ([#28](https://github.com/LibreBounce/LibreBounce/pull/28)) (thatonecoder)
+- `MarkColor` and `MarkHittableColor` values to KillAura; previously hardcoded (thatonecoder)
+- FlagCheck count placeholder to the Text element (thatonecoder)
 - `FontShadow` option to Chat (thatonecoder)
 
 ### Changed
@@ -54,8 +56,9 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 - **Breaking:** Rename `Rounded-Radius` to `RoundedRadius` in the scoreboard element (thatonecoder)
 - **Breaking:** Rename `MaxRotationDifferenceToSwing` to `MaxAngleDifferenceToSwing` in KillAura (thatonecoder)
 - **Breaking:** Rename `RetrieveDelayTicks` to `RetrieveDelay` in NoFall (thatonecoder)
-- Fine-tune the `Optimal` target priority mode in KillAura (thatonecoder)
 - Increase the `ShortStopLength` value limit to 1000 in ChestStealer (thatonecoder)
+- Fine-tune the `Optimal` target priority mode in KillAura (thatonecoder)
+- Make the `Debug` options in BackTrack and TickBase subjective (thatonecoder)
 
 ### Removed
 
