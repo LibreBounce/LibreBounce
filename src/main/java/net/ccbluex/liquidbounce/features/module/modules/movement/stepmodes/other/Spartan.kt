@@ -13,6 +13,7 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.Step.stepY
 import net.ccbluex.liquidbounce.features.module.modules.movement.Step.stepZ
 import net.ccbluex.liquidbounce.features.module.modules.movement.Step.timer
 import net.ccbluex.liquidbounce.features.module.modules.movement.stepmodes.StepMode
+import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPackets
 import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
 

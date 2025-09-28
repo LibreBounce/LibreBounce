@@ -39,4 +39,5 @@ object AAC334 : StepMode("AAC3.3.4") {
         } else {
             isAACStep = false
         }
+    }
 }

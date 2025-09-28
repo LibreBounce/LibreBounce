@@ -9,6 +9,7 @@ import net.ccbluex.liquidbounce.event.MoveEvent
 import net.ccbluex.liquidbounce.features.module.modules.movement.Step.fakeJump
 import net.ccbluex.liquidbounce.features.module.modules.movement.Step.couldStep
 import net.ccbluex.liquidbounce.features.module.modules.movement.stepmodes.StepMode
+import net.ccbluex.liquidbounce.utils.movement.MovementUtils.direction
 
 object MotionNCP : StepMode("MotionNCP") {
 

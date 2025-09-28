@@ -8,6 +8,7 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.stepmodes.ncp
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.features.module.modules.movement.Step.isStep
 import net.ccbluex.liquidbounce.features.module.modules.movement.stepmodes.StepMode
+import net.minecraft.network.play.client.C03PacketPlayer
 
 object OldNCP : StepMode("OldNCP") {
 
