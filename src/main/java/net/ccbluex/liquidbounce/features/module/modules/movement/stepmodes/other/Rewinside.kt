@@ -9,8 +9,6 @@ import net.ccbluex.liquidbounce.event.StepConfirmEvent
 import net.ccbluex.liquidbounce.features.module.modules.movement.Step.*
 import net.ccbluex.liquidbounce.features.module.modules.movement.stepmodes.StepMode
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPackets
-import net.ccbluex.liquidbounce.utils.extensions.isInLiquid
-import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
 
 object Rewinside : StepMode("Rewinside") {

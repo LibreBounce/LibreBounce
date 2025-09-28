@@ -15,11 +15,11 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.stepmodes.aac.A
 import net.ccbluex.liquidbounce.features.module.modules.movement.stepmodes.ncp.NCP
 import net.ccbluex.liquidbounce.features.module.modules.movement.stepmodes.ncp.MotionNCP
 import net.ccbluex.liquidbounce.features.module.modules.movement.stepmodes.ncp.OldNCP
-import net.ccbluex.liquidbounce.features.module.modules.movement.longjumpmodes.other.Vanilla
-import net.ccbluex.liquidbounce.features.module.modules.movement.longjumpmodes.other.Jump
-import net.ccbluex.liquidbounce.features.module.modules.movement.longjumpmodes.other.Spartan
-import net.ccbluex.liquidbounce.features.module.modules.movement.longjumpmodes.other.Rewinside
-import net.ccbluex.liquidbounce.features.module.modules.movement.longjumpmodes.other.BlocksMCTimer
+import net.ccbluex.liquidbounce.features.module.modules.movement.stepmodes.other.Vanilla
+import net.ccbluex.liquidbounce.features.module.modules.movement.stepmodes.other.Jump
+import net.ccbluex.liquidbounce.features.module.modules.movement.stepmodes.other.Spartan
+import net.ccbluex.liquidbounce.features.module.modules.movement.stepmodes.other.Rewinside
+import net.ccbluex.liquidbounce.features.module.modules.movement.stepmodes.other.BlocksMCTimer
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils.direction
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.minecraft.stats.StatList
@@ -43,6 +43,8 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
     )
 
     private val modes = longJumpModes.map { it.modeName }.toTypedArray()
+
+    val mode by choices("Mode", modes, "NCP")
 
     val height by float("Height", 1f, 0.6f..10f)
     { mode !in arrayOf("Jump", "MotionNCP", "LAAC", "AAC3.3.4", "BlocksMCTimer") }

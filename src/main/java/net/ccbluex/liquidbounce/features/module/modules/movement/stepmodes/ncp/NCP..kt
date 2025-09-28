@@ -25,7 +25,7 @@ object NCP : StepMode("NCP") {
         sendPackets(
             C04PacketPlayerPosition(stepX, stepY + 0.41999998688698, stepZ, false),
             C04PacketPlayerPosition(stepX, stepY + 0.7531999805212, stepZ, false)
-            )
+        )
 
         timer.reset()
 
