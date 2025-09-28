@@ -32,6 +32,8 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.stepmodes.othe
 import net.ccbluex.liquidbounce.features.module.modules.movement.Step.fakeJump
 import net.ccbluex.liquidbounce.features.module.modules.movement.Step.jumpHeight
 import net.ccbluex.liquidbounce.features.module.modules.movement.stepmodes.StepMode
+import net.ccbluex.liquidbounce.utils.extensions.isInLiquid
+import net.ccbluex.liquidbounce.utils.extensions.isMoving
 
 object Jump : StepMode("Jump") {
 

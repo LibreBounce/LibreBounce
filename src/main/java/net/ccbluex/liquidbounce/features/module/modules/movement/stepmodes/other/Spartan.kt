@@ -6,7 +6,12 @@
 package net.ccbluex.liquidbounce.features.module.modules.movement.stepmodes.other
 
 import net.ccbluex.liquidbounce.event.StepConfirmEvent
-import net.ccbluex.liquidbounce.features.module.modules.movement.Step.*
+import net.ccbluex.liquidbounce.features.module.modules.movement.Step.fakeJump
+import net.ccbluex.liquidbounce.features.module.modules.movement.Step.isStep
+import net.ccbluex.liquidbounce.features.module.modules.movement.Step.stepX
+import net.ccbluex.liquidbounce.features.module.modules.movement.Step.stepY
+import net.ccbluex.liquidbounce.features.module.modules.movement.Step.stepZ
+import net.ccbluex.liquidbounce.features.module.modules.movement.Step.timer
 import net.ccbluex.liquidbounce.features.module.modules.movement.stepmodes.StepMode
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPackets
 import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
