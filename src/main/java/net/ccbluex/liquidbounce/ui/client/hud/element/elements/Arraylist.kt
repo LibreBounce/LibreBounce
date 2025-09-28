@@ -48,7 +48,7 @@ class Arraylist(
     side: Side = Side(Horizontal.RIGHT, Vertical.UP),
 ) : Element("Arraylist", x, y, scale, side) {
 
-    // TODO: Fully customizable Arraylist format, editable through the HUD Editor; this should be similar to the Text element.
+    // TODO: Split the tag part into another string, editable similarly to such values in the ClickGUI
     private var displayString by text("DisplayText", "%name%%tag_space%§7%tag%")
 
     private val textColorMode by choices(

@@ -10,7 +10,7 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 
-// TODO: Make this able to bypass more anti-cheats, like NCP
+// TODO: Make this able to bypass more anti-cheats, such as NCP
 object FastBreak : Module("FastBreak", Category.WORLD) {
 
     private val breakDamage by float("BreakDamage", 0.8F, 0.1F..1F)

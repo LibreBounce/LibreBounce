@@ -14,7 +14,7 @@ object StringUtils {
         if (args.size <= start) ""
         else args.drop(start).joinToString(separator = " ")
 
-    // TODO: Remove this unused method?
+    // TODO: Remove this unused method
     fun replace(string: String, searchChars: String, replaceChars: String = ""): String {
         if (string.isEmpty() || searchChars.isEmpty() || searchChars == replaceChars) return string
 

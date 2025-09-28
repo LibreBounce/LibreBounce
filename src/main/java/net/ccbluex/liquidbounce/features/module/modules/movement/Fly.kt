@@ -199,7 +199,7 @@ object Fly : Module("Fly", Category.MOVEMENT, Keyboard.KEY_F) {
     override fun onDisable() {
         val player = mc.thePlayer ?: return
 
-        if (!mode.startsWith("AAC") && mode != "Hypixel" && mode != "VerusGlide"
+        if (!mode.startsWith("AAC") && mode != "Hypixel" && mode != "VerusGlide" && !mode.startsWith("Vulcan")
             && mode != "SmoothVanilla" && mode != "Vanilla" && mode != "Rewinside"
             && mode != "Fireball" && mode != "Collide" && mode != "Jump"
         ) {
@@ -296,19 +296,20 @@ object Fly : Module("Fly", Category.MOVEMENT, Keyboard.KEY_F) {
         groundTimer.reset()
     }
 
-    // TODO: Make better and faster calculation lol
+    // TODO: Make faster and more accurate calculations
     private fun calculateGround(): Double {
-        val playerBoundingBox = mc.thePlayer.entityBoundingBox
+        val boundingBox = mc.thePlayer.entityBoundingBox
         var blockHeight = 0.05
         var ground = mc.thePlayer.posY
+
         while (ground > 0.0) {
             val customBox = AxisAlignedBB.fromBounds(
-                playerBoundingBox.maxX,
+                boundingBox.maxX,
                 ground + blockHeight,
-                playerBoundingBox.maxZ,
-                playerBoundingBox.minX,
+                boundingBox.maxZ,
+                boundingBox.minX,
                 ground,
-                playerBoundingBox.minZ
+                boundingBox.minZ
             )
             if (mc.theWorld.checkBlockCollision(customBox)) {
                 if (blockHeight <= 0.05) return ground + blockHeight
@@ -317,6 +318,7 @@ object Fly : Module("Fly", Category.MOVEMENT, Keyboard.KEY_F) {
             }
             ground -= blockHeight
         }
+
         return 0.0
     }
 

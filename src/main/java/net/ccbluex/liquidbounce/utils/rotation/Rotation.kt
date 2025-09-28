@@ -91,9 +91,8 @@ data class Rotation(var yaw: Float, var pitch: Float) : MinecraftInstance {
     fun applyStrafeToPlayer(event: StrafeEvent, strict: Boolean = false) {
         val player = mc.thePlayer
 
+        // TODO: Slightly rounded rotationYaw number for stabler bridging, in Scaffold
         val diff = (player.rotationYaw - yaw).toRadians()
-
-        val friction = event.friction
 
         var calcForward: Float
         var calcStrafe: Float
@@ -124,7 +123,7 @@ data class Rotation(var yaw: Float, var pitch: Float) : MinecraftInstance {
         var d = calcStrafe * calcStrafe + calcForward * calcForward
 
         if (d >= 1.0E-4f) {
-            d = friction / sqrt(d).coerceAtLeast(1f)
+            d = event.friction / sqrt(d).coerceAtLeast(1f)
 
             calcStrafe *= d
             calcForward *= d
