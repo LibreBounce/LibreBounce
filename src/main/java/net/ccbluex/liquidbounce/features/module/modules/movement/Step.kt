@@ -48,16 +48,12 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
 
     private val delay by int("Delay", 0, 0..500)
 
-    private var isStep = false
-    private var stepX = 0.0
-    private var stepY = 0.0
-    private var stepZ = 0.0
+    var isStep = false
+    var stepX = 0.0
+    var stepY = 0.0
+    var stepZ = 0.0
 
-    private var ncpNextStep = 0
-    private var spartanSwitch = false
-    private var isAACStep = false
-
-    private val timer = MSTimer()
+    val timer = MSTimer()
 
     override fun onDisable() {
         val player = mc.thePlayer ?: return
@@ -81,45 +77,6 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
                     player.motionY = jumpHeight.toDouble()
                 }
 
-            "BlocksMCTimer" ->
-                if (player.onGround && player.isCollidedHorizontally) {
-                    val chest = BlockUtils.searchBlocks(2, setOf(chest, ender_chest, trapped_chest))
-
-                    if (!couldStep() || chest.isNotEmpty()) {
-                        mc.timer.timerSpeed = 1f
-                        return@loopSequence
-                    }
-
-                    fakeJump()
-                    player.tryJump()
-
-                    // TODO: Improve Timer Balancing
-                    mc.timer.timerSpeed = 5f
-                    waitTicks(1)
-                    mc.timer.timerSpeed = 0.2f
-                    waitTicks(1)
-                    mc.timer.timerSpeed = 4f
-                    waitTicks(1)
-                    strafe(0.27F)
-                    mc.timer.timerSpeed = 1f
-                }
-
-            "LAAC" ->
-                if (player.isCollidedHorizontally) {
-                    if (player.onGround && timer.hasTimePassed(delay)) {
-                        isStep = true
-
-                        fakeJump()
-                        player.motionY += 0.620000001490116
-
-                        player.motionX -= sin(direction) * 0.2
-                        player.motionZ += cos(direction) * 0.2
-                        timer.reset()
-                    }
-
-                    player.onGround = true
-                } else isStep = false
-
             "AAC3.3.4" ->
                 if (player.isCollidedHorizontally && player.isMoving) {
                     if (player.onGround && couldStep()) {
@@ -136,36 +93,6 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
                             player.jumpMovementFactor = 0.3F
                     }
                 } else isAACStep = false
-        }
-    }
-
-    val onMove = handler<MoveEvent> { event ->
-        val player = mc.thePlayer ?: return@handler
-
-        if (mode != "MotionNCP" || !player.isCollidedHorizontally || mc.gameSettings.keyBindJump.isKeyDown)
-            return@handler
-
-        // Motion steps
-        when {
-            player.onGround && couldStep() -> {
-                fakeJump()
-                player.motionY = 0.0
-                event.y = 0.41999998688698
-                ncpNextStep = 1
-            }
-
-            ncpNextStep == 1 -> {
-                event.y = 0.7531999805212 - 0.41999998688698
-                ncpNextStep = 2
-            }
-
-            ncpNextStep == 2 -> {
-                event.y = 1.001335979112147 - 0.7531999805212
-                event.x = -sin(direction) * 0.7
-                event.z = cos(direction) * 0.7
-
-                ncpNextStep = 0
-            }
         }
     }
 
@@ -209,78 +136,6 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
             stepX = player.posX
             stepY = player.posY
             stepZ = player.posZ
-        }
-    }
-
-    val onStepConfirm = handler<StepConfirmEvent>(always = true) {
-        val player = mc.thePlayer
-
-        if (player == null || !isStep) // Check if step
-            return@handler
-
-        if (player.entityBoundingBox.minY - stepY > 0.6) { // Check if full block step
-
-            when (mode) {
-                "NCP", "AAC" -> {
-                    fakeJump()
-
-                    // Half legit step (1 packet missing) [COULD TRIGGER TOO MANY PACKETS]
-                    sendPackets(
-                        C04PacketPlayerPosition(stepX, stepY + 0.41999998688698, stepZ, false),
-                        C04PacketPlayerPosition(stepX, stepY + 0.7531999805212, stepZ, false)
-                    )
-                    timer.reset()
-                }
-
-                "Spartan" -> {
-                    fakeJump()
-
-                    if (spartanSwitch) {
-                        // Vanilla step (3 packets) [COULD TRIGGER TOO MANY PACKETS]
-                        sendPackets(
-                            C04PacketPlayerPosition(stepX, stepY + 0.41999998688698, stepZ, false),
-                            C04PacketPlayerPosition(stepX, stepY + 0.7531999805212, stepZ, false),
-                            C04PacketPlayerPosition(stepX, stepY + 1.001335979112147, stepZ, false)
-                        )
-                    } else { // Force step
-                        sendPacket(C04PacketPlayerPosition(stepX, stepY + 0.6, stepZ, false))
-                    }
-
-                    // Spartan allows one unlegit step so just swap between legit and unlegit
-                    spartanSwitch = !spartanSwitch
-
-                    // Reset timer
-                    timer.reset()
-                }
-
-                "Rewinside" -> {
-                    fakeJump()
-
-                    // Vanilla step (3 packets) [COULD TRIGGER TOO MANY PACKETS]
-                    sendPackets(
-                        C04PacketPlayerPosition(stepX, stepY + 0.41999998688698, stepZ, false),
-                        C04PacketPlayerPosition(stepX, stepY + 0.7531999805212, stepZ, false),
-                        C04PacketPlayerPosition(stepX, stepY + 1.001335979112147, stepZ, false)
-                    )
-
-                    // Reset timer
-                    timer.reset()
-                }
-            }
-        }
-
-        isStep = false
-        stepX = 0.0
-        stepY = 0.0
-        stepZ = 0.0
-    }
-
-    val onPacket = handler<PacketEvent>(always = true) { event ->
-        val packet = event.packet
-
-        if (packet is C03PacketPlayer && isStep && mode == "OldNCP") {
-            packet.y += 0.07
-            isStep = false
         }
     }
 
