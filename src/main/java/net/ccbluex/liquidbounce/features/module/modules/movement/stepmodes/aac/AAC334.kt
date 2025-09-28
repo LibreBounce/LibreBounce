@@ -20,7 +20,7 @@ object AAC334 : StepMode("AAC3.3.4") {
     override fun onUpdate() {
         val player = mc.thePlayer ?: return
 
-        if (player.isOnLadder || player.isInLiquid || player.isInWeb || !player.isMoving)
+        if (player.isOnLadder || player.isInLiquid || player.isInWeb)
             return
 
         if (player.isCollidedHorizontally && player.isMoving) {

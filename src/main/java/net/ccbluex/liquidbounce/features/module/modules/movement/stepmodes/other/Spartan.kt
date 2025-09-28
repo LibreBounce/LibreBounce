@@ -23,8 +23,6 @@ object Spartan : StepMode("Spartan") {
 
         fakeJump()
 
-        var spartanSwitch = true
-
         if (spartanSwitch) {
             // Vanilla step (3 packets) [COULD TRIGGER TOO MANY PACKETS]
             sendPackets(

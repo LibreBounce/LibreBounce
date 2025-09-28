@@ -6,47 +6,50 @@
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
 import net.ccbluex.liquidbounce.event.*
-import net.ccbluex.liquidbounce.event.async.loopSequence
-import net.ccbluex.liquidbounce.event.async.waitTicks
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.exploit.Phase
-import net.ccbluex.liquidbounce.utils.block.BlockUtils
-import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
-import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPackets
-import net.ccbluex.liquidbounce.utils.extensions.isInLiquid
-import net.ccbluex.liquidbounce.utils.extensions.isMoving
-import net.ccbluex.liquidbounce.utils.extensions.tryJump
+import net.ccbluex.liquidbounce.features.module.modules.movement.stepmodes.aac.AAC
+import net.ccbluex.liquidbounce.features.module.modules.movement.stepmodes.aac.LAAC
+import net.ccbluex.liquidbounce.features.module.modules.movement.stepmodes.aac.AAC334
+import net.ccbluex.liquidbounce.features.module.modules.movement.stepmodes.ncp.NCP
+import net.ccbluex.liquidbounce.features.module.modules.movement.stepmodes.ncp.MotionNCP
+import net.ccbluex.liquidbounce.features.module.modules.movement.stepmodes.ncp.OldNCP
+import net.ccbluex.liquidbounce.features.module.modules.movement.longjumpmodes.other.Vanilla
+import net.ccbluex.liquidbounce.features.module.modules.movement.longjumpmodes.other.Jump
+import net.ccbluex.liquidbounce.features.module.modules.movement.longjumpmodes.other.Spartan
+import net.ccbluex.liquidbounce.features.module.modules.movement.longjumpmodes.other.Rewinside
+import net.ccbluex.liquidbounce.features.module.modules.movement.longjumpmodes.other.BlocksMCTimer
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils.direction
-import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
-import net.ccbluex.liquidbounce.utils.timing.WaitTickUtils
-import net.minecraft.init.Blocks.*
-import net.minecraft.network.play.client.C03PacketPlayer
-import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
 import net.minecraft.stats.StatList
 import kotlin.math.cos
 import kotlin.math.sin
 
 object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
 
-    // TODO: Make this have the same system as Fly, Speed, etc
-    private val mode by choices(
-        "Mode",
-        arrayOf(
-            "Vanilla", "Jump", "NCP", "MotionNCP",
-            "OldNCP", "AAC", "LAAC", "AAC3.3.4",
-            "Spartan", "Rewinside", "BlocksMCTimer"
-        ),
-        "NCP"
+    private val stepModes = arrayOf(
+        // Main
+        Vanilla, Jump
+
+        // NCP
+        NCP, MotionNCP, OldNCP,
+
+        // AAC
+        AAC, LAAC, AAC334,
+
+        // Other
+        Spartan, Rewinside, BlocksMCTimer
     )
 
-    private val height by float("Height", 1f, 0.6f..10f)
+    private val modes = longJumpModes.map { it.modeName }.toTypedArray()
+
+    val height by float("Height", 1f, 0.6f..10f)
     { mode !in arrayOf("Jump", "MotionNCP", "LAAC", "AAC3.3.4", "BlocksMCTimer") }
-    private val jumpHeight by float("JumpHeight", 0.42f, 0.37f..0.42f)
+    val jumpHeight by float("JumpHeight", 0.42f, 0.37f..0.42f)
     { mode == "Jump" }
 
-    private val delay by int("Delay", 0, 0..500)
+    val delay by int("Delay", 0, 0..500)
 
     var isStep = false
     var stepX = 0.0
@@ -60,40 +63,6 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
 
         // Change step height back to default (0.6 is default)
         player.stepHeight = 0.6F
-    }
-
-    val onUpdate = loopSequence {
-        val player = mc.thePlayer ?: return@loopSequence
-
-        if (player.isOnLadder || player.isInLiquid || player.isInWeb) return@loopSequence
-
-        if (!player.isMoving) return@loopSequence
-
-        // Motion steps
-        when (mode) {
-            "Jump" ->
-                if (player.isCollidedHorizontally && player.onGround && !mc.gameSettings.keyBindJump.isKeyDown) {
-                    fakeJump()
-                    player.motionY = jumpHeight.toDouble()
-                }
-
-            "AAC3.3.4" ->
-                if (player.isCollidedHorizontally && player.isMoving) {
-                    if (player.onGround && couldStep()) {
-                        player.motionX *= 1.26
-                        player.motionZ *= 1.26
-                        player.tryJump()
-                        isAACStep = true
-                    }
-
-                    if (isAACStep) {
-                        player.motionY -= 0.015
-
-                        if (!player.isUsingItem && player.movementInput.moveStrafe == 0F)
-                            player.jumpMovementFactor = 0.3F
-                    }
-                } else isAACStep = false
-        }
     }
 
     val onStep = handler<StepEvent> { event ->
@@ -140,14 +109,14 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
     }
 
     // There could be some anti cheats which tries to detect step by checking for achievements and stuff
-    private fun fakeJump() {
+    fun fakeJump() {
         val player = mc.thePlayer ?: return
 
         player.isAirBorne = true
         player.triggerAchievement(StatList.jumpStat)
     }
 
-    private fun couldStep(): Boolean {
+    fun couldStep(): Boolean {
         val player = mc.thePlayer ?: return false
 
         if (player.isSneaking || mc.gameSettings.keyBindJump.isKeyDown)
