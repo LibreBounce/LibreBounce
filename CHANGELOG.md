@@ -16,6 +16,10 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 - FlagCheck count placeholder to the Text element (thatonecoder)
 - `FontShadow` option to Chat (thatonecoder)
 
+### Fixed
+
+- `AACHop4` and `AACHop5` sprinting backwards, causing flags (thatonecoder)
+
 ### Changed
 
 - **Breaking:** Make the `Delay`, `StartDelay`, and `CloseDelay` values in AutoSoup to integer ranges (thatonecoder)
@@ -26,6 +30,7 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 - **Breaking:** Rename `Rounded-Radius` to `RoundedRadius`, `Border-Strength` to `BorderStrength`, `Rainbow-X` to `RainbowX`, `Rainbow-Y` to `RainbowY`, and `TextPosition-Y` to `TextPositionY` in the TabGUI element (thatonecoder)
 - **Breaking:** Rename `Rounded-Radius` to `RoundedRadius`, `Border-Strength` to `BorderStrength`, `Background-ColorMode` to `BackgroundColorMode`, `Background-Color` to `BackgroundColor`, `HealthBar-Gradient1` to `HealthBarGradient1`, `HealthBar-Gradient2` to `HealthBarGradient2`, `Border-Color` to `BorderColor`, `Rainbow-X` to `RainbowX`, and `Rainbow-Y` to `RainbowY` in the Target element (thatonecoder)
 - Make even more values have sufixes (thatonecoder)
+- Make Parkour not jump when using an item (thatonecoder)
 
 ### Removed
 
