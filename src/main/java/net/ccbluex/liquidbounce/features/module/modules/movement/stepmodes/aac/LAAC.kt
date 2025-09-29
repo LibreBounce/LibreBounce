@@ -7,6 +7,7 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.stepmodes.aac
 
 import net.ccbluex.liquidbounce.features.module.modules.movement.Step.fakeJump
 import net.ccbluex.liquidbounce.features.module.modules.movement.Step.isStep
+import net.ccbluex.liquidbounce.features.module.modules.movement.Step.timer
 import net.ccbluex.liquidbounce.features.module.modules.movement.stepmodes.StepMode
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils.direction
 import net.ccbluex.liquidbounce.utils.extensions.isInLiquid

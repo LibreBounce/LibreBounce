@@ -5,6 +5,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.stepmodes.other
 
+import net.ccbluex.liquidbounce.event.async.waitTicks
 import net.ccbluex.liquidbounce.features.module.modules.movement.Step.fakeJump
 import net.ccbluex.liquidbounce.features.module.modules.movement.Step.couldStep
 import net.ccbluex.liquidbounce.features.module.modules.movement.stepmodes.StepMode
