@@ -12,7 +12,9 @@ import net.ccbluex.liquidbounce.utils.block.BlockUtils.searchBlocks
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 import net.ccbluex.liquidbounce.utils.extensions.isInLiquid
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
-import net.minecraft.init.Blocks.*
+import net.minecraft.init.Blocks.chest
+import net.minecraft.init.Blocks.ender_chest
+import net.minecraft.init.Blocks.trapped_chest
 
 object BlocksMCTimer : StepMode("BlocksMCTimer") {
 
@@ -23,11 +25,11 @@ object BlocksMCTimer : StepMode("BlocksMCTimer") {
             return
 
         if (player.onGround && player.isCollidedHorizontally) {
-            val chest = BlockUtils.searchBlocks(2, setOf(chest, ender_chest, trapped_chest))
+            val chest = searchBlocks(2, setOf(chest, ender_chest, trapped_chest))
 
             if (!couldStep() || chest.isNotEmpty()) {
                 mc.timer.timerSpeed = 1f
-                    return
+                return
             }
 
             fakeJump()

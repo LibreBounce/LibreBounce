@@ -13,8 +13,8 @@ import net.minecraft.network.play.client.C03PacketPlayer
 object OldNCP : StepMode("OldNCP") {
 
     override fun onPacket(event: PacketEvent) {
-        if (packet is C03PacketPlayer && isStep) {
-            packet.y += 0.07
+        if (event.packet is C03PacketPlayer && isStep) {
+            event.packet.y += 0.07
             isStep = false
         }
     }
