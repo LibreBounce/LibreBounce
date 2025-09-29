@@ -30,7 +30,7 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
 
     private val stepModes = arrayOf(
         // Main
-        Vanilla, Jump
+        Vanilla, Jump,
 
         // NCP
         NCP, MotionNCP, OldNCP,
@@ -42,7 +42,7 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
         Spartan, Rewinside, BlocksMCTimer
     )
 
-    private val modes = longJumpModes.map { it.modeName }.toTypedArray()
+    private val modes = stepModes.map { it.modeName }.toTypedArray()
 
     val mode by choices("Mode", modes, "NCP")
 
