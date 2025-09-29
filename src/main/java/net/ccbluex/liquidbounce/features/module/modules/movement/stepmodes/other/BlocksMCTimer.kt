@@ -21,34 +21,32 @@ import net.minecraft.init.Blocks.trapped_chest
 
 object BlocksMCTimer : StepMode("BlocksMCTimer") {
 
-    override fun onUpdate() {
+    override fun onUpdate() = loopSequence {
         val player = mc.thePlayer ?: return
 
         if (player.isOnLadder || player.isInLiquid || player.isInWeb || !player.isMoving)
             return
 
-        loopSequence {
-            if (player.onGround && player.isCollidedHorizontally) {
-                val chest = searchBlocks(2, setOf(chest, ender_chest, trapped_chest))
+        if (player.onGround && player.isCollidedHorizontally) {
+            val chest = searchBlocks(2, setOf(chest, ender_chest, trapped_chest))
 
-                if (!couldStep() || chest.isNotEmpty()) {
-                    mc.timer.timerSpeed = 1f
-                    return@loopSequence
-                }
-
-                fakeJump()
-                player.tryJump()
-
-                // TODO: Improve Timer Balancing
-                mc.timer.timerSpeed = 5f
-                waitTicks(1)
-                mc.timer.timerSpeed = 0.2f
-                waitTicks(1)
-                mc.timer.timerSpeed = 4f
-                waitTicks(1)
-                strafe(0.27F)
+            if (!couldStep() || chest.isNotEmpty()) {
                 mc.timer.timerSpeed = 1f
+                return@loopSequence
             }
+
+            fakeJump()
+            player.tryJump()
+
+            // TODO: Improve Timer Balancing
+            mc.timer.timerSpeed = 5f
+            waitTicks(1)
+            mc.timer.timerSpeed = 0.2f
+            waitTicks(1)
+            mc.timer.timerSpeed = 4f
+            waitTicks(1)
+            strafe(0.27F)
+            mc.timer.timerSpeed = 1f
         }
     }
 }
