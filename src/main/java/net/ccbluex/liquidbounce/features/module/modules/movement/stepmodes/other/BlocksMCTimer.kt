@@ -6,6 +6,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.movement.stepmodes.other
 
 import net.ccbluex.liquidbounce.event.async.waitTicks
+import net.ccbluex.liquidbounce.event.async.loopSequence
 import net.ccbluex.liquidbounce.features.module.modules.movement.Step.fakeJump
 import net.ccbluex.liquidbounce.features.module.modules.movement.Step.couldStep
 import net.ccbluex.liquidbounce.features.module.modules.movement.stepmodes.StepMode
@@ -26,26 +27,28 @@ object BlocksMCTimer : StepMode("BlocksMCTimer") {
         if (player.isOnLadder || player.isInLiquid || player.isInWeb || !player.isMoving)
             return
 
-        if (player.onGround && player.isCollidedHorizontally) {
-            val chest = searchBlocks(2, setOf(chest, ender_chest, trapped_chest))
+        loopSequence {
+            if (player.onGround && player.isCollidedHorizontally) {
+                val chest = searchBlocks(2, setOf(chest, ender_chest, trapped_chest))
 
-            if (!couldStep() || chest.isNotEmpty()) {
+                if (!couldStep() || chest.isNotEmpty()) {
+                    mc.timer.timerSpeed = 1f
+                    return
+                }
+
+                fakeJump()
+                player.tryJump()
+
+                // TODO: Improve Timer Balancing
+                mc.timer.timerSpeed = 5f
+                waitTicks(1)
+                mc.timer.timerSpeed = 0.2f
+                waitTicks(1)
+                mc.timer.timerSpeed = 4f
+                waitTicks(1)
+                strafe(0.27F)
                 mc.timer.timerSpeed = 1f
-                return
             }
-
-            fakeJump()
-            player.tryJump()
-
-            // TODO: Improve Timer Balancing
-            mc.timer.timerSpeed = 5f
-            waitTicks(1)
-            mc.timer.timerSpeed = 0.2f
-            waitTicks(1)
-            mc.timer.timerSpeed = 4f
-            waitTicks(1)
-            strafe(0.27F)
-            mc.timer.timerSpeed = 1f
         }
     }
 }

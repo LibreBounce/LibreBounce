@@ -95,6 +95,21 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
             event.stepHeight = 0.6F
             return@handler
         }
+
+        // Set step height
+        val height = height
+        player.stepHeight = height
+        event.stepHeight = height
+
+        // Detect possible step
+        if (event.stepHeight > 0.6F) {
+            isStep = true
+            stepX = player.posX
+            stepY = player.posY
+            stepZ = player.posZ
+        }
+
+        timer.reset()
     }
 
     // There could be some anti cheats which tries to detect step by checking for achievements and stuff
