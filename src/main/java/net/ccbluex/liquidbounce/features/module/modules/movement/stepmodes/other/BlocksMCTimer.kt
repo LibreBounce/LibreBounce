@@ -33,7 +33,7 @@ object BlocksMCTimer : StepMode("BlocksMCTimer") {
 
                 if (!couldStep() || chest.isNotEmpty()) {
                     mc.timer.timerSpeed = 1f
-                    return
+                    return@loopSequence
                 }
 
                 fakeJump()
