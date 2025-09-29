@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.stepmodes.other
 
-import net.ccbluex.liquidbounce.event.StepConfirmEvent
+import net.ccbluex.liquidbounce.event.StepEvent
 import net.ccbluex.liquidbounce.features.module.modules.movement.Step.fakeJump
 import net.ccbluex.liquidbounce.features.module.modules.movement.Step.isStep
 import net.ccbluex.liquidbounce.features.module.modules.movement.Step.stepX
