@@ -43,7 +43,7 @@ object BlocksMCTimer : StepMode("BlocksMCTimer") {
             player.tryJump()
 
             // TODO: Improve Timer Balancing
-            when (tickTimer.hasTimePassed) {
+            when (tickTimer.tickNumber) {
                 0 -> mc.timer.timerSpeed = 5f
                 1 -> mc.timer.timerSpeed = 0.2f
                 2 -> mc.timer.timerSpeed = 4f
