@@ -5,8 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.stepmodes.other
 
-import net.ccbluex.liquidbounce.event.async.waitTicks
-import net.ccbluex.liquidbounce.event.async.loopSequence
 import net.ccbluex.liquidbounce.features.module.modules.movement.Step.fakeJump
 import net.ccbluex.liquidbounce.features.module.modules.movement.Step.couldStep
 import net.ccbluex.liquidbounce.features.module.modules.movement.stepmodes.StepMode
@@ -28,7 +26,7 @@ object BlocksMCTimer : StepMode("BlocksMCTimer") {
         val player = mc.thePlayer ?: return
 
         if (player.isOnLadder || player.isInLiquid || player.isInWeb || !player.isMoving) {
-                        tickTimer.reset()
+            tickTimer.reset()
             return
         }
 
@@ -49,11 +47,12 @@ object BlocksMCTimer : StepMode("BlocksMCTimer") {
                 0 -> mc.timer.timerSpeed = 5f
                 1 -> mc.timer.timerSpeed = 0.2f
                 2 -> mc.timer.timerSpeed = 4f
-                3 - > {
+                3 -> {
                     strafe(0.27F)
                     mc.timer.timerSpeed = 1f
                     tickTimer.reset()
                 }
+                else -> tickTimer.reset()
             }
         }
     }
