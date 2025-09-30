@@ -14,9 +14,7 @@ object Minesucht : FlyMode("Minesucht") {
     private var minesuchtTP = 0L
 
     override fun onUpdate() {
-        mc.thePlayer?.run { player ->
-            val (x, y, z) = player
-
+        mc.thePlayer?.run {
             if (!mc.gameSettings.keyBindForward.isKeyDown) return
 
             if (System.currentTimeMillis() - minesuchtTP > 99) {
@@ -24,23 +22,23 @@ object Minesucht : FlyMode("Minesucht") {
 
                 if (fallDistance > 0.8) {
                     sendPackets(
-                        C04PacketPlayerPosition(x, y + 50, z, false),
-                        C04PacketPlayerPosition(x, y + 20, z, true)
+                        C04PacketPlayerPosition(posX, posY + 50, posZ, false),
+                        C04PacketPlayerPosition(posX, posY + 20, posZ, true)
                     )
                     fall(100f, 100f)
                     fallDistance = 0f
                 }
                 sendPackets(
-                    C04PacketPlayerPosition(vec.xCoord, y + 50, vec.zCoord, true),
-                    C04PacketPlayerPosition(x, y, z, false),
-                    C04PacketPlayerPosition(vec.xCoord, y, vec.zCoord, true),
-                    C04PacketPlayerPosition(x, y, z, false)
+                    C04PacketPlayerPosition(vec.xCoord, posY + 50, vec.zCoord, true),
+                    C04PacketPlayerPosition(posX, posY, posZ, false),
+                    C04PacketPlayerPosition(vec.xCoord, posY, vec.zCoord, true),
+                    C04PacketPlayerPosition(posX, posY, posZ, false)
                 )
                 minesuchtTP = System.currentTimeMillis()
             } else {
                 sendPackets(
-                    C04PacketPlayerPosition(x, y, z, false),
-                    C04PacketPlayerPosition(x, y, z, true)
+                    C04PacketPlayerPosition(posX, posY, posZ, false),
+                    C04PacketPlayerPosition(posX, posY, posZ, true)
                 )
             }
         }

@@ -8,28 +8,25 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.flymodes.ncp
 import net.ccbluex.liquidbounce.features.module.modules.movement.Fly.startY
 import net.ccbluex.liquidbounce.features.module.modules.movement.flymodes.FlyMode
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPackets
-import net.ccbluex.liquidbounce.utils.extensions.component1
-import net.ccbluex.liquidbounce.utils.extensions.component2
-import net.ccbluex.liquidbounce.utils.extensions.component3
 import net.ccbluex.liquidbounce.utils.extensions.tryJump
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
 
 object OldNCP : FlyMode("OldNCP") {
     override fun onEnable() {
-        if (!mc.thePlayer.onGround) return
+        mc.thePlayer?.run {
+            if (!onGround) return
 
-        val (x, y, z) = mc.thePlayer
+            repeat(4) {
+                sendPackets(
+                    C04PacketPlayerPosition(posX, posY + 1.01, posZ, false),
+                    C04PacketPlayerPosition(posX, posY, posZ, false)
+                )
+            }
 
-        repeat(4) {
-            sendPackets(
-                C04PacketPlayerPosition(x, y + 1.01, z, false),
-                C04PacketPlayerPosition(x, y, z, false)
-            )
+            tryJump()
+            swingItem()
         }
-
-        mc.thePlayer.tryJump()
-        mc.thePlayer.swingItem()
     }
 
     override fun onUpdate() {
