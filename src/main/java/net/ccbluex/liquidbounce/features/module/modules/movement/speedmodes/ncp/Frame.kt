@@ -17,28 +17,28 @@ object Frame : SpeedMode("Frame") {
     private val tickTimer = TickTimer()
 
     override fun onMotion() {
-        val player = mc.thePlayer
-
-        if (player.isMoving) {
-            val speed = 4.25
-            if (player.onGround) {
-                player.tryJump()
-                if (motionTicks == 1) {
-                    tickTimer.reset()
-                    if (move) {
-                        player.motionX = 0.0
-                        player.motionZ = 0.0
-                        move = false
-                    }
-                    motionTicks = 0
-                } else motionTicks = 1
-            } else if (!move && motionTicks == 1 && tickTimer.hasTimePassed(5)) {
-                player.motionX *= speed
-                player.motionZ *= speed
-                move = true
+        mc.thePlayer?.run {
+            if (isMoving) {
+                val speed = 4.25
+                if (onGround) {
+                    tryJump()
+                    if (motionTicks == 1) {
+                        tickTimer.reset()
+                        if (move) {
+                            motionX = 0.0
+                            motionZ = 0.0
+                            move = false
+                        }
+                        motionTicks = 0
+                    } else motionTicks = 1
+                } else if (!move && motionTicks == 1 && tickTimer.hasTimePassed(5)) {
+                    motionX *= speed
+                    motionZ *= speed
+                    move = true
+                }
+                if (!onGround) strafe()
+                tickTimer.update()
             }
-            if (!player.onGround) strafe()
-            tickTimer.update()
         }
     }
 
