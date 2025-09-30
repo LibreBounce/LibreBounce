@@ -171,7 +171,7 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
                         player.serverSprintState = true
                     }
 
-                    mc.thePlayer.stopXZ()
+                    player.stopXZ()
 
                 } else if (sprintTicks >= unSprintTicks.get()) {
 

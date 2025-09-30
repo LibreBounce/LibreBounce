@@ -14,10 +14,11 @@ import net.minecraft.network.play.client.C03PacketPlayer
 object PotionSaver : Module("PotionSaver", Category.PLAYER) {
 
     val onPacket = handler<PacketEvent> {
+        val player = mc.thePlayer ?: return
         val packet = it.packet
 
-        if (packet is C03PacketPlayer && mc.thePlayer?.isUsingItem == false && !packet.rotating &&
-            (!packet.isMoving || (packet.x == mc.thePlayer.lastTickPosX && packet.y == mc.thePlayer.lastTickPosY && packet.z == mc.thePlayer.lastTickPosZ))
+        if (packet is C03PacketPlayer && player?.isUsingItem == false && !packet.rotating &&
+            (!packet.isMoving || (packet.x == player.lastTickPosX && packet.y == player.lastTickPosY && packet.z == player.lastTickPosZ))
         )
             it.cancelEvent()
     }

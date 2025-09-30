@@ -306,7 +306,7 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
             val x = -sin(adjustedYaw) * 0.2
             val z = cos(adjustedYaw) * 0.2
 
-            if (mc.theWorld.getCollisionBoxes(mc.thePlayer.entityBoundingBox.offset(x, heightOffset, z)).isNotEmpty()) {
+            if (mc.theWorld.getCollisionBoxes(player.entityBoundingBox.offset(x, heightOffset, z)).isNotEmpty()) {
                 return false
             }
         }

@@ -100,10 +100,9 @@ object LiquidWalk : Module("LiquidWalk", Category.MOVEMENT, Keyboard.KEY_J) {
     }
 
     val onBlockBB = handler<BlockBBEvent> { event ->
-        if (mc.thePlayer == null)
-            return@handler
+        val player = mc.thePlayer ?: return@handler
 
-        if (event.block is BlockLiquid && !collideBlock(mc.thePlayer.entityBoundingBox) { it is BlockLiquid } && !mc.thePlayer.isSneaking) {
+        if (event.block is BlockLiquid && !collideBlock(player.entityBoundingBox) { it is BlockLiquid } && !player.isSneaking) {
             when (mode) {
                 "NCP", "Vanilla" -> event.boundingBox = AxisAlignedBB.fromBounds(
                     event.x.toDouble(),

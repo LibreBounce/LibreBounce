@@ -7,6 +7,9 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.flymodes.spart
 
 import net.ccbluex.liquidbounce.features.module.modules.movement.flymodes.FlyMode
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPackets
+import net.ccbluex.liquidbounce.utils.extensions.component1
+import net.ccbluex.liquidbounce.utils.extensions.component2
+import net.ccbluex.liquidbounce.utils.extensions.component3
 import net.ccbluex.liquidbounce.utils.timing.TickTimer
 import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
 
@@ -18,13 +21,15 @@ object Spartan : FlyMode("Spartan") {
     }
 
     override fun onUpdate() {
+        val (x, y, z) = mc.thePlayer
+
         mc.thePlayer.motionY = 0.0
 
         timer.update()
         if (timer.hasTimePassed(12)) {
             sendPackets(
-                C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY + 8, mc.thePlayer.posZ, true),
-                C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY - 8, mc.thePlayer.posZ, true)
+                C04PacketPlayerPosition(x, y + 8, z, true),
+                C04PacketPlayerPosition(x, y - 8, z, true)
             )
             timer.reset()
         }

@@ -425,19 +425,21 @@ object Velocity : Module("Velocity", Category.COMBAT) {
 
     // TODO: Recode
     private fun getDirection(): Double {
-        var moveYaw = mc.thePlayer.rotationYaw
+        val player = mc.thePlayer
+        var moveYaw = player.rotationYaw
+
         when {
-            mc.thePlayer.moveForward != 0f && mc.thePlayer.moveStrafing == 0f -> {
-                moveYaw += if (mc.thePlayer.moveForward > 0) 0 else 180
+            player.moveForward != 0f && player.moveStrafing == 0f -> {
+                moveYaw += if (player.moveForward > 0) 0 else 180
             }
 
-            mc.thePlayer.moveForward != 0f && mc.thePlayer.moveStrafing != 0f -> {
-                if (mc.thePlayer.moveForward > 0) moveYaw += if (mc.thePlayer.moveStrafing > 0) -45 else 45 else moveYaw -= if (mc.thePlayer.moveStrafing > 0) -45 else 45
-                moveYaw += if (mc.thePlayer.moveForward > 0) 0 else 180
+            player.moveForward != 0f && player.moveStrafing != 0f -> {
+                if (player.moveForward > 0) moveYaw += if (player.moveStrafing > 0) -45 else 45 else moveYaw -= if (player.moveStrafing > 0) -45 else 45
+                moveYaw += if (player.moveForward > 0) 0 else 180
             }
 
-            mc.thePlayer.moveStrafing != 0f && mc.thePlayer.moveForward == 0f -> {
-                moveYaw += if (mc.thePlayer.moveStrafing > 0) -90 else 90
+            player.moveStrafing != 0f && player.moveForward == 0f -> {
+                moveYaw += if (player.moveStrafing > 0) -90 else 90
             }
         }
         return Math.floorMod(moveYaw.toInt(), 360).toDouble()

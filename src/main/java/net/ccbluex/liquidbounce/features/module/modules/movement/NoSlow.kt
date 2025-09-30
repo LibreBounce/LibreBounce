@@ -264,7 +264,7 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
 
                 // Flush on kb
                 is S12PacketEntityVelocity -> {
-                    if (mc.thePlayer.entityId == packet.entityID) {
+                    if (player.entityId == packet.entityID) {
                         BlinkUtils.unblink()
                         return@handler
                     }
@@ -294,7 +294,7 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
 
         when (packet) {
             is C08PacketPlayerBlockPlacement -> {
-                if (packet.stack?.item != null && player.heldItem?.item != null && packet.stack.item == mc.thePlayer.heldItem?.item) {
+                if (packet.stack?.item != null && player.heldItem?.item != null && packet.stack.item == player.heldItem?.item) {
                     if ((consumeMode == "UpdatedNCP" && (
                                 packet.stack.item is ItemFood ||
                                         packet.stack.item is ItemPotion ||

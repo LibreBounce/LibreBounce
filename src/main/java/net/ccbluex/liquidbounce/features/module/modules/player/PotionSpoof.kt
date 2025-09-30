@@ -57,11 +57,11 @@ object PotionSpoof : Module("PotionSpoof", Category.PLAYER) {
     )
 
     override fun onDisable() {
-        mc.thePlayer ?: return
+        val player = mc.thePlayer ?: return
 
-        mc.thePlayer.activePotionEffects
+        player.activePotionEffects
             .filter { it.duration == 0 && potionMap[it.potionID]?.get() == true }
-            .forEach { mc.thePlayer.removePotionEffect(it.potionID) }
+            .forEach { player.removePotionEffect(it.potionID) }
     }
 
     val onUpdate = handler<UpdateEvent> {

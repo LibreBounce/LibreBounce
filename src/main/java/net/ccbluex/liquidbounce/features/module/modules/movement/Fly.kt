@@ -276,23 +276,24 @@ object Fly : Module("Fly", Category.MOVEMENT, Keyboard.KEY_F) {
 
     fun handleVanillaKickBypass() {
         if (!vanillaKickBypass || !groundTimer.hasTimePassed(1000)) return
+        val player = mc.thePlayer
         val ground = calculateGround() + 0.5
 
-        var posY = mc.thePlayer.posY
+        var posY = player.posY
         while (posY > ground) {
-            sendPacket(C04PacketPlayerPosition(mc.thePlayer.posX, posY, mc.thePlayer.posZ, true))
+            sendPacket(C04PacketPlayerPosition(player.posX, posY, player.posZ, true))
             if (posY - 8.0 < ground) break // Prevent next step
             posY -= 8.0
         }
 
-        sendPacket(C04PacketPlayerPosition(mc.thePlayer.posX, ground, mc.thePlayer.posZ, true))
+        sendPacket(C04PacketPlayerPosition(player.posX, ground, player.posZ, true))
         posY = ground
-        while (posY < mc.thePlayer.posY) {
-            sendPacket(C04PacketPlayerPosition(mc.thePlayer.posX, posY, mc.thePlayer.posZ, true))
-            if (posY + 8.0 > mc.thePlayer.posY) break // Prevent next step
+        while (posY < player.posY) {
+            sendPacket(C04PacketPlayerPosition(player.posX, posY, player.posZ, true))
+            if (posY + 8.0 > player.posY) break // Prevent next step
             posY += 8.0
         }
-        sendPacket(C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, true))
+        sendPacket(C04PacketPlayerPosition(player.posX, player.posY, player.posZ, true))
         groundTimer.reset()
     }
 

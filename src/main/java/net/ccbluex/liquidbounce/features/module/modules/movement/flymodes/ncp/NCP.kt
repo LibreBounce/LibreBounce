@@ -19,9 +19,11 @@ import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
 
 object NCP : FlyMode("NCP") {
     override fun onEnable() {
-        if (!mc.thePlayer.onGround) return
+        val player = mc.thePlayer ?: return
 
-        val (x, y, z) = mc.thePlayer
+        if (!player.onGround) return
+
+        val (x, y, z) = player
 
         repeat(65) {
             sendPackets(
@@ -32,9 +34,9 @@ object NCP : FlyMode("NCP") {
 
         sendPacket(C04PacketPlayerPosition(x, y + 0.1, z, true))
 
-        mc.thePlayer.motionX *= 0.1
-        mc.thePlayer.motionZ *= 0.1
-        mc.thePlayer.swingItem()
+        player.motionX *= 0.1
+        player.motionZ *= 0.1
+        player.swingItem()
     }
 
     override fun onUpdate() {

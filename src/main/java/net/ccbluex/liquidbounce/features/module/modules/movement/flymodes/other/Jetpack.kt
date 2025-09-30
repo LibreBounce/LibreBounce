@@ -10,23 +10,25 @@ import net.minecraft.util.EnumParticleTypes
 
 object Jetpack : FlyMode("Jetpack") {
     override fun onUpdate() {
+        val player = mc.thePlayer ?: return
+
         if (!mc.gameSettings.keyBindJump.isKeyDown)
             return
 
         // Let's bring back the particles, this mode is useless anyway
         mc.effectRenderer.spawnEffectParticle(
             EnumParticleTypes.FLAME.particleID,
-            mc.thePlayer.posX,
-            mc.thePlayer.posY + 0.2,
-            mc.thePlayer.posZ,
-            -mc.thePlayer.motionX,
+            player.posX,
+            player.posY + 0.2,
+            player.posZ,
+            -player.motionX,
             -0.5,
-            -mc.thePlayer.motionZ
+            -player.motionZ
         )
 
-        mc.thePlayer.motionY += 0.15
+        player.motionY += 0.15
 
-        mc.thePlayer.motionX *= 1.1
-        mc.thePlayer.motionZ *= 1.1
+        player.motionX *= 1.1
+        player.motionZ *= 1.1
     }
 }

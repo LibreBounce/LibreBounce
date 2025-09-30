@@ -11,17 +11,20 @@ import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.nextDouble
 
 object SpartanYPort : SpeedMode("SpartanYPort") {
     private var airMoves = 0
+
     override fun onMotion() {
+        val player = mc.thePlayer ?: return
+
         if (mc.gameSettings.keyBindForward.isKeyDown) {
-            if (mc.thePlayer.onGround) {
-                mc.thePlayer.tryJump()
+            if (player.onGround) {
+                player.tryJump()
                 airMoves = 0
             } else {
                 mc.timer.timerSpeed = 1.08f
-                if (airMoves >= 3) mc.thePlayer.jumpMovementFactor = 0.0275f
+                if (airMoves >= 3) player.jumpMovementFactor = 0.0275f
                 if (airMoves >= 4 && airMoves % 2 == 0) {
-                    mc.thePlayer.motionY = -0.32 - nextDouble(endInclusive = 0.009)
-                    mc.thePlayer.jumpMovementFactor = 0.0238f
+                    player.motionY = -0.32 - nextDouble(endInclusive = 0.009)
+                    player.jumpMovementFactor = 0.0238f
                 }
                 airMoves++
             }
