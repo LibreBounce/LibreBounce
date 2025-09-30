@@ -22,7 +22,7 @@ import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 object MatrixHop : SpeedMode("MatrixHop") {
 
     override fun onUpdate() {
-        mc.thePlayer?.run
+        mc.thePlayer?.run {
             if (isInLiquid || isInWeb || isOnLadder) return
 
             if (matrixLowHop) jumpMovementFactor = 0.026f

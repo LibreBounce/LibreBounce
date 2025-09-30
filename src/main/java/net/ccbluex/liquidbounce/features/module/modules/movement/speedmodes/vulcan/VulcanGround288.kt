@@ -20,7 +20,7 @@ object VulcanGround288 : SpeedMode("VulcanGround2.8.8") {
             if (isInLiquid || isInWeb || isOnLadder) return
 
             if (isMoving && collidesBottom()) {
-                val speedEffect =n getActivePotionEffect(Potion.moveSpeed)
+                val speedEffect = getActivePotionEffect(Potion.moveSpeed)
                 val isAffectedBySpeed = speedEffect != null && speedEffect.amplifier > 0
                 val isMovingSideways = moveStrafing != 0f
 

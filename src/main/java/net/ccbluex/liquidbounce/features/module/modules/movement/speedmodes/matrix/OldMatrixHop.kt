@@ -14,7 +14,7 @@ import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 object OldMatrixHop : SpeedMode("OldMatrixHop") {
 
     override fun onUpdate() {
-        mc.thePlayer?.run
+        mc.thePlayer?.run {
             if (isInLiquid || isInWeb || isOnLadder) return
 
             if (isMoving) {
