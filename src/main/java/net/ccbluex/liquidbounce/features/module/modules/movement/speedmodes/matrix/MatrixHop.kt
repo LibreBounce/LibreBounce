@@ -37,7 +37,7 @@ object MatrixHop : SpeedMode("MatrixHop") {
                     }
                 }
 
-                if (player.fallDistance <= 0.4 && moveStrafing == 0f) {
+                if (fallDistance <= 0.4 && moveStrafing == 0f) {
                     speedInAir = 0.02035f
                 } else {
                     speedInAir = 0.02f

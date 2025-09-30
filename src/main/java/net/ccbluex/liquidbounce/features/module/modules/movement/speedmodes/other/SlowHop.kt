@@ -13,15 +13,15 @@ import net.ccbluex.liquidbounce.utils.movement.MovementUtils.speed
 
 object SlowHop : SpeedMode("SlowHop") {
     override fun onMotion() {
-        val player = mc.thePlayer ?: return
-        if (player.isInLiquid || player.isInWeb || player.isOnLadder) return
+        mc.thePlayer?.run {
+            if (isInLiquid || isInWeb || isOnLadder) return
 
-        if (player.isMoving) {
-            if (player.onGround) player.tryJump() else speed *= 1.011f
-        } else {
-            player.motionX = 0.0
-            player.motionZ = 0.0
+            if (isMoving) {
+                if (onGround) tryJump() else speed *= 1.011f
+            } else {
+                motionX = 0.0
+                motionZ = 0.0
+            }
         }
     }
-
 }
