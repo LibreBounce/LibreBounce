@@ -12,19 +12,18 @@ import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 
 object IntaveNew : NoWebMode("IntaveNew") {
     override fun onUpdate() {
-        val player = mc.thePlayer ?: return
+        mc.thePlayer?.run {
+            if (!isInWeb)
+                return
 
-        if (!player.isInWeb) {
-            return
-        }
-
-        if (player.isMoving && player.moveStrafing == 0.0f) {
-            if (player.onGround) {
-                if (player.ticksExisted % 3 == 0) {
-                    strafe(0.734f)
-                } else {
-                    player.tryJump()
-                    strafe(0.346f)
+            if (isMoving && moveStrafing == 0.0f) {
+                if (onGround) {
+                    if (ticksExisted % 3 == 0) {
+                        strafe(0.734f)
+                    } else {
+                        tryJump()
+                        strafe(0.346f)
+                    }
                 }
             }
         }

@@ -17,20 +17,21 @@ object NCPYPort : SpeedMode("NCPYPort") {
     private var jumps = 0
 
     override fun onMotion() {
-        val player = mc.thePlayer ?: return
+        mc.thePlayer?.run {
+            if (isOnLadder || isInLiquid || isInWeb || !isMoving || isInWater) return
 
-        if (player.isOnLadder || player.isInLiquid || player.isInWeb || !player.isMoving || player.isInWater) return
+            if (jumps >= 4 && onGround) jumps = 0
 
-        if (jumps >= 4 && player.onGround) jumps = 0
-
-        if (player.onGround) {
-            player.motionY = if (jumps <= 1) 0.42 else 0.4
-            val f = player.rotationYaw.toRadians()
-            player.motionX -= sin(f) * 0.2f
-            player.motionZ += cos(f) * 0.2f
-            jumps++
-        } else if (jumps <= 1) player.motionY = -5.0
-        strafe()
+            if (onGround) {
+                motionY = if (jumps <= 1) 0.42 else 0.4
+                val f = rotationYaw.toRadians()
+                motionX -= sin(f) * 0.2f
+                motionZ += cos(f) * 0.2f
+                jumps++
+            } else {
+                if (jumps <= 1) motionY = -5.0
+            }
+            strafe()
+        }
     }
-
 }

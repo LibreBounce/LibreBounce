@@ -16,22 +16,23 @@ import net.minecraft.potion.Potion
 
 object VulcanGround288 : SpeedMode("VulcanGround2.8.8") {
     override fun onUpdate() {
-        val player = mc.thePlayer ?: return
-        if (player.isInLiquid || player.isInWeb || player.isOnLadder) return
+        mc.thePlayer?.run {
+            if (isInLiquid || isInWeb || isOnLadder) return
 
-        if (player.isMoving && collidesBottom()) {
-            val speedEffect = player.getActivePotionEffect(Potion.moveSpeed)
-            val isAffectedBySpeed = speedEffect != null && speedEffect.amplifier > 0
-            val isMovingSideways = player.moveStrafing != 0f
+            if (isMoving && collidesBottom()) {
+                val speedEffect =n getActivePotionEffect(Potion.moveSpeed)
+                val isAffectedBySpeed = speedEffect != null && speedEffect.amplifier > 0
+                val isMovingSideways = moveStrafing != 0f
 
-            val strafe = when {
-                isAffectedBySpeed -> 0.59f
-                isMovingSideways -> 0.41f
-                else -> 0.42f
+                val strafe = when {
+                    isAffectedBySpeed -> 0.59f
+                    isMovingSideways -> 0.41f
+                    else -> 0.42f
+                }
+
+                strafe(strafe)
+                motionY = 0.005
             }
-
-            strafe(strafe)
-            player.motionY = 0.005
         }
     }
 

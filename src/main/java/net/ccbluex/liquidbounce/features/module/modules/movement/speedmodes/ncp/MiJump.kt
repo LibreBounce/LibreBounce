@@ -13,23 +13,21 @@ import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 object MiJump : SpeedMode("MiJump") {
 
     override fun onMotion() {
-        val player = mc.thePlayer
+        mc.thePlayer?.run {
+            if (!isMoving) return
 
-        if (!player.isMoving) return
-
-        if (player.onGround && !player.movementInput.jump) {
-            player.motionY += 0.1
-            val multiplier = 1.8
-            player.motionX *= multiplier
-            player.motionZ *= multiplier
-            val currentSpeed = speed
-            val maxSpeed = 0.66
-            if (currentSpeed > maxSpeed) {
-                player.motionX = player.motionX / currentSpeed * maxSpeed
-                player.motionZ = player.motionZ / currentSpeed * maxSpeed
+            if (onGround && !movementInput.jump) {
+                val multiplier = 1.8
+                motionX *= multiplier
+                motionY += 0.1
+                motionZ *= multiplier
+                val currentSpeed = speed
+                val maxSpeed = 0.66
+                if (currentSpeed > maxSpeed) {
+                motionX = motionX / currentSpeed * maxSpeed
+                motionZ = motionZ / currentSpeed * maxSpeed
             }
+            strafe()
         }
-        strafe()
     }
-
 }

@@ -20,7 +20,6 @@ import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
 import net.minecraft.network.play.client.C03PacketPlayer.C06PacketPlayerPosLook
 
 object VerusDamage : LongJumpMode("VerusDamage") {
-
     var damaged = false
 
     override fun onEnable() {
@@ -47,26 +46,27 @@ object VerusDamage : LongJumpMode("VerusDamage") {
     }
 
     override fun onUpdate() {
-        val player = mc.thePlayer ?: return
-        if (player.isInLiquid || player.isInWeb || player.isOnLadder) {
-            LongJump.state = false
-            return
-        }
+        mc.thePlayer?.run {
+            if (isInLiquid || isInWeb || isOnLadder) {
+                LongJump.state = false
+                return
+            }
 
-        /**
-         * You can long jump up to 13-14+ blocks
-         */
-        if (damaged && player.isMoving) {
-            player.jumpMovementFactor = 0.15f
-            player.motionY += 0.015f
+            /**
+             * You can long jump up to 13-14+ blocks
+             */
+            if (damaged && isMoving) {
+                jumpMovementFactor = 0.15f
+                motionY += 0.015f
 
-            // player onGround checks will not work due to sendPacket ground, therefore motionY is used instead
-            if (autoDisable && player.motionY <= -0.4330104027478734) {
-                player.stopXZ()
+                // player onGround checks will not work due to sendPacket ground, therefore motionY is used instead
+                if (autoDisable && motionY <= -0.4330104027478734) {
+                stopXZ()
+                    LongJump.state = false
+                }
+            } else if (autoDisable) {
                 LongJump.state = false
             }
-        } else if (autoDisable) {
-            LongJump.state = false
         }
     }
 }

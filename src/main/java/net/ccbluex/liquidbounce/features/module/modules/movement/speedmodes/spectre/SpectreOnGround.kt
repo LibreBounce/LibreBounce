@@ -15,26 +15,26 @@ import kotlin.math.sin
 object SpectreOnGround : SpeedMode("SpectreOnGround") {
     private var speedUp = 0
     override fun onMove(event: MoveEvent) {
-        val player = mc.thePlayer ?: return
+        mc.thePlayer?.run {
+            if (!isMoving || movementInput.jump) return
 
-        if (!player.isMoving || player.movementInput.jump) return
-
-        if (speedUp >= 10) {
-            if (player.onGround) {
-                player.motionX = 0.0
-                player.motionZ = 0.0
-                speedUp = 0
+            if (speedUp >= 10) {
+                if (onGround) {
+                    motionX = 0.0
+                    motionZ = 0.0
+                    speedUp = 0
+                }
+                return
             }
-            return
-        }
-        if (player.onGround && mc.gameSettings.keyBindForward.isKeyDown) {
-            val f = player.rotationYaw.toRadians()
-            player.motionX -= sin(f) * 0.145f
-            player.motionZ += cos(f) * 0.145f
-            event.x = player.motionX
-            event.y = 0.005
-            event.z = player.motionZ
-            speedUp++
+            if (onGround && mc.gameSettings.keyBindForward.isKeyDown) {
+                val f = rotationYaw.toRadians()
+                motionX -= sin(f) * 0.145f
+                motionZ += cos(f) * 0.145f
+                event.x = motionX
+                event.y = 0.005
+                event.z = motionZ
+                speedUp++
+            }
         }
     }
 }

@@ -23,39 +23,39 @@ import net.minecraft.potion.Potion
 object HypixelLowHop : SpeedMode("HypixelLowHop") {
 
     override fun onUpdate() {
-        val player = mc.thePlayer ?: return
+        mc.thePlayer?.run {
+            if (!isMoving || fallDistance > 1.2) return
 
-        if (!player.isMoving || player.fallDistance > 1.2) return
+            if (onGround) {
+                tryJump()
+                strafe()
+                return
+            } else {
+                when (airTicks) {
+                    1 -> {
+                        strafe()
+                    }
 
-        if (player.onGround) {
-            player.tryJump()
-            strafe()
-            return
-        } else {
-            when (player.airTicks) {
-                1 -> {
+                    5 -> motionY -= 0.1905189780583944
+                    4 -> motionY -= 0.03
+                    6 -> motionY *= 1.01
+                    7 -> if (glide) motionY /= 1.5
+                }
+
+                if (airTicks >= 7 && glide) {
+                    strafe(speed = speed.coerceAtLeast(0.281F), strength = 0.7)
+                }
+
+                if (hurtTime == 9) {
                     strafe()
                 }
 
-                5 -> player.motionY -= 0.1905189780583944
-                4 -> player.motionY -= 0.03
-                6 -> player.motionY *= 1.01
-                7 -> if (glide) player.motionY /= 1.5
-            }
-
-            if (player.airTicks >= 7 && glide) {
-                strafe(speed = speed.coerceAtLeast(0.281F), strength = 0.7)
-            }
-
-            if (player.hurtTime == 9) {
-                strafe()
-            }
-
-            if ((player.getActivePotionEffect(Potion.moveSpeed)?.amplifier ?: 0) == 2) {
-                when (player.airTicks) {
-                    1, 2, 5, 6, 8 -> {
-                        player.motionX *= 1.2
-                        player.motionZ *= 1.2
+                if ((getActivePotionEffect(Potion.moveSpeed)?.amplifier ?: 0) == 2) {
+                    when (airTicks) {
+                        1, 2, 5, 6, 8 -> {
+                            motionX *= 1.2
+                            motionZ *= 1.2
+                        }
                     }
                 }
             }
@@ -63,10 +63,11 @@ object HypixelLowHop : SpeedMode("HypixelLowHop") {
     }
 
     override fun onJump(event: JumpEvent) {
-        val player = mc.thePlayer ?: return
-        if (!player.isMoving) return
-        val atLeast = 0.281F + 0.13F * (player.getActivePotionEffect(Potion.moveSpeed)?.amplifier ?: 0)
+        mc.thePlayer?.run {
+            if (!isMoving) return
+            val atLeast = 0.281F + 0.13F * (getActivePotionEffect(Potion.moveSpeed)?.amplifier ?: 0)
 
-        strafe(speed = speed.coerceAtLeast(atLeast))
+            strafe(speed = speed.coerceAtLeast(atLeast))
+        }
     }
 }

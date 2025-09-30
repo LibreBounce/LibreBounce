@@ -20,10 +20,12 @@ object NCP : LongJumpMode("NCP") {
     }
 
     override fun onMove(event: MoveEvent) {
-        if (!mc.thePlayer.isMoving && jumped) {
-            mc.thePlayer.motionX = 0.0
-            mc.thePlayer.motionZ = 0.0
-            event.zeroXZ()
+        mc.thePlayer?.run {
+            if (!isMoving && jumped) {
+                motionX = 0.0
+                motionZ = 0.0
+                event.zeroXZ()
+            }
         }
     }
 }

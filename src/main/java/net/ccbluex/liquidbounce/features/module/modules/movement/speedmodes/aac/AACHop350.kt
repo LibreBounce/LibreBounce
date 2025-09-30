@@ -16,30 +16,30 @@ object AACHop350 : SpeedMode("AACHop3.5.0") {
 
     // Currently not working properly, for some reason
     fun onMotion(event: MotionEvent) {
-        val player = mc.thePlayer ?: return
-
-        if (event.eventState == EventState.POST && player.isMoving && !player.isInLiquid && !player.isSneaking) {
-            player.jumpMovementFactor += 0.00208f
-            if (player.fallDistance <= 1f) {
-                if (player.onGround) {
-                    player.tryJump()
-                    player.motionX *= 1.0118f
-                    player.motionZ *= 1.0118f
-                } else {
-                    player.motionY -= 0.0147f
-                    player.motionX *= 1.00138f
-                    player.motionZ *= 1.00138f
+        mc.thePlayer?.run {
+            if (isMoving && !isInLiquid && !isSneaking) {
+                jumpMovementFactor += 0.00208f
+                if (fallDistance <= 1f) {
+                    if (onGround) {
+                        tryJump()
+                        motionX *= 1.0118f
+                        motionZ *= 1.0118f
+                    } else {
+                        motionY -= 0.0147f
+                        motionX *= 1.00138f
+                        motionZ *= 1.00138f
+                    }
                 }
             }
         }
     }
 
     override fun onEnable() {
-        val player = mc.thePlayer ?: return
-
-        if (player.onGround) {
-            player.motionX = 0.0
-            player.motionZ = 0.0
+        mc.thePlayer?.run {
+            if (onGround) {
+                motionX = 0.0
+                motionZ = 0.0
+            }
         }
     }
 

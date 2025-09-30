@@ -11,24 +11,24 @@ import net.minecraft.util.EnumFacing
 
 object AACv3 : LongJumpMode("AACv3") {
     override fun onUpdate() {
-        val player = mc.thePlayer ?: return
+        mc.thePlayer?.run {
+            if (fallDistance > 0.5f && !LongJump.teleported) {
+                val value = 3.0
+                val horizontalFacing = horizontalFacing
+                var x = 0.0
+                var z = 0.0
 
-        if (player.fallDistance > 0.5f && !LongJump.teleported) {
-            val value = 3.0
-            val horizontalFacing = player.horizontalFacing
-            var x = 0.0
-            var z = 0.0
+                when (horizontalFacing) {
+                    EnumFacing.NORTH -> z = -value
+                    EnumFacing.EAST -> x = value
+                    EnumFacing.SOUTH -> z = value
+                    EnumFacing.WEST -> x = -value
+                    else -> {}
+                }
 
-            when (horizontalFacing) {
-                EnumFacing.NORTH -> z = -value
-                EnumFacing.EAST -> x = value
-                EnumFacing.SOUTH -> z = value
-                EnumFacing.WEST -> x = -value
-                else -> {}
+                setPosition(posX + x, posY, posZ + z)
+                LongJump.teleported = true
             }
-
-            player.setPosition(player.posX + x, player.posY, player.posZ + z)
-            LongJump.teleported = true
         }
     }
 }

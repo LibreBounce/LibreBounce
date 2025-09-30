@@ -10,18 +10,17 @@ import net.ccbluex.liquidbounce.utils.extensions.tryJump
 
 object LAAC : NoWebMode("LAAC") {
     override fun onUpdate() {
-        val player = mc.thePlayer ?: return
+        mc.thePlayer?.run {
+            if (!isInWeb)
+                return
 
-        if (!player.isInWeb) {
-            return
+            jumpMovementFactor = if (movementInput.moveStrafe != 0f) 1f else 1.21f
+
+            if (!mc.gameSettings.keyBindSneak.isKeyDown)
+                motionY = 0.0
+
+            if (onGround)
+                tryJump()
         }
-
-        player.jumpMovementFactor = if (player.movementInput.moveStrafe != 0f) 1f else 1.21f
-
-        if (!mc.gameSettings.keyBindSneak.isKeyDown)
-            player.motionY = 0.0
-
-        if (player.onGround)
-            player.tryJump()
     }
 }

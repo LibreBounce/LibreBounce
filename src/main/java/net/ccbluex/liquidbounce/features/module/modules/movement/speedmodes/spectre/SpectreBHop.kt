@@ -11,16 +11,16 @@ import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 
 object SpectreBHop : SpeedMode("SpectreBHop") {
     override fun onMotion() {
-        val player = mc.thePlayer ?: return
+        mc.thePlayer?.run {
+            if (!isMoving || movementInput.jump) return
 
-        if (!player.isMoving || player.movementInput.jump) return
-
-        if (player.onGround) {
-            strafe(1.1f)
-            player.motionY = 0.44
-            return
+            if (onGround) {
+                strafe(1.1f)
+                motionY = 0.44
+                return
+            } else {
+                strafe()
+            }
         }
-        strafe()
     }
-
 }

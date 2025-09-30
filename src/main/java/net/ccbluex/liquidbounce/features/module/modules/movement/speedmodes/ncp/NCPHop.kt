@@ -23,18 +23,17 @@ object NCPHop : SpeedMode("NCPHop") {
     }
 
     override fun onUpdate() {
-        val player = mc.thePlayer ?: return
-
-        if (player.isMoving) {
-            if (player.onGround) {
-                player.tryJump()
-                player.speedInAir = 0.0223f
+        mc.thePlayer?.run {
+            if (isMoving) {
+                if (onGround) {
+                    tryJump()
+                    speedInAir = 0.0223f
+                }
+                strafe()
+            } else {
+                motionX = 0.0
+                motionZ = 0.0
             }
-            strafe()
-        } else {
-            player.motionX = 0.0
-            player.motionZ = 0.0
         }
     }
-
 }

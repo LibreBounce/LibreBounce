@@ -9,17 +9,16 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.nowebmodes.NoWe
 
 object IntaveOld : NoWebMode("IntaveOld") {
     override fun onUpdate() {
-        val player = mc.thePlayer ?: return
+        mc.thePlayer?.run {
+            if (!isInWeb)
+                return
 
-        if (!player.isInWeb) {
-            return
-        }
-
-        if (player.movementInput.moveStrafe == 0.0F && mc.gameSettings.keyBindForward.isKeyDown && player.isCollidedVertically) {
-            player.jumpMovementFactor = 0.74F
-        } else {
-            player.jumpMovementFactor = 0.2F
-            player.onGround = true
+            if (movementInput.moveStrafe == 0.0F && mc.gameSettings.keyBindForward.isKeyDown && isCollidedVertically) {
+                jumpMovementFactor = 0.74F
+            } else {
+                jumpMovementFactor = 0.2F
+                onGround = true
+            }
         }
     }
 }

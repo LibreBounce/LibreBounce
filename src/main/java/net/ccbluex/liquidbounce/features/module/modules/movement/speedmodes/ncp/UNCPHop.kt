@@ -17,36 +17,36 @@ object UNCPHop : SpeedMode("UNCPHop") {
     private var tick = 0
 
     override fun onUpdate() {
-        val player = mc.thePlayer ?: return
-        if (player.isInLiquid || player.isInWeb || player.isOnLadder) return
+        mc.thePlayer?.run {
+            if (isInLiquid || isInWeb || isOnLadder) return
 
-        if (player.isMoving) {
-            if (player.onGround) {
-                speed = if (player.isPotionActive(Potion.moveSpeed)
-                    && player.getActivePotionEffect(Potion.moveSpeed).amplifier >= 1
-                )
-                    0.4563f else 0.3385f
+            if (isMoving) {
+                if (onGround) {
+                    speed = if (isPotionActive(Potion.moveSpeed)
+                        && getActivePotionEffect(Potion.moveSpeed).amplifier >= 1
+                    ) 0.4563f else 0.3385f
 
-                player.tryJump()
+                    tryJump()
+                } else {
+                    speed *= 0.98f
+                }
+
+                if (isAirBorne && fallDistance > 2) {
+                    mc.timer.timerSpeed = 1f
+                    return
+                }
+
+                strafe(speed, false)
+
+                if (!onGround && ++tick % 3 == 0) {
+                    mc.timer.timerSpeed = 1.0815f
+                    tick = 0
+                } else {
+                    mc.timer.timerSpeed = 0.9598f
+                }
             } else {
-                speed *= 0.98f
-            }
-
-            if (player.isAirBorne && player.fallDistance > 2) {
                 mc.timer.timerSpeed = 1f
-                return
             }
-
-            strafe(speed, false)
-
-            if (!player.onGround && ++tick % 3 == 0) {
-                mc.timer.timerSpeed = 1.0815f
-                tick = 0
-            } else {
-                mc.timer.timerSpeed = 0.9598f
-            }
-        } else {
-            mc.timer.timerSpeed = 1f
         }
     }
 

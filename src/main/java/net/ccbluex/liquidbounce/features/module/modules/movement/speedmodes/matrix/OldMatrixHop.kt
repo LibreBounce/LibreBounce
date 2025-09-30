@@ -14,19 +14,20 @@ import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 object OldMatrixHop : SpeedMode("OldMatrixHop") {
 
     override fun onUpdate() {
-        val player = mc.thePlayer ?: return
-        if (player.isInLiquid || player.isInWeb || player.isOnLadder) return
+        mc.thePlayer?.run
+            if (isInLiquid || isInWeb || isOnLadder) return
 
-        if (player.isMoving) {
-            if (player.onGround) {
-                player.tryJump()
-                player.speedInAir = 0.02098f
-                mc.timer.timerSpeed = 1.055f
+            if (isMoving) {
+                if (onGround) {
+                    tryJump()
+                    speedInAir = 0.02098f
+                    mc.timer.timerSpeed = 1.055f
+                } else {
+                    strafe()
+                }
             } else {
-                strafe()
+                mc.timer.timerSpeed = 1f
             }
-        } else {
-            mc.timer.timerSpeed = 1f
         }
     }
 }

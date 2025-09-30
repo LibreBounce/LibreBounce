@@ -13,26 +13,25 @@ import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 import net.minecraft.potion.Potion
 
 object VerusHop : SpeedMode("VerusHop") {
-
     private var speed = 0.0f
 
     override fun onUpdate() {
-        val player = mc.thePlayer ?: return
-        if (player.isInLiquid || player.isInWeb || player.isOnLadder) return
+        mc.thePlayer?.run {
+            if (isInLiquid || isInWeb || isOnLadder) return
 
-        if (player.isMoving) {
-            if (player.onGround) {
-                speed = if (player.isPotionActive(Potion.moveSpeed)
-                    && player.getActivePotionEffect(Potion.moveSpeed).amplifier >= 1
-                )
-                    0.46f else 0.34f
+            if (isMoving) {
+                if (onGround) {
+                    speed = if (isPotionActive(Potion.moveSpeed)
+                        && getActivePotionEffect(Potion.moveSpeed).amplifier >= 1
+                    ) 0.46f else 0.34f
 
-                player.tryJump()
-            } else {
-                speed *= 0.98f
+                    tryJump()
+                } else {
+                    speed *= 0.98f
+                }
+
+                strafe(speed, false)
             }
-
-            strafe(speed, false)
         }
     }
 }

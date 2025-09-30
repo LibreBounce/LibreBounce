@@ -13,18 +13,17 @@ import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 
 object HypixelHop : SpeedMode("HypixelHop") {
     override fun onStrafe() {
-        val player = mc.thePlayer ?: return
-        if (player.isInLiquid)
-            return
+        mc.thePlayer?.run
+            if (isInLiquid) return
 
-        if (player.onGround && player.isMoving) {
-            if (player.isUsingItem) {
-                player.tryJump()
-            } else {
-                player.tryJump()
-                strafe(0.4f)
+            if (onGround && isMoving) {
+                if (isUsingItem) {
+                    tryJump()
+                } else {
+                    tryJump()
+                    strafe(0.4f)
+                }
             }
         }
-
     }
 }

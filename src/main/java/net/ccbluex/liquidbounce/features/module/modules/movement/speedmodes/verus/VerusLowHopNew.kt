@@ -14,45 +14,44 @@ import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 import net.minecraft.potion.Potion
 
 object VerusLowHopNew : SpeedMode("VerusLowHopNew") {
-
     private var speed = 0.0f
 
     override fun onUpdate() {
-        val player = mc.thePlayer ?: return
-        if (player.isInLiquid || player.isInWeb || player.isOnLadder) return
+        mc.thePlayer?.run {
+            if (isInLiquid || isInWeb || isOnLadder) return
 
-        if (player.isMoving) {
-            if (player.onGround) {
-                player.tryJump()
+            if (isMoving) {
+                if (onGround) {
+                    tryJump()
 
-                // Checks the presence of Speed potion effect 1 & 2+
-                if (player.isPotionActive(Potion.moveSpeed)) {
-                    val amplifier = player.getActivePotionEffect(Potion.moveSpeed).amplifier
+                    // Checks the presence of Speed potion effect 1 & 2+
+                    if (isPotionActive(Potion.moveSpeed)) {
+                        val amplifier = getActivePotionEffect(Potion.moveSpeed).amplifier
 
-                    speed = when {
-                        amplifier == 1 -> 0.55f
-                        amplifier >= 2 -> 0.7f
-                        else -> 0.33f
+                        speed = when {
+                            amplifier == 1 -> 0.55f
+                            amplifier >= 2 -> 0.7f
+                            else -> 0.33f
+                        }
                     }
-                }
 
-                // Checks the presence of Slowness potion effect.
-                speed = if (player.isPotionActive(Potion.moveSlowdown)
-                    && player.getActivePotionEffect(Potion.moveSlowdown).amplifier == 1
-                ) {
-                    0.3f
+                    // Checks the presence of Slowness potion effect.
+                    speed = if (isPotionActive(Potion.moveSlowdown)
+                        && getActivePotionEffect(Potion.moveSlowdown).amplifier == 1
+                    ) {
+                        0.3f
+                    } else {
+                        0.33f
+                    }
                 } else {
-                    0.33f
-                }
-            } else {
-                if (player.airTicks <= 1) {
-                    mc.thePlayer.motionY = -0.09800000190734863
-                }
+                    if (airTicks <= 1) {
+                        motionY = -0.09800000190734863
+                    }
 
-                speed *= 0.99f
+                    speed *= 0.99f
+                }
+                strafe(speed, false)
             }
-
-            strafe(speed, false)
         }
     }
 }

@@ -16,6 +16,7 @@ import kotlin.math.sin
 
 object TeleportCubeCraft : SpeedMode("TeleportCubeCraft") {
     private val timer = MSTimer()
+
     override fun onMove(event: MoveEvent) {
         if (mc.thePlayer.isMoving && mc.thePlayer.onGround && timer.hasTimePassed(300)) {
             val yaw = direction
