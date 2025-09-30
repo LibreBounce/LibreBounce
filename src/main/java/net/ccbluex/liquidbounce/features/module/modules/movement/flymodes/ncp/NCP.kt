@@ -48,10 +48,8 @@ object NCP : FlyMode("NCP") {
     }
 
     override fun onPacket(event: PacketEvent) {
-        val packet = event.packet
-
-        if (packet is C03PacketPlayer)
-            packet.onGround = true
+        if (event.packet is C03PacketPlayer)
+            event.packet.onGround = true
     }
 
 }

@@ -16,16 +16,17 @@ import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 object VerusGlide : FlyMode("VerusGlide") {
 
     override fun onUpdate() {
-        val player = mc.thePlayer ?: return
-        if (player.isInLiquid || player.isInWeb || player.isOnLadder) return
+        mc.thePlayer?.run {
+            if (isInLiquid || isInWeb || isOnLadder) return
 
-        if (!player.onGround && player.fallDistance > 1) {
-            // Good job, Verus
-            player.motionY = -0.09800000190734863
-            if (player.movementInput.moveForward != 0f && player.movementInput.moveStrafe != 0f) {
-                strafe(0.334f)
-            } else {
-                strafe(0.3345f)
+            if (!onGround && fallDistance > 1) {
+                // Good job, Verus
+                motionY = -0.09800000190734863
+                if (movementInput.moveForward != 0f && moveStrafing != 0f) {
+                    strafe(0.334f)
+                } else {
+                    strafe(0.3345f)
+                }
             }
         }
     }

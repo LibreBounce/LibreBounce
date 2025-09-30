@@ -23,22 +23,23 @@ object VerusDamage : LongJumpMode("VerusDamage") {
     var damaged = false
 
     override fun onEnable() {
-        val player = mc.thePlayer ?: return
-        val (x, y, z) = player
+        mc.thePlayer?.run { player ->
+            val (x, y, z) = player
 
-        // Otherwise you'll get flagged
-        if (!player.isMoving) {
-            chat("§8[§c§lVerusDamage-§a§lFly§8] §cPlease move while toggling LongJump. Using AutoJump option is recommended.")
-            return
+            // Otherwise you'll get flagged
+            if (!isMoving) {
+                chat("§8[§c§lVerusDamage-§a§lLongJump§8] §cPlease move while toggling LongJump. Using AutoJump option is recommended.")
+                return
+            }
+
+            // Note: you'll flag once for Fly G (tested on the CCBlueX Test Server)
+            sendPackets(
+                C04PacketPlayerPosition(x, y + 3.0001, z, false),
+                C06PacketPlayerPosLook(x, y, z, rotationYaw, rotationPitch, false),
+                C06PacketPlayerPosLook(x, y, z, rotationYaw, rotationPitch, true)
+            )
+            damaged = true
         }
-
-        // Note: you'll flag once for Fly G (tested on the CCBlueX Test Server)
-        sendPackets(
-            C04PacketPlayerPosition(x, y + 3.0001, z, false),
-            C06PacketPlayerPosLook(x, y, z, player.rotationYaw, player.rotationPitch, false),
-            C06PacketPlayerPosLook(x, y, z, player.rotationYaw, player.rotationPitch, true)
-        )
-        damaged = true
     }
 
     override fun onDisable() {

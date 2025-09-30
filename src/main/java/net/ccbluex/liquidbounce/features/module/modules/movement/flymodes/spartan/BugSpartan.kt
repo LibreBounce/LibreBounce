@@ -17,20 +17,22 @@ import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
 
 object BugSpartan : FlyMode("BugSpartan") {
     override fun onEnable() {
-        val (x, y, z) = mc.thePlayer
+        mc.thePlayer?.run { player ->
+            val (x, y, z) = player
 
-        repeat(65) {
-            sendPackets(
-                C04PacketPlayerPosition(x, y + 0.049, z, false),
-                C04PacketPlayerPosition(x, y, z, false)
-            )
+            repeat(65) {
+                sendPackets(
+                    C04PacketPlayerPosition(x, y + 0.049, z, false),
+                    C04PacketPlayerPosition(x, y, z, false)
+                )
+            }
+
+            sendPacket(C04PacketPlayerPosition(x, y + 0.1, z, true))
+
+            motionX *= 0.1
+            motionZ *= 0.1
+            swingItem()
         }
-
-        sendPacket(C04PacketPlayerPosition(x, y + 0.1, z, true))
-
-        mc.thePlayer.motionX *= 0.1
-        mc.thePlayer.motionZ *= 0.1
-        mc.thePlayer.swingItem()
     }
 
     override fun onUpdate() {

@@ -13,14 +13,14 @@ object VerusFHop : SpeedMode("VerusFHop") {
     override fun onMotion() {
         mc.thePlayer?.run {
             if (onGround) {
-                if (movementInput.moveForward != 0f && movementInput.moveStrafe != 0f) {
+                if (movementInput.moveForward != 0f && moveStrafing != 0f) {
                     strafe(0.4825f)
                 } else {
                     strafe(0.535f)
                 }
                 tryJump()
             } else {
-                if (movementInput.moveForward != 0f && movementInput.moveStrafe != 0f) {
+                if (movementInput.moveForward != 0f && moveStrafing != 0f) {
                     strafe(0.334f)
                 } else {
                     strafe(0.3345f)

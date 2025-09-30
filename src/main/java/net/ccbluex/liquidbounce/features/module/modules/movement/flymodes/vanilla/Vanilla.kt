@@ -13,26 +13,26 @@ import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 
 object Vanilla : FlyMode("Vanilla") {
     override fun onMove(event: MoveEvent) {
-        val player = mc.thePlayer ?: return
+        mc.thePlayer?.run {
+            strafe(vanillaSpeed, true, event)
 
-        strafe(vanillaSpeed, true, event)
+            onGround = false
+            isInWeb = false
 
-        player.onGround = false
-        player.isInWeb = false
+            capabilities.isFlying = false
 
-        player.capabilities.isFlying = false
+            var ySpeed = 0.0
 
-        var ySpeed = 0.0
+            if (mc.gameSettings.keyBindJump.isKeyDown)
+                ySpeed += vanillaSpeed
 
-        if (mc.gameSettings.keyBindJump.isKeyDown)
-            ySpeed += vanillaSpeed
+            if (mc.gameSettings.keyBindSneak.isKeyDown)
+                ySpeed -= vanillaSpeed
 
-        if (mc.gameSettings.keyBindSneak.isKeyDown)
-            ySpeed -= vanillaSpeed
+            motionY = ySpeed
+            event.y = ySpeed
 
-        player.motionY = ySpeed
-        event.y = ySpeed
-
-        handleVanillaKickBypass()
+            handleVanillaKickBypass()
+        }
     }
 }

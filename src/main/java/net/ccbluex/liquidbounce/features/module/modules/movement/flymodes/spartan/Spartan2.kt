@@ -12,9 +12,11 @@ import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
 
 object Spartan2 : FlyMode("Spartan2") {
     override fun onUpdate() {
-        strafe(0.264f)
+        mc.thePlayer?.run {
+            strafe(0.264f)
 
-        if (mc.thePlayer.ticksExisted % 8 == 0)
-            sendPacket(C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY + 10, mc.thePlayer.posZ, true))
+            if (ticksExisted % 8 == 0)
+                sendPacket(C04PacketPlayerPosition(posX, posY + 10, posZ, true))
+        }
     }
 }

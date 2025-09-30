@@ -5,7 +5,8 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.matrix
 
-import net.ccbluex.liquidbounce.features.module.modules.movement.Speed
+import net.ccbluex.liquidbounce.features.module.modules.movement.Speed.matrixLowHop
+import net.ccbluex.liquidbounce.features.module.modules.movement.Speed.extraGroundBoost
 import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.SpeedMode
 import net.ccbluex.liquidbounce.utils.extensions.isInLiquid
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
@@ -30,9 +31,9 @@ object MatrixSlowHop : SpeedMode("MatrixSlowHop") {
                 }
 
                 if (onGround) {
-                    motionY = 0.42 - if (Speed.matrixLowHop) 3.48E-3 else 0.0
+                    motionY = 0.42 - if (matrixLowHop) 3.48E-3 else 0.0
                     mc.timer.timerSpeed = 0.5195f
-                    strafe(speed + Speed.extraGroundBoost)
+                    strafe(speed + extraGroundBoost)
                 } else {
                     mc.timer.timerSpeed = 1.0973f
                 }

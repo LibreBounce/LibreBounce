@@ -197,24 +197,24 @@ object Fly : Module("Fly", Category.MOVEMENT, Keyboard.KEY_F) {
     }
 
     override fun onDisable() {
-        val player = mc.thePlayer ?: return
+        mc.thePlayer?.run {
+            if (!mode.startsWith("AAC") && mode != "Hypixel" && mode != "VerusGlide" && !mode.startsWith("Vulcan")
+                && mode != "SmoothVanilla" && mode != "Vanilla" && mode != "Rewinside"
+                && mode != "Fireball" && mode != "Collide" && mode != "Jump"
+            ) {
 
-        if (!mode.startsWith("AAC") && mode != "Hypixel" && mode != "VerusGlide" && !mode.startsWith("Vulcan")
-            && mode != "SmoothVanilla" && mode != "Vanilla" && mode != "Rewinside"
-            && mode != "Fireball" && mode != "Collide" && mode != "Jump"
-        ) {
+                if (mode == "CubeCraft") stopXZ()
+                else stop()
+            }
 
-            if (mode == "CubeCraft") player.stopXZ()
-            else player.stop()
+            wasFired = false
+            firePosition = null
+            player.capabilities.isFlying = wasFlying
+            mc.timer.timerSpeed = 1f
+            speedInAir = 0.02f
+
+            modeModule.onDisable()
         }
-
-        wasFired = false
-        firePosition = null
-        player.capabilities.isFlying = wasFlying
-        mc.timer.timerSpeed = 1f
-        player.speedInAir = 0.02f
-
-        modeModule.onDisable()
     }
 
     val onUpdate = handler<UpdateEvent> {

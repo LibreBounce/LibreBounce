@@ -16,12 +16,13 @@ import net.minecraft.util.AxisAlignedBB
 object Jump : FlyMode("Jump") {
 
     override fun onUpdate() {
-        val player = mc.thePlayer ?: return
+        mc.thePlayer?.run {
+            if (onGround && !isJumping)
+                tryJump()
 
-        if (player.onGround && !player.isJumping)
-            player.tryJump()
-        if ((mc.gameSettings.keyBindJump.isKeyDown && !mc.gameSettings.keyBindSneak.isKeyDown) || player.onGround)
-            jumpY = player.posY
+            if ((mc.gameSettings.keyBindJump.isKeyDown && !mc.gameSettings.keyBindSneak.isKeyDown) || onGround)
+                jumpY = posY
+        }
     }
 
     override fun onBB(event: BlockBBEvent) {

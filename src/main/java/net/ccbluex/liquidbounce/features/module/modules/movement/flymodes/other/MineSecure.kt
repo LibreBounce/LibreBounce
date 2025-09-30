@@ -22,29 +22,29 @@ object MineSecure : FlyMode("MineSecure") {
     private val timer = MSTimer()
 
     override fun onUpdate() {
-        val player = mc.thePlayer ?: return
+        mc.thePlayer?.run { player ->
+            capabilities.isFlying = false
 
-        player.capabilities.isFlying = false
+            motionY =
+                if (mc.gameSettings.keyBindSneak.isKeyDown) 0.0
+                else -0.01
 
-        player.motionY =
-            if (mc.gameSettings.keyBindSneak.isKeyDown) 0.0
-            else -0.01
+            strafe(vanillaSpeed, true)
 
-        strafe(vanillaSpeed, true)
+            if (!timer.hasTimePassed(150) || !mc.gameSettings.keyBindJump.isKeyDown)
+                return
 
-        if (!timer.hasTimePassed(150) || !mc.gameSettings.keyBindJump.isKeyDown)
-            return
+            val (x, y, z) = player
 
-        val (x, y, z) = player
+            sendPackets(
+                C04PacketPlayerPosition(x, y + 5, z, false),
+                C04PacketPlayerPosition(0.5, -1000.0, 0.5, false)
+            )
 
-        sendPackets(
-            C04PacketPlayerPosition(x, y + 5, z, false),
-            C04PacketPlayerPosition(0.5, -1000.0, 0.5, false)
-        )
+            val yaw = rotationYaw.toRadiansD()
 
-        val yaw = player.rotationYaw.toRadiansD()
-
-        player.setPosition(x - sin(yaw) * 0.4, y, z + cos(yaw) * 0.4)
-        timer.reset()
+            setPosition(x - sin(yaw) * 0.4, y, z + cos(yaw) * 0.4)
+            timer.reset()
+        }
     }
 }

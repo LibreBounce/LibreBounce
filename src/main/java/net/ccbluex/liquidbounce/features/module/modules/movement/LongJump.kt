@@ -14,6 +14,7 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.movement.longjumpmodes.aac.AACv1
 import net.ccbluex.liquidbounce.features.module.modules.movement.longjumpmodes.aac.AACv2
 import net.ccbluex.liquidbounce.features.module.modules.movement.longjumpmodes.aac.AACv3
+import net.ccbluex.liquidbounce.features.module.modules.movement.longjumpmodes.aac.AACv3.teleported
 import net.ccbluex.liquidbounce.features.module.modules.movement.longjumpmodes.ncp.NCP
 import net.ccbluex.liquidbounce.features.module.modules.movement.longjumpmodes.other.Buzz
 import net.ccbluex.liquidbounce.features.module.modules.movement.longjumpmodes.other.Hycraft
@@ -47,33 +48,34 @@ object LongJump : Module("LongJump", Category.MOVEMENT) {
 
     var jumped = false
     var canBoost = false
-    var teleported = false
 
     val onUpdate = handler<UpdateEvent> {
-        val player = mc.thePlayer ?: return@handler
+        mc.thePlayer?.run {
+            if (jumped) {
+                val mode = mode
 
-        if (jumped) {
-            val mode = mode
+                if (onGround || capabilities.isFlying) {
+                    jumped = false
 
-            if (player.onGround || player.capabilities.isFlying) {
-                jumped = false
+                    if (mode == "NCP") {
+                        motionX = 0.0
+                        motionZ = 0.0
+                    }
 
-                if (mode == "NCP") {
-                    player.motionX = 0.0
-                    player.motionZ = 0.0
+                    return@handler
                 }
-                return@handler
+
+                modeModule.onUpdate()
             }
 
-            modeModule.onUpdate()
-        }
-        if (autoJump && player.onGround && player.isMoving) {
-            if (autoDisable && !damaged) {
-                return@handler
-            }
+            if (autoJump && onGround && isMoving) {
+                if (autoDisable && !damaged) {
+                    return@handler
+                }
 
-            jumped = true
-            player.tryJump()
+                jumped = true
+                tryJump()
+            }
         }
     }
 

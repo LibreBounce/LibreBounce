@@ -9,15 +9,15 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.flymodes.FlyMod
 
 object VulcanOld : FlyMode("VulcanOld") {
     override fun onUpdate() {
-        val player = mc.thePlayer ?: return
-
-        if (!player.onGround && player.fallDistance > 0) {
-            if (player.ticksExisted % 2 == 0) {
-                player.motionY = -0.1
-                player.jumpMovementFactor = 0.0265f
-            } else {
-                player.motionY = -0.16
-                player.jumpMovementFactor = 0.0265f
+        mc.thePlayer?.run {
+            if (!onGround && fallDistance > 0) {
+                if (ticksExisted % 2 == 0) {
+                    motionY = -0.1
+                    jumpMovementFactor = 0.0265f
+                } else {
+                    motionY = -0.16
+                    jumpMovementFactor = 0.0265f
+                }
             }
         }
     }

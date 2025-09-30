@@ -14,34 +14,35 @@ object Minesucht : FlyMode("Minesucht") {
     private var minesuchtTP = 0L
 
     override fun onUpdate() {
-        val player = mc.thePlayer ?: return
-        val (x, y, z) = player
+        mc.thePlayer?.run { player ->
+            val (x, y, z) = player
 
-        if (!mc.gameSettings.keyBindForward.isKeyDown) return
+            if (!mc.gameSettings.keyBindForward.isKeyDown) return
 
-        if (System.currentTimeMillis() - minesuchtTP > 99) {
-            val vec = player.eyes + player.getLook(1f) * 7.0
+            if (System.currentTimeMillis() - minesuchtTP > 99) {
+                val vec = eyes + getLook(1f) * 7.0
 
-            if (player.fallDistance > 0.8) {
+                if (fallDistance > 0.8) {
+                    sendPackets(
+                        C04PacketPlayerPosition(x, y + 50, z, false),
+                        C04PacketPlayerPosition(x, y + 20, z, true)
+                    )
+                    fall(100f, 100f)
+                    fallDistance = 0f
+                }
                 sendPackets(
-                    C04PacketPlayerPosition(x, y + 50, z, false),
-                    C04PacketPlayerPosition(x, y + 20, z, true)
+                    C04PacketPlayerPosition(vec.xCoord, y + 50, vec.zCoord, true),
+                    C04PacketPlayerPosition(x, y, z, false),
+                    C04PacketPlayerPosition(vec.xCoord, y, vec.zCoord, true),
+                    C04PacketPlayerPosition(x, y, z, false)
                 )
-                player.fall(100f, 100f)
-                player.fallDistance = 0f
+                minesuchtTP = System.currentTimeMillis()
+            } else {
+                sendPackets(
+                    C04PacketPlayerPosition(x, y, z, false),
+                    C04PacketPlayerPosition(x, y, z, true)
+                )
             }
-            sendPackets(
-                C04PacketPlayerPosition(vec.xCoord, y + 50, vec.zCoord, true),
-                C04PacketPlayerPosition(x, y, z, false),
-                C04PacketPlayerPosition(vec.xCoord, y, vec.zCoord, true),
-                C04PacketPlayerPosition(x, y, z, false)
-            )
-            minesuchtTP = System.currentTimeMillis()
-        } else {
-            sendPackets(
-                C04PacketPlayerPosition(x, y, z, false),
-                C04PacketPlayerPosition(x, y, z, true)
-            )
         }
     }
 }

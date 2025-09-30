@@ -33,15 +33,17 @@ object OldNCP : FlyMode("OldNCP") {
     }
 
     override fun onUpdate() {
-        if (startY > mc.thePlayer.posY)
-            mc.thePlayer.motionY = -0.000000000000000000000000000000001
+        mc.thePlayer?.run {
+            if (startY > posY)
+                motionY = -0.000000000000000000000000000000001
 
-        if (mc.gameSettings.keyBindSneak.isKeyDown)
-            mc.thePlayer.motionY = -0.2
+            if (mc.gameSettings.keyBindSneak.isKeyDown)
+                motionY = -0.2
 
-        if (mc.gameSettings.keyBindJump.isKeyDown && mc.thePlayer.posY < startY - 0.1)
-            mc.thePlayer.motionY = 0.2
+            if (mc.gameSettings.keyBindJump.isKeyDown && posY < startY - 0.1)
+                motionY = 0.2
 
-        strafe()
+            strafe()
+        }
     }
 }
