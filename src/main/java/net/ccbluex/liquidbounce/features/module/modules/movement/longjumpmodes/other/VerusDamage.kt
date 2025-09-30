@@ -13,9 +13,6 @@ import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.extensions.isInLiquid
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.utils.extensions.stopXZ
-import net.ccbluex.liquidbounce.utils.extensions.component1
-import net.ccbluex.liquidbounce.utils.extensions.component2
-import net.ccbluex.liquidbounce.utils.extensions.component3
 import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
 import net.minecraft.network.play.client.C03PacketPlayer.C06PacketPlayerPosLook
 
@@ -23,9 +20,7 @@ object VerusDamage : LongJumpMode("VerusDamage") {
     var damaged = false
 
     override fun onEnable() {
-        mc.thePlayer?.run { player ->
-            val (x, y, z) = player
-
+        mc.thePlayer?.run {
             // Otherwise you'll get flagged
             if (!isMoving) {
                 chat("§8[§c§lVerusDamage-§a§lLongJump§8] §cPlease move while toggling LongJump. Using AutoJump option is recommended.")
@@ -34,9 +29,9 @@ object VerusDamage : LongJumpMode("VerusDamage") {
 
             // Note: you'll flag once for Fly G (tested on the CCBlueX Test Server)
             sendPackets(
-                C04PacketPlayerPosition(x, y + 3.0001, z, false),
-                C06PacketPlayerPosLook(x, y, z, rotationYaw, rotationPitch, false),
-                C06PacketPlayerPosLook(x, y, z, rotationYaw, rotationPitch, true)
+                C04PacketPlayerPosition(posX, posY + 3.0001, posZ, false),
+                C06PacketPlayerPosLook(posX, posY, posX, rotationYaw, rotationPitch, false),
+                C06PacketPlayerPosLook(posX, posy, pos, rotationYaw, rotationPitch, true)
             )
             damaged = true
         }

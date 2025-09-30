@@ -8,9 +8,6 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.flymodes.other
 import net.ccbluex.liquidbounce.features.module.modules.movement.Fly.vanillaSpeed
 import net.ccbluex.liquidbounce.features.module.modules.movement.flymodes.FlyMode
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPackets
-import net.ccbluex.liquidbounce.utils.extensions.component1
-import net.ccbluex.liquidbounce.utils.extensions.component2
-import net.ccbluex.liquidbounce.utils.extensions.component3
 import net.ccbluex.liquidbounce.utils.extensions.toRadiansD
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
@@ -22,7 +19,7 @@ object MineSecure : FlyMode("MineSecure") {
     private val timer = MSTimer()
 
     override fun onUpdate() {
-        mc.thePlayer?.run { player ->
+        mc.thePlayer?.run {
             capabilities.isFlying = false
 
             motionY =
@@ -34,16 +31,14 @@ object MineSecure : FlyMode("MineSecure") {
             if (!timer.hasTimePassed(150) || !mc.gameSettings.keyBindJump.isKeyDown)
                 return
 
-            val (x, y, z) = player
-
             sendPackets(
-                C04PacketPlayerPosition(x, y + 5, z, false),
+                C04PacketPlayerPosition(posX, posY + 5, posZ, false),
                 C04PacketPlayerPosition(0.5, -1000.0, 0.5, false)
             )
 
             val yaw = rotationYaw.toRadiansD()
 
-            setPosition(x - sin(yaw) * 0.4, y, z + cos(yaw) * 0.4)
+            setPosition(posX - sin(yaw) * 0.4, posY, posZ + cos(yaw) * 0.4)
             timer.reset()
         }
     }

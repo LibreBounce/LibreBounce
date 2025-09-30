@@ -65,33 +65,31 @@ object Verus : FlyMode("Verus") {
     }
 
     override fun onUpdate() {
-        val player = mc.thePlayer ?: return
+        mc.thePlayer?.run {
+            stopXZ()
+            stop()
 
-        player?.stopXZ()
-        player?.stop()
-
-        if (boostTicks == 0 && player.hurtTime > 0) {
-            boostTicks = boostTicksValue
-        }
-
-        boostTicks--
-
-        if (timerSlow) {
-            if (player.ticksExisted % 3 == 0) {
-                mc.timer.timerSpeed = 0.15f
-            } else {
-                mc.timer.timerSpeed = 0.08f
+            if (boostTicks == 0 && hurtTime > 0) {
+                boostTicks = boostTicksValue
             }
-        }
 
-        strafe(boostMotion, true)
+            boostTicks--
+
+            if (timerSlow) {
+                if (ticksExisted % 3 == 0) {
+                    mc.timer.timerSpeed = 0.15f
+                } else {
+                    mc.timer.timerSpeed = 0.08f
+                }
+            }
+
+            strafe(boostMotion, true)
+        }
     }
 
     override fun onPacket(event: PacketEvent) {
-        val packet = event.packet
-
-        if (packet is C03PacketPlayer && damaged) {
-            packet.onGround = true
+        if (event.packet is C03PacketPlayer && damaged) {
+            event.packet.onGround = true
         }
     }
 
