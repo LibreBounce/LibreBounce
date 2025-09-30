@@ -14,7 +14,7 @@ import net.minecraft.network.play.client.C03PacketPlayer
 object PotionSaver : Module("PotionSaver", Category.PLAYER) {
 
     val onPacket = handler<PacketEvent> {
-        val player = mc.thePlayer ?: return
+        val player = mc.thePlayer ?: return@handler
         val packet = it.packet
 
         if (packet is C03PacketPlayer && player?.isUsingItem == false && !packet.rotating &&
