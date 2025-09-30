@@ -209,7 +209,7 @@ object Fly : Module("Fly", Category.MOVEMENT, Keyboard.KEY_F) {
 
             wasFired = false
             firePosition = null
-            player.capabilities.isFlying = wasFlying
+            capabilities.isFlying = wasFlying
             mc.timer.timerSpeed = 1f
             speedInAir = 0.02f
 

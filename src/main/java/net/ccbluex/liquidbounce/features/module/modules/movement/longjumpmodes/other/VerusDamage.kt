@@ -31,7 +31,7 @@ object VerusDamage : LongJumpMode("VerusDamage") {
             sendPackets(
                 C04PacketPlayerPosition(posX, posY + 3.0001, posZ, false),
                 C06PacketPlayerPosLook(posX, posY, posX, rotationYaw, rotationPitch, false),
-                C06PacketPlayerPosLook(posX, posy, pos, rotationYaw, rotationPitch, true)
+                C06PacketPlayerPosLook(posX, posY, posZ, rotationYaw, rotationPitch, true)
             )
             damaged = true
         }
