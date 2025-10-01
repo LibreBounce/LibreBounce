@@ -23,7 +23,7 @@ object NCP : LiquidWalkMode("NCP") {
         }
     }
 
-    override fun onBlockBB(event: BlockBBEvent) {
+    override fun onBB(event: BlockBBEvent) {
         mc.thePlayer?.run {
             if (event.block is BlockLiquid && !collideBlock(entityBoundingBox) { it is BlockLiquid } && !isSneaking) {
                 event.boundingBox = AxisAlignedBB.fromBounds(

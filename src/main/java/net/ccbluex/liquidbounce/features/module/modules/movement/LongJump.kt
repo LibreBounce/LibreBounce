@@ -83,10 +83,6 @@ object LongJump : Module("LongJump", Category.MOVEMENT) {
         modeModule.onMove(event)
     }
 
-    val onPacket = handler<PacketEvent> { event ->
-        modeModule.onMove(event)
-    }
-
     override fun onEnable() {
         modeModule.onEnable()
     }

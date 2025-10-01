@@ -6,6 +6,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalkmodes.other
 
 import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalkmodes.LiquidWalkMode
+import net.ccbluex.liquidbounce.utils.block.block
 import net.minecraft.block.BlockLiquid
 import net.minecraft.util.BlockPos
 
@@ -19,6 +20,7 @@ object Spartan : LiquidWalkMode("Spartan") {
                     motionY += 0.15
                     return
                 }
+
                 val block = BlockPos(mc.thePlayer).up().block
                 val blockUp = BlockPos(posX, posY + 1.1, posZ).block
 

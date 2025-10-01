@@ -12,10 +12,10 @@ import net.ccbluex.liquidbounce.event.MoveEvent
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 
 open class LiquidWalkMode(val modeName: String) : MinecraftInstance {
-    open fun onMove(event: MoveEvent) {}
     open fun onUpdate() {}
-    open fun onPacket(event: PacketEvent) {}
+    open fun onMove(event: MoveEvent) {}
     open fun onBlockBB(event: BlockBBEvent) {}
+    open fun onPacket(event: PacketEvent) {}
     open fun onJump(event: JumpEvent) {}
 
     open fun onEnable() {}

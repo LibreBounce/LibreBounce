@@ -6,6 +6,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalkmodes.aac
 
 import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalkmodes.LiquidWalkMode
+import net.ccbluex.liquidbounce.utils.block.block
 import net.minecraft.init.Blocks.air
 import net.minecraft.util.BlockPos
 

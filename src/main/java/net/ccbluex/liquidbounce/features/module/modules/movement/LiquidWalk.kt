@@ -36,7 +36,7 @@ object LiquidWalk : Module("LiquidWalk", Category.MOVEMENT, Keyboard.KEY_J) {
     private val modes = liquidWalkModes.map { it.modeName }.toTypedArray()
 
     val mode by choices("Mode", modes, "NCP")
-    private val aacFly by float("AACFlyMotion", 0.5f, 0.1f..1f) { mode == "AACFly" }
+    val aacFly by float("AACFlyMotion", 0.5f, 0.1f..1f) { mode == "AACFly" }
 
     private val noJump by boolean("NoJump", false)
 
@@ -48,12 +48,16 @@ object LiquidWalk : Module("LiquidWalk", Category.MOVEMENT, Keyboard.KEY_J) {
         modeModule.onMove(event)
     }
 
-    val onBlockBB = handler<BlockBBEvent> { event ->
-        modeModule.onMove(event)
+    val onPacket = handler<PacketEvent> { event ->
+        mc.thePlayer ?: return@handler
+
+        modeModule.onPacket(event)
     }
 
-    val onPacket = handler<PacketEvent> { event ->
-        modeModule.onMove(event)
+    val onBB = handler<BlockBBEvent> { event ->
+        mc.thePlayer ?: return@handler
+
+        modeModule.onBB(event)
     }
 
     val onJump = handler<JumpEvent> { event ->
