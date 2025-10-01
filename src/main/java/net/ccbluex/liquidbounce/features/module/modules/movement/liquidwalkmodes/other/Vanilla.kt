@@ -10,7 +10,7 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalkmodes
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.collideBlock
 import net.minecraft.block.BlockLiquid
 import net.minecraft.block.material.Material
-import net.minecraft.util.AxisAlignedBB
+import net.minecraft.util.AxisAlignedBB.fromBounds
 
 object Vanilla : LiquidWalkMode("Vanilla") {
     override fun onUpdate() {
@@ -24,7 +24,7 @@ object Vanilla : LiquidWalkMode("Vanilla") {
     override fun onBB(event: BlockBBEvent) {
         mc.thePlayer?.run {
             if (event.block is BlockLiquid && !collideBlock(entityBoundingBox) { it is BlockLiquid } && !isSneaking) {
-                event.boundingBox = AxisAlignedBB.fromBounds(
+                event.boundingBox = fromBounds(
                     event.x.toDouble(),
                     event.y.toDouble(),
                     event.z.toDouble(),
