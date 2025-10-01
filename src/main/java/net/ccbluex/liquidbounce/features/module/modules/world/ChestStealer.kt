@@ -67,7 +67,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
     // TODO: Add an option to not miss-click consecutively
     private val missClick by boolean("MissClick", false)
     private val missClickChance by int("MissClickChance", 15, 0..100, suffix = "%") { missClick }
-    private val missClickDistMult by boolean("MissClickChanceDistanceMultiply", true) { missClick }
+    private val missClickChanceDistMult by boolean("MissClickChanceDistanceMultiply", true) { missClick }
     private val pauseAfterMissClick by intRange("PauseAfterMissClick", 350..650, 0..1000, suffix = "ms") { missClick }
 
     private val delay by intRange("Delay", 50..50, 0..500, suffix = "ms")
