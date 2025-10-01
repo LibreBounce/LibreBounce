@@ -15,9 +15,8 @@ import net.minecraft.util.AxisAlignedBB.fromBounds
 object Vanilla : LiquidWalkMode("Vanilla") {
     override fun onUpdate() {
         mc.thePlayer?.run {
-            if (isSneaking) return
-
-            if (collideBlock(entityBoundingBox) { it is BlockLiquid } && isInsideOfMaterial(Material.air)) motionY = 0.08
+            if (!isSneaking && collideBlock(entityBoundingBox) { it is BlockLiquid } && isInsideOfMaterial(Material.air))
+                motionY = 0.08
         }
     }
 

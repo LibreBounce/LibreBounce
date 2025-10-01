@@ -17,9 +17,7 @@ import net.minecraft.util.AxisAlignedBB.fromBounds
 object NCP : LiquidWalkMode("NCP") {
     override fun onUpdate() {
         mc.thePlayer?.run {
-            if (isSneaking) return
-
-            if (collideBlock(entityBoundingBox) { it is BlockLiquid } && isInsideOfMaterial(Material.air))
+            if (isSneaking && collideBlock(entityBoundingBox) { it is BlockLiquid } && isInsideOfMaterial(Material.air))
                 motionY = 0.08
         }
     }
