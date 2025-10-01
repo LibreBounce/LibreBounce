@@ -7,7 +7,7 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalkmode
 
 import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalkmodes.LiquidWalkMode
 import net.ccbluex.liquidbounce.utils.block.block
-import net.minecraft.init.Blocks.air
+import net.minecraft.init.Blocks
 import net.minecraft.util.BlockPos
 
 object AAC3311 : LiquidWalkMode("AAC3.3.11") {
@@ -21,7 +21,7 @@ object AAC3311 : LiquidWalkMode("AAC3.3.11") {
 
                 if (isCollidedHorizontally) {
                     motionY = 0.24
-                } else if (BlockPos(mc.thePlayer).up().block != air) {
+                } else if (BlockPos(mc.thePlayer).up().block != Blocks.air) {
                     motionY += 0.04
                 }
             }
