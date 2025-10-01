@@ -18,10 +18,12 @@ object AAC3311 : LiquidWalkMode("AAC3.3.11") {
             if (isInWater) {
                 motionX *= 1.17
                 motionZ *= 1.17
-                if (isCollidedHorizontally)
+
+                if (isCollidedHorizontally) {
                     motionY = 0.24
-                else if (BlockPos(mc.thePlayer).up().block != air)
+                } else if (BlockPos(mc.thePlayer).up().block != air) {
                     motionY += 0.04
+                }
             }
         }
     }
