@@ -67,4 +67,7 @@ object LiquidWalk : Module("LiquidWalk", Category.MOVEMENT, Keyboard.KEY_J) {
 
     override val tag
         get() = mode
+
+    private val modeModule
+        get() = liquidWalkModes.find { it.modeName == mode }!!
 }
