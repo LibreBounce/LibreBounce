@@ -24,7 +24,7 @@ object LiquidWalk : Module("LiquidWalk", Category.MOVEMENT, Keyboard.KEY_J) {
 
     private val liquidWalkModes = arrayOf(
         // Main
-        Vanilla, NCP
+        Vanilla, NCP,
 
         // AAC
         AAC, AAC3311, AACFly,
@@ -41,7 +41,7 @@ object LiquidWalk : Module("LiquidWalk", Category.MOVEMENT, Keyboard.KEY_J) {
     private val noJump by boolean("NoJump", false)
 
     val onUpdate = handler<UpdateEvent> { event ->
-        modeModule.onMove(event)
+        modeModule.onUpdate()
     }
 
     val onMove = handler<MoveEvent> { event ->

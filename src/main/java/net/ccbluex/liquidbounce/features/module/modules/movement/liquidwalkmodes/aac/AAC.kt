@@ -5,12 +5,11 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalkmodes.aac
 
-import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalkmodes.LiquidWalkMode
 import net.minecraft.init.Blocks.water
 
 object AAC : LiquidWalkMode("AAC") {
-    override fun onUpdate(event: UpdateEvent) {
+    override fun onUpdate() {
         mc.thePlayer?.run {
             if (isSneaking) return
 
@@ -22,7 +21,7 @@ object AAC : LiquidWalkMode("AAC") {
                     motionY *= 0.0
                     motionZ *= 0.99999
                     if (isCollidedHorizontally) motionY =
-                        ((.posY - (posY - 1).toInt()).toInt() / 8f).toDouble()
+                        ((posY - (posY - 1).toInt()).toInt() / 8f).toDouble()
                 } else {
                     motionX *= 0.99999
                     motionY *= 0.0

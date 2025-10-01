@@ -5,13 +5,12 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalkmodes.other
 
-import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalkmodes.LiquidWalkMode
 import net.minecraft.block.BlockLiquid
 import net.minecraft.util.BlockPos
 
 object Spartan : LiquidWalkMode("Spartan") {
-    override fun onUpdate(event: UpdateEvent) {
+    override fun onUpdate() {
         mc.thePlayer?.run {
             if (isSneaking) return
 
@@ -20,7 +19,7 @@ object Spartan : LiquidWalkMode("Spartan") {
                     motionY += 0.15
                     return
                 }
-                val block = BlockPos(player).up().block
+                val block = BlockPos(mc.thePlayer).up().block
                 val blockUp = BlockPos(posX, posY + 1.1, posZ).block
 
                 if (blockUp is BlockLiquid) {

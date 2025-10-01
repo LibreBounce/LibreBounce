@@ -5,7 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalkmodes.ncp
 
-import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.BlockBBEvent
 import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalkmodes.LiquidWalkMode
@@ -16,7 +15,7 @@ import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.util.AxisAlignedBB
 
 object NCP : LiquidWalkMode("NCP") {
-    override fun onUpdate(event: UpdateEvent) {
+    override fun onUpdate() {
         mc.thePlayer?.run {
             if (isSneaking) return
 
@@ -26,7 +25,7 @@ object NCP : LiquidWalkMode("NCP") {
 
     override fun onBlockBB(event: BlockBBEvent) {
         mc.thePlayer?.run {
-            if (event.block is BlockLiquid && !collideBlock(player.entityBoundingBox) { it is BlockLiquid } && !player.isSneaking) {
+            if (event.block is BlockLiquid && !collideBlock(entityBoundingBox) { it is BlockLiquid } && !isSneaking) {
                 event.boundingBox = AxisAlignedBB.fromBounds(
                     event.x.toDouble(),
                     event.y.toDouble(),

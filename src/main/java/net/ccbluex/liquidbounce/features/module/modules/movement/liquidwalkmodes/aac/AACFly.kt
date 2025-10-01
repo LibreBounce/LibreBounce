@@ -6,7 +6,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalkmodes.aac
 
 import net.ccbluex.liquidbounce.event.MoveEvent
-import net.ccbluex.liquidbounce.features.module.modules.movement.LiquidWalkMode.aacFly
+import net.ccbluex.liquidbounce.features.module.modules.movement.LiquidWalk.aacFly
 import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalkmodes.LiquidWalkMode
 
 object AACFly : LiquidWalkMode("AACFly") {

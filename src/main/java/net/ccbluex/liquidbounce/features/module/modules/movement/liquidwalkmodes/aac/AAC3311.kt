@@ -5,13 +5,12 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalkmodes.aac
 
-import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalkmodes.LiquidWalkMode
 import net.minecraft.init.Blocks.air
 import net.minecraft.util.BlockPos
 
 object AAC3311 : LiquidWalkMode("AAC3.3.11") {
-    override fun onUpdate(event: UpdateEvent) {
+    override fun onUpdate() {
         mc.thePlayer?.run {
             if (isSneaking) return
 

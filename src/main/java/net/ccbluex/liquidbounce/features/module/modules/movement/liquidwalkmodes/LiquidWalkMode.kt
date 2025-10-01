@@ -5,7 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalkmodes
 
-import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.BlockBBEvent
 import net.ccbluex.liquidbounce.event.JumpEvent
@@ -14,7 +13,7 @@ import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 
 open class LiquidWalkMode(val modeName: String) : MinecraftInstance {
     open fun onMove(event: MoveEvent) {}
-    open fun onUpdate(event: UpdateEvent) {}
+    open fun onUpdate() {}
     open fun onPacket(event: PacketEvent) {}
     open fun onBlockBB(event: BlockBBEvent) {}
     open fun onJump(event: JumpEvent) {}
