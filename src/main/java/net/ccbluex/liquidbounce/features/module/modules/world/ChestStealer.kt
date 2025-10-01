@@ -64,10 +64,10 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
     private val shortStopChance by int("ShortStopChance", 75, 0..100, suffix = "%") { simulateShortStop }
     private val shortStopLength by intRange("ShortStopLength", 350..650, 0..1000, suffix = "ms") { simulateShortStop }
 
-    // TODO: Make it more likely to happen over a longer distance, and the opposite, too
-    // Also add an option to not miss-click consecutively
+    // TODO: Add an option to not miss-click consecutively
     private val missClick by boolean("MissClick", false)
-    private val missClickChance by int("MissClickChance", 75, 0..100, suffix = "%") { missClick }
+    private val missClickChance by int("MissClickChance", 15, 0..100, suffix = "%") { missClick }
+    private val missClickDistMult by boolean("MissClickChanceDistanceMultiply", true) { missClick }
     private val pauseAfterMissClick by intRange("PauseAfterMissClick", 350..650, 0..1000, suffix = "ms") { missClick }
 
     private val delay by intRange("Delay", 50..50, 0..500, suffix = "ms")
@@ -193,7 +193,15 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
                     hasTaken = true
 
-                    if (missClick && nextInt(endExclusive = 100) < missClickChance) {
+                    val dist = squaredDistanceOfSlots(slot, itemsToSteal[index + 1].index)
+
+                    val missClickingChance = if (missClickChanceDistMult && index + 1 < itemsToSteal.size) {
+                        missClickChance * dist
+                    } else {
+                        missClickChance
+                    }
+
+                    if (missClick && nextInt(endExclusive = 100) < missClickingChance) {
                         performMissClick(screen, screen.inventorySlots.inventorySlots[slot])
                         delay(pauseAfterMissClickLength.toLong())
                     }
@@ -202,7 +210,6 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
                     chestStealerCurrentSlot = slot
 
                     val stealingDelay = if (smartDelay && index + 1 < itemsToSteal.size) {
-                        val dist = squaredDistanceOfSlots(slot, itemsToSteal[index + 1].index)
                         delay.random() + (sqrt(dist.toDouble()) * multiplier.random())
                     } else {
                         delay.random()
