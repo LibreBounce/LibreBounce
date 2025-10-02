@@ -10,6 +10,10 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 - `MissClickChanceDistanceMultiply` option to ChestStealer (thatonecoder)
 
+### Changed
+
+- Make `WaitForRotations` in Scaffold only sneak when it can start to rotate (thatonecoder)
+
 ## [0.5.0] - 2025-09-28
 
 ### Added
