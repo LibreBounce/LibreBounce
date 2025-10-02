@@ -533,9 +533,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
         if (!isGodBridgeEnabled || !player.onGround) return@handler
 
-        if (waitForRots) {
-            if (!player.isNearEdge(2.5f)) return
-
+        if (waitForRots && player.isNearEdge(2.5f)) {
             godBridgeTargetRotation?.run {
                 event.originalInput.sneak =
                     event.originalInput.sneak || rotationDifference(this, currRotation) > getFixedAngleDelta()
