@@ -7,6 +7,8 @@ package net.ccbluex.liquidbounce.utils.timing
 
 class TickTimer {
     private var tick = 0
+    val tickNumber = tick
+
     fun update() {
         tick++
     }
