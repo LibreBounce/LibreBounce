@@ -15,6 +15,8 @@ import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.util.AxisAlignedBB.fromBounds
 
 object NCP : LiquidWalkMode("NCP") {
+    private var nextTick = false
+
     override fun onUpdate() {
         mc.thePlayer?.run {
             if (!isSneaking && collideBlock(entityBoundingBox) { it is BlockLiquid } && isInsideOfMaterial(Material.air))
@@ -41,8 +43,6 @@ object NCP : LiquidWalkMode("NCP") {
         mc.thePlayer?.run {
             if (event.packet !is C03PacketPlayer)
                 return
-
-            var nextTick = false
 
             if (collideBlock(
                     fromBounds(
