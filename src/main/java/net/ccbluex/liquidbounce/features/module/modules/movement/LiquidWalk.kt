@@ -8,138 +8,56 @@ package net.ccbluex.liquidbounce.features.module.modules.movement
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.utils.block.BlockUtils.collideBlock
+import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalkmodes.aac.AAC
+import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalkmodes.aac.AAC3311
+import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalkmodes.aac.AACFly
+import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalkmodes.ncp.NCP
+import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalkmodes.other.Vanilla
+import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalkmodes.other.Spartan
+import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalkmodes.other.Dolphin
 import net.ccbluex.liquidbounce.utils.block.block
 import net.minecraft.block.BlockLiquid
-import net.minecraft.block.material.Material
-import net.minecraft.init.Blocks.air
-import net.minecraft.init.Blocks.water
-import net.minecraft.network.play.client.C03PacketPlayer
-import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.BlockPos
 import org.lwjgl.input.Keyboard
 
 object LiquidWalk : Module("LiquidWalk", Category.MOVEMENT, Keyboard.KEY_J) {
 
-    val mode by choices("Mode", arrayOf("Vanilla", "NCP", "AAC", "AAC3.3.11", "AACFly", "Spartan", "Dolphin"), "NCP")
-    private val aacFly by float("AACFlyMotion", 0.5f, 0.1f..1f) { mode == "AACFly" }
+    private val liquidWalkModes = arrayOf(
+        // Main
+        Vanilla, NCP,
+
+        // AAC
+        AAC, AAC3311, AACFly,
+
+        // Other
+        Spartan, Dolphin
+    )
+
+    private val modes = liquidWalkModes.map { it.modeName }.toTypedArray()
+
+    val mode by choices("Mode", modes, "NCP")
+    val aacFly by float("AACFlyMotion", 0.5f, 0.1f..1f) { mode == "AACFly" }
 
     private val noJump by boolean("NoJump", false)
 
-    private var nextTick = false
-
-    val onUpdate = handler<UpdateEvent> {
-        val player = mc.thePlayer
-
-        if (player == null || player.isSneaking) return@handler
-
-        when (mode) {
-            "NCP", "Vanilla" -> if (collideBlock(player.entityBoundingBox) { it is BlockLiquid } && player.isInsideOfMaterial(
-                    Material.air
-                ) && !player.isSneaking) player.motionY = 0.08
-
-            "AAC" -> {
-                val blockPos = player.position.down()
-                if (!player.onGround && blockPos.block == water || player.isInWater) {
-                    if (!player.isSprinting) {
-                        player.motionX *= 0.99999
-                        player.motionY *= 0.0
-                        player.motionZ *= 0.99999
-                        if (player.isCollidedHorizontally) player.motionY =
-                            ((player.posY - (player.posY - 1).toInt()).toInt() / 8f).toDouble()
-                    } else {
-                        player.motionX *= 0.99999
-                        player.motionY *= 0.0
-                        player.motionZ *= 0.99999
-                        if (player.isCollidedHorizontally) player.motionY =
-                            ((player.posY - (player.posY - 1).toInt()).toInt() / 8f).toDouble()
-                    }
-                    if (player.fallDistance >= 4) player.motionY =
-                        -0.004 else if (player.isInWater) player.motionY = 0.09
-                }
-                if (player.hurtTime != 0) player.onGround = false
-            }
-
-            "Spartan" -> if (player.isInWater) {
-                if (player.isCollidedHorizontally) {
-                    player.motionY += 0.15
-                    return@handler
-                }
-                val block = BlockPos(player).up().block
-                val blockUp = BlockPos(player.posX, player.posY + 1.1, player.posZ).block
-
-                if (blockUp is BlockLiquid) {
-                    player.motionY = 0.1
-                } else if (block is BlockLiquid) {
-                    player.motionY = 0.0
-                }
-
-                player.onGround = true
-                player.motionX *= 1.085
-                player.motionZ *= 1.085
-            }
-
-            "AAC3.3.11" -> if (player.isInWater) {
-                player.motionX *= 1.17
-                player.motionZ *= 1.17
-                if (player.isCollidedHorizontally)
-                    player.motionY = 0.24
-                else if (BlockPos(player).up().block != air)
-                    player.motionY += 0.04
-            }
-
-            "dolphin" -> if (player.isInWater) player.motionY += 0.03999999910593033
-        }
+    val onUpdate = handler<UpdateEvent> { event ->
+        modeModule.onUpdate()
     }
 
     val onMove = handler<MoveEvent> { event ->
-        if (mode == "AACFly" && mc.thePlayer.isInWater) {
-            event.y = aacFly.toDouble()
-            mc.thePlayer.motionY = aacFly.toDouble()
-        }
-    }
-
-    val onBlockBB = handler<BlockBBEvent> { event ->
-        val player = mc.thePlayer ?: return@handler
-
-        if (event.block is BlockLiquid && !collideBlock(player.entityBoundingBox) { it is BlockLiquid } && !player.isSneaking) {
-            when (mode) {
-                "NCP", "Vanilla" -> event.boundingBox = AxisAlignedBB.fromBounds(
-                    event.x.toDouble(),
-                    event.y.toDouble(),
-                    event.z.toDouble(),
-                    event.x + 1.toDouble(),
-                    event.y + 1.toDouble(),
-                    event.z + 1.toDouble()
-                )
-            }
-        }
+        modeModule.onMove(event)
     }
 
     val onPacket = handler<PacketEvent> { event ->
-        val player = mc.thePlayer
+        mc.thePlayer ?: return@handler
 
-        if (player == null || mode != "NCP")
-            return@handler
+        modeModule.onPacket(event)
+    }
 
-        if (event.packet is C03PacketPlayer) {
-            val packetPlayer = event.packet
+    val onBB = handler<BlockBBEvent> { event ->
+        mc.thePlayer ?: return@handler
 
-            if (collideBlock(
-                    AxisAlignedBB.fromBounds(
-                        player.entityBoundingBox.maxX,
-                        player.entityBoundingBox.maxY,
-                        player.entityBoundingBox.maxZ,
-                        player.entityBoundingBox.minX,
-                        player.entityBoundingBox.minY - 0.01,
-                        player.entityBoundingBox.minZ
-                    )
-                ) { it is BlockLiquid }
-            ) {
-                nextTick = !nextTick
-                if (nextTick) packetPlayer.y -= 0.001
-            }
-        }
+        modeModule.onBB(event)
     }
 
     val onJump = handler<JumpEvent> { event ->
@@ -153,4 +71,7 @@ object LiquidWalk : Module("LiquidWalk", Category.MOVEMENT, Keyboard.KEY_J) {
 
     override val tag
         get() = mode
+
+    private val modeModule
+        get() = liquidWalkModes.find { it.modeName == mode }!!
 }
