@@ -13,7 +13,6 @@ import net.ccbluex.liquidbounce.utils.extensions.isInLiquid
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
 
 object AAC334 : StepMode("AAC3.3.4") {
-
     private var isAACStep = false
 
     override fun onUpdate() {

@@ -18,25 +18,25 @@ import kotlin.math.sin
 object LAAC : StepMode("LAAC") {
 
     override fun onUpdate() {
-        val player = mc.thePlayer ?: return
+        mc.thePlayer?.run {
+            if (isOnLadder || isInLiquid || isInWeb || !isMoving)
+                return
 
-        if (player.isOnLadder || player.isInLiquid || player.isInWeb || !player.isMoving)
-            return
+            if (isCollidedHorizontally && onGround) {
+                isStep = true
 
-        if (player.isCollidedHorizontally && player.onGround) {
-            isStep = true
+                fakeJump()
 
-            fakeJump()
+                motionY += 0.620000001490116
+                motionX -= sin(direction) * 0.2
+                motionZ += cos(direction) * 0.2
 
-            player.motionY += 0.620000001490116
-            player.motionX -= sin(direction) * 0.2
-            player.motionZ += cos(direction) * 0.2
+                timer.reset()
 
-            timer.reset()
-
-            player.onGround = true
-        } else {
-            isStep = false
+                onGround = true
+            } else {
+                isStep = false
+            }
         }
     }
 }
