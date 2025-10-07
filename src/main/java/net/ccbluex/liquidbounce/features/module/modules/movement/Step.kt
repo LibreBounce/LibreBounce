@@ -20,6 +20,7 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.stepmodes.other
 import net.ccbluex.liquidbounce.features.module.modules.movement.stepmodes.other.Spartan
 import net.ccbluex.liquidbounce.features.module.modules.movement.stepmodes.other.Rewinside
 import net.ccbluex.liquidbounce.features.module.modules.movement.stepmodes.other.BlocksMCTimer
+import net.ccbluex.liquidbounce.features.module.modules.movement.stepmodes.other.BlocksMCTimer.tickTimer
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils.direction
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.minecraft.stats.StatList
@@ -68,7 +69,14 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
     }
 
     val onUpdate = handler<UpdateEvent> { event ->
-        modeModule.onUpdate()
+        mc.thePlayer?.run {
+            if (isOnLadder || isInLiquid || isInWeb || !isMoving) {
+                tickTimer.reset()
+                return@handler
+            }
+
+            modeModule.onUpdate()
+        }
     }
 
     val onMove = handler<MoveEvent> { event ->

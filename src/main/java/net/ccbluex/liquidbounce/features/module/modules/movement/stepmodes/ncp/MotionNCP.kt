@@ -28,12 +28,12 @@ object MotionNCP : StepMode("MotionNCP") {
                 fakeJump()
                 player.motionY = 0.0
                 event.y = 0.41999998688698
-                ncpNextStep = 1
+                ncpNextStep++
             }
 
             ncpNextStep == 1 -> {
                 event.y = 0.7531999805212 - 0.41999998688698
-                ncpNextStep = 2
+                ncpNextStep++
             }
 
             ncpNextStep == 2 -> {

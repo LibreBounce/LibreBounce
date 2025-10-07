@@ -24,11 +24,6 @@ object BlocksMCTimer : StepMode("BlocksMCTimer") {
     override fun onUpdate() {
         val player = mc.thePlayer ?: return
 
-        if (player.isOnLadder || player.isInLiquid || player.isInWeb || !player.isMoving) {
-            tickTimer.reset()
-            return
-        }
-
         if (player.onGround && player.isCollidedHorizontally) {
             val chest = searchBlocks(2, setOf(chest, ender_chest, trapped_chest))
 
@@ -51,7 +46,10 @@ object BlocksMCTimer : StepMode("BlocksMCTimer") {
                     mc.timer.timerSpeed = 1f
                     tickTimer.reset()
                 }
-                else -> tickTimer.reset()
+                else -> {
+                    mc.timer.timerSpeed = 1f
+                    tickTimer.reset()
+                }
             }
         }
     }
