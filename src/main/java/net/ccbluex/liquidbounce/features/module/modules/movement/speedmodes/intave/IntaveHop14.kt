@@ -5,7 +5,12 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.intave
 
-import net.ccbluex.liquidbounce.features.module.modules.movement.Speed
+import net.ccbluex.liquidbounce.features.module.modules.movement.Speed.boost
+import net.ccbluex.liquidbounce.features.module.modules.movement.Speed.intaveLowHop
+import net.ccbluex.liquidbounce.features.module.modules.movement.Speed.strafeStrength
+import net.ccbluex.liquidbounce.features.module.modules.movement.Speed.initialBoostMultiplier
+import net.ccbluex.liquidbounce.features.module.modules.movement.Speed.groundTimer
+import net.ccbluex.liquidbounce.features.module.modules.movement.Speed.airTimer
 import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.SpeedMode
 import net.ccbluex.liquidbounce.utils.extensions.isInLiquid
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
@@ -18,25 +23,25 @@ import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 */
 object IntaveHop14 : SpeedMode("IntaveHop14") {
 
-    private const val BOOST_CONSTANT = 0.003
+    private const val boost_constant = 0.003
 
     override fun onUpdate() {
         mc.thePlayer?.run {
             if (!isMoving || isInLiquid || isInWeb || isOnLadder) return
 
             if (onGround) {
-                motionY = 0.42 - if (Speed.intaveLowHop) 1.7E-14 else 0.0
+                motionY = 0.42 - if (intaveLowHop) 1.7E-14 else 0.0
 
-                if (isSprinting) strafe(strength = Speed.strafeStrength.toDouble())
+                if (isSprinting) strafe(strength = strafeStrength.toDouble())
 
-                mc.timer.timerSpeed = Speed.groundTimer
+                mc.timer.timerSpeed = groundTimer
             } else {
-                mc.timer.timerSpeed = Speed.airTimer
+                mc.timer.timerSpeed = airTimer
             }
 
-            if (Speed.boost && motionY > 0.003 && isSprinting) {
-                motionX *= 1f + (BOOST_CONSTANT * Speed.initialBoostMultiplier)
-                motionZ *= 1f + (BOOST_CONSTANT * Speed.initialBoostMultiplier)
+            if (boost && motionY > 0.003 && isSprinting) {
+                motionX *= 1f + (boost_constant * initialBoostMultiplier)
+                motionZ *= 1f + (boost_constant * initialBoostMultiplier)
             }
         }
     }

@@ -22,47 +22,47 @@ import net.minecraft.potion.Potion
 object BlocksMCHop : SpeedMode("BlocksMCHop") {
 
     override fun onUpdate() {
-        val player = mc.thePlayer ?: return
-        if (player.isInLiquid || player.isInWeb || player.isOnLadder) return
+        mc.thePlayer?.run {
+            if (isInLiquid || isInWeb || isOnLadder) return
 
-        if (player.isMoving) {
-            if (player.onGround) {
-                player.tryJump()
-            } else {
-                if (fullStrafe) {
-                    strafe(speed - 0.004F)
+            if (isMoving) {
+                if (onGround) {
+                    tryJump()
                 } else {
-                    if (player.airTicks >= 6) {
-                        strafe()
-                    }
-                }
-
-                if ((player.getActivePotionEffect(Potion.moveSpeed)?.amplifier ?: 0) > 0 && player.airTicks == 3) {
-                    player.motionX *= 1.12
-                    player.motionZ *= 1.12
-                }
-
-                if (bmcLowHop && player.airTicks == 4) {
-                    if (safeY) {
-                        if (player.posY % 1.0 == 0.16610926093821377) {
-                            player.motionY = -0.09800000190734863
-                        }
+                    if (fullStrafe) {
+                        strafe(speed - 0.004F)
                     } else {
-                        player.motionY = -0.09800000190734863
+                        if (airTicks >= 6) {
+                            strafe()
+                        }
                     }
-                }
 
-                if (player.hurtTime == 9 && bmcDamageBoost) {
-                    strafe(speed.coerceAtLeast(0.7F))
-                }
+                    if ((getActivePotionEffect(Potion.moveSpeed)?.amplifier ?: 0) > 0 && airTicks == 3) {
+                        motionX *= 1.12
+                        motionZ *= 1.12
+                    }
 
-                if (damageLowHop && player.hurtTime >= 1) {
-                    if (player.motionY > 0) {
-                        player.motionY -= 0.15
+                    if (bmcLowHop && airTicks == 4) {
+                        if (safeY) {
+                            if (posY % 1.0 == 0.16610926093821377) {
+                                motionY = -0.09800000190734863
+                            }
+                        } else {
+                            motionY = -0.09800000190734863
+                        }
+                    }
+
+                    if (hurtTime == 9 && bmcDamageBoost) {
+                        strafe(speed.coerceAtLeast(0.7F))
+                    }
+
+                    if (damageLowHop && hurtTime >= 1) {
+                        if (motionY > 0) {
+                            motionY -= 0.15
+                        }
                     }
                 }
             }
         }
     }
-
 }

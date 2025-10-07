@@ -14,14 +14,16 @@ import java.awt.Color
 
 object AAC3312 : FlyMode("AAC3.3.12") {
     override fun onUpdate() {
-        if (mc.thePlayer.posY < -70)
-            mc.thePlayer.motionY = aacMotion.toDouble()
+        mc.thePlayer?.run {
+            if (posY < -70)
+                motionY = aacMotion.toDouble()
 
-        mc.timer.timerSpeed = 1f
+            mc.timer.timerSpeed = 1f
 
-        if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL)) {
-            mc.timer.timerSpeed = 0.2f
-            mc.rightClickDelayTimer = 0
+            if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL)) {
+                mc.timer.timerSpeed = 0.2f
+                mc.rightClickDelayTimer = 0
+            }
         }
     }
 

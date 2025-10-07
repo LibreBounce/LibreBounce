@@ -29,40 +29,39 @@ import net.minecraft.item.ItemPotion
 object CustomSpeed : SpeedMode("Custom") {
 
     override fun onMotion() {
-        val player = mc.thePlayer ?: return
-        val heldItem = player.heldItem
+        mc.thePlayer?.run {
+            val fallingPlayer = FallingPlayer()
+            if (notOnVoid && fallingPlayer.findCollision(500) == null
+                || notOnFalling && fallDistance > 2.5f
+                || notOnConsuming && isUsingItem
+                && (heldItem.item is ItemFood
+                        || heldItem.item is ItemPotion
+                        || heldItem.item is ItemBucketMilk)
+            ) {
 
-        val fallingPlayer = FallingPlayer()
-        if (notOnVoid && fallingPlayer.findCollision(500) == null
-            || notOnFalling && player.fallDistance > 2.5f
-            || notOnConsuming && player.isUsingItem
-            && (heldItem.item is ItemFood
-                    || heldItem.item is ItemPotion
-                    || heldItem.item is ItemBucketMilk)
-        ) {
+                if (onGround) tryJump()
+                mc.timer.timerSpeed = 1f
+                return
+            }
 
-            if (player.onGround) player.tryJump()
-            mc.timer.timerSpeed = 1f
-            return
-        }
+            if (isMoving) {
+                if (onGround) {
+                    if (customGroundStrafe > 0) {
+                        strafe(customGroundStrafe)
+                    }
 
-        if (player.isMoving) {
-            if (player.onGround) {
-                if (customGroundStrafe > 0) {
-                    strafe(customGroundStrafe)
-                }
-
-                mc.timer.timerSpeed = customGroundTimer
-                player.motionY = customY.toDouble()
-            } else {
-                if (customAirStrafe > 0) {
-                    strafe(customAirStrafe)
-                }
-
-                if (player.ticksExisted % customAirTimerTick == 0) {
-                    mc.timer.timerSpeed = customAirTimer
+                    mc.timer.timerSpeed = customGroundTimer
+                    motionY = customY.toDouble()
                 } else {
-                    mc.timer.timerSpeed = 1f
+                    if (customAirStrafe > 0) {
+                        strafe(customAirStrafe)
+                    }
+
+                    if (ticksExisted % customAirTimerTick == 0) {
+                        mc.timer.timerSpeed = customAirTimer
+                    } else {
+                        mc.timer.timerSpeed = 1f
+                    }
                 }
             }
         }

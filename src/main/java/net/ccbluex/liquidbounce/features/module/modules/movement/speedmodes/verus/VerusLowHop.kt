@@ -14,7 +14,6 @@ import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 import net.minecraft.potion.Potion
 
 object VerusLowHop : SpeedMode("VerusLowHop") {
-
     private var speed = 0.0f
 
     override fun onUpdate() {
