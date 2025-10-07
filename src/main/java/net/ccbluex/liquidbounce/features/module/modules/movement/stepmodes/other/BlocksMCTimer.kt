@@ -19,7 +19,7 @@ import net.minecraft.init.Blocks.ender_chest
 import net.minecraft.init.Blocks.trapped_chest
 
 object BlocksMCTimer : StepMode("BlocksMCTimer") {
-    private val tickTimer = TickTimer()
+    val tickTimer = TickTimer()
 
     override fun onUpdate() {
         val player = mc.thePlayer ?: return

@@ -22,6 +22,8 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.stepmodes.other
 import net.ccbluex.liquidbounce.features.module.modules.movement.stepmodes.other.BlocksMCTimer
 import net.ccbluex.liquidbounce.features.module.modules.movement.stepmodes.other.BlocksMCTimer.tickTimer
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils.direction
+import net.ccbluex.liquidbounce.utils.extensions.isInLiquid
+import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.minecraft.stats.StatList
 import kotlin.math.cos
