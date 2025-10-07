@@ -33,57 +33,49 @@ object IceSpeed : Module("IceSpeed", Category.MOVEMENT) {
     val onUpdate = handler<UpdateEvent> {
         val mode = mode
 
-        when (mode) {
-            "Vanilla" -> {
-                ice.slipperiness = iceSlipperiness
-                packed_ice.slipperiness = packedIceSlipperiness
-            }
-            "NCP" -> {
-                ice.slipperiness = 0.39f
-                packed_ice.slipperiness = 0.39f
-            }
-            else -> {
-                ice.slipperiness = 0.98f
-                packed_ice.slipperiness = 0.98f
-            }
-        }
-
-        val player = mc.thePlayer ?: return@handler
-
-        if (!player.onGround || player.isOnLadder || player.isSneaking || !player.isSprinting || !player.isMoving) {
-            return@handler
-        }
-
-        if (player.position.down().block.let { it != ice && it != packed_ice }) {
-            return@handler
-        }
-
-        when (mode) {
-            "AAC" -> {
-                player.motionX *= 1.342
-                player.motionZ *= 1.342
-                ice.slipperiness = 0.6f
-                packed_ice.slipperiness = 0.6f
+        mc.thePlayer?.run {
+            if (!onGround || isOnLadder || isSneaking || !isSprinting || !isMoving) {
+                return@handler
             }
 
-            "Spartan" -> {
-                val upBlock = BlockPos(player).up(2).block
+            if (position.down().block.let { it != ice && it != packed_ice }) {
+                return@handler
+            }
 
-                if (upBlock != air) {
-                    player.motionX *= 1.342
-                    player.motionZ *= 1.342
-                } else {
-                    player.motionX *= 1.18
-                    player.motionZ *= 1.18
+            when (mode) {
+                "Vanilla" -> {
+                    motionX *= speed
+                    motionZ *= speed
+                    ice.slipperiness = iceSlipperiness
+                    packed_ice.slipperiness = packedIceSlipperiness
                 }
 
-                ice.slipperiness = 0.6f
-                packed_ice.slipperiness = 0.6f
-            }
+                "NCP" -> {
+                    ice.slipperiness = 0.39f
+                    packed_ice.slipperiness = 0.39f
+                }
 
-            "Vanilla" -> {
-                player.motionX *= speed
-                player.motionZ *= speed
+                "AAC" -> {
+                    motionX *= 1.342
+                    motionZ *= 1.342
+                    ice.slipperiness = 0.6f
+                    packed_ice.slipperiness = 0.6f
+                }
+
+                "Spartan" -> {
+                    val upBlock = BlockPos(mc.thePlayer).up(2).block
+
+                    if (upBlock != air) {
+                        motionX *= 1.342
+                        motionZ *= 1.342
+                    } else {
+                        motionX *= 1.18
+                        motionZ *= 1.18
+                    }
+
+                    ice.slipperiness = 0.6f
+                    packed_ice.slipperiness = 0.6f
+                }
             }
         }
     }

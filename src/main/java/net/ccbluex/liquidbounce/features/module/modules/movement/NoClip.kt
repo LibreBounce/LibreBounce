@@ -19,24 +19,24 @@ object NoClip : Module("NoClip", Category.MOVEMENT) {
     }
 
     val onMove = handler<MoveEvent> { event ->
-        val player = mc.thePlayer ?: return@handler
+        mc.thePlayer?.run {
+            strafe(speed, stopWhenNoInput = true, event)
 
-        strafe(speed, stopWhenNoInput = true, event)
+            noClip = true
+            onGround = false
 
-        player.noClip = true
-        player.onGround = false
+            capabilities.isFlying = false
 
-        player.capabilities.isFlying = false
+            var ySpeed = 0.0
 
-        var ySpeed = 0.0
+            if (mc.gameSettings.keyBindJump.isKeyDown)
+                ySpeed += speed
 
-        if (mc.gameSettings.keyBindJump.isKeyDown)
-            ySpeed += speed
+            if (mc.gameSettings.keyBindSneak.isKeyDown)
+                ySpeed -= speed
 
-        if (mc.gameSettings.keyBindSneak.isKeyDown)
-            ySpeed -= speed
-
-        player.motionY = ySpeed
-        event.y = ySpeed
+            motionY = ySpeed
+            event.y = ySpeed
+        }
     }
 }

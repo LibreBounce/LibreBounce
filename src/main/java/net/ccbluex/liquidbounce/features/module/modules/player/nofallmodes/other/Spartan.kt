@@ -14,15 +14,15 @@ object Spartan : NoFallMode("Spartan") {
     private val spartanTimer = TickTimer()
 
     override fun onUpdate() {
-        val player = mc.thePlayer ?: return
-
-        spartanTimer.update()
-        if (player.fallDistance > 1.5 && spartanTimer.hasTimePassed(10)) {
-            sendPackets(
-                C04PacketPlayerPosition(player.posX, player.posY + 10, player.posZ, true),
-                C04PacketPlayerPosition(player.posX, player.posY - 10, player.posZ, true)
-            )
-            spartanTimer.reset()
+        mc.thePlayer?.run {
+            spartanTimer.update()
+            if (fallDistance > 1.5 && spartanTimer.hasTimePassed(10)) {
+                sendPackets(
+                    C04PacketPlayerPosition(posX, posY + 10, posZ, true),
+                    C04PacketPlayerPosition(posX, posY - 10, posZ, true)
+                )
+                spartanTimer.reset()
+            }
         }
     }
 }

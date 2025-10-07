@@ -23,27 +23,27 @@ object HighJump : Module("HighJump", Category.MOVEMENT) {
     private val glass by boolean("OnlyGlassPane", false)
 
     val onUpdate = handler<UpdateEvent> {
-        val player = mc.thePlayer
+        mc.thePlayer?.run
+            if (glass && BlockPos(mc.thePlayer).block !is BlockPane)
+                return@handler
 
-        if (glass && BlockPos(player).block !is BlockPane)
-            return@handler
-
-        when (mode) {
-            "Damage" -> if (player.hurtTime > 0 && player.onGround) player.motionY += 0.42f * height
-            "AACv3" -> if (!player.onGround) player.motionY += 0.059
-            "DAC" -> if (!player.onGround) player.motionY += 0.049999
-            "Mineplex" -> if (!player.onGround) strafe(0.35f)
+            when (mode) {
+                "Damage" -> if (hurtTime > 0 && onGround) motionY += 0.42f * height
+                "AACv3" -> if (!onGround) motionY += 0.059
+                "DAC" -> if (!onGround) motionY += 0.049999
+                "Mineplex" -> if (!onGround) strafe(0.35f)
+            }
         }
     }
 
     val onMove = handler<MoveEvent> {
-        val player = mc.thePlayer ?: return@handler
-
-        if (glass && BlockPos(player).block !is BlockPane)
-            return@handler
-        if (!player.onGround) {
-            if (mode == "Mineplex") {
-                player.motionY += if (player.fallDistance == 0f) 0.0499 else 0.05
+        mc.thePlayer?.run {
+            if (glass && BlockPos(mc.thePlayer).block !is BlockPane)
+                return@handler
+            if (!onGround) {
+                if (mode == "Mineplex") {
+                    motionY += if (fallDistance == 0f) 0.0499 else 0.05
+                }
             }
         }
     }

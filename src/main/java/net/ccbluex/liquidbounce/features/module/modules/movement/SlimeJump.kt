@@ -13,19 +13,18 @@ import net.ccbluex.liquidbounce.utils.block.block
 import net.minecraft.block.BlockSlime
 
 object SlimeJump : Module("SlimeJump", Category.MOVEMENT) {
-
     private val motion by float("Motion", 0.42f, 0.2f..1f)
     private val mode by choices("Mode", arrayOf("Set", "Add"), "Add")
 
     val onJump = handler<JumpEvent> { event ->
-        val player = mc.thePlayer ?: return@handler
+        mc.thePlayer?.run {
+            if (mc.theWorld != null && position.down().block is BlockSlime) {
+                event.cancelEvent()
 
-        if (mc.theWorld != null && player.position.down().block is BlockSlime) {
-            event.cancelEvent()
-
-            when (mode) {
-                "Set" -> player.motionY = motion.toDouble()
-                "Add" -> player.motionY += motion
+                when (mode) {
+                    "Set" -> motionY = motion.toDouble()
+                    "Add" -> motionY += motion
+                }
             }
         }
     }

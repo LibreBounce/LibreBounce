@@ -179,27 +179,27 @@ object Speed : Module("Speed", Category.MOVEMENT) {
     val safeY by boolean("SafeY", true) { mode.get() == "BlocksMCHop" }
 
     val onUpdate = handler<UpdateEvent> {
-        val player = mc.thePlayer ?: return@handler
+        mc.thePlayer?.run {
+            if (isSneaking)
+                return@handler
 
-        if (player.isSneaking)
-            return@handler
+            if (isMoving && !sprintManually)
+                isSprinting = true
 
-        if (player.isMoving && !sprintManually)
-            player.isSprinting = true
-
-        modeModule.onUpdate()
+            modeModule.onUpdate()
+        }
     }
 
     val onMotion = handler<MotionEvent> { event ->
-        val player = mc.thePlayer ?: return@handler
+        mc.thePlayer?.run {
+            if (isSneaking || event.eventState != EventState.PRE)
+                return@handler
 
-        if (player.isSneaking || event.eventState != EventState.PRE)
-            return@handler
+            if (isMoving && !sprintManually)
+                isSprinting = true
 
-        if (player.isMoving && !sprintManually)
-            player.isSprinting = true
-
-        modeModule.onMotion()
+            modeModule.onMotion()
+        }
     }
 
     val onMove = handler<MoveEvent> { event ->
@@ -263,6 +263,5 @@ object Speed : Module("Speed", Category.MOVEMENT) {
         get() = speedModes.find { it.modeName == mode.get() }!!
 
     private val sprintManually
-        // Maybe there are more but for now there's the Legit mode.get().
-        get() = modeModule in arrayOf(Legit)
+        get() = modeModule in arrayOf(Legit, AACHop4, AACHop5)
 }

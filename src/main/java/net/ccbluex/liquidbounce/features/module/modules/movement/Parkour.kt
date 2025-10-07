@@ -15,15 +15,14 @@ import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
 object Parkour : Module("Parkour", Category.MOVEMENT, subjective = true, gameDetecting = false) {
 
     val onMovementInput = handler<MovementInputEvent> { event ->
-        val player = mc.thePlayer ?: return@handler
+        mc.thePlayer?.run {
+            val simPlayer = SimulatedPlayer.fromClientPlayer(event.originalInput)
 
-        val simPlayer = SimulatedPlayer.fromClientPlayer(event.originalInput)
+            simPlayer.tick()
 
-        simPlayer.tick()
-
-        if (player.isMoving && player.onGround && !player.isUsingItem && !player.isSneaking && !mc.gameSettings.keyBindSneak.isKeyDown && !simPlayer.onGround) {
-            event.originalInput.jump = true
+            if (isMoving && onGround && !isUsingItem && !isSneaking && !mc.gameSettings.keyBindSneak.isKeyDown && !simPlayer.onGround) {
+                event.originalInput.jump = true
+            }
         }
-
     }
 }

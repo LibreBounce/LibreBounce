@@ -13,13 +13,11 @@ import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
 import net.minecraft.network.play.server.S08PacketPlayerPosLook
 
 object Cancel : NoFallMode("Cancel") {
-
-    private var isFalling = false
-
     /**
      * NoFall Cancel
      * NOTE: The recommended distance for falling is < 15.
      */
+    private var isFalling = false
 
     override fun onPacket(event: PacketEvent) {
         val packet = event.packet

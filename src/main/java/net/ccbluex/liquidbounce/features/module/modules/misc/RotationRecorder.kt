@@ -28,7 +28,6 @@ import java.time.format.DateTimeFormatter
 import kotlin.math.absoluteValue
 
 object RotationRecorder : Module("RotationRecorder", Category.MISC) {
-
     private val captureNegativeNumbers by boolean("CaptureNegativeNumbers", false)
 
     private val ticks = mutableListOf<Double>()

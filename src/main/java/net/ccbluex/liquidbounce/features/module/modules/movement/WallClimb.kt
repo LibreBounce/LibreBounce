@@ -41,51 +41,52 @@ object WallClimb : Module("WallClimb", Category.MOVEMENT) {
     }
 
     val onUpdate = loopSequence {
-        val player = mc.thePlayer ?: return@loopSequence
-
-        when (mode) {
-            "Clip" -> {
-                if (player.motionY < 0)
-                    glitch = true
-                if (player.isCollidedHorizontally) {
-                    when (clipMode) {
-                        "Jump" -> if (player.onGround)
-                            player.tryJump()
-                        "Fast" -> if (player.onGround)
-                            player.motionY = 0.42
-                        else -> if (player.motionY < 0)
-                            player.motionY = -0.3
+        mc.thePlayer?.run {
+            when (mode) {
+                "Clip" -> {
+                    if (motionY < 0)
+                        glitch = true
+                    if (isCollidedHorizontally) {
+                        when (clipMode) {
+                            "Jump" -> if (onGround)
+                                tryJump()
+                            "Fast" -> if (onGround)
+                                motionY = 0.42
+                            else -> if (motionY < 0)
+                                motionY = -0.3
+                        }
                     }
                 }
-            }
 
-            "CheckerClimb" -> {
-                val isInsideBlock = collideBlockIntersects(player.entityBoundingBox) {
-                    it != air
+                "CheckerClimb" -> {
+                    val isInsideBlock = collideBlockIntersects(entityBoundingBox) {
+                        it != air
+                    }
+
+                    val motion = checkerClimbMotion
+
+                    if (isInsideBlock && motion != 0f)
+                        motionY = motion.toDouble()
                 }
-                val motion = checkerClimbMotion
 
-                if (isInsideBlock && motion != 0f)
-                    player.motionY = motion.toDouble()
-            }
+                "AAC3.3.12" -> if (isCollidedHorizontally && !isOnLadder) {
+                    waited++
+                    if (waited == 1)
+                        motionY = 0.43
+                    if (waited == 12)
+                        motionY = 0.43
+                    if (waited == 23)
+                        motionY = 0.43
+                    if (waited == 29)
+                        setPosition(posX, posY + 0.5, posZ)
+                    if (waited >= 30)
+                        waited = 0
+                } else if (onGround) waited = 0
 
-            "AAC3.3.12" -> if (player.isCollidedHorizontally && !player.isOnLadder) {
-                waited++
-                if (waited == 1)
-                    player.motionY = 0.43
-                if (waited == 12)
-                    player.motionY = 0.43
-                if (waited == 23)
-                    player.motionY = 0.43
-                if (waited == 29)
-                    player.setPosition(player.posX, player.posY + 0.5, player.posZ)
-                if (waited >= 30)
-                    waited = 0
-            } else if (player.onGround) waited = 0
-
-            "AACGlide" -> {
-                if (!player.isCollidedHorizontally || player.isOnLadder) return@loopSequence
-                player.motionY = -0.19
+                "AACGlide" -> {
+                    if (!isCollidedHorizontally || isOnLadder) return@loopSequence
+                    motionY = -0.19
+                }
             }
         }
     }

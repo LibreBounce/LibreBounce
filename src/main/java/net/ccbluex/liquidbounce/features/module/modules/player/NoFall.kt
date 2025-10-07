@@ -24,7 +24,6 @@ import kotlin.math.max
 
 object NoFall : Module("NoFall", Category.PLAYER) {
     private val noFallModes = arrayOf(
-
         // Main
         SpoofGround,
         NoGround,

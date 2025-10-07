@@ -61,12 +61,12 @@ object LiquidWalk : Module("LiquidWalk", Category.MOVEMENT, Keyboard.KEY_J) {
     }
 
     val onJump = handler<JumpEvent> { event ->
-        val player = mc.thePlayer ?: return@handler
+        mc.thePlayer?.run {
+            val block = BlockPos(posX, posY - 0.01, posZ).block
 
-        val block = BlockPos(player.posX, player.posY - 0.01, player.posZ).block
-
-        if (noJump && block is BlockLiquid)
-            event.cancelEvent()
+            if (noJump && block is BlockLiquid)
+                event.cancelEvent()
+        }
     }
 
     override val tag

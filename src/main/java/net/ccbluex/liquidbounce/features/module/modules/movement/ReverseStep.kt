@@ -20,37 +20,36 @@ object ReverseStep : Module("ReverseStep", Category.MOVEMENT) {
     private var jumped = false
 
     val onUpdate = handler<UpdateEvent>(always = true) {
-        val player = mc.thePlayer ?: return@handler
+        mc.thePlayer?.run {
+            if (onGround)
+                jumped = false
 
-        if (player.onGround)
-            jumped = false
+            if (motionY > 0)
+                jumped = true
 
-        if (player.motionY > 0)
-            jumped = true
+            if (!handleEvents())
+                return@handler
 
-        if (!handleEvents())
-            return@handler
+            if (collideBlock(entityBoundingBox) { it is BlockLiquid } ||
+                collideBlock(
+                    AxisAlignedBB.fromBounds(
+                        entityBoundingBox.maxX,
+                        entityBoundingBox.maxY,
+                        entityBoundingBox.maxZ,
+                        entityBoundingBox.minX,
+                        entityBoundingBox.minY - 0.01,
+                        entityBoundingBox.minZ
+                    )
+                ) {
+                    it is BlockLiquid
+                }) return@handler
 
-        if (collideBlock(player.entityBoundingBox) { it is BlockLiquid } ||
-            collideBlock(
-                AxisAlignedBB.fromBounds(
-                    player.entityBoundingBox.maxX,
-                    player.entityBoundingBox.maxY,
-                    player.entityBoundingBox.maxZ,
-                    player.entityBoundingBox.minX,
-                    player.entityBoundingBox.minY - 0.01,
-                    player.entityBoundingBox.minZ
-                )
-            ) {
-                it is BlockLiquid
-            }) return@handler
-
-        if (!mc.gameSettings.keyBindJump.isKeyDown && !player.onGround && !player.movementInput.jump && player.motionY <= 0.0 && player.fallDistance <= 1f && !jumped)
-            player.motionY = (-motion).toDouble()
+            if (!mc.gameSettings.keyBindJump.isKeyDown && !onGround && !movementInput.jump && motionY <= 0.0 && fallDistance <= 1f && !jumped)
+            motionY = (-motion).toDouble()
+        }
     }
 
     val onJump = handler<JumpEvent>(always = true) {
         jumped = true
     }
-
 }
