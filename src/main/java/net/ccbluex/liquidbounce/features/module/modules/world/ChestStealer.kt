@@ -203,7 +203,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
                         missClickChance
                     }
 
-                    if (missClick && nextInt(endExclusive = 100) < missClickingChance) {
+                    if (missClick && nextInt(endExclusive = 100) < missClickingChance.toInt()) {
                         performMissClick(screen, screen.inventorySlots.inventorySlots[slot])
                         delay(pauseAfterMissClickLength.toLong())
                     }
