@@ -11,7 +11,7 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.block.block
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
-import net.minecraft.init.Blocks.air
+import net.minecraft.init.Blocks
 import net.minecraft.init.Blocks.ice
 import net.minecraft.init.Blocks.packed_ice
 import net.minecraft.util.BlockPos
@@ -65,7 +65,7 @@ object IceSpeed : Module("IceSpeed", Category.MOVEMENT) {
                 "Spartan" -> {
                     val upBlock = BlockPos(mc.thePlayer).up(2).block
 
-                    if (upBlock != air) {
+                    if (upBlock != Blocks.air) {
                         motionX *= 1.342
                         motionZ *= 1.342
                     } else {

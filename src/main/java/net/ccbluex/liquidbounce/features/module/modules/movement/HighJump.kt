@@ -23,7 +23,7 @@ object HighJump : Module("HighJump", Category.MOVEMENT) {
     private val glass by boolean("OnlyGlassPane", false)
 
     val onUpdate = handler<UpdateEvent> {
-        mc.thePlayer?.run
+        mc.thePlayer?.run {
             if (glass && BlockPos(mc.thePlayer).block !is BlockPane)
                 return@handler
 

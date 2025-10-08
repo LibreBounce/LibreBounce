@@ -14,7 +14,7 @@ import net.ccbluex.liquidbounce.utils.block.BlockUtils.collideBlockIntersects
 import net.ccbluex.liquidbounce.utils.extensions.isInLiquid
 import net.ccbluex.liquidbounce.utils.extensions.tryJump
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils.direction
-import net.minecraft.init.Blocks.air
+import net.minecraft.init.Blocks
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.util.AxisAlignedBB
 import kotlin.math.cos
@@ -29,14 +29,14 @@ object WallClimb : Module("WallClimb", Category.MOVEMENT) {
     private var waited = 0
 
     val onMove = handler<MoveEvent> { event ->
-        val player = mc.thePlayer ?: return@handler
+        mc.thePlayer?.run {
+            if (!isCollidedHorizontally || isOnLadder || isInLiquid)
+                return@handler
 
-        if (!player.isCollidedHorizontally || player.isOnLadder || player.isInLiquid)
-            return@handler
-
-        if (mode == "Simple") {
-            event.y = 0.2
-            player.motionY = 0.0
+            if (mode == "Simple") {
+                event.y = 0.2
+                motionY = 0.0
+            }
         }
     }
 
@@ -60,7 +60,7 @@ object WallClimb : Module("WallClimb", Category.MOVEMENT) {
 
                 "CheckerClimb" -> {
                     val isInsideBlock = collideBlockIntersects(entityBoundingBox) {
-                        it != air
+                        it != Blocks.air
                     }
 
                     val motion = checkerClimbMotion
