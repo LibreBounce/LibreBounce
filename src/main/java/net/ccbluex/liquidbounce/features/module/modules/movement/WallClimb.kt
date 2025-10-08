@@ -105,16 +105,16 @@ object WallClimb : Module("WallClimb", Category.MOVEMENT) {
     }
 
     val onBlockBB = handler<BlockBBEvent> { event ->
-        val player = mc.thePlayer ?: return@handler
-
-        when (mode) {
-            "CheckerClimb" -> if (event.y > player.posY) event.boundingBox = null
-            "Clip" ->
-                if (event.block == air && event.y < player.posY && player.isCollidedHorizontally
-                    && !player.isOnLadder && !player.isInLiquid
-                )
-                    event.boundingBox = AxisAlignedBB.fromBounds(0.0, 0.0, 0.0, 1.0, 1.0, 1.0)
-                        .offset(player.posX, player.posY.toInt() - 1.0, player.posZ)
+        mc.thePlayer?.run {
+            when (mode) {
+                "CheckerClimb" -> if (event.y > posY) event.boundingBox = null
+                "Clip" ->
+                    if (event.block == Blocks.air && event.y < posY && isCollidedHorizontally
+                        && !isOnLadder && !isInLiquid
+                    )
+                        event.boundingBox = AxisAlignedBB.fromBounds(0.0, 0.0, 0.0, 1.0, 1.0, 1.0)
+                            .offset(posX, posY.toInt() - 1.0, posZ)
+            }
         }
     }
 }

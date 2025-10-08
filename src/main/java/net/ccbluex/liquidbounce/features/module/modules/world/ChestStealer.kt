@@ -198,7 +198,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
                     // TODO: Fix regression added in 0.6.0, making it try to steal the prior slots,
                     // after taking the second last item
                     val missClickingChance = if (missClickChanceDistMult && index + 1 < itemsToSteal.size) {
-                        missClickChance * sqrt(dist)
+                        missClickChance * sqrt(dist).toDouble()
                     } else {
                         missClickChance
                     }
