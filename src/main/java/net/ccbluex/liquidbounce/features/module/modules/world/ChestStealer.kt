@@ -198,13 +198,13 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
                     // TODO: Fix regression added in 0.6.0, making it try to steal the prior slots,
                     // after taking the second last item
                     val missClickingChance = if (missClickChanceDistMult && index + 1 < itemsToSteal.size) {
-                        missClickChance * sqrt(dist).toDouble()
+                        missClickChance * sqrt(dist.toDouble())
                     } else {
                         missClickChance
                     }
 
                     if (missClick && nextInt(endExclusive = 100) < missClickingChance) {
-                        performMissClick(screen, screen.inventorySlots.inventorySlots[slot])
+                        performMissClick(screen, slot)
                         delay(pauseAfterMissClickLength.toLong())
                     }
 
@@ -383,11 +383,11 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
     }
  
     private fun performMissClick(screen: GuiChest, targetSlot: Slot) {
-        val itemsInContainer = screen.inventorySlots.inventorySlots
-        val closestEmptySlot = itemsInContainer
+        val inventorySlot = screen.inventorySlots.inventorySlots
+        val closestEmptySlot = inventorySlot
             .filter { it.stack == null || it.stack.stackSize == 0 }
             .minByOrNull { otherSlot ->
-                squaredDistanceOfSlots(targetSlot.slotNumber, otherSlot.slotNumber)
+                squaredDistanceOfSlots(inventorySlot[targetSlot].slotNumber, otherSlot.slotNumber)
             } ?: return
 
         val slotId = closestEmptySlot.slotNumber
