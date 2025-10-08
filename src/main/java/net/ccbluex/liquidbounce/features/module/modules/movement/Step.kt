@@ -73,6 +73,7 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
     val onUpdate = handler<UpdateEvent> { event ->
         mc.thePlayer?.run {
             if (isOnLadder || isInLiquid || isInWeb || !isMoving) {
+                mc.timer.timerSpeed = 1f
                 tickTimer.reset()
                 return@handler
             }

@@ -51,6 +51,8 @@ object BlocksMCTimer : StepMode("BlocksMCTimer") {
                     tickTimer.reset()
                 }
             }
+        } else {
+            mc.timer.timerSpeed = 1f
         }
     }
 }
