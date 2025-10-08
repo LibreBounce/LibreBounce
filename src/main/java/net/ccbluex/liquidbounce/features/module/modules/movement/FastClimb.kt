@@ -48,48 +48,6 @@ object FastClimb : Module("FastClimb", Category.MOVEMENT) {
 
         mc.thePlayer?.run {
             when {
-                isCollidedHorizontally && isOnLadder -> {
-                    when (mode) {
-                        "Vanilla" -> {
-                            event.y = speed.toDouble()
-                            motionY = 0.0
-                        }
-
-                        "Delay" -> {
-                            if (climbCount >= climbDelay) {
-                                event.y = climbSpeed.toDouble()
-                                playerClimb()
-
-                                val currentPos =
-                                C04PacketPlayerPosition(posX, posY, posZ, true)
-
-                                sendPacket(currentPos)
-
-                                climbCount = 0
-
-                            } else {
-                                posY = prevPosY
-
-                                playerClimb()
-                                climbCount += 1
-
-                            }
-
-                            "SAAC3.1.2" -> {
-                                event.y = 0.1649
-                                motionY = 0.0
-                            }
-
-                            "AAC3.1.2" -> {
-                                event.y = 0.1699
-                                motionY = 0.0
-                            }
-                        }
-
-                    }
-                }
-
-
                 mode == "AAC3.0.0" && isCollidedHorizontally -> {
                     var x = 0.0
                     var z = 0.0
@@ -144,6 +102,41 @@ object FastClimb : Module("FastClimb", Category.MOVEMENT) {
                         } else {
                             setPosition(posX, i.toDouble(), posZ)
                         }
+                    }
+                }
+            }
+
+            if (isCollidedHorizontally && isOnLadder) {
+                when (mode) {
+                    "Vanilla" -> {
+                        event.y = speed.toDouble()
+                        motionY = 0.0
+                    }
+
+                    "Delay" -> {
+                        if (climbCount >= climbDelay) {
+                            event.y = climbSpeed.toDouble()
+                            playerClimb()
+
+                            sendPacket(C04PacketPlayerPosition(posX, posY, posZ, true))
+                            climbCount = 0
+                        } else {
+                            posY = prevPosY
+
+                            playerClimb()
+                            climbCount += 1
+
+                        }
+                    }
+
+                    "SAAC3.1.2" -> {
+                        event.y = 0.1649
+                        motionY = 0.0
+                    }
+
+                    "AAC3.1.2" -> {
+                        event.y = 0.1699
+                        motionY = 0.0
                     }
                 }
             }
