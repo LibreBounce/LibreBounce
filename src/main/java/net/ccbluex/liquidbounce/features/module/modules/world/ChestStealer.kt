@@ -204,7 +204,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
                     }
 
                     if (missClick && nextInt(endExclusive = 100) < missClickingChance) {
-                        performMissClick(screen, slot)
+                        performMissClick(screen, screen.inventorySlots.inventorySlots[slot])
                         delay(pauseAfterMissClickLength.toLong())
                     }
 
@@ -383,11 +383,10 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
     }
  
     private fun performMissClick(screen: GuiChest, targetSlot: Slot) {
-        val inventorySlot = screen.inventorySlots.inventorySlots
-        val closestEmptySlot = inventorySlot
+        val closestEmptySlot = screen.inventorySlots.inventorySlots
             .filter { it.stack == null || it.stack.stackSize == 0 }
             .minByOrNull { otherSlot ->
-                squaredDistanceOfSlots(inventorySlot[targetSlot].slotNumber, otherSlot.slotNumber)
+                squaredDistanceOfSlots(targetSlot.slotNumber, otherSlot.slotNumber)
             } ?: return
 
         val slotId = closestEmptySlot.slotNumber
