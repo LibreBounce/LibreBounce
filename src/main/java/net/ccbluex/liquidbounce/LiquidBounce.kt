@@ -36,6 +36,7 @@ import net.ccbluex.liquidbounce.tabs.ExploitsTab
 import net.ccbluex.liquidbounce.tabs.HeadsTab
 import net.ccbluex.liquidbounce.ui.client.altmanager.GuiAltManager.Companion.loadActiveGenerators
 import net.ccbluex.liquidbounce.ui.client.clickgui.ClickGui
+import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.FullscreenStyle
 import net.ccbluex.liquidbounce.ui.client.hud.HUD
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.client.BlinkUtils
@@ -102,6 +103,7 @@ object LiquidBounce {
     val hud = HUD
 
     val clickGui = ClickGui
+    val fullscreenGui = FullscreenStyle
 
     // Menu Background
     var background: Background? = null

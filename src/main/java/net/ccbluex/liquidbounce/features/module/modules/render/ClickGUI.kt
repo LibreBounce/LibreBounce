@@ -15,6 +15,7 @@ import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.BlackStyle
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.LiquidBounceStyle
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.NullStyle
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.SlowlyStyle
+import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.FullscreenStyle
 import net.minecraft.network.play.server.S2EPacketCloseWindow
 import org.lwjgl.input.Keyboard
 import java.awt.Color
@@ -22,7 +23,7 @@ import java.awt.Color
 object ClickGUI : Module("ClickGUI", Category.RENDER, Keyboard.KEY_RSHIFT, canBeEnabled = false) {
     private val style by choices(
         "Style",
-        arrayOf("LiquidBounce", "Null", "Slowly", "Black"),
+        arrayOf("LiquidBounce", "Null", "Slowly", "Black", "Fullscreen"),
         "LiquidBounce"
     ).onChanged {
         updateStyle()
@@ -35,14 +36,18 @@ object ClickGUI : Module("ClickGUI", Category.RENDER, Keyboard.KEY_RSHIFT, canBe
     val spacedValues by boolean("SpacedValues", false)
     val panelsForcedInBoundaries by boolean("PanelsForcedInBoundaries", false)
 
-    private val color by color("Color", Color(0, 160, 255)) { style !in arrayOf("Slowly", "Black") }
+    private val color by color("Color", Color(0, 160, 255)) { style !in arrayOf("Slowly", "Black", "Fullscreen") }
 
     val guiColor
         get() = color.rgb
 
     override fun onEnable() {
         updateStyle()
-        mc.displayGuiScreen(clickGui)
+        if (style == "Fullscreen")
+            mc.displayGuiScreen(fullscreenGui)
+        else
+            mc.displayGuiScreen(clickGui)
+
         Keyboard.enableRepeatEvents(true)
     }
 
