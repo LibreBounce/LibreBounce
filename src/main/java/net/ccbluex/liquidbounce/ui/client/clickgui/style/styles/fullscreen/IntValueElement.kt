@@ -5,7 +5,7 @@ import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.extensions.lerpWith
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawCircle
-import net.ccbluex.liquidbounce.value.IntegerValue
+import net.ccbluex.liquidbounce.config.IntegerValue
 import java.awt.Color
 
 class IntValueElement(
@@ -17,8 +17,8 @@ class IntValueElement(
 
     override var margin: Float = 5f
 
-    override var height: Float = Fonts.font35.fontHeight.toFloat() + margin
-    override var width: Float = Fonts.font35.getStringWidth(intValue.name).toFloat()
+    override var height: Float = Fonts.fontRegular35.fontHeight.toFloat() + margin
+    override var width: Float = Fonts.fontRegular35.getStringWidth(intValue.name).toFloat()
 
     private var hitboxX = 0f..0f
     private var hitboxY = 0f..0f

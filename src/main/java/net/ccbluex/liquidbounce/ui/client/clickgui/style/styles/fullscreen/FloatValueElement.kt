@@ -5,7 +5,7 @@ import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.extensions.lerpWith
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawCircle
-import net.ccbluex.liquidbounce.value.FloatValue
+import net.ccbluex.liquidbounce.config.FloatValue
 import java.awt.Color
 import kotlin.math.roundToLong
 
@@ -18,8 +18,8 @@ class FloatValueElement(
 
     override var margin: Float = 5f
 
-    override var height: Float = Fonts.font35.fontHeight.toFloat() + margin
-    override var width: Float = Fonts.font35.getStringWidth(floatValue.name).toFloat()
+    override var height: Float = Fonts.fontRegular35.fontHeight.toFloat() + margin
+    override var width: Float = Fonts.fontRegular35.getStringWidth(floatValue.name).toFloat()
 
     private var hitboxX = 0f..0f
     private var hitboxY = 0f..0f
@@ -48,7 +48,7 @@ class FloatValueElement(
         val offsetX = 100f * progress
 
         val circleX = startX + width + 10f + offsetX
-        val circleY = startY + Fonts.font35.fontHeight / 2f - 1.5f
+        val circleY = startY + Fonts.fontRegular35.fontHeight / 2f - 1.5f
 
         drawRect(
             startX + width + 10f,

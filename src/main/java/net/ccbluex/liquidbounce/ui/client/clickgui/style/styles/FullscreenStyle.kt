@@ -12,7 +12,7 @@ import net.ccbluex.liquidbounce.features.module.modules.render.ClickGUI
 import net.ccbluex.liquidbounce.file.FileManager.clickGuiConfig
 import net.ccbluex.liquidbounce.file.FileManager.saveConfig
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.Style
-import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.fullscreen.FullscreenModuleElement
+import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.fullscreen.ModuleElement
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts
@@ -43,7 +43,7 @@ object FullscreenStyle : GuiScreen() {
     val heightBg = 260f
     val marginLeft = 10f
     val panels = mutableListOf<Panel>()
-    val elements = mutableListOf<RiceModuleElement>()
+    val elements = mutableListOf<ModuleElement>()
 
     // Default Category
     var selectedCategory: Category = Category.COMBAT
@@ -109,11 +109,11 @@ object FullscreenStyle : GuiScreen() {
         // Foreground Background
         drawBackground(panelStartX + contentXOffset, panelStartY, widthBg - contentXOffset, heightBg, mainColor2)
 
-        Fonts.font60.drawString("LiquidBounce", panelStartX + marginLeft - 4, panelStartY + 9, Color.WHITE.rgb)
+        //Fonts.font60.drawString("LiquidBounce", panelStartX + marginLeft - 4, panelStartY + 9, Color.WHITE.rgb)
         Category.values().forEachIndexed { index, category ->
-            val categoryY = panelStartY + 40 + (Fonts.font35.fontHeight + 10) * index
+            val categoryY = panelStartY + 40 + (Fonts.fontSemibold35.fontHeight + 10) * index
             val categoryColor = if (category == selectedCategory) highlightColor else Color.WHITE.rgb
-            Fonts.font35.drawString(category.displayName, panelStartX + marginLeft, categoryY, categoryColor)
+            Fonts.fontSemibold35.drawString(category.displayName, panelStartX + marginLeft, categoryY, categoryColor)
         }
 
         if (Mouse.hasWheel() || isHoldingMidClick) {

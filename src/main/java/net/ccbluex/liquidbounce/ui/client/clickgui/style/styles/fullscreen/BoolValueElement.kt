@@ -2,7 +2,7 @@ package net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.fullscreen
 
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.FullscreenStyle
 import net.ccbluex.liquidbounce.ui.font.Fonts
-import net.ccbluex.liquidbounce.value.BoolValue
+import net.ccbluex.liquidbounce.config.BoolValue
 import net.vitox.particle.util.RenderUtils.drawRect
 import net.vitox.particle.util.RenderUtils.drawCircle
 import java.awt.Color
@@ -15,8 +15,8 @@ class BoolValueElement(
 ) : ValueElement() {
 
     override var margin: Float = 5f
-    override var height: Float = Fonts.font35.fontHeight.toFloat() + margin
-    override var width: Float = Fonts.font35.getStringWidth(boolValue.name).toFloat()
+    override var height: Float = Fonts.fontRegular35.fontHeight.toFloat() + margin
+    override var width: Float = Fonts.fontRegular35.getStringWidth(boolValue.name).toFloat()
 
     private var hitboxX = 0f..0f
     private var hitboxY = 0f..0f
@@ -37,7 +37,7 @@ class BoolValueElement(
             startY,
             Color.WHITE.rgb
         )
-        var circleY = startY + Fonts.font35.fontHeight / 2f - 1.5f
+        var circleY = startY + Fonts.fontRegular35.fontHeight / 2f - 1.5f
         var circleX = startX + width + 10f
         if (boolValue.isActive()) {
             drawCircle(circleX, circleY, 4f, FullscreenStyle.highlightColorAlpha.rgb)
