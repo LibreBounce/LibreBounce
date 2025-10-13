@@ -9,8 +9,9 @@ import net.ccbluex.liquidbounce.config.FloatValue
 import java.awt.Color
 import kotlin.math.roundToLong
 
-class FloatValueElement(
-    var floatValue: FloatValue,
+class FloatElement(
+    var value: FloatValue,
+    var valueName = "",
     override var startX: Float,
     override var startY: Float = 0f,
     override var previousValue: ValueElement? = null
@@ -19,10 +20,11 @@ class FloatValueElement(
     override var margin: Float = 5f
 
     override var height: Float = Fonts.fontRegular35.fontHeight.toFloat() + margin
-    override var width: Float = Fonts.fontRegular35.getStringWidth(floatValue.name).toFloat()
+    override var width: Float = Fonts.fontRegular35.getStringWidth(valueName).toFloat()
 
     private var hitboxX = 0f..0f
     private var hitboxY = 0f..0f
+
 
     init {
         if (previousValue != null) {
@@ -35,15 +37,15 @@ class FloatValueElement(
     override fun drawElement() {
         updateElement()
         Fonts.fontRegular35.drawString(
-            floatValue.name,
+            valueName,
             startX,
             startY,
             Color.WHITE.rgb
         )
 
-        val curValue = floatValue.get()
-        val min = floatValue.minimum
-        val max = floatValue.maximum
+        val curValue = value.get()
+        val min = value.minimum
+        val max = value.maximum
         val progress = (curValue - min) / (max - min)
         val offsetX = 100f * progress
 
@@ -57,6 +59,7 @@ class FloatValueElement(
             circleY + 0.5f,
             FullscreenStyle.referenceColor
         )
+
         drawCircle(circleX, circleY, 3f, FullscreenStyle.highlightColorAlpha.rgb)
         drawCircle(circleX, circleY, 1.5f, FullscreenStyle.highlightColor)
 
@@ -78,14 +81,13 @@ class FloatValueElement(
 
     override fun handleClick(mouseX: Float, mouseY: Float, button: Int) {
         if (button == 0 && hitboxX.contains(mouseX) && hitboxY.contains(mouseY)) {
-
             val min = startX + width + 10f
             val max = startX + width + 110f
             val progress = (mouseX - min) / (max - min)
-            var newValue = floatValue.lerpWith(progress)
-            //round to 2 decimal places
+            var newValue = value.lerpWith(progress)
+            // Round to 2 decimal places
             newValue = ((newValue * 100f).roundToLong() / 100.0f)
-            floatValue.set(newValue)
+            value.set(newValue)
         }
     }
 }

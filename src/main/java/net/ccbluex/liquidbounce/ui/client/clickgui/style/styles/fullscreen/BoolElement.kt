@@ -6,8 +6,9 @@ import net.ccbluex.liquidbounce.config.BoolValue
 import net.vitox.particle.util.RenderUtils.drawCircle
 import java.awt.Color
 
-class BoolValueElement(
-    var boolValue: BoolValue,
+class BoolElement(
+    var value: BoolValue,
+    var spaced = false,
     override var startX: Float,
     override var startY: Float = 0f,
     override var previousValue: ValueElement? = null
@@ -15,7 +16,9 @@ class BoolValueElement(
 
     override var margin: Float = 5f
     override var height: Float = Fonts.fontRegular35.fontHeight.toFloat() + margin
-    override var width: Float = Fonts.fontRegular35.getStringWidth(boolValue.name).toFloat()
+    override var width: Float = Fonts.fontRegular35.getStringWidth(valueName).toFloat()
+
+    private val valueName = if (spaced) value.name.addSpaces() else value.name
 
     private var hitboxX = 0f..0f
     private var hitboxY = 0f..0f
@@ -31,13 +34,15 @@ class BoolValueElement(
     override fun drawElement() {
         updateElement()
         Fonts.fontRegular35.drawString(
-            boolValue.name,
+            valueName,
             startX,
             startY,
             Color.WHITE.rgb
         )
+
         var circleY = startY + Fonts.fontRegular35.fontHeight / 2f - 1.5f
         var circleX = startX + width + 10f
+
         if (boolValue.isActive()) {
             drawCircle(circleX, circleY, 4f, FullscreenStyle.highlightColorAlpha.rgb)
             drawCircle(

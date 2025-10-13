@@ -1,6 +1,7 @@
 package net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.fullscreen
 
 import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.modules.render.ClickGUI.spacedValues
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.FullscreenStyle.accentColor
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.FullscreenStyle.elements
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.FullscreenStyle.mainColor
@@ -50,6 +51,7 @@ class ModuleElement(
 
     fun drawElement() {
         updateModuleElement()
+
         drawRoundedRect(
             startX + margin,
             startY,
@@ -58,13 +60,11 @@ class ModuleElement(
             mainColor,
             3f
         )
-        Fonts.fontSemibold40.drawString(module.name,startX + margin + 10, startY + 10,
+
+        Fonts.fontSemibold40.drawString(module.name, startX + margin + 10, startY + 10,
             if (module.state) accentColor else Color.WHITE.rgb
         )
-        /*Fonts.font30.drawString("(${module.category.displayName})",
-            startX + margin + 15 + Fonts.font40.getStringWidth(module.name),
-            startY + Fonts.font40.fontHeight - Fonts.font30.fontHeight + 8, referenceColor
-        )*/
+
         Fonts.fontRegular30.drawString(module.description, startX + margin + 10, startY + Fonts.fontSemibold40.fontHeight + 15,
             referenceColor
         )
@@ -130,13 +130,15 @@ class ModuleElement(
         if (moduleValues.isNotEmpty()) {
             var previousElement: ValueElement? = null
             for (value in moduleValues) {
+                val valueName = if (spacedValues) value.name.addSpaces() else value.name
+
                 val newElement = when (value) {
-                    is BoolValue -> BoolValueElement(value, startX + margin + 20, previousValue = previousElement)
-                    is FloatValue -> FloatValueElement(value, startX + margin + 20, previousValue = previousElement)
-                    is IntValue -> IntValueElement(value, startX + margin + 20, previousValue = previousElement)
-                    //is FloatRangeValue -> FloatRangeValueElement(value, startX + margin + 20, previousValue = previousElement)
-                    //is IntRangeValue -> IntRangeValueElement(value, startX + margin + 20, previousValue = previousElement)
-                    //is ListValue -> ListValueElement(value, startX + margin + 20, previousValue = previousElement)
+                    is BoolValue -> BoolValueElement(value, valueName, startX + margin + 20, previousValue = previousElement)
+                    is FloatValue -> FloatValueElement(value, valueName, startX + margin + 20, previousValue = previousElement)
+                    is IntValue -> IntValueElement(value, valueName, startX + margin + 20, previousValue = previousElement)
+                    //is FloatRangeValue -> FloatRangeValueElement(value, valueName, startX + margin + 20, previousValue = previousElement)
+                    //is IntRangeValue -> IntRangeValueElement(value, valueName, startX + margin + 20, previousValue = previousElement)
+                    //is ListValue -> ListValueElement(value, valueName, startX + margin + 20, previousValue = previousElement)
                     else -> null
                 }
 

@@ -5,11 +5,12 @@ import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.extensions.lerpWith
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
 import net.vitox.particle.util.RenderUtils.drawCircle
-import net.ccbluex.liquidbounce.config.IntValue
+import net.ccbluex.liquidbounce.config.IntRangeValue
 import java.awt.Color
 
-class IntValueElement(
-    var intValue: IntValue,
+class IntRangeElement(
+    var value: IntRangeValue,
+    var valueName = "",
     override var startX: Float,
     override var startY: Float = 0f,
     override var previousValue: ValueElement? = null
@@ -18,7 +19,7 @@ class IntValueElement(
     override var margin: Float = 5f
 
     override var height: Float = Fonts.fontRegular35.fontHeight.toFloat() + margin
-    override var width: Float = Fonts.fontRegular35.getStringWidth(intValue.name).toFloat()
+    override var width: Float = Fonts.fontRegular35.getStringWidth(valueName).toFloat()
 
     private var hitboxX = 0f..0f
     private var hitboxY = 0f..0f
@@ -34,20 +35,27 @@ class IntValueElement(
     override fun drawElement() {
         updateElement()
         Fonts.fontRegular35.drawString(
-            intValue.name,
+            valueName,
             startX,
             startY,
             Color.WHITE.rgb
         )
 
-        val curValue = intValue.get().toFloat()
-        val min = intValue.minimum
-        val max = intValue.maximum
-        val progress = (curValue - min) / (max - min)
-        val offsetX = 100f * progress
+        val first = value.get().first
+        val last = value.get().last
+        val min = value.minimum
+        val max = value.maximum
+        val firstProgress = (first.toFloat() - min) / (max - min)
+        val lastProgress = (last.toFloat() - min) / (max - min)
+        val firstOffsetX = 100f * firstProgress
+        val lastOffsetX = 100f * lastProgress
 
-        val circleX = startX + width + 10f + offsetX
+        val firstCircleX = startX + width + 10f + firstOffsetX
+        val lastCircleX = startX + width + 10f + lastOffsetX
         val circleY = startY + Fonts.fontRegular35.fontHeight / 2f - 1.5f
+
+        drawCircle(firstCircleX, circleY, 3f, FullscreenStyle.highlightColorAlpha.rgb)
+        drawCircle(firstCircleX, circleY, 1.5f, FullscreenStyle.highlightColor)
 
         drawRect(
             startX + width + 10f,
@@ -57,11 +65,11 @@ class IntValueElement(
             FullscreenStyle.referenceColor
         )
 
-        drawCircle(circleX, circleY, 3f, FullscreenStyle.highlightColorAlpha.rgb)
-        drawCircle(circleX, circleY, 1.5f, FullscreenStyle.highlightColor)
+        drawCircle(lastCircleX, circleY, 3f, FullscreenStyle.highlightColorAlpha.rgb)
+        drawCircle(lastCircleX, circleY, 1.5f, FullscreenStyle.highlightColor)
 
         Fonts.fontRegular30.drawString(
-            intValue.get().toString(),
+            "$first-$last $suffix",
             startX + width + 120f,
             circleY - Fonts.fontRegular30.fontHeight / 4f,
             Color.WHITE.rgb
@@ -81,9 +89,9 @@ class IntValueElement(
             val min = startX + width + 10f
             val max = startX + width + 110f
             val progress = (mouseX - min) / (max - min)
-            var newValue = intValue.lerpWith(progress)
-            //round to 2 decimal places
-            intValue.set(newValue)
+            var newValue = value.lerpWith(progress)
+            // Round to 2 decimal places
+            value.set(newValue)
         }
     }
 }
