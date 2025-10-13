@@ -10,7 +10,7 @@ import java.awt.Color
 
 class IntElement(
     var value: IntValue,
-    var valueName = "",
+    var valueName: String = "",
     override var startX: Float,
     override var startY: Float = 0f,
     override var previousValue: ValueElement? = null

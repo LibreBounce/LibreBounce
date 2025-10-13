@@ -8,7 +8,7 @@ import java.awt.Color
 
 class BoolElement(
     var value: BoolValue,
-    var valueName = "",
+    var valueName: String = "",
     override var startX: Float,
     override var startY: Float = 0f,
     override var previousValue: ValueElement? = null

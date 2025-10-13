@@ -11,7 +11,7 @@ import kotlin.math.roundToLong
 
 class FloatElement(
     var value: FloatValue,
-    var valueName = "",
+    var valueName: String = "",
     override var startX: Float,
     override var startY: Float = 0f,
     override var previousValue: ValueElement? = null

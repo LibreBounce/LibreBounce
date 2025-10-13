@@ -10,7 +10,7 @@ import java.awt.Color
 
 class IntRangeElement(
     var value: IntRangeValue,
-    var valueName = "",
+    var valueName: String = "",
     override var startX: Float,
     override var startY: Float = 0f,
     override var previousValue: ValueElement? = null
@@ -69,7 +69,7 @@ class IntRangeElement(
         drawCircle(lastCircleX, circleY, 1.5f, FullscreenStyle.highlightColor)
 
         Fonts.fontRegular30.drawString(
-            "$first-$last" (value.suffix ?: ""),
+            "$first - $last" (value.suffix ?: ""),
             startX + width + 120f,
             circleY - Fonts.fontRegular30.fontHeight / 4f,
             Color.WHITE.rgb
@@ -89,9 +89,9 @@ class IntRangeElement(
             val min = startX + width + 10f
             val max = startX + width + 110f
             val progress = (mouseX - min) / (max - min)
-            var newValue = value.lerpWith(progress)
+            var newValue = value.lerpWith(lastProgress)
             // Round to 2 decimal places
-            value.set(newValue)
+            value.setLast(newValue)
         }
     }
 }

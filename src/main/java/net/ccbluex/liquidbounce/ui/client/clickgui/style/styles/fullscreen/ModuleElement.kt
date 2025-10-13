@@ -139,7 +139,7 @@ class ModuleElement(
                     is FloatValue -> FloatElement(value, valueName, startX + margin + 20, previousValue = previousElement)
                     is IntValue -> IntElement(value, valueName, startX + margin + 20, previousValue = previousElement)
                     //is FloatRangeValue -> FloatRangeElement(value, valueName, startX + margin + 20, previousValue = previousElement)
-                    //is IntRangeValue -> IntRangeElement(value, valueName, startX + margin + 20, previousValue = previousElement)
+                    is IntRangeValue -> IntRangeElement(value, valueName, startX + margin + 20, previousValue = previousElement)
                     //is ListValue -> ListElement(value, valueName, startX + margin + 20, previousValue = previousElement)
                     else -> null
                 }
