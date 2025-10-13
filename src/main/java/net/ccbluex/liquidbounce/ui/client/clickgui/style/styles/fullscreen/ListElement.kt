@@ -47,8 +47,8 @@ class ListElement(
     }
 
     private fun cycle(next: Boolean) {
-        val values = setting.values.toList()
-        var index = values.indexOf(setting.get())
+        val values = value.values.toList()
+        var index = values.indexOf(value.get())
 
         index = if (next) {
             (index + 1) % values.size
@@ -56,7 +56,7 @@ class ListElement(
             (index - 1 + values.size) % values.size
         }
 
-        setting.changeValue(values[index])
+        value.changeValue(values[index])
     }
 
     private fun updateElement() {
