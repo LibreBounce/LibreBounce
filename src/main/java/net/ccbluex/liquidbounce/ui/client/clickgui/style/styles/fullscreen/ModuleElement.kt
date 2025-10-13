@@ -9,6 +9,7 @@ import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.FullscreenStyle.
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.BlackStyle.clickSound
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedRect
+import net.ccbluex.liquidbounce.utils.extensions.addSpaces
 import net.ccbluex.liquidbounce.config.BoolValue
 import net.ccbluex.liquidbounce.config.FloatValue
 import net.ccbluex.liquidbounce.config.IntValue
@@ -132,13 +133,14 @@ class ModuleElement(
             for (value in moduleValues) {
                 val valueName = if (spacedValues) value.name.addSpaces() else value.name
 
+                // TODO: Add list, int & float ranges, string, and block values
                 val newElement = when (value) {
-                    is BoolValue -> BoolValueElement(value, valueName, startX + margin + 20, previousValue = previousElement)
-                    is FloatValue -> FloatValueElement(value, valueName, startX + margin + 20, previousValue = previousElement)
-                    is IntValue -> IntValueElement(value, valueName, startX + margin + 20, previousValue = previousElement)
-                    //is FloatRangeValue -> FloatRangeValueElement(value, valueName, startX + margin + 20, previousValue = previousElement)
-                    //is IntRangeValue -> IntRangeValueElement(value, valueName, startX + margin + 20, previousValue = previousElement)
-                    //is ListValue -> ListValueElement(value, valueName, startX + margin + 20, previousValue = previousElement)
+                    is BoolValue -> BoolElement(value, valueName, startX + margin + 20, previousValue = previousElement)
+                    is FloatValue -> FloatElement(value, valueName, startX + margin + 20, previousValue = previousElement)
+                    is IntValue -> IntElement(value, valueName, startX + margin + 20, previousValue = previousElement)
+                    //is FloatRangeValue -> FloatRangeElement(value, valueName, startX + margin + 20, previousValue = previousElement)
+                    //is IntRangeValue -> IntRangeElement(value, valueName, startX + margin + 20, previousValue = previousElement)
+                    //is ListValue -> ListElement(value, valueName, startX + margin + 20, previousValue = previousElement)
                     else -> null
                 }
 

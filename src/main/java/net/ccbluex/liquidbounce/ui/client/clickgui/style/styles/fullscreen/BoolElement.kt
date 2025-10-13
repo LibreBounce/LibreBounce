@@ -8,7 +8,7 @@ import java.awt.Color
 
 class BoolElement(
     var value: BoolValue,
-    var spaced = false,
+    var valueName = "",
     override var startX: Float,
     override var startY: Float = 0f,
     override var previousValue: ValueElement? = null
@@ -17,8 +17,6 @@ class BoolElement(
     override var margin: Float = 5f
     override var height: Float = Fonts.fontRegular35.fontHeight.toFloat() + margin
     override var width: Float = Fonts.fontRegular35.getStringWidth(valueName).toFloat()
-
-    private val valueName = if (spaced) value.name.addSpaces() else value.name
 
     private var hitboxX = 0f..0f
     private var hitboxY = 0f..0f
@@ -33,6 +31,7 @@ class BoolElement(
 
     override fun drawElement() {
         updateElement()
+
         Fonts.fontRegular35.drawString(
             valueName,
             startX,
@@ -43,7 +42,7 @@ class BoolElement(
         var circleY = startY + Fonts.fontRegular35.fontHeight / 2f - 1.5f
         var circleX = startX + width + 10f
 
-        if (boolValue.isActive()) {
+        if (value.isActive()) {
             drawCircle(circleX, circleY, 4f, FullscreenStyle.highlightColorAlpha.rgb)
             drawCircle(
                 circleX,
@@ -58,7 +57,7 @@ class BoolElement(
 
     override fun handleClick(mouseX: Float, mouseY: Float, button: Int) {
         if (button == 0 && hitboxX.contains(mouseX) && hitboxY.contains(mouseY)) {
-            boolValue.toggle()
+            value.toggle()
         }
     }
 

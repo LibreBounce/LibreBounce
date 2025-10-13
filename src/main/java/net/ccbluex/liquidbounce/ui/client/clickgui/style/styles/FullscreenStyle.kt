@@ -201,8 +201,6 @@ object FullscreenStyle : GuiScreen() {
             return
         }
 
-//        mouseX = (x / scale).roundToInt()
-//        mouseY = (y / scale).roundToInt()
     }
 
     override fun mouseReleased(x: Int, y: Int, state: Int) {
@@ -251,15 +249,6 @@ object FullscreenStyle : GuiScreen() {
             }
             previousElement = elements.last()
         }
-
-        /*modules.filter { it.category == selectedCategory }.forEachIndexed { _, module ->
-            if (previousElement != null) {
-                elements.add(ModuleElement(module, startX, previousElement = previousElement))
-            } else {
-                elements.add(ModuleElement(module, startX, startY))
-            }
-            previousElement = elements.last()
-        }*/
     }
 
     fun Int.clamp(min: Int, max: Int): Int = this.coerceIn(min, max.coerceAtLeast(0))
