@@ -219,7 +219,7 @@ object FullscreenStyle : GuiScreen() {
     }
 
     override fun keyTyped(typedChar: Char, keyCode: Int) {
-        // Close ClickGUI by using its key bind.
+        // Close ClickGUI by using its keybind
         if (keyCode == ClickGUI.keyBind) {
             if (ignoreClosing) ignoreClosing = false
             else mc.displayGuiScreen(null)
@@ -243,7 +243,7 @@ object FullscreenStyle : GuiScreen() {
         var previousElement: ModuleElement? = null
 
         // Filter modules based on the selected category
-        moduleManager.modules.filter { it.category == selectedCategory }.forEachIndexed { _, module ->
+        moduleManager.get(selectedCategory).forEachIndexed { _, module ->
             if (previousElement != null) {
                 elements.add(ModuleElement(module, startX, previousElement = previousElement))
             } else {
@@ -251,6 +251,15 @@ object FullscreenStyle : GuiScreen() {
             }
             previousElement = elements.last()
         }
+
+        /*modules.filter { it.category == selectedCategory }.forEachIndexed { _, module ->
+            if (previousElement != null) {
+                elements.add(ModuleElement(module, startX, previousElement = previousElement))
+            } else {
+                elements.add(ModuleElement(module, startX, startY))
+            }
+            previousElement = elements.last()
+        }*/
     }
 
     fun Int.clamp(min: Int, max: Int): Int = this.coerceIn(min, max.coerceAtLeast(0))
