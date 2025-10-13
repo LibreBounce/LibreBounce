@@ -130,7 +130,7 @@ object FullscreenStyle : GuiScreen() {
                     if (contentHeight <= heightBg + 20) return
 
                     // Define boundaries for scrolling
-                    val minY = (panelStartY + 20) - (contentHeight - (heightBg - 20 - Fonts.font40.fontHeight))
+                    val minY = (panelStartY + 20) - (contentHeight - (heightBg - 20 - Fonts.fontSemibold40.fontHeight))
                     val maxY = panelStartY + 20
 
                     // Apply scrolling, ensuring elements stay within bounds

@@ -8,9 +8,12 @@ import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.FullscreenStyle.
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.BlackStyle.clickSound
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedRect
-import net.ccbluex.liquidbounce.value.BoolValue
-import net.ccbluex.liquidbounce.value.FloatValue
-import net.ccbluex.liquidbounce.value.IntegerValue
+import net.ccbluex.liquidbounce.config.BoolValue
+import net.ccbluex.liquidbounce.config.FloatValue
+import net.ccbluex.liquidbounce.config.IntValue
+//import net.ccbluex.liquidbounce.config.IntRangeValue
+//import net.ccbluex.liquidbounce.config.FloatRangeValue
+//import net.ccbluex.liquidbounce.config.ListValue
 import java.awt.Color
 
 class ModuleElement(
@@ -97,7 +100,7 @@ class ModuleElement(
         // TODO: Improve
         elements.forEach { element ->
             if (element.startY > startY - settingsHeight) return@forEach
-            element.startY += settingsHeight - Fonts.font40.fontHeight - 30f
+            element.startY += settingsHeight - Fonts.fontSemibold40.fontHeight - 30f
         }
     }
 
@@ -130,9 +133,13 @@ class ModuleElement(
                 val newElement = when (value) {
                     is BoolValue -> BoolValueElement(value, startX + margin + 20, previousValue = previousElement)
                     is FloatValue -> FloatValueElement(value, startX + margin + 20, previousValue = previousElement)
-                    is IntegerValue -> IntValueElement(value, startX + margin + 20, previousValue = previousElement)
+                    is IntValue -> IntValueElement(value, startX + margin + 20, previousValue = previousElement)
+                    //is FloatRangeValue -> FloatRangeValueElement(value, startX + margin + 20, previousValue = previousElement)
+                    //is IntRangeValue -> IntRangeValueElement(value, startX + margin + 20, previousValue = previousElement)
+                    //is ListValue -> ListValueElement(value, startX + margin + 20, previousValue = previousElement)
                     else -> null
                 }
+
                 newElement?.let { element ->
                     valueElements.add(element)
                     previousElement = element

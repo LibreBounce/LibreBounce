@@ -4,7 +4,7 @@ import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.FullscreenStyle
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.extensions.lerpWith
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
-import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawCircle
+import net.vitox.particle.util.RenderUtils.drawCircle
 import net.ccbluex.liquidbounce.config.FloatValue
 import java.awt.Color
 import kotlin.math.roundToLong

@@ -5,11 +5,11 @@ import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.extensions.lerpWith
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawCircle
-import net.ccbluex.liquidbounce.config.IntegerValue
+import net.ccbluex.liquidbounce.config.IntValue
 import java.awt.Color
 
 class IntValueElement(
-    var intValue: IntegerValue,
+    var intValue: IntValue,
     override var startX: Float,
     override var startY: Float = 0f,
     override var previousValue: ValueElement? = null

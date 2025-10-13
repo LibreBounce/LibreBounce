@@ -3,7 +3,6 @@ package net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.fullscreen
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.FullscreenStyle
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.config.BoolValue
-import net.vitox.particle.util.RenderUtils.drawRect
 import net.vitox.particle.util.RenderUtils.drawCircle
 import java.awt.Color
 
