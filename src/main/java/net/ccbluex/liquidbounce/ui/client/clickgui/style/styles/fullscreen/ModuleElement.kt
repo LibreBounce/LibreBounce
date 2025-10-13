@@ -1,5 +1,6 @@
 package net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.fullscreen
 
+import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.render.ClickGUI.spacedValues
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.FullscreenStyle.accentColor
@@ -10,12 +11,6 @@ import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.BlackStyle.click
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedRect
 import net.ccbluex.liquidbounce.utils.extensions.addSpaces
-import net.ccbluex.liquidbounce.config.BoolValue
-import net.ccbluex.liquidbounce.config.FloatValue
-import net.ccbluex.liquidbounce.config.IntValue
-//import net.ccbluex.liquidbounce.config.IntRangeValue
-//import net.ccbluex.liquidbounce.config.FloatRangeValue
-//import net.ccbluex.liquidbounce.config.ListValue
 import java.awt.Color
 
 class ModuleElement(
@@ -82,11 +77,13 @@ class ModuleElement(
                 module.toggle()
                 clickSound()
             }
+
             if (showSettings && toggleRangeX.contains(mouseX) && (startY..startY + height).contains(mouseY)) {
                 valueElements.forEach { it.handleClick(mouseX, mouseY, button) }
                 updateValueElementsList()
             }
         }
+
         if (button == 1 && toggleRangeX.contains(mouseX) && (startY..startY + height).contains(mouseY)) {
             showSettings = !showSettings
             height = if (showSettings) settingsHeight + margin * 2 else 40f

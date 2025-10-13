@@ -70,7 +70,7 @@ class IntRangeElement(
         drawCircle(lastCircleX, circleY, 1.5f, FullscreenStyle.highlightColor)
 
         Fonts.fontRegular30.drawString(
-            "$first - $last" (value.suffix ?: ""),
+            "$first - $last" + (value.suffix ?: ""),
             startX + width + 120f,
             circleY - Fonts.fontRegular30.fontHeight / 4f,
             Color.WHITE.rgb
@@ -86,6 +86,9 @@ class IntRangeElement(
     }
 
     override fun handleClick(mouseX: Float, mouseY: Float, button: Int) {
+        val slider1 = value.get().first
+        val slider2 = value.get().last
+
         /*if (button == 0 && hitboxX.contains(mouseX) && hitboxY.contains(mouseY)) {
             val min = startX + width + 10f
             val max = startX + width + 110f
