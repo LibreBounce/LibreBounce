@@ -129,23 +129,19 @@ class IntRangeElement(
             val percentage = (mouseX.toFloat() - otherStartX) / (endX - otherStartX)
 
             if (isOnLeftSlider && currSlider == null || currSlider == RangeSlider.LEFT) {
-                withDelayedSave {
-                    value.setFirst(
-                        value.lerpWith(percentage).coerceIn(value.minimum, slider2), false
-                    )
-                }
+                value.setFirst(
+                    value.lerpWith(percentage).coerceIn(value.minimum, slider2), false
+                )
             }
 
             if (isOnRightSlider && currSlider == null || currSlider == RangeSlider.RIGHT) {
-                withDelayedSave {
-                    value.setLast(
-                        value.lerpWith(percentage).coerceIn(slider1, value.maximum), false
-                    )
-                }
+                value.setLast(
+                    value.lerpWith(percentage).coerceIn(slider1, value.maximum), false
+                )
             }
 
             // Keep changing this slider until mouse is unpressed.
-            sliderValueHeld = value
+            // sliderValueHeld = value
 
             // Stop rendering and interacting only when this event was triggered by a mouse click.
             if (button == 0) {
