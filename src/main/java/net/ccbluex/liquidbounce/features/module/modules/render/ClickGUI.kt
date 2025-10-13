@@ -6,6 +6,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.render
 
 import net.ccbluex.liquidbounce.LiquidBounce.clickGui
+import net.ccbluex.liquidbounce.LiquidBounce.fullscreenGui
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category

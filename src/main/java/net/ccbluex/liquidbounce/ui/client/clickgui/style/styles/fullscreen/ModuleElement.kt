@@ -116,7 +116,7 @@ class ModuleElement(
     private fun updateValueElementsRendering() {
         if (valueElements.isEmpty()) return
 
-        valueElements.first().startY = startY + Fonts.font40.fontHeight + 30f
+        valueElements.first().startY = startY + Fonts.fontRegular40.fontHeight + 30f
         valueElements.forEach { element ->
             element.startX = startX + margin + 10f
         }

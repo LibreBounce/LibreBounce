@@ -110,6 +110,7 @@ object FullscreenStyle : GuiScreen() {
         drawBackground(panelStartX + contentXOffset, panelStartY, widthBg - contentXOffset, heightBg, mainColor2)
 
         //Fonts.font60.drawString("LiquidBounce", panelStartX + marginLeft - 4, panelStartY + 9, Color.WHITE.rgb)
+
         Category.values().forEachIndexed { index, category ->
             val categoryY = panelStartY + 40 + (Fonts.fontSemibold35.fontHeight + 10) * index
             val categoryColor = if (category == selectedCategory) highlightColor else Color.WHITE.rgb
@@ -212,6 +213,7 @@ object FullscreenStyle : GuiScreen() {
 
         mouseX = x // (x / scale).roundToInt()
         mouseY = y // (y / scale).roundToInt()
+
         for (panel in panels) panel.mouseReleased(mouseX, mouseY, state)
     }
 

@@ -60,8 +60,8 @@ class ClickGuiConfig(file: File) : FileConfig(file) {
             }
         }
 
-        if (jsonObject.has("ModernGUI")) {
-            val fullscreenStyleObject = jsonObject.getAsJsonObject("ModernGUI")
+        if (json.has("ModernGUI")) {
+            val fullscreenStyleObject = json.getAsJsonObject("ModernGUI")
 
             if (fullscreenStyleObject.has("Category")) {
                 val categoryName = fullscreenStyleObject["Category"].asString
