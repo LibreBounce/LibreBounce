@@ -6,6 +6,7 @@ import net.ccbluex.liquidbounce.utils.extensions.lerpWith
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
 import net.vitox.particle.util.RenderUtils.drawCircle
 import net.ccbluex.liquidbounce.config.IntRangeValue
+import kotlin.math.abs
 import java.awt.Color
 
 class IntRangeElement(
@@ -85,13 +86,69 @@ class IntRangeElement(
     }
 
     override fun handleClick(mouseX: Float, mouseY: Float, button: Int) {
-        if (button == 0 && hitboxX.contains(mouseX) && hitboxY.contains(mouseY)) {
+        /*if (button == 0 && hitboxX.contains(mouseX) && hitboxY.contains(mouseY)) {
             val min = startX + width + 10f
             val max = startX + width + 110f
             val progress = (mouseX - min) / (max - min)
             var newValue = value.lerpWith(lastProgress)
             // Round to 2 decimal places
             value.setLast(newValue)
+        }*/
+
+        val otherStartX = startX + 4
+        //val startY = yPos + 14
+        val width = moduleElement.settingsWidth - 12
+
+        val endX = startX + width
+
+        val currSlider = value.lastChosenSlider
+
+        if (mouseButton == 0 && mouseX in startX..endX && mouseY in startY - 2..startY + 7 || sliderValueHeld == value) {
+            val leftSliderPos =
+                startX + (slider1 - value.minimum).toFloat() / (value.maximum - value.minimum) * (endX - startX)
+            val rightSliderPos =
+                startX + (slider2 - value.minimum).toFloat() / (value.maximum - value.minimum) * (endX - startX)
+
+            val distToSlider1 = mouseX - leftSliderPos
+            val distToSlider2 = mouseX - rightSliderPos
+
+            val closerToLeft = abs(distToSlider1) < abs(distToSlider2)
+
+            val isOnLeftSlider =
+                (mouseX.toFloat() in startX.toFloat()..leftSliderPos || closerToLeft) && rightSliderPos > startX
+            val isOnRightSlider =
+                (mouseX.toFloat() in rightSliderPos..endX.toFloat() || !closerToLeft) && leftSliderPos < endX
+
+            val percentage = (mouseX.toFloat() - startX) / (endX - startX)
+
+            if (isOnLeftSlider && currSlider == null || currSlider == RangeSlider.LEFT) {
+                withDelayedSave {
+                    value.setFirst(
+                        value.lerpWith(percentage).coerceIn(value.minimum, slider2), false
+                    )
+                }
+            }
+
+            if (isOnRightSlider && currSlider == null || currSlider == RangeSlider.RIGHT) {
+                withDelayedSave {
+                    value.setLast(
+                        value.lerpWith(percentage).coerceIn(slider1, value.maximum), false
+                    )
+                }
+            }
+
+            // Keep changing this slider until mouse is unpressed.
+            sliderValueHeld = value
+
+            // Stop rendering and interacting only when this event was triggered by a mouse click.
+            if (mouseButton == 0) {
+                value.lastChosenSlider = when {
+                    isOnLeftSlider -> RangeSlider.LEFT
+                    isOnRightSlider -> RangeSlider.RIGHT
+                    else -> null
+                }
+                return true
+            }
         }
     }
 }
