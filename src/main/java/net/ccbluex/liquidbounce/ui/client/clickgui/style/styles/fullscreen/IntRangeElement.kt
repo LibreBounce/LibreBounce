@@ -1,5 +1,6 @@
 package net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.fullscreen
 
+import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.FullscreenStyle
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.extensions.lerpWith
