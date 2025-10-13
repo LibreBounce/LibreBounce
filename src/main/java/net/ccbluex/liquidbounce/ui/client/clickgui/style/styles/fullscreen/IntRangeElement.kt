@@ -36,6 +36,7 @@ class IntRangeElement(
 
     override fun drawElement() {
         updateElement()
+
         Fonts.fontRegular35.drawString(
             valueName,
             startX,

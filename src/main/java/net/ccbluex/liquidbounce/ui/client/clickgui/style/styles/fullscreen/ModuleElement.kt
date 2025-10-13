@@ -2,6 +2,7 @@ package net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.fullscreen
 
 import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.modules.render.ClickGUI.spacedModules
 import net.ccbluex.liquidbounce.features.module.modules.render.ClickGUI.spacedValues
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.FullscreenStyle.accentColor
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.FullscreenStyle.elements
@@ -57,7 +58,9 @@ class ModuleElement(
             3f
         )
 
-        Fonts.fontSemibold40.drawString(module.name, startX + margin + 10, startY + 10,
+        Fonts.fontSemibold40.drawString(
+            if (spacedModules) module.name.addSpaces() else module.name,
+            startX + margin + 10, startY + 10,
             if (module.state) accentColor else Color.WHITE.rgb
         )
 
@@ -137,7 +140,7 @@ class ModuleElement(
                     is IntValue -> IntElement(value, valueName, startX + margin + 20, previousValue = previousElement)
                     //is FloatRangeValue -> FloatRangeElement(value, valueName, startX + margin + 20, previousValue = previousElement)
                     is IntRangeValue -> IntRangeElement(value, valueName, startX + margin + 20, previousValue = previousElement)
-                    //is ListValue -> ListElement(value, valueName, startX + margin + 20, previousValue = previousElement)
+                    is ListValue -> ListElement(value, valueName, startX + margin + 20, previousValue = previousElement)
                     else -> null
                 }
 
