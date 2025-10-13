@@ -1,8 +1,6 @@
 package net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.fullscreen
 
 import net.ccbluex.liquidbounce.config.RangeSlider
-import net.ccbluex.liquidbounce.ui.client.clickgui.style.Style.withDelayedSave
-import net.ccbluex.liquidbounce.ui.client.clickgui.style.Style.sliderValueHeld
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.FullscreenStyle
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.extensions.lerpWith
@@ -150,7 +148,7 @@ class IntRangeElement(
                     isOnRightSlider -> RangeSlider.RIGHT
                     else -> null
                 }
-                return true
+                //return true
             }
         }
     }
