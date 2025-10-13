@@ -42,14 +42,28 @@ class ListElement(
 
     override fun handleClick(mouseX: Float, mouseY: Float, button: Int) {
         if (button == 0 && hitboxX.contains(mouseX) && hitboxY.contains(mouseY)) {
-            value.toggle()
+            cycle(button == 0)
         }
+    }
+
+    private fun cycle(next: Boolean) {
+        val values = setting.values.toList()
+        var index = values.indexOf(setting.get())
+
+        index = if (next) {
+            (index + 1) % values.size
+        } else {
+            (index - 1 + values.size) % values.size
+        }
+
+        setting.changeValue(values[index])
     }
 
     private fun updateElement() {
         if (previousValue != null) {
             this.startY = previousValue!!.startY + previousValue!!.height
         }
+
         this.hitboxX = startX .. (startX + width+14f)
         this.hitboxY = startY .. (startY + height-margin)
     }
