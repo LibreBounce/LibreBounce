@@ -97,17 +97,18 @@ class IntRangeElement(
 
         val otherStartX = startX + 4
         //val startY = yPos + 14
-        val width = moduleElement.settingsWidth - 12
+        //val width = moduleElement.settingsWidth - 12
 
         val endX = startX + width
 
         val currSlider = value.lastChosenSlider
 
-        if (mouseButton == 0 && mouseX in startX..endX && mouseY in startY - 2..startY + 7 || sliderValueHeld == value) {
+        //if (button == 0 && mouseX in startX..endX && mouseY in startY - 2..startY + 7 || sliderValueHeld == value) {
+        if (button == 0 && mouseX in otherStartX..endX && mouseY in startY - 2..startY + 7) {
             val leftSliderPos =
-                startX + (slider1 - value.minimum).toFloat() / (value.maximum - value.minimum) * (endX - startX)
+                otherStartX + (slider1 - value.minimum).toFloat() / (value.maximum - value.minimum) * (endX - otherStartX)
             val rightSliderPos =
-                startX + (slider2 - value.minimum).toFloat() / (value.maximum - value.minimum) * (endX - startX)
+                otherStartX + (slider2 - value.minimum).toFloat() / (value.maximum - value.minimum) * (endX - otherStartX)
 
             val distToSlider1 = mouseX - leftSliderPos
             val distToSlider2 = mouseX - rightSliderPos
@@ -115,11 +116,11 @@ class IntRangeElement(
             val closerToLeft = abs(distToSlider1) < abs(distToSlider2)
 
             val isOnLeftSlider =
-                (mouseX.toFloat() in startX.toFloat()..leftSliderPos || closerToLeft) && rightSliderPos > startX
+                (mouseX.toFloat() in otherStartX.toFloat()..leftSliderPos || closerToLeft) && rightSliderPos > otherStartX
             val isOnRightSlider =
                 (mouseX.toFloat() in rightSliderPos..endX.toFloat() || !closerToLeft) && leftSliderPos < endX
 
-            val percentage = (mouseX.toFloat() - startX) / (endX - startX)
+            val percentage = (mouseX.toFloat() - otherStartX) / (endX - otherStartX)
 
             if (isOnLeftSlider && currSlider == null || currSlider == RangeSlider.LEFT) {
                 withDelayedSave {
@@ -141,7 +142,7 @@ class IntRangeElement(
             sliderValueHeld = value
 
             // Stop rendering and interacting only when this event was triggered by a mouse click.
-            if (mouseButton == 0) {
+            if (button == 0) {
                 value.lastChosenSlider = when {
                     isOnLeftSlider -> RangeSlider.LEFT
                     isOnRightSlider -> RangeSlider.RIGHT
