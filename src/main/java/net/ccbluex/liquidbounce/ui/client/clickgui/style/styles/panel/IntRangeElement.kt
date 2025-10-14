@@ -86,7 +86,7 @@ class IntRangeElement(
         //drawCircle(lastCircleX, circleY, 2f, highlightColorAlpha.rgb)
         drawCircle(lastCircleX, circleY, 1f, highlightColor)
 
-        drawString(
+        fontRegular30.drawString(
             "$first - $last" + " " + (value.suffix ?: ""),
             startX + width + 120f,
             circleY - fontRegular30.fontHeight / 4f,
