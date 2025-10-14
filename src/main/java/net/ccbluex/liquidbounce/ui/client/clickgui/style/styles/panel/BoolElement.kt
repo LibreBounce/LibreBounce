@@ -6,7 +6,9 @@
 package net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel
 
 import net.ccbluex.liquidbounce.config.BoolValue
-import net.ccbluex.liquidbounce.ui.font.Fonts.fontRegular30
+import net.ccbluex.liquidbounce.ui.font.Fonts.fontRegular30.drawString
+import net.ccbluex.liquidbounce.ui.font.Fonts.fontRegular30.fontHeight
+import net.ccbluex.liquidbounce.ui.font.Fonts.fontRegular30.getStringWidth
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle.highlightColor
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle.highlightColorAlpha
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle.referenceColor
@@ -50,15 +52,14 @@ class BoolElement(
         var circleX = startX + width + 10f
 
         if (value.isActive()) {
-            drawCircle(circleX, circleY, 4f, highlightColorAlpha.rgb)
             drawCircle(
                 circleX,
                 circleY,
-                2f,
+                1f,
                 highlightColor
             )
         } else {
-            drawCircle(circleX, circleY, 3f, referenceColor)
+            drawCircle(circleX, circleY, 1f, referenceColor)
         }
     }
 

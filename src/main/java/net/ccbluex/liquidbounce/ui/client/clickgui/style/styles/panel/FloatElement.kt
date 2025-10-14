@@ -1,13 +1,15 @@
 package net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel
 
-import net.ccbluex.liquidbounce.ui.font.Fonts
+import net.ccbluex.liquidbounce.config.FloatValue
+import net.ccbluex.liquidbounce.ui.font.Fonts.fontRegular30.drawString
+import net.ccbluex.liquidbounce.ui.font.Fonts.fontRegular30.fontHeight
+import net.ccbluex.liquidbounce.ui.font.Fonts.fontRegular30.getStringWidth
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle.highlightColor
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle.highlightColorAlpha
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle.referenceColor
 import net.ccbluex.liquidbounce.utils.extensions.lerpWith
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
 import net.vitox.particle.util.RenderUtils.drawCircle
-import net.ccbluex.liquidbounce.config.FloatValue
 import java.awt.Color
 import kotlin.math.roundToLong
 
@@ -21,8 +23,8 @@ class FloatElement(
 
     override var margin: Float = 5f
 
-    override var height: Float = Fonts.fontRegular30.fontHeight.toFloat() + margin
-    override var width: Float = Fonts.fontRegular30.getStringWidth(valueName).toFloat()
+    override var height: Float = fontHeight.toFloat() + margin
+    override var width: Float = getStringWidth(valueName).toFloat()
 
     private var hitboxX = 0f..0f
     private var hitboxY = 0f..0f
@@ -38,7 +40,7 @@ class FloatElement(
 
     override fun drawElement() {
         updateElement()
-        Fonts.fontRegular30.drawString(
+        drawString(
             valueName,
             startX,
             startY,
@@ -52,23 +54,23 @@ class FloatElement(
         val offsetX = 100f * progress
 
         val circleX = startX + width + 10f + offsetX
-        val circleY = startY + Fonts.fontRegular30.fontHeight / 2f - 1.5f
+        val circleY = startY + fontHeight / 2f - 1.5f
 
         drawRect(
             startX + width + 10f,
-            circleY - 0.5f,
+            circleY - 0.75f,
             startX + width + 110f,
-            circleY + 0.5f,
+            circleY + 0.75f,
             referenceColor
         )
 
-        drawCircle(circleX, circleY, 3f, highlightColorAlpha.rgb)
-        drawCircle(circleX, circleY, 1.5f, highlightColor)
+        //drawCircle(circleX, circleY, 3f, highlightColorAlpha.rgb)
+        drawCircle(circleX, circleY, 1f, highlightColor)
 
-        Fonts.fontRegular30.drawString(
+        drawString(
             value.get().toString() + " " + (value.suffix ?: ""),
             startX + width + 120f,
-            circleY - Fonts.fontRegular30.fontHeight / 4f,
+            circleY - fontHeight / 4f,
             Color.WHITE.rgb
         )
     }
