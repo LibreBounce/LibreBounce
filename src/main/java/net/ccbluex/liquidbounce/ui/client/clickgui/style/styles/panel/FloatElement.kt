@@ -10,7 +10,7 @@ import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle.refer
 import net.ccbluex.liquidbounce.utils.extensions.lerpWith
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
 import net.vitox.particle.util.RenderUtils.drawCircle
-import java.awt.Color
+import java.awt.Color.WHITE
 import kotlin.math.roundToLong
 
 class FloatElement(
@@ -44,7 +44,7 @@ class FloatElement(
             valueName,
             startX,
             startY,
-            Color.WHITE.rgb
+            WHITE.rgb
         )
 
         val curValue = value.get()
@@ -71,7 +71,7 @@ class FloatElement(
             value.get().toString() + " " + (value.suffix ?: ""),
             startX + width + 120f,
             circleY - fontHeight / 4f,
-            Color.WHITE.rgb
+            WHITE.rgb
         )
     }
 

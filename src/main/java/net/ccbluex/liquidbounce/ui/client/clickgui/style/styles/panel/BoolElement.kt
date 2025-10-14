@@ -24,8 +24,8 @@ class BoolElement(
 ) : ValueElement() {
 
     override var margin: Float = 5f
-    override var height: Float = fontRegular30.fontHeight.toFloat() + margin
-    override var width: Float = fontRegular30.getStringWidth(valueName).toFloat()
+    override var height: Float = fontHeight.toFloat() + margin
+    override var width: Float = getStringWidth(valueName).toFloat()
 
     private var hitboxX = 0f..0f
     private var hitboxY = 0f..0f
@@ -41,14 +41,14 @@ class BoolElement(
     override fun drawElement() {
         updateElement()
 
-        fontRegular30.drawString(
+        drawString(
             valueName,
             startX,
             startY,
             Color.WHITE.rgb
         )
 
-        var circleY = startY + fontRegular30.fontHeight / 2f - 1.5f
+        var circleY = startY + fontHeight / 2f - 1.5f
         var circleX = startX + width + 10f
 
         if (value.isActive()) {
