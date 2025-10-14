@@ -18,11 +18,11 @@ class ListElement(
     override var previousValue: ValueElement? = null
 ) : ValueElement() {
 
+    private val string = "${valueName}: ${value.get()}"
+
     override var margin: Float = 5f
     override var height: Float = fontRegular30.fontHeight.toFloat() + margin
     override var width: Float = fontRegular30.getStringWidth(string).toFloat()
-
-    private val string = "${valueName}: ${value.get()}"
 
     private var hitboxX = 0f..0f
     private var hitboxY = 0f..0f
