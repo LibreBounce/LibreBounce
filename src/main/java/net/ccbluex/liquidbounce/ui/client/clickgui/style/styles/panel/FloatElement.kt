@@ -1,9 +1,7 @@
 package net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel
 
 import net.ccbluex.liquidbounce.config.FloatValue
-import net.ccbluex.liquidbounce.ui.font.Fonts.fontRegular30.drawString
-import net.ccbluex.liquidbounce.ui.font.Fonts.fontRegular30.fontHeight
-import net.ccbluex.liquidbounce.ui.font.Fonts.fontRegular30.getStringWidth
+import net.ccbluex.liquidbounce.ui.font.Fonts.fontRegular30
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle.highlightColor
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle.highlightColorAlpha
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle.referenceColor
@@ -23,8 +21,8 @@ class FloatElement(
 
     override var margin: Float = 5f
 
-    override var height: Float = fontHeight.toFloat() + margin
-    override var width: Float = getStringWidth(valueName).toFloat()
+    override var height: Float = fontRegular30.fontHeight.toFloat() + margin
+    override var width: Float = fontRegular30.getStringWidth(valueName).toFloat()
 
     private var hitboxX = 0f..0f
     private var hitboxY = 0f..0f
@@ -34,13 +32,15 @@ class FloatElement(
         if (previousValue != null) {
             startY = previousValue!!.startY + previousValue!!.height
         }
+
         this.hitboxX = startX..(startX + width + 14f)
         this.hitboxY = startY..(startY + height - margin)
     }
 
     override fun drawElement() {
         updateElement()
-        drawString(
+
+        fontRegular30.drawString(
             valueName,
             startX,
             startY,
@@ -54,7 +54,7 @@ class FloatElement(
         val offsetX = 100f * progress
 
         val circleX = startX + width + 10f + offsetX
-        val circleY = startY + fontHeight / 2f - 1.5f
+        val circleY = startY + fontRegular30.fontHeight / 2f - 1.5f
 
         drawRect(
             startX + width + 10f,
@@ -70,7 +70,7 @@ class FloatElement(
         drawString(
             value.get().toString() + " " + (value.suffix ?: ""),
             startX + width + 120f,
-            circleY - fontHeight / 4f,
+            circleY - fontRegular30.fontHeight / 4f,
             WHITE.rgb
         )
     }

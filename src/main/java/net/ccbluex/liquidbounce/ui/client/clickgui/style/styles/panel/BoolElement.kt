@@ -6,14 +6,12 @@
 package net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel
 
 import net.ccbluex.liquidbounce.config.BoolValue
-import net.ccbluex.liquidbounce.ui.font.Fonts.fontRegular30.drawString
-import net.ccbluex.liquidbounce.ui.font.Fonts.fontRegular30.fontHeight
-import net.ccbluex.liquidbounce.ui.font.Fonts.fontRegular30.getStringWidth
+import net.ccbluex.liquidbounce.ui.font.Fonts.fontRegular30
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle.highlightColor
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle.highlightColorAlpha
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle.referenceColor
 import net.vitox.particle.util.RenderUtils.drawCircle
-import java.awt.Color
+import java.awt.Color.WHITE
 
 class BoolElement(
     var value: BoolValue,
@@ -24,8 +22,8 @@ class BoolElement(
 ) : ValueElement() {
 
     override var margin: Float = 5f
-    override var height: Float = fontHeight.toFloat() + margin
-    override var width: Float = getStringWidth(valueName).toFloat()
+    override var height: Float = fontRegular30.fontHeight.toFloat() + margin
+    override var width: Float = fontRegular30.getStringWidth(valueName).toFloat()
 
     private var hitboxX = 0f..0f
     private var hitboxY = 0f..0f
@@ -41,14 +39,14 @@ class BoolElement(
     override fun drawElement() {
         updateElement()
 
-        drawString(
+        fontRegular30.drawString(
             valueName,
             startX,
             startY,
-            Color.WHITE.rgb
+            WHITE.rgb
         )
 
-        var circleY = startY + fontHeight / 2f - 1.5f
+        var circleY = startY + fontRegular30.fontHeight / 2f - 1.5f
         var circleX = startX + width + 10f
 
         if (value.isActive()) {
