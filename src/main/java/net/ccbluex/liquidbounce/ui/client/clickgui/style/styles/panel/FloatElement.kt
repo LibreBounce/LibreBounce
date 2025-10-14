@@ -66,7 +66,7 @@ class FloatElement(
         drawCircle(circleX, circleY, 1.5f, highlightColor)
 
         Fonts.fontRegular30.drawString(
-            value.get().toString() + (value.suffix ?: ""),
+            value.get().toString() + " " + (value.suffix ?: ""),
             startX + width + 120f,
             circleY - Fonts.fontRegular30.fontHeight / 4f,
             Color.WHITE.rgb

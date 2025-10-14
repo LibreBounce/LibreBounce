@@ -70,7 +70,7 @@ class IntElement(
         drawCircle(circleX, circleY, 1.5f, highlightColor)
 
         fontRegular30.drawString(
-            value.get().toString() + (value.suffix ?: ""),
+            value.get().toString() + " " + (value.suffix ?: ""),
             startX + width + 120f,
             circleY - fontRegular30.fontHeight / 4f,
             Color.WHITE.rgb

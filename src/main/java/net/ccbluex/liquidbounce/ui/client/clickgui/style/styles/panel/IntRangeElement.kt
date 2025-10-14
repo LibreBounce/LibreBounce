@@ -79,7 +79,7 @@ class IntRangeElement(
         drawCircle(lastCircleX, circleY, 1.5f, highlightColor)
 
         fontRegular30.drawString(
-            "$first - $last" + (value.suffix ?: ""),
+            "$first - $last" + " " + (value.suffix ?: ""),
             startX + width + 120f,
             circleY - fontRegular30.fontHeight / 4f,
             Color.WHITE.rgb
@@ -107,11 +107,11 @@ class IntRangeElement(
             value.setLast(newValue)
         }*/
 
-        val otherStartX = startX + 4
+        val otherStartX = startX + width + 10f
         //val startY = yPos + 14
         //val width = moduleElement.settingsWidth - 12
 
-        val endX = startX + width
+        val endX = startX + width + 110f
 
         val currSlider = value.lastChosenSlider
 
