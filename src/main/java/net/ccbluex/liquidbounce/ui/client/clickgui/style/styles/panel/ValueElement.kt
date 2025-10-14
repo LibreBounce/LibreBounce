@@ -1,4 +1,4 @@
-package net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.fullscreen
+package net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel
 
 abstract class ValueElement {
     abstract var previousValue: ValueElement?

@@ -1,8 +1,12 @@
-package net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.fullscreen
+/*
+ * LiquidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
+ * https://github.com/CCBlueX/LiquidBounce/
+ */
+package net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel
 
-import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.FullscreenStyle
-import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.config.ListValue
+import net.ccbluex.liquidbounce.ui.font.Fonts.fontRegular30
 import net.vitox.particle.util.RenderUtils.drawCircle
 import java.awt.Color
 
@@ -15,8 +19,10 @@ class ListElement(
 ) : ValueElement() {
 
     override var margin: Float = 5f
-    override var height: Float = Fonts.fontRegular35.fontHeight.toFloat() + margin
-    override var width: Float = Fonts.fontRegular35.getStringWidth(valueName).toFloat()
+    override var height: Float = fontRegular30.fontHeight.toFloat() + margin
+    override var width: Float = fontRegular30.getStringWidth(string).toFloat()
+
+    private val string = "${valueName}: ${value.get()}"
 
     private var hitboxX = 0f..0f
     private var hitboxY = 0f..0f
@@ -32,8 +38,8 @@ class ListElement(
     override fun drawElement() {
         updateElement()
 
-        Fonts.fontRegular35.drawString(
-            "${valueName}: ${value.get()}",
+        fontRegular30.drawString(
+            string,
             startX,
             startY,
             Color.WHITE.rgb

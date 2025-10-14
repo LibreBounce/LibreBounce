@@ -1,8 +1,15 @@
-package net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.fullscreen
+/*
+ * LiquidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
+ * https://github.com/CCBlueX/LiquidBounce/
+ */
+package net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel
 
-import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.FullscreenStyle
-import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.config.BoolValue
+import net.ccbluex.liquidbounce.ui.font.Fonts.fontRegular30
+import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle.highlightColor
+import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle.highlightColorAlpha
+import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle.referenceColor
 import net.vitox.particle.util.RenderUtils.drawCircle
 import java.awt.Color
 
@@ -15,8 +22,8 @@ class BoolElement(
 ) : ValueElement() {
 
     override var margin: Float = 5f
-    override var height: Float = Fonts.fontRegular35.fontHeight.toFloat() + margin
-    override var width: Float = Fonts.fontRegular35.getStringWidth(valueName).toFloat()
+    override var height: Float = fontRegular30.fontHeight.toFloat() + margin
+    override var width: Float = fontRegular30.getStringWidth(valueName).toFloat()
 
     private var hitboxX = 0f..0f
     private var hitboxY = 0f..0f
@@ -32,26 +39,26 @@ class BoolElement(
     override fun drawElement() {
         updateElement()
 
-        Fonts.fontRegular35.drawString(
+        fontRegular30.drawString(
             valueName,
             startX,
             startY,
             Color.WHITE.rgb
         )
 
-        var circleY = startY + Fonts.fontRegular35.fontHeight / 2f - 1.5f
+        var circleY = startY + fontRegular30.fontHeight / 2f - 1.5f
         var circleX = startX + width + 10f
 
         if (value.isActive()) {
-            drawCircle(circleX, circleY, 4f, FullscreenStyle.highlightColorAlpha.rgb)
+            drawCircle(circleX, circleY, 4f, highlightColorAlpha.rgb)
             drawCircle(
                 circleX,
                 circleY,
                 2f,
-                FullscreenStyle.highlightColor
+                highlightColor
             )
         } else {
-            drawCircle(circleX, circleY, 3f, FullscreenStyle.referenceColor)
+            drawCircle(circleX, circleY, 3f, referenceColor)
         }
     }
 

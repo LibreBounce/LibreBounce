@@ -13,7 +13,7 @@ import net.ccbluex.liquidbounce.file.FileManager.clickGuiConfig
 import net.ccbluex.liquidbounce.file.FileManager.saveConfig
 import net.ccbluex.liquidbounce.ui.client.clickgui.Panel
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.Style
-import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.fullscreen.ModuleElement
+import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel.ModuleElement
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts
@@ -29,7 +29,7 @@ import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 import kotlin.math.roundToInt
 
-object FullscreenStyle : GuiScreen() {
+object PanelStyle : GuiScreen() {
     val mainColor = Color(21, 20, 29).rgb
     val mainColor2 = Color(28, 27, 34).rgb
     val highlightColor = Color(238, 150, 208).rgb
@@ -54,6 +54,7 @@ object FullscreenStyle : GuiScreen() {
             if (value) isHoldingMidClick = false
             field = value
         }
+
     private var panelStartX = initX
     private var panelStartY = initY
     private var dragStartX = 0f
@@ -70,10 +71,12 @@ object FullscreenStyle : GuiScreen() {
 
     // TODO: Add HUD
     private val hudIcon = ResourceLocation("${CLIENT_NAME.lowercase()}/custom_hud_icon.png")
+
     private var mouseX = 0
         set(value) {
             field = value.coerceAtLeast(0)
         }
+
     private var mouseY = 0
         set(value) {
             field = value.coerceAtLeast(0)

@@ -1,12 +1,19 @@
-package net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.fullscreen
+/*
+ * LiquidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
+ * https://github.com/CCBlueX/LiquidBounce/
+ */
+package net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel
 
 import net.ccbluex.liquidbounce.config.RangeSlider
-import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.FullscreenStyle
-import net.ccbluex.liquidbounce.ui.font.Fonts
+import net.ccbluex.liquidbounce.config.IntRangeValue
+import net.ccbluex.liquidbounce.ui.font.Fonts.fontRegular30
+import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle.highlightColor
+import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle.highlightColorAlpha
+import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle.referenceColor
 import net.ccbluex.liquidbounce.utils.extensions.lerpWith
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
 import net.vitox.particle.util.RenderUtils.drawCircle
-import net.ccbluex.liquidbounce.config.IntRangeValue
 import kotlin.math.abs
 import java.awt.Color
 
@@ -20,8 +27,8 @@ class IntRangeElement(
 
     override var margin: Float = 5f
 
-    override var height: Float = Fonts.fontRegular35.fontHeight.toFloat() + margin
-    override var width: Float = Fonts.fontRegular35.getStringWidth(valueName).toFloat()
+    override var height: Float = fontRegular30.fontHeight.toFloat() + margin
+    override var width: Float = fontRegular30.getStringWidth(valueName).toFloat()
 
     private var hitboxX = 0f..0f
     private var hitboxY = 0f..0f
@@ -37,7 +44,7 @@ class IntRangeElement(
     override fun drawElement() {
         updateElement()
 
-        Fonts.fontRegular35.drawString(
+        fontRegular30.drawString(
             valueName,
             startX,
             startY,
@@ -55,26 +62,26 @@ class IntRangeElement(
 
         val firstCircleX = startX + width + 10f + firstOffsetX
         val lastCircleX = startX + width + 10f + lastOffsetX
-        val circleY = startY + Fonts.fontRegular35.fontHeight / 2f - 1.5f
+        val circleY = startY + fontRegular30.fontHeight / 2f - 1.5f
 
-        drawCircle(firstCircleX, circleY, 3f, FullscreenStyle.highlightColorAlpha.rgb)
-        drawCircle(firstCircleX, circleY, 1.5f, FullscreenStyle.highlightColor)
+        drawCircle(firstCircleX, circleY, 3f, highlightColorAlpha.rgb)
+        drawCircle(firstCircleX, circleY, 1.5f, highlightColor)
 
         drawRect(
             startX + width + 10f,
             circleY - 0.5f,
             startX + width + 110f,
             circleY + 0.5f,
-            FullscreenStyle.referenceColor
+            referenceColor
         )
 
-        drawCircle(lastCircleX, circleY, 3f, FullscreenStyle.highlightColorAlpha.rgb)
-        drawCircle(lastCircleX, circleY, 1.5f, FullscreenStyle.highlightColor)
+        drawCircle(lastCircleX, circleY, 3f, highlightColorAlpha.rgb)
+        drawCircle(lastCircleX, circleY, 1.5f, highlightColor)
 
-        Fonts.fontRegular30.drawString(
+        fontRegular30.drawString(
             "$first - $last" + (value.suffix ?: ""),
             startX + width + 120f,
-            circleY - Fonts.fontRegular30.fontHeight / 4f,
+            circleY - fontRegular30.fontHeight / 4f,
             Color.WHITE.rgb
         )
     }

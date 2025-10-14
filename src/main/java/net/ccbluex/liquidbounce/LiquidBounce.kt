@@ -36,7 +36,7 @@ import net.ccbluex.liquidbounce.tabs.ExploitsTab
 import net.ccbluex.liquidbounce.tabs.HeadsTab
 import net.ccbluex.liquidbounce.ui.client.altmanager.GuiAltManager.Companion.loadActiveGenerators
 import net.ccbluex.liquidbounce.ui.client.clickgui.ClickGui
-import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.FullscreenStyle
+import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle
 import net.ccbluex.liquidbounce.ui.client.hud.HUD
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.client.BlinkUtils
@@ -78,7 +78,7 @@ object LiquidBounce {
     const val MINECRAFT_VERSION = "1.8.9"
     
     val clientVersionText = gitInfo["git.build.version"]?.toString() ?: "unknown"
-    val clientVersionNumber = clientVersionText.substring(1).toIntOrNull() ?: 0 // version format: "v<VERSION>"
+    val clientVersionNumber = clientVersionText.substring(1).toIntOrNull() ?: 0 // version format: "v<MAJOR.MINOR.PATCH>"
     val clientCommit = gitInfo["git.commit.id.abbrev"]?.let { "git-$it" } ?: "unknown"
     val clientBranch = gitInfo["git.branch"]?.toString() ?: "unknown"
 
@@ -103,7 +103,7 @@ object LiquidBounce {
     val hud = HUD
 
     val clickGui = ClickGui
-    val fullscreenGui = FullscreenStyle
+    val panelGui = PanelStyle
 
     // Menu Background
     var background: Background? = null

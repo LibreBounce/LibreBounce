@@ -11,9 +11,9 @@ import net.ccbluex.liquidbounce.file.FileConfig
 import net.ccbluex.liquidbounce.file.FileManager.PRETTY_GSON
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.ui.client.clickgui.ClickGui
-import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.FullscreenStyle.selectedCategory
+import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle.selectedCategory
 import net.ccbluex.liquidbounce.ui.client.clickgui.elements.ModuleElement
-import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.fullscreen.ModuleElement.Companion.moduleSettingsState
+import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel.ModuleElement.Companion.moduleSettingsState
 import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.io.readJson
 import java.io.*
@@ -61,15 +61,15 @@ class ClickGuiConfig(file: File) : FileConfig(file) {
         }
 
         if (json.has("ModernGUI")) {
-            val fullscreenStyleObject = json.getAsJsonObject("ModernGUI")
+            val panelStyleObject = json.getAsJsonObject("ModernGUI")
 
-            if (fullscreenStyleObject.has("Category")) {
-                val categoryName = fullscreenStyleObject["Category"].asString
+            if (panelStyleObject.has("Category")) {
+                val categoryName = panelStyleObject["Category"].asString
                 selectedCategory = Category.values().firstOrNull { it.name == categoryName } ?: Category.COMBAT
             }
 
-            if (fullscreenStyleObject.has("Settings State")) {
-                val settingsStateObject = fullscreenStyleObject.getAsJsonObject("Settings State")
+            if (panelStyleObject.has("Settings State")) {
+                val settingsStateObject = panelStyleObject.getAsJsonObject("Settings State")
                 settingsStateObject.entrySet().forEach { entry ->
                     val moduleName = entry.key
                     val isEnabled = entry.value.asBoolean

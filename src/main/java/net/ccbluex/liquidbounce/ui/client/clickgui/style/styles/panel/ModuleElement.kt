@@ -1,13 +1,18 @@
-package net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.fullscreen
+/*
+ * LiquidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
+ * https://github.com/CCBlueX/LiquidBounce/
+ */
+package net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel
 
 import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.render.ClickGUI.spacedModules
 import net.ccbluex.liquidbounce.features.module.modules.render.ClickGUI.spacedValues
-import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.FullscreenStyle.accentColor
-import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.FullscreenStyle.elements
-import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.FullscreenStyle.mainColor
-import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.FullscreenStyle.referenceColor
+import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle.accentColor
+import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle.elements
+import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle.mainColor
+import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle.referenceColor
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.BlackStyle.clickSound
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedRect
@@ -20,7 +25,7 @@ class ModuleElement(
     var startY: Float = 0f,
     var previousElement: ModuleElement? = null)
 {
-    // add properties here name, description, enabled
+    // Add properties here name, description, enabled
     var name: String = ""
     var description: String = ""
     var width: Float = 300f
@@ -133,7 +138,7 @@ class ModuleElement(
             for (value in moduleValues) {
                 val valueName = if (spacedValues) value.name.addSpaces() else value.name
 
-                // TODO: Add list, int & float ranges, string, and block values
+                // TODO: Add list, int & float ranges, color, string, and block values
                 val newElement = when (value) {
                     is BoolValue -> BoolElement(value, valueName, startX + margin + 20, previousValue = previousElement)
                     is FloatValue -> FloatElement(value, valueName, startX + margin + 20, previousValue = previousElement)
