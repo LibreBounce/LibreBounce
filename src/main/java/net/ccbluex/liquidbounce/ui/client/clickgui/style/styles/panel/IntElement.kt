@@ -67,7 +67,7 @@ class IntElement(
         )
 
         //drawCircle(circleX, circleY, 3f, highlightColorAlpha.rgb)
-        drawCircle(circleX, circleY, 1f, highlightColor)
+        drawCircle(circleX, circleY, 1.75f, highlightColor)
 
         fontRegular30.drawString(
             value.get().toString() + " " + (value.suffix ?: ""),

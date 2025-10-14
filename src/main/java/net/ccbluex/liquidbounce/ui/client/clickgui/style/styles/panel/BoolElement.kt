@@ -53,11 +53,11 @@ class BoolElement(
             drawCircle(
                 circleX,
                 circleY,
-                1f,
+                1.75f,
                 highlightColor
             )
         } else {
-            drawCircle(circleX, circleY, 1f, referenceColor)
+            drawCircle(circleX, circleY, 1.75f, referenceColor)
         }
     }
 
