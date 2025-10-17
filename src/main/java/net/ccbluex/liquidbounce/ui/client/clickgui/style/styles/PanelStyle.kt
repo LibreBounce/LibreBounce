@@ -49,7 +49,7 @@ object PanelStyle : GuiScreen() {
     // Default Category
     var selectedCategory: Category = Category.COMBAT
 
-    private var dragging = false
+    var dragging = false
         set(value) {
             if (value) isHoldingMidClick = false
             field = value
@@ -157,7 +157,7 @@ object PanelStyle : GuiScreen() {
 
         assumeNonVolatile = false
 
-        super.drawScreen(mouseX, mouseY, partialTicks)
+        super.drawScreen(mouseX.toFloat(), mouseY.toFloat(), partialTicks)
     }
 
     fun drawBackground(x: Float, y: Float, width: Float, height: Float, color: Int) {

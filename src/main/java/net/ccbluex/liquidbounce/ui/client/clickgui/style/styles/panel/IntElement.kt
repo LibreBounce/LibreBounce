@@ -7,6 +7,7 @@ package net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel
 
 import net.ccbluex.liquidbounce.config.IntValue
 import net.ccbluex.liquidbounce.ui.font.Fonts.fontRegular35
+import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle.dragging
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle.highlightColor
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle.highlightColorAlpha
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle.referenceColor
@@ -75,6 +76,16 @@ class IntElement(
             circleY - fontRegular35.fontHeight / 4f,
             WHITE.rgb
         )
+
+        if (dragging && hitboxX.contains(mouseX) && hitboxY.contains(mouseY)) {
+            val min = startX + width + 10f
+            val max = startX + width + 110f
+            val progress = (mouseX - min) / (max - min)
+            var newValue = value.lerpWith(progress)
+
+            // Round to 2 decimal places
+            value.set(newValue)
+        }
     }
 
     private fun updateElement() {
@@ -86,15 +97,5 @@ class IntElement(
         this.hitboxY = startY..(startY + height - margin)
     }
 
-    override fun handleClick(mouseX: Float, mouseY: Float, button: Int) {
-        if (button == 0 && hitboxX.contains(mouseX) && hitboxY.contains(mouseY)) {
-            val min = startX + width + 10f
-            val max = startX + width + 110f
-            val progress = (mouseX - min) / (max - min)
-            var newValue = value.lerpWith(progress)
-
-            // Round to 2 decimal places
-            value.set(newValue)
-        }
-    }
+    override fun handleClick(mouseX: Float, mouseY: Float, button: Int) {}
 }

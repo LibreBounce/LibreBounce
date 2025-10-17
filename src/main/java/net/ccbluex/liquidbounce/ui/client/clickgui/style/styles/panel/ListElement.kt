@@ -35,8 +35,8 @@ class ListElement(
         this.hitboxY = startY .. (startY + height - margin)
     }
 
-    override fun drawElement() {
-        updateElement(mouseX: Float, mouseY: Float, partialTicks: Float)
+    override fun drawElement(mouseX: Float, mouseY: Float, partialTicks: Float) {
+        updateElement()
 
         fontRegular35.drawString(
             string,
