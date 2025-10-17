@@ -7,7 +7,7 @@ package net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel
 
 import net.ccbluex.liquidbounce.config.RangeSlider
 import net.ccbluex.liquidbounce.config.IntRangeValue
-import net.ccbluex.liquidbounce.ui.font.Fonts.fontRegular30
+import net.ccbluex.liquidbounce.ui.font.Fonts.fontRegular35
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle.highlightColor
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle.highlightColorAlpha
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle.referenceColor
@@ -27,8 +27,8 @@ class IntRangeElement(
 
     override var margin: Float = 5f
 
-    override var height: Float = fontRegular30.fontHeight.toFloat() + margin
-    override var width: Float = fontRegular30.getStringWidth(valueName).toFloat()
+    override var height: Float = fontRegular35.fontHeight.toFloat() + margin
+    override var width: Float = fontRegular35.getStringWidth(valueName).toFloat()
 
     private var hitboxX = 0f..0f
     private var hitboxY = 0f..0f
@@ -44,7 +44,7 @@ class IntRangeElement(
     override fun drawElement() {
         updateElement()
 
-        fontRegular30.drawString(
+        fontRegular35.drawString(
             valueName,
             startX,
             startY,
@@ -62,7 +62,7 @@ class IntRangeElement(
 
         val firstCircleX = startX + width + 10f + firstOffsetX
         val lastCircleX = startX + width + 10f + lastOffsetX
-        val circleY = startY + fontRegular30.fontHeight / 2f - 1.5f
+        val circleY = startY + fontRegular35.fontHeight / 2f - 1.5f
 
         drawRect(
             startX + width + 10f,
@@ -72,8 +72,7 @@ class IntRangeElement(
             referenceColor
         )
 
-        //drawCircle(firstCircleX, circleY, 1.5f, highlightColorAlpha.rgb)
-        drawCircle(firstCircleX, circleY, 1f, highlightColor)
+        drawCircle(firstCircleX, circleY, 2f, highlightColor)
 
         drawRect(
             firstCircleX,
@@ -83,13 +82,12 @@ class IntRangeElement(
             highlightColor
         )
 
-        //drawCircle(lastCircleX, circleY, 2f, highlightColorAlpha.rgb)
-        drawCircle(lastCircleX, circleY, 1.75f, highlightColor)
+        drawCircle(lastCircleX, circleY, 2f, highlightColor)
 
-        fontRegular30.drawString(
+        fontRegular35.drawString(
             "$first - $last" + " " + (value.suffix ?: ""),
             startX + width + 120f,
-            circleY - fontRegular30.fontHeight / 4f,
+            circleY - fontRegular35.fontHeight / 4f,
             WHITE.rgb
         )
     }

@@ -8,6 +8,7 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 ### Added
 
+- `Panel` ClickGUI mode, similar to Rise 6.0's (thatonecoder)
 - `MissClickChanceDistanceMultiply` option to ChestStealer (thatonecoder)
 
 ### Changed

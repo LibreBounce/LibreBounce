@@ -1,7 +1,7 @@
 package net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel
 
 import net.ccbluex.liquidbounce.config.FloatValue
-import net.ccbluex.liquidbounce.ui.font.Fonts.fontRegular30
+import net.ccbluex.liquidbounce.ui.font.Fonts.fontRegular35
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle.highlightColor
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle.highlightColorAlpha
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle.referenceColor
@@ -21,8 +21,8 @@ class FloatElement(
 
     override var margin: Float = 5f
 
-    override var height: Float = fontRegular30.fontHeight.toFloat() + margin
-    override var width: Float = fontRegular30.getStringWidth(valueName).toFloat()
+    override var height: Float = fontRegular35.fontHeight.toFloat() + margin
+    override var width: Float = fontRegular35.getStringWidth(valueName).toFloat()
 
     private var hitboxX = 0f..0f
     private var hitboxY = 0f..0f
@@ -40,7 +40,7 @@ class FloatElement(
     override fun drawElement() {
         updateElement()
 
-        fontRegular30.drawString(
+        fontRegular35.drawString(
             valueName,
             startX,
             startY,
@@ -54,7 +54,7 @@ class FloatElement(
         val offsetX = 100f * progress
 
         val circleX = startX + width + 10f + offsetX
-        val circleY = startY + fontRegular30.fontHeight / 2f - 1.5f
+        val circleY = startY + fontRegular35.fontHeight / 2f - 1.5f
 
         drawRect(
             startX + width + 10f,
@@ -64,13 +64,12 @@ class FloatElement(
             referenceColor
         )
 
-        //drawCircle(circleX, circleY, 3f, highlightColorAlpha.rgb)
-        drawCircle(circleX, circleY, 1.75f, highlightColor)
+        drawCircle(circleX, circleY, 2f, highlightColor)
 
-        fontRegular30.drawString(
+        fontRegular35.drawString(
             value.get().toString() + " " + (value.suffix ?: ""),
             startX + width + 120f,
-            circleY - fontRegular30.fontHeight / 4f,
+            circleY - fontRegular35.fontHeight / 4f,
             WHITE.rgb
         )
     }
@@ -79,6 +78,7 @@ class FloatElement(
         if (previousValue != null) {
             this.startY = previousValue!!.startY + previousValue!!.height
         }
+
         this.hitboxX = startX + width + 10f..(startX + width + 110f)
         this.hitboxY = startY..(startY + height - margin)
     }
@@ -89,6 +89,7 @@ class FloatElement(
             val max = startX + width + 110f
             val progress = (mouseX - min) / (max - min)
             var newValue = value.lerpWith(progress)
+
             // Round to 2 decimal places
             newValue = ((newValue * 100f).roundToLong() / 100.0f)
             value.set(newValue)

@@ -6,7 +6,7 @@
 package net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel
 
 import net.ccbluex.liquidbounce.config.ListValue
-import net.ccbluex.liquidbounce.ui.font.Fonts.fontRegular30
+import net.ccbluex.liquidbounce.ui.font.Fonts.fontRegular35
 import java.awt.Color.WHITE
 
 class ListElement(
@@ -20,8 +20,8 @@ class ListElement(
     private val string = "${valueName}: ${value.get()}"
 
     override var margin: Float = 5f
-    override var height: Float = fontRegular30.fontHeight.toFloat() + margin
-    override var width: Float = fontRegular30.getStringWidth(string).toFloat()
+    override var height: Float = fontRegular35.fontHeight.toFloat() + margin
+    override var width: Float = fontRegular35.getStringWidth(string).toFloat()
 
     private var hitboxX = 0f..0f
     private var hitboxY = 0f..0f
@@ -32,13 +32,13 @@ class ListElement(
         }
 
         this.hitboxX = startX .. (startX + width + 14f)
-        this.hitboxY = startY .. (startY + height-margin)
+        this.hitboxY = startY .. (startY + height - margin)
     }
 
     override fun drawElement() {
         updateElement()
 
-        fontRegular30.drawString(
+        fontRegular35.drawString(
             string,
             startX,
             startY,
@@ -70,7 +70,7 @@ class ListElement(
             this.startY = previousValue!!.startY + previousValue!!.height
         }
 
-        this.hitboxX = startX .. (startX + width+14f)
-        this.hitboxY = startY .. (startY + height-margin)
+        this.hitboxX = startX .. (startX + width + 14f)
+        this.hitboxY = startY .. (startY + height - margin)
     }
 }
