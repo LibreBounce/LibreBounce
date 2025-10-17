@@ -37,7 +37,7 @@ class TextElement(
     }
 
     override fun drawElement() {
-        updateElement()
+        updateElement(mouseX: Float, mouseY: Float, partialTicks: Float)
 
         fontRegular35.drawString(
             string,

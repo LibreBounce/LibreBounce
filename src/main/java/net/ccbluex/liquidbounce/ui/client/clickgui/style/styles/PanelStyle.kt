@@ -148,7 +148,7 @@ object PanelStyle : GuiScreen() {
 
         glEnable(GL_SCISSOR_TEST)
         makeScissorBox(panelStartX + contentXOffset, panelStartY + 20, panelStartX + widthBg, panelStartY + heightBg)
-        elements.forEach { element -> element.drawElement() }
+        elements.forEach { element -> element.drawElement(x, y, partialTicks) }
         glDisable(GL_SCISSOR_TEST)
 
         disableLighting()

@@ -37,7 +37,7 @@ class FloatElement(
         this.hitboxY = startY..(startY + height - margin)
     }
 
-    override fun drawElement() {
+    override fun drawElement(mouseX: Float, mouseY: Float, partialTicks: Float) {
         updateElement()
 
         fontRegular35.drawString(

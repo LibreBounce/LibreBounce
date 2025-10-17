@@ -51,7 +51,7 @@ class ModuleElement(
         updateValueElementsList()
     }
 
-    fun drawElement() {
+    fun drawElement(mouseX: Float, mouseY: Float, partialTicks: Float) {
         updateModuleElement()
 
         drawRoundedRect(
@@ -75,7 +75,7 @@ class ModuleElement(
 
         if (showSettings) {
             updateValueElementsRendering()
-            valueElements.forEach { it.drawElement() }
+            valueElements.forEach { it.drawElement(mouseX, mouseY, partialTicks) }
         }
     }
 
