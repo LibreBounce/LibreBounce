@@ -6,7 +6,7 @@
 package net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel
 
 import net.ccbluex.liquidbounce.config.RangeSlider
-import net.ccbluex.liquidbounce.config.IntRangeValue
+import net.ccbluex.liquidbounce.config.FloatRangeValue
 import net.ccbluex.liquidbounce.ui.font.Fonts.fontRegular35
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle.highlightColor
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle.highlightColorAlpha
@@ -17,8 +17,8 @@ import net.vitox.particle.util.RenderUtils.drawCircle
 import kotlin.math.abs
 import java.awt.Color.WHITE
 
-class IntRangeElement(
-    var value: IntRangeValue,
+class FloatRangeElement(
+    var value: FloatRangeValue,
     var valueName: String = "",
     override var startX: Float,
     override var startY: Float = 0f,
@@ -55,8 +55,8 @@ class IntRangeElement(
         val last = value.get().last
         val min = value.minimum
         val max = value.maximum
-        val firstProgress = (first.toFloat() - min) / (max - min)
-        val lastProgress = (last.toFloat() - min) / (max - min)
+        val firstProgress = (first - min) / (max - min)
+        val lastProgress = (last - min) / (max - min)
         val firstOffsetX = 100f * firstProgress
         val lastOffsetX = 100f * lastProgress
 
@@ -148,7 +148,6 @@ class IntRangeElement(
                     isOnRightSlider -> RangeSlider.RIGHT
                     else -> null
                 }
-                //return true
             }
         }
     }

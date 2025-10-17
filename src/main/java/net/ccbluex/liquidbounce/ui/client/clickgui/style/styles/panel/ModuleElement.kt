@@ -133,19 +133,23 @@ class ModuleElement(
         valueElements.clear()
 
         val moduleValues = module.values.filter { it.isSupported() }
+
         if (moduleValues.isNotEmpty()) {
             var previousElement: ValueElement? = null
             for (value in moduleValues) {
                 val valueName = if (spacedValues) value.name.addSpaces() else value.name
 
-                // TODO: Add list, int & float ranges, color, string, and block values
+                // TODO: Add color, text, and block values
                 val newElement = when (value) {
                     is BoolValue -> BoolElement(value, valueName, startX + margin + 20, previousValue = previousElement)
                     is FloatValue -> FloatElement(value, valueName, startX + margin + 20, previousValue = previousElement)
                     is IntValue -> IntElement(value, valueName, startX + margin + 20, previousValue = previousElement)
-                    //is FloatRangeValue -> FloatRangeElement(value, valueName, startX + margin + 20, previousValue = previousElement)
+                    is FloatRangeValue -> FloatRangeElement(value, valueName, startX + margin + 20, previousValue = previousElement)
                     is IntRangeValue -> IntRangeElement(value, valueName, startX + margin + 20, previousValue = previousElement)
                     is ListValue -> ListElement(value, valueName, startX + margin + 20, previousValue = previousElement)
+                    //is ColorValue -> ColorElement(value, valueName, startX + margin + 20, previousValue = previousElement)
+                    is TextValue -> TextElement(value, valueName, startX + margin + 20, previousValue = previousElement)
+                    //is BlockValue -> BlockElement(value, valueName, startX + margin + 20, previousValue = previousElement)
                     else -> null
                 }
 
@@ -155,6 +159,7 @@ class ModuleElement(
                 }
             }
         }
+
         valueElements.forEach { settingsHeight += it.height }
         settingsHeight += 30f
         height = if (showSettings) settingsHeight + margin * 2 else 40f
