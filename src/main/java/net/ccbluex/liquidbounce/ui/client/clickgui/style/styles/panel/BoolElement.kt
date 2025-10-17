@@ -47,8 +47,8 @@ class BoolElement(
         )
 
         drawCircle(
-            startY + fontRegular35.fontHeight / 2f - 1.5f,
             startX + width + 10f,
+            startY + fontRegular35.fontHeight / 2f - 1.5f,
             2.5f,
             if (value.isActive()) highlightColor else referenceColor
         )
