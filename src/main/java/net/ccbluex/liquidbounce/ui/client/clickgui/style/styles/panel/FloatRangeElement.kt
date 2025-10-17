@@ -51,8 +51,8 @@ class FloatRangeElement(
             WHITE.rgb
         )
 
-        val first = value.get().first
-        val last = value.get().last
+        val first = value.get().start
+        val last = value.get().endInclusive
         val min = value.minimum
         val max = value.maximum
         val firstProgress = (first - min) / (max - min)
@@ -102,8 +102,8 @@ class FloatRangeElement(
     }
 
     override fun handleClick(mouseX: Float, mouseY: Float, button: Int) {
-        val slider1 = value.get().first
-        val slider2 = value.get().last
+        val slider1 = value.get().start
+        val slider2 = value.get().endInclusive
 
         val otherStartX = startX + width + 10f
 

@@ -55,4 +55,6 @@ class TextElement(
         this.hitboxX = startX .. (startX + width + 14f)
         this.hitboxY = startY .. (startY + height - margin)
     }
+
+    override fun handleClick(mouseX: Float, mouseY: Float, button: Int) {}
 }
