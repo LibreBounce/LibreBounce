@@ -22,7 +22,7 @@ object Regen : Module("Regen", Category.PLAYER) {
     private val speed by int("Speed", 100, 1..100) { mode == "Vanilla" }
 
     private val delay by int("Delay", 0, 0..10000, suffix = "ms")
-    private val health by int("Health", 18, 0..20)
+    private val healthToRegen by int("Health", 18, 0..20)
     private val food by int("Food", 18, 0..20)
 
     private val noAir by boolean("NoAir", false)
@@ -39,37 +39,37 @@ object Regen : Module("Regen", Category.PLAYER) {
             resetTimer = false
         }
 
-        val player = mc.thePlayer ?: return@handler
+        mc.thePlayer?.run {
+            if (
+                !mc.playerController.gameIsSurvivalOrAdventure()
+                || noAir && !serverOnGround
+                || foodStats.foodLevel <= food
+                || !isEntityAlive
+                || health >= healthToRegen
+                || (potionEffect && !isPotionActive(Potion.regeneration))
+                || !timer.hasTimePassed(delay)
+            ) return@handler
 
-        if (
-            !mc.playerController.gameIsSurvivalOrAdventure()
-            || noAir && !serverOnGround
-            || player.foodStats.foodLevel <= food
-            || !player.isEntityAlive
-            || player.health >= health
-            || (potionEffect && !player.isPotionActive(Potion.regeneration))
-            || !timer.hasTimePassed(delay)
-        ) return@handler
-
-        when (mode) {
-            "Vanilla" -> {
-                repeat(speed) {
-                    sendPacket(C03PacketPlayer(serverOnGround))
-                }
-            }
-
-            "Spartan" -> {
-                if (!player.isMoving && serverOnGround) {
-                    repeat(9) {
+            when (mode) {
+                "Vanilla" -> {
+                    repeat(speed) {
                         sendPacket(C03PacketPlayer(serverOnGround))
                     }
+                }
 
-                    mc.timer.timerSpeed = 0.45F
-                    resetTimer = true
+                "Spartan" -> {
+                    if (!isMoving && serverOnGround) {
+                        repeat(9) {
+                            sendPacket(C03PacketPlayer(serverOnGround))
+                        }
+
+                        mc.timer.timerSpeed = 0.45F
+                        resetTimer = true
+                    }
                 }
             }
-        }
 
-        timer.reset()
+            timer.reset()
+        }
     }
 }

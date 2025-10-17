@@ -26,7 +26,6 @@ object Zoot : Module("Zoot", Category.PLAYER) {
             return@handler
 
         if (badEffects) {
-
             val effect = player.activePotionEffects
                 .filter { it.potionID in NEGATIVE_EFFECT_IDS }
                 .maxByOrNull { it.duration }

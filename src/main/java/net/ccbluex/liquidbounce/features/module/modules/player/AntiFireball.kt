@@ -81,18 +81,20 @@ object AntiFireball : Module("AntiFireball", Category.PLAYER) {
     }
 
     val onRender2D = handler<Render2DEvent> {
+        val player = mc.thePlayer ?: return@handler
         val t = ScaledResolution(mc)
+
         for (entity in mc.theWorld.loadedEntityList) {
             if (entity.name == "Fireball") {
-                distance = floor(mc.thePlayer.getDistanceToEntity(entity))
+                distance = floor(player.getDistanceToEntity(entity))
                 displayName = entity.name
 
                 val scaleFactor = scale
                 val entX = entity.posX
                 val entZ = entity.posZ
-                val px = mc.thePlayer.posX
-                val pz = mc.thePlayer.posZ
-                val pYaw = mc.thePlayer.rotationYaw
+                val px = player.posX
+                val pz = player.posZ
+                val pYaw = player.rotationYaw
                 val radiusFactor = radius
                 val yaw = Math.toRadians(getRotations(entX, entZ, px, pz) - pYaw)
                 val arrowX = t.scaledWidth / 2 + radiusFactor * sin(yaw)

@@ -17,14 +17,14 @@ object AutoRespawn : Module("AutoRespawn", Category.PLAYER, gameDetecting = fals
     private val instant by boolean("Instant", true)
 
     val onUpdate = handler<UpdateEvent> {
-        val player = mc.thePlayer
+        mc.thePlayer?.run {
+            if (Ghost.handleEvents())
+                return@handler
 
-        if (player == null || Ghost.handleEvents())
-            return@handler
-
-        if (if (instant) player.health == 0F || player.isDead else mc.currentScreen is GuiGameOver && (mc.currentScreen as GuiGameOver).enableButtonsTimer >= 20) {
-            player.respawnPlayer()
-            mc.displayGuiScreen(null)
+            if (if (instant) health == 0F || isDead else mc.currentScreen is GuiGameOver && (mc.currentScreen as GuiGameOver).enableButtonsTimer >= 20) {
+                respawnPlayer()
+                mc.displayGuiScreen(null)
+            }
         }
     }
 }
