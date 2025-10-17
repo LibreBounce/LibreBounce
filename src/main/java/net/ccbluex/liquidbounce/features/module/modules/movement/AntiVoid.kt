@@ -251,4 +251,7 @@ object AntiVoid : Module("AntiVoid", Category.MOVEMENT) {
 
         resetColor()
     }
+
+    override val tag
+        get() = mode
 }

@@ -24,10 +24,10 @@ object AutoPlay : Module("AutoPlay", Category.PLAYER, gameDetecting = false) {
         mode == "Hypixel"
     }
     private val skywarsMode by choices("SkywarsMode", arrayOf("SoloNormal", "SoloInsane"), "SoloNormal") {
-        hypixelMode == "Skywars"
+        mode == "Hypixel" && hypixelMode == "Skywars"
     }
     private val bedwarsMode by choices("BedwarsMode", arrayOf("Solo", "Double", "Trio", "Quad"), "Solo") {
-        hypixelMode == "Bedwars"
+        mode == "Hypixel" && hypixelMode == "Bedwars"
     }
 
     private val delay by int("Delay", 50, 0..200, suffix = "ticks")
