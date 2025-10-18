@@ -13,7 +13,6 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.attack.EntityUtils.isSelected
 import net.ccbluex.liquidbounce.utils.extensions.getDistanceToEntityBox
 import net.ccbluex.liquidbounce.utils.inventory.isEmpty
-import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawCircle
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawEntityBox
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawPlatform
 import net.ccbluex.liquidbounce.utils.rotation.RandomizationSettings
@@ -85,23 +84,9 @@ object ProjectileAimbot : Module("ProjectileAimbot", Category.COMBAT) {
     { options.rotationsActive }
 
     // Visuals
-    private val mark by choices("Mark", arrayOf("None", "Platform", "Box", "Circle"), "Circle").subjective()
+    private val mark by choices("Mark", arrayOf("None", "Platform", "Box"), "None").subjective()
 
     private val markColor by color("MarkColor", Color(37, 126, 255, 70)) { mark in arrayOf("Platform", "Box") }.subjective()
-
-    // Circle options
-    private val circleStartColor by color("CircleStartColor", Color.BLUE) { mark == "Circle" }.subjective()
-    private val circleEndColor by color("CircleEndColor", Color.CYAN.withAlpha(0)) { mark == "Circle" }.subjective()
-    private val fillInnerCircle by boolean("FillInnerCircle", false) { mark == "Circle" }.subjective()
-    private val withHeight by boolean("WithHeight", true) { mark == "Circle" }.subjective()
-    private val animateHeight by boolean("AnimateHeight", false) { withHeight }.subjective()
-    private val heightRange by floatRange("HeightRange", 0.0f..0.4f, -2f..2f) { withHeight }.subjective()
-    private val extraWidth by float("ExtraWidth", 0F, 0F..2F) { mark == "Circle" }.subjective()
-    private val animateCircleY by boolean("AnimateCircleY", true) { fillInnerCircle || withHeight }.subjective()
-    private val circleYRange by floatRange("CircleYRange", 0F..0.5F, 0F..2F) { animateCircleY }.subjective()
-    private val duration by float(
-        "Duration", 1.5F, 0.5F..3F, suffix = "Seconds"
-    ) { animateCircleY || animateHeight }.subjective()
 
     // Box option
     private val boxOutline by boolean("Outline", true) { mark == "Box" }.subjective()
@@ -168,17 +153,6 @@ object ProjectileAimbot : Module("ProjectileAimbot", Category.COMBAT) {
             "none" -> return@handler
             "platform" -> drawPlatform(target!!, markColor)
             "box" -> drawEntityBox(target!!, markColor, boxOutline)
-            "circle" -> drawCircle(
-                target!!,
-                duration * 1000F,
-                heightRange.takeIf { animateHeight } ?: heightRange.endInclusive..heightRange.endInclusive,
-                extraWidth,
-                fillInnerCircle,
-                withHeight,
-                circleYRange.takeIf { animateCircleY },
-                circleStartColor.rgb,
-                circleEndColor.rgb
-            )
         }
     }
 

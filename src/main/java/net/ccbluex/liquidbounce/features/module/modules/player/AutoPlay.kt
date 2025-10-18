@@ -34,7 +34,7 @@ object AutoPlay : Module("AutoPlay", Category.PLAYER, gameDetecting = false) {
 
     private val delay by int("Delay", 50, 0..200, suffix = "ticks")
 
-    private val notification by bool("Notification", false)
+    private val notification by boolean("Notification", false)
 
     private var delayTick = 0
 
