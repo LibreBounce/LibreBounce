@@ -153,5 +153,5 @@ class IntRangeElement(
         }
     }
 
-    override fun mouseReleased(mouseX: Float, mouseY: Float, button: Int) {}
+    override fun mouseReleased(mouseX: Float, mouseY: Float, state: Int) {}
 }

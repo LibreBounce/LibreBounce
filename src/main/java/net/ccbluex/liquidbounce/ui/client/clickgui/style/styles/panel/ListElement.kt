@@ -52,7 +52,7 @@ class ListElement(
         }
     }
 
-    override fun mouseReleased(mouseX: Float, mouseY: Float, button: Int) {}
+    override fun mouseReleased(mouseX: Float, mouseY: Float, state: Int) {}
 
     private fun cycle(next: Boolean) {
         val values = value.values.toList()

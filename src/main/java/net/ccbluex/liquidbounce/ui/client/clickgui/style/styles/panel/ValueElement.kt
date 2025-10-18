@@ -9,5 +9,5 @@ abstract class ValueElement {
     abstract var margin: Float
     abstract fun drawElement(mouseX: Float, mouseY: Float, partialTicks: Float)
     abstract fun handleClick(mouseX: Float, mouseY: Float, button: Int)
-    abstract fun mouseReleased(mouseX: Float, mouseY: Float, button: Int)
+    abstract fun mouseReleased(mouseX: Float, mouseY: Float, state: Int)
 }
