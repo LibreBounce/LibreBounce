@@ -102,6 +102,15 @@ class ModuleElement(
         }
     }
 
+    fun mouseReleased(mouseX: Float, mouseY: Float, button: Int) {
+        if (button == 0) {
+            if (showSettings && toggleRangeX.contains(mouseX) && (startY..startY + height).contains(mouseY)) {
+                valueElements.forEach { it.mouseReleased(mouseX, mouseY, button) }
+                updateValueElementsList()
+            }
+        }
+    }
+
     private fun updateAllElementsLayout() {
         // TODO: Improve
         elements.forEach { element ->

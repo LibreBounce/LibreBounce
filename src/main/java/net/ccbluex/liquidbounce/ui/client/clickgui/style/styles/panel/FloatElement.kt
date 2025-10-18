@@ -27,6 +27,7 @@ class FloatElement(
     private var hitboxX = 0f..0f
     private var hitboxY = 0f..0f
 
+    private var dragging = false
 
     init {
         if (previousValue != null) {
@@ -72,6 +73,17 @@ class FloatElement(
             circleY - fontRegular35.fontHeight / 4f,
             WHITE.rgb
         )
+
+        if (dragging && hitboxX.contains(mouseX) && hitboxY.contains(mouseY)) {
+            val minX = startX + width + 10f
+            val maxX = startX + width + 110f
+            val progress = (mouseX - minX) / (max - minX)
+            var newValue = value.lerpWith(progress)
+
+            // Round to 2 decimal places
+            newValue = ((newValue * 100f).roundToLong() / 100.0f)
+            value.set(newValue)
+        }
     }
 
     private fun updateElement() {
@@ -84,15 +96,12 @@ class FloatElement(
     }
 
     override fun handleClick(mouseX: Float, mouseY: Float, button: Int) {
-        if (button == 0 && hitboxX.contains(mouseX) && hitboxY.contains(mouseY)) {
-            val min = startX + width + 10f
-            val max = startX + width + 110f
-            val progress = (mouseX - min) / (max - min)
-            var newValue = value.lerpWith(progress)
-
-            // Round to 2 decimal places
-            newValue = ((newValue * 100f).roundToLong() / 100.0f)
-            value.set(newValue)
+        if (hitboxX.contains(mouseX) && hitboxY.contains(mouseY)) {
+            dragging = true
         }
+    }
+
+    override fun mouseReleased(mouseX: Float, mouseY: Float, button: Int) {
+        dragging = false
     }
 }

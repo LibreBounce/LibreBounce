@@ -217,6 +217,8 @@ object PanelStyle : GuiScreen() {
         mouseY = y // (y / scale).roundToInt()
 
         for (panel in panels) panel.mouseReleased(mouseX, mouseY, state)
+
+        elements.toList().forEach { element -> element.mouseReleased(mouseX.toFloat(), mouseY.toFloat(), mouseButton) }
     }
 
     override fun keyTyped(typedChar: Char, keyCode: Int) {

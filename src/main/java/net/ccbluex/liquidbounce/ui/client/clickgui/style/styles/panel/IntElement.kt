@@ -7,7 +7,6 @@ package net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel
 
 import net.ccbluex.liquidbounce.config.IntValue
 import net.ccbluex.liquidbounce.ui.font.Fonts.fontRegular35
-import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle.dragging
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle.highlightColor
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle.highlightColorAlpha
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle.referenceColor
@@ -31,6 +30,8 @@ class IntElement(
 
     private var hitboxX = 0f..0f
     private var hitboxY = 0f..0f
+
+    private var dragging = false
 
     init {
         if (previousValue != null) {
@@ -97,5 +98,13 @@ class IntElement(
         this.hitboxY = startY..(startY + height - margin)
     }
 
-    override fun handleClick(mouseX: Float, mouseY: Float, button: Int) {}
+    override fun handleClick(mouseX: Float, mouseY: Float, button: Int) {
+        if (hitboxX.contains(mouseX) && hitboxY.contains(mouseY)) {
+            dragging = true
+        }
+    }
+
+    override fun mouseReleased(mouseX: Float, mouseY: Float, button: Int) {
+        dragging = false
+    }
 }
