@@ -52,6 +52,8 @@ class ListElement(
         }
     }
 
+    override fun mouseReleased(mouseX: Float, mouseY: Float, button: Int) {}
+
     private fun cycle(next: Boolean) {
         val values = value.values.toList()
         var index = values.indexOf(value.get())

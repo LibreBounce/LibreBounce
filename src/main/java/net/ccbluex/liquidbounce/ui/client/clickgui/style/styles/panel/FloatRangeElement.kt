@@ -151,4 +151,6 @@ class FloatRangeElement(
             }
         }
     }
+
+    override fun mouseReleased(mouseX: Float, mouseY: Float, button: Int) {}
 }

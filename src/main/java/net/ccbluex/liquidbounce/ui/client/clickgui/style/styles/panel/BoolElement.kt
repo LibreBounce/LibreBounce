@@ -60,10 +60,13 @@ class BoolElement(
         }
     }
 
+    override fun mouseReleased(mouseX: Float, mouseY: Float, button: Int) {}
+
     private fun updateElement() {
         if (previousValue != null) {
             this.startY = previousValue!!.startY + previousValue!!.height
         }
+
         this.hitboxX = startX .. (startX + width + 14f)
         this.hitboxY = startY .. (startY + height - margin)
     }
