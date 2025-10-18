@@ -78,7 +78,7 @@ class IntElement(
             WHITE.rgb
         )
 
-        if (dragging && hitboxX.contains(mouseX) && hitboxY.contains(mouseY)) {
+        if (dragging) {
             val min = startX + width + 10f
             val max = startX + width + 110f
             val progress = (mouseX - min) / (max - min)
@@ -99,7 +99,7 @@ class IntElement(
     }
 
     override fun handleClick(mouseX: Float, mouseY: Float, button: Int) {
-        if (hitboxX.contains(mouseX) && hitboxY.contains(mouseY)) {
+        if (button == 0 && hitboxX.contains(mouseX) && hitboxY.contains(mouseY)) {
             dragging = true
         }
     }
