@@ -103,7 +103,7 @@ class ModuleElement(
     }
 
     fun mouseReleased(mouseX: Float, mouseY: Float, state: Int) {
-        if (showSettings && toggleRangeX.contains(mouseX) && (startY..startY + height).contains(mouseY)) {
+        if (showSettings) {
             valueElements.forEach { it.mouseReleased(mouseX, mouseY, state) }
             updateValueElementsList()
         }

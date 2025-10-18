@@ -99,7 +99,7 @@ class IntElement(
     }
 
     override fun handleClick(mouseX: Float, mouseY: Float, button: Int) {
-        if (button == 0 && hitboxX.contains(mouseX) && hitboxY.contains(mouseY)) {
+        if (hitboxX.contains(mouseX) && hitboxY.contains(mouseY)) {
             dragging = true
         }
     }
