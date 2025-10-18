@@ -8,11 +8,19 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 ### Added
 
+- `OnlyBlocks` and `NotOnForward` options to Eagle (thatonecoder)
 - `MissClickChanceDistanceMultiply` option to ChestStealer (thatonecoder)
+- `Notification` option to AutoPlay, notificating when requeueing (thatonecoder)
 
 ### Changed
 
-- Make `WaitForRotations` in Scaffold only sneak when it can start to rotate (thatonecoder)
+- AntiVoid now has a mode tag (thatonecoder)
+- Make `Mark` in ProjectileAimbot a list value instead of an option, now with a `Box` mode (thatonecoder)
+
+### Fixed
+
+- `WaitForRotations` sneaking despite not being able to rotate yet, in Scaffold (thatonecoder)
+- `SkywarsMode` and `BedwarsMode` being displayed despite not being on the `Hypixel` mode, in AutoPlay (thatonecoder)
 
 ## [0.5.0] - 2025-09-28
 
