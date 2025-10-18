@@ -148,7 +148,7 @@ object PanelStyle : GuiScreen() {
 
         glEnable(GL_SCISSOR_TEST)
         makeScissorBox(panelStartX + contentXOffset, panelStartY + 20, panelStartX + widthBg, panelStartY + heightBg)
-        elements.forEach { element -> element.drawElement(x, y, partialTicks) }
+        elements.forEach { element -> element.drawElement(x.toFloat(), y.toFloat(), partialTicks) }
         glDisable(GL_SCISSOR_TEST)
 
         disableLighting()
@@ -157,7 +157,7 @@ object PanelStyle : GuiScreen() {
 
         assumeNonVolatile = false
 
-        super.drawScreen(mouseX.toFloat(), mouseY.toFloat(), partialTicks)
+        super.drawScreen(mouseX, mouseY, partialTicks)
     }
 
     fun drawBackground(x: Float, y: Float, width: Float, height: Float, color: Int) {
