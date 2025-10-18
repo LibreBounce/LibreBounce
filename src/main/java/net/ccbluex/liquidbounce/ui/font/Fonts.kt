@@ -66,6 +66,8 @@ object Fonts : MinecraftInstance {
     lateinit var fontRegular45: GameFontRenderer
     lateinit var fontRegular35: GameFontRenderer
     lateinit var fontRegular30: GameFontRenderer
+    lateinit var fontRegular25: GameFontRenderer
+    lateinit var fontRegular20: GameFontRenderer
     lateinit var fontBold180: GameFontRenderer
 
     private fun <T : FontRenderer> register(fontInfo: FontInfo, fontRenderer: T): T {
@@ -94,6 +96,16 @@ object Fonts : MinecraftInstance {
             downloadFonts()
 
             register(minecraftFontInfo, minecraftFont)
+
+            fontRegular20 = register(
+                FontInfo(name = "Outfit Regular", size = 20),
+                getFontFromFile("Outfit-Regular.ttf", 20).asGameFontRenderer()
+            )
+
+            fontRegular25 = register(
+                FontInfo(name = "Outfit Regular", size = 25),
+                getFontFromFile("Outfit-Regular.ttf", 25).asGameFontRenderer()
+            )
 
             fontRegular30 = register(
                 FontInfo(name = "Outfit Regular", size = 30),

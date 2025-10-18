@@ -6,6 +6,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.render
 
 import net.ccbluex.liquidbounce.LiquidBounce.clickGui
+import net.ccbluex.liquidbounce.LiquidBounce.panelGui
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
@@ -15,6 +16,7 @@ import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.BlackStyle
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.LiquidBounceStyle
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.NullStyle
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.SlowlyStyle
+import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle
 import net.minecraft.network.play.server.S2EPacketCloseWindow
 import org.lwjgl.input.Keyboard
 import java.awt.Color
@@ -22,7 +24,7 @@ import java.awt.Color
 object ClickGUI : Module("ClickGUI", Category.RENDER, Keyboard.KEY_RSHIFT, canBeEnabled = false) {
     private val style by choices(
         "Style",
-        arrayOf("LiquidBounce", "Null", "Slowly", "Black"),
+        arrayOf("LiquidBounce", "Null", "Slowly", "Black", "Panel"),
         "LiquidBounce"
     ).onChanged {
         updateStyle()
@@ -35,14 +37,19 @@ object ClickGUI : Module("ClickGUI", Category.RENDER, Keyboard.KEY_RSHIFT, canBe
     val spacedValues by boolean("SpacedValues", false)
     val panelsForcedInBoundaries by boolean("PanelsForcedInBoundaries", false)
 
-    private val color by color("Color", Color(0, 160, 255)) { style !in arrayOf("Slowly", "Black") }
+    private val color by color("Color", Color(0, 160, 255)) { style !in arrayOf("Slowly", "Black", "Panel") }
 
     val guiColor
         get() = color.rgb
 
     override fun onEnable() {
         updateStyle()
-        mc.displayGuiScreen(clickGui)
+
+        if (style == "Panel")
+            mc.displayGuiScreen(panelGui)
+        else
+            mc.displayGuiScreen(clickGui)
+
         Keyboard.enableRepeatEvents(true)
     }
 
@@ -57,8 +64,7 @@ object ClickGUI : Module("ClickGUI", Category.RENDER, Keyboard.KEY_RSHIFT, canBe
     }
 
     val onPacket = handler<PacketEvent>(always = true) { event ->
-        if (event.packet is S2EPacketCloseWindow && mc.currentScreen is ClickGui) {
+        if (event.packet is S2EPacketCloseWindow && mc.currentScreen is ClickGui)
             event.cancelEvent()
-        }
     }
 }

@@ -8,6 +8,7 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 ### Added
 
+- `Panel` ClickGUI mode, similar to Rise 6.0's (thatonecoder)
 - `OnlyBlocks` and `NotOnForward` options to Eagle (thatonecoder)
 - `MissClickChanceDistanceMultiply` option to ChestStealer (thatonecoder)
 - `Notification` option to AutoPlay, notificating when requeueing (thatonecoder)

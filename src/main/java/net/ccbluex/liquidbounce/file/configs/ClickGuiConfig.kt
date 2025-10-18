@@ -9,8 +9,11 @@ import com.google.gson.JsonObject
 import net.ccbluex.liquidbounce.LiquidBounce.clickGui
 import net.ccbluex.liquidbounce.file.FileConfig
 import net.ccbluex.liquidbounce.file.FileManager.PRETTY_GSON
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.ui.client.clickgui.ClickGui
+import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle.selectedCategory
 import net.ccbluex.liquidbounce.ui.client.clickgui.elements.ModuleElement
+import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel.ModuleElement.Companion.moduleSettingsState
 import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.io.readJson
 import java.io.*
@@ -54,6 +57,24 @@ class ClickGuiConfig(file: File) : FileConfig(file) {
                 }
             } catch (e: Exception) {
                 LOGGER.error("Error while loading clickgui panel with the name '" + panel.name + "'.", e)
+            }
+        }
+
+        if (json.has("ModernGUI")) {
+            val panelStyleObject = json.getAsJsonObject("ModernGUI")
+
+            if (panelStyleObject.has("Category")) {
+                val categoryName = panelStyleObject["Category"].asString
+                selectedCategory = Category.values().firstOrNull { it.name == categoryName } ?: Category.COMBAT
+            }
+
+            if (panelStyleObject.has("Settings State")) {
+                val settingsStateObject = panelStyleObject.getAsJsonObject("Settings State")
+                settingsStateObject.entrySet().forEach { entry ->
+                    val moduleName = entry.key
+                    val isEnabled = entry.value.asBoolean
+                    moduleSettingsState[moduleName] = isEnabled
+                }
             }
         }
     }
