@@ -5,10 +5,12 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player
 
+import net.ccbluex.liquidbounce.LiquidBounce.hud
 import net.ccbluex.liquidbounce.event.GameTickEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils
 import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar
 import net.ccbluex.liquidbounce.utils.inventory.hotBarSlot
@@ -32,6 +34,8 @@ object AutoPlay : Module("AutoPlay", Category.PLAYER, gameDetecting = false) {
 
     private val delay by int("Delay", 50, 0..200, suffix = "ticks")
 
+    private val notification by bool("Notification", false)
+
     private var delayTick = 0
 
     /**
@@ -48,6 +52,8 @@ object AutoPlay : Module("AutoPlay", Category.PLAYER, gameDetecting = false) {
         } else {
             delayTick++
         }
+
+        if (notification && delayTick >= delay) hud.addNotification(Notification.informative(this, "Sending you to a new game!", 1000L))
 
         when (mode) {
             "Paper" -> {
