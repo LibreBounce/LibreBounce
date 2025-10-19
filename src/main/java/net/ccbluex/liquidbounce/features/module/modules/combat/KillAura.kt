@@ -781,6 +781,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             if (switchMode && !isLookingOnEntities(entity, maxSwitchFOV.toDouble())) continue
 
             // Credits to Gugustus / Augustus b2.6
+            // TODO: Maybe we should also prioritize players that are looking at u?
             val optimal = (distance * 2.0) + (entity.health.toDouble() + entity.absorptionAmount) + (entity.hurtTime.toDouble() * 4.0) + (entity.totalArmorValue.toDouble() / 2.0) + (entityFov.toDouble() / 2.0)
 
             val currentValue = when (priority) {
