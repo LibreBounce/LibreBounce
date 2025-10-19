@@ -53,7 +53,7 @@ object AutoPlay : Module("AutoPlay", Category.PLAYER, gameDetecting = false) {
             delayTick++
         }
 
-        if (notification && delayTick >= delay) hud.addNotification(Notification.informative(this, "Sending you to a new game!", 1000L))
+        if (notification && delayTick >= delay) hud.addNotification(Notification.informative(this, "Sending you to a new game!", 2000L))
 
         when (mode) {
             "Paper" -> {
