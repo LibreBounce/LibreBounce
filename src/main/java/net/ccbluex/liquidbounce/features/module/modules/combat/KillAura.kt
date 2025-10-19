@@ -94,9 +94,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     private val clickOnly by boolean("ClickOnly", false)
 
     // Range
-    private val range: Float by float("Range", 3.7f, 1f..8f, suffix = "blocks").onChanged {
-        blockRange = blockRange.coerceAtMost(it)
-    }
+    private val range: Float by float("Range", 3.7f, 1f..8f, suffix = "blocks")
     private val scanRange by floatRange("ScanRange", 2f..2f, 0f..10f, suffix = "blocks").onChanged {
         randomizedScanRange = it.random()
     }
