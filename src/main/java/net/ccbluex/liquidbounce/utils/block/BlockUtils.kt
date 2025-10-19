@@ -133,7 +133,6 @@ object BlockUtils : MinecraftInstance {
      */
     fun collideBlockIntersects(axisAlignedBB: AxisAlignedBB, collide: Collidable): Boolean {
         val player = mc.thePlayer
-        val world = mc.theWorld
 
         val y = axisAlignedBB.minY.toInt()
         val mutable = BlockPos.MutableBlockPos(0, 0, 0)
@@ -143,7 +142,7 @@ object BlockUtils : MinecraftInstance {
                 val block = blockPos.block
 
                 if (collide(block)) {
-                    val boundingBox = blockPos.state?.let { block?.getCollisionBoundingBox(world, blockPos, it) }
+                    val boundingBox = blockPos.state?.let { block?.getCollisionBoundingBox(mc.theWorld, blockPos, it) }
                         ?: continue
 
                     if (player.entityBoundingBox.intersectsWith(boundingBox))

@@ -183,7 +183,7 @@ object  FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
 
     val onGameLoop = handler<GameLoopEvent> {
         val player = mc.thePlayer ?: return@handler
-        val world = mc.theWorld ?: return@handler
+        mc.theWorld ?: return@handler
 
         if (allowedDistToEnemy.endInclusive > 0) {
             val playerPos = player.currPos
@@ -193,7 +193,7 @@ object  FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
 
             wasNearEnemy = false
 
-            world.playerEntities.forEach { otherPlayer ->
+            mc.theWorld.playerEntities.forEach { otherPlayer ->
                 if (otherPlayer == player) return@forEach
 
                 val entityMixin = otherPlayer as? IMixinEntity

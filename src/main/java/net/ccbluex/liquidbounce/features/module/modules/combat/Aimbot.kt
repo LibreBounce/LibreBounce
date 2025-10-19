@@ -115,7 +115,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
         if (event.eventState != EventState.POST) return@handler
 
         val player = mc.thePlayer ?: return@handler
-        val world = mc.theWorld ?: return@handler
+        mc.theWorld ?: return@handler
 
         // Clicking delay
         if (mc.gameSettings.keyBindAttack.isKeyDown) clickTimer.reset()
@@ -125,7 +125,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
         }
 
         // Search for the best enemy to target
-        val entity = world.loadedEntityList.filter {
+        val entity = mc.theWorld.loadedEntityList.filter {
             Backtrack.runWithNearestTrackedDistance(it) {
                 isSelected(
                     it,

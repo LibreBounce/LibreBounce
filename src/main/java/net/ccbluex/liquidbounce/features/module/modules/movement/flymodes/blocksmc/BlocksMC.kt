@@ -52,7 +52,7 @@ object BlocksMC : FlyMode("BlocksMC"), Listenable {
 
     override fun onUpdate() {
         val player = mc.thePlayer ?: return
-        val world = mc.theWorld ?: return
+        mc.theWorld ?: return
 
         if (isFlying) {
             if (player.onGround && stopOnLanding) {
@@ -68,7 +68,7 @@ object BlocksMC : FlyMode("BlocksMC"), Listenable {
             }
         }
 
-        if (shouldFly(player, world)) {
+        if (shouldFly(player, mc.theWorld)) {
             if (isTeleported) {
 
                 if (stable)

@@ -65,9 +65,9 @@ object ForwardTrack : Module("ForwardTrack", Category.COMBAT) {
 
     val onRender3D = handler<Render3DEvent> { event ->
         val renderManager = mc.renderManager
-        val world = mc.theWorld ?: return@handler
+        mc.theWorld ?: return@handler
 
-        for (target in world.loadedEntityList) {
+        for (target in mc.theWorld.loadedEntityList) {
             if (!isSelected(target, true)) {
                 return@handler
             }

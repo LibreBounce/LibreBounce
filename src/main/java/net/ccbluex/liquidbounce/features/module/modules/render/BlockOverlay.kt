@@ -38,14 +38,14 @@ object BlockOverlay : Module("BlockOverlay", Category.RENDER, gameDetecting = fa
 
     val currentBlock: BlockPos?
         get() {
-            val world = mc.theWorld ?: return null
+            mc.theWorld ?: return null
             val blockPos = mc.objectMouseOver?.blockPos ?: return null
 
             if (blockPos.block !in arrayOf(
                     air,
                     water,
                     lava
-                ) && world.worldBorder.contains(blockPos)
+                ) && mc.theWorld.worldBorder.contains(blockPos)
             )
                 return blockPos
 

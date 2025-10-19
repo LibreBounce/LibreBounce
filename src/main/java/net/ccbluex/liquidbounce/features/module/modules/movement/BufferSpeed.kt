@@ -243,7 +243,6 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT) {
     private val isNearBlock: Boolean
         get() {
             val player = mc.thePlayer
-            val world = mc.theWorld
             val blocks = arrayOf(
                 BlockPos(player.posX, player.posY + 1, player.posZ - 0.7),
                 BlockPos(player.posX + 0.7, player.posY + 1, player.posZ),
@@ -252,9 +251,9 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT) {
             )
 
             for (blockPos in blocks) {
-                val blockState = world.getBlockState(blockPos)
+                val blockState = mc.theWorld.getBlockState(blockPos)
 
-                val collisionBoundingBox = blockState.block.getCollisionBoundingBox(world, blockPos, blockState)
+                val collisionBoundingBox = blockState.block.getCollisionBoundingBox(mc.theWorld, blockPos, blockState)
 
                 if ((collisionBoundingBox == null || collisionBoundingBox.maxX ==
                             collisionBoundingBox.minY + 1) &&

@@ -83,8 +83,8 @@ object RotationUtils : MinecraftInstance, Listenable {
         targetUpperFace: Boolean = false,
         hRange: ClosedFloatingPointRange<Double> = 0.0..1.0
     ): VecRotation? {
-        val world = mc.theWorld ?: return null
         val player = mc.thePlayer ?: return null
+        mc.theWorld ?: return null
 
         if (blockPos == null) return null
 
@@ -117,7 +117,7 @@ object RotationUtils : MinecraftInstance, Listenable {
                     val vector = eyesPos + (rotationVector * dist)
 
                     val currentVec = VecRotation(posVec, rotation)
-                    val raycast = world.rayTraceBlocks(eyesPos, vector, false, true, false)
+                    val raycast = mc.theWorld.rayTraceBlocks(eyesPos, vector, false, true, false)
 
                     val currentRotation = currentRotation ?: player.rotation
 

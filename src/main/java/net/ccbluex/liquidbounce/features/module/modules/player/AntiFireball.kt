@@ -49,11 +49,11 @@ object AntiFireball : Module("AntiFireball", Category.PLAYER) {
 
     val onRotationUpdate = handler<RotationUpdateEvent> {
         val player = mc.thePlayer ?: return@handler
-        val world = mc.theWorld ?: return@handler
+        mc.theWorld ?: return@handler
 
         target = null
 
-        for (entity in world.loadedEntityList.filterIsInstance<EntityFireball>()
+        for (entity in mc.theWorld.loadedEntityList.filterIsInstance<EntityFireball>()
             .sortedBy { player.getDistanceToBox(it.hitBox) }) {
             val nearestPoint = getNearestPointBB(player.eyes, entity.hitBox)
             val entityPrediction = entity.currPos - entity.prevPos
@@ -169,7 +169,7 @@ object AntiFireball : Module("AntiFireball", Category.PLAYER) {
         ) {
             player.attackEntityWithModifiedSprint(entity) {
                 when (swing) {
-                    "Normal" -> mc.thePlayer.swingItem()
+                    "Normal" -> player.swingItem()
                     "Packet" -> sendPacket(C0APacketAnimation())
                 }
             }

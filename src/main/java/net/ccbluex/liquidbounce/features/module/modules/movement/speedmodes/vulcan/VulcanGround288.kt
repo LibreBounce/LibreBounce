@@ -43,10 +43,10 @@ object VulcanGround288 : SpeedMode("VulcanGround2.8.8") {
     }
 
     private fun collidesBottom(): Boolean {
-        val world = mc.theWorld ?: return false
         val player = mc.thePlayer ?: return false
+        mc.theWorld ?: return false
 
-        return world.getCollidingBoundingBoxes(player, player.entityBoundingBox.offset(0.0, -0.005, 0.0)).isNotEmpty()
+        return mc.theWorld.getCollidingBoundingBoxes(player, player.entityBoundingBox.offset(0.0, -0.005, 0.0)).isNotEmpty()
     }
 
     override fun onJump(event: JumpEvent) {

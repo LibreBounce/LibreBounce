@@ -302,14 +302,14 @@ object MLG : NoFallMode("MLG") {
 
     private fun performBlockRaytrace(rotation: Rotation, maxReach: Float): MovingObjectPosition? {
         val player = mc.thePlayer ?: return null
-        val world = mc.theWorld ?: return null
+        mc.theWorld ?: return null
 
         val eyes = player.eyes
         val rotationVec = getVectorForRotation(rotation)
 
         val reach = eyes + (rotationVec * maxReach.toDouble())
 
-        return world.rayTraceBlocks(eyes, reach, false, true, false)
+        return mc.theWorld.rayTraceBlocks(eyes, reach, false, true, false)
     }
 
     private fun findMlgSlot(onlyBucket: Boolean = false): Int? {
