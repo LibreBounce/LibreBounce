@@ -23,6 +23,10 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 - AntiVoid now has a mode tag (thatonecoder)
 - Make `Mark` in ProjectileAimbot a list value instead of an option, now with a `Box` mode (thatonecoder)
 
+### Removed
+
+- `BlockRange`, the `SmartAutoBlock` exclusive option in KillAura; use `BlockMaxRange` instead (thatonecoder)
+
 ## [0.5.0] - 2025-09-28
 
 ### Added

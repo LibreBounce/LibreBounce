@@ -137,11 +137,15 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     private val onDestroyBlock by boolean("OnDestroyBlock", false)
 
     // AutoBlock
+    // TODO: Remove the Fake mode, and fully replace it with the ForceBlockRender option?
     val autoBlock by choices("AutoBlock", arrayOf("Off", "Packet", "Fake"), "Packet")
+
     private val blockMaxRange by float("BlockMaxRange", 3f, 0f..8f, suffix = "blocks") { autoBlock == "Packet" }
+
     private val unblockMode by choices(
         "UnblockMode", arrayOf("Stop", "Switch", "Empty"), "Stop"
     ) { autoBlock == "Packet" }
+
     private val releaseAutoBlock by boolean("ReleaseAutoBlock", true) { autoBlock !in arrayOf("Off", "Fake") }
     val forceBlockRender by boolean("ForceBlockRender", true) {
         autoBlock !in arrayOf(
@@ -153,6 +157,8 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             "Off", "Fake"
         ) && releaseAutoBlock
     }
+
+    // TODO: Configurable blocking length
     private val blockRate by int("BlockRate", 100, 1..100, suffix = "%") { autoBlock !in arrayOf("Off", "Fake") && releaseAutoBlock }
 
     private val uncpAutoBlock by boolean("UpdatedNCPAutoBlock", false) {
@@ -181,13 +187,6 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
     // Don't block if target isn't holding a sword or an axe
     private val checkWeapon by boolean("CheckEnemyWeapon", true) { smartAutoBlock }
-
-    // TODO: Make block range independent from attack range
-    private var blockRange: Float by float("BlockRange", range, 1f..8f, suffix = "blocks") {
-        smartAutoBlock
-    }.onChange { _, new ->
-        new.coerceAtMost(this@KillAura.range)
-    }
 
     // Don't block when you can't get damaged
     private val maxOwnHurtTime by int("MaxOwnHurtTime", 3, 0..10) { smartAutoBlock }
@@ -1291,6 +1290,8 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             val player = mc.thePlayer ?: return false
 
             if (target != null && player.heldItem?.item is ItemSword) {
+                // TODO: Check if player is moving away, on 10 HurtTime (to ignore when the player is taking knockback, thus moving backwards)
+                // Additionally, check for all players that might hit you, instead of just one
                 if (smartAutoBlock) {
                     if (player.isMoving && forceBlock) return false
 
@@ -1303,8 +1304,6 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
                     if (rotationDifference(rotationToPlayer, target!!.rotation) > maxDirectionDiff) return false
 
                     if (target!!.swingProgressInt > maxSwingProgress) return false
-
-                    if (target!!.getDistanceToEntityBox(player) > blockRange) return false
                 }
 
                 if (player.getDistanceToEntityBox(target!!) > blockMaxRange) return false

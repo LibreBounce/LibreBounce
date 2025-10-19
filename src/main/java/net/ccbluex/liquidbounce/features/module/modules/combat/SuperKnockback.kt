@@ -107,7 +107,7 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
         val distanceBasedOnMotion = player.getDistanceToBox(target.hitBox.offset(pos))
 
         // Is the entity's distance based on motion farther than the normal distance?
-        if (onlyWhenTargetGoesBack && distanceBasedOnMotion >= player.getDistanceToEntityBox(target)) return@handler
+        if (onlyWhenTargetGoesBack && distanceBasedOnMotion >= distance) return@handler
 
         when (mode) {
             "Old" -> {
@@ -121,6 +121,7 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
                     C0BPacketEntityAction(player, STOP_SPRINTING),
                     C0BPacketEntityAction(player, START_SPRINTING)
                 )
+
                 player.isSprinting = true
                 player.serverSprintState = true
             }
@@ -172,7 +173,6 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
                     }
 
                     player.stopXZ()
-
                 } else if (sprintTicks >= unSprintTicks.get()) {
 
                     player.isSprinting = false
@@ -233,8 +233,8 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
 
     val onPacket = handler<PacketEvent> { event ->
         val player = mc.thePlayer ?: return@handler
-        val packet = event.packet
-        if (packet is C03PacketPlayer && mode == "Silent") {
+
+        if (event.packet is C03PacketPlayer && mode == "Silent") {
             if (ticks == 2) {
                 sendPacket(C0BPacketEntityAction(player, STOP_SPRINTING))
                 ticks--
@@ -246,10 +246,9 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
     }
 
     fun shouldBlockInput() = handleEvents() && mode == "WTap" && blockInput
+    fun breakSprint() = handleEvents() && forceSprintState == 2 && mode == "SprintTap"
+    fun startSprint() = handleEvents() && forceSprintState == 1 && mode == "SprintTap"
 
     override val tag
         get() = mode
-
-    fun breakSprint() = handleEvents() && forceSprintState == 2 && mode == "SprintTap"
-    fun startSprint() = handleEvents() && forceSprintState == 1 && mode == "SprintTap"
 }
