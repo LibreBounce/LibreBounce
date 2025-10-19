@@ -37,48 +37,58 @@ object Ambience : Module("Ambience", Category.RENDER, gameDetecting = false) {
 
 
     val onUpdate = handler<UpdateEvent> {
-        when (timeMode) {
-            "Normal" -> {
-                i += changeWorldTimeSpeed
-                i %= 24000
-                mc.theWorld.worldTime = i
-            }
-            "Custom" -> {
-                mc.theWorld.worldTime = customWorldTime.toLong() * 1000
-            }
-            "Day" -> {
-                mc.theWorld.worldTime = 2000
-            }
-            "Dusk" -> {
-                mc.theWorld.worldTime = 13050
-            }
-            "Night" -> {
-                mc.theWorld.worldTime = 16000
-            }
-            "Dynamic" -> {
-                if (i < 24000) {
-                    i += dynamicSpeed
-                } else {
-                    i = 0
+        mc.theWorld?.run {
+            when (timeMode) {
+                "Normal" -> {
+                    i += changeWorldTimeSpeed
+                    i %= 24000
+                    worldTime = i
                 }
-                mc.theWorld.worldTime = i
-            }
-        }
 
-        val strength = weatherStrength.coerceIn(0F, 1F)
+                "Custom" -> {
+                    worldTime = customWorldTime.toLong() * 1000
+                }
 
-        when (weatherMode) {
-            "Sun" -> {
-                mc.theWorld.setRainStrength(0f)
-                mc.theWorld.setThunderStrength(0f)
+                "Day" -> {
+                    worldTime = 2000
+                }
+
+                "Dusk" -> {
+                    worldTime = 13050
+                }
+
+                "Night" -> {
+                    worldTime = 16000
+                }
+
+                "Dynamic" -> {
+                    if (i < 24000) {
+                        i += dynamicSpeed
+                    } else {
+                        i = 0
+                    }
+
+                    worldTime = i
+                }
             }
-            "Rain" -> {
-                mc.theWorld.setRainStrength(strength)
-                mc.theWorld.setThunderStrength(0f)
-            }
-            "Thunder" -> {
-                mc.theWorld.setRainStrength(strength)
-                mc.theWorld.setThunderStrength(strength)
+
+            val strength = weatherStrength.coerceIn(0F, 1F)
+
+            when (weatherMode) {
+                "Sun" -> {
+                    setRainStrength(0f)
+                    setThunderStrength(0f)
+                }
+
+                "Rain" -> {
+                    setRainStrength(strength)
+                    setThunderStrength(0f)
+                }
+
+                "Thunder" -> {
+                    setRainStrength(strength)
+                    setThunderStrength(strength)
+                }
             }
         }
     }

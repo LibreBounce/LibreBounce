@@ -25,9 +25,7 @@ object VulcanGhost : FlyMode("VulcanGhost") {
     }
 
     override fun onPacket(event: PacketEvent) {
-        val packet = event.packet
-
-        if (packet is S08PacketPlayerPosLook) {
+        if (event.packet is S08PacketPlayerPosLook) {
             event.cancelEvent()
         }
     }

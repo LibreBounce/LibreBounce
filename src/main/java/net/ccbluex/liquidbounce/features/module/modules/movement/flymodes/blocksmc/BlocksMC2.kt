@@ -146,22 +146,19 @@ object BlocksMC2 : FlyMode("BlocksMC2"), Listenable {
     }
 
     override fun onPacket(event: PacketEvent) {
-        val packet = event.packet
-
         if (mc.thePlayer == null || mc.theWorld == null || mc.thePlayer.isDead)
             return
 
         if (event.isCancelled)
             return
 
-        when (packet) {
+        when (event.packet) {
             is C00Handshake, is C00PacketServerQuery, is C01PacketPing, is S02PacketChat, is S40PacketDisconnect -> {
                 return
             }
         }
 
         if (!isBlinked) {
-
             isNotUnder = true
             isBlinked = true
 
@@ -171,13 +168,14 @@ object BlocksMC2 : FlyMode("BlocksMC2"), Listenable {
             if (event.eventType == EventState.RECEIVE && mc.thePlayer.ticksExisted > 10) {
                 event.cancelEvent()
                 synchronized(packetsReceived) {
-                    packetsReceived += packet
+                    packetsReceived += event.packet
                 }
             }
             if (event.eventType == EventState.SEND) {
                 synchronized(packets) {
                     sendPackets(*packets.toTypedArray(), triggerEvents = false)
                 }
+
                 packets.clear()
             }
         }

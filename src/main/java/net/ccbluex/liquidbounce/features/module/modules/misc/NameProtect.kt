@@ -62,19 +62,17 @@ object NameProtect : Module("NameProtect", Category.MISC, subjective = true, gam
     }
 
     val onPacket = handler<PacketEvent> { event ->
-        val packet = event.packet
-
         if (mc.thePlayer == null || mc.theWorld == null) return@handler
 
         // Check for new players
-        if (packet is S01PacketJoinGame) {
+        if (event.packet is S01PacketJoinGame) {
             for (playerInfo in mc.netHandler.playerInfoMap) {
                 handleNewPlayer(playerInfo.gameProfile.id)
             }
         }
 
         // Check if player in game leave
-        if (packet is S40PacketDisconnect) {
+        if (event.packet is S40PacketDisconnect) {
             for (playerInfo in mc.netHandler.playerInfoMap) {
                 handlePlayerLeave(playerInfo.gameProfile.id)
             }

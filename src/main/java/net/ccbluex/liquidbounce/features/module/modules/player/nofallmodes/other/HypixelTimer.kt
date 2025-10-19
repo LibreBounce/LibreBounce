@@ -21,15 +21,13 @@ object HypixelTimer : NoFallMode("HypixelTimer") {
 
     override fun onPacket(event: PacketEvent) {
         mc.thePlayer?.run {
-            val packet = event.packet
-
             val fallingPlayer = FallingPlayer()
 
-            if (packet is C03PacketPlayer) {
+            if (event.packet is C03PacketPlayer) {
                 if (fallingPlayer.findCollision(500) != null && fallDistance - motionY >= 3.3) {
                     mc.timer.timerSpeed = 0.5f
 
-                    packet.onGround = true
+                    event.packet.onGround = true
                     fallDistance = 0f
 
                     NoFall.nextTick {

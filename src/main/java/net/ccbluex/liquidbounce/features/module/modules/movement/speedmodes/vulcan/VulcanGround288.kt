@@ -37,10 +37,8 @@ object VulcanGround288 : SpeedMode("VulcanGround2.8.8") {
     }
 
     override fun onPacket(event: PacketEvent) {
-        val packet = event.packet
-
-        if (packet is C03PacketPlayer && collidesBottom()) {
-            packet.y += 0.005
+        if (event.packet is C03PacketPlayer && collidesBottom()) {
+            event.packet.y += 0.005
         }
     }
 

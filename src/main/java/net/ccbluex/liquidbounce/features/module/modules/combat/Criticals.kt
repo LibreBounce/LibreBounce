@@ -119,10 +119,8 @@ object Criticals : Module("Criticals", Category.COMBAT) {
     }
 
     val onPacket = handler<PacketEvent> { event ->
-        val packet = event.packet
-
-        if (packet is C03PacketPlayer && mode == "NoGround")
-            packet.onGround = false
+        if (event.packet is C03PacketPlayer && mode == "NoGround")
+            event.packet.onGround = false
     }
 
     override val tag

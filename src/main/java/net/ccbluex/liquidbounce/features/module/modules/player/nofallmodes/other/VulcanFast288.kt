@@ -19,14 +19,12 @@ import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
 object VulcanFast288 : NoFallMode("VulcanFast2.8.8") {
     override fun onPacket(event: PacketEvent) {
         mc.thePlayer?.run {
-            val packet = event.packet
-
-            if (packet is C04PacketPlayerPosition) {
+            if (event.packet is C04PacketPlayerPosition) {
                 val fallingPlayer = FallingPlayer()
                 if (fallDistance > 2.5 && fallDistance < 50) {
                     // Checks to prevent fast falling to void.
                     if (fallingPlayer.findCollision(500) != null) {
-                        packet.onGround = true
+                        event.packet.onGround = true
 
                         stopXZ()
                         motionY = -99.887575

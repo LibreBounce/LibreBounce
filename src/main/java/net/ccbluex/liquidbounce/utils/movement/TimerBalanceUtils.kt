@@ -38,10 +38,8 @@ object TimerBalanceUtils : MinecraftInstance, Listenable {
     }
 
     val onPacket = handler<PacketEvent> { event ->
-        val packet = event.packet
-
         if (inGame) {
-            if (packet is C03PacketPlayer) {
+            if (event.packet is C03PacketPlayer) {
                 balance += 50
             }
         }

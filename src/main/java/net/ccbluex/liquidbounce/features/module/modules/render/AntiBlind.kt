@@ -22,7 +22,6 @@ object AntiBlind : Module("AntiBlind", Category.RENDER, gameDetecting = false) {
     val onPacket = handler<PacketEvent> { event ->
         if (!bookPage) return@handler
 
-        val packet = event.packet
-        if (packet is S3FPacketCustomPayload && packet.channelName == "MC|BOpen") event.cancelEvent()
+        if (event.packet is S3FPacketCustomPayload && event.packet.channelName == "MC|BOpen") event.cancelEvent()
     }
 }

@@ -18,6 +18,7 @@ object BungeeCordSpoof : MinecraftInstance, Listenable {
 
     val onPacket = handler<PacketEvent> { event ->
         val packet = event.packet
+
         if (packet is C00Handshake && packet.requestedState == EnumConnectionState.LOGIN) {
             packet.ip = packet.ip + "\u0000" + String.format(
                 "{0}.{1}.{2}.{3}", getRandomIpPart(), getRandomIpPart(), getRandomIpPart(), getRandomIpPart()

@@ -26,7 +26,7 @@ object TNTBlock : Module("TNTBlock", Category.COMBAT) {
 
     val onMotion = handler<MotionEvent> {
         val player = mc.thePlayer ?: return@handler
-        val world = mc.theWorld ?: return@handler
+        mc.theWorld ?: return@handler
 
         for (entity in entities) {
             if (autoSword) {

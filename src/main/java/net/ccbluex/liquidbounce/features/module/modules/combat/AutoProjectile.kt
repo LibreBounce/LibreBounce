@@ -20,6 +20,7 @@ import net.minecraft.init.Items.snowball
 object AutoProjectile : Module("AutoProjectile", Category.COMBAT) {
     private val facingEnemy by boolean("FacingEnemy", true)
 
+    // TODO: Turn this into a range
     private val range by float("Range", 8f, 1f..20f, suffix = "blocks")
     private val throwDelay by intRange("ThrowDelay", 1000..1500, 50..2000, suffix = "ms")
 

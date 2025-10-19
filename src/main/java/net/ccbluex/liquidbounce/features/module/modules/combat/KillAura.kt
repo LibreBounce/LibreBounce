@@ -1144,7 +1144,6 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
     val onPacket = handler<PacketEvent> { event ->
         val player = mc.thePlayer ?: return@handler
-        val packet = event.packet
 
         if (autoBlock == "Off" || !blinkAutoBlock || !blinked) return@handler
 
@@ -1158,7 +1157,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             return@handler
         }
 
-        BlinkUtils.blink(packet, event)
+        BlinkUtils.blink(event.packet, event)
     }
 
     /**

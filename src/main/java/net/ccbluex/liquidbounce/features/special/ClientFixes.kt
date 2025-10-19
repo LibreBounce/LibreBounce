@@ -62,6 +62,7 @@ object ClientFixes : Configurable("Features"), MinecraftInstance, Listenable {
                     blockPayloadPackets && !packet.channelName.startsWith("MC|") -> {
                         event.cancelEvent()
                     }
+
                     packet.channelName == "MC|Brand" -> {
                         packet.data = PacketBuffer(Unpooled.buffer()).writeString(
                             when (clientBrand) {

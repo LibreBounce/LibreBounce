@@ -30,9 +30,7 @@ object AutoDisable : Module("AutoDisable", Category.MISC, gameDetecting = false)
     private val warn by choices("Warn", arrayOf("Chat", "Notification"), "Chat")
 
     val onPacket = handler<PacketEvent> { event ->
-        val packet = event.packet
-
-        if (packet is S08PacketPlayerPosLook && onFlagged) {
+        if (event.packet is S08PacketPlayerPosLook && onFlagged) {
             disabled("flagged")
         }
     }

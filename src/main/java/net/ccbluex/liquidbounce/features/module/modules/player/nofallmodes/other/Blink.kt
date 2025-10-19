@@ -64,17 +64,16 @@ object Blink : NoFallMode("Blink") {
             }
         }
 
-        if (event.packet is C03PacketPlayer) {
+        if (packet is C03PacketPlayer) {
             if (blinked && player.fallDistance > fallDist.start) {
                 if (player.fallDistance < fallDist.endInclusive) {
-                    if (blinked) {
-                        event.packet.onGround = player.ticksExisted % 2 == 0
-                    }
+                    if (blinked)
+                        packet.onGround = player.ticksExisted % 2 == 0
                 } else {
                     chat("rewriting ground")
                     BlinkUtils.unblink()
                     blinked = false
-                    event.packet.onGround = false
+                    packet.onGround = false
                 }
             }
         }

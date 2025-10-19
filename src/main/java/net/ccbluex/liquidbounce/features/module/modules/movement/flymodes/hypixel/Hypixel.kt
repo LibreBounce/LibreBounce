@@ -43,10 +43,8 @@ object Hypixel : FlyMode("Hypixel") {
     }
 
     override fun onPacket(event: PacketEvent) {
-        val packet = event.packet
-
-        if (packet is C03PacketPlayer)
-            packet.onGround = false
+        if (event.packet is C03PacketPlayer)
+            event.packet.onGround = false
     }
 
     override fun onBB(event: BlockBBEvent) {

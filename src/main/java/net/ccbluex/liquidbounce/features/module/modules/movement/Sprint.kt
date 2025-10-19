@@ -153,6 +153,7 @@ object Sprint : Module("Sprint", Category.MOVEMENT, gameDetecting = false) {
         }
 
         val packet = event.packet
+
         if (packet !is C0BPacketEntityAction || !noPackets || event.isCancelled) {
             return@handler
         }
