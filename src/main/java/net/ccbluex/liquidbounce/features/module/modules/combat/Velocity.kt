@@ -44,9 +44,7 @@ import kotlin.math.sqrt
 
 object Velocity : Module("Velocity", Category.COMBAT) {
 
-    /**
-     * OPTIONS
-     */
+    // TODO: Jump should just be an option for all modes
     private val mode by choices(
         "Mode", arrayOf(
             "Simple", "AAC", "AACPush", "AACZero", "AACv4",
@@ -106,6 +104,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
     }
     private val whenFacingEnemyOnly by boolean("WhenFacingEnemyOnly", true) { mode == "Click" }
     private val ignoreBlocking by boolean("IgnoreBlocking", false) { mode == "Click" }
+    // TODO: Make this a float range
     private val clickRange by float("ClickRange", 3f, 1f..6f) { mode == "Click" }
     private val swingMode by choices("SwingMode", arrayOf("Off", "Normal", "Packet"), "Normal") { mode == "Click" }
 

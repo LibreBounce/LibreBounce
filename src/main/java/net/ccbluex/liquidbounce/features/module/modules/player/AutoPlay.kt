@@ -36,13 +36,10 @@ object AutoPlay : Module("AutoPlay", Category.PLAYER, gameDetecting = false) {
 
     private val delay by int("Delay", 50, 0..200, suffix = "ticks")
 
-    private val notification by boolean("Notification", false)
+    private val notification by boolean("Notification", false).subjective()
 
     private var delayTick = 0
 
-    /**
-     * Update Event
-     */
     val onGameTick = handler<GameTickEvent> {
         val player = mc.thePlayer ?: return@handler
 
@@ -98,6 +95,7 @@ object AutoPlay : Module("AutoPlay", Category.PLAYER, gameDetecting = false) {
      */
     // TODO: Maybe this should be a job for GameDetector?
     private fun playerInGame(): Boolean {
+        // Isn't the null check already covered on the game tick event above?
         val player = mc.thePlayer ?: return false
 
         return player.ticksExisted >= 20
@@ -106,9 +104,6 @@ object AutoPlay : Module("AutoPlay", Category.PLAYER, gameDetecting = false) {
                 || player.capabilities.disableDamage)
     }
 
-    /**
-     * HUD Tag
-     */
     override val tag
         get() = mode
 }
