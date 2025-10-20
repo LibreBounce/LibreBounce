@@ -93,7 +93,7 @@ object BlockOverlay : Module("BlockOverlay", Category.RENDER, gameDetecting = fa
     val onRender2D = handler<Render2DEvent> {
         if (!info) return@handler
 
-        val block = currentBlock.block ?: return@handler
+        val block = currentBlock?.block ?: return@handler
 
         val info = "${block.localizedName} §7ID: ${getIdFromBlock(block)}"
         val (width, height) = ScaledResolution(mc)
