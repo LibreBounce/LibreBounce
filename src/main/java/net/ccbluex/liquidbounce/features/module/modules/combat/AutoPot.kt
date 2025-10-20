@@ -132,6 +132,7 @@ object AutoPot : Module("AutoPot", Category.COMBAT) {
     private fun findPotion(startSlot: Int, endSlot: Int): Int? {
         val player = mc.thePlayer
 
+        // TODO: Clean this mess up
         for (i in startSlot..endSlot) {
             val stack = player.inventorySlot(i).stack
 

@@ -11,6 +11,7 @@ import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 import net.minecraft.network.play.client.C00PacketKeepAlive
 
+// TODO: Implement this as an option for the Vanilla mode, since it serves no other purpose
 object KeepAlive : FlyMode("KeepAlive") {
     override fun onUpdate() {
         sendPacket(C00PacketKeepAlive())

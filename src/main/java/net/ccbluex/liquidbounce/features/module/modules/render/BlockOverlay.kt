@@ -10,14 +10,14 @@ import net.ccbluex.liquidbounce.event.Render3DEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.ui.font.Fonts
+import net.ccbluex.liquidbounce.ui.font.Fonts.fontSemibold40
 import net.ccbluex.liquidbounce.utils.block.block
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBorderedRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawFilledBox
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawSelectionBoundingBox
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
-import net.minecraft.block.Block
+import net.minecraft.block.Block.getIdFromBlock
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.renderer.GlStateManager.resetColor
 import net.minecraft.init.Blocks.air
@@ -93,21 +93,21 @@ object BlockOverlay : Module("BlockOverlay", Category.RENDER, gameDetecting = fa
     val onRender2D = handler<Render2DEvent> {
         if (!info) return@handler
 
-        val blockPos = currentBlock ?: return@handler
-        val block = blockPos.block ?: return@handler
+        val block = currentBlock.block ?: return@handler
 
-        val info = "${block.localizedName} §7ID: ${Block.getIdFromBlock(block)}"
+        val info = "${block.localizedName} §7ID: ${getIdFromBlock(block)}"
         val (width, height) = ScaledResolution(mc)
 
+        // TODO: Customizable font
         drawBorderedRect(
             width / 2 - 2F,
             height / 2 + 5F,
-            width / 2 + Fonts.fontSemibold40.getStringWidth(info) + 2F,
+            width / 2 + fontSemibold40.getStringWidth(info) + 2F,
             height / 2 + 16F,
             3F, Color.BLACK.rgb, Color.BLACK.rgb
         )
 
         resetColor()
-        Fonts.fontSemibold40.drawString(info, width / 2f, height / 2f + 7f, Color.WHITE.rgb, false)
+        fontSemibold40.drawString(info, width / 2f, height / 2f + 7f, Color.WHITE.rgb, false)
     }
 }

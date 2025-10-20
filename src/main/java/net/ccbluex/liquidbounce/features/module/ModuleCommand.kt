@@ -39,6 +39,7 @@ class ModuleCommand(val module: Module, val values: Collection<Value<*>> = modul
         }
 
         when (val value = module[args[1]]) {
+            // TODO: Display all current values, like Myau does
             null -> chatSyntax("$moduleName <$valueNames>")
 
             is BoolValue -> {
@@ -75,7 +76,7 @@ class ModuleCommand(val module: Module, val values: Collection<Value<*>> = modul
 
                         else -> {
                             // TODO: branch completion
-                            chatInvalid(args[1], value, "Unsupported Value type")
+                            chatInvalid(args[1], value, "Unsupported value type")
                         }
                     }
 

@@ -25,7 +25,6 @@ object Ambience : Module("Ambience", Category.RENDER, gameDetecting = false) {
     private val weatherMode by choices("WeatherMode", arrayOf("None", "Sun", "Rain", "Thunder"), "None")
     private val weatherStrength by FloatValue("WeatherStrength", 1f, 0f..1f)
 
-    // world color
     val worldColor by boolean("WorldColor", false)
     val color by color("Color", Color(0, 90, 255))
 

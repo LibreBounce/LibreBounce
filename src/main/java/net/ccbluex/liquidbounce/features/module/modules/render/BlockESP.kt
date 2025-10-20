@@ -21,7 +21,7 @@ import net.ccbluex.liquidbounce.utils.extensions.component3
 import net.ccbluex.liquidbounce.utils.extensions.eyes
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.draw2D
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBlockBox
-import net.minecraft.block.Block
+import net.minecraft.block.Block.getBlockById
 import net.minecraft.init.Blocks.air
 import net.minecraft.util.BlockPos
 import java.awt.Color
@@ -42,7 +42,7 @@ object BlockESP : Module("BlockESP", Category.RENDER) {
     }
 
     val onSearch = loopSequence(dispatcher = Dispatchers.Default) {
-        val selectedBlock = Block.getBlockById(block)
+        val selectedBlock = getBlockById(block)
 
         if (selectedBlock == null || selectedBlock == air) {
             delay(1000)

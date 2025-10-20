@@ -20,6 +20,7 @@ import net.minecraft.item.ItemStack
 // TODO: Maybe this module is best suited in the Miscellaneous category?
 object AutoPlay : Module("AutoPlay", Category.PLAYER, gameDetecting = false) {
 
+    // TODO: Custom mode, allowing for any command to be executed after a game ends
     private val mode by choices("Mode", arrayOf("Paper", "Hypixel"), "Paper")
 
     // Hypixel Settings

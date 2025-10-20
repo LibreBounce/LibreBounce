@@ -7,7 +7,7 @@ package net.ccbluex.liquidbounce.features.module.modules.render
 
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.ui.font.Fonts
+import net.ccbluex.liquidbounce.ui.font.Fonts.fontSemibold40
 
 object Chat : Module("Chat", Category.RENDER, gameDetecting = false, subjective = true) {
 
@@ -21,6 +21,6 @@ object Chat : Module("Chat", Category.RENDER, gameDetecting = false, subjective 
     }
 
     val noMessageLimitValue by boolean("NoMessageLimit", true)
-    val font by font("Font", Fonts.fontSemibold40)
+    val font by font("Font", fontSemibold40)
     val textShadow by boolean("TextShadow", true)
 }

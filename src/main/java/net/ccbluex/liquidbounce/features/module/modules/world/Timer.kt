@@ -18,8 +18,7 @@ object Timer : Module("Timer", Category.WORLD, gameDetecting = false) {
     private val speed by float("Speed", 2F, 0.1F..10F)
 
     override fun onDisable() {
-        if (mc.thePlayer == null)
-            return
+        mc.thePlayer ?: return
 
         mc.timer.timerSpeed = 1F
     }

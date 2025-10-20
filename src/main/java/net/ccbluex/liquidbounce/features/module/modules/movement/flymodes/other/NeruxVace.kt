@@ -10,6 +10,7 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.flymodes.FlyMod
 
 object NeruxVace : FlyMode("NeruxVace") {
     private var tick = 0
+
     override fun onUpdate() {
         mc.thePlayer?.run {
             if (!onGround) {

@@ -10,8 +10,9 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
-import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils
-import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar
+import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.findItem
+import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar.resetSlot
+import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar.selectSlotSilently
 import net.minecraft.init.Items
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
 
@@ -30,10 +31,10 @@ object KeepAlive : Module("KeepAlive", Category.PLAYER) {
             when (mode) {
                 "/heal" -> player.sendChatMessage("/heal")
                 "Soup" -> {
-                    val soupInHotbar = InventoryUtils.findItem(36, 44, Items.mushroom_stew)
+                    val soupInHotbar = findItem(36, 44, Items.mushroom_stew)
 
                     if (soupInHotbar != null) {
-                        SilentHotbar.selectSlotSilently(
+                        selectSlotSilently(
                             this,
                             soupInHotbar,
                             immediate = true,
@@ -41,7 +42,7 @@ object KeepAlive : Module("KeepAlive", Category.PLAYER) {
                             resetManually = true
                         )
                         sendPacket(C08PacketPlayerBlockPlacement(player.heldItem))
-                        SilentHotbar.resetSlot(this)
+                        resetSlot(this)
                     }
                 }
             }

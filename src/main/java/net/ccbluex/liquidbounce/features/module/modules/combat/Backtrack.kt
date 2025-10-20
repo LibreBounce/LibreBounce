@@ -59,7 +59,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
     ) { mode == "Legacy" }
 
     // Modern
-    // TODO: Add more conditions (with customizability), and an option to stop BackTrack on low HP
+    // TODO: Add more conditions (with customizability), like an option to stop BackTrack on low HP, or at a specific hurt time
     private val style by choices("Style", arrayOf("Pulse", "Smooth"), "Smooth") { mode == "Modern" }
     private val distance by floatRange("Distance", 2f..3f, 0f..6f) { mode == "Modern" }
     private val smart by boolean("Smart", true) { mode == "Modern" }

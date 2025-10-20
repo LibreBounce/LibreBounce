@@ -42,6 +42,7 @@ object ItemESP : Module("ItemESP", Category.RENDER) {
         maxRenderDistanceSq = value.toDouble().pow(2)
     }
 
+    // TODO: Move this up, for coherence
     private val scale by float("Scale", 3F, 1F..5F) { itemText }
     private val itemCounts by boolean("ItemCounts", true) { itemText }
     private val font by font("Font", Fonts.fontSemibold40) { itemText }

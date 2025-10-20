@@ -192,7 +192,8 @@ object StorageESP : Module("StorageESP", Category.RENDER) {
                         when (mode) {
                             "OtherBox", "Box" -> drawEntityBox(entity, Color(0, 66, 255), mode != "OtherBox")
 
-                            "2d" -> draw2D(entity.position, Color(0, 66, 255).rgb, Color.BLACK.rgb)
+                            "2D" -> draw2D(entity.position, Color(0, 66, 255).rgb, Color.BLACK.rgb)
+
                             "Outline" -> {
                                 val entityShadow = mc.gameSettings.entityShadows
                                 mc.gameSettings.entityShadows = false

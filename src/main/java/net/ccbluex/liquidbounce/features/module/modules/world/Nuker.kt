@@ -8,7 +8,7 @@ package net.ccbluex.liquidbounce.features.module.modules.world
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.ui.font.Fonts
+import net.ccbluex.liquidbounce.ui.font.Fonts.fontSemibold40
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getCenterDistance
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.searchBlocks
 import net.ccbluex.liquidbounce.utils.block.block
@@ -63,7 +63,7 @@ object Nuker : Module("Nuker", Category.WORLD, gameDetecting = false) {
     private val blockProgress by boolean("BlockProgress", true).subjective()
 
     private val scale by float("Scale", 2F, 1F..6F) { blockProgress }.subjective()
-    private val font by font("Font", Fonts.fontSemibold40) { blockProgress }.subjective()
+    private val font by font("Font", fontSemibold40) { blockProgress }.subjective()
     private val fontShadow by boolean("Shadow", true) { blockProgress }.subjective()
 
     private val color by color("Color", Color(200, 100, 0)) { blockProgress }.subjective()
