@@ -11,6 +11,7 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 - `Panel` ClickGUI mode, similar to Rise 6.0's (thatonecoder)
 - `OnlyBlocks` and `NotOnForward` options to Eagle (thatonecoder)
 - `MissClickChanceDistanceMultiply` option to ChestStealer (thatonecoder)
+- `Requeue` Hypixel sub-mode to AutoPlay, potentially working for all minigames (thatonecoder)
 - `Notification` option to AutoPlay, notificating when requeueing (thatonecoder)
 
 ### Fixed

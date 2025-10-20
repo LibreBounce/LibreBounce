@@ -17,12 +17,13 @@ import net.ccbluex.liquidbounce.utils.inventory.hotBarSlot
 import net.minecraft.init.Items
 import net.minecraft.item.ItemStack
 
+// TODO: Maybe this module is best suited in the Miscellaneous category?
 object AutoPlay : Module("AutoPlay", Category.PLAYER, gameDetecting = false) {
 
     private val mode by choices("Mode", arrayOf("Paper", "Hypixel"), "Paper")
 
     // Hypixel Settings
-    private val hypixelMode by choices("HypixelMode", arrayOf("Skywars", "Bedwars"), "Skywars") {
+    private val hypixelMode by choices("HypixelMode", arrayOf("Requeue", "Skywars", "Bedwars"), "Requeue") {
         mode == "Hypixel"
     }
     private val skywarsMode by choices("SkywarsMode", arrayOf("SoloNormal", "SoloInsane"), "SoloNormal") {
@@ -81,7 +82,10 @@ object AutoPlay : Module("AutoPlay", Category.PLAYER, gameDetecting = false) {
                             "Trio" -> player.sendChatMessage("/play bedwars_four_three")
                             "Quad" -> player.sendChatMessage("/play bedwars_four_four")
                         }
+
+                        else -> player.sendChatMessage("/requeue")
                     }
+
                     delayTick = 0
                 }
             }
@@ -91,6 +95,7 @@ object AutoPlay : Module("AutoPlay", Category.PLAYER, gameDetecting = false) {
     /**
      * Check whether player is in game or not
      */
+    // TODO: Maybe this should be a job for GameDetector?
     private fun playerInGame(): Boolean {
         val player = mc.thePlayer ?: return false
 
