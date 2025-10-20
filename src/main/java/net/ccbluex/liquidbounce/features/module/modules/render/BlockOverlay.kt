@@ -55,7 +55,7 @@ object BlockOverlay : Module("BlockOverlay", Category.RENDER, gameDetecting = fa
     val onRender3D = handler<Render3DEvent> {
         val blockPos = currentBlock ?: return@handler
 
-        val block = blockPos.block ?: return@handler
+        val block = blockPos?.block ?: return@handler
 
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)

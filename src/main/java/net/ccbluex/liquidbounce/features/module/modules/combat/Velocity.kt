@@ -711,7 +711,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
             if (mode == "Jump" && hasReceivedVelocity) {
                 if (!isJumping && nextInt(endExclusive = 100) < chance && shouldJump() && isSprinting && onGround && hurtTime == 9) {
                     tryJump()
-                    if (debug) debug("Velocity has jumped")
+                    if (debug) chat("Velocity has jumped")
                     limitUntilJump = 0
                 }
 

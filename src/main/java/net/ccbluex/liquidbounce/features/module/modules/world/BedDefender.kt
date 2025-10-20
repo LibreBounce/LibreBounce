@@ -18,7 +18,7 @@ import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils
 import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar
 import net.ccbluex.liquidbounce.utils.inventory.inventorySlot
-import net.ccbluex.liquidbounce.utils.render.RenderUtils
+import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBlockBox
 import net.ccbluex.liquidbounce.utils.rotation.Rotation
 import net.ccbluex.liquidbounce.utils.rotation.RotationSettings
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils
@@ -155,7 +155,7 @@ object BedDefender : Module("BedDefender", Category.WORLD) {
     val onRender3D = handler<Render3DEvent> {
         if (mark && blockPosition != null) {
             val blockPos = BlockPos(blockPosition!!.x, blockPosition!!.y + 1, blockPosition!!.z)
-            RenderUtils.drawBlockBox(blockPos, Color(68, 117, 255, 100), false)
+            drawBlockBox(blockPos, Color(68, 117, 255, 100), false)
             return@handler
         }
     }
