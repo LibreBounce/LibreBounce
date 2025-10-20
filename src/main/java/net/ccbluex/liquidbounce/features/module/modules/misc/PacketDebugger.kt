@@ -38,11 +38,11 @@ object PacketDebugger : Module("PacketDebugger", Category.MISC, gameDetecting = 
         val isClientPacket = packet.javaClass.name.startsWith("net.minecraft.network.play.client")
 
         if (timer.hasTimePassed(delay)) {
-            when (packetType.lowercase()) {
-                "both" -> logPacket(event)
-                "server" -> if (isServerPacket) logPacket(event)
-                "client" -> if (isClientPacket) logPacket(event)
-                "custom" -> if (selectedPackets.contains(packet.javaClass.simpleName)) logPacket(event)
+            when (packetType) {
+                "Both" -> logPacket(event)
+                "Server" -> if (isServerPacket) logPacket(event)
+                "Client" -> if (isClientPacket) logPacket(event)
+                "Custom" -> if (selectedPackets.contains(packet.javaClass.simpleName)) logPacket(event)
             }
             timer.reset()
         }

@@ -325,10 +325,10 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
         }
 
         if (!attemptLeave && autoLeave != "Off") {
-            when (autoLeave.lowercase()) {
-                "leave" -> mc.thePlayer.sendChatMessage("/leave")
-                "lobby" -> mc.thePlayer.sendChatMessage("/lobby")
-                "quit" -> mc.theWorld.sendQuittingDisconnectingPacket()
+            when (autoLeave) {
+                "Leave" -> mc.thePlayer.sendChatMessage("/leave")
+                "Lobby" -> mc.thePlayer.sendChatMessage("/lobby")
+                "Quit" -> mc.theWorld.sendQuittingDisconnectingPacket()
             }
             attemptLeave = true
         }

@@ -340,13 +340,13 @@ object Fucker : Module("Fucker", Category.WORLD) {
      */
     private fun isHittable(blockPos: BlockPos): Boolean {
         val player = mc.thePlayer ?: return false
-        return when (throughWalls.lowercase()) {
-            "raycast" -> {
+        return when (throughWalls) {
+            "Raycast" -> {
                 val eyesPos = player.eyes
                 val movingObjectPosition = mc.theWorld.rayTraceBlocks(eyesPos, blockPos.center, false, true, false)
                 movingObjectPosition != null && movingObjectPosition.blockPos == blockPos
             }
-            "around" -> EnumFacing.entries.any { !isBlockBBValid(blockPos.offset(it)) }
+            "Around" -> EnumFacing.entries.any { !isBlockBBValid(blockPos.offset(it)) }
             else -> true
         }
     }

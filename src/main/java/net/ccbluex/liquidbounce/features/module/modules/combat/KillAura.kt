@@ -556,11 +556,11 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         val hittableColor = if (hittable) markHittableColor else markColor
 
         if (targetMode != "Multi") {
-            when (mark.lowercase()) {
-                "none" -> return@handler
-                "platform" -> drawPlatform(target!!, hittableColor)
-                "box" -> drawEntityBox(target!!, hittableColor, boxOutline)
-                "circle" -> drawCircle(
+            when (mark) {
+                "None" -> return@handler
+                "Platform" -> drawPlatform(target!!, hittableColor)
+                "Box" -> drawEntityBox(target!!, hittableColor, boxOutline)
+                "Circle" -> drawCircle(
                     target!!,
                     duration * 1000F,
                     heightRange.takeIf { animateHeight } ?: heightRange.endInclusive..heightRange.endInclusive,

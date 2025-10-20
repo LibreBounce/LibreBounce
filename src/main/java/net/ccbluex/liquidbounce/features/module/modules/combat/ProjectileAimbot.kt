@@ -29,6 +29,7 @@ import java.awt.Color
 
 object ProjectileAimbot : Module("ProjectileAimbot", Category.COMBAT) {
 
+    // Should these values actually be subjective?
     private val bow by boolean("Bow", true).subjective()
     private val egg by boolean("Egg", true).subjective()
     private val snowball by boolean("Snowball", true).subjective()
@@ -149,10 +150,10 @@ object ProjectileAimbot : Module("ProjectileAimbot", Category.COMBAT) {
     val onRender3D = handler<Render3DEvent> {
         target ?: return@handler
 
-        when (mark.lowercase()) {
-            "none" -> return@handler
-            "platform" -> drawPlatform(target!!, markColor)
-            "box" -> drawEntityBox(target!!, markColor, boxOutline)
+        when (mark) {
+            "None" -> return@handler
+            "Platform" -> drawPlatform(target!!, markColor)
+            "Box" -> drawEntityBox(target!!, markColor, boxOutline)
         }
     }
 

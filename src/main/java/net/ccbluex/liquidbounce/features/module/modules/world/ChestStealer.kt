@@ -473,9 +473,9 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
     private fun debug(message: String) {
         if (chestDebug == "Off") return
 
-        when (chestDebug.lowercase()) {
-            "text" -> chat(message)
-            "notification" -> hud.addNotification(Notification.informative(this, message, 500L))
+        when (chestDebug) {
+            "Text" -> chat(message)
+            "Notification" -> hud.addNotification(Notification.informative(this, message, 500L))
         }
     }
 }

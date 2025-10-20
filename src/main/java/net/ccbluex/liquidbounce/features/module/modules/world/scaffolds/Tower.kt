@@ -149,8 +149,9 @@ object Tower : Configurable("Tower"), MinecraftInstance, Listenable {
         if (blocksAmount() <= 0)
             return
 
-        when (towerModeValues.get().lowercase()) {
-            "jump" -> if (player.onGround && tickTimer.hasTimePassed(jumpDelayValues.get())) {
+        // TODO: Use mc.thePlayer?.run instead
+        when (towerModeValues.get()) {
+            "Jump" -> if (player.onGround && tickTimer.hasTimePassed(jumpDelayValues.get())) {
                 fakeJump()
                 player.tryJump()
             } else if (!player.onGround) {
@@ -158,7 +159,7 @@ object Tower : Configurable("Tower"), MinecraftInstance, Listenable {
                 tickTimer.reset()
             }
 
-            "motion" -> if (player.onGround) {
+            "Motion" -> if (player.onGround) {
                 fakeJump()
                 player.motionY = 0.42
             } else if (player.motionY < 0.1) {
@@ -166,20 +167,20 @@ object Tower : Configurable("Tower"), MinecraftInstance, Listenable {
             }
 
             // Old Name (Jump)
-            "motionjump" -> if (player.onGround && tickTimer.hasTimePassed(jumpDelayValues.get())) {
+            "MotionJump" -> if (player.onGround && tickTimer.hasTimePassed(jumpDelayValues.get())) {
                 fakeJump()
                 player.motionY = jumpMotionValues.get().toDouble()
                 tickTimer.reset()
             }
 
-            "motiontp" -> if (player.onGround) {
+            "MotionTP" -> if (player.onGround) {
                 fakeJump()
                 player.motionY = 0.42
             } else if (player.motionY < 0.23) {
                 player.setPosition(player.posX, truncate(player.posY), player.posZ)
             }
 
-            "packet" -> if (player.onGround && tickTimer.hasTimePassed(2)) {
+            "Packet" -> if (player.onGround && tickTimer.hasTimePassed(2)) {
                 fakeJump()
                 sendPackets(
                     C04PacketPlayerPosition(
@@ -199,7 +200,7 @@ object Tower : Configurable("Tower"), MinecraftInstance, Listenable {
                 tickTimer.reset()
             }
 
-            "teleport" -> {
+            "Teleport" -> {
                 if (teleportNoMotionValues.get()) {
                     player.motionY = 0.0
                 }
@@ -215,7 +216,7 @@ object Tower : Configurable("Tower"), MinecraftInstance, Listenable {
                 }
             }
 
-            "constantmotion" -> {
+            "ConstantMotion" -> {
                 if (player.onGround) {
                     if (constantMotionJumpPacketValues.get()) {
                         fakeJump()
@@ -235,7 +236,7 @@ object Tower : Configurable("Tower"), MinecraftInstance, Listenable {
                 }
             }
 
-            "pulldown" -> {
+            "Pulldown" -> {
                 if (!player.onGround && player.motionY < triggerMotionValues.get()) {
                     player.motionY = -dragMotionValues.get().toDouble()
                 } else {
@@ -244,7 +245,7 @@ object Tower : Configurable("Tower"), MinecraftInstance, Listenable {
             }
 
             // Credit: @localpthebest / Nextgen
-            "vulcan2.9.0" -> {
+            "Vulcan2.9.0" -> {
                 if (player.ticksExisted % 10 == 0) {
                     // Prevent Flight Flag
                     player.motionY = -0.1
@@ -260,7 +261,7 @@ object Tower : Configurable("Tower"), MinecraftInstance, Listenable {
                 }
             }
 
-            "aac3.3.9" -> {
+            "AAC3.3.9" -> {
                 if (player.onGround) {
                     fakeJump()
                     player.motionY = 0.4001
@@ -272,7 +273,7 @@ object Tower : Configurable("Tower"), MinecraftInstance, Listenable {
                 }
             }
 
-            "aac3.6.4" -> if (player.ticksExisted % 4 == 1) {
+            "AAC3.6.4" -> if (player.ticksExisted % 4 == 1) {
                 player.motionY = 0.4195464
                 player.setPosition(player.posX - 0.035, player.posY, player.posZ)
             } else if (player.ticksExisted % 4 == 0) {

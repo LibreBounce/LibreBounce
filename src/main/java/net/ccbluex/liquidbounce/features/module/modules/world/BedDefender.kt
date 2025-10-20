@@ -136,17 +136,17 @@ object BedDefender : Module("BedDefender", Category.WORLD) {
             if (timerCounter.hasTimePassed(placeDelay)) {
                 if (!isPlaceablePos(blockPos)) return@handler
 
-                when (autoSneak.lowercase()) {
-                    "normal" -> mc.gameSettings.keyBindSneak.pressed = false
-                    "packet" -> sendPacket(C0BPacketEntityAction(player, C0BPacketEntityAction.Action.START_SNEAKING))
+                when (autoSneak) {
+                    "Normal" -> mc.gameSettings.keyBindSneak.pressed = false
+                    "Packet" -> sendPacket(C0BPacketEntityAction(player, C0BPacketEntityAction.Action.START_SNEAKING))
                 }
 
                 placeBlock(blockPos, raytrace.sideHit, raytrace.hitVec)
                 timerCounter.reset()
             } else {
-                when (autoSneak.lowercase()) {
-                    "normal" -> mc.gameSettings.keyBindSneak.pressed = true
-                    "packet" -> sendPacket(C0BPacketEntityAction(player, C0BPacketEntityAction.Action.STOP_SNEAKING))
+                when (autoSneak) {
+                    "Normal" -> mc.gameSettings.keyBindSneak.pressed = true
+                    "Packet" -> sendPacket(C0BPacketEntityAction(player, C0BPacketEntityAction.Action.STOP_SNEAKING))
                 }
             }
         }

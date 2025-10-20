@@ -16,6 +16,7 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 ### Fixed
 
+- Some Velocity modes not working as intended (thatonecoder)
 - `WaitForRotations` sneaking despite not being able to rotate yet, in Scaffold (thatonecoder)
 - `SkywarsMode` and `BedwarsMode` being displayed despite not being on the `Hypixel` mode, in AutoPlay (thatonecoder)
 
