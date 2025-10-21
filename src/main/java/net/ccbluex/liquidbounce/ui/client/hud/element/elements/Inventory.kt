@@ -58,8 +58,8 @@ class Inventory : Element("Inventory", 300.0, 50.0) {
 
         val invDisplayName = mc.thePlayer.inventory.displayName.formattedText
 
-        when (title.lowercase()) {
-            "center" -> font.drawString(
+        when (title) {
+            "Center" -> font.drawString(
                 invDisplayName,
                 width / 2 - font.getStringWidth(invDisplayName) / 2F,
                 -(font.FONT_HEIGHT).toFloat(),
@@ -67,8 +67,8 @@ class Inventory : Element("Inventory", 300.0, 50.0) {
                 false
             )
 
-            "left" -> font.drawString(invDisplayName, padding, -(font.FONT_HEIGHT).toFloat(), titleColor.rgb, false)
-            "right" -> font.drawString(
+            "Left" -> font.drawString(invDisplayName, padding, -(font.FONT_HEIGHT).toFloat(), titleColor.rgb, false)
+            "Right" -> font.drawString(
                 invDisplayName,
                 width - padding - font.getStringWidth(invDisplayName),
                 -(font.FONT_HEIGHT).toFloat(),

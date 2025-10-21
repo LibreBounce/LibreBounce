@@ -25,13 +25,15 @@ object BindCommand : Command("bind") {
                 chat("Module §a§l" + args[1] + "§3 not found.")
                 return
             }
+
             // Find key by name and change
             val key = Keyboard.getKeyIndex(args[2].uppercase())
+            val keyName = Keyboard.getKeyName(key)
             module.keyBind = key
 
             // Response to user
-            chat("Bound module §a§l${module.getName()}§3 to key §a§l${Keyboard.getKeyName(key)}§3.")
-            addNotification(Notification("Bind Command", "Bound ${module.getName()} to ${Keyboard.getKeyName(key)}"))
+            chat("Bound module §a§l${module.getName()}§3 to key §a§l${keyName}§3.")
+            addNotification(Notification("Bind Command", "Bound ${module.getName()} to ${keyName}"))
             playEdit()
             return
         }

@@ -1051,7 +1051,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
         if (blockStatus && (!uncpAutoBlock || !blinkAutoBlock) || shouldPrioritize()) return
 
-        if (mc.thePlayer.isBlocking) {
+        if (player.isBlocking) {
             blockStatus = true
             renderBlocking = true
             return
@@ -1105,7 +1105,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         val player = mc.thePlayer ?: return
 
         if (!forceStop) {
-            if (blockStatus && !mc.thePlayer.isBlocking) {
+            if (blockStatus && !player.isBlocking) {
 
                 when (unblockMode) {
                     "Stop" -> {

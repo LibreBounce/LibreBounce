@@ -18,6 +18,7 @@ import net.minecraft.client.gui.GuiChat
 import net.minecraft.util.ResourceLocation
 
 object HUD : Module("HUD", Category.RENDER, gameDetecting = false, defaultState = true, defaultHidden = true) {
+    // TODO: Make this a separate module
     val customHotbar by boolean("CustomHotbar", true)
 
     val smoothHotbarSlot by boolean("SmoothHotbarSlot", true) { customHotbar }

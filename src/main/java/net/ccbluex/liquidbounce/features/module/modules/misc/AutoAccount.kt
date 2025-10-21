@@ -69,7 +69,7 @@ object AutoAccount :
     private val accountModeValue = choices("AccountMode", arrayOf("RandomName", "RandomAlt"), "RandomName") {
         reconnectDelayValue.isSupported() || startupValue.isActive()
     }.onChange { old, new ->
-        if (new == "RandomAlt" && accountsConfig.accounts.filterIsInstance<CrackedAccount>().size <= 1) {
+        if (new == "RandomAlt" && accountsConfig.accounts.filterIsInstance<CrackedAccount>().size < 2) {
             chat("§7[§a§lAutoAccount§7] §cAdd more cracked accounts in AltManager to use RandomAlt option!")
             old
         } else {

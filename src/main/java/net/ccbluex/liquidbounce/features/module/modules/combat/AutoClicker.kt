@@ -112,18 +112,18 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT) {
     }
 
     val onTick = handler<UpdateEvent> {
-        mc.thePlayer?.let { player ->
-
+        // TODO: Use .run instead
+        mc.thePlayer?.run {
             shouldJitter = !mc.objectMouseOver.typeOfHit.isBlock &&
-                    (player.isSwingInProgress || mc.gameSettings.keyBindAttack.pressTime != 0)
+                    (isSwingInProgress || mc.gameSettings.keyBindAttack.pressTime != 0)
 
             if (jitter && ((left && shouldAutoClick && shouldJitter)
-                        || (right && !player.isUsingItem && mc.gameSettings.keyBindUseItem.isKeyDown
-                        && ((onlyBlocks && player.heldItem.item is ItemBlock) || !onlyBlocks)))
+                        || (right && !isUsingItem && mc.gameSettings.keyBindUseItem.isKeyDown
+                        && ((onlyBlocks && heldItem?.item is ItemBlock) || !onlyBlocks)))
             ) {
 
-                if (nextBoolean()) player.fixedSensitivityYaw += nextFloat(-1F, 1F)
-                if (nextBoolean()) player.fixedSensitivityPitch += nextFloat(-1F, 1F)
+                if (nextBoolean()) fixedSensitivityYaw += nextFloat(-1F, 1F)
+                if (nextBoolean()) fixedSensitivityPitch += nextFloat(-1F, 1F)
             }
         }
     }

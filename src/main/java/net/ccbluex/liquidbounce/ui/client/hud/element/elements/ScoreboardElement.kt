@@ -161,10 +161,10 @@ class ScoreboardElement(
                             runCatching {
                                 if (nameWithoutFormatting?.lowercase() == trimmedServerIP || containsDomain) {
                                     val colorCode = name?.substring(0, 2) ?: "§9"
-                                    name = when (serverIp.lowercase()) {
-                                        "none" -> ""
-                                        "client" -> "$colorCode$CLIENT_NAME"
-                                        "website" -> "$colorCode$CLIENT_WEBSITE"
+                                    name = when (serverIp) {
+                                        "None" -> ""
+                                        "Client" -> "$colorCode$CLIENT_NAME"
+                                        "Website" -> "$colorCode$CLIENT_WEBSITE"
                                         else -> return null
                                     }
                                 }
@@ -208,10 +208,10 @@ class ScoreboardElement(
 
                                 if (nameWithoutFormatting.lowercase() == trimmedServerIP || containsDomain) {
                                     val colorCode = title.substring(0, 2)
-                                    when (serverIp.lowercase()) {
-                                        "none" -> ""
-                                        "client" -> "$colorCode$CLIENT_NAME"
-                                        "website" -> "$colorCode$CLIENT_WEBSITE"
+                                    when (serverIp) {
+                                        "None" -> ""
+                                        "Client" -> "$colorCode$CLIENT_NAME"
+                                        "Website" -> "$colorCode$CLIENT_WEBSITE"
                                         else -> return null
                                     }
                                 } else title

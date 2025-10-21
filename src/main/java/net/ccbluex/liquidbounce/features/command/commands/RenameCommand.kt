@@ -7,8 +7,8 @@ package net.ccbluex.liquidbounce.features.command.commands
 
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
-import net.ccbluex.liquidbounce.utils.kotlin.StringUtils
-import net.ccbluex.liquidbounce.utils.render.ColorUtils
+import net.ccbluex.liquidbounce.utils.kotlin.StringUtils.toCompleteString
+import net.ccbluex.liquidbounce.utils.render.ColorUtils.translateAlternateColorCodes
 import net.minecraft.network.play.client.C10PacketCreativeInventoryAction
 
 object RenameCommand : Command("rename") {
@@ -29,7 +29,7 @@ object RenameCommand : Command("rename") {
                 return
             }
 
-            item.setStackDisplayName(ColorUtils.translateAlternateColorCodes(StringUtils.toCompleteString(args, 1)))
+            item.setStackDisplayName(translateAlternateColorCodes(toCompleteString(args, 1)))
             sendPacket(C10PacketCreativeInventoryAction(36 + mc.thePlayer.inventory.currentItem, item))
             chat("§3Item renamed to '${item.displayName}§3'")
             return

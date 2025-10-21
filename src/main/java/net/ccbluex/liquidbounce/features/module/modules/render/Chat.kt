@@ -20,6 +20,7 @@ object Chat : Module("Chat", Category.RENDER, gameDetecting = false, subjective 
         state = true
     }
 
+    // TODO: Add background color option
     val noMessageLimitValue by boolean("NoMessageLimit", true)
     val font by font("Font", fontSemibold40)
     val textShadow by boolean("TextShadow", true)
