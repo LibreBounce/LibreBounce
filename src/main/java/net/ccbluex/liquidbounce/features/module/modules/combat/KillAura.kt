@@ -88,6 +88,8 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
     private val hurtTime by int("HurtTime", 10, 0..10) { !simulateCooldown }
 
+    private val smartHit by boolean("SmartHit", false) { !simulateCooldown }
+
     private val activationSlot by boolean("ActivationSlot", false)
     private val preferredSlot by int("PreferredSlot", 1, 1..9) { activationSlot }
 
@@ -591,8 +593,9 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         // Settings
         val multi = targetMode == "Multi"
         val manipulateInventory = simulateClosingInventory && !noInventoryAttack && serverOpenInventory
+        val shouldSmartHit = !smartHit || player.onGround || player.fallDistance > 0 || player.getDistanceToEntityBox(currentTarget) > 2.5f ||
 
-        if (hittable && currentTarget.hurtTime > hurtTime) {
+        if (hittable && currentTarget.hurtTime > hurtTime || !shouldSmartHit) {
             return
         }
 
@@ -687,6 +690,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
                          * Since we want to simulate proper clicking behavior, we schedule the block break progress stop
                          * in the next tick, since that is a doable action by the average player.
                          */
+                        // TODO: Could this be done for longer, in a randomized manner?
                         nextTick {
                             mc.sendClickBlockToController(false)
 
