@@ -592,7 +592,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         // Settings
         val multi = targetMode == "Multi"
         val manipulateInventory = simulateClosingInventory && !noInventoryAttack && serverOpenInventory
-        val shouldSmartHit = !smartHit || player.onGround || player.fallDistance > 0 || player.getDistanceToEntityBox(currentTarget) > 2.5f
+        val shouldSmartHit = !smartHit || player.onGround || player.fallDistance > 0 || player.getDistanceToEntityBox(currentTarget) > 2.2f || player.health < 5f || player.isNearEdge(2.5f)
 
         if (hittable && currentTarget.hurtTime > hurtTime || !shouldSmartHit)
             return

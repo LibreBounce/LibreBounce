@@ -417,12 +417,10 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
             }
         }
 
-        if (player.onGround) {
-            // Still a thing?
-            if (scaffoldMode == "Rewinside") {
-                MovementUtils.strafe(0.2F)
-                player.motionY = 0.0
-            }
+        // Still a thing?
+        if (scaffoldMode == "Rewinside" && player.onGround) {
+            MovementUtils.strafe(0.2F)
+            player.motionY = 0.0
         }
     }
 
@@ -430,7 +428,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
         val player = mc.thePlayer ?: return@handler
 
         // Jumping needs to be done here, so it doesn't get detected by movement-sensitive anti-cheats.
-        if (scaffoldMode == "Telly" && player.onGround && player.isMoving && currRotation == player.rotation && ticksUntilJump >= jumpTicks) {
+        if (scaffoldMode == "Telly" && player.onGround && player.isMoving && player.isNearEdge(2.5f) && currRotation == player.rotation && ticksUntilJump >= jumpTicks) {
             player.tryJump()
 
             ticksUntilJump = 0
