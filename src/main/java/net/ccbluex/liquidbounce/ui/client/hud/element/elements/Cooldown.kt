@@ -24,12 +24,10 @@ class Cooldown(
     side: Side = Side(Side.Horizontal.MIDDLE, Side.Vertical.MIDDLE)
 ) : Element("Cooldown", x, y, scale, side) {
 
-    /**
-     * Draw element
-     */
     override fun drawElement(): Border {
         val progress = getAttackCooldownProgress()
 
+        // TODO: Make these colors configurable
         if (progress < 1.0) {
             drawRect(-25f, 0f, 25f, 3f, Color(0, 0, 0, 150).rgb)
             drawRect(-25f, 0f, 25f - 50f * progress.toFloat(), 3f, Color(0, 111, 255, 200).rgb)

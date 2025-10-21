@@ -20,6 +20,7 @@ import net.minecraft.potion.Potion
  *
  * Shows a list of active potion effects
  */
+// TODO: Make the Side option work
 @ElementInfo(name = "Effects")
 class Effects(
     x: Double = 2.0, y: Double = 10.0, scale: Float = 1F,
