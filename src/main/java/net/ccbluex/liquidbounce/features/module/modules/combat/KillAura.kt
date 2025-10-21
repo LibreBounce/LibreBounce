@@ -586,18 +586,16 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         val player = mc.thePlayer ?: return
         val world = mc.theWorld ?: return
 
-        if (noConsumeAttack == "NoHits" && isConsumingItem()) {
+        if (noConsumeAttack == "NoHits" && isConsumingItem())
             return
-        }
 
         // Settings
         val multi = targetMode == "Multi"
         val manipulateInventory = simulateClosingInventory && !noInventoryAttack && serverOpenInventory
-        val shouldSmartHit = !smartHit || player.onGround || player.fallDistance > 0 || player.getDistanceToEntityBox(currentTarget) > 2.5f ||
+        val shouldSmartHit = !smartHit || player.onGround || player.fallDistance > 0 || player.getDistanceToEntityBox(currentTarget) > 2.5f
 
-        if (hittable && currentTarget.hurtTime > hurtTime || !shouldSmartHit) {
+        if (hittable && currentTarget.hurtTime > hurtTime || !shouldSmartHit)
             return
-        }
 
         // Check if enemy is not hittable
         if (!hittable && options.rotationsActive) {
