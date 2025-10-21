@@ -29,6 +29,7 @@ object Notifier : Module("Notifier", Category.MISC) {
     private val onPlayerDeath by boolean("Death", true)
     private val onHeldExplosive by boolean("HeldExplosive", true)
     private val onPlayerTool by boolean("HeldTools", false)
+    private val onPlayerWeapon by boolean("HeldWeapons", false)
 
     private val warnDelay by int("WarnDelay", 5000, 1000..50000, suffix = "ms")
     { onPlayerDeath || onHeldExplosive || onPlayerTool || onPlayerWeapon }
