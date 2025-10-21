@@ -14,9 +14,7 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.misc.AntiBot.isBot
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.minecraft.block.BlockTNT
-import net.minecraft.item.ItemBlock
-import net.minecraft.item.ItemFireball
-import net.minecraft.item.ItemTool
+import net.minecraft.item.*
 import net.minecraft.network.play.server.S38PacketPlayerListItem
 import net.minecraft.network.play.server.S38PacketPlayerListItem.Action.ADD_PLAYER
 import net.minecraft.network.play.server.S38PacketPlayerListItem.Action.REMOVE_PLAYER
@@ -25,6 +23,7 @@ import kotlin.math.roundToInt
 
 object Notifier : Module("Notifier", Category.MISC) {
 
+    // TODO: Check for armor, upgrades, potions, invisibility, and obsidian (maybe port this from FDPClient?)
     private val onPlayerJoin by boolean("Join", true)
     private val onPlayerLeft by boolean("Left", true)
     private val onPlayerDeath by boolean("Death", true)
@@ -32,7 +31,7 @@ object Notifier : Module("Notifier", Category.MISC) {
     private val onPlayerTool by boolean("HeldTools", false)
 
     private val warnDelay by int("WarnDelay", 5000, 1000..50000, suffix = "ms")
-    { onPlayerDeath || onHeldExplosive || onPlayerTool }
+    { onPlayerDeath || onHeldExplosive || onPlayerTool || onPlayerWeapon }
 
     private val recentlyWarned = ConcurrentHashMap<String, Long>()
 
@@ -41,6 +40,7 @@ object Notifier : Module("Notifier", Category.MISC) {
         mc.theWorld ?: return@handler
 
         val currentTime = System.currentTimeMillis()
+
         for (entity in mc.theWorld.playerEntities) {
             if (entity.gameProfile.id == player.uniqueID || isBot(entity)) continue
             val entityDistance = player.getDistanceToEntity(entity).roundToInt()
@@ -62,6 +62,11 @@ object Notifier : Module("Notifier", Category.MISC) {
                 }
 
                 onPlayerTool && heldItem is ItemTool -> {
+                    chat("§7${entity.name} is holding a §b${entity.heldItem?.displayName} §a(${entityDistance}m)")
+                    recentlyWarned[entity.uniqueID.toString()] = currentTime
+                }
+
+                onPlayerWeapon && (heldItem is ItemSword || heldItem is ItemBow) -> {
                     chat("§7${entity.name} is holding a §b${entity.heldItem?.displayName} §a(${entityDistance}m)")
                     recentlyWarned[entity.uniqueID.toString()] = currentTime
                 }
@@ -87,6 +92,7 @@ object Notifier : Module("Notifier", Category.MISC) {
                 }
                 if (onPlayerLeft && packet.action == REMOVE_PLAYER) {
                     for (playerData in packet.entries) {
+                        // Different val players? Why?
                         val players = mc.theWorld.getPlayerEntityByUUID(playerData?.profile?.id)?.gameProfile ?: continue
                         if (players.id == player.uniqueID || players.id in AntiBot.botList) continue
 
