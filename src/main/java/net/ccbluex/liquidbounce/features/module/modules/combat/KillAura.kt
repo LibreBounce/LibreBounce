@@ -89,6 +89,10 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     private val hurtTime by int("HurtTime", 10, 0..10) { !simulateCooldown }
 
     private val smartHit by boolean("SmartHit", false) { !simulateCooldown }
+    private val notAboveRange by float("NotAboveRange", 2.2f, 0f..3f, suffix = "blocks") { !simulateCooldown && smartHit }
+    private val notBelowHealth by float("NotBelowHealth", 5f, 0f..20f) { !simulateCooldown && smartHit }
+    private val notOnEdge by boolean("NotOnEdge", false) { !simulateCooldown && smartHit }
+    private val notOnEdgeLimit by float("NotOnEdgeLimit", 1f, 0f..5f, suffix = "blocks") { !simulateCooldown && smartHit && notOnEdge }
 
     private val activationSlot by boolean("ActivationSlot", false)
     private val preferredSlot by int("PreferredSlot", 1, 1..9) { activationSlot }
@@ -590,9 +594,16 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             return
 
         // Settings
-        val multi = targetMode == "Multi"
         val manipulateInventory = simulateClosingInventory && !noInventoryAttack && serverOpenInventory
-        val shouldSmartHit = !smartHit || player.onGround || player.fallDistance > 0 || player.getDistanceToEntityBox(currentTarget) > 2.2f || player.health < 5f || player.isNearEdge(2.5f)
+        val shouldSmartHit = when {
+            !smartHit -> true
+            player.onGround -> true
+            player.fallDistance > 0 -> true
+            player.getDistanceToEntityBox(currentTarget) > notAboveRange -> true
+            player.health < notBelowHealth -> true
+            notOnEdge && player.isNearEdge(notOnEdgeLimit) -> true
+            else -> false
+        }
 
         if (hittable && currentTarget.hurtTime > hurtTime || !shouldSmartHit)
             return
@@ -715,9 +726,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
         blockStopInDead = false
 
-        if (!multi) {
-            attackEntity(currentTarget, isLastClick)
-        } else {
+        if (targetMode == "Multi") {
             var targets = 0
 
             for (entity in world.loadedEntityList) {
@@ -731,6 +740,8 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
                     if (limitedMultiTargets != 0 && limitedMultiTargets <= targets) break
                 }
             }
+        } else {
+            attackEntity(currentTarget, isLastClick)
         }
 
         if (!isLastClick) return

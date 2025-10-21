@@ -9,6 +9,7 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 ### Added
 
 - `Panel` ClickGUI mode, similar to Rise 6.0's (thatonecoder)
+- `SmartHit` option, along with the `NotAboveRange`, `NotBelowHealth`, `NotOnEdge`, and `NotOnEdgeLimit` values to KillAura; experimental (thatonecoder)
 - `OnlyBlocks` and `NotOnForward` options to Eagle (thatonecoder)
 - `MissClickChanceDistanceMultiply` option to ChestStealer (thatonecoder)
 - `Requeue` Hypixel sub-mode to AutoPlay, potentially working for all minigames (thatonecoder)
