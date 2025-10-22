@@ -6,25 +6,30 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 ## [Unreleased]
 
+## [0.6.0] - 2025-10-22
+
+_Updates may slow down from now on, since I am prioritizing quality over quantity._
+
 ### Added
 
 - `Panel` ClickGUI mode, similar to Rise 6.0's (thatonecoder)
-- `SmartHit` option, along with the `NotAboveRange`, `HurtTimeWhitelist` + `NotOnHurtTime`, `NotBelowHealth`, `NotBelowEnemyHealth`, and `NotOnEdge` + `NotOnEdgeLimit` values to KillAura; experimental (thatonecoder)
+- `SmartHit` option, along with the `NotAboveRange`, `HurtTimeWhitelist` + `NotOnHurtTime`, `NotBelowHealth` + `NotBelowEnemyHealth`, and `NotOnEdge` + `NotOnEdgeLimit` values to KillAura; experimental (thatonecoder)
 - `OnlyBlocks` and `NotOnForward` options to Eagle (thatonecoder)
 - `MissClickChanceDistanceMultiply` option to ChestStealer (thatonecoder)
-- `Requeue` Hypixel sub-mode to AutoPlay, potentially working for all minigames (thatonecoder)
 - `Notification` option to AutoPlay, notificating when requeueing (thatonecoder)
+- `HeldWeapons` option to Notifier (thatonecoder)
+- **Breaking:** `Box` mode for `Mark`, in ProjectileAimbot; this also means `Mark` is now a list value (thatonecoder)
 
 ### Fixed
 
-- Some Velocity modes not working as intended (thatonecoder)
+- Several Velocity modes not working as intended (thatonecoder)
+- `Telly` mode jumping even while not close to an edge, in Scaffold (thatonecoder)
 - `WaitForRotations` sneaking despite not being able to rotate yet, in Scaffold (thatonecoder)
 - `SkywarsMode` and `BedwarsMode` being displayed despite not being on the `Hypixel` mode, in AutoPlay (thatonecoder)
 
 ### Changed
 
 - AntiVoid now has a mode tag (thatonecoder)
-- Make `Mark` in ProjectileAimbot a list value instead of an option, now with a `Box` mode (thatonecoder)
 
 ### Removed
 
@@ -176,7 +181,8 @@ _Initial release, forked from LiquidBounce Legacy._
 
 - Warning to upgrade from `LiquidBounce` legacy to nextgen (thatonecoder)
 
-[Unreleased]: https://github.com/LibreBounce/LibreBounce/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/LibreBounce/LibreBounce/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/LibreBounce/LibreBounce/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/LibreBounce/LibreBounce/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/LibreBounce/LibreBounce/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/LibreBounce/LibreBounce/compare/v0.2.0...v0.3.0

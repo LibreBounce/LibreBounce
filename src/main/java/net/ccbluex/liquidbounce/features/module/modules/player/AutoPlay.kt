@@ -11,10 +11,10 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
-import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils
-import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar
+import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.findItem
+import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar.selectSlotSilently
 import net.ccbluex.liquidbounce.utils.inventory.hotBarSlot
-import net.minecraft.init.Items
+import net.minecraft.init.Items.paper
 import net.minecraft.item.ItemStack
 
 // TODO: Maybe this module is best suited in the Miscellaneous category?
@@ -24,7 +24,7 @@ object AutoPlay : Module("AutoPlay", Category.PLAYER, gameDetecting = false) {
     private val mode by choices("Mode", arrayOf("Paper", "Hypixel"), "Paper")
 
     // Hypixel Settings
-    private val hypixelMode by choices("HypixelMode", arrayOf("Requeue", "Skywars", "Bedwars"), "Requeue") {
+    private val hypixelMode by choices("HypixelMode", arrayOf("Skywars", "Bedwars"), "Skywars") {
         mode == "Hypixel"
     }
     private val skywarsMode by choices("SkywarsMode", arrayOf("SoloNormal", "SoloInsane"), "SoloNormal") {
@@ -34,6 +34,7 @@ object AutoPlay : Module("AutoPlay", Category.PLAYER, gameDetecting = false) {
         mode == "Hypixel" && hypixelMode == "Bedwars"
     }
 
+    // TODO: Maybe there should be an initial delay value for the first try, and then a separate value?
     private val delay by int("Delay", 50, 0..200, suffix = "ticks")
 
     private val notification by boolean("Notification", false).subjective()
@@ -43,7 +44,7 @@ object AutoPlay : Module("AutoPlay", Category.PLAYER, gameDetecting = false) {
     val onGameTick = handler<GameTickEvent> {
         val player = mc.thePlayer ?: return@handler
 
-        if (!playerInGame() || !player.inventory.hasItemStack(ItemStack(Items.paper))) {
+        if (!playerInGame() || !player.inventory.hasItemStack(ItemStack(paper))) {
             if (delayTick > 0)
                 delayTick = 0
 
@@ -56,12 +57,12 @@ object AutoPlay : Module("AutoPlay", Category.PLAYER, gameDetecting = false) {
 
         when (mode) {
             "Paper" -> {
-                val paper = InventoryUtils.findItem(36, 44, Items.paper) ?: return@handler
+                val paperSlot = findItem(36, 44, paperSlot) ?: return@handler
 
-                SilentHotbar.selectSlotSilently(this, paper, immediate = true, resetManually = true)
+                selectSlotSilently(this, paperSlot, immediate = true, resetManually = true)
 
                 if (delayTick >= delay) {
-                    mc.playerController.sendUseItem(player, mc.theWorld, player.hotBarSlot(paper).stack)
+                    mc.playerController.sendUseItem(player, mc.theWorld, player.hotBarSlot(paperSlot).stack)
                     delayTick = 0
                 }
             }
@@ -80,8 +81,6 @@ object AutoPlay : Module("AutoPlay", Category.PLAYER, gameDetecting = false) {
                             "Trio" -> player.sendChatMessage("/play bedwars_four_three")
                             "Quad" -> player.sendChatMessage("/play bedwars_four_four")
                         }
-
-                        else -> player.sendChatMessage("/requeue")
                     }
 
                     delayTick = 0

@@ -3,6 +3,8 @@ A [libre software](https://www.gnu.org/philosophy/free-sw.html), mixin-based inj
 
 This is a fork of [LiquidBounce legacy](https://github.com/CCBlueX/LiquidBounce/tree/legacy), although it attempts to remain somewhat backwards-compatible.
 
+If anyone would like to contact me through Discord, my username is `thatonecoder_`.
+
 ## Issues
 If you notice any bugs or missing features, you can let us know by opening an issue [here](https://github.com/LibreBounce/LibreBounce/issues).
 

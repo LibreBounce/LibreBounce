@@ -44,7 +44,6 @@ import kotlin.math.sqrt
 
 object Velocity : Module("Velocity", Category.COMBAT) {
 
-    // TODO: Jump should just be an option for all modes
     private val mode by choices(
         "Mode", arrayOf(
             "Simple", "AAC", "AACPush", "AACZero", "AACv4",
@@ -84,6 +83,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
     private val chance by int("Chance", 100, 0..100, suffix = "%") { mode == "Jump" || mode == "Legit" }
 
     // Jump
+    // TODO: Make this mode an option instead, add an option for it to work only out of range (to mitigate rod knockback)
     private val jumpCooldownMode by choices("JumpCooldownMode", arrayOf("Ticks", "ReceivedHits"), "Ticks")
     { mode == "Jump" }
     private val ticksUntilJump by int("TicksUntilJump", 4, 0..20)

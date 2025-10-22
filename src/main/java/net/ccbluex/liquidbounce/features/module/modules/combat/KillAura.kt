@@ -600,8 +600,8 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
         // Settings
         val manipulateInventory = simulateClosingInventory && !noInventoryAttack && serverOpenInventory
-        val shouldSmartHit = when {
-            !smartHit -> true
+        val shouldHit = when {
+            !smartHit -> currentTarget.hurtTime > hurtTime
             player.onGround -> true
             player.fallDistance > 0 -> true
             player.getDistanceToEntityBox(currentTarget) > notAboveRange -> true
@@ -612,7 +612,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             else -> false
         }
 
-        if (hittable && currentTarget.hurtTime > hurtTime || !shouldSmartHit)
+        if (hittable && !shouldHit)
             return
 
         // Check if enemy is not hittable
