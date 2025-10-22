@@ -57,7 +57,7 @@ object AutoPlay : Module("AutoPlay", Category.PLAYER, gameDetecting = false) {
 
         when (mode) {
             "Paper" -> {
-                val paperSlot = findItem(36, 44, paperSlot) ?: return@handler
+                val paperSlot = findItem(36, 44, paper) ?: return@handler
 
                 selectSlotSilently(this, paperSlot, immediate = true, resetManually = true)
 
