@@ -91,13 +91,13 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     // TODO: Not on 1-tap option for SmartHit, taking into account your weapon + enchantments, the opponent's armor + enchantments, and potion effects
     // Also add an option that makes it click anyway, if the knockback is large enough to combo you
     private val smartHit by boolean("SmartHit", false) { !simulateCooldown }
-    private val notAboveRange by float("NotAboveRange", 2.2f, 0f..3f, suffix = "blocks") { !simulateCooldown && smartHit }
+    private val notAboveRange by float("NotAboveRange", 2.2f, 0f..8f, suffix = "blocks") { !simulateCooldown && smartHit }
     private val hurtTimeAllowlist by boolean("HurtTimeAllowlist", true) { !simulateCooldown && smartHit }
     private val notOnHurtTime by intRange("NotOnHurtTime", 5..9, 0..10) { !simulateCooldown && smartHit && hurtTimeAllowlist }
     private val notBelowHealth by float("NotBelowHealth", 5f, 0f..20f) { !simulateCooldown && smartHit }
     private val notBelowEnemyHealth by float("NotBelowEnemyHealth", 5f, 0f..20f) { !simulateCooldown && smartHit }
     private val notOnEdge by boolean("NotOnEdge", false) { !simulateCooldown && smartHit }
-    private val notOnEdgeLimit by float("NotOnEdgeLimit", 1f, 0f..5f, suffix = "blocks") { !simulateCooldown && smartHit && notOnEdge }
+    private val notOnEdgeLimit by float("NotOnEdgeLimit", 1f, 0f..8f, suffix = "blocks") { !simulateCooldown && smartHit && notOnEdge }
 
     private val activationSlot by boolean("ActivationSlot", false)
     private val preferredSlot by int("PreferredSlot", 1, 1..9) { activationSlot }
@@ -136,11 +136,9 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     private val maxSwitchFOV by float("MaxSwitchFOV", 90f, 30f..180f, suffix = "º") { targetMode == "Switch" }
     private val switchDelay by int("SwitchDelay", 15, 1..1000, suffix = "ms") { targetMode == "Switch" }
 
-    // Bypass
     private val swing by boolean("Swing", true)
     private val keepSprint by boolean("KeepSprint", true)
 
-    // Settings
     private val autoF5 by boolean("AutoF5", false).subjective()
     private val onScaffold by boolean("OnScaffold", false)
     private val onDestroyBlock by boolean("OnDestroyBlock", false)
@@ -156,6 +154,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     ) { autoBlock == "Packet" }
 
     private val releaseAutoBlock by boolean("ReleaseAutoBlock", true) { autoBlock !in arrayOf("Off", "Fake") }
+    // TODO: Shouldn't this be subjective?
     val forceBlockRender by boolean("ForceBlockRender", true) {
         autoBlock !in arrayOf(
             "Off", "Fake"
