@@ -86,7 +86,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         attackDelay = randomClickDelay(it.first, it.last)
     }
 
-    private val hurtTime by int("HurtTime", 10, 0..10) { !simulateCooldown }
+    private val hurtTime by int("HurtTime", 10, 0..10) { !simulateCooldown && !smartHit }
 
     // TODO: Not on 1-tap option for SmartHit, taking into account your weapon + enchantments, the opponent's armor + enchantments, and potion effects
     // Also add an option that makes it click anyway, if the knockback is large enough to combo you
@@ -600,16 +600,19 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
         // Settings
         val manipulateInventory = simulateClosingInventory && !noInventoryAttack && serverOpenInventory
-        val shouldHit = when {
-            !smartHit -> currentTarget.hurtTime > hurtTime
-            player.onGround -> true
-            player.fallDistance > 0 -> true
-            player.getDistanceToEntityBox(currentTarget) > notAboveRange -> true
-            hurtTimeAllowlist && player.hurtTime in notOnHurtTime -> true
-            player.health < notBelowHealth -> true
-            currentTarget.health < notBelowEnemyHealth -> true
-            notOnEdge && player.isNearEdge(notOnEdgeLimit) -> true
-            else -> false
+        val shouldHit = if (smartHit) {
+            when {
+                player.onGround -> true
+                player.fallDistance > 0 -> true
+                player.getDistanceToEntityBox(currentTarget) > notAboveRange -> true
+                hurtTimeAllowlist && player.hurtTime in notOnHurtTime -> true
+                player.health < notBelowHealth -> true
+                currentTarget.health < notBelowEnemyHealth -> true
+                notOnEdge && player.isNearEdge(notOnEdgeLimit) -> true
+                else -> false
+            }
+        } else {
+            currentTarget.hurtTime > hurtTime
         }
 
         if (hittable && !shouldHit)
