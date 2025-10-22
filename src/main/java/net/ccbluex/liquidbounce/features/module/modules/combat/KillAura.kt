@@ -88,9 +88,14 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
     private val hurtTime by int("HurtTime", 10, 0..10) { !simulateCooldown }
 
+    // TODO: Not on 1-tap option for SmartHit, taking into account your weapon + enchantments, the opponent's armor + enchantments, and potion effects
+    // Also add an option that makes it click anyway, if the knockback is large enough to combo you
     private val smartHit by boolean("SmartHit", false) { !simulateCooldown }
     private val notAboveRange by float("NotAboveRange", 2.2f, 0f..3f, suffix = "blocks") { !simulateCooldown && smartHit }
+    private val hurtTimeAllowlist by boolean("HurtTimeAllowlist", true) { !simulateCooldown && smartHit }
+    private val notOnHurtTime by intRange("NotOnHurtTime", 5..9, 0..10) { !simulateCooldown && smartHit && hurtTimeAllowlist }
     private val notBelowHealth by float("NotBelowHealth", 5f, 0f..20f) { !simulateCooldown && smartHit }
+    private val notBelowEnemyHealth by float("NotBelowEnemyHealth", 5f, 0f..20f) { !simulateCooldown && smartHit }
     private val notOnEdge by boolean("NotOnEdge", false) { !simulateCooldown && smartHit }
     private val notOnEdgeLimit by float("NotOnEdgeLimit", 1f, 0f..5f, suffix = "blocks") { !simulateCooldown && smartHit && notOnEdge }
 
@@ -600,7 +605,9 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             player.onGround -> true
             player.fallDistance > 0 -> true
             player.getDistanceToEntityBox(currentTarget) > notAboveRange -> true
+            hurtTimeAllowlist && player.hurtTime in notOnHurtTime -> true
             player.health < notBelowHealth -> true
+            currentTarget.health < notBelowEnemyHealth -> true
             notOnEdge && player.isNearEdge(notOnEdgeLimit) -> true
             else -> false
         }
