@@ -33,6 +33,7 @@ object VerusDamage : LongJumpMode("VerusDamage") {
                 C06PacketPlayerPosLook(posX, posY, posX, rotationYaw, rotationPitch, false),
                 C06PacketPlayerPosLook(posX, posY, posZ, rotationYaw, rotationPitch, true)
             )
+
             damaged = true
         }
     }

@@ -13,8 +13,8 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.attack.EntityUtils.isSelected
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.pathfinding.PathUtils.findPath
-import net.ccbluex.liquidbounce.utils.rotation.RaycastUtils
-import net.ccbluex.liquidbounce.utils.rotation.RotationUtils
+import net.ccbluex.liquidbounce.utils.rotation.RaycastUtils.raycastedEntity
+import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.getVectorForRotation
 import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.network.play.client.C02PacketUseEntity
@@ -30,7 +30,7 @@ object TeleportHit : Module("TeleportHit", Category.COMBAT) {
         if (event.eventState != EventState.PRE)
             return@handler
 
-        val facedEntity = RaycastUtils.raycastEntity(100.0) { raycastedEntity -> raycastedEntity is EntityLivingBase }
+        val facedEntity = raycastEntity(100.0) { raycastedEntity -> raycastedEntity is EntityLivingBase }
 
         val player = mc.thePlayer ?: return@handler
 
@@ -45,7 +45,7 @@ object TeleportHit : Module("TeleportHit", Category.COMBAT) {
             }
 
             if (player.fallDistance > 0F) {
-                val rotationVector: Vec3 = RotationUtils.getVectorForRotation(player.rotationYaw, 0f)
+                val rotationVector: Vec3 = getVectorForRotation(player.rotationYaw, 0f)
                 val x = player.posX + rotationVector.xCoord * (player.getDistanceToEntity(it) - 1f)
                 val z = player.posZ + rotationVector.zCoord * (player.getDistanceToEntity(it) - 1f)
                 val y = it.posY + 0.25

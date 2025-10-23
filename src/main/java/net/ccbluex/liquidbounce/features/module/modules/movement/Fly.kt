@@ -73,7 +73,7 @@ object Fly : Module("Fly", Category.MOVEMENT, Keyboard.KEY_F) {
         MineSecure, HawkEye, HAC, WatchCat,
 
         // Other
-        Jetpack, KeepAlive, Collide, Jump, Flag, Fireball
+        Jetpack, Collide, Jump, Flag, Fireball
     )
 
     /**
@@ -112,11 +112,13 @@ object Fly : Module("Fly", Category.MOVEMENT, Keyboard.KEY_F) {
             "MineSecure",
             "BugSpartan"
         )
-    }.subjective()
+    }
     private val vanillaKickBypass by boolean(
         "VanillaKickBypass",
         false
-    ) { mode in arrayOf("Vanilla", "SmoothVanilla") }.subjective()
+    ) { mode in arrayOf("Vanilla", "SmoothVanilla") }
+    val keepAlive by boolean("KeepAlive", false) { mode == "Vanilla" }
+
     val ncpMotion by float("NCPMotion", 0f, 0f..1f) { mode == "NCP" }
 
     // AAC

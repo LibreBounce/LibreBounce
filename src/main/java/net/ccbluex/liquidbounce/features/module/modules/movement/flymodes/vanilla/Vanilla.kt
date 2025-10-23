@@ -8,12 +8,18 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.flymodes.vanil
 import net.ccbluex.liquidbounce.event.MoveEvent
 import net.ccbluex.liquidbounce.features.module.modules.movement.Fly.handleVanillaKickBypass
 import net.ccbluex.liquidbounce.features.module.modules.movement.Fly.vanillaSpeed
+import net.ccbluex.liquidbounce.features.module.modules.movement.Fly.keepAlive
 import net.ccbluex.liquidbounce.features.module.modules.movement.flymodes.FlyMode
+import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
+import net.minecraft.network.play.client.C00PacketKeepAlive
 
 object Vanilla : FlyMode("Vanilla") {
+
     override fun onMove(event: MoveEvent) {
         mc.thePlayer?.run {
+            if (keepAlive) sendPacket(C00PacketKeepAlive())
+
             strafe(vanillaSpeed, true, event)
 
             onGround = false
@@ -21,13 +27,11 @@ object Vanilla : FlyMode("Vanilla") {
 
             capabilities.isFlying = false
 
-            var ySpeed = 0.0
-
-            if (mc.gameSettings.keyBindJump.isKeyDown)
-                ySpeed += vanillaSpeed
-
-            if (mc.gameSettings.keyBindSneak.isKeyDown)
-                ySpeed -= vanillaSpeed
+            val ySpeed = when {
+                mc.gameSettings.keyBindJump.isKeyDown -> vanillaSpeed
+                mc.gameSettings.keyBindSneak.isKeyDown -> -vanillaSpeed
+                else -> 0.0
+            }
 
             motionY = ySpeed
             event.y = ySpeed

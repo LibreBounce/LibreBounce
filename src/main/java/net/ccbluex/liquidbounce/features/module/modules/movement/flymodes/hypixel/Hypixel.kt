@@ -29,16 +29,18 @@ object Hypixel : FlyMode("Hypixel") {
     }
 
     override fun onUpdate() {
-        mc.timer.timerSpeed =
-            if (hypixelBoost && !msTimer.hasTimePassed(hypixelBoostDelay))
-                1f + hypixelBoostTimer * (msTimer.hasTimeLeft(hypixelBoostDelay) / hypixelBoostDelay.toFloat())
-            else 1f
+        mc.thePlayer?.run {
+            mc.timer.timerSpeed =
+                if (hypixelBoost && !msTimer.hasTimePassed(hypixelBoostDelay))
+                    1f + hypixelBoostTimer * (msTimer.hasTimeLeft(hypixelBoostDelay) / hypixelBoostDelay.toFloat())
+                else 1f
 
-        tickTimer.update()
+            tickTimer.update()
 
-        if (tickTimer.hasTimePassed(2)) {
-            mc.thePlayer.setPosition(mc.thePlayer.posX, mc.thePlayer.posY + 1.0E-5, mc.thePlayer.posZ)
-            tickTimer.reset()
+            if (tickTimer.hasTimePassed(2)) {
+                setPosition(posX, posY + 1.0E-5, posZ)
+                tickTimer.reset()
+            }
         }
     }
 

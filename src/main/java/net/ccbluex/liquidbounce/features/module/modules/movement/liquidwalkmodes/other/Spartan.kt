@@ -21,7 +21,7 @@ object Spartan : LiquidWalkMode("Spartan") {
                     return
                 }
 
-                val block = BlockPos(mc.thePlayer).up().block
+                val block = BlockPos(this).up().block
                 val blockUp = BlockPos(posX, posY + 1.1, posZ).block
 
                 if (blockUp is BlockLiquid) {

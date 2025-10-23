@@ -17,7 +17,7 @@ import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.utils.extensions.isNearEdge
 import net.ccbluex.liquidbounce.utils.extensions.sendUseItem
 import net.ccbluex.liquidbounce.utils.extensions.tryJump
-import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils
+import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.findItem
 import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar
 import net.ccbluex.liquidbounce.utils.inventory.hotBarSlot
 import net.ccbluex.liquidbounce.utils.rotation.Rotation
@@ -32,7 +32,7 @@ object Fireball : FlyMode("Fireball") {
     override fun onMotion(event: MotionEvent) {
         val player = mc.thePlayer ?: return
 
-        val fireballSlot = InventoryUtils.findItem(36, 44, Items.fire_charge) ?: return
+        val fireballSlot = findItem(36, 44, Items.fire_charge) ?: return
 
         if (autoFireball != "Off") {
             SilentHotbar.selectSlotSilently(
@@ -74,7 +74,7 @@ object Fireball : FlyMode("Fireball") {
     override fun onTick() {
         val player = mc.thePlayer ?: return
 
-        val fireballSlot = InventoryUtils.findItem(36, 44, Items.fire_charge) ?: return
+        val fireballSlot = findItem(36, 44, Items.fire_charge) ?: return
 
         val fireBall = player.hotBarSlot(fireballSlot).stack
 
@@ -89,7 +89,7 @@ object Fireball : FlyMode("Fireball") {
             Fly.nextTick {
                 if (Fly.swing) player.swingItem() else sendPacket(C0APacketAnimation())
 
-                // NOTE: You may increase max try to `2` if fireball doesn't work. (Ex: BlocksMC)
+                // NOTE: You may increase max try to `2` if a fireball doesn't work. (Ex: BlocksMC)
                 repeat(Fly.fireballTry) {
                     player.sendUseItem(fireBall)
                 }

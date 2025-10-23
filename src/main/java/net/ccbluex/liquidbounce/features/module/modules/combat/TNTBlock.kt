@@ -15,8 +15,10 @@ import net.minecraft.entity.item.EntityTNTPrimed
 import net.minecraft.item.ItemSword
 
 object TNTBlock : Module("TNTBlock", Category.COMBAT) {
+
     private val fuse by int("Fuse", 10, 0..80)
     private val range by float("Range", 9F, 1F..20F)
+    // TODO: Maybe AutoWeapon should be used for this?
     private val autoSword by boolean("AutoSword", true)
     private var blocked = false
 
@@ -32,6 +34,7 @@ object TNTBlock : Module("TNTBlock", Category.COMBAT) {
             if (autoSword) {
                 var slot = -1
                 var bestDamage = 1f
+
                 for (i in 0..8) {
                     val itemStack = player.inventory.getStackInSlot(i)
 

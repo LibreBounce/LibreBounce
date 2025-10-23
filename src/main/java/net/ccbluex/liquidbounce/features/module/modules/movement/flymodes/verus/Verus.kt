@@ -83,7 +83,7 @@ object Verus : FlyMode("Verus") {
                 }
             }
 
-            strafe(boostMotion, true)
+            if (damaged) strafe(boostMotion, true)
         }
     }
 

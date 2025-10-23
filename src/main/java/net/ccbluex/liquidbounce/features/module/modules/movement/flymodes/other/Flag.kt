@@ -19,6 +19,7 @@ object Flag : FlyMode("Flag") {
                     posZ + motionZ * 999,
                     true
                 ),
+
                 C04PacketPlayerPosition(
                     posX + motionX * 999,
                     posY - 6969,

@@ -31,108 +31,110 @@ object BoostHypixel : FlyMode("BoostHypixel") {
     private val tickTimer = TickTimer()
 
     override fun onEnable() {
-        if (!mc.thePlayer.onGround) return
+        mc.thePlayer?.run {
+            if (!onGround) return
 
-        tickTimer.reset()
+            tickTimer.reset()
 
-        val (x, y, z) = mc.thePlayer
+            val (x, y, z) = this
 
-        repeat(10) {
-            // Imagine flagging to NCP
+            repeat(10) {
+                // Imagine flagging to NCP
+                sendPacket(C04PacketPlayerPosition(x, y, z, true))
+            }
+
+            var fallDistance = 3.0125 // + 0.0125 Y ensures we get the fall damage
+
+            while (fallDistance > 0) {
+                sendPackets(
+                    C04PacketPlayerPosition(x, y + 0.0624986421, z, false),
+                    C04PacketPlayerPosition(x, y + 0.0625, z, false),
+                    C04PacketPlayerPosition(x, y + 0.0624986421, z, false),
+                    C04PacketPlayerPosition(x, y + 0.0000013579, z, false)
+                )
+                fallDistance -= 0.0624986421
+            }
+
             sendPacket(C04PacketPlayerPosition(x, y, z, true))
+
+            tryJump()
+
+            posY += 0.42f // Visual
+
+            state = 1
+            moveSpeed = 0.1
+            lastDistance = 0.0
         }
-
-        var fallDistance = 3.0125 // +0.0125 Y ensures we get the fall damage
-
-        while (fallDistance > 0) {
-            sendPackets(
-                C04PacketPlayerPosition(x, y + 0.0624986421, z, false),
-                C04PacketPlayerPosition(x, y + 0.0625, z, false),
-                C04PacketPlayerPosition(x, y + 0.0624986421, z, false),
-                C04PacketPlayerPosition(x, y + 0.0000013579, z, false)
-            )
-            fallDistance -= 0.0624986421
-        }
-
-        sendPacket(C04PacketPlayerPosition(x, y, z, true))
-
-        mc.thePlayer.tryJump()
-
-        mc.thePlayer.posY += 0.42f // Visual
-
-        state = 1
-        moveSpeed = 0.1
-        lastDistance = 0.0
     }
 
     override fun onMotion(event: MotionEvent) {
-        val player = mc.thePlayer ?: return
+        mc.thePlayer?.run {
+            when (event.eventState) {
+                EventState.PRE -> {
+                    tickTimer.update()
 
-        when (event.eventState) {
-            EventState.PRE -> {
-                tickTimer.update()
+                    if (tickTimer.hasTimePassed(2)) {
+                        setPosition(posX, posY + 1.0E-5, posZ)
 
-                if (tickTimer.hasTimePassed(2)) {
-                    player.setPosition(player.posX, player.posY + 1.0E-5, player.posZ)
+                        tickTimer.reset()
+                    }
 
-                    tickTimer.reset()
+                    motionY = 0.0
                 }
 
-                player.motionY = 0.0
-            }
+                EventState.POST -> {
+                    val xDist = posX - prevPosX
+                    val zDist = posZ - prevPosZ
+                    lastDistance = sqrt(xDist * xDist + zDist * zDist)
+                }
 
-            EventState.POST -> {
-                val xDist = player.posX - player.prevPosX
-                val zDist = player.posZ - player.prevPosZ
-                lastDistance = sqrt(xDist * xDist + zDist * zDist)
+                else -> {}
             }
-
-            else -> {}
         }
     }
 
     override fun onMove(event: MoveEvent) {
-        val player = mc.thePlayer ?: return
+        mc.thePlayer?.run {
+            if (!isMoving) {
+                event.zeroXZ()
+                return
+            }
 
-        if (!player.isMoving) {
-            event.zeroXZ()
-            return
+            val amplifier =
+                1 + (if (isPotionActive(Potion.moveSpeed)) 0.2 * (getActivePotionEffect(Potion.moveSpeed).amplifier + 1.0) else 0.0)
+
+            val baseSpeed = 0.29 * amplifier
+
+            when (state) {
+                1 -> {
+                    moveSpeed = (if (isPotionActive(Potion.moveSpeed)) 1.56 else 2.034) * baseSpeed
+                    state++
+                }
+
+                2 -> {
+                    moveSpeed *= 2.16
+                    state++
+                }
+
+                3 -> {
+                    moveSpeed =
+                        lastDistance - (if (ticksExisted % 2 == 0) 0.0103 else 0.0123) * (lastDistance - baseSpeed)
+                    state++
+                }
+
+                else -> moveSpeed = lastDistance - lastDistance / 159.8
+            }
+
+            moveSpeed = moveSpeed.coerceAtMost(0.3)
+
+            val yaw = direction
+
+            event.x = -sin(yaw) * moveSpeed
+            event.z = cos(yaw) * moveSpeed
+
+            motionX = event.x
+            motionZ = event.z
         }
-
-        val amplifier =
-            1 + (if (player.isPotionActive(Potion.moveSpeed)) 0.2 * (player.getActivePotionEffect(Potion.moveSpeed).amplifier + 1.0) else 0.0)
-
-        val baseSpeed = 0.29 * amplifier
-
-        when (state) {
-            1 -> {
-                moveSpeed = (if (player.isPotionActive(Potion.moveSpeed)) 1.56 else 2.034) * baseSpeed
-                state++
-            }
-
-            2 -> {
-                moveSpeed *= 2.16
-                state++
-            }
-
-            3 -> {
-                moveSpeed =
-                    lastDistance - (if (player.ticksExisted % 2 == 0) 0.0103 else 0.0123) * (lastDistance - baseSpeed)
-                state++
-            }
-
-            else -> moveSpeed = lastDistance - lastDistance / 159.8
-        }
-
-        moveSpeed = moveSpeed.coerceAtMost(0.3)
-
-        val yaw = direction
-
-        event.x = -sin(yaw) * moveSpeed
-        event.z = cos(yaw) * moveSpeed
-
-        player.motionX = event.x
-        player.motionZ = event.z
     }
 
     override fun onBB(event: BlockBBEvent) {

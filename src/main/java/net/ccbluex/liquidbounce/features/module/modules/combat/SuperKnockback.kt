@@ -97,7 +97,7 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
             ) > chance
         ) return@handler
 
-        if (onlyMove && (!player.isMoving || onlyMoveForward && player.movementInput.moveStrafe != 0f)) return@handler
+        if ((onlyMove && !player.isMoving) || (onlyMoveForward && player.movementInput.moveStrafe != 0f)) return@handler
 
         // Is the enemy facing their back on us?
         if (angleDifferenceToPlayer > minEnemyRotDiffToIgnore && !target.hitBox.isVecInside(player.eyes)) return@handler
@@ -163,7 +163,6 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
 
             "SprintTap2" -> {
                 if (++sprintTicks == stopTicks.get()) {
-
                     if (player.isSprinting && player.serverSprintState) {
                         player.isSprinting = false
                         player.serverSprintState = false
@@ -174,7 +173,6 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
 
                     player.stopXZ()
                 } else if (sprintTicks >= unSprintTicks.get()) {
-
                     player.isSprinting = false
                     player.serverSprintState = false
 

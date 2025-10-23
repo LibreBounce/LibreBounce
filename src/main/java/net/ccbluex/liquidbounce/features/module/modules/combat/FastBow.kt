@@ -25,33 +25,33 @@ object FastBow : Module("FastBow", Category.COMBAT) {
     private val packets by int("Packets", 20, 3..20)
 
     val onUpdate = handler<UpdateEvent> {
-        val player = mc.thePlayer ?: return@handler
+        mc.thePlayer?.run {
+            if (!isUsingItem)
+                return@handler
 
-        if (!player.isUsingItem)
-            return@handler
+            val currentItem = inventory.getCurrentItem()
 
-        val currentItem = player.inventory.getCurrentItem()
-
-        if (currentItem != null && currentItem.item is ItemBow) {
-            sendPacket(
-                C08PacketPlayerBlockPlacement(
-                    BlockPos.ORIGIN,
-                    255,
-                    player.currentEquippedItem,
-                    0F,
-                    0F,
-                    0F
+            if (currentItem != null && currentItem.item is ItemBow) {
+                sendPacket(
+                    C08PacketPlayerBlockPlacement(
+                        BlockPos.ORIGIN,
+                        255,
+                        currentEquippedItem,
+                        0F,
+                        0F,
+                        0F
+                    )
                 )
-            )
 
-            val (yaw, pitch) = currentRotation ?: player.rotation
+                val (yaw, pitch) = currentRotation ?: rotation
 
-            repeat(packets) {
-                sendPacket(C05PacketPlayerLook(yaw, pitch, true))
+                repeat(packets) {
+                    sendPacket(C05PacketPlayerLook(yaw, pitch, true))
+                }
+
+                sendPacket(C07PacketPlayerDigging(RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN))
+                itemInUseCount = currentItem.maxItemUseDuration - 1
             }
-
-            sendPacket(C07PacketPlayerDigging(RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN))
-            player.itemInUseCount = currentItem.maxItemUseDuration - 1
         }
     }
 }

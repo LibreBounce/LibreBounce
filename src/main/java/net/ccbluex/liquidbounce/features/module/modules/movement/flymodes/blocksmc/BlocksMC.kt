@@ -44,7 +44,6 @@ import net.minecraft.world.World
  * @author EclipsesDev
  */
 object BlocksMC : FlyMode("BlocksMC"), Listenable {
-
     private var isFlying = false
     private var isNotUnder = false
     private var isTeleported = false
@@ -70,7 +69,6 @@ object BlocksMC : FlyMode("BlocksMC"), Listenable {
 
         if (shouldFly(player, mc.theWorld)) {
             if (isTeleported) {
-
                 if (stable)
                     player.motionY = 0.0
 

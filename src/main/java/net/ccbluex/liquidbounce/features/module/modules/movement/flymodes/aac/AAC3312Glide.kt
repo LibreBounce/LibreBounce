@@ -15,11 +15,13 @@ object AAC3312Glide : FlyMode("AAC3.3.12-Glide") {
             if (!onGround)
                 tick++
 
-            if (tick == 2) mc.timer.timerSpeed = 1f
-            else if (tick == 12) mc.timer.timerSpeed = 0.1f
-            else if (tick >= 12 && !onGround) {
-                tick = 0
-                motionY = .015
+            when (tick) {
+                2 -> mc.timer.timerSpeed = 1f
+                12 -> mc.timer.timerSpeed = 0.1f
+                >= 12 && !onGround -> {
+                    tick = 0
+                    motionY = 0.015
+                }
             }
         }
     }

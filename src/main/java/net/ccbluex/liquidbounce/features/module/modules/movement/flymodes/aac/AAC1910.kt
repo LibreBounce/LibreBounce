@@ -36,7 +36,6 @@ object AAC1910 : FlyMode("AAC1.9.10") {
             strafe(aacSpeed)
         }
 
-        // TODO: Doesn't this always overwrite the strafe(aacSpeed)?
         strafe()
     }
 

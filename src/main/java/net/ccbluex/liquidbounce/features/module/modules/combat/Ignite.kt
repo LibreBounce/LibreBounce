@@ -9,7 +9,7 @@ import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.utils.attack.EntityUtils
+import net.ccbluex.liquidbounce.utils.attack.EntityUtils.isSelected
 import net.ccbluex.liquidbounce.utils.block.block
 import net.ccbluex.liquidbounce.utils.block.canBeClicked
 import net.ccbluex.liquidbounce.utils.block.isReplaceable
@@ -17,13 +17,15 @@ import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.extensions.onPlayerRightClick
 import net.ccbluex.liquidbounce.utils.extensions.sendUseItem
 import net.ccbluex.liquidbounce.utils.extensions.toDegreesF
-import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils
-import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar
+import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.findItem
+import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar.resetSlot
+import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar.selectSlotSilently
 import net.ccbluex.liquidbounce.utils.inventory.hotBarSlot
-import net.ccbluex.liquidbounce.utils.rotation.RotationUtils
+import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.resetTicks
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.minecraft.block.BlockAir
-import net.minecraft.init.Items
+import net.minecraft.init.Items.lava_bucket
+import net.minecraft.init.Items.flint_and_steel
 import net.minecraft.item.ItemBucket
 import net.minecraft.network.play.client.C03PacketPlayer.C05PacketPlayerLook
 import net.minecraft.util.EnumFacing
@@ -47,21 +49,21 @@ object Ignite : Module("Ignite", Category.COMBAT) {
         val player = mc.thePlayer ?: return@handler
         mc.theWorld ?: return@handler
 
-        val lighterInHotbar = if (lighter) InventoryUtils.findItem(36, 44, Items.flint_and_steel) else null
-        val lavaInHotbar = if (lavaBucket) InventoryUtils.findItem(36, 44, Items.lava_bucket) else null
+        val lighterInHotbar = if (lighter) findItem(36, 44, flint_and_steel) else null
+        val lavaInHotbar = if (lavaBucket) findItem(36, 44, lava_bucket) else null
 
         val fireInHotbar = lighterInHotbar ?: lavaInHotbar ?: return@handler
 
         for (entity in mc.theWorld.loadedEntityList) {
-            if (EntityUtils.isSelected(entity, true) && !entity.isBurning) {
+            if (isSelected(entity, true) && !entity.isBurning) {
                 val blockPos = entity.position
 
                 if (player.getDistanceSq(blockPos) >= 22.3 || !blockPos.isReplaceable || blockPos.block !is BlockAir)
                     continue
 
-                RotationUtils.resetTicks += 1
+                resetTicks += 1
 
-                SilentHotbar.selectSlotSilently(this, fireInHotbar, 0, immediate = true, render = false)
+                selectSlotSilently(this, fireInHotbar, 0, immediate = true, render = false)
 
                 val itemStack = player.hotBarSlot(fireInHotbar).stack
 
@@ -115,7 +117,7 @@ object Ignite : Module("Ignite", Category.COMBAT) {
                     }
                 }
 
-                SilentHotbar.selectSlotSilently(
+                selectSlotSilently(
                     this,
                     player.inventory.currentItem,
                     immediate = true,

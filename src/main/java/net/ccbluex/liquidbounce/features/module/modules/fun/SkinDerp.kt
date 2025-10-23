@@ -10,6 +10,7 @@ import net.ccbluex.liquidbounce.event.async.loopSequence
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.minecraft.entity.player.EnumPlayerModelParts
+import net.minecraft.entity.player.EnumPlayerModelParts.*
 import kotlin.random.Random.Default.nextBoolean
 
 object SkinDerp : Module("SkinDerp", Category.FUN, subjective = true) {
@@ -32,7 +33,6 @@ object SkinDerp : Module("SkinDerp", Category.FUN, subjective = true) {
 
     override fun onDisable() {
         // Disable all current model parts
-
         for (modelPart in mc.gameSettings.modelParts)
             mc.gameSettings.setModelPartEnabled(modelPart, false)
 
@@ -44,18 +44,16 @@ object SkinDerp : Module("SkinDerp", Category.FUN, subjective = true) {
     }
 
     val onUpdate = loopSequence {
-        if (hat)
-            mc.gameSettings.setModelPartEnabled(EnumPlayerModelParts.HAT, nextBoolean())
-        if (jacket)
-            mc.gameSettings.setModelPartEnabled(EnumPlayerModelParts.JACKET, nextBoolean())
-        if (leftPants)
-            mc.gameSettings.setModelPartEnabled(EnumPlayerModelParts.LEFT_PANTS_LEG, nextBoolean())
-        if (rightPants)
-            mc.gameSettings.setModelPartEnabled(EnumPlayerModelParts.RIGHT_PANTS_LEG, nextBoolean())
-        if (leftSleeve)
-            mc.gameSettings.setModelPartEnabled(EnumPlayerModelParts.LEFT_SLEEVE, nextBoolean())
-        if (rightSleeve)
-            mc.gameSettings.setModelPartEnabled(EnumPlayerModelParts.RIGHT_SLEEVE, nextBoolean())
+        val enableModelPart = mc.gameSettings.setModelPartEnabled
+
+        when {
+            hat -> enableModelPart(HAT, nextBoolean())
+            jacket -> enableModelPart(JACKET, nextBoolean())
+            leftPants -> enableModelPart(LEFT_PANTS_LEG, nextBoolean())
+            rightPants -> enableModelPart(RIGHT_PANTS_LEG, nextBoolean())
+            leftSleeve -> enableModelPart(LEFT_SLEEVE, nextBoolean())
+            rightSleeve -> enableModelPart(RIGHT_SLEEVE, nextBoolean())
+        }
 
         delay(delay.toLong())
     }
