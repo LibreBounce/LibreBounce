@@ -14,7 +14,6 @@ import net.ccbluex.liquidbounce.utils.attack.EntityUtils.isSelected
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.pathfinding.PathUtils.findPath
 import net.ccbluex.liquidbounce.utils.rotation.RaycastUtils.raycastEntity
-import net.ccbluex.liquidbounce.utils.rotation.RaycastUtils.raycastedEntity
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.getVectorForRotation
 import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.entity.EntityLivingBase

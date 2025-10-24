@@ -6,6 +6,10 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 ## [Unreleased]
 
+### Added
+
+- `CheckEnemySprinting` option for the `SmartAutoBlock` option in KillAura (thatonecoder)
+
 ## [0.6.0] - 2025-10-22
 
 _Updates may slow down from now on, since I am prioritizing quality over quantity._

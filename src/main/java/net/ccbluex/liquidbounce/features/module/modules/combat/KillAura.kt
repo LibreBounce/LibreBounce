@@ -105,7 +105,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     private val clickOnly by boolean("ClickOnly", false)
 
     // Range
-    private val range: Float by float("Range", 3.7f, 1f..8f, suffix = "blocks")
+    private val range: Float by float("Range", 3f, 1f..8f, suffix = "blocks")
     private val scanRange by floatRange("ScanRange", 2f..2f, 0f..10f, suffix = "blocks").onChanged {
         randomizedScanRange = it.random()
     }
@@ -154,12 +154,11 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     ) { autoBlock == "Packet" }
 
     private val releaseAutoBlock by boolean("ReleaseAutoBlock", true) { autoBlock !in arrayOf("Off", "Fake") }
-    // TODO: Shouldn't this be subjective?
     val forceBlockRender by boolean("ForceBlockRender", true) {
         autoBlock !in arrayOf(
             "Off", "Fake"
         ) && releaseAutoBlock
-    }
+    }.subjective()
     private val ignoreTickRule by boolean("IgnoreTickRule", false) {
         autoBlock !in arrayOf(
             "Off", "Fake"
@@ -195,6 +194,9 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
     // Don't block if target isn't holding a sword or an axe
     private val checkWeapon by boolean("CheckEnemyWeapon", true) { smartAutoBlock }
+
+    // Don't block if target isn't sprinting, since less momentum = less chances of attacking you, and might be running from you
+    private val checkSprinting by boolean("CheckEnemySprinting", true) { smartAutoBlock }
 
     // Don't block when you can't get damaged
     private val maxOwnHurtTime by int("MaxOwnHurtTime", 3, 0..10) { smartAutoBlock }
@@ -803,7 +805,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             if (switchMode && !isLookingOnEntities(entity, maxSwitchFOV.toDouble())) continue
 
             // Credits to Gugustus / Augustus b2.6
-            // TODO: Maybe we should also prioritize players that are looking at u?
+            // TODO: Maybe we should also prioritize players that are looking at you, and with weapons (or without)
             val optimal = (distance * 2.0) + (entity.health.toDouble() + entity.absorptionAmount) + (entity.hurtTime.toDouble() * 4.0) + (entity.totalArmorValue.toDouble() / 2.0) + (entityFov.toDouble() / 2.0)
 
             val currentValue = when (priority) {
@@ -1316,6 +1318,8 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
                     if (player.isMoving && forceBlock) return false
 
                     if (checkWeapon && target?.heldItem?.item !is ItemSword && target?.heldItem?.item !is ItemAxe) return false
+
+                    if (checkSprinting && target?.isSprinting) return false
 
                     if (player.hurtTime > maxOwnHurtTime) return false
 
