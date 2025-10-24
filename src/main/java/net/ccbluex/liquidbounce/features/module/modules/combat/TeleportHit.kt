@@ -13,6 +13,7 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.attack.EntityUtils.isSelected
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.pathfinding.PathUtils.findPath
+import net.ccbluex.liquidbounce.utils.rotation.RaycastUtils.raycastEntity
 import net.ccbluex.liquidbounce.utils.rotation.RaycastUtils.raycastedEntity
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.getVectorForRotation
 import net.minecraft.client.entity.EntityPlayerSP
@@ -22,7 +23,6 @@ import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
 import net.minecraft.util.Vec3
 
 object TeleportHit : Module("TeleportHit", Category.COMBAT) {
-
     private var targetEntity: EntityLivingBase? = null
     private var shouldHit = false
 

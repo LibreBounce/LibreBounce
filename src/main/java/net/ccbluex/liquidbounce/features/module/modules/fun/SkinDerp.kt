@@ -44,18 +44,15 @@ object SkinDerp : Module("SkinDerp", Category.FUN, subjective = true) {
     }
 
     val onUpdate = loopSequence {
-        val enableModelPart = mc.gameSettings.setModelPartEnabled
-
         when {
-            hat -> enableModelPart(HAT, nextBoolean())
-            jacket -> enableModelPart(JACKET, nextBoolean())
-            leftPants -> enableModelPart(LEFT_PANTS_LEG, nextBoolean())
-            rightPants -> enableModelPart(RIGHT_PANTS_LEG, nextBoolean())
-            leftSleeve -> enableModelPart(LEFT_SLEEVE, nextBoolean())
-            rightSleeve -> enableModelPart(RIGHT_SLEEVE, nextBoolean())
+            hat -> mc.gameSettings.setModelPartEnabled(HAT, nextBoolean())
+            jacket -> mc.gameSettings.setModelPartEnabled(JACKET, nextBoolean())
+            leftPants -> mc.gameSettings.setModelPartEnabled(LEFT_PANTS_LEG, nextBoolean())
+            rightPants -> mc.gameSettings.setModelPartEnabled(RIGHT_PANTS_LEG, nextBoolean())
+            leftSleeve -> mc.gameSettings.setModelPartEnabled(LEFT_SLEEVE, nextBoolean())
+            rightSleeve -> mc.gameSettings.setModelPartEnabled(RIGHT_SLEEVE, nextBoolean())
         }
 
         delay(delay.toLong())
     }
-
 }

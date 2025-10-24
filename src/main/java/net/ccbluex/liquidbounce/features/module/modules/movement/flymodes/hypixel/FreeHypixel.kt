@@ -14,6 +14,7 @@ import java.math.BigDecimal
 import java.math.RoundingMode
 
 object FreeHypixel : FlyMode("FreeHypixel") {
+
     private val timer = TickTimer()
     private var startYaw = 0f
     private var startPitch = 0f
@@ -22,17 +23,17 @@ object FreeHypixel : FlyMode("FreeHypixel") {
         mc.thePlayer?.run {
             timer.reset()
 
-            setPositionAndUpdate(.posX, posY + 0.42, posZ)
+            setPositionAndUpdate(posX, posY + 0.42, posZ)
 
-            startYaw = .rotationYaw
-            startPitch = .rotationPitch
+            startYaw = rotationYaw
+            startPitch = rotationPitch
         }
     }
 
     override fun onUpdate() {
         mc.thePlayer?.run {
             if (timer.hasTimePassed(10)) {
-                apabilities.isFlying = true
+                capabilities.isFlying = true
                 return
             } else {
                 rotationYaw = startYaw

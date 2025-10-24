@@ -125,7 +125,7 @@ object Ignite : Module("Ignite", Category.COMBAT) {
                     resetManually = true
                 )
                 sendPacket(C05PacketPlayerLook(player.rotationYaw, player.rotationPitch, player.onGround))
-                SilentHotbar.resetSlot(this)
+                resetSlot(this)
 
                 msTimer.reset()
                 break

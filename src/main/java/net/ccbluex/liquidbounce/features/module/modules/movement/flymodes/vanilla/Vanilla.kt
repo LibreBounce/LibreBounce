@@ -28,8 +28,8 @@ object Vanilla : FlyMode("Vanilla") {
             capabilities.isFlying = false
 
             val ySpeed = when {
-                mc.gameSettings.keyBindJump.isKeyDown -> vanillaSpeed
-                mc.gameSettings.keyBindSneak.isKeyDown -> -vanillaSpeed
+                mc.gameSettings.keyBindJump.isKeyDown -> vanillaSpeed.toDouble()
+                mc.gameSettings.keyBindSneak.isKeyDown -> -vanillaSpeed.toDouble()
                 else -> 0.0
             }
 
