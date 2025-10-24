@@ -1317,9 +1317,9 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
                 if (smartAutoBlock) {
                     if (player.isMoving && forceBlock) return false
 
-                    if (checkWeapon && target?.heldItem?.item !is ItemSword && target?.heldItem?.item !is ItemAxe) return false
+                    if (checkWeapon && target!!.heldItem?.item !is ItemSword && target!!.heldItem?.item !is ItemAxe) return false
 
-                    if (checkSprinting && target?.isSprinting) return false
+                    if (checkSprinting && !target!!.isSprinting) return false
 
                     if (player.hurtTime > maxOwnHurtTime) return false
 
