@@ -47,10 +47,11 @@ object  FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
 
     private val allowedDistToEnemy by floatRange("MinAllowedDistToEnemy", 1.5f..3.5f, 0f..6f, suffix = "blocks")
 
-    // TODO: Fix this
+    // TODO: Fix this being buggy
     private val onlyWhenNearEnemy by boolean("OnlyWhenNearEnemy", true)
     private val distanceToLag by floatRange("DistanceToLag", 3.5f..4.5f, 0f..6f, suffix = "blocks") { onlyWhenNearEnemy }
 
+    // TODO: Add an option that blinks if a projectile is predicted to hit you (and make it blink shortly before that would happen, considering latency)
     private val blinkOnAction by boolean("BlinkOnAction", true)
 
     private val pauseOnNoMove by boolean("PauseOnNoMove", true)

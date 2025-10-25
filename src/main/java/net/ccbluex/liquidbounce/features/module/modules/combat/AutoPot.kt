@@ -11,7 +11,7 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.extensions.sendUseItem
 import net.ccbluex.liquidbounce.utils.extensions.tryJump
-import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils
+import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.hasSpaceInHotbar
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverOpenInventory
 import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar
 import net.ccbluex.liquidbounce.utils.inventory.inventorySlot
@@ -30,7 +30,7 @@ import net.minecraft.potion.Potion
 
 object AutoPot : Module("AutoPot", Category.COMBAT) {
 
-    private val health by float("Health", 15F, 1F..20F) { healPotion || regenerationPotion }
+    private val health by float("Health", 15f, 1f..20f) { healPotion || regenerationPotion }
     private val delay by int("Delay", 500, 500..1000, suffix = "ms")
 
     // Useful potion options
@@ -110,7 +110,7 @@ object AutoPot : Module("AutoPot", Category.COMBAT) {
         // Inventory Potion -> Hotbar Potion
         val potionInInventory = findPotion(9, 36) ?: return@handler
 
-        if (InventoryUtils.hasSpaceInHotbar()) {
+        if (hasSpaceInHotbar()) {
             if (openInventory && mc.currentScreen !is GuiInventory)
                 return@handler
 

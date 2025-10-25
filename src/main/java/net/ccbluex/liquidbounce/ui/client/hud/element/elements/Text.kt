@@ -61,7 +61,7 @@ import kotlin.math.max
  * Allows to draw custom text
  */
 @ElementInfo(name = "Text")
-class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F, side: Side = Side.default()) : Element(
+class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1f, side: Side = Side.default()) : Element(
     "Text",
     x,
     y,
@@ -80,7 +80,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F, side: Side = S
          * Default Client Title
          */
         fun defaultClientTitle(): Text {
-            val text = Text(x = 2.0, y = 1.0, scale = 2F)
+            val text = Text(x = 2.0, y = 1.0, scale = 2f)
 
             text.displayString = "%clientName%"
             text.shadow = true
@@ -94,7 +94,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F, side: Side = S
          * Default Client Version
          */
         fun defaultClientVersion(): Text {
-            val text = Text(x = 107.0, y = 25.0, scale = 1F)
+            val text = Text(x = 107.0, y = 25.0, scale = 1f)
 
             text.displayString = "%clientversion%"
             text.shadow = true
@@ -108,7 +108,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F, side: Side = S
          * Default Block Counter
          */
         fun defaultBlockCount(): Text {
-            val text = Text(x = 520.0, y = 245.0, scale = 1F)
+            val text = Text(x = 520.0, y = 245.0, scale = 1f)
 
             text.displayString = "%blockamount%"
             text.shadow = true
@@ -122,6 +122,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F, side: Side = S
 
     }
 
+    // TODO: Also apply for Eagle
     private var onScaffold by boolean("ScaffoldOnly", false)
     private var showBlock by boolean("ShowBlock", false)
 

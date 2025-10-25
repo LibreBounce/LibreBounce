@@ -86,8 +86,10 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
     // Instead, it should "show" only the items that are planned to be stolen
     private val progressBar by boolean("ProgressBar", true).subjective()
 
+    // TODO: Add an option to show the chest GUI in a 3D way
     val silentGUI by boolean("SilentGUI", false).subjective()
 
+    // TODO: Add an option to show the ChestStealer route
     val highlightSlot by boolean("HighlightSlot", false) { !silentGUI }.subjective()
     val backgroundColor =
         color("BackgroundColor", Color(128, 128, 128)) { highlightSlot && !silentGUI }.subjective()

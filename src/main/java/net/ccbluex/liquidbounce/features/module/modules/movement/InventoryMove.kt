@@ -29,6 +29,7 @@ import org.lwjgl.input.Mouse
 
 object InventoryMove : Module("InventoryMove", Category.MOVEMENT, gameDetecting = false) {
 
+    // TODO: Add an option to be able to rotate around
     private val notInChests by boolean("NotInChests", false)
     val aacAdditionPro by boolean("AACAdditionPro", false)
     private val intave by boolean("Intave", false)

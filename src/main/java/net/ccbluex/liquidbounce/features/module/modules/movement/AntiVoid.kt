@@ -41,6 +41,7 @@ import kotlin.math.max
 
 object AntiVoid : Module("AntiVoid", Category.MOVEMENT) {
 
+    // TODO: Improve Blink further, being able to somewhat bypass Hypixel
     private val mode by choices(
         "Mode",
         arrayOf("Blink", "TeleportBack", "FlyFlag", "OnGroundSpoof", "MotionTeleport-Flag", "GhostBlock"),

@@ -53,6 +53,7 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
 
     private val minEnemyRotDiffToIgnore by float("MinRotationDiffFromEnemyToIgnore", 180f, 0f..180f, suffix = "º")
 
+    // TODO: Add an OnSword option, in case someone is using legit AutoBlock
     private val onlyGround by boolean("OnlyGround", false)
     val onlyMove by boolean("OnlyMove", true)
     val onlyMoveForward by boolean("OnlyMoveForward", true) { onlyMove }

@@ -42,7 +42,7 @@ open class RotationSettings(owner: Module, generalApply: () -> Boolean = { true 
         rotationsActive && applyServerSide && generalApply()
     }
 
-    // TODO: Add reaction time, and a speed curve
+    // TODO: Add reaction time, a speed curve, and a lazy option that only rotates as much as required
     open val legitimizeValue = boolean("Legitimize", false) { rotationsActive && generalApply() }
     open val legitimizeHorizontalJitterValue = 
         floatRange("LegitimizeHorizontalJitter", -0.03f..0.03f, -1f..1f) { rotationsActive && generalApply() && legitimize }
