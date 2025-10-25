@@ -262,9 +262,9 @@ object Tower : Configurable("Tower"), MinecraftInstance, Listenable {
                 }
 
                 "AAC3.3.9" -> {
-                    if (player.onGround) {
+                    if (onGround) {
                         fakeJump()
-                        player.motionY = 0.4001
+                        motionY = 0.4001
                     }
 
                     mc.timer.timerSpeed = 1f
