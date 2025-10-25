@@ -144,141 +144,144 @@ object Tower : Configurable("Tower"), MinecraftInstance, Listenable {
      * Move player
      */
     private fun move() {
-        val player = mc.thePlayer ?: return
+        mc.thePlayer?.apply {
+            if (blocksAmount() <= 0)
+                return
 
-        if (blocksAmount() <= 0)
-            return
-
-        // TODO: Use mc.thePlayer?.run instead
-        when (towerModeValues.get()) {
-            "Jump" -> if (player.onGround && tickTimer.hasTimePassed(jumpDelayValues.get())) {
-                fakeJump()
-                player.tryJump()
-            } else if (!player.onGround) {
-                player.isAirBorne = false
-                tickTimer.reset()
-            }
-
-            "Motion" -> if (player.onGround) {
-                fakeJump()
-                player.motionY = 0.42
-            } else if (player.motionY < 0.1) {
-                player.motionY = -0.3
-            }
-
-            // Old Name (Jump)
-            "MotionJump" -> if (player.onGround && tickTimer.hasTimePassed(jumpDelayValues.get())) {
-                fakeJump()
-                player.motionY = jumpMotionValues.get().toDouble()
-                tickTimer.reset()
-            }
-
-            "MotionTP" -> if (player.onGround) {
-                fakeJump()
-                player.motionY = 0.42
-            } else if (player.motionY < 0.23) {
-                player.setPosition(player.posX, truncate(player.posY), player.posZ)
-            }
-
-            "Packet" -> if (player.onGround && tickTimer.hasTimePassed(2)) {
-                fakeJump()
-                sendPackets(
-                    C04PacketPlayerPosition(
-                        player.posX,
-                        player.posY + 0.42,
-                        player.posZ,
-                        false
-                    ),
-                    C04PacketPlayerPosition(
-                        player.posX,
-                        player.posY + 0.753,
-                        player.posZ,
-                        false
-                    )
-                )
-                player.setPosition(player.posX, player.posY + 1.0, player.posZ)
-                tickTimer.reset()
-            }
-
-            "Teleport" -> {
-                if (teleportNoMotionValues.get()) {
-                    player.motionY = 0.0
-                }
-                if ((player.onGround || !teleportGroundValues.get()) && tickTimer.hasTimePassed(
-                        teleportDelayValues.get()
-                    )
-                ) {
+            // TODO: Use mc.thePlayer?.run instead
+            when (towerModeValues.get()) {
+                "Jump" -> if (onGround && tickTimer.hasTimePassed(jumpDelayValues.get())) {
                     fakeJump()
-                    player.setPositionAndUpdate(
-                        player.posX, player.posY + teleportHeightValues.get(), player.posZ
-                    )
+                    tryJump()
+                } else if (!onGround) {
+                    isAirBorne = false
                     tickTimer.reset()
                 }
-            }
 
-            "ConstantMotion" -> {
-                if (player.onGround) {
-                    if (constantMotionJumpPacketValues.get()) {
+                "Motion" -> if (onGround) {
+                    fakeJump()
+                    motionY = 0.42
+                } else if (motionY < 0.1) {
+                    motionY = -0.3
+                }
+
+                // Old Name (Jump)
+                "MotionJump" -> if (onGround && tickTimer.hasTimePassed(jumpDelayValues.get())) {
+                    fakeJump()
+                    motionY = jumpMotionValues.get().toDouble()
+                    tickTimer.reset()
+                }
+
+                "MotionTP" -> if (onGround) {
+                    fakeJump()
+                    motionY = 0.42
+                } else if (motionY < 0.23) {
+                    setPosition(posX, truncate(posY), posZ)
+                }
+
+                "Packet" -> if (onGround && tickTimer.hasTimePassed(2)) {
+                    fakeJump()
+                    sendPackets(
+                        C04PacketPlayerPosition(
+                            posX,
+                            posY + 0.42,
+                            posZ,
+                            false
+                        ),
+                        C04PacketPlayerPosition(
+                            posX,
+                            posY + 0.753,
+                            posZ,
+                            false
+                        )
+                    )
+                    setPosition(posX, posY + 1.0, posZ)
+                    tickTimer.reset()
+                }
+
+                "Teleport" -> {
+                    if (teleportNoMotionValues.get()) {
+                        motionY = 0.0
+                    }
+                        if ((onGround || !teleportGroundValues.get()) && tickTimer.hasTimePassed(
+                            teleportDelayValues.get()
+                        )
+                    ) {
+                        fakeJump()
+                        setPositionAndUpdate(
+                            posX, posY + teleportHeightValues.get(), posZ
+                        )
+                        tickTimer.reset()
+                    }
+                }
+
+                "ConstantMotion" -> {
+                    if (onGround) {
+                        if (constantMotionJumpPacketValues.get()) {
+                            fakeJump()
+                        }
+                        jumpGround = posY
+                        motionY = constantMotionValues.get().toDouble()
+                    }
+
+                    if (posY > jumpGround + constantMotionJumpGroundValues.get()) {
+                        if (constantMotionJumpPacketValues.get()) {
+                            fakeJump()
+                        }
+                        setPosition(
+                            posX, truncate(posY), posZ
+                        ) // TODO: toInt() required?
+                        motionY = constantMotionValues.get().toDouble()
+                        jumpGround = posY
+                    }
+                }
+
+                "Pulldown" -> {
+                    if (!onGround && motionY < triggerMotionValues.get()) {
+                        motionY = -dragMotionValues.get().toDouble()
+                    } else {
                         fakeJump()
                     }
-                    jumpGround = player.posY
-                    player.motionY = constantMotionValues.get().toDouble()
                 }
-                if (player.posY > jumpGround + constantMotionJumpGroundValues.get()) {
-                    if (constantMotionJumpPacketValues.get()) {
-                        fakeJump()
+
+                // Credit: @localpthebest / Nextgen
+                "Vulcan2.9.0" -> {
+                    if (ticksExisted % 10 == 0) {
+                        // Prevent Flight Flag
+                        motionY = -0.1
+                        return
                     }
-                    player.setPosition(
-                        player.posX, truncate(player.posY), player.posZ
-                    ) // TODO: toInt() required?
-                    player.motionY = constantMotionValues.get().toDouble()
-                    jumpGround = player.posY
-                }
-            }
 
-            "Pulldown" -> {
-                if (!player.onGround && player.motionY < triggerMotionValues.get()) {
-                    player.motionY = -dragMotionValues.get().toDouble()
-                } else {
                     fakeJump()
-                }
-            }
 
-            // Credit: @localpthebest / Nextgen
-            "Vulcan2.9.0" -> {
-                if (player.ticksExisted % 10 == 0) {
-                    // Prevent Flight Flag
-                    player.motionY = -0.1
-                    return
+                    if (ticksExisted % 2 == 0) {
+                        motionY = 0.7
+                    } else {
+                        motionY = if (isMoving) 0.42 else 0.6
+                    }
                 }
 
-                fakeJump()
+                "AAC3.3.9" -> {
+                    if (player.onGround) {
+                        fakeJump()
+                        player.motionY = 0.4001
+                    }
 
-                if (player.ticksExisted % 2 == 0) {
-                    player.motionY = 0.7
-                } else {
-                    player.motionY = if (player.isMoving) 0.42 else 0.6
-                }
-            }
+                    mc.timer.timerSpeed = 1f
 
-            "AAC3.3.9" -> {
-                if (player.onGround) {
-                    fakeJump()
-                    player.motionY = 0.4001
+                    if (motionY < 0) {
+                        motionY -= 0.00000945
+                        mc.timer.timerSpeed = 1.6f
+                    }
                 }
-                mc.timer.timerSpeed = 1f
-                if (player.motionY < 0) {
-                    player.motionY -= 0.00000945
-                    mc.timer.timerSpeed = 1.6f
-                }
-            }
 
-            "AAC3.6.4" -> if (player.ticksExisted % 4 == 1) {
-                player.motionY = 0.4195464
-                player.setPosition(player.posX - 0.035, player.posY, player.posZ)
-            } else if (player.ticksExisted % 4 == 0) {
-                player.motionY = -0.5
-                player.setPosition(player.posX + 0.035, player.posY, player.posZ)
+                "AAC3.6.4" -> if (ticksExisted % 4 == 1) {
+                    motionY = 0.4195464
+                    setPosition(posX - 0.035, posY, posZ)
+                } else if (ticksExisted % 4 == 0) {
+                    motionY = -0.5
+                    setPosition(posX + 0.035, posY, posZ)
+                }
             }
         }
     }
