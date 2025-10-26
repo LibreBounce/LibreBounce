@@ -169,8 +169,9 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
 
         simPlayer.rotationYaw = (currentRotation ?: player.rotation).yaw
 
-        repeat(predictClientMovement)
+        repeat(predictClientMovement) {
             simPlayer.tick()
+            }
 
         player.setPosAndPrevPos(simPlayer.pos)
 
