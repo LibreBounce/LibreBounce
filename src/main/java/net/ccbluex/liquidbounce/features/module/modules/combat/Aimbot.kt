@@ -157,9 +157,8 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
     private fun findRotation(entity: Entity, random: Random): Boolean {
         val player = mc.thePlayer ?: return false
 
-        if (mc.playerController.isHittingBlock && breakBlocks) {
+        if (breakBlocks && mc.playerController.isHittingBlock)
             return false
-        }
 
         val prediction = entity.currPos.subtract(entity.prevPos).times(2 + predictEnemyPosition.toDouble())
 
@@ -170,9 +169,8 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
 
         simPlayer.rotationYaw = (currentRotation ?: player.rotation).yaw
 
-        repeat(predictClientMovement) {
+        repeat(predictClientMovement)
             simPlayer.tick()
-        }
 
         player.setPosAndPrevPos(simPlayer.pos)
 

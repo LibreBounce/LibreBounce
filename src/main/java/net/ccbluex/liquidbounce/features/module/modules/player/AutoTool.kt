@@ -14,6 +14,7 @@ import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar
 
 object AutoTool : Module("AutoTool", Category.PLAYER, subjective = true, gameDetecting = false) {
 
+    // TODO: This appears to block AutoWeapon from switching slots
     private val switchBack by boolean("SwitchBack", false)
     private val onlySneaking by boolean("OnlySneaking", false)
 

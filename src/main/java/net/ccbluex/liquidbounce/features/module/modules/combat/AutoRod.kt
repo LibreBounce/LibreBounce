@@ -32,7 +32,9 @@ object AutoRod : Module("AutoRod", Category.COMBAT) {
     private val absorption by boolean("Absorption", false) { facingEnemy && ignoreOnEnemyLowHealth }
 
     private val activationDistance by float("ActivationDistance", 8f, 1f..20f, suffix = "blocks")
-    private val enemiesNearby by int("EnemiesNearby", 1, 1..5)
+
+    // 0 = no limit
+    private val enemiesNearby by int("EnemiesNearby", 1, 0..5)
 
     // Improve health check customization
     private val playerHealthThreshold by int("PlayerHealthThreshold", 5, 1..20)
@@ -101,8 +103,7 @@ object AutoRod : Module("AutoRod", Category.COMBAT) {
 
                 if (isSelected(facingEntity, true)) {
                     // Check how many enemies are nearby, if <= then should rod
-                    if (nearbyEnemies.size <= enemiesNearby) {
-
+                    if (enemiesNearby == 0 || nearbyEnemies.size <= enemiesNearby) {
                         // Check if the enemy's health is below the threshold
                         if (ignoreOnEnemyLowHealth) {
                             if (getHealth(

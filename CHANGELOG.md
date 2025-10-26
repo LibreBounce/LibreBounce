@@ -10,6 +10,15 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 - `CheckEnemySprinting` option for the `SmartAutoBlock` option in KillAura (thatonecoder)
 
+### Fixed
+
+- AutoWeapon checking for the client-side slot instead of the server slot (thatonecoder)
+
+### Changed
+
+- Make the `Jump` mode in Velocity also use the `HurtTime` range (thatonecoder)
+- Change the minimum value in `EnemiesNearby` to 0 in AutoRod, ignoring the limit (thatonecoder)
+
 ## [0.6.0] - 2025-10-22
 
 _Updates may slow down from now on, since I am prioritizing quality over quantity._

@@ -21,6 +21,7 @@ import net.minecraft.item.ItemStack
 object AutoPlay : Module("AutoPlay", Category.PLAYER, gameDetecting = false) {
 
     // TODO: Custom mode, allowing for any command to be executed after a game ends
+    // it should also have a custom trigger
     private val mode by choices("Mode", arrayOf("Paper", "Hypixel"), "Paper")
 
     // Hypixel Settings

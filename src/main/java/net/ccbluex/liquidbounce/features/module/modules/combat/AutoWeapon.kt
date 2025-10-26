@@ -46,7 +46,7 @@ object AutoWeapon : Module("AutoWeapon", Category.COMBAT, subjective = true) {
                 }
                 .maxByOrNull { it.second.attackDamage } ?: return@handler
 
-            if (slot == player.inventory.currentItem) // If in hand no need to swap
+            if (slot == SilentHotbar.currentSlot) // If in hand no need to swap
                 return@handler
 
             // Switch to best weapon

@@ -100,7 +100,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
 
     private val clicks by intRange("Clicks", 3..5, 1..20) { mode == "Click" }
     private val hurtTimeToAct by intRange("HurtTime", 1..9, 1..10) {
-        mode in arrayOf("GhostBlock", "IntaveReduce", "Click")
+        mode in arrayOf("GhostBlock", "IntaveReduce", "Click", "Jump")
     }
     private val whenFacingEnemyOnly by boolean("WhenFacingEnemyOnly", true) { mode == "Click" }
     private val ignoreBlocking by boolean("IgnoreBlocking", false) { mode == "Click" }
@@ -708,9 +708,9 @@ object Velocity : Module("Velocity", Category.COMBAT) {
     val onStrafe = handler<StrafeEvent> {
         mc.thePlayer?.run {
             if (mode == "Jump" && hasReceivedVelocity) {
-                if (!isJumping && nextInt(endExclusive = 100) < chance && shouldJump() && isSprinting && onGround && hurtTime == 9) {
+                if (!isJumping && nextInt(endExclusive = 100) < chance && shouldJump() && isSprinting && onGround && hurtTime in hurtTimeToAct) {
                     tryJump()
-                    if (debug) chat("Velocity has jumped")
+                    if (debug) chat("Velocity jumped at hurttime ${hurtTime}")
                     limitUntilJump = 0
                 }
 
