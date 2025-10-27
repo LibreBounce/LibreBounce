@@ -8,6 +8,7 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 ### Added
 
+- `BlockLength` value to KillAura, potentially allowing for an improved Hypixel AutoBlock (thatonecoder)
 - `CheckEnemySprinting` option for the `SmartAutoBlock` option in KillAura (thatonecoder)
 
 ### Fixed
@@ -16,6 +17,7 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 ### Changed
 
+- **Breaking:** Rename `NotBelowHealth` to `NotBelowOwnHealth`, in KillAura (thatonecoder)
 - Make the `Jump` mode in Velocity also use the `HurtTime` range (thatonecoder)
 - Change the minimum value in `EnemiesNearby` to 0 in AutoRod, ignoring the limit (thatonecoder)
 
@@ -25,13 +27,13 @@ _Updates may slow down from now on, since I am prioritizing quality over quantit
 
 ### Added
 
+- **Breaking:** `Box` mode for `Mark`, in ProjectileAimbot; this also means `Mark` is now a list value (thatonecoder)
 - `Panel` ClickGUI mode, similar to Rise 6.0's (thatonecoder)
 - `SmartHit` option, along with the `NotAboveRange`, `HurtTimeWhitelist` + `NotOnHurtTime`, `NotBelowHealth` + `NotBelowEnemyHealth`, and `NotOnEdge` + `NotOnEdgeLimit` values to KillAura; experimental (thatonecoder)
 - `OnlyBlocks` and `NotOnForward` options to Eagle (thatonecoder)
 - `MissClickChanceDistanceMultiply` option to ChestStealer (thatonecoder)
 - `Notification` option to AutoPlay, notificating when requeueing (thatonecoder)
 - `HeldWeapons` option to Notifier (thatonecoder)
-- **Breaking:** `Box` mode for `Mark`, in ProjectileAimbot; this also means `Mark` is now a list value (thatonecoder)
 
 ### Fixed
 

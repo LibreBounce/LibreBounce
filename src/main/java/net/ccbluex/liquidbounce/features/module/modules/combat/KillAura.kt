@@ -51,6 +51,7 @@ import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.setTargetRotation
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.toRotation
 import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
+import net.ccbluex.liquidbounce.utils.timing.TickTimer
 import net.ccbluex.liquidbounce.utils.timing.TickedActions.nextTick
 import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomClickDelay
 import net.minecraft.client.gui.inventory.GuiContainer
@@ -94,7 +95,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     private val notAboveRange by float("NotAboveRange", 2.2f, 0f..8f, suffix = "blocks") { !simulateCooldown && smartHit }
     private val hurtTimeAllowlist by boolean("HurtTimeAllowlist", true) { !simulateCooldown && smartHit }
     private val notOnHurtTime by intRange("NotOnHurtTime", 5..9, 0..10) { !simulateCooldown && smartHit && hurtTimeAllowlist }
-    private val notBelowHealth by float("NotBelowHealth", 5f, 0f..20f) { !simulateCooldown && smartHit }
+    private val notBelowOwnHealth by float("NotBelowOwnHealth", 5f, 0f..20f) { !simulateCooldown && smartHit }
     private val notBelowEnemyHealth by float("NotBelowEnemyHealth", 5f, 0f..20f) { !simulateCooldown && smartHit }
     private val notOnEdge by boolean("NotOnEdge", false) { !simulateCooldown && smartHit }
     private val notOnEdgeLimit by float("NotOnEdgeLimit", 1f, 0f..8f, suffix = "blocks") { !simulateCooldown && smartHit && notOnEdge }
@@ -167,6 +168,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
     // TODO: Configurable blocking length
     private val blockRate by int("BlockRate", 100, 1..100, suffix = "%") { autoBlock !in arrayOf("Off", "Fake") && releaseAutoBlock }
+    private val blockLength by int("BlockLength", 1, 1..5, suffix = "ticks") { autoBlock !in arrayOf("Off", "Fake") && releaseAutoBlock }
 
     private val uncpAutoBlock by boolean("UpdatedNCPAutoBlock", false) {
         autoBlock !in arrayOf(
@@ -350,6 +352,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     var renderBlocking = false
     var blockStatus = false
     private var blockStopInDead = false
+    private val blockTicks = TickTimer()
 
     // Switch Delay
     private val switchTimer = MSTimer()
@@ -435,8 +438,9 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             return@handler
         }
 
-        if (blockStatus && autoBlock == "Packet" && releaseAutoBlock && !ignoreTickRule) {
+        if (blockStatus && autoBlock == "Packet" && releaseAutoBlock && blockTicks.hasTimePassed(blockLength) && !ignoreTickRule) {
             clicks = 0
+            blockTicks.reset()
             stopBlocking()
             return@handler
         }
@@ -601,19 +605,21 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
         // Settings
         val manipulateInventory = simulateClosingInventory && !noInventoryAttack && serverOpenInventory
-        val shouldHit = if (smartHit) {
-            when {
+        var shouldHit = false
+
+        if (smartHit) {
+            shouldHit = when {
                 player.onGround -> true
                 player.fallDistance > 0 -> true
                 player.getDistanceToEntityBox(currentTarget) > notAboveRange -> true
                 hurtTimeAllowlist && player.hurtTime in notOnHurtTime -> true
-                player.health < notBelowHealth -> true
+                player.health < notBelowOwnHealth -> true
                 currentTarget.health < notBelowEnemyHealth -> true
                 notOnEdge && player.isNearEdge(notOnEdgeLimit) -> true
                 else -> false
             }
         } else {
-            currentTarget.hurtTime > hurtTime
+            shouldHit = currentTarget.hurtTime > hurtTime
         }
 
         if (hittable && !shouldHit)
@@ -1312,6 +1318,8 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             val player = mc.thePlayer ?: return false
 
             if (target != null && player.heldItem?.item is ItemSword) {
+                val distance = player.getDistanceToEntityBox(target!!)
+
                 // TODO: Check if player is moving away, on 10 HurtTime (to ignore when the player is taking knockback, thus moving backwards)
                 // Additionally, check for all players that might hit you, instead of just one
                 if (smartAutoBlock) {
@@ -1319,7 +1327,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
                     if (checkWeapon && target!!.heldItem?.item !is ItemSword && target!!.heldItem?.item !is ItemAxe) return false
 
-                    if (checkSprinting && !target!!.isSprinting) return false
+                    if (checkSprinting && !target!!.isSprinting && distance) > 2.8f) return false
 
                     if (player.hurtTime > maxOwnHurtTime) return false
 
@@ -1330,7 +1338,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
                     if (target!!.swingProgressInt > maxSwingProgress) return false
                 }
 
-                if (player.getDistanceToEntityBox(target!!) > blockMaxRange) return false
+                if (distance > blockMaxRange) return false
 
                 return true
             }
