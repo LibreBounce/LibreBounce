@@ -1327,7 +1327,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
                     if (checkWeapon && target!!.heldItem?.item !is ItemSword && target!!.heldItem?.item !is ItemAxe) return false
 
-                    if (checkSprinting && !target!!.isSprinting && distance) > 2.8f) return false
+                    if (checkSprinting && !target!!.isSprinting && distance > 2.8f) return false
 
                     if (player.hurtTime > maxOwnHurtTime) return false
 
