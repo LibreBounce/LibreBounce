@@ -438,9 +438,8 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             return@handler
         }
 
-        if (blockStatus && autoBlock == "Packet" && releaseAutoBlock && blockTicks.hasTimePassed(blockLength) && !ignoreTickRule) {
+        if (blockStatus && autoBlock == "Packet" && releaseAutoBlock && !ignoreTickRule) {
             clicks = 0
-            blockTicks.reset()
             stopBlocking()
             return@handler
         }
@@ -605,10 +604,8 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
         // Settings
         val manipulateInventory = simulateClosingInventory && !noInventoryAttack && serverOpenInventory
-        var shouldHit = false
-
-        if (smartHit) {
-            shouldHit = when {
+        var shouldHit = if (smartHit) {
+            when {
                 player.onGround -> true
                 player.fallDistance > 0 -> true
                 player.getDistanceToEntityBox(currentTarget) > notAboveRange -> true
@@ -619,7 +616,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
                 else -> false
             }
         } else {
-            shouldHit = currentTarget.hurtTime > hurtTime
+            currentTarget.hurtTime < hurtTime
         }
 
         if (hittable && !shouldHit)
@@ -861,8 +858,9 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
         if (shouldPrioritize()) return
 
-        if (player.isBlocking && (autoBlock == "Off" && blockStatus || autoBlock == "Packet" && releaseAutoBlock)) {
+        if (player.isBlocking && (autoBlock == "Off" && blockStatus || autoBlock == "Packet" && releaseAutoBlock && blockTicks.hasTimePassed(blockLength))) {
             stopBlocking()
+            blockTicks.reset()
 
             if (!ignoreTickRule || autoBlock == "Off") {
                 return

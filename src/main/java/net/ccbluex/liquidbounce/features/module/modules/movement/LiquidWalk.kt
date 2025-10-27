@@ -41,10 +41,14 @@ object LiquidWalk : Module("LiquidWalk", Category.MOVEMENT, Keyboard.KEY_J) {
     private val noJump by boolean("NoJump", false)
 
     val onUpdate = handler<UpdateEvent> { event ->
+        mc.thePlayer ?: return@handler
+
         modeModule.onUpdate()
     }
 
     val onMove = handler<MoveEvent> { event ->
+        mc.thePlayer ?: return@handler
+
         modeModule.onMove(event)
     }
 
