@@ -438,7 +438,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             return@handler
         }
 
-        if (blockStatus && autoBlock == "Packet" && releaseAutoBlock & blockTicks.hasTimePassed(blockLength) && !ignoreTickRule) {
+        if (blockStatus && autoBlock == "Packet" && releaseAutoBlock && blockTicks.hasTimePassed(blockLength) && !ignoreTickRule) {
             clicks = 0
             stopBlocking()
             return@handler
