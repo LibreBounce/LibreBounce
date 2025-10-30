@@ -860,7 +860,6 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
         if (player.isBlocking && (autoBlock == "Off" && blockStatus || autoBlock == "Packet" && releaseAutoBlock && blockTicks.hasTimePassed(blockLength))) {
             stopBlocking()
-            blockTicks.reset()
 
             if (!ignoreTickRule || autoBlock == "Off") {
                 return
@@ -1166,6 +1165,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         }
 
         renderBlocking = false
+        blockTicks.reset()
     }
 
     val onPacket = handler<PacketEvent> { event ->
