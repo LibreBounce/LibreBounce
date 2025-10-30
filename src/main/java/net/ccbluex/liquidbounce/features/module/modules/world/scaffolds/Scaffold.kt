@@ -216,7 +216,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
     private var zitterDirection = false
 
     // Delay
-    private val delayTimer = object : DelayTimer(delay.first, delay.last, MSTimer())
+    private val delayTimer = DelayTimer(delay.first, delay.last, MSTimer())
 
     private val zitterTickTimer = TickDelayTimer(zitterTicks.first, zitterTicks.last)
 
