@@ -138,6 +138,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     private val switchDelay by int("SwitchDelay", 15, 1..1000, suffix = "ms") { targetMode == "Switch" }
 
     private val swing by boolean("Swing", true)
+    // TODO: Remove this, since the KeepSprint module does the same thing
     private val keepSprint by boolean("KeepSprint", true)
 
     private val autoF5 by boolean("AutoF5", false).subjective()
@@ -154,21 +155,17 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         "UnblockMode", arrayOf("Stop", "Switch", "Empty"), "Stop"
     ) { autoBlock == "Packet" }
 
-    private val releaseAutoBlock by boolean("ReleaseAutoBlock", true) { autoBlock !in arrayOf("Off", "Fake") }
+    private val releaseAutoBlock by boolean("ReleaseAutoBlock", true) { autoBlock == "Packet" }
     val forceBlockRender by boolean("ForceBlockRender", true) {
-        autoBlock !in arrayOf(
-            "Off", "Fake"
-        ) && releaseAutoBlock
+        autoBlock == "Packet" && releaseAutoBlock
     }.subjective()
     private val ignoreTickRule by boolean("IgnoreTickRule", false) {
-        autoBlock !in arrayOf(
-            "Off", "Fake"
-        ) && releaseAutoBlock
+        autoBlock == "Packet" && releaseAutoBlock
     }
 
     // TODO: Configurable blocking length
-    private val blockRate by int("BlockRate", 100, 1..100, suffix = "%") { autoBlock !in arrayOf("Off", "Fake") && releaseAutoBlock }
-    private val blockLength by int("BlockLength", 1, 1..5, suffix = "ticks") { autoBlock !in arrayOf("Off", "Fake") && releaseAutoBlock }
+    private val blockRate by int("BlockRate", 100, 1..100, suffix = "%") { autoBlock == "Packet" && releaseAutoBlock }
+    private val blockLength by int("BlockLength", 1, 1..5, suffix = "ticks") { autoBlock == "Packet" && releaseAutoBlock }
 
     private val uncpAutoBlock by boolean("UpdatedNCPAutoBlock", false) {
         autoBlock !in arrayOf(
@@ -176,38 +173,36 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         ) && !releaseAutoBlock
     }
 
-    private val switchStartBlock by boolean("SwitchStartBlock", false) { autoBlock !in arrayOf("Off", "Fake") }
+    private val switchStartBlock by boolean("SwitchStartBlock", false) { autoBlock == "Packet" }
 
-    private val interactAutoBlock by boolean("InteractAutoBlock", true) { autoBlock !in arrayOf("Off", "Fake") }
+    private val interactAutoBlock by boolean("InteractAutoBlock", true) { autoBlock == "Packet" }
 
-    val blinkAutoBlock by boolean("BlinkAutoBlock", false) { autoBlock !in arrayOf("Off", "Fake") }
+    val blinkAutoBlock by boolean("BlinkAutoBlock", false) { autoBlock == "Packet" }
 
     private val blinkBlockTicks by int("BlinkBlockTicks", 3, 2..5) {
-        autoBlock !in arrayOf(
-            "Off", "Fake"
-        ) && blinkAutoBlock
+        autoBlock == "Packet" && blinkAutoBlock
     }
 
     // AutoBlock conditions
     private val smartAutoBlock by boolean("SmartAutoBlock", false) { autoBlock == "Packet" }
 
     // Ignore all blocking conditions, except for block rate, when standing still
-    private val forceBlock by boolean("ForceBlockWhenStill", true) { smartAutoBlock }
+    private val forceBlock by boolean("ForceBlockWhenStill", true) { autoBlock == "Packet" && smartAutoBlock }
 
     // Don't block if target isn't holding a sword or an axe
-    private val checkWeapon by boolean("CheckEnemyWeapon", true) { smartAutoBlock }
+    private val checkWeapon by boolean("CheckEnemyWeapon", true) { autoBlock == "Packet" && smartAutoBlock }
 
     // Don't block if target isn't sprinting, since less momentum = less chances of attacking you, and might be running from you
-    private val checkSprinting by boolean("CheckEnemySprinting", true) { smartAutoBlock }
+    private val checkSprinting by boolean("CheckEnemySprinting", true) { autoBlock == "Packet" && smartAutoBlock }
 
     // Don't block when you can't get damaged
-    private val maxOwnHurtTime by int("MaxOwnHurtTime", 3, 0..10) { smartAutoBlock }
+    private val maxOwnHurtTime by int("MaxOwnHurtTime", 3, 0..10) { autoBlock == "Packet" && smartAutoBlock }
 
     // Don't block if target isn't looking at you
-    private val maxDirectionDiff by float("MaxOpponentDirectionDiff", 60f, 30f..180f, suffix = "º") { smartAutoBlock }
+    private val maxDirectionDiff by float("MaxOpponentDirectionDiff", 60f, 30f..180f, suffix = "º") { autoBlock == "Packet" && smartAutoBlock }
 
     // Don't block if target is swinging an item and therefore cannot attack
-    private val maxSwingProgress by int("MaxOpponentSwingProgress", 1, 0..5) { smartAutoBlock }
+    private val maxSwingProgress by int("MaxOpponentSwingProgress", 1, 0..5) { autoBlock == "Packet" && smartAutoBlock }
 
     // Rotations
     private val options = RotationSettings(this).withoutKeepRotation()
