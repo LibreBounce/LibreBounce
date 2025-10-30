@@ -87,6 +87,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
 
     val highlightUseful by boolean("HighlightUseful", true).subjective()
 
+    // TODO: Add a Fallback option, making it so a nearly equivalent item is used, if the preferred is not available (e.g., Fishing Rod -> Snowballs)
     private val slot1Value = sortChoice("Slot1", "Sword")
     private val slot2Value = sortChoice("Slot2", "Bow")
     private val slot3Value = sortChoice("Slot3", "Pickaxe")

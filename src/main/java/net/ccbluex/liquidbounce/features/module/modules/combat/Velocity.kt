@@ -44,6 +44,7 @@ import kotlin.math.sqrt
 
 object Velocity : Module("Velocity", Category.COMBAT) {
 
+    // TODO: Add a RotationDiffToIgnore value, that makes Velocity not do anything in this case
     private val mode by choices(
         "Mode", arrayOf(
             "Simple", "AAC", "AACPush", "AACZero", "AACv4",

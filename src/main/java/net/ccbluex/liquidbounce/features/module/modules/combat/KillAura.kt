@@ -438,7 +438,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             return@handler
         }
 
-        if (blockStatus && autoBlock == "Packet" && releaseAutoBlock && !ignoreTickRule) {
+        if (blockStatus && autoBlock == "Packet" && releaseAutoBlock & blockTicks.hasTimePassed(blockLength) && !ignoreTickRule) {
             clicks = 0
             stopBlocking()
             return@handler
@@ -1134,7 +1134,6 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
         if (!forceStop) {
             if (blockStatus && !player.isBlocking) {
-
                 when (unblockMode) {
                     "Stop" -> {
                         sendPacket(C07PacketPlayerDigging(RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN))
