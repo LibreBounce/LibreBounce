@@ -29,12 +29,12 @@ object Eagle : Module("Eagle", Category.PLAYER) {
     val onUpdate = handler<UpdateEvent> {
         val player = mc.thePlayer ?: return@handler
 
-        if (mc.gameSettings.keyBindSneak.isKeyDown) return@handler
+        if (GameSettings.isKeyDown(mc.gameSettings.keyBindSneak)) return@handler
 
         if (player.onGround && BlockPos(player).down().block == air) {
-            val shouldSneak = (!onlyWhenLookingDown || player.rotationPitch >= lookDownThreshold) && (!onlyBlocks || player.heldItem?.item is ItemBlock) && (!notOnForward || !mc.gameSettings.keyBindForward.isKeyDown)
+            val shouldSneak = (!onlyWhenLookingDown || player.rotationPitch >= lookDownThreshold) && (!onlyBlocks || player.heldItem?.item is ItemBlock) && (!notOnForward || !GameSettings.isKeyDown(mc.gameSettings.keyBindForward))
 
-            mc.gameSettings.keyBindSneak.pressed = shouldSneak && !mc.gameSettings.keyBindSneak.isKeyDown
+            mc.gameSettings.keyBindSneak.pressed = shouldSneak && !GameSettings.isKeyDown(mc.gameSettings.keyBindSneak)
         } else {
             if (sneakTimer.hasTimePassed(maxSneakTime.random())) {
                 mc.gameSettings.keyBindSneak.pressed = false
