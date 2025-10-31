@@ -433,7 +433,8 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             return@handler
         }
 
-        if (blockStatus && autoBlock == "Packet" && releaseAutoBlock && blockTicks.hasTimePassed(blockLength) && !ignoreTickRule) {
+        //if (blockStatus && autoBlock == "Packet" && releaseAutoBlock && blockTicks.hasTimePassed(blockLength) && !ignoreTickRule) {
+        if (blockStatus && autoBlock == "Packet" && releaseAutoBlock && !ignoreTickRule) {
             clicks = 0
             stopBlocking()
             return@handler
@@ -603,7 +604,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             when {
                 player.onGround -> true
                 player.fallDistance > 0 -> true
-                player.getDistanceToEntityBox(currentTarget) > notAboveRange -> true
+                player.getDistanceToEntityBox(currentTarget) > notAboveRange && rotationDifference(currentTarget) < 25f -> true
                 hurtTimeAllowlist && player.hurtTime in notOnHurtTime -> true
                 player.health < notBelowOwnHealth -> true
                 currentTarget.health < notBelowEnemyHealth -> true
@@ -803,7 +804,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             if (switchMode && !isLookingOnEntities(entity, maxSwitchFOV.toDouble())) continue
 
             // Credits to Gugustus / Augustus b2.6
-            // TODO: Maybe we should also prioritize players that are looking at you, and with weapons (or without)
+            // TODO: Maybe we should also prioritize players that are looking at you, with weapons (or without), and breaking blocks (could be possibly trying to break your bed?)
             val optimal = (distance * 2.0) + (entity.health.toDouble() + entity.absorptionAmount) + (entity.hurtTime.toDouble() * 4.0) + (entity.totalArmorValue.toDouble() / 2.0) + (entityFov.toDouble() / 2.0)
 
             val currentValue = when (priority) {
