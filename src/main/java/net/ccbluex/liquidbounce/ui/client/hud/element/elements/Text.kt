@@ -195,6 +195,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1f, side: Side = S
     private fun getReplacement(str: String): Any? {
         mc.thePlayer?.run {
             when (str.lowercase()) {
+                // TODO: Add MotionX, MotionY, and MotionZ
                 "x" -> return DECIMAL_FORMAT.format(posX)
                 "y" -> return DECIMAL_FORMAT.format(posY)
                 "z" -> return DECIMAL_FORMAT.format(posZ)

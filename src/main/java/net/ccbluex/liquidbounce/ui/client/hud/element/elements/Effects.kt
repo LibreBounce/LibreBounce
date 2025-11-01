@@ -27,6 +27,7 @@ class Effects(
     side: Side = Side(Side.Horizontal.RIGHT, Side.Vertical.DOWN)
 ) : Element("Effects", x, y, scale, side) {
 
+    private val romanNumerals by boolean("RomanNumerals", true)
     private val font by font("Font", Fonts.fontSemibold35)
     private val shadow by boolean("Shadow", true)
 
@@ -43,7 +44,7 @@ class Effects(
             for (effect in mc.thePlayer.activePotionEffects) {
                 val potion = Potion.potionTypes[effect.potionID]
 
-                val number = when {
+                val number = if (!romanNumerals) effect.amplifier else when {
                     effect.amplifier == 1 -> "II"
                     effect.amplifier == 2 -> "III"
                     effect.amplifier == 3 -> "IV"

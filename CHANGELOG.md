@@ -10,6 +10,7 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 - `BlockLength` value to KillAura, potentially allowing for an improved Hypixel AutoBlock (thatonecoder)
 - `CheckEnemySprinting` option for the `SmartAutoBlock` option in KillAura (thatonecoder)
+- `RomanNumerals` option for the Effects HUD element; previously hardcoded (thatonecoder)
 
 ### Fixed
 

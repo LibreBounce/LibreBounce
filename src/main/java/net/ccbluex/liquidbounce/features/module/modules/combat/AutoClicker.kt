@@ -112,7 +112,6 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT) {
     }
 
     val onTick = handler<UpdateEvent> {
-        // TODO: Use .run instead
         mc.thePlayer?.run {
             shouldJitter = !mc.objectMouseOver.typeOfHit.isBlock &&
                     (isSwingInProgress || mc.gameSettings.keyBindAttack.pressTime != 0)
@@ -121,7 +120,6 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT) {
                         || (right && !isUsingItem && mc.gameSettings.keyBindUseItem.isKeyDown
                         && ((onlyBlocks && heldItem?.item is ItemBlock) || !onlyBlocks)))
             ) {
-
                 if (nextBoolean()) fixedSensitivityYaw += nextFloat(-1F, 1F)
                 if (nextBoolean()) fixedSensitivityPitch += nextFloat(-1F, 1F)
             }
@@ -133,9 +131,7 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT) {
     }
 
     private fun getNearestEntityInRange(): Entity? {
-        mc.thePlayer ?: return null
-
-        return entities.minByOrNull { mc.thePlayer.getDistanceToEntityBox(it) }
+        return entities.minByOrNull { mc.thePlayer?.getDistanceToEntityBox(it) }
     }
 
     private fun shouldAutoRightClick() = mc.thePlayer.heldItem?.itemUseAction in arrayOf(EnumAction.BLOCK)
