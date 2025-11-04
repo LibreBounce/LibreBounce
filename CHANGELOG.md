@@ -21,6 +21,7 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 - **Breaking:** Rename `NotBelowHealth` to `NotBelowOwnHealth`, in KillAura (thatonecoder)
 - Make the `Jump` mode in Velocity also use the `HurtTime` range (thatonecoder)
 - Change the minimum value in `EnemiesNearby` to 0 in AutoRod, ignoring the limit (thatonecoder)
+- Impro
 
 ## [0.6.0] - 2025-10-22
 

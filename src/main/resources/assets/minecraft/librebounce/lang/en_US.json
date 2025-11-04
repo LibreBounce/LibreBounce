@@ -4,7 +4,8 @@
         "1zuna",
         "Zywl",
         "CzechHek",
-        "EclipsesDev"
+        "EclipsesDev",
+        "thatonecoder"
     ],
     "translations": {
         "menu.altManager": "Alt Manager",
@@ -67,9 +68,9 @@
 
         "module.autoPot.description": "Automatically throws healing potions.",
 
-        "module.autoRod.description": "Auto use fishing rod to PVP.",
+        "module.autoRod.description": "Automatically uses fishing rod in combat.",
 
-        "module.autoSoup.description": "Makes you automatically eat soup whenever your health is low.",
+        "module.autoSoup.description": "Automatically eats soup whenever your health is low.",
 
         "module.autoWeapon.description": "Automatically selects the best weapon in your hotbar.",
 
@@ -101,7 +102,7 @@
 
         "module.tNTBlock.description": "Automatically blocks with your sword when TNT around you explodes.",
 
-        "module.tNTTimer.description": "Display a timer indicating how long until nearby TNT explodes.",
+        "module.tNTTimer.description": "Displays a timer indicating how long until nearby TNT explodes.",
 
         "module.velocity.description": "Allows you to modify the amount of knockback you take.",
 
@@ -111,7 +112,7 @@
 
         "module.antiHunger.description": "Prevents you from getting hungry.",
 
-        "module.bedGodMode.description": "Allows you to walk around lying in a bed. (For 1.9)",
+        "module.bedGodMode.description": "Allows you to walk around lying in a bed in 1.9.",
 
         "module.clip.description": "Allows you to clip through blocks.",
 
@@ -145,7 +146,7 @@
 
         "module.autoProjectile.description": "Automatically throws egg/snowball.",
 
-        "module.autoPlay.description": "Automatically queues up for next match",
+        "module.autoPlay.description": "Automatically queues up for the next match.",
         
         "module.autoRespawn.description": "Automatically respawns you after dying.",
         
@@ -161,9 +162,9 @@
         
         "module.blockESP.description": "Allows you to see a selected block through walls.",
         
-        "module.blockOverlay.description": "Allows you to change the design of the block overlay.",
+        "module.blockOverlay.description": "Allows you to change the block overlay appearance.",
         
-        "module.blockWalk.description": "Allows you to walk on non-fullblock blocks.",
+        "module.blockWalk.description": "Allows you to walk on non-full blocks.",
 
         "module.breadcrumbs.description": "Leaves a trail behind you.",
         
@@ -193,7 +194,7 @@
         
         "module.eSP.description": "Allows you to see targets through walls.",
         
-        "module.eagle.description": "Makes you eagle (aka. FastBridge).",
+        "module.eagle.description": "Automatically sneaks on edges (aka. FastBridge).",
         
         "module.fakeLag.description": "Lags you behind server side until first hit.",
         
@@ -217,9 +218,9 @@
 
         "module.freeLook.description": "Allows you to see around in third person view.",
         
-        "module.freeze.description": "Allows you to stay stuck in mid air.",
+        "module.freeze.description": "Allows you to stay stuck mid-air.",
         
-        "module.fucker.description": "Destroys selected blocks around you. (aka.  IDNuker)",
+        "module.fucker.description": "Destroys selected blocks around you. (aka. BedBreaker, IDNuker)",
         
         "module.fullbright.description": "Brightens up the world around you.",
 
@@ -237,7 +238,7 @@
         
         "module.iceSpeed.description": "Allows you to walk faster on ice.",
         
-        "module.inventoryCleaner.description": "Automatically throws away useless items.",
+        "module.inventoryCleaner.description": "Automatically throws away useless items, and sorts the inventory.",
         
         "module.inventoryMove.description": "Allows you to walk while an inventory is opened.",
         
@@ -251,9 +252,9 @@
 
         "module.keepAlive.description": "Tries to prevent you from dying.",
         
-        "module.keepContainer.description": "Allows you to open a formerly closed inventory container everywhere. (Press INSERT Key to open)",
+        "module.keepContainer.description": "Allows you to open a formerly closed inventory container everywhere (press INSERT to open).",
 
-        "module.keepTabList.description": "Keeps TAB List opened",
+        "module.keepTabList.description": "Keeps the tab list open at all times.",
 
         "module.keyPearl.description": "Allows you to throw an ender pearl from your hotbar using a certain key.",
 
@@ -273,7 +274,7 @@
         
         "module.multiActions.description": "Allows you to use items while breaking blocks.",
         
-        "module.nameProtect.description": "Changes player names clientside.",
+        "module.nameProtect.description": "Changes player names client-sidedly.",
         
         "module.nameTags.description": "Changes the scale of the nametags so you can always read them.",
         
@@ -281,17 +282,17 @@
         
         "module.noClip.description": "Allows you to freely move through walls (A sandblock has to fall on your head).",
         
-        "module.noFOV.description": "Disables FOV changes caused by speed effect, etc.",
+        "module.noFOV.description": "Disables FOV changes caused by speed, sprinting, etc.",
         
         "module.noFall.description": "Prevents you from taking fall damage.",
         
         "module.noFluid.description": "Ignore fluids like water and lava.",
         
-        "module.noHurtCam.description": "Disables hurt cam effect when getting hurt.",
+        "module.noHurtCam.description": "Disables the effect when getting hurt.",
         
         "module.noJumpDelay.description": "Removes delay between jumps.",
         
-        "module.noPitchLimit.description": "Allows you to rotate your head indefinitely in every direction..",
+        "module.noPitchLimit.description": "Allows you to rotate your head indefinitely in every direction.",
         
         "module.noRotateSet.description": "Prevents the server from rotating your head.",
 
@@ -301,19 +302,19 @@
         
         "module.noSlowBreak.description": "Automatically adjusts breaking speed when using modules that influence it.",
         
-        "module.noSwing.description": "Disabled swing effect when hitting an entity/mining a block.",
+        "module.noSwing.description": "Disables the swing effect when hitting an entity/mining a block.",
 
-        "module.notifier.description": "Notifies you about all events.",
+        "module.notifier.description": "Notifies you about many events.",
         
         "module.noWeb.description": "Prevents you from getting slowed down in webs.",
         
         "module.nuker.description": "Breaks all blocks around you.",
 
-        "module.packetDebugger.description": "Allows you to debug server/client packets that being sent/receive",
+        "module.packetDebugger.description": "Allows you to debug server/client packets that being sent/received",
         
         "module.parkour.description": "Automatically jumps when reaching the edge of a block.",
         
-        "module.perfectHorseJump.description": "Automatically jumps when the jump bar of a horse is filled up completely.",
+        "module.perfectHorseJump.description": "Automatically jumps when the jump bar of a horse is full.",
         
         "module.phase.description": "Allows you to walk through blocks.",
         
@@ -347,9 +348,9 @@
         
         "module.scaffold.description": "Automatically places blocks beneath your feet.",
         
-        "module.serverCrasher.description": "Allows you to crash certain server.",
+        "module.serverCrasher.description": "Allows you to crash certain servers.",
         
-        "module.skinDerp.description": "Makes your skin blink (Requires multi-layer skin).",
+        "module.skinDerp.description": "Makes your skin blink (requires multi-layer skin).",
 
         "module.slimeJump.description": "Allows you to to jump higher on slime blocks.",
 
@@ -363,13 +364,13 @@
         
         "module.sprint.description": "Automatically sprints all the time.",
 
-        "module.staffDetector.description": "Detects and notify user of staff members on the server",
+        "module.staffDetector.description": "Detects and notifies you of staff members on the server",
 
         "module.step.description": "Allows you to step up blocks.",
         
         "module.storageESP.description": "Allows you to see chests, etc. through walls.",
         
-        "module.strafe.description": "Allows you to freely move in mid air.",
+        "module.strafe.description": "Allows you to freely move mid-air.",
         
         "module.tNTESP.description": "Allows you to see ignited TNT blocks through walls.",
         
@@ -377,7 +378,7 @@
         
         "module.teleport.description": "Allows you to teleport around.",
 
-        "module.timerRange.description": "Allows you to manipulate the game speed in order to gain an advantage against your enemies.",
+        "module.timerRange.description": "Allows you to manipulate the game speed for an advantage against your enemies.",
 
         "module.timer.description": "Changes the speed of the entire game.",
         
@@ -395,7 +396,7 @@
 
         "module.keepSprint.description": "Keeps you sprinting after attacking.",
 
-        "module.disabler.description": "Disables either a server or a specific anticheat detection.",
+        "module.disabler.description": "Disables specific anticheat detections.",
 
         "module.overrideRaycast.description": "Overrides your rotation-based raycast with the server rotation based raycast.",
 
@@ -409,7 +410,7 @@
 
         "module.chineseHat.description": "Renders a chinese-like hat on specific entities.",
 
-        "module.snakeGame.description": "The snake game for free. sniff sniff.",
+        "module.snakeGame.description": "Opens a screen allowing you to play snake game.",
 
         "module.anticheatDetector.description": "Detects anti-cheats by analyzing specific packets."
     }
