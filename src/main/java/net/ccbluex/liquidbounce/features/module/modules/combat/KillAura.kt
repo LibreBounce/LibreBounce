@@ -602,10 +602,10 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         val manipulateInventory = simulateClosingInventory && !noInventoryAttack && serverOpenInventory
         var shouldHit = if (smartHit) {
             when {
-                player.onGround -> true
-                player.fallDistance > 0 -> true
+                // Ground ticks check since you stay on ground for a tick, before being able to jump
+                (player.onGround && player.groundTicks > 1 && !mc.gameSettings.keyBindJump.isKeyDown) || player.fallDistance > 0  -> true
                 player.getDistanceToEntityBox(currentTarget) > notAboveRange && rotationDifference(currentTarget) < 25f -> true
-                hurtTimeAllowlist && player.hurtTime in notOnHurtTime -> true
+                hurtTimeAllowlist && currentTarget.hurtTime in notOnHurtTime -> true
                 player.health < notBelowOwnHealth -> true
                 currentTarget.health < notBelowEnemyHealth -> true
                 notOnEdge && player.isNearEdge(notOnEdgeLimit) -> true
@@ -1312,6 +1312,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
             if (target != null && player.heldItem?.item is ItemSword) {
                 val distance = player.getDistanceToEntityBox(target!!)
+                val rotDiff = rotationDifference(rotationToPlayer, target!!.rotation)
 
                 // TODO: Check if player is moving away, on 10 HurtTime (to ignore when the player is taking knockback, thus moving backwards)
                 // Additionally, check for all players that might hit you, instead of just one
@@ -1320,13 +1321,13 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
                     if (checkWeapon && target!!.heldItem?.item !is ItemSword && target!!.heldItem?.item !is ItemAxe) return false
 
-                    if (checkSprinting && !target!!.isSprinting && distance > 2.8f) return false
+                    if (checkSprinting && !target!!.isSprinting && distance > 2.8f && rotDiff > 40f / distance) return false
 
                     if (player.hurtTime > maxOwnHurtTime) return false
 
                     val rotationToPlayer = toRotation(player.hitBox.center, true, target!!)
 
-                    if (rotationDifference(rotationToPlayer, target!!.rotation) > maxDirectionDiff) return false
+                    if (rotDiff > maxDirectionDiff) return false
 
                     if (target!!.swingProgressInt > maxSwingProgress) return false
                 }

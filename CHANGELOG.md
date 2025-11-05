@@ -15,13 +15,15 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 ### Fixed
 
 - AutoWeapon checking for the client-side slot instead of the server slot (thatonecoder)
+- `NotOnHurtTime` checking for own hurttime instead of target hurttime, in KillAura (thatonecoder)
 
 ### Changed
 
 - **Breaking:** Rename `NotBelowHealth` to `NotBelowOwnHealth`, in KillAura (thatonecoder)
-- Make the `Jump` mode in Velocity also use the `HurtTime` range (thatonecoder)
 - Change the minimum value in `EnemiesNearby` to 0 in AutoRod, ignoring the limit (thatonecoder)
-- Impro
+- Make `SmartHit`'s critical check take ground ticks into account (thatonecoder)
+- Make the `Jump` mode in Velocity also use the `HurtTime` range (thatonecoder)
+- Improve EN_US language in LiquidBounce (thatonecoder)
 
 ## [0.6.0] - 2025-10-22
 
