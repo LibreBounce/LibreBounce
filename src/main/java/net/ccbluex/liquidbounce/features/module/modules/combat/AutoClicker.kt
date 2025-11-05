@@ -131,7 +131,7 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT) {
     }
 
     private fun getNearestEntityInRange(): Entity? {
-        return entities.minByOrNull { mc.thePlayer?.getDistanceToEntityBox(it) }
+        return entities.minByOrNull { mc.thePlayer.getDistanceToEntityBox(it) }
     }
 
     private fun shouldAutoRightClick() = mc.thePlayer.heldItem?.itemUseAction in arrayOf(EnumAction.BLOCK)
