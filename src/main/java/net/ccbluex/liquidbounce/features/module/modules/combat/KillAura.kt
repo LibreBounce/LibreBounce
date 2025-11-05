@@ -604,10 +604,19 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             when {
                 // Ground ticks check since you stay on ground for a tick, before being able to jump
                 (player.onGround && player.groundTicks > 1 && !mc.gameSettings.keyBindJump.isKeyDown) || player.fallDistance > 0  -> true
+
+                // TODO: Instead, simulate both players' positions and check if you can hit on the tick after (or 2 ticks after, or both); if not, hit immediately
                 player.getDistanceToEntityBox(currentTarget) > notAboveRange && rotationDifference(currentTarget) < 25f -> true
+
+                // You can reduce a bit of knockback by hitting after the opponent has been damaged
                 hurtTimeAllowlist && currentTarget.hurtTime in notOnHurtTime -> true
+
                 player.health < notBelowOwnHealth -> true
+
+                // TODO: Instead, calculate whether you can 1-tap your opponent right now
                 currentTarget.health < notBelowEnemyHealth -> true
+
+                // This checks for all edges, including ones that are irrelevant
                 notOnEdge && player.isNearEdge(notOnEdgeLimit) -> true
                 else -> false
             }
@@ -1312,7 +1321,8 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
             if (target != null && player.heldItem?.item is ItemSword) {
                 val distance = player.getDistanceToEntityBox(target!!)
-                val rotDiff = rotationDifference(rotationToPlayer, target!!.rotation)
+                val rotationToPlayer = toRotation(player.hitBox.center, true, target!!)
+                val rotationDifference = rotationDifference(rotationToPlayer, target!!.rotation)
 
                 // TODO: Check if player is moving away, on 10 HurtTime (to ignore when the player is taking knockback, thus moving backwards)
                 // Additionally, check for all players that might hit you, instead of just one
@@ -1321,13 +1331,11 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
                     if (checkWeapon && target!!.heldItem?.item !is ItemSword && target!!.heldItem?.item !is ItemAxe) return false
 
-                    if (checkSprinting && !target!!.isSprinting && distance > 2.8f && rotDiff > 40f / distance) return false
+                    if (checkSprinting && !target!!.isSprinting && distance > 2.8f && rotationDifference > 40f / distance) return false
 
                     if (player.hurtTime > maxOwnHurtTime) return false
 
-                    val rotationToPlayer = toRotation(player.hitBox.center, true, target!!)
-
-                    if (rotDiff > maxDirectionDiff) return false
+                    if (rotationDifference > maxDirectionDiff) return false
 
                     if (target!!.swingProgressInt > maxSwingProgress) return false
                 }
