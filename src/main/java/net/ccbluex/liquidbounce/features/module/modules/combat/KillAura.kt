@@ -622,10 +622,16 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         val simPlayer = SimulatedPlayer.fromClientPlayer(RotationUtils.modifiedInput)
         var simDist = 0.0
 
+        val (currPos, prevPos) = player.currPos to player.prevPos
+
         val prediction = currentTarget.currPos.subtract(currentTarget.prevPos).times(3.0)
         val boundingBox = currentTarget.hitBox.offset(prediction)
 
+        var pos = currPos
+
         repeat(2) {
+            val previousPos = simPlayer.pos
+
             simPlayer.tick()
 
             player.setPosAndPrevPos(simPlayer.pos)
@@ -633,8 +639,10 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             // TODO: Use boundingBox instead
             simDist = player.getDistanceToEntityBox(currentTarget)
 
-            player.setPosAndPrevPos(player.currPos, player.prevPos)
+            pos = previousPos
         }
+
+        player.setPosAndPrevPos(pos)
 
         // Settings
         val manipulateInventory = simulateClosingInventory && !noInventoryAttack && serverOpenInventory
