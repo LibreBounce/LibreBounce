@@ -84,8 +84,8 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
     private val lock by boolean("Lock", true) { horizontalAim || verticalAim }
     private val onClick by boolean("OnClick", false) { horizontalAim || verticalAim }
     private val jitter by boolean("Jitter", false)
-    private val yawJitterMultiplier by float("JitterYawMultiplier", 1f, 0.1f..2.5f)
-    private val pitchJitterMultiplier by float("JitterPitchMultiplier", 1f, 0.1f..2.5f)
+    private val yawJitterMultiplier by float("JitterYawMultiplier", 1f, 0.1f..2.5f) { jitter }
+    private val pitchJitterMultiplier by float("JitterPitchMultiplier", 1f, 0.1f..2.5f) { jitter }
     private val center by boolean("Center", false)
     private val headLock by boolean("Headlock", false) { center && lock }
     private val headLockBlockHeight by float("HeadBlockHeight", -1f, -2f..0f) { headLock && center && lock }

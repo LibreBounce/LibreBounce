@@ -359,6 +359,9 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     // Swing fails
     private val swingFails = mutableListOf<SwingFailData>()
 
+    // Crappy code dedicated to SmartHit
+    private var simDist = 0.0
+
     /**
      * Disable kill aura module
      */
@@ -619,7 +622,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
          */
 
         // Taken from the Predict option, as a temporary solution
-        val simPlayer = SimulatedPlayer.fromClientPlayer(RotationUtils.modifiedInput)
+        /*val simPlayer = SimulatedPlayer.fromClientPlayer(RotationUtils.modifiedInput)
         var simDist = 0.0
 
         val (currPos, prevPos) = player.currPos to player.prevPos
@@ -646,7 +649,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             pos = previousPos
         }
 
-        player.setPosAndPrevPos(pos)
+        player.setPosAndPrevPos(pos)*/
 
         // Settings
         val manipulateInventory = simulateClosingInventory && !noInventoryAttack && serverOpenInventory
@@ -990,7 +993,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             if (predictOnlyWhenOutOfRange) {
                 player.setPosAndPrevPos(simPlayer.pos)
 
-                val currDist = player.getDistanceToEntityBox(entity)
+                simDist = player.getDistanceToEntityBox(entity)
 
                 player.setPosAndPrevPos(previousPos)
 
@@ -999,7 +1002,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
                 player.setPosAndPrevPos(currPos, oldPos)
                 pos = simPlayer.pos
 
-                if (currDist <= range && currDist <= prevDist) {
+                if (simDist <= range && currDist <= prevDist) {
                     return@repeat
                 }
             }
