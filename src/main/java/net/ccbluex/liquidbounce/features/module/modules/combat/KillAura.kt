@@ -620,25 +620,30 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
         // Taken from the Predict option, as a temporary solution
         val simPlayer = SimulatedPlayer.fromClientPlayer(RotationUtils.modifiedInput)
+        val simDist = player.getDistanceToEntityBox(target)
+
+        val prediction = currentTarget.currPos.subtract(currentTarget.prevPos).times(3.0)
+        val boundingBox = currentTarget.hitBox.offset(prediction)
 
         repeat(2) {
             simPlayer.tick()
+
+            player.setPosAndPrevPos(simPlayer.pos)
+
+            simDist = player.getDistanceToEntityBox(boundingBox)
+
+            player.setPosAndPrevPos(player.currPos, player.prevPos)
         }
-
-        val prediction = currentTarget.currPos.subtract(currentTarget.prevPos).times(3.0)
-
-        val boundingBox = currentTarget.hitBox.offset(prediction)
 
         // Settings
         val manipulateInventory = simulateClosingInventory && !noInventoryAttack && serverOpenInventory
-        val simDist = simPlayer.getDistanceToEntityBox(boundingBox)
         val trueDist = player.getDistanceToEntityBox(currentTarget)
 
         var shouldHit = if (smartHit) {
             // Credits to Raven bS/XD for some of the ideas implemented, and Augustus for others!
             when {
                 // Ground ticks check since you stay on ground for a tick, before being able to jump
-                // that, however, was removed since simPlayer does something very similar, without the shortcomings of groundTicks
+                // however, it was removed since simPlayer does something very similar, without the shortcomings of groundTicks
                 // This currently does not account for burst clicking, timed hits, zest tapping, etc
                 (player.onGround && simPlayer.onGround) || player.fallDistance > 0  -> true
 
@@ -648,7 +653,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
                 // You can reduce a bit of knockback by hitting after the opponent has been damaged
                 hurtTimeAllowlist && currentTarget.hurtTime in notOnHurtTime -> true
 
-                // Panic hitting is also not a very good idea now, is it?
+                // Panic hitting is also not a very good idea either, n'est-ce pas?
                 player.health < notBelowOwnHealth -> true
 
                 // TODO: Instead, calculate whether you can 1-tap your opponent
