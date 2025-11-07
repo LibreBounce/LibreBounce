@@ -599,7 +599,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         if (noConsumeAttack == "NoHits" && isConsumingItem())
             return
 
-        /**
+        /*
          * This should have calculations for every tick, and simulate when you can or cannot hit.
          * It can get more complicated than that, though, since both the player and the target can do plenty of things
          * that affect calculations, rendering them inaccurate - as such, this would take more than the current code.
@@ -638,6 +638,8 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
             // TODO: Use boundingBox instead
             simDist = player.getDistanceToEntityBox(currentTarget)
+
+            player.setPosAndPrevPos(currPos, prevPos)
 
             pos = previousPos
         }
