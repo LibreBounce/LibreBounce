@@ -598,25 +598,43 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         if (noConsumeAttack == "NoHits" && isConsumingItem())
             return
 
+        /**
+         * This should have calculations for every tick, and simulate when you can or cannot hit.
+         * It can get more complicated than that, though, since both the player and the target can do plenty of things
+         * that affect calculations, rendering them inaccurate - as such, this would take more than the current code.
+         * If you can hit now but not in the next tick (or in the one after), that means you should hit now, and continue reducing
+         * to not get comboed. Do note the latter is currently covered by NotOnHurtTime, which ought to be re-implemented to
+         * actually know when it should reduce (or not).
+         *
+         * simPlayer.tick() 
+         * simTarget.tick()
+         *
+         * if (simPlayer.hurtTime > 10 && simPlayer.getDistanceToEntityBox(simTarget) > notAboveRange && rotationDifference(simTarget) < 30f)
+         *     shouldHit = true
+         */
+
         // Settings
         val manipulateInventory = simulateClosingInventory && !noInventoryAttack && serverOpenInventory
         var shouldHit = if (smartHit) {
+            // Credits to Raven bS/XD for some of the ideas implemented, and Augustus for others!
             when {
                 // Ground ticks check since you stay on ground for a tick, before being able to jump
+                // This currently does not account for burst clicking, timed hits, zest tapping, etc
                 (player.onGround && player.groundTicks > 1 && !mc.gameSettings.keyBindJump.isKeyDown) || player.fallDistance > 0  -> true
 
                 // TODO: Instead, simulate both players' positions and check if you can hit on the tick after (or 2 ticks after, or both); if not, hit immediately
-                player.getDistanceToEntityBox(currentTarget) > notAboveRange && rotationDifference(currentTarget) < 25f -> true
+                player.getDistanceToEntityBox(currentTarget) > notAboveRange && rotationDifference(currentTarget) < 30f -> true
 
                 // You can reduce a bit of knockback by hitting after the opponent has been damaged
                 hurtTimeAllowlist && currentTarget.hurtTime in notOnHurtTime -> true
 
+                // Panic hitting is also not a very good idea now, is it?
                 player.health < notBelowOwnHealth -> true
 
                 // TODO: Instead, calculate whether you can 1-tap your opponent right now
                 currentTarget.health < notBelowEnemyHealth -> true
 
-                // This checks for all edges, including ones that are irrelevant
+                // I assume this checks for all edges, including ones that are irrelevant
                 notOnEdge && player.isNearEdge(notOnEdgeLimit) -> true
                 else -> false
             }
@@ -1331,7 +1349,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
                     if (checkWeapon && target!!.heldItem?.item !is ItemSword && target!!.heldItem?.item !is ItemAxe) return false
 
-                    if (checkSprinting && !target!!.isSprinting && distance > 2.8f && rotationDifference > 40f / distance) return false
+                    if (checkSprinting && !target!!.isSprinting && distance > 2.8f && rotationDifference > 60f / distance) return false
 
                     if (player.hurtTime > maxOwnHurtTime) return false
 
