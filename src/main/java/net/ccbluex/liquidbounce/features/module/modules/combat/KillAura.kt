@@ -625,7 +625,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             simPlayer.tick()
         }
 
-        val prediction = currentTarget.currPos.subtract(currentTarget.prevPos).times(3)
+        val prediction = currentTarget.currPos.subtract(currentTarget.prevPos).times(3.0)
 
         val boundingBox = currentTarget.hitBox.offset(prediction)
 
@@ -633,6 +633,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         val manipulateInventory = simulateClosingInventory && !noInventoryAttack && serverOpenInventory
         val simDist = simPlayer.getDistanceToEntityBox(boundingBox)
         val trueDist = player.getDistanceToEntityBox(currentTarget)
+
         var shouldHit = if (smartHit) {
             // Credits to Raven bS/XD for some of the ideas implemented, and Augustus for others!
             when {
@@ -657,10 +658,11 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
                 notOnEdge && player.isNearEdge(notOnEdgeLimit) -> true
                 else -> false
             }
-            chat("(KillAura SmartHit) Simulated distance: ${simDist}, true distance: ${trueDist}")
         } else {
             currentTarget.hurtTime < hurtTime
         }
+
+        if (smartHit) chat("(KillAura SmartHit) Simulated distance: ${simDist}, true distance: ${trueDist}")
 
         if (hittable && !shouldHit)
             return
