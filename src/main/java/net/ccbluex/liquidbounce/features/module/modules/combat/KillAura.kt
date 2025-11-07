@@ -636,10 +636,12 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
             player.setPosAndPrevPos(simPlayer.pos)
 
-            // TODO: Use boundingBox instead
+            // TODO: Use boundingBox instead, for target movement simulating
             simDist = player.getDistanceToEntityBox(currentTarget)
 
+            player.setPosAndPrevPos(previousPos)
             player.setPosAndPrevPos(currPos, prevPos)
+            pos = simPlayer.pos
 
             pos = previousPos
         }
