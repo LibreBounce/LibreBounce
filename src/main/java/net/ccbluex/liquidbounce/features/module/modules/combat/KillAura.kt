@@ -620,7 +620,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
         // Taken from the Predict option, as a temporary solution
         val simPlayer = SimulatedPlayer.fromClientPlayer(RotationUtils.modifiedInput)
-        val simDist = player.getDistanceToEntityBox(target)
+        var simDist = 0.0
 
         val prediction = currentTarget.currPos.subtract(currentTarget.prevPos).times(3.0)
         val boundingBox = currentTarget.hitBox.offset(prediction)
@@ -645,7 +645,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
                 // Ground ticks check since you stay on ground for a tick, before being able to jump
                 // however, it was removed since simPlayer does something very similar, without the shortcomings of groundTicks
                 // This currently does not account for burst clicking, timed hits, zest tapping, etc
-                (player.onGround && simPlayer.onGround) || player.fallDistance > 0  -> true
+                (player.onGround && simPlayer.onGround) || player.fallDistance > 0 -> true
 
                 // TODO: Instead, simulate both players' positions and check if you can hit on the tick after (or 2 ticks after, or both); if not, hit immediately
                 (trueDist > notAboveRange || simDist > notAboveRange) && rotationDifference(currentTarget) < 50f -> true
