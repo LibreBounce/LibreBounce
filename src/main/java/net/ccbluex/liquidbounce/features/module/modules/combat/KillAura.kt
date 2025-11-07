@@ -606,12 +606,27 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
          * to not get comboed. Do note the latter is currently covered by NotOnHurtTime, which ought to be re-implemented to
          * actually know when it should reduce (or not).
          *
-         * simPlayer.tick() 
-         * simTarget.tick()
+         * repeat(2) {
+         *     simPlayer.tick() 
+         *     simTarget.tick()
+         * }
          *
-         * if (simPlayer.hurtTime > 10 && simPlayer.getDistanceToEntityBox(simTarget) > notAboveRange && rotationDifference(simTarget) < 30f)
+         * No edge case has been implemented that does at least rudimentary future knockback calculations, which should be
+         * as customizable as possible, to be accurate on all servers (given the right config).
+         * if (simPlayer.hurtTime > 10 && simPlayer.getDistanceToEntityBox(simTarget) > notAboveRange && rotationDifference(currentTarget) < 30f)
          *     shouldHit = true
          */
+
+        // Taken from the Predict option, as a temporary solution
+        val simPlayer = SimulatedPlayer.fromClientPlayer(RotationUtils.modifiedInput)
+
+        repeat(2) {
+            simPlayer.tick()
+        }
+
+        val prediction = currentTarget.currPos.subtract(currentTarget.prevPos).times(3)
+
+        val boundingBox = currentTarget.hitBox.offset(prediction)
 
         // Settings
         val manipulateInventory = simulateClosingInventory && !noInventoryAttack && serverOpenInventory
@@ -620,10 +635,10 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             when {
                 // Ground ticks check since you stay on ground for a tick, before being able to jump
                 // This currently does not account for burst clicking, timed hits, zest tapping, etc
-                (player.onGround && player.groundTicks > 1 && !mc.gameSettings.keyBindJump.isKeyDown) || player.fallDistance > 0  -> true
+                (player.onGround && simPlayer.onGround) || player.fallDistance > 0  -> true
 
                 // TODO: Instead, simulate both players' positions and check if you can hit on the tick after (or 2 ticks after, or both); if not, hit immediately
-                player.getDistanceToEntityBox(currentTarget) > notAboveRange && rotationDifference(currentTarget) < 30f -> true
+                simPlayer.getDistanceToEntityBox(boundingBox) > notAboveRange && rotationDifference(currentTarget) < 50f -> true
 
                 // You can reduce a bit of knockback by hitting after the opponent has been damaged
                 hurtTimeAllowlist && currentTarget.hurtTime in notOnHurtTime -> true
