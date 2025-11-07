@@ -251,7 +251,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
 
                         if (mc.thePlayer.getDistanceToEntityBox(target) in distance) {
                             handlePackets()
-                            if (debug) chat("LAG DIST: ${dist}, TRUE DIST: ${trueDist}")
+                            if (debug && target.hurtTime == 10) chat("(Backtrack) Lag distance: ${dist}, true distance: ${trueDist}")
                         } else {
                             handlePacketsRange()
                         }

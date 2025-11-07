@@ -19,6 +19,7 @@ import net.ccbluex.liquidbounce.utils.attack.CooldownHelper.getAttackCooldownPro
 import net.ccbluex.liquidbounce.utils.attack.CooldownHelper.resetLastAttackedTicks
 import net.ccbluex.liquidbounce.utils.attack.EntityUtils.isLookingOnEntities
 import net.ccbluex.liquidbounce.utils.attack.EntityUtils.isSelected
+import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.BlinkUtils
 import net.ccbluex.liquidbounce.utils.client.ClientUtils.runTimeTicks
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
@@ -168,9 +169,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     private val blockLength by int("BlockLength", 1, 1..5, suffix = "ticks") { autoBlock == "Packet" && releaseAutoBlock }
 
     private val uncpAutoBlock by boolean("UpdatedNCPAutoBlock", false) {
-        autoBlock !in arrayOf(
-            "Off", "Fake"
-        ) && !releaseAutoBlock
+        autoBlock == "Packet" && !releaseAutoBlock
     }
 
     private val switchStartBlock by boolean("SwitchStartBlock", false) { autoBlock == "Packet" }
@@ -193,6 +192,8 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     private val checkWeapon by boolean("CheckEnemyWeapon", true) { autoBlock == "Packet" && smartAutoBlock }
 
     // Don't block if target isn't sprinting, since less momentum = less chances of attacking you, and might be running from you
+    // TODO: Rename this option to something else, since it has multiple more checks that verify whether the target is
+    // likely to land a hit on you or not
     private val checkSprinting by boolean("CheckEnemySprinting", true) { autoBlock == "Packet" && smartAutoBlock }
 
     // Don't block when you can't get damaged
@@ -630,15 +631,18 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
         // Settings
         val manipulateInventory = simulateClosingInventory && !noInventoryAttack && serverOpenInventory
+        val simDist = simPlayer.getDistanceToEntityBox(boundingBox)
+        val trueDist = player.getDistanceToEntityBox(currentTarget)
         var shouldHit = if (smartHit) {
             // Credits to Raven bS/XD for some of the ideas implemented, and Augustus for others!
             when {
                 // Ground ticks check since you stay on ground for a tick, before being able to jump
+                // that, however, was removed since simPlayer does something very similar, without the shortcomings of groundTicks
                 // This currently does not account for burst clicking, timed hits, zest tapping, etc
                 (player.onGround && simPlayer.onGround) || player.fallDistance > 0  -> true
 
                 // TODO: Instead, simulate both players' positions and check if you can hit on the tick after (or 2 ticks after, or both); if not, hit immediately
-                simPlayer.getDistanceToEntityBox(boundingBox) > notAboveRange && rotationDifference(currentTarget) < 50f -> true
+                (trueDist > notAboveRange || simDist > notAboveRange) && rotationDifference(currentTarget) < 50f -> true
 
                 // You can reduce a bit of knockback by hitting after the opponent has been damaged
                 hurtTimeAllowlist && currentTarget.hurtTime in notOnHurtTime -> true
@@ -646,13 +650,14 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
                 // Panic hitting is also not a very good idea now, is it?
                 player.health < notBelowOwnHealth -> true
 
-                // TODO: Instead, calculate whether you can 1-tap your opponent right now
+                // TODO: Instead, calculate whether you can 1-tap your opponent
                 currentTarget.health < notBelowEnemyHealth -> true
 
                 // I assume this checks for all edges, including ones that are irrelevant
                 notOnEdge && player.isNearEdge(notOnEdgeLimit) -> true
                 else -> false
             }
+            chat("(KillAura SmartHit) Simulated distance: ${simDist}, true distance: ${trueDist}")
         } else {
             currentTarget.hurtTime < hurtTime
         }
