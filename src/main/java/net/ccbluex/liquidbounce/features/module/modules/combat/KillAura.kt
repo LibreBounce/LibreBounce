@@ -630,7 +630,8 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
             player.setPosAndPrevPos(simPlayer.pos)
 
-            simDist = player.getDistanceToEntityBox(boundingBox)
+            // TODO: Use boundingBox instead
+            simDist = player.getDistanceToEntityBox(currentTarget)
 
             player.setPosAndPrevPos(player.currPos, player.prevPos)
         }
