@@ -621,18 +621,21 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         // Settings
         val manipulateInventory = simulateClosingInventory && !noInventoryAttack && serverOpenInventory
         val trueDist = player.getDistanceToEntityBox(currentTarget)
+        val rotDiff = rotationDifference(currentTarget)
+        val falling = player.fallDistance > 0
 
         var shouldHit = if (smartHit) {
             // Credits to Raven bS/XD for some of the ideas implemented, and Augustus for others!
             when {
                 // Ground ticks check since you stay on ground for a tick, before being able to jump
                 // This currently does not account for burst clicking, timed hits, zest tapping, etc
-                (player.onGround && player.groundTicks > 1 && simPlayer.onGround) || player.fallDistance > 0 -> true
+                (player.onGround && player.groundTicks > 1 && simPlayer.onGround && ((currentTarget.hurtTime > 1 * simDist.toInt() && rotDiff < 60f) || currentTarget.hurtTime == 10)) || (falling && currentTarget.hurtTime > 7) -> true
 
                 // TODO: Instead, simulate both players' positions and check if you can hit on the tick after (or 2 ticks after, or both); if not, hit immediately
-                (trueDist > notAboveRange || simDist > notAboveRange) && (player.hurtTime == 10 || player.hurtTime < 2) && (currentTarget.hurtTime == 10 || currentTarget.hurtTime < 2) && rotationDifference(currentTarget) < 60f -> true
+                (trueDist > notAboveRange || simDist > notAboveRange) && (player.hurtTime == 10 || player.hurtTime < 2) && (currentTarget.hurtTime == 10 || currentTarget.hurtTime < 2) && rotDiff < 50f -> true
 
                 // You can reduce a significant of knockback by hitting after the opponent has been damaged
+                // TODO: Fully replace with the other things
                 hurtTimeAllowlist && currentTarget.hurtTime in notOnHurtTime -> true
 
                 // Panic hitting is also not a very good idea either, n'est-ce pas?
@@ -649,7 +652,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             currentTarget.hurtTime < hurtTime
         }
 
-        if (smartHit && smartHitDebug) chat("(SmartHit) Predicted distance: ${simDist}, current distance: ${trueDist}")
+        if (smartHit && smartHitDebug) chat("(SmartHit) Will hit: ${smartHit}, predicted distance: ${simDist}, current distance: ${trueDist}, rotation difference: ${rotDiff}, hurttime: ${player.hurtTime}, target hurttime: ${currentTarget.hurttime}, on ground: ${player.onGround}, falling: ${falling}")
 
         if (hittable && !shouldHit)
             return
