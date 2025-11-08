@@ -806,26 +806,6 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         if (manipulateInventory) serverOpenInventory = true
     }
 
-    /*private fun predictedDistance(entity: Entity): Double {
-        val player = mc.thePlayer ?: return 0.0
-
-        val prediction = entity.currPos.subtract(entity.prevPos).times(3.0)
-
-        val (currPos, oldPos) = player.currPos to player.prevPos
-
-        val simPlayer = SimulatedPlayer.fromClientPlayer(player.movementInput)
-
-        repeat(2) {
-            simPlayer.tick()
-        }
-
-        player.setPosAndPrevPos(simPlayer.pos)
-
-        return player.getDistanceToBox(entity.hitBox.offset(prediction))
-
-        player.setPosAndPrevPos(currPos, oldPos)
-    }*/
-
     /**
      * Update current target
      */
@@ -961,7 +941,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         }
 
         val prediction = entity.currPos.subtract(entity.prevPos).times(2 + predictEnemyPosition.toDouble())
-        val smartPrediction = entity.currPos.subtract(entity.prevPos).times(3.0)
+        val smartPrediction = entity.currPos.subtract(entity.prevPos).times(1.5)
         val boundingBox = entity.hitBox.offset(prediction)
         val (currPos, oldPos) = player.currPos to player.prevPos
 
@@ -971,6 +951,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
         var pos = currPos
 
+        // TODO: Separate the SmartHit-related code
         repeat(predictClientMovement) {
             val previousPos = simPlayer.pos
 
