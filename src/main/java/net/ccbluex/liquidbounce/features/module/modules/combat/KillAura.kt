@@ -652,7 +652,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             currentTarget.hurtTime < hurtTime
         }
 
-        if (smartHit && smartHitDebug) chat("(SmartHit) Will hit: ${smartHit}, predicted distance: ${simDist}, current distance: ${trueDist}, rotation difference: ${rotDiff}, hurttime: ${player.hurtTime}, target hurttime: ${currentTarget.hurttime}, on ground: ${player.onGround}, falling: ${falling}")
+        if (smartHit && smartHitDebug) chat("(SmartHit) Will hit: ${smartHit}, predicted distance: ${simDist}, current distance: ${trueDist}, rotation difference: ${rotDiff}, hurttime: ${player.hurtTime}, target hurttime: ${currentTarget.hurtTime}, on ground: ${player.onGround}, falling: ${falling}")
 
         if (hittable && !shouldHit)
             return
