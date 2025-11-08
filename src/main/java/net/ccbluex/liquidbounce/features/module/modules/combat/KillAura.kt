@@ -359,9 +359,6 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     // Swing fails
     private val swingFails = mutableListOf<SwingFailData>()
 
-    // Crappy code dedicated to SmartHit
-    private var simDist = 0.0
-
     /**
      * Disable kill aura module
      */
@@ -614,9 +611,6 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
          * as customizable as possible, to be accurate on all servers (given the right config).
          *
          */
-        //val prediction = currentTarget.currPos.subtract(currentTarget.prevPos).times(3.0)
-        //val boundingBox = currentTarget.hitBox.offset(prediction)
-
         val simPlayer = SimulatedPlayer.fromClientPlayer(RotationUtils.modifiedInput)
 
         repeat(2) {
@@ -635,7 +629,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
                 (player.onGround && player.groundTicks > 1 && simPlayer.onGround) || player.fallDistance > 0 -> true
 
                 // TODO: Instead, simulate both players' positions and check if you can hit on the tick after (or 2 ticks after, or both); if not, hit immediately
-                (trueDist > notAboveRange || simDist > notAboveRange) && (player.hurtTime == 10 || player.hurtTime < 2) && (currentTarget.hurtTime == 10 || currentTarget.hurtTime < 2) && rotationDifference(currentTarget) < 50f -> true
+                (trueDist > notAboveRange || predictedDistance(currentTarget) > notAboveRange) && (player.hurtTime == 10 || player.hurtTime < 2) && (currentTarget.hurtTime == 10 || currentTarget.hurtTime < 2) && rotationDifference(currentTarget) < 60f -> true
 
                 // You can reduce a significant of knockback by hitting after the opponent has been damaged
                 hurtTimeAllowlist && currentTarget.hurtTime in notOnHurtTime -> true
@@ -809,6 +803,26 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         if (manipulateInventory) serverOpenInventory = true
     }
 
+    private fun predictedDistance(entity: Entity): Float {
+        val player = mc.thePlayer ?: return 0f
+
+        val prediction = entity.currPos.subtract(entity.prevPos).times(3.0)
+
+        val (currPos, oldPos) = player.currPos to player.prevPos
+
+        val simPlayer = SimulatedPlayer.fromClientPlayer(player.movementInput)
+
+        repeat(2) {
+            simPlayer.tick()
+        }
+
+        player.setPosAndPrevPos(simPlayer.pos)
+
+        return player.getDistanceToBox(entity.hitBox.offset(prediction))
+
+        player.setPosAndPrevPos(currPos, oldPos)
+    }
+
     /**
      * Update current target
      */
@@ -961,7 +975,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
             player.setPosAndPrevPos(simPlayer.pos)
 
-            simDist = player.getDistanceToEntityBox(entity)
+            val simDist = player.getDistanceToEntityBox(entity)
 
             player.setPosAndPrevPos(previousPos)
 
