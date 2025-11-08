@@ -629,7 +629,9 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             // Credits to Raven bS/XD for some of the ideas implemented, and Augustus for others!
             when {
                 // Ground ticks check since you stay on ground for a tick, before being able to jump
-                // This currently does not account for burst clicking, timed hits, zest tapping, etc
+                // This currently does not fully account for burst clicking, timed hits, zest tapping, etc
+                // However, it should take runners into account, through rotDiff
+                // TODO: Check if the last hit landed on a target is a critical hit or not; if not, hit when falling
                 (properGround && ((currentTarget.hurtTime > 1 * simDist.toInt() && rotDiff < 80f) || currentTarget.hurtTime == 0)) || (falling && currentTarget.hurtTime !in 1..6) -> true
 
                 // TODO: Instead, simulate both players' positions and check if you can hit on the tick after (or 2 ticks after, or both); if not, hit immediately
@@ -645,7 +647,9 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
                 // TODO: Instead, calculate whether you can 1-tap your opponent
                 currentTarget.health < notBelowEnemyHealth -> true
 
+                // This i to
                 // I assume this checks for all edges, including ones that are irrelevant
+                // TODO: Check if the target is near an edge; if so, you can spam hit to deal as much knockback as possible
                 notOnEdge && player.isNearEdge(notOnEdgeLimit) -> true
                 else -> false
             }
