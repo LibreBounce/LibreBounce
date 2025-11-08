@@ -76,9 +76,6 @@ import kotlin.math.max
 import kotlin.math.roundToInt
 
 object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
-    /**
-     * OPTIONS
-     */
 
     private val simulateCooldown by boolean("SimulateCooldown", false)
     private val simulateDoubleClicking by boolean("SimulateDoubleClicking", false) { !simulateCooldown }
@@ -92,6 +89,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
     // TODO: Not on 1-tap option for SmartHit, taking into account your weapon + enchantments, the opponent's armor + enchantments, and potion effects
     // Also add an option that makes it click anyway, if the knockback is large enough to combo you
+    // I also need to make it not be dependent PredictClientMovement
     private val smartHit by boolean("SmartHit", false) { !simulateCooldown }
     private val notAboveRange by float("NotAboveRange", 2.2f, 0f..8f, suffix = "blocks") { !simulateCooldown && smartHit }
     private val hurtTimeAllowlist by boolean("HurtTimeAllowlist", true) { !simulateCooldown && smartHit }
@@ -360,6 +358,8 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     // Swing fails
     private val swingFails = mutableListOf<SwingFailData>()
 
+    private var simDist = 0.0
+
     /**
      * Disable kill aura module
      */
@@ -620,7 +620,6 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
         // Settings
         val manipulateInventory = simulateClosingInventory && !noInventoryAttack && serverOpenInventory
-        val simDist = predictedDistance(currentTarget)
         val trueDist = player.getDistanceToEntityBox(currentTarget)
 
         var shouldHit = if (smartHit) {
@@ -807,7 +806,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         if (manipulateInventory) serverOpenInventory = true
     }
 
-    private fun predictedDistance(entity: Entity): Double {
+    /*private fun predictedDistance(entity: Entity): Double {
         val player = mc.thePlayer ?: return 0.0
 
         val prediction = entity.currPos.subtract(entity.prevPos).times(3.0)
@@ -825,7 +824,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         return player.getDistanceToBox(entity.hitBox.offset(prediction))
 
         player.setPosAndPrevPos(currPos, oldPos)
-    }
+    }*/
 
     /**
      * Update current target
@@ -962,7 +961,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         }
 
         val prediction = entity.currPos.subtract(entity.prevPos).times(2 + predictEnemyPosition.toDouble())
-
+        val smartPrediction = entity.currPos.subtract(entity.prevPos).times(3.0)
         val boundingBox = entity.hitBox.offset(prediction)
         val (currPos, oldPos) = player.currPos to player.prevPos
 
@@ -979,7 +978,8 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
             player.setPosAndPrevPos(simPlayer.pos)
 
-            val simDist = player.getDistanceToEntityBox(entity)
+            simDist = player.getDistanceToEntityBox(entity.hitBox.offset(smartPrediction))
+            val simDist2 = player.getDistanceToEntityBox(entity)
 
             player.setPosAndPrevPos(previousPos)
 
@@ -988,7 +988,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             player.setPosAndPrevPos(currPos, oldPos)
             pos = simPlayer.pos
 
-            if (predictOnlyWhenOutOfRange && simDist <= range && simDist <= prevDist) {
+            if (predictOnlyWhenOutOfRange && simDist2 <= range && simDist2 <= prevDist) {
                 return@repeat
             }
 
