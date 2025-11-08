@@ -622,6 +622,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         val manipulateInventory = simulateClosingInventory && !noInventoryAttack && serverOpenInventory
         val trueDist = player.getDistanceToEntityBox(currentTarget)
         val rotDiff = rotationDifference(currentTarget)
+        val properGround = player.onGround && player.groundTicks > 1 && simPlayer.onGround
         val falling = player.fallDistance > 0
 
         var shouldHit = if (smartHit) {
@@ -629,10 +630,10 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             when {
                 // Ground ticks check since you stay on ground for a tick, before being able to jump
                 // This currently does not account for burst clicking, timed hits, zest tapping, etc
-                (player.onGround && player.groundTicks > 1 && simPlayer.onGround && ((currentTarget.hurtTime > 1 * simDist.toInt() && rotDiff < 60f) || currentTarget.hurtTime == 10)) || (falling && currentTarget.hurtTime > 7) -> true
+                (properGround && ((currentTarget.hurtTime > 1 * simDist.toInt() && rotDiff < 80f) || currentTarget.hurtTime == 0)) || (falling && currentTarget.hurtTime !in 1..6) -> true
 
                 // TODO: Instead, simulate both players' positions and check if you can hit on the tick after (or 2 ticks after, or both); if not, hit immediately
-                (trueDist > notAboveRange || simDist > notAboveRange) && (player.hurtTime == 10 || player.hurtTime < 2) && (currentTarget.hurtTime == 10 || currentTarget.hurtTime < 2) && rotDiff < 50f -> true
+                (trueDist > notAboveRange || simDist > notAboveRange) && player.hurtTime !in 3..8 && currentTarget.hurtTime < 3 && rotDiff < 50f -> true
 
                 // You can reduce a significant of knockback by hitting after the opponent has been damaged
                 // TODO: Fully replace with the other things
