@@ -100,6 +100,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     private val notBelowEnemyHealth by float("NotBelowEnemyHealth", 5f, 0f..20f) { !simulateCooldown && smartHit }
     private val notOnEdge by boolean("NotOnEdge", false) { !simulateCooldown && smartHit }
     private val notOnEdgeLimit by float("NotOnEdgeLimit", 1f, 0f..8f, suffix = "blocks") { !simulateCooldown && smartHit && notOnEdge }
+    private val smartHitDebug by boolean("SmartHitDebug", false) { !simulateCooldown && smartHit }.subjective()
 
     private val activationSlot by boolean("ActivationSlot", false)
     private val preferredSlot by int("PreferredSlot", 1, 1..9) { activationSlot }
@@ -619,6 +620,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
         // Settings
         val manipulateInventory = simulateClosingInventory && !noInventoryAttack && serverOpenInventory
+        val simDist = predictedDistance(currentTarget)
         val trueDist = player.getDistanceToEntityBox(currentTarget)
 
         var shouldHit = if (smartHit) {
@@ -629,7 +631,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
                 (player.onGround && player.groundTicks > 1 && simPlayer.onGround) || player.fallDistance > 0 -> true
 
                 // TODO: Instead, simulate both players' positions and check if you can hit on the tick after (or 2 ticks after, or both); if not, hit immediately
-                (trueDist > notAboveRange || predictedDistance(currentTarget) > notAboveRange) && (player.hurtTime == 10 || player.hurtTime < 2) && (currentTarget.hurtTime == 10 || currentTarget.hurtTime < 2) && rotationDifference(currentTarget) < 60f -> true
+                (trueDist > notAboveRange || simDist > notAboveRange) && (player.hurtTime == 10 || player.hurtTime < 2) && (currentTarget.hurtTime == 10 || currentTarget.hurtTime < 2) && rotationDifference(currentTarget) < 60f -> true
 
                 // You can reduce a significant of knockback by hitting after the opponent has been damaged
                 hurtTimeAllowlist && currentTarget.hurtTime in notOnHurtTime -> true
@@ -647,6 +649,8 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         } else {
             currentTarget.hurtTime < hurtTime
         }
+
+        if (smartHit && smartHitDebug) chat("(SmartHit) Predicted distance: ${simDist}, current distance: ${trueDist}")
 
         if (hittable && !shouldHit)
             return
