@@ -978,7 +978,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
             player.setPosAndPrevPos(simPlayer.pos)
 
-            simDist = player.getDistanceToEntityBox(entity.hitBox.offset(smartPrediction))
+            simDist = player.getDistanceToBox(entity.hitBox.offset(prediction))
             val simDist2 = player.getDistanceToEntityBox(entity)
 
             player.setPosAndPrevPos(previousPos)
