@@ -610,27 +610,12 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
          * to not get comboed. Do note the latter is currently covered by NotOnHurtTime, which ought to be re-implemented to
          * actually know when it should reduce (or not).
          *
-         * repeat(2) {
-         *     simPlayer.tick() 
-         *     simTarget.tick()
-         * }
-         *
          * No edge case has been implemented that does at least rudimentary future knockback calculations, which should be
          * as customizable as possible, to be accurate on all servers (given the right config).
-         * if (simPlayer.hurtTime > 10 && simPlayer.getDistanceToEntityBox(simTarget) > notAboveRange && rotationDifference(currentTarget) < 30f)
-         *     shouldHit = true
+         *
          */
-
-        // Taken from the Predict option, as a temporary solution
-        /*val simPlayer = SimulatedPlayer.fromClientPlayer(RotationUtils.modifiedInput)
-        var simDist = 0.0
-
-        val (currPos, prevPos) = player.currPos to player.prevPos
-
-        val prediction = currentTarget.currPos.subtract(currentTarget.prevPos).times(3.0)
-        val boundingBox = currentTarget.hitBox.offset(prediction)
-
-        var pos = currPos*/
+        //val prediction = currentTarget.currPos.subtract(currentTarget.prevPos).times(3.0)
+        //val boundingBox = currentTarget.hitBox.offset(prediction)
 
         val simPlayer = SimulatedPlayer.fromClientPlayer(RotationUtils.modifiedInput)
 
@@ -646,14 +631,13 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             // Credits to Raven bS/XD for some of the ideas implemented, and Augustus for others!
             when {
                 // Ground ticks check since you stay on ground for a tick, before being able to jump
-                // however, it was removed since simPlayer does something very similar, without the shortcomings of groundTicks
                 // This currently does not account for burst clicking, timed hits, zest tapping, etc
-                (player.onGround && simPlayer.onGround) || player.fallDistance > 0 -> true
+                (player.onGround && player.groundTicks > 1 && simPlayer.onGround) || player.fallDistance > 0 -> true
 
                 // TODO: Instead, simulate both players' positions and check if you can hit on the tick after (or 2 ticks after, or both); if not, hit immediately
-                (trueDist > notAboveRange || simDist > notAboveRange) && rotationDifference(currentTarget) < 50f -> true
+                (trueDist > notAboveRange || simDist > notAboveRange) && (player.hurtTime == 10 || player.hurtT1me < 2) && (currentTarget.hurtTime == 10 || currentTarget.hurtT1me < 2) && rotationDifference(currentTarget) < 50f -> true
 
-                // You can reduce a bit of knockback by hitting after the opponent has been damaged
+                // You can reduce a significant of knockback by hitting after the opponent has been damaged
                 hurtTimeAllowlist && currentTarget.hurtTime in notOnHurtTime -> true
 
                 // Panic hitting is also not a very good idea either, n'est-ce pas?
@@ -669,8 +653,6 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         } else {
             currentTarget.hurtTime < hurtTime
         }
-
-        if (smartHit) chat("(KillAura SmartHit) Simulated distance: ${simDist}, true distance: ${trueDist}")
 
         if (hittable && !shouldHit)
             return
@@ -977,21 +959,19 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
             simPlayer.tick()
 
-            if (predictOnlyWhenOutOfRange) {
-                player.setPosAndPrevPos(simPlayer.pos)
+            player.setPosAndPrevPos(simPlayer.pos)
 
-                simDist = player.getDistanceToEntityBox(entity)
+            simDist = player.getDistanceToEntityBox(entity)
 
-                player.setPosAndPrevPos(previousPos)
+            player.setPosAndPrevPos(previousPos)
 
-                val prevDist = player.getDistanceToEntityBox(entity)
+            val prevDist = player.getDistanceToEntityBox(entity)
 
-                player.setPosAndPrevPos(currPos, oldPos)
-                pos = simPlayer.pos
+            player.setPosAndPrevPos(currPos, oldPos)
+            pos = simPlayer.pos
 
-                if (simDist <= range && simDist <= prevDist) {
-                    return@repeat
-                }
+            if (predictOnlyWhenOutOfRange && simDist <= range && simDist <= prevDist) {
+                return@repeat
             }
 
             pos = previousPos
