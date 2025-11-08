@@ -635,7 +635,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
                 (player.onGround && player.groundTicks > 1 && simPlayer.onGround) || player.fallDistance > 0 -> true
 
                 // TODO: Instead, simulate both players' positions and check if you can hit on the tick after (or 2 ticks after, or both); if not, hit immediately
-                (trueDist > notAboveRange || simDist > notAboveRange) && (player.hurtTime == 10 || player.hurtT1me < 2) && (currentTarget.hurtTime == 10 || currentTarget.hurtT1me < 2) && rotationDifference(currentTarget) < 50f -> true
+                (trueDist > notAboveRange || simDist > notAboveRange) && (player.hurtTime == 10 || player.hurtTime < 2) && (currentTarget.hurtTime == 10 || currentTarget.hurtTime < 2) && rotationDifference(currentTarget) < 50f -> true
 
                 // You can reduce a significant of knockback by hitting after the opponent has been damaged
                 hurtTimeAllowlist && currentTarget.hurtTime in notOnHurtTime -> true
