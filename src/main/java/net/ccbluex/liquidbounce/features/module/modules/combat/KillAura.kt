@@ -803,8 +803,8 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         if (manipulateInventory) serverOpenInventory = true
     }
 
-    private fun predictedDistance(entity: Entity): Float {
-        val player = mc.thePlayer ?: return 0f
+    private fun predictedDistance(entity: Entity): Double {
+        val player = mc.thePlayer ?: return 0.0
 
         val prediction = entity.currPos.subtract(entity.prevPos).times(3.0)
 
