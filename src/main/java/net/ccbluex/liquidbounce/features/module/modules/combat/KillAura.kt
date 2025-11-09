@@ -624,6 +624,9 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         val rotDiff = rotationDifference(currentTarget)
         val properGround = player.onGround && player.groundTicks > 1 && simPlayer.onGround
         val falling = player.fallDistance > 0
+        val targetRunning = rotDiff > 80f
+        val targetLikelyHit = rotDiff < 50f
+        val runningHit = if (targetRunning) currentTarget.hurtTime == 0 else currentTarget.hurtTime > 1 * simDist.toInt()
 
         var shouldHit = if (smartHit) {
             // Credits to Raven bS/XD for some of the ideas implemented, and Augustus for others!
@@ -632,10 +635,10 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
                 // This currently does not fully account for burst clicking, timed hits, zest tapping, etc
                 // However, it should take runners into account, through rotDiff
                 // TODO: Check if the last hit landed on a target is a critical hit or not; if not, hit when falling
-                (properGround && ((currentTarget.hurtTime > 1 * simDist.toInt() && rotDiff < 80f) || currentTarget.hurtTime == 0)) || (falling && currentTarget.hurtTime !in 1..6) -> true
+                (properGround && runningHit || (falling && currentTarget.hurtTime !in 1..6) -> true
 
                 // TODO: Instead, simulate both players' positions and check if you can hit on the tick after (or 2 ticks after, or both); if not, hit immediately
-                (trueDist > notAboveRange || simDist > notAboveRange) && player.hurtTime !in 3..8 && currentTarget.hurtTime < 3 && rotDiff < 50f -> true
+                (trueDist > notAboveRange || simDist > notAboveRange) && player.hurtTime !in 3..8 && currentTarget.hurtTime < 3 && targetLikelyHot -> true
 
                 // You can reduce a significant of knockback by hitting after the opponent has been damaged
                 // TODO: Fully replace with the other things
