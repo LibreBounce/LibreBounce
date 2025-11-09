@@ -603,15 +603,14 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         /*
          * This is the code responsible for the SmartHit options.
          *
-         * This should have calculations for every tick, and simulate when you can or cannot hit.
+         * This would optimally have calculations for every tick, and simulate when you can or cannot hit.
          * It can get more complicated than that, though, since both the player and the target can do plenty of things
          * that affect calculations, rendering them inaccurate - as such, this would take more than the current code.
          * If you can hit now but not in the next tick (or in the one after), that means you should hit now, and continue reducing
-         * to not get comboed. Do note the latter is currently covered by NotOnHurtTime, which ought to be re-implemented to
-         * actually know when it should reduce (or not).
+         * to not get comboed.
          *
-         * No edge case has been implemented that does at least rudimentary future knockback calculations, which should be
-         * as customizable as possible, to be accurate on all servers (given the right config).
+         * No edge case has been implemented that does (at the very least) rudimentary future knockback calculations, which should be
+         * as customizable as possible, to be accurate on all servers (given the right config, of course).
          *
          * Currently, however, it only checks 2 ticks ahead, for performance reasons.
          *
@@ -623,8 +622,10 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             simPlayer.tick()
         }
 
+        // Latency affects many things, so it is worth to be included in our calculations
         val combinedPing = (player as EntityPlayer).getPing() + (currentTarget as EntityPlayer).getPing()
         val combinedPingMult = combinedPing.toFloat() / 100f
+
         val trueDist = player.getDistanceToEntityBox(currentTarget)
         val rotDiff = rotationDifference(currentTarget)
 
@@ -637,7 +638,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         // If a target is running, it is not beneficial to hit more than required (i.e., when the target hittable), since the slowdown
         // may make it impossible to properly chase the target
         val targetRunning = rotDiff > 80f
-        val groundHit = properGround && if (targetRunning) currentTarget.hurtTime == 0 else currentTarget.hurtTime > 1 * simDist.toInt()
+        val groundHit = properGround && if (targetRunning) currentTarget.hurtTime == 0 else currentTarget.hurtTime !in 1..4 * simDist.toInt()
         val airHit = falling && if (targetRunning) currentTarget.hurtTime == 0 else currentTarget.hurtTime !in 1..6
 
         // This is only here because it is very difficult to have proper rotation prediction, and latency makes it so
@@ -675,7 +676,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             currentTarget.hurtTime < hurtTime
         }
 
-        if (smartHit && smartHitDebug) chat("(SmartHit) Will hit: ${smartHit}, predicted distance: ${simDist}, current distance: ${trueDist}, combined ping: ${combinedPing}, rotation difference: ${rotDiff}, hurttime: ${player.hurtTime}, target hurttime: ${currentTarget.hurtTime}, on ground: ${player.onGround}, falling: ${falling}")
+        if (smartHit && smartHitDebug) chat("(SmartHit) Will hit: ${smartHit}, predicted distance: ${simDist}, current distance: ${trueDist}, combined ping: ${combinedPing}, combined ping multiplier: ${combinedPingMult}, rotation difference: ${rotDiff}, hurttime: ${player.hurtTime}, target hurttime: ${currentTarget.hurtTime}, on ground: ${player.onGround}, falling: ${falling}")
 
         val manipulateInventory = simulateClosingInventory && !noInventoryAttack && serverOpenInventory
 
