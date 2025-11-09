@@ -623,7 +623,8 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             simPlayer.tick()
         }
 
-        val combinedPingMult = (getPing() + currentTarget.getPing()).toFloat() / 100f
+        val combinedPing = getPing() + currentTarget.getPing()
+        val combinedPingMult = combinedPing.toFloat() / 100f
         val trueDist = player.getDistanceToEntityBox(currentTarget)
         val rotDiff = rotationDifference(currentTarget)
 
@@ -642,7 +643,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         // This is only here because it is very difficult to have proper rotation prediction, and latency makes it so
         // even if a target is not looking at you client-sidedly (past rotation), that target can still hit you
         // As such, it's better to have it like this
-        val targetLikelyHit = rotDiff < 20f + (20f * combinedPingMult)
+        val targetLikelyHit = rotDiff < 20f + (30f * combinedPingMult)
 
         var shouldHit = if (smartHit) {
             when {
