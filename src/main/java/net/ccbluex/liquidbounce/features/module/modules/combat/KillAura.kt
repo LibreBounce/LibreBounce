@@ -601,6 +601,8 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             return
 
         /*
+         * This is the code responsible for the SmartHit options.
+         *
          * This should have calculations for every tick, and simulate when you can or cannot hit.
          * It can get more complicated than that, though, since both the player and the target can do plenty of things
          * that affect calculations, rendering them inaccurate - as such, this would take more than the current code.
@@ -611,6 +613,9 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
          * No edge case has been implemented that does at least rudimentary future knockback calculations, which should be
          * as customizable as possible, to be accurate on all servers (given the right config).
          *
+         * Currently, however, it only checks 2 ticks ahead, for performance reasons.
+         *
+         * Credits to all the Raven versions, Augustus, and Vape for some of these ideas!
          */
         val simPlayer = SimulatedPlayer.fromClientPlayer(RotationUtils.modifiedInput)
 
@@ -618,27 +623,36 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             simPlayer.tick()
         }
 
-        // Settings
-        val manipulateInventory = simulateClosingInventory && !noInventoryAttack && serverOpenInventory
+        val combinedPingMult = (getPing() + currentTarget.getPing()).toFloat() / 100f
         val trueDist = player.getDistanceToEntityBox(currentTarget)
         val rotDiff = rotationDifference(currentTarget)
+
+        // The ground ticks and simPlayer checks are there since you stay on ground for a tick, before being able to jump
         val properGround = player.onGround && player.groundTicks > 1 && simPlayer.onGround
+
+        // If you are "falling" (as in fallDistance > 0; it doesn't reset when you go up, only when on ground), you can land critical hits
         val falling = player.fallDistance > 0
+
+        // If a target is running, it is not beneficial to hit more than required (i.e., when the target hittable), since the slowdown
+        // may make it impossible to properly chase the target
         val targetRunning = rotDiff > 80f
-        val targetLikelyHit = rotDiff < 50f
-        val runningHit = if (targetRunning) currentTarget.hurtTime == 0 else currentTarget.hurtTime > 1 * simDist.toInt()
+        val groundHit = properGround && if (targetRunning) currentTarget.hurtTime == 0 else currentTarget.hurtTime > 1 * simDist.toInt()
+        val airHit = falling && if (targetRunning) currentTarget.hurtTime == 0 else currentTarget.hurtTime !in 1..6
+
+        // This is only here because it is very difficult to have proper rotation prediction, and latency makes it so
+        // even if a target is not looking at you client-sidedly (past rotation), that target can still hit you
+        // As such, it's better to have it like this
+        val targetLikelyHit = rotDiff < 20f + (20f * combinedPingMult)
 
         var shouldHit = if (smartHit) {
-            // Credits to Raven bS/XD for some of the ideas implemented, and Augustus for others!
             when {
-                // Ground ticks check since you stay on ground for a tick, before being able to jump
                 // This currently does not fully account for burst clicking, timed hits, zest tapping, etc
                 // However, it should take runners into account, through rotDiff
                 // TODO: Check if the last hit landed on a target is a critical hit or not; if not, hit when falling
-                (properGround && runningHit || (falling && currentTarget.hurtTime !in 1..6) -> true
+                (groundHit || airHit) -> true
 
                 // TODO: Instead, simulate both players' positions and check if you can hit on the tick after (or 2 ticks after, or both); if not, hit immediately
-                (trueDist > notAboveRange || simDist > notAboveRange) && player.hurtTime !in 3..8 && currentTarget.hurtTime < 3 && targetLikelyHot -> true
+                (trueDist > notAboveRange || simDist > notAboveRange) && player.hurtTime !in 3..8 && currentTarget.hurtTime < 3 && targetLikelyHit -> true
 
                 // You can reduce a significant of knockback by hitting after the opponent has been damaged
                 // TODO: Fully replace with the other things
@@ -650,7 +664,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
                 // TODO: Instead, calculate whether you can 1-tap your opponent
                 currentTarget.health < notBelowEnemyHealth -> true
 
-                // This i to
+                // If you are near an edge, you should hit as much as possible to reduce received knockback
                 // I assume this checks for all edges, including ones that are irrelevant
                 // TODO: Check if the target is near an edge; if so, you can spam hit to deal as much knockback as possible
                 notOnEdge && player.isNearEdge(notOnEdgeLimit) -> true
@@ -661,6 +675,8 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         }
 
         if (smartHit && smartHitDebug) chat("(SmartHit) Will hit: ${smartHit}, predicted distance: ${simDist}, current distance: ${trueDist}, rotation difference: ${rotDiff}, hurttime: ${player.hurtTime}, target hurttime: ${currentTarget.hurtTime}, on ground: ${player.onGround}, falling: ${falling}")
+
+        val manipulateInventory = simulateClosingInventory && !noInventoryAttack && serverOpenInventory
 
         if (hittable && !shouldHit)
             return
