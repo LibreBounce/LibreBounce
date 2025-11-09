@@ -623,7 +623,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             simPlayer.tick()
         }
 
-        val combinedPing = getPing() + currentTarget.getPing()
+        val combinedPing = player.getPing() + currentTarget.getPing()
         val combinedPingMult = combinedPing.toFloat() / 100f
         val trueDist = player.getDistanceToEntityBox(currentTarget)
         val rotDiff = rotationDifference(currentTarget)

@@ -9,11 +9,7 @@ import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.utils.extensions.getPing
 
 object PingCommand : Command("ping") {
-
     override fun execute(args: Array<String>) {
-        val ping = getPing()
-
-        chat("§3Your ping is §a${ping}ms§3.")
+        chat("§3Your ping is §a${player.getPing()}ms§3.")
     }
-
 }
