@@ -623,7 +623,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             simPlayer.tick()
         }
 
-        val combinedPing = player.getPing() + currentTarget.getPing()
+        val combinedPing = (player as EntityPlayer).getPing() + (currentTarget as EntityPlayer).getPing()
         val combinedPingMult = combinedPing.toFloat() / 100f
         val trueDist = player.getDistanceToEntityBox(currentTarget)
         val rotDiff = rotationDifference(currentTarget)
@@ -675,7 +675,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             currentTarget.hurtTime < hurtTime
         }
 
-        if (smartHit && smartHitDebug) chat("(SmartHit) Will hit: ${smartHit}, predicted distance: ${simDist}, current distance: ${trueDist}, rotation difference: ${rotDiff}, hurttime: ${player.hurtTime}, target hurttime: ${currentTarget.hurtTime}, on ground: ${player.onGround}, falling: ${falling}")
+        if (smartHit && smartHitDebug) chat("(SmartHit) Will hit: ${smartHit}, predicted distance: ${simDist}, current distance: ${trueDist}, combined ping: ${combinedPing}, rotation difference: ${rotDiff}, hurttime: ${player.hurtTime}, target hurttime: ${currentTarget.hurtTime}, on ground: ${player.onGround}, falling: ${falling}")
 
         val manipulateInventory = simulateClosingInventory && !noInventoryAttack && serverOpenInventory
 

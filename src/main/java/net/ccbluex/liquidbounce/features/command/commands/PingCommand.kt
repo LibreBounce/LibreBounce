@@ -7,9 +7,12 @@ package net.ccbluex.liquidbounce.features.command.commands
 
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.utils.extensions.getPing
+import net.minecraft.entity.player.EntityPlayer
 
 object PingCommand : Command("ping") {
     override fun execute(args: Array<String>) {
-        chat("§3Your ping is §a${player.getPing()}ms§3.")
+        val ping = (player as EntityPlayer).getPing()
+
+        chat("§3Your ping is §a${ping}ms§3.")
     }
 }
