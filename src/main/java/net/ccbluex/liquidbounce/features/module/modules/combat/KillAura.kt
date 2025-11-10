@@ -73,7 +73,6 @@ import net.minecraft.util.*
 import org.lwjgl.input.Keyboard
 import java.awt.Color
 import kotlin.math.max
-import kotlin.math.abs
 import kotlin.math.sqrt
 import kotlin.math.roundToInt
 
@@ -362,6 +361,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     private val swingFails = mutableListOf<SwingFailData>()
 
     private var simDist = 0.0
+    private var lastHitCrit = false
 
     /**
      * Disable kill aura module
@@ -630,8 +630,8 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         val combinedPingMult = combinedPing.toFloat() / 100f
 
         val trueDist = player.getDistanceToEntityBox(currentTarget)
-        val rotationToPlayer = toRotation(player.hitBox.center, false, target).fixedSensitivity().yaw
-        val rotDiff = abs(angleDifference(rotationToPlayer, target.rotationYaw))
+        val rotationToPlayer = toRotation(player.hitBox.center, true, target)
+        val rotDiff = rotationDifference(rotationToPlayer, target.rotation)
 
         // The ground ticks and simPlayer checks are there since you stay on ground for a tick, before being able to jump
         val properGround = player.onGround && player.groundTicks > 1 && simPlayer.onGround
@@ -642,8 +642,10 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         // If a target is running, it is not beneficial to hit more than required (i.e., when the target hittable), since the slowdown
         // may make it impossible to properly chase the target
         val targetRunning = rotDiff > 80f && !currentTarget.hitBox.isVecInside(player.eyes)
+
         val groundHit = properGround && if (targetRunning) currentTarget.hurtTime == 0 else currentTarget.hurtTime !in 1..3 * sqrt(simDist).toInt()
-        val airHit = falling && if (targetRunning) currentTarget.hurtTime == 0 else currentTarget.hurtTime !in 2..6
+        // TODO: Check if the last hit landed on a target is a critical hit or not; if not, hit when falling
+        val airHit = falling && if (targetRunning) currentTarget.hurtTime == 0 else (currentTarget.hurtTime !in 2..6 || !lastHitCrit)
 
         // This is only here because it is very difficult to have proper rotation prediction, and latency makes it so
         // even if a target is not looking at you client-sidedly (past rotation), that target can still hit you
@@ -653,8 +655,6 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         var shouldHit = if (smartHit) {
             when {
                 // This currently does not fully account for burst clicking, timed hits, zest tapping, etc
-                // However, it should take runners into account, through rotDiff
-                // TODO: Check if the last hit landed on a target is a critical hit or not; if not, hit when falling
                 groundHit || airHit -> true
 
                 // TODO: Instead, simulate both players' positions and check if you can hit on the tick after (or 2 ticks after, or both); if not, hit immediately
@@ -673,7 +673,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
                 // If you are near an edge, you should hit as much as possible to reduce received knockback
                 // I assume this checks for all edges, including ones that are irrelevant
                 // TODO: Check if the target is near an edge; if so, you can spam hit to deal as much knockback as possible
-                notOnEdge && player.isNearEdge(notOnEdgeLimit) -> true
+                notOnEdge && (player.isNearEdge(notOnEdgeLimit) || currentTarget.isNearEdge(notOnEdgeLimit)) -> true
                 else -> false
             }
         } else {
@@ -957,6 +957,8 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
         // Randomizes scan range after hit
         randomizedScanRange = scanRange.random()
+
+        lastHitCrit = player.fallDistance > 0
 
         resetLastAttackedTicks()
     }
