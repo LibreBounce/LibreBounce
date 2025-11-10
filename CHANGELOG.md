@@ -12,6 +12,8 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 - `BlockLength` value to KillAura, potentially allowing for an improved Hypixel AutoBlock (thatonecoder)
 - `CheckEnemySprinting` option for the `SmartAutoBlock` option in KillAura (thatonecoder)
 - `RomanNumerals` option for the Effects HUD element; previously hardcoded (thatonecoder)
+- `Line` option to Blink; previously hardcoded (thatonecoder)
+- `LineColor` value to Blink; it previously used Breadcrumbs' color value (thatonecoder)
 
 ### Fixed
 
@@ -23,6 +25,7 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 - **Breaking:** Rename `NotBelowHealth` to `NotBelowOwnHealth`, in KillAura (thatonecoder)
 - Change the minimum value in `EnemiesNearby` to 0 in AutoRod, ignoring the limit (thatonecoder)
+- Lower the minimum value in `PulseDelay` from 500 0 in Blink (thatonecoder)
 - Make the `Jump` mode in Velocity also use the `HurtTime` range (thatonecoder)
 - Improve EN_US language in LiquidBounce (thatonecoder)
 

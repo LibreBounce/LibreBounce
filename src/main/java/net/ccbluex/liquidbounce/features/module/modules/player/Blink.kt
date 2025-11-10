@@ -19,16 +19,20 @@ object Blink : Module("Blink", Category.PLAYER, gameDetecting = false) {
     private val mode by choices("Mode", arrayOf("Sent", "Received", "Both"), "Sent")
 
     private val pulse by boolean("Pulse", false)
-    private val pulseDelay by int("PulseDelay", 1000, 500..5000, suffix = "ms") { pulse }
+    private val pulseDelay by int("PulseDelay", 1000, 1..5000, suffix = "ms") { pulse }
 
-    private val fakePlayerMenu by boolean("FakePlayer", true)
+    private val line by boolean("Line", true)
+    private val lineColor by color("LineColor", Color(132, 102, 255, 255)) { line }.subjective()
+
+    // TODO: Replace with something similar to RenderModel in FakeLag
+    private val fakePlayer by boolean("FakePlayer", false)
 
     private val pulseTimer = MSTimer()
 
     override fun onEnable() {
         pulseTimer.reset()
 
-        if (fakePlayerMenu)
+        if (fakePlayer)
             BlinkUtils.addFakePlayer()
     }
 
@@ -80,7 +84,7 @@ object Blink : Module("Blink", Category.PLAYER, gameDetecting = false) {
 
             if (pulse && pulseTimer.hasTimePassed(pulseDelay)) {
                 BlinkUtils.unblink()
-                if (fakePlayerMenu) {
+                if (fakePlayer) {
                     BlinkUtils.addFakePlayer()
                 }
                 pulseTimer.reset()
@@ -89,7 +93,7 @@ object Blink : Module("Blink", Category.PLAYER, gameDetecting = false) {
     }
 
     val onRender3D = handler<Render3DEvent> {
-        val color = Breadcrumbs.colors.color()
+        if (!line) return@handler
 
         synchronized(BlinkUtils.positions) {
             glPushMatrix()
@@ -100,7 +104,7 @@ object Blink : Module("Blink", Category.PLAYER, gameDetecting = false) {
             glDisable(GL_DEPTH_TEST)
             mc.entityRenderer.disableLightmap()
             glBegin(GL_LINE_STRIP)
-            glColor(color)
+            glColor(lineColor)
 
             val renderPosX = mc.renderManager.viewerPosX
             val renderPosY = mc.renderManager.viewerPosY

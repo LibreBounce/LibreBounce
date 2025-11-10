@@ -74,7 +74,7 @@
 
         "module.autoWeapon.description": "Automatically selects the best weapon in your hotbar.",
 
-        "module.backtrack.description": "Allows you to hit players by attacking their previous cached positions.",
+        "module.backtrack.description": "Allows you to hit players by attacking their previous positions.",
 
         "module.bedDefender.description": "Automatically defends bed with blocks",
 
@@ -83,6 +83,8 @@
         "module.pointerESP.description": "Allows you to see pointed entity positions.",
 
         "module.projectileAimbot.description": "Automatically aims at players when using a projectile.",
+
+        "module.chat.description": "Allows you to change the appearance of the chat screen.",
 
         "module.criticals.description": "Automatically deals critical hits.",
 
@@ -124,9 +126,9 @@
         
         "module.antiBlind.description": "Cancels blindness effects.",
         
-        "module.antiBot.description": "Prevents KillAura from attacking AntiCheat bots.",
+        "module.antiBot.description": "Prevents KillAura from attacking anti-cheat bots.",
 
-        "module.antiExploit.description": "Prevents server from crashing you.",
+        "module.antiExploit.description": "Prevents servers from crashing you.",
         
         "module.antiCactus.description": "Prevents cacti from damaging you.",
         
@@ -152,7 +154,7 @@
         
         "module.autoTool.description": "Automatically selects the best tool in your inventory to mine a block.",
         
-        "module.autoWalk.description": "Automatically makes you walk.",
+        "module.autoWalk.description": "Automatically walks forward.",
 
         "module.avoidHazards.description": "Prevents you from walking into blocks that might be harmful to you.",
         
@@ -172,7 +174,7 @@
         
         "module.cameraClip.description": "Allows you to see through walls in third person view.",
 
-        "module.cameraView.description": "Allows you to modify your camera-Y position.",
+        "module.cameraView.description": "Allows you to modify your camera Y position.",
         
         "module.chams.description": "Allows you to see targets through blocks.",
         
@@ -184,7 +186,7 @@
         
         "module.clickGUI.description": "Opens the ClickGUI.",
         
-        "module.componentOnHover.description": "Allows you to see onclick action and value of chat message components when hovered.",
+        "module.componentOnHover.description": "Allows you to see the on-click action of chat message components when hovered.",
         
         "module.consoleSpammer.description": "Spams the console of the server with errors.",
         
@@ -208,7 +210,7 @@
         
         "module.fastUse.description": "Allows you to use items faster.",
 
-        "module.flagCheck.description": "Detects if you get flagged by an AntiCheat.",
+        "module.flagCheck.description": "Detects if you get flagged by an anti-cheat.",
         
         "module.fly.description": "Allows you to fly in survival mode.",
         
@@ -396,7 +398,7 @@
 
         "module.keepSprint.description": "Keeps you sprinting after attacking.",
 
-        "module.disabler.description": "Disables specific anticheat detections.",
+        "module.disabler.description": "Disables specific anti-cheat detections.",
 
         "module.overrideRaycast.description": "Overrides your rotation-based raycast with the server rotation based raycast.",
 
