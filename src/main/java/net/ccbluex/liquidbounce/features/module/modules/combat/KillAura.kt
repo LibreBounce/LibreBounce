@@ -630,7 +630,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         val combinedPingMult = combinedPing.toFloat() / 100f
 
         val trueDist = player.getDistanceToEntityBox(currentTarget)
-        val rotationToPlayer = toRotation(player.hitBox.center, true, target)
+        val rotationToPlayer = toRotation(player.hitBox.center, true, target!!)
         val rotDiff = rotationDifference(rotationToPlayer, target.rotation)
 
         // The ground ticks and simPlayer checks are there since you stay on ground for a tick, before being able to jump
@@ -673,7 +673,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
                 // If you are near an edge, you should hit as much as possible to reduce received knockback
                 // I assume this checks for all edges, including ones that are irrelevant
                 // TODO: Check if the target is near an edge; if so, you can spam hit to deal as much knockback as possible
-                notOnEdge && (player.isNearEdge(notOnEdgeLimit) || currentTarget.isNearEdge(notOnEdgeLimit)) -> true
+                notOnEdge && player.isNearEdge(notOnEdgeLimit) -> true
                 else -> false
             }
         } else {
