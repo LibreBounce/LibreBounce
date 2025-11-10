@@ -16,6 +16,7 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 - AutoWeapon checking for the client-side slot instead of the server slot (thatonecoder)
 - `NotOnHurtTime` checking for own hurttime instead of target hurttime, in KillAura (thatonecoder)
+- `JitterYawMultiplier` and `JitterPitchMultiplier` appearing despite `Jitter` being toggled off, in Aimbot (thatonecoder)
 
 ### Changed
 
