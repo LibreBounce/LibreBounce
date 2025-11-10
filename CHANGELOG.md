@@ -8,6 +8,7 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 ### Added
 
+- Movement predicting and many other checks for `SmartHit` to KillAura (thatonecoder)
 - `BlockLength` value to KillAura, potentially allowing for an improved Hypixel AutoBlock (thatonecoder)
 - `CheckEnemySprinting` option for the `SmartAutoBlock` option in KillAura (thatonecoder)
 - `RomanNumerals` option for the Effects HUD element; previously hardcoded (thatonecoder)
@@ -22,7 +23,6 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 - **Breaking:** Rename `NotBelowHealth` to `NotBelowOwnHealth`, in KillAura (thatonecoder)
 - Change the minimum value in `EnemiesNearby` to 0 in AutoRod, ignoring the limit (thatonecoder)
-- Make `SmartHit`'s critical check take ground ticks into account (thatonecoder)
 - Make the `Jump` mode in Velocity also use the `HurtTime` range (thatonecoder)
 - Improve EN_US language in LiquidBounce (thatonecoder)
 

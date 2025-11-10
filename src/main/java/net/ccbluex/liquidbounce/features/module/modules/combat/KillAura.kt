@@ -639,18 +639,20 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         // If you are "falling" (as in fallDistance > 0; it doesn't reset when you go up, only when on ground), you can land critical hits
         val falling = player.fallDistance > 0 || simPlayer.fallDistance > 0
 
-        // If a target is running, it is not beneficial to hit more than required (i.e., when the target hittable), since the slowdown
+        // If a target is running, it is not beneficial to hit more than required (i.e., when the target is hittable), since the slowdown
         // may make it impossible to properly chase the target
         val targetRunning = rotDiff > 80f && !currentTarget.hitBox.isVecInside(player.eyes)
 
-        val groundHit = properGround && if (targetRunning) currentTarget.hurtTime == 0 else currentTarget.hurtTime !in 1..3 * sqrt(simDist).toInt()
+        val groundHit = properGround && if (targetRunning) currentTarget.hurtTime == 0 else currentTarget.hurtTime !in 2..3 * sqrt(simDist).toInt()
         // TODO: Check if the last hit landed on a target is a critical hit or not; if not, hit when falling
-        val airHit = falling && if (targetRunning) currentTarget.hurtTime == 0 else (currentTarget.hurtTime !in 2..6 || !lastHitCrit)
+        val airHit = (falling && if (targetRunning) currentTarget.hurtTime == 0 else (currentTarget.hurtTime !in 2..4 || !lastHitCrit)) || currentTarget.hurtTime in 4..5
 
         // This is only here because it is very difficult to have proper rotation prediction, and latency makes it so
         // even if a target is not looking at you client-sidedly (past rotation), that target can still hit you
         // As such, it's better to have it like this
-        val targetLikelyHit = rotDiff < 20f + (30f * combinedPingMult)
+        val targetLikelyHit = rotDiff < 30f + (30f * combinedPingMult)
+
+        val hurtTimeNoEscape = (2 * trueDist * 8).toInt() / 10
 
         var shouldHit = if (smartHit) {
             when {
@@ -658,7 +660,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
                 groundHit || airHit -> true
 
                 // TODO: Instead, simulate both players' positions and check if you can hit on the tick after (or 2 ticks after, or both); if not, hit immediately
-                (trueDist > notAboveRange || simDist > notAbovePredRange) && player.hurtTime !in 4..8 && currentTarget.hurtTime < 4 && targetLikelyHit -> true
+                (trueDist > notAboveRange || simDist > notAbovePredRange) && player.hurtTime !in hurtTimeNoEscape..8 && targetLikelyHit -> true
 
                 // You can reduce a significant of knockback by hitting after the opponent has been damaged
                 // TODO: Fully replace with the other things
@@ -680,7 +682,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             currentTarget.hurtTime < hurtTime
         }
 
-        if (smartHit && smartHitDebug) chat("(SmartHit) Will hit: ${shouldHit}, predicted distance: ${simDist}, current distance: ${trueDist}, combined ping: ${combinedPing}, combined ping multiplier: ${combinedPingMult}, rotation difference: ${rotDiff}, hurttime: ${player.hurtTime}, target hurttime: ${currentTarget.hurtTime}, on ground: ${player.onGround}, falling: ${falling}")
+        if (smartHit && smartHitDebug) chat("(SmartHit) Will hit: ${shouldHit}, predicted distance: ${simDist}, current distance: ${trueDist}, combined ping: ${combinedPing}, combined ping multiplier: ${combinedPingMult}, rotation difference: ${rotDiff}, running: ${targetRunning}, hurttime: ${player.hurtTime}, target hurttime: ${currentTarget.hurtTime}, on ground: ${player.onGround}, falling: ${falling}")
 
         val manipulateInventory = simulateClosingInventory && !noInventoryAttack && serverOpenInventory
 
