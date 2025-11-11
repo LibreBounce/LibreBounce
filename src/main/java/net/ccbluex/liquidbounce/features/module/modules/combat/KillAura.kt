@@ -626,7 +626,9 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         }
 
         // Latency affects many things, so it is worth to be included in our calculations
-        val combinedPing = (player as EntityPlayer).getPing() + (currentTarget as EntityPlayer).getPing()
+        val playerPing = (player as EntityPlayer).getPing()
+        val targetPing = (currentTarget as EntityPlayer).getPing()
+        val combinedPing = playerPing + targetPing
         val combinedPingMult = combinedPing.toFloat() / 100f
 
         val trueDist = player.getDistanceToEntityBox(currentTarget)
@@ -645,7 +647,8 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
         val groundHit = properGround && if (targetRunning) currentTarget.hurtTime == 0 else currentTarget.hurtTime !in 2..3 * sqrt(simDist).toInt()
         // TODO: Check if the last hit landed on a target is a critical hit or not; if not, hit when falling
-        val airHit = (falling && if (targetRunning) currentTarget.hurtTime == 0 else (currentTarget.hurtTime !in 2..4 || !lastHitCrit)) || currentTarget.hurtTime in 4..5
+        val fallingHit = falling && if (targetRunning) currentTarget.hurtTime == 0 else (currentTarget.hurtTime !in 2..4 || !lastHitCrit)
+        val airHit = fallingHit || (currentTarget.hurtTime in 4..5 && targetRunning)
 
         // This is only here because it is very difficult to have proper rotation prediction, and latency makes it so
         // even if a target is not looking at you client-sidedly (past rotation), that target can still hit you
