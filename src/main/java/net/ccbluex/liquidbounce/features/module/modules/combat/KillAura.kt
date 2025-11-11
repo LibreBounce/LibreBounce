@@ -641,22 +641,24 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         // If you are "falling" (as in fallDistance > 0; it doesn't reset when you go up, only when on ground), you can land critical hits
         val falling = player.fallDistance > 0 || simPlayer.fallDistance > 0
 
-        // If a target is running, it is not beneficial to hit more than required (i.e., when the target is hittable), since the slowdown
-        // may make it impossible to properly chase the target
         // TODO: Also consider a target that is holding the backwards key for over 6-10 ticks as running, and a target not moving, too
         // val targetRunning = (rotDiff > 80f && !currentTarget.hitBox.isVecInside(player.eyes)) || currentTarget.isEating
 
-        val groundHit = properGround && if (targetLikelyHit) currentTarget.hurtTime !in 2..3 * sqrt(simDist).toInt() else currentTarget.hurtTime == 0
-        // TODO: Check if the last hit landed on a target is a critical hit or not; if not, hit when falling
-        val fallingMaxHurtTime = 3 * (sqrt(simDist) - (rotDiff / 180f))
-        val fallingHit = (falling && if (targetLikelyHit) currentTarget.hurtTime !in 2..max(fallingHurtTime, 3) else currentTarget.hurtTime == 0) || !lastHitCrit
-        val airHit = fallingHit || (currentTarget.hurtTime in 4..5 && targetLikelyHit)
-
+        // If a target is running or cannot hit you, it is not beneficial to hit more than required (i.e., when the target is hittable), since the slowdown
+        // may make it impossible to properly chase the target, and in the latter case, the opponent will be confused by your movements
         // This is only here because it is very difficult to have proper rotation prediction, and latency makes it so
         // even if a target is not looking at you client-sidedly (past rotation), that target can still hit you
         // As such, it's better to have it like this
         // TODO: Also consider a target that is holding the backwards key for over 6-10 ticks as not likely to hit, and a target not moving, too
-        val targetLikelyHit = rotDiff < 30f + (30f * combinedPingMult) && !currentTarget.hitBox.isVecInside(player.eyes) && !currentTarget.isUsingItem
+        val targetHitLikely = rotDiff < 30f + (30f * combinedPingMult) && !currentTarget.hitBox.isVecInside(player.eyes) && !currentTarget.isUsingItem
+
+        val baseHurtTime = 3f / (1f + sqrt(simDist) - (rotDiff / 180f))
+        val optimalHurtTime = max(baseHurtTime.toInt(), 2)
+
+        val groundHit = properGround && if (targetHitLikely) currentTarget.hurtTime !in 2..optimalHurtTime else currentTarget.hurtTime == 0
+        // TODO: Check if the last hit landed on a target is a critical hit or not; if not, hit when falling
+        val fallingHit = (falling && if (targetHitLikely) currentTarget.hurtTime !in 2..optimalHurtTime else currentTarget.hurtTime == 0) || !lastHitCrit
+        val airHit = fallingHit || (currentTarget.hurtTime in 4..5 && targetHitLikely)
 
         val hurtTimeNoEscape = (2 * trueDist * 8).toInt() / 10
 
@@ -688,7 +690,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             currentTarget.hurtTime < hurtTime
         }
 
-        if (smartHit && smartHitDebug) chat("(SmartHit) Will hit: ${shouldHit}, predicted distance: ${simDist}, current distance: ${trueDist}, combined ping: ${combinedPing}, combined ping multiplier: ${combinedPingMult}, rotation difference: ${rotDiff}, running: ${targetRunning}, hurttime: ${player.hurtTime}, target hurttime: ${currentTarget.hurtTime}, on ground: ${player.onGround}, falling: ${falling}")
+        if (smartHit && smartHitDebug) chat("(SmartHit) Will hit: ${shouldHit}, predicted distance: ${simDist}, current distance: ${trueDist}, combined ping: ${combinedPing}, combined ping multiplier: ${combinedPingMult}, rotation difference: ${rotDiff}, target hit likely: ${targetLikelyHit}, hurttime: ${player.hurtTime}, target hurttime: ${currentTarget.hurtTime}, on ground: ${player.onGround}, falling: ${falling}")
 
         val manipulateInventory = simulateClosingInventory && !noInventoryAttack && serverOpenInventory
 
