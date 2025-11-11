@@ -668,7 +668,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
                 groundHit || airHit -> true
 
                 // TODO: Instead, simulate both players' positions and check if you can hit on the tick after (or 2 ticks after, or both); if not, hit immediately
-                (trueDist > notAboveRange || simDist > notAbovePredRange) && player.hurtTime !in hurtTimeNoEscape..8 && targetLikelyHit -> true
+                (trueDist > notAboveRange || simDist > notAbovePredRange) && player.hurtTime !in hurtTimeNoEscape..8 && targetHitLikely -> true
 
                 // You can reduce a significant of knockback by hitting after the opponent has been damaged
                 // TODO: Fully replace with the other things
@@ -690,7 +690,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             currentTarget.hurtTime < hurtTime
         }
 
-        if (smartHit && smartHitDebug) chat("(SmartHit) Will hit: ${shouldHit}, predicted distance: ${simDist}, current distance: ${trueDist}, combined ping: ${combinedPing}, combined ping multiplier: ${combinedPingMult}, rotation difference: ${rotDiff}, target hit likely: ${targetLikelyHit}, hurttime: ${player.hurtTime}, target hurttime: ${currentTarget.hurtTime}, on ground: ${player.onGround}, falling: ${falling}")
+        if (smartHit && smartHitDebug) chat("(SmartHit) Will hit: ${shouldHit}, predicted distance: ${simDist}, current distance: ${trueDist}, combined ping: ${combinedPing}, combined ping multiplier: ${combinedPingMult}, rotation difference: ${rotDiff}, target hit likely: ${targetHitLikely}, hurttime: ${player.hurtTime}, target hurttime: ${currentTarget.hurtTime}, on ground: ${player.onGround}, falling: ${falling}")
 
         val manipulateInventory = simulateClosingInventory && !noInventoryAttack && serverOpenInventory
 
