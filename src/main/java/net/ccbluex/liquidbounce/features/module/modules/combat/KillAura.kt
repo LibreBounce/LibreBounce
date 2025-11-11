@@ -643,6 +643,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
         // If a target is running, it is not beneficial to hit more than required (i.e., when the target is hittable), since the slowdown
         // may make it impossible to properly chase the target
+        // TODO: Also consider a target that is holding the backwards key for over 6-10 ticks as running, and a target not moving, too
         val targetRunning = rotDiff > 80f && !currentTarget.hitBox.isVecInside(player.eyes)
 
         val groundHit = properGround && if (targetRunning) currentTarget.hurtTime == 0 else currentTarget.hurtTime !in 2..3 * sqrt(simDist).toInt()
@@ -653,6 +654,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         // This is only here because it is very difficult to have proper rotation prediction, and latency makes it so
         // even if a target is not looking at you client-sidedly (past rotation), that target can still hit you
         // As such, it's better to have it like this
+        // TODO: A target that isn't moving is likely not to hit you
         val targetLikelyHit = rotDiff < 30f + (30f * combinedPingMult)
 
         val hurtTimeNoEscape = (2 * trueDist * 8).toInt() / 10
