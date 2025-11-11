@@ -658,7 +658,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
         val groundHit = properGround && if (targetHitLikely) currentTarget.hurtTime !in 2..optimalHurtTime else currentTarget.hurtTime == 0
         // TODO: Check if the last hit landed on a target is a critical hit or not; if not, hit when falling
-        val fallingHit = (falling && if (targetHitLikely) currentTarget.hurtTime !in 2..optimalHurtTime else currentTarget.hurtTime == 0) || !lastHitCrit
+        val fallingHit = (falling && if (targetHitLikely) currentTarget.hurtTime !in 2..optimalHurtTime else lastHitCrit) || !lastHitCrit
         val airHit = fallingHit || (currentTarget.hurtTime in 4..5 && targetHitLikely)
 
         val hurtTimeNoEscape = (2 * trueDist * 8).toInt() / 10
