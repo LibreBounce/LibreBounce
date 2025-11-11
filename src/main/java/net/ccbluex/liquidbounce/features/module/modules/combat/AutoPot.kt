@@ -26,6 +26,7 @@ import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.utils.timing.TickedActions.nextTick
 import net.minecraft.client.gui.inventory.GuiInventory
 import net.minecraft.item.ItemPotion
+import net.minecraft.potion.Potion
 import net.minecraft.potion.Potion.*
 
 object AutoPot : Module("AutoPot", Category.COMBAT) {
@@ -132,7 +133,7 @@ object AutoPot : Module("AutoPot", Category.COMBAT) {
     private fun findPotion(startSlot: Int, endSlot: Int): Int? {
         val player = mc.thePlayer
 
-        fun onEffect(potion): Boolean = player.isPotionActive(potion)
+        fun onEffect(potion: Potion): Boolean = player.isPotionActive(potion)
 
         for (i in startSlot..endSlot) {
             val stack = player.inventorySlot(i).stack
