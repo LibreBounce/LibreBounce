@@ -14,7 +14,6 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.misc.AntiBot.isBot
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.minecraft.block.BlockTNT
-import net.minecraft.init.Items.wooden_sword
 import net.minecraft.item.*
 import net.minecraft.network.play.server.S38PacketPlayerListItem
 import net.minecraft.network.play.server.S38PacketPlayerListItem.Action.ADD_PLAYER
@@ -68,7 +67,7 @@ object Notifier : Module("Notifier", Category.MISC) {
                     recentlyWarned[entity.uniqueID.toString()] = currentTime
                 }
 
-                onPlayerWeapon && ((heldItem is ItemSword && heldItem !is wooden_sword) || heldItem is ItemBow) -> {
+                onPlayerWeapon && (heldItem is ItemSword || heldItem is ItemBow) -> {
                     chat("§7${entity.name} is holding a §b${entity.heldItem?.displayName} §a(${entityDistance}m)")
                     recentlyWarned[entity.uniqueID.toString()] = currentTime
                 }
