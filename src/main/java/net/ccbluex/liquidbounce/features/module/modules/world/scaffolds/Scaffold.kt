@@ -131,9 +131,11 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
     private val horizontalClutchBlocks by int("HorizontalClutchBlocks", 3, 1..5) {
         allowClutching && scaffoldMode !in arrayOf("Telly", "Expand")
     }
+
     private val verticalClutchBlocks by int("VerticalClutchBlocks", 2, 1..3) {
         allowClutching && scaffoldMode !in arrayOf("Telly", "Expand")
     }
+
     private val blockSafe by boolean("BlockSafe", false) { !isGodBridgeEnabled }
 
     // Eagle

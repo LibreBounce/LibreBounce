@@ -132,7 +132,7 @@ object AutoPot : Module("AutoPot", Category.COMBAT) {
     private fun findPotion(startSlot: Int, endSlot: Int): Int? {
         val player = mc.thePlayer
 
-        fun onEffect(potion) = player.isPotionActive(potion)
+        fun onEffect(potion): Boolean = player.isPotionActive(potion)
 
         for (i in startSlot..endSlot) {
             val stack = player.inventorySlot(i).stack

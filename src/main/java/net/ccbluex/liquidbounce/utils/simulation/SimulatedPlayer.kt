@@ -50,6 +50,7 @@ import kotlin.math.ceil
  *     simPlayer.tick()
  * }
  */
+// TODO: Add getDistanceToBox and getDistanceToEntityBox
 @Suppress("SameParameterValue", "MemberVisibilityCanBePrivate")
 class SimulatedPlayer(
     private val player: EntityPlayerSP,

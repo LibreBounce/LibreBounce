@@ -68,7 +68,7 @@ object Notifier : Module("Notifier", Category.MISC) {
                     recentlyWarned[entity.uniqueID.toString()] = currentTime
                 }
 
-                onPlayerWeapon && ((heldItem is ItemSword && heldItem !is Items.wooden_sword) || heldItem is ItemBow) -> {
+                onPlayerWeapon && ((heldItem is ItemSword && heldItem !is wooden_sword) || heldItem is ItemBow) -> {
                     chat("§7${entity.name} is holding a §b${entity.heldItem?.displayName} §a(${entityDistance}m)")
                     recentlyWarned[entity.uniqueID.toString()] = currentTime
                 }
