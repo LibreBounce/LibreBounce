@@ -13,6 +13,7 @@ import net.ccbluex.liquidbounce.utils.client.BlinkUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import org.lwjgl.opengl.GL11.*
+import java.awt.Color
 
 object Blink : Module("Blink", Category.PLAYER, gameDetecting = false) {
 
@@ -21,7 +22,7 @@ object Blink : Module("Blink", Category.PLAYER, gameDetecting = false) {
     private val pulse by boolean("Pulse", false)
     private val pulseDelay by int("PulseDelay", 1000, 1..5000, suffix = "ms") { pulse }
 
-    private val line by boolean("Line", true)
+    private val line by boolean("Line", true).subjective()
     private val lineColor by color("LineColor", Color(132, 102, 255, 255)) { line }.subjective()
 
     // TODO: Replace with something similar to RenderModel in FakeLag

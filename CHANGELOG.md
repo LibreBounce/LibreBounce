@@ -24,8 +24,8 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 ### Changed
 
 - **Breaking:** Rename `NotBelowHealth` to `NotBelowOwnHealth`, in KillAura (thatonecoder)
-- Change the minimum value in `EnemiesNearby` to 0 in AutoRod, ignoring the limit (thatonecoder)
-- Lower the minimum value in `PulseDelay` from 500 0 in Blink (thatonecoder)
+- Lower the minimum value in `EnemiesNearby` to 0 in AutoRod, allowing you to ignore the limit (thatonecoder)
+- Lower the minimum value in `PulseDelay` from 500 to 0 in Blink (thatonecoder)
 - Make the `Jump` mode in Velocity also use the `HurtTime` range (thatonecoder)
 - Improve EN_US language in LiquidBounce (thatonecoder)
 
