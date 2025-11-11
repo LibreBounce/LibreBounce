@@ -644,18 +644,19 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         // If a target is running, it is not beneficial to hit more than required (i.e., when the target is hittable), since the slowdown
         // may make it impossible to properly chase the target
         // TODO: Also consider a target that is holding the backwards key for over 6-10 ticks as running, and a target not moving, too
-        val targetRunning = rotDiff > 80f && !currentTarget.hitBox.isVecInside(player.eyes)
+        // val targetRunning = (rotDiff > 80f && !currentTarget.hitBox.isVecInside(player.eyes)) || currentTarget.isEating
 
-        val groundHit = properGround && if (targetRunning) currentTarget.hurtTime == 0 else currentTarget.hurtTime !in 2..3 * sqrt(simDist).toInt()
+        val groundHit = properGround && if (targetLikelyHit) currentTarget.hurtTime !in 2..3 * sqrt(simDist).toInt() else currentTarget.hurtTime == 0
         // TODO: Check if the last hit landed on a target is a critical hit or not; if not, hit when falling
-        val fallingHit = falling && if (targetRunning) currentTarget.hurtTime == 0 else (currentTarget.hurtTime !in 2..4 || !lastHitCrit)
-        val airHit = fallingHit || (currentTarget.hurtTime in 4..5 && targetRunning)
+        val fallingMaxHurtTime = 3 * (sqrt(simDist) - (rotDiff / 180f))
+        val fallingHit = (falling && if (targetLikelyHit) currentTarget.hurtTime !in 2..max(fallingHurtTime, 3) else currentTarget.hurtTime == 0) || !lastHitCrit
+        val airHit = fallingHit || (currentTarget.hurtTime in 4..5 && targetLikelyHit)
 
         // This is only here because it is very difficult to have proper rotation prediction, and latency makes it so
         // even if a target is not looking at you client-sidedly (past rotation), that target can still hit you
         // As such, it's better to have it like this
-        // TODO: A target that isn't moving is likely not to hit you
-        val targetLikelyHit = rotDiff < 30f + (30f * combinedPingMult)
+        // TODO: Also consider a target that is holding the backwards key for over 6-10 ticks as not likely to hit, and a target not moving, too
+        val targetLikelyHit = rotDiff < 30f + (30f * combinedPingMult) && !currentTarget.hitBox.isVecInside(player.eyes) && !currentTarget.isUsingItem
 
         val hurtTimeNoEscape = (2 * trueDist * 8).toInt() / 10
 
