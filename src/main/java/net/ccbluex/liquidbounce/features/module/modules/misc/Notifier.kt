@@ -14,7 +14,7 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.misc.AntiBot.isBot
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.minecraft.block.BlockTNT
-import net.minecraft.init.Items.*
+import net.minecraft.init.Items.wooden_sword
 import net.minecraft.item.*
 import net.minecraft.network.play.server.S38PacketPlayerListItem
 import net.minecraft.network.play.server.S38PacketPlayerListItem.Action.ADD_PLAYER
