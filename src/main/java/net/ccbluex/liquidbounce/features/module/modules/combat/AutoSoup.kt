@@ -26,6 +26,7 @@ import net.minecraft.util.EnumFacing
 
 object AutoSoup : Module("AutoSoup", Category.COMBAT) {
 
+    // TODO: Separate hotbar & inventory delays
     private val health by float("Health", 15f, 0f..20f)
     private val delay by intRange("Delay", 150..150, 0..500, suffix = "ms")
 

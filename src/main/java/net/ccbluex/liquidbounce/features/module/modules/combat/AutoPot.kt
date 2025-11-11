@@ -26,7 +26,7 @@ import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.utils.timing.TickedActions.nextTick
 import net.minecraft.client.gui.inventory.GuiInventory
 import net.minecraft.item.ItemPotion
-import net.minecraft.potion.Potion
+import net.minecraft.potion.Potion.*
 
 object AutoPot : Module("AutoPot", Category.COMBAT) {
 
@@ -132,47 +132,28 @@ object AutoPot : Module("AutoPot", Category.COMBAT) {
     private fun findPotion(startSlot: Int, endSlot: Int): Int? {
         val player = mc.thePlayer
 
-        // TODO: Clean this mess up
+        fun onEffect(potion) = player.isPotionActive(potion)
+
         for (i in startSlot..endSlot) {
             val stack = player.inventorySlot(i).stack
 
-            if (stack == null || stack.item !is ItemPotion || !stack.isSplashPotion())
-                continue
+            if (stack == null || stack.item !is ItemPotion || !stack.isSplashPotion()) continue
 
-            val itemPotion = stack.item as ItemPotion
+            val effects = (stack.item as ItemPotion).getEffects(stack)
+            if (effects.isEmpty()) continue
 
-            for (potionEffect in itemPotion.getEffects(stack))
-                if (player.health <= health && healPotion && potionEffect.potionID == Potion.heal.id)
-                    return i
+            fun hasPotionEffect(id: Int) = effects.any { it.potionID == id }
 
-            if (!player.isPotionActive(Potion.regeneration))
-                for (potionEffect in itemPotion.getEffects(stack))
-                    if (player.health <= health && regenerationPotion && potionEffect.potionID == Potion.regeneration.id)
-                        return i
-
-            if (!player.isPotionActive(Potion.fireResistance))
-                for (potionEffect in itemPotion.getEffects(stack))
-                    if (fireResistancePotion && potionEffect.potionID == Potion.fireResistance.id)
-                        return i
-
-            if (!player.isPotionActive(Potion.moveSpeed))
-                for (potionEffect in itemPotion.getEffects(stack))
-                    if (speedPotion && potionEffect.potionID == Potion.moveSpeed.id)
-                        return i
-
-            if (!player.isPotionActive(Potion.jump))
-                for (potionEffect in itemPotion.getEffects(stack))
-                    if (jumpPotion && potionEffect.potionID == Potion.jump.id)
-                        return i
-
-            if (!player.isPotionActive(Potion.damageBoost))
-                for (potionEffect in itemPotion.getEffects(stack))
-                    if (strengthPotion && potionEffect.potionID == Potion.damageBoost.id)
-                        return i
+            if (player.health <= health && healPotion && hasPotionEffect(heal.id)) return i
+            if (!onEffect(regeneration) && regenerationPotion && hasPotionEffect(regeneration.id)) return i
+            if (!onEffect(fireResistance) && fireResistancePotion && hasPotionEffect(fireResistance.id)) return i
+            if (!onEffect(moveSpeed) && speedPotion && hasPotionEffect(moveSpeed.id)) return i
+            if (!onEffect(jump) && jumpPotion && hasPotionEffect(jump.id)) return i
+            if (!onEffect(damageBoost) && strengthPotion && hasPotionEffect(damageBoost.id)) return i
         }
 
-        return null
-    }
+    return null
+}
 
     override val tag
         get() = health.toString()
