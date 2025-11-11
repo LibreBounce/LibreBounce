@@ -641,7 +641,8 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         // If you are "falling" (as in fallDistance > 0; it doesn't reset when you go up, only when on ground), you can land critical hits
         val falling = player.fallDistance > 0 || simPlayer.fallDistance > 0
 
-        // TODO: Also consider a target that is holding the backwards key for over 6-10 ticks as running, and a target not moving, too
+        if (currentTarget.hurtTime == 0) lastHitCrit = false
+
         // val targetRunning = (rotDiff > 80f && !currentTarget.hitBox.isVecInside(player.eyes)) || currentTarget.isEating
 
         // If a target is running or cannot hit you, it is not beneficial to hit more than required (i.e., when the target is hittable), since the slowdown
