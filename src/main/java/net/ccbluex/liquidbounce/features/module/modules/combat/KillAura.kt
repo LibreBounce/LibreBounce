@@ -641,24 +641,27 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         // If you are "falling" (as in fallDistance > 0; it doesn't reset when you go up, only when on ground), you can land critical hits
         val falling = player.fallDistance > 0 || simPlayer.fallDistance > 0
 
+        // TODO: Check if you hit the player in the last ticks; latency may affect when the hit lands
         if (currentTarget.hurtTime == 0) lastHitCrit = false
 
-        // val targetRunning = (rotDiff > 80f && !currentTarget.hitBox.isVecInside(player.eyes)) || currentTarget.isEating
+        //val targetRunning = (rotDiff > 80f && !currentTarget.hitBox.isVecInside(player.eyes)) || currentTarget.isEating
 
-        // If a target is running or cannot hit you, it is not beneficial to hit more than required (i.e., when the target is hittable), since the slowdown
-        // may make it impossible to properly chase the target, and in the latter case, the opponent will be confused by your movements
-        // This is only here because it is very difficult to have proper rotation prediction, and latency makes it so
-        // even if a target is not looking at you client-sidedly (past rotation), that target can still hit you
-        // As such, it's better to have it like this
+        /*
+         * If a target is running or cannot hit you, it is not beneficial to hit more than required (i.e., when the target is hittable), since the slowdown
+         * may make it impossible to properly chase the target, and in the latter case, the opponent will be confused by your movements
+         * This is only here because it is very difficult to have proper rotation prediction, and latency makes it so
+         * even if a target is not looking at you client-sidedly (past rotation), that target can still hit you
+         * As such, it's better to have it like this
+         */
         // TODO: Also consider a target that is holding the backwards key for over 6-10 ticks as not likely to hit, and a target not moving, too
-        val targetHitLikely = rotDiff < 30f + (30f * combinedPingMult) && !currentTarget.hitBox.isVecInside(player.eyes) && !currentTarget.isUsingItem
+        //if (simDist > trueDist && trueDist > 2.8 && player.hurtTime == 0 && currentTarget.hurtTime == 0) targetHitLikely = false
+        val targetHitLikely = rotDiff < 30f + (12f * combinedPingMult) && !currentTarget.hitBox.isVecInside(player.eyes) && !currentTarget.isUsingItem
 
-        val baseHurtTime = 3f / (1f + sqrt(simDist) - (rotDiff / 180f))
+        val baseHurtTime = 3f / (1f + sqrt(trueDist) - (rotDiff / 180f))
         val optimalHurtTime = max(baseHurtTime.toInt(), 2)
 
         val groundHit = properGround && if (targetHitLikely) currentTarget.hurtTime !in 2..optimalHurtTime else currentTarget.hurtTime == 0
-        // TODO: Check if the last hit landed on a target is a critical hit or not; if not, hit when falling
-        val fallingHit = (falling && if (targetHitLikely) currentTarget.hurtTime !in 2..optimalHurtTime else lastHitCrit) || !lastHitCrit
+        val fallingHit = falling && if (targetHitLikely) currentTarget.hurtTime !in 2..optimalHurtTime else !lastHitCrit
         val airHit = fallingHit || (currentTarget.hurtTime in 4..5 && targetHitLikely)
 
         val hurtTimeNoEscape = (2 * trueDist * 8).toInt() / 10
