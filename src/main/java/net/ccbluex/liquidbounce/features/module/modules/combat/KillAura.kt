@@ -617,6 +617,13 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
          *
          * Currently, however, it only checks 2 ticks ahead, for performance reasons.
          *
+         * Another thing that must be implemented is client-side target hurttime checking.
+         * Say you have 200 ping; in about half that time, the packet will be received by the server; in the other half,
+         * you will see the attack itself. As such, you are seeing what has happened 2-4 ticks ago.
+         *
+         * This messes up hit timing severely, so much that I'll need to add some system to simulate the hurttime number.
+         * Otherwise, as has been proven in tests, it will delay hits when they ought not to be delayed.
+         *
          * Credits to all the Raven versions, Augustus, and Vape for some of these ideas!
          */
         val simPlayer = SimulatedPlayer.fromClientPlayer(RotationUtils.modifiedInput)
