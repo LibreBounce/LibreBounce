@@ -638,9 +638,11 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         val combinedPing = playerPing + targetPing
         val combinedPingMult = combinedPing.toFloat() / 100f
 
-        val trueDist = player.getDistanceToEntityBox(currentTarget)
+        val distance = player.getDistanceToEntityBox(currentTarget)
         val rotationToPlayer = toRotation(player.hitBox.center, true, target!!)
         val rotDiff = rotationDifference(rotationToPlayer, target.rotation)
+
+        val targetHurtTime = currentTarget.hurtTime
 
         // The ground ticks and simPlayer checks are there since you stay on ground for a tick, before being able to jump
         val properGround = player.onGround && player.groundTicks > 1 && simPlayer.onGround
@@ -649,9 +651,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         val falling = player.fallDistance > 0 || simPlayer.fallDistance > 0
 
         // TODO: Check if you hit the player in the last ticks; latency may affect when the hit lands
-        if (currentTarget.hurtTime == 0) lastHitCrit = false
-
-        //val targetRunning = (rotDiff > 80f && !currentTarget.hitBox.isVecInside(player.eyes)) || currentTarget.isEating
+        if (targetHurtTime == 0) lastHitCrit = false
 
         /*
          * If a target is running or cannot hit you, it is not beneficial to hit more than required (i.e., when the target is hittable), since the slowdown
@@ -661,17 +661,18 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
          * As such, it's better to have it like this
          */
         // TODO: Also consider a target that is holding the backwards key for over 6-10 ticks as not likely to hit, and a target not moving, too
-        //if (simDist > trueDist && trueDist > 2.8 && player.hurtTime == 0 && currentTarget.hurtTime == 0) targetHitLikely = false
+        // TODO: Turn this into an integer (0-100), and have a treshold of when it starts being considered likely
+        //if (simDist > distance && distance > 2.8 && player.hurtTime == 0 && targetHurtTime == 0) targetHitLikely = false
         val targetHitLikely = rotDiff < 30f + (12f * combinedPingMult) && !currentTarget.hitBox.isVecInside(player.eyes) && !currentTarget.isUsingItem
 
-        val baseHurtTime = 3f / (1f + sqrt(trueDist) - (rotDiff / 180f))
+        val baseHurtTime = 3f / (1f + sqrt(distance) - (rotDiff / 180f))
         val optimalHurtTime = max(baseHurtTime.toInt(), 2)
 
-        val groundHit = properGround && if (targetHitLikely) currentTarget.hurtTime !in 2..optimalHurtTime else currentTarget.hurtTime == 0
-        val fallingHit = falling && if (targetHitLikely) currentTarget.hurtTime !in 2..optimalHurtTime else !lastHitCrit
-        val airHit = fallingHit || (currentTarget.hurtTime in 4..5 && targetHitLikely)
+        val groundHit = properGround && if (targetHitLikely) targetHurtTime !in 2..optimalHurtTime else targetHurtTime == 0
+        val fallingHit = falling && if (targetHitLikely) targetHurtTime !in 2..optimalHurtTime else !lastHitCrit
+        val airHit = fallingHit || (targetHurtTime in 4..5 && targetHitLikely)
 
-        val hurtTimeNoEscape = (2 * trueDist * 8).toInt() / 10
+        val hurtTimeNoEscape = (2 * distance * 8).toInt() / 10
 
         var shouldHit = if (smartHit) {
             when {
@@ -679,11 +680,11 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
                 groundHit || airHit -> true
 
                 // TODO: Instead, simulate both players' positions and check if you can hit on the tick after (or 2 ticks after, or both); if not, hit immediately
-                (trueDist > notAboveRange || simDist > notAbovePredRange) && player.hurtTime !in hurtTimeNoEscape..8 && targetHitLikely -> true
+                (distance > notAboveRange || simDist > notAbovePredRange) && player.hurtTime !in hurtTimeNoEscape..8 && targetHitLikely -> true
 
                 // You can reduce a significant of knockback by hitting after the opponent has been damaged
                 // TODO: Fully replace with the other things
-                hurtTimeAllowlist && currentTarget.hurtTime in notOnHurtTime -> true
+                hurtTimeAllowlist && targetHurtTime in notOnHurtTime -> true
 
                 // Panic hitting is also not a very good idea either, n'est-ce pas?
                 player.health < notBelowOwnHealth -> true
@@ -701,7 +702,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             currentTarget.hurtTime < hurtTime
         }
 
-        if (smartHit && smartHitDebug) chat("(SmartHit) Will hit: ${shouldHit}, predicted distance: ${simDist}, current distance: ${trueDist}, combined ping: ${combinedPing}, combined ping multiplier: ${combinedPingMult}, rotation difference: ${rotDiff}, target hit likely: ${targetHitLikely}, hurttime: ${player.hurtTime}, target hurttime: ${currentTarget.hurtTime}, on ground: ${player.onGround}, falling: ${falling}")
+        if (smartHit && smartHitDebug) chat("(SmartHit) Will hit: ${shouldHit}, predicted distance: ${simDist}, current distance: ${distance}, combined ping: ${combinedPing}, combined ping multiplier: ${combinedPingMult}, rotation difference: ${rotDiff}, target hit likely: ${targetHitLikely}, hurttime: ${player.hurtTime}, target hurttime: ${currentTarget.hurtTime}, on ground: ${player.onGround}, falling: ${falling}")
 
         val manipulateInventory = simulateClosingInventory && !noInventoryAttack && serverOpenInventory
 
