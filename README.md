@@ -1,12 +1,10 @@
 # LibreBounce
-A [libre software](https://www.gnu.org/philosophy/free-sw.html), mixin-based injection hacked client for the Forge Mod Loader, version 1.8.9; it's a fork of [LiquidBounce legacy](https://github.com/CCBlueX/LiquidBounce/tree/legacy), although it attempts to remain somewhat backwards-compatible.
+A [libre software](https://www.gnu.org/philosophy/free-sw.html), mixin-based injection hacked client for the Forge Mod Loader, version 1.8.9; it's a fork of [LiquidBounce legacy](https://github.com/CCBlueX/LiquidBounce/tree/legacy), aiming to compete with paid & nonlibre hacked clients.
 
-It aims to compete with paid hacked clients, and strives to have even higher quality than them.
-
-If anyone would like to contact me through Discord, my username is `thatonecoder_`. More contact methods may be found through my [Codeberg page](https://codeberg.org/thatonecoder), although I cannot guarantee any attempts will be successful.
+If anyone would like to contact me through Discord, my username is `thatonecoder_`. More contact methods may be found through my [Codeberg profile page](https://codeberg.org/thatonecoder), although I cannot guarantee any attempts will be successful.
 
 ## Issues
-If you notice any bugs or missing features, you can let us know by opening an issue [here](https://github.com/LibreBounce/LibreBounce/issues).
+If you notice any bugs or would like a feature added, you can let us know by opening an issue [here](https://github.com/LibreBounce/LibreBounce/issues).
 
 ## License
 This project is subject to the [GNU General Public License v3.0](LICENSE). This only applies for source code located directly in this clean repository. During the development and compilation process, additional source code may be used to which we have obtained no rights. Such code is not covered by the GPL license.
@@ -38,8 +36,7 @@ We highly appreciate contributions. If you would like to support us, feel free t
 
 1. Make rotation patterns that bypass advanced anti-cheats (such as Polar),
 2. Fix a bug where rotation modules still affect the player after being turned off.
-2. Make a centralized clicking system, with legit patterns.
-
+3. Make a centralized clicking system, with legit patterns.
 4. Add full backwards-compatibility with historical LiquidBounce versions (b68, b72).
 
 Any additional goals are easily found by code searching "TODO", and are equally as important, if not more.
