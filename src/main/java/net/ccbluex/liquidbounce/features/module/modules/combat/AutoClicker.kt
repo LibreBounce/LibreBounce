@@ -138,7 +138,7 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT) {
     private fun shouldAutoRightClick() = mc.thePlayer.heldItem?.itemUseAction in arrayOf(EnumAction.BLOCK)
 
     private fun handleLeftClick(time: Long, doubleClick: Int) {
-        val shouldHit = (target != null && if (SmartHit.handleEvents()) SmartHit.shouldHit(target!!) else target!!.hurtTime > hurtTime) || target == null
+        val shouldHit = (target != null && if (SmartHit.handleEvents()) SmartHit.shouldHit(target!!) else target!!.hurtTime < hurtTime) || target == null
 
         if (!shouldHit) return
 

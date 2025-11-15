@@ -86,11 +86,11 @@ object LiquidBounce {
      * Defines if the client is in development mode.
      * This will enable update checking on commit time instead of regular versioning.
      */
-    const val IN_DEV = false
+    const val IN_DEV = true
 
     val nightlyText = if (IN_DEV) " (Nightly) " else " "
 
-    // Perhaps the client commit number should be omitted? Not ure
+    // Perhaps the client commit number should be omitted? Not certain
     val clientTitle = CLIENT_NAME + " " + clientVersionText + nightlyText + clientCommit + " | " + MINECRAFT_VERSION
 
     var isStarting = true
