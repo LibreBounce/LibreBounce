@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Common Changelog](https://common-changelog.org), which is in turn based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## [0.7.0-alpha.2] - 2025-11-15
+
+### Added
+
+- **Breaking:** `SmartHit` module; split from KillAura, now also with AutoClicker compatiblity (thatonecoder)
+
 ## [0.7.0-alpha.1] - 2025-11-14
 
 ### Added
@@ -14,7 +22,7 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 - `NormalizeSwingSpeed` option to the Animations module (thatonecoder)
 - `RomanNumerals` option for the Effects HUD element; previously hardcoded (thatonecoder)
 - `Line` option to Blink; previously hardcoded (thatonecoder)
-- `LineColor` value to Blink; it previously used Breadcrumbs' color value (thatonecoder)
+- `LineColor` value to Blink; previously used Breadcrumbs' color value (thatonecoder)
 
 ### Fixed
 
@@ -205,7 +213,8 @@ _Initial release, forked from LiquidBounce Legacy._
 
 - Warning to upgrade from `LiquidBounce` legacy to nextgen (thatonecoder)
 
-[Unreleased]: https://github.com/LibreBounce/LibreBounce/compare/v0.7.0-alpha.1...HEAD
+[Unreleased]: https://github.com/LibreBounce/LibreBounce/compare/v0.7.0-alpha.2...HEAD
+[0.7.0-alpha.2]: https://github.com/LibreBounce/LibreBounce/compare/v0.7.0-alpha.1...v0.7.0-alpha.2
 [0.7.0-alpha.1]: https://github.com/LibreBounce/LibreBounce/compare/v0.6.0...v0.7.0-alpha.1
 [0.6.0]: https://github.com/LibreBounce/LibreBounce/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/LibreBounce/LibreBounce/compare/v0.4.0...v0.5.0

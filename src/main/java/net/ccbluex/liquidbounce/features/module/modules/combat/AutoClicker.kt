@@ -11,6 +11,7 @@ import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.modules.combat.SmartHit
 import net.ccbluex.liquidbounce.utils.attack.EntityUtils.isLookingOnEntities
 import net.ccbluex.liquidbounce.utils.attack.EntityUtils.isSelected
 import net.ccbluex.liquidbounce.utils.client.EntityLookup
@@ -35,7 +36,7 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT) {
 
     // TODO: Add smart hit selecting
     // A decent starting hit selecting formula may be (16 / (distance * 2.2)) * (combinedPing / 160) * (combinedMoveSpeed / 10)
-    private val hurtTime by int("HurtTime", 10, 0..10) { left }
+    private val hurtTime by int("HurtTime", 10, 0..10) { left && !SmartHit.handleEvents()}
 
     private val right by boolean("Right", true)
     private val left by boolean("Left", true)
@@ -137,7 +138,9 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT) {
     private fun shouldAutoRightClick() = mc.thePlayer.heldItem?.itemUseAction in arrayOf(EnumAction.BLOCK)
 
     private fun handleLeftClick(time: Long, doubleClick: Int) {
-        if (target != null && target!!.hurtTime > hurtTime) return
+        val shouldHit = (target != null && if (SmartHit.handleEvents()) SmartHit.shouldHit(target!!) else target!!.hurtTime > hurtTime) || target == null
+
+        if (!shouldHit) return
 
         repeat(1 + doubleClick) {
             KeyBinding.onTick(mc.gameSettings.keyBindAttack.keyCode)

@@ -182,6 +182,7 @@ object ModuleManager : Listenable, Collection<Module> by MODULE_REGISTRY {
             ServerCrasher,
             SkinDerp,
             SlimeJump,
+            SmartHit,
             Sneak,
             Spammer,
             Speed,
