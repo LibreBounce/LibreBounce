@@ -8,7 +8,7 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 ### Added
 
-- Movement predicting and many other checks for `SmartHit` to KillAura; note that `PredictClientMovement` alters the tick simulation amount (thatonecoder)
+- **Breaking:** `SmartHit` module, with movement predicting and many other checks; split from KillAura, now also with AutoClicker compatiblity (thatonecoder)
 - `BlockLength` value to KillAura, potentially allowing for an improved Hypixel AutoBlock (thatonecoder)
 - `CheckEnemySprinting` option for the `SmartAutoBlock` option in KillAura (thatonecoder)
 - `NormalizeSwingSpeed` option to the Animations module (thatonecoder)

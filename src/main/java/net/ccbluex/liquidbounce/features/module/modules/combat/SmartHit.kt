@@ -103,6 +103,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
         val simPos = Vec3(simPlayer.posX, simPlayer.posY, simPlayer.posZ)
 
+        // TODO: Fix this not using own simulated pos
         val simDist = with(simPos) {
             player.getDistanceToBox(boundingBox)
         }
