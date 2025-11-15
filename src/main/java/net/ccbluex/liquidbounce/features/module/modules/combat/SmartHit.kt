@@ -35,7 +35,7 @@ import kotlin.math.sqrt
 
 object SmartHit : Module("SmartHit", Category.COMBAT) {
 
-    // TODO: Not on 1-tap option for SmartHit, taking into account your weapon + enchantments, the opponent's armor + enchantments, and potion effects
+    // TODO: Not on 1-tap option, taking into account your weapon + enchantments, the opponent's armor + enchantments, and potion effects
     // Also add an option that makes it click anyway, if the knockback is large enough to combo you
     private val notAboveRange by float("NotAboveRange", 2.7f, 0f..8f, suffix = "blocks")
     private val notAbovePredRange by float("NotAbovePredictedRange", 2.8f, 0f..8f, suffix = "blocks")
@@ -50,7 +50,6 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
     private val debug by boolean("Debug", false).subjective()
 
-    private var simDist = 0.0
     private var lastHitCrit = false
 
     val onAttack = handler<AttackEvent> { event ->
