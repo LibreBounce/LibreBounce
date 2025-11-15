@@ -5,15 +5,14 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
+import net.ccbluex.liquidbounce.event.AttackEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
-import net.ccbluex.liquidbounce.event.StrafeEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.utils.attack.EntityUtils.isSelected
-import net.ccbluex.liquidbounce.utils.extensions.tryJump
-import net.ccbluex.liquidbounce.utils.extensions.isMoving
-import net.ccbluex.liquidbounce.utils.extensions.getDistanceToEntityBox
+import net.ccbluex.liquidbounce.utils.client.chat
+import net.ccbluex.liquidbounce.utils.client.BlinkUtils
+import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.rotation.RaycastUtils.raycastEntity
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.currentRotation
@@ -61,7 +60,6 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
     }
 
     fun shouldHit(target: Entity): Boolean {
-
         /*
          * This is the code responsible for SmartHit.
          *
@@ -85,23 +83,31 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
          *
          * Credits to all the Raven versions, Augustus, and Vape for some of these ideas!
          */
+        val player = mc.thePlayer ?: return false
+
         val simPlayer = SimulatedPlayer.fromClientPlayer(RotationUtils.modifiedInput)
 
-        repeat(2) {
+        repeat(predictClientMovement) {
             simPlayer.tick()
         }
 
         // Latency affects many things, so it is worth to be included in our calculations
         val playerPing = (player as EntityPlayer).getPing()
-        val targetPing = (currentTarget as EntityPlayer).getPing()
+        val targetPing = (target as EntityPlayer).getPing()
         val combinedPing = playerPing + targetPing
         val combinedPingMult = combinedPing.toFloat() / 100f
 
-        val distance = player.getDistanceToEntityBox(currentTarget)
+        val distance = player.getDistanceToEntityBox(target)
+
+        val prediction = entity.currPos.subtract(entity.prevPos).times(predictEnemyPosition.toDouble())
+        val boundingBox = entity.hitBox.offset(prediction)
+
+        val simDist = with(simPlayer.posX, simPlayer.posY, simPlayer.posZ) {
+            player.getDistanceToBox(boundingBox)
+        }
+
         val rotationToPlayer = toRotation(player.hitBox.center, true, target!!)
         val rotDiff = rotationDifference(rotationToPlayer, target.rotation)
-
-        val targetHurtTime = currentTarget.hurtTime
 
         // The ground ticks and simPlayer checks are there since you stay on ground for a tick, before being able to jump
         val properGround = player.onGround && player.groundTicks > 1 && simPlayer.onGround
@@ -110,7 +116,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         val falling = player.fallDistance > 0 || simPlayer.fallDistance > 0
 
         // TODO: Check if you hit the player in the last ticks; latency may affect when the hit lands
-        if (targetHurtTime == 0) lastHitCrit = false
+        if (target.hurtTime == 0) lastHitCrit = false
 
         /*
          * If a target is running or cannot hit you, it is not beneficial to hit more than required (i.e., when the target is hittable), since the slowdown
@@ -121,15 +127,15 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
          */
         // TODO: Also consider a target that is holding the backwards key for over 6-10 ticks as not likely to hit, and a target not moving, too
         // TODO: Turn this into an integer (0-100), and have a treshold of when it starts being considered likely
-        //if (simDist > distance && distance > 2.8 && player.hurtTime == 0 && targetHurtTime == 0) targetHitLikely = false
-        val targetHitLikely = rotDiff < 30f + (12f * combinedPingMult) && !currentTarget.hitBox.isVecInside(player.eyes) && !currentTarget.isUsingItem
+        //if (simDist > distance && distance > 2.8 && player.hurtTime == 0 && target.hurtTime == 0) targetHitLikely = false
+        val targetHitLikely = rotDiff < 30f + (12f * combinedPingMult) && !target.hitBox.isVecInside(player.eyes) && !target.isUsingItem
 
         val baseHurtTime = 3f / (1f + sqrt(distance) - (rotDiff / 180f))
         val optimalHurtTime = max(baseHurtTime.toInt(), 2)
 
-        val groundHit = properGround && if (targetHitLikely) targetHurtTime !in 2..optimalHurtTime else targetHurtTime == 0
-        val fallingHit = falling && if (targetHitLikely) targetHurtTime !in 2..optimalHurtTime else !lastHitCrit
-        val airHit = fallingHit || (targetHurtTime in 4..5 && targetHitLikely)
+        val groundHit = properGround && if (targetHitLikely) target.hurtTime !in 2..optimalHurtTime else target.hurtTime == 0
+        val fallingHit = falling && if (targetHitLikely) target.hurtTime !in 2..optimalHurtTime else !lastHitCrit
+        val airHit = fallingHit || (target.hurtTime in 4..5 && targetHitLikely)
 
         val hurtTimeNoEscape = (2 * distance * 8).toInt() / 10
 
@@ -144,7 +150,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
             player.health < notBelowOwnHealth -> true
 
             // TODO: Instead, calculate whether you can 1-tap your opponent
-            currentTarget.health < notBelowEnemyHealth -> true
+            target.health < notBelowEnemyHealth -> true
 
             // If you are near an edge, you should hit as much as possible to reduce received knockback
             // I assume this checks for all edges, including ones that are irrelevant
@@ -154,12 +160,12 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
             else -> false
         }
 
-        if (debug) chat("(SmartHit) Will hit: ${shouldHit}, predicted distance: ${simDist}, current distance: ${distance}, combined ping: ${combinedPing}, combined ping multiplier: ${combinedPingMult}, rotation difference: ${rotDiff}, target hit likely: ${targetHitLikely}, hurttime: ${player.hurtTime}, target hurttime: ${currentTarget.hurtTime}, on ground: ${player.onGround}, falling: ${falling}")
+        if (debug) chat("(SmartHit) Will hit: ${shouldHit}, predicted distance: ${simDist}, current distance: ${distance}, combined ping: ${combinedPing}, combined ping multiplier: ${combinedPingMult}, rotation difference: ${rotDiff}, target hit likely: ${targetHitLikely}, own hurttime: ${player.hurtTime}, target hurttime: ${target.hurtTime}, on ground: ${player.onGround}, falling: ${falling}")
 
         return shouldHit
     }
 
-    private fun updatePredicting(entity: Entity): Boolean {
+    /*private fun updatePredicting(entity: Entity): Boolean {
         val player = mc.thePlayer ?: return false
 
         val prediction = entity.currPos.subtract(entity.prevPos).times(predictEnemyPosition.toDouble())
@@ -187,10 +193,6 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
             player.setPosAndPrevPos(currPos, oldPos)
             pos = simPlayer.pos
 
-            if (predictOnlyWhenOutOfRange && simDist2 <= range && simDist2 <= prevDist) {
-                return@repeat
-            }
-
             pos = previousPos
         }
 
@@ -198,5 +200,5 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         player.setPosAndPrevPos(currPos, oldPos)
 
         return true
-    }
+    }*/
 }
