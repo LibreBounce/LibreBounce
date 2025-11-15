@@ -54,366 +54,368 @@
         "notification.moduleEnabled": "Enabled %s",
         "notification.moduleDisabled": "Disabled %s",
 
+        "module.abortBreaking.description": "Allows you to abort breaking without losing your break progress.",
+
         "module.aimbot.description": "Automatically faces selected entities around you.",
+
+        "module.ambience.description": "Change your world time and weather client-side.",
+
+        "module.animations.description": "Customizes your blocking animation.",
+
+        "module.antiAFK.description": "Prevents you from getting kicked for being AFK.",
+
+        "module.antiBlind.description": "Cancels blindness effects.",
+
+        "module.antiBot.description": "Prevents KillAura from attacking anti-cheat bots.",
+
+        "module.antiBounce.description": "Prevents you from bouncing on blocks.",
+
+        "module.antiCactus.description": "Prevents cacti from damaging you.",
+
+        "module.antiExploit.description": "Prevents servers from crashing you.",
+
+        "module.antiFireball.description": "Automatically punches fireballs away from you.",
+
+        "module.antiHunger.description": "Prevents you from getting hungry.",
+
+        "module.antiVoid.description": "Automatically setbacks you after falling a certain distance.",
+
+        "module.anticheatDetector.description": "Detects anti-cheats by analyzing specific packets.",
+
+        "module.atAllProvider.description": "Automatically mentions everyone on the server when using '@a' in your message.",
+
+        "module.attackEffects.description": "Show effect when you attack",
+
+        "module.autoAccount.description": "Most feature-packed auto register/login & account manager.",
 
         "module.autoArmor.description": "Automatically equips the best armor in your inventory.",
 
         "module.autoBow.description": "Automatically shoots an arrow whenever your bow is fully loaded.",
 
+        "module.autoBreak.description": "Automatically breaks the block you are looking at.",
+
         "module.autoClicker.description": "Constantly clicks when holding down a mouse button.",
 
         "module.autoDisable.description": "Automatically disables selected module based on specified events.",
 
+        "module.autoFish.description": "Automatically catches fish when using a rod.",
+
         "module.autoLeave.description": "Automatically makes you leave the server whenever your health is low.",
 
+        "module.autoPlay.description": "Automatically queues up for the next match.",
+
         "module.autoPot.description": "Automatically throws healing potions.",
+
+        "module.autoProjectile.description": "Automatically throws egg/snowball.",
+
+        "module.autoRespawn.description": "Automatically respawns you after dying.",
 
         "module.autoRod.description": "Automatically uses fishing rod in combat.",
 
         "module.autoSoup.description": "Automatically eats soup whenever your health is low.",
 
+        "module.autoTool.description": "Automatically selects the best tool in your inventory to mine a block.",
+
+        "module.autoWalk.description": "Automatically walks forward.",
+
         "module.autoWeapon.description": "Automatically selects the best weapon in your hotbar.",
+
+        "module.avoidHazards.description": "Prevents you from walking into blocks that might be harmful to you.",
 
         "module.backtrack.description": "Allows you to hit players by attacking their previous positions.",
 
         "module.bedDefender.description": "Automatically defends bed with blocks",
 
-        "module.bedPlates.description": "Allows you to see blocks around beds.",
-
-        "module.pointerESP.description": "Allows you to see pointed entity positions.",
-
-        "module.projectileAimbot.description": "Automatically aims at players when using a projectile.",
-
-        "module.chat.description": "Allows you to change the appearance of the chat screen.",
-
-        "module.criticals.description": "Automatically deals critical hits.",
-
-        "module.fastBow.description": "Turns your bow into a machine gun.",
-
-        "module.hitBox.description": "Makes hitboxes of targets bigger.",
-
-        "module.ignite.description": "Automatically sets targets around you on fire.",
-
-        "module.killAura.description": "Automatically attacks targets around you.",
-
-        "module.noFriends.description": "Allows you to attack friends.",
-
-        "module.superKnockback.description": "Increases knockback dealt to other entities.",
-
-        "module.teleportHit.description": "Allows to hit entities from far away.",
-
-        "module.tNTBlock.description": "Automatically blocks with your sword when TNT around you explodes.",
-
-        "module.tNTTimer.description": "Displays a timer indicating how long until nearby TNT explodes.",
-
-        "module.velocity.description": "Allows you to modify the amount of knockback you take.",
-
-        "module.abortBreaking.description": "Allows you to abort breaking without losing your break progress.",
-
-        "module.ambience.description": "Change your world time and weather client-side.",
-
-        "module.antiHunger.description": "Prevents you from getting hungry.",
-
         "module.bedGodMode.description": "Allows you to walk around lying in a bed in 1.9.",
 
-        "module.clip.description": "Allows you to clip through blocks.",
-
-        "module.antiBounce.description": "Prevents you from bouncing on blocks.",
-
-        "module.animations.description": "Customizes your blocking animation.",
-        
-        "module.antiAFK.description": "Prevents you from getting kicked for being AFK.",
-        
-        "module.antiBlind.description": "Cancels blindness effects.",
-        
-        "module.antiBot.description": "Prevents KillAura from attacking anti-cheat bots.",
-
-        "module.antiExploit.description": "Prevents servers from crashing you.",
-        
-        "module.antiCactus.description": "Prevents cacti from damaging you.",
-        
-        "module.antiFireball.description": "Automatically punches fireballs away from you.",
-
-        "module.antiVoid.description": "Automatically setbacks you after falling a certain distance.",
-        
-        "module.atAllProvider.description": "Automatically mentions everyone on the server when using '@a' in your message.",
-        
-        "module.attackEffects.description": "Show effect when you attack",
-        
-        "module.autoAccount.description": "Most feature-packed auto register/login & account manager.",
-        
-        "module.autoBreak.description": "Automatically breaks the block you are looking at.",
-        
-        "module.autoFish.description": "Automatically catches fish when using a rod.",
-
-        "module.autoProjectile.description": "Automatically throws egg/snowball.",
-
-        "module.autoPlay.description": "Automatically queues up for the next match.",
-        
-        "module.autoRespawn.description": "Automatically respawns you after dying.",
-        
-        "module.autoTool.description": "Automatically selects the best tool in your inventory to mine a block.",
-        
-        "module.autoWalk.description": "Automatically walks forward.",
-
-        "module.avoidHazards.description": "Prevents you from walking into blocks that might be harmful to you.",
-        
-        "module.blink.description": "Suspends all movement packets.",
+        "module.bedPlates.description": "Allows you to see blocks around beds.",
 
         "module.bedProtectionESP.description": "Allows you to see where the blocks should be placed to protect a bed",
-        
+
+        "module.blink.description": "Suspends all movement packets.",
+
         "module.blockESP.description": "Allows you to see a selected block through walls.",
-        
+
         "module.blockOverlay.description": "Allows you to change the block overlay appearance.",
-        
+
         "module.blockWalk.description": "Allows you to walk on non-full blocks.",
 
         "module.breadcrumbs.description": "Leaves a trail behind you.",
-        
+
         "module.bufferSpeed.description": "Allows you to walk faster on slabs and stairs.",
-        
+
         "module.cameraClip.description": "Allows you to see through walls in third person view.",
 
         "module.cameraView.description": "Allows you to modify your camera Y position.",
-        
+
         "module.chams.description": "Allows you to see targets through blocks.",
-        
+
+        "module.chat.description": "Allows you to change the appearance of the chat screen.",
+
         "module.chestAura.description": "Automatically opens chests around you.",
-        
+
         "module.chestStealer.description": "Automatically steals all items from a chest.",
-        
+
+        "module.chineseHat.description": "Renders a chinese-like hat on specific entities.",
+
         "module.civBreak.description": "Allows you to break blocks instantly.",
-        
+
         "module.clickGUI.description": "Opens the ClickGUI.",
-        
+
+        "module.clickRecorder.description": "Records and saves your clicks.",
+
+        "module.clip.description": "Allows you to clip through blocks.",
+
         "module.componentOnHover.description": "Allows you to see the on-click action of chat message components when hovered.",
-        
+
         "module.consoleSpammer.description": "Spams the console of the server with errors.",
-        
+
+        "module.criticals.description": "Automatically deals critical hits.",
+
         "module.damage.description": "Deals damage to yourself.",
-        
+
         "module.derp.description": "Makes it look like you were derping around.",
-        
+
+        "module.disabler.description": "Disables specific anti-cheat detections.",
+
         "module.eSP.description": "Allows you to see targets through walls.",
-        
+
         "module.eagle.description": "Automatically sneaks on edges (aka. FastBridge).",
-        
-        "module.fakeLag.description": "Lags you behind server side until first hit.",
-        
+
+        "module.fakeLag.description": "Lags you server-sidedly until first hit.",
+
+        "module.fastBow.description": "Turns your bow into a machine gun.",
+
         "module.fastBreak.description": "Allows you to break blocks faster.",
-        
+
         "module.fastClimb.description": "Allows you to climb up ladders and vines faster.",
-        
+
         "module.fastPlace.description": "Allows you to place blocks faster.",
-        
+
         "module.fastStairs.description": "Allows you to climb up stairs faster.",
-        
+
         "module.fastUse.description": "Allows you to use items faster.",
 
         "module.flagCheck.description": "Detects if you get flagged by an anti-cheat.",
-        
+
         "module.fly.description": "Allows you to fly in survival mode.",
-        
+
         "module.forceUnicodeChat.description": "Allows you to send unicode messages in chat.",
-        
+
+        "module.forwardTrack.description": "Reveals the actual position of an entity.",
+
         "module.freeCam.description": "Allows you to move out of your body.",
 
         "module.freeLook.description": "Allows you to see around in third person view.",
-        
+
         "module.freeze.description": "Allows you to stay stuck mid-air.",
-        
+
         "module.fucker.description": "Destroys selected blocks around you. (aka. BedBreaker, IDNuker)",
-        
+
         "module.fullbright.description": "Brightens up the world around you.",
 
         "module.gameDetector.description": "Detects if you are in an ongoing game.",
-        
+
         "module.ghost.description": "Allows you to walk around and interact with your environment after dying.",
-        
+
         "module.ghostHand.description": "Allows you to interact with selected blocks through walls.",
-        
+
         "module.godMode.description": "GodMode Exploit for AAC",
-        
+
         "module.hUD.description": "Toggles visibility of the HUD.",
-        
+
         "module.highJump.description": "Allows you to jump higher.",
-        
+
+        "module.hitBox.description": "Makes hitboxes of targets bigger.",
+
         "module.iceSpeed.description": "Allows you to walk faster on ice.",
-        
+
+        "module.ignite.description": "Automatically sets targets around you on fire.",
+
         "module.inventoryCleaner.description": "Automatically throws away useless items, and sorts the inventory.",
-        
+
         "module.inventoryMove.description": "Allows you to walk while an inventory is opened.",
-        
+
         "module.itemESP.description": "Allows you to see items through walls.",
-        
-        "module.itemTeleport.description": "Allows you to pick up items far away.",
 
         "module.itemPhysics.description": "Allows dropped items to have physics",
+
+        "module.itemTeleport.description": "Allows you to pick up items far away.",
 
         "module.jumpCircle.description": "Renders a circle below you when jumping.",
 
         "module.keepAlive.description": "Tries to prevent you from dying.",
-        
+
         "module.keepContainer.description": "Allows you to open a formerly closed inventory container everywhere (press INSERT to open).",
+
+        "module.keepSprint.description": "Keeps you sprinting after attacking.",
 
         "module.keepTabList.description": "Keeps the tab list open at all times.",
 
         "module.keyPearl.description": "Allows you to throw an ender pearl from your hotbar using a certain key.",
 
         "module.kick.description": "Allows you to kick yourself from a server.",
-        
+
+        "module.killAura.description": "Automatically attacks targets around you.",
+
         "module.liquidChat.description": "Allows you to chat with other LiquidBounce users.",
-        
+
         "module.liquidWalk.description": "Allows you to walk on water.",
-        
+
         "module.liquids.description": "Allows you to interact with liquids.",
-        
+
         "module.longJump.description": "Allows you to jump further.",
-        
+
         "module.midClick.description": "Allows you to add a player as a friend by right clicking him.",
-        
+
         "module.moreCarry.description": "Allows you to store items in your crafting slots.",
-        
+
         "module.multiActions.description": "Allows you to use items while breaking blocks.",
-        
+
         "module.nameProtect.description": "Changes player names client-sidedly.",
-        
+
         "module.nameTags.description": "Changes the scale of the nametags so you can always read them.",
-        
+
         "module.noBob.description": "Disables the view bobbing effect.",
-        
+
         "module.noClip.description": "Allows you to freely move through walls (A sandblock has to fall on your head).",
-        
+
         "module.noFOV.description": "Disables FOV changes caused by speed, sprinting, etc.",
-        
+
         "module.noFall.description": "Prevents you from taking fall damage.",
-        
+
         "module.noFluid.description": "Ignore fluids like water and lava.",
-        
+
+        "module.noFriends.description": "Allows you to attack friends.",
+
         "module.noHurtCam.description": "Disables the effect when getting hurt.",
-        
-        "module.noJumpDelay.description": "Removes delay between jumps.",
-        
+
+        "module.noJumpDelay.description": "Removes the delay between jumps when holding the space bar.",
+
         "module.noPitchLimit.description": "Allows you to rotate your head indefinitely in every direction.",
-        
+
         "module.noRotateSet.description": "Prevents the server from rotating your head.",
 
         "module.noSlotSet.description": "Prevents the server from changing your hotbar slot.",
-        
+
         "module.noSlow.description": "Cancels slowness effects caused by Soul Sand and using items.",
-        
+
         "module.noSlowBreak.description": "Automatically adjusts breaking speed when using modules that influence it.",
-        
+
         "module.noSwing.description": "Disables the swing effect when hitting an entity/mining a block.",
 
-        "module.notifier.description": "Notifies you about many events.",
-        
         "module.noWeb.description": "Prevents you from getting slowed down in webs.",
-        
+
+        "module.notifier.description": "Notifies you about many events.",
+
         "module.nuker.description": "Breaks all blocks around you.",
 
-        "module.packetDebugger.description": "Allows you to debug server/client packets that being sent/received",
-        
+        "module.overrideRaycast.description": "Overrides your rotation-based raycast with the server rotation based raycast.",
+
+        "module.packetDebugger.description": "Allows you to debug server/client packets that are being sent/received",
+
         "module.parkour.description": "Automatically jumps when reaching the edge of a block.",
-        
+
         "module.perfectHorseJump.description": "Automatically jumps when the jump bar of a horse is full.",
-        
+
         "module.phase.description": "Allows you to walk through blocks.",
-        
+
         "module.pingSpoof.description": "Spoofs your ping to a given value.",
-        
+
         "module.plugins.description": "Allows you to see which plugins the server is using.",
-        
+
+        "module.pointerESP.description": "Allows you to see pointed entity positions.",
+
         "module.portalMenu.description": "Allows you to open a menu while being in a portal.",
-        
+
         "module.potionSaver.description": "Freezes all potion effects while you are standing still.",
 
         "module.potionSpoof.description": "Allows the player to have potion effects without actually having the potion.",
-        
+
+        "module.projectileAimbot.description": "Automatically aims at players when using a projectile.",
+
         "module.projectiles.description": "Allows you to see where arrows will land.",
-        
+
         "module.prophuntESP.description": "Allows you to see disguised players in PropHunt.",
 
-        "module.reach.description": "Increases your reach.",
-        
+        "module.reach.description": "Increases your combat and building reach.",
+
         "module.refill.description": "Refills items such as blocks and food from inventory to hotbar.",
-        
+
         "module.regen.description": "Regenerates your health much faster.",
-        
+
         "module.resourcePackSpoof.description": "Prevents servers from forcing you to download their resource pack.",
-        
+
         "module.reverseStep.description": "Allows you to step down blocks faster.",
-        
+
+        "module.rotationRecorder.description": "Records and saves your rotations.",
+
         "module.rotations.description": "Allows you to see server-sided head and body rotations.",
-        
+
         "module.safeWalk.description": "Prevents you from falling down as if you were sneaking.",
-        
+
         "module.scaffold.description": "Automatically places blocks beneath your feet.",
-        
+
         "module.serverCrasher.description": "Allows you to crash certain servers.",
-        
+
+        "module.silentHotbar.description": "Controls in which scenarios the silently selected item should be rendered.",
+
         "module.skinDerp.description": "Makes your skin blink (requires multi-layer skin).",
 
         "module.slimeJump.description": "Allows you to to jump higher on slime blocks.",
 
-        "module.silentHotbar.description": "Controls in which scenarios the silently selected item should be rendered.",
-        
-        "module.sneak.description": "Automatically sneaks all the time.",
-        
-        "module.spammer.description": "Spams the chat with a given message.",
-        
-        "module.speed.description": "Allows you to move faster.",
-        
-        "module.sprint.description": "Automatically sprints all the time.",
-
-        "module.staffDetector.description": "Detects and notifies you of staff members on the server",
-
-        "module.step.description": "Allows you to step up blocks.",
-        
-        "module.storageESP.description": "Allows you to see chests, etc. through walls.",
-        
-        "module.strafe.description": "Allows you to freely move mid-air.",
-        
-        "module.tNTESP.description": "Allows you to see ignited TNT blocks through walls.",
-        
-        "module.teams.description": "Prevents Killaura from attacking team mates.",
-        
-        "module.teleport.description": "Allows you to teleport around.",
-
-        "module.timerRange.description": "Allows you to manipulate the game speed for an advantage against your enemies.",
-
-        "module.timer.description": "Changes the speed of the entire game.",
-        
-        "module.tracers.description": "Draws a line to targets around you.",
-        
-        "module.trueSight.description": "Allows you to see invisible entities and barriers.",
-        
-        "module.vehicleOneHit.description": "Allows you to break vehicles with a single hit.",
-        
-        "module.wallClimb.description": "Allows you to climb up walls like a spider.",
-        
-        "module.xRay.description": "Allows you to see ores through walls.",
-        
-        "module.zoot.description": "Removes all bad potion effects/fire.",
-
-        "module.keepSprint.description": "Keeps you sprinting after attacking.",
-
-        "module.disabler.description": "Disables specific anti-cheat detections.",
-
-        "module.overrideRaycast.description": "Overrides your rotation-based raycast with the server rotation based raycast.",
-
-        "module.tickBase.description": "Buffers ticks to get early hits of an enemy.",
-
-        "module.rotationRecorder.description": "Records and saves your rotations.",
-
-        "module.forwardTrack.description": "Reveals the actual position of an entity.",
-
-        "module.clickRecorder.description": "Records and saves your clicks.",
-
-        "module.chineseHat.description": "Renders a chinese-like hat on specific entities.",
+        "module.smartHit.description": "Automatically decides when to hit your opponent, depending on multiple factors.",
 
         "module.snakeGame.description": "Opens a screen allowing you to play snake game.",
 
-        "module.anticheatDetector.description": "Detects anti-cheats by analyzing specific packets."
+        "module.sneak.description": "Automatically sneaks all the time.",
+
+        "module.spammer.description": "Spams the chat with a given message.",
+
+        "module.speed.description": "Allows you to move faster.",
+
+        "module.sprint.description": "Automatically sprints all the time.",
+
+        "module.staffDetector.description": "Detects and notifies you of staff members on the current server",
+
+        "module.step.description": "Allows you to step up blocks.",
+
+        "module.storageESP.description": "Allows you to see storarge (e.g., chests) through walls.",
+
+        "module.strafe.description": "Allows you to freely move mid-air.",
+
+        "module.superKnockback.description": "Increases knockback dealt to other entities.",
+
+        "module.tNTBlock.description": "Automatically blocks with your sword when TNT around you explodes.",
+
+        "module.tNTESP.description": "Allows you to see ignited TNT blocks through walls.",
+
+        "module.tNTTimer.description": "Displays a timer indicating how long until nearby TNT explodes.",
+
+        "module.teams.description": "Prevents KillAura from attacking teammates.",
+
+        "module.teleport.description": "Allows you to teleport around.",
+
+        "module.teleportHit.description": "Allows to hit entities from far away.",
+
+        "module.tickBase.description": "Buffers ticks to get early hits of an enemy.",
+
+        "module.timer.description": "Changes the speed of the entire game.",
+
+        "module.timerRange.description": "Allows you to manipulate the game speed for an advantage against your enemies.",
+
+        "module.tracers.description": "Draws path lines to targets around you.",
+
+        "module.trueSight.description": "Allows you to see invisible entities and barriers.",
+
+        "module.vehicleOneHit.description": "Allows you to break vehicles with a single hit.",
+
+        "module.velocity.description": "Allows you to modify the amount of knockback you take.",
+
+        "module.wallClimb.description": "Allows you to climb up walls.",
+
+        "module.xRay.description": "Allows you to see ores through walls.",
+
+        "module.zoot.description": "Removes all bad potion effects and fire."
     }
 }
