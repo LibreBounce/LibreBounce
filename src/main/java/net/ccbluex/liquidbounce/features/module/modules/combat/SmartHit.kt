@@ -104,8 +104,8 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
         val simPos = Vec3(simPlayer.posX, simPlayer.posY, simPlayer.posZ)
 
-        val simDist = with(simPos){
-            player.distanceTo(getNearestPointBB(eyes, boundingBox))
+        val simDist = with(simPos) {
+            player.getDistanceToBox(boundingBox)
         }
 
         val rotationToPlayer = toRotation(player.hitBox.center, true, target!!)
