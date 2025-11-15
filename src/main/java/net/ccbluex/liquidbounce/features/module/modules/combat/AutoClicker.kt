@@ -138,9 +138,9 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT) {
     private fun shouldAutoRightClick() = mc.thePlayer.heldItem?.itemUseAction in arrayOf(EnumAction.BLOCK)
 
     private fun handleLeftClick(time: Long, doubleClick: Int) {
-        val shouldHit = if (SmartHit.handleEvents()) SmartHit.shouldHit(target) else target!!.hurtTime > hurtTime
+        val shouldHit = (target != null && if (SmartHit.handleEvents()) SmartHit.shouldHit(target!!) else target!!.hurtTime > hurtTime) || target == null
 
-        if (target != null && !shouldHit) return
+        if (!shouldHit) return
 
         repeat(1 + doubleClick) {
             KeyBinding.onTick(mc.gameSettings.keyBindAttack.keyCode)
