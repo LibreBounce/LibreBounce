@@ -21,7 +21,7 @@ object HitBox : Module("HitBox", Category.COMBAT) {
     private val playerSize by float("PlayerSize", 0.4f, 0f..1f) { targetPlayers }
     private val friendSize by float("FriendSize", 0.4f, 0f..1f) { targetPlayers }
     private val teamMateSize by float("TeamMateSize", 0.4f, 0f..1f) { targetPlayers }
-    private val botSize by float("BotSize", 0.f, 0f..ff) { targetPlayers }
+    private val botSize by float("BotSize", 0.4f, 0f..1f) { targetPlayers }
 
     private val targetMobs by boolean("TargetMobs", false)
     private val mobSize by float("MobSize", 0.4f, 0f..1f) { targetMobs }
