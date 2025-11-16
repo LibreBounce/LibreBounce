@@ -15,10 +15,9 @@ import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.nextInt
 import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.randomString
 
 object Spammer : Module("Spammer", Category.MISC, subjective = true) {
+
     private val delay by intRange("Delay", 500..1000, 0..5000, suffix = "ms")
-
     private val message by text("Message", "$CLIENT_NAME Client | liquidbounce(.net) | CCBlueX on yt")
-
     private val custom by boolean("Custom", false)
 
     val onUpdate = loopSequence {

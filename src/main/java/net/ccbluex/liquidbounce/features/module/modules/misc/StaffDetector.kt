@@ -51,7 +51,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
         "StaffMode", serverIpMap.keys.toTypedArray(), "BlocksMC"
     ).onChanged(::loadStaffData)
 
-    private val tab by boolean("TAB", true)
+    private val tab by boolean("Tab", true)
     private val packet by boolean("Packet", true)
     private val velocity by boolean("Velocity", true)
     private val vanish by boolean("Vanish", true)

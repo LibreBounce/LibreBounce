@@ -21,6 +21,7 @@ import net.minecraft.entity.EntityLivingBase
 import net.minecraft.init.Items
 
 object CombatJump : Module("CombatJump", Category.COMBAT) {
+
     private val distance by floatRange("TargetDistance", 7f..7.5f, 0f..20f)
     private val enemiesNearby by int("EnemiesNearby", 1, 1..5)
     private val delay by intRange("Delay", 350..600, 0..1000)

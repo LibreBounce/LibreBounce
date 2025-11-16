@@ -145,16 +145,19 @@ object AutoPot : Module("AutoPot", Category.COMBAT) {
 
             fun hasPotionEffect(id: Int) = effects.any { it.potionID == id }
 
-            if (player.health <= health && healPotion && hasPotionEffect(heal.id)) return i
-            if (!onEffect(regeneration) && regenerationPotion && hasPotionEffect(regeneration.id)) return i
-            if (!onEffect(fireResistance) && fireResistancePotion && hasPotionEffect(fireResistance.id)) return i
-            if (!onEffect(moveSpeed) && speedPotion && hasPotionEffect(moveSpeed.id)) return i
-            if (!onEffect(jump) && jumpPotion && hasPotionEffect(jump.id)) return i
-            if (!onEffect(damageBoost) && strengthPotion && hasPotionEffect(damageBoost.id)) return i
+            when {
+                player.health <= health && healPotion && hasPotionEffect(heal.id) -> return i
+                !onEffect(regeneration) && regenerationPotion && hasPotionEffect(regeneration.id) -> return i
+                !onEffect(fireResistance) && fireResistancePotion && hasPotionEffect(fireResistance.id) -> return i
+                !onEffect(moveSpeed) && speedPotion && hasPotionEffect(moveSpeed.id) -> return i
+                !onEffect(jump) && jumpPotion && hasPotionEffect(jump.id) -> return i
+                !onEffect(damageBoost) && strengthPotion && hasPotionEffect(damageBoost.id) -> return i
+                else -> return null
+            }
         }
 
-    return null
-}
+        return null
+    }
 
     override val tag
         get() = health.toString()

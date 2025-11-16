@@ -49,10 +49,8 @@ object SnakeGame : Module("SnakeGame", Category.FUN, gameDetecting = false) {
 
     private val speed: Int
         get() = when (mode) {
-            "Easy"   -> 3
-            "Normal" -> 2
-            "Hard"   -> 2
-            else     -> 3
+            "Easy" -> 3
+            else -> 2
         }
 
     val onKey = handler<KeyEvent> { event ->

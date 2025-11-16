@@ -36,7 +36,7 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT) {
 
     // TODO: Add smart hit selecting
     // A decent starting hit selecting formula may be (16 / (distance * 2.2)) * (combinedPing / 160) * (combinedMoveSpeed / 10)
-    private val hurtTime by int("HurtTime", 10, 0..10) { left && !SmartHit.handleEvents()}
+    private val hurtTime by int("HurtTime", 10, 0..10) { left && !SmartHit.handleEvents() }
 
     private val right by boolean("Right", true)
     private val left by boolean("Left", true)

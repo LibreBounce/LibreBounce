@@ -11,6 +11,7 @@ import net.minecraft.entity.EntityLivingBase
 import net.minecraft.item.ItemArmor
 
 object Teams : Module("Teams", Category.MISC, gameDetecting = false) {
+
     private val scoreboard by boolean("ScoreboardTeam", true)
     private val nameColor by boolean("NameColor", true)
     private val armorColor by boolean("ArmorColor", true)

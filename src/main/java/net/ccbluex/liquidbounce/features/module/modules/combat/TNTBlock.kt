@@ -17,7 +17,7 @@ import net.minecraft.item.ItemSword
 object TNTBlock : Module("TNTBlock", Category.COMBAT) {
 
     private val fuse by int("Fuse", 10, 0..80)
-    private val range by float("Range", 9F, 1F..20F)
+    private val range by float("Range", 9f, 1f..20f)
     // TODO: Maybe AutoWeapon should be used for this?
     private val autoSword by boolean("AutoSword", true)
     private var blocked = false

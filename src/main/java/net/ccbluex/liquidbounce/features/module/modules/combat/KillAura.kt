@@ -285,6 +285,10 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     ).subjective()
 
     // Visuals
+    private val renderAimPointBox by boolean("RenderAimPointBox", false).subjective()
+    private val aimPointBoxColor by color("AimPointBoxColor", Color.CYAN) { renderAimPointBox }.subjective()
+    private val aimPointBoxSize by float("AimPointBoxSize", 0.1f, 0f..0.2F) { renderAimPointBox }.subjective()
+
     private val mark by choices("Mark", arrayOf("None", "Platform", "Box", "Circle"), "Circle").subjective()
 
     private val markColor by color("MarkColor", Color(255, 0, 0, 70)) { mark in arrayOf("Platform", "Box") }.subjective()
@@ -308,9 +312,6 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     private val boxOutline by boolean("Outline", true) { mark == "Box" }.subjective()
 
     private val fakeSharp by boolean("FakeSharp", true).subjective()
-    private val renderAimPointBox by boolean("RenderAimPointBox", false).subjective()
-    private val aimPointBoxColor by color("AimPointBoxColor", Color.CYAN) { renderAimPointBox }.subjective()
-    private val aimPointBoxSize by float("AimPointBoxSize", 0.1f, 0f..0.2F) { renderAimPointBox }.subjective()
 
     /**
      * MODULE
@@ -418,7 +419,6 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             return@handler
         }
 
-        //if (blockStatus && autoBlock == "Packet" && releaseAutoBlock && blockTicks.hasTimePassed(blockLength) && !ignoreTickRule) {
         if (blockStatus && autoBlock == "Packet" && releaseAutoBlock && !ignoreTickRule) {
             clicks = 0
             stopBlocking()
@@ -475,7 +475,9 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         }
 
         if (target != null) {
-            if (player.getDistanceToEntityBox(target!!) > blockMaxRange && blockStatus) {
+            val distance = player.getDistanceToEntityBox(target!!)
+
+            if (distance > blockMaxRange && blockStatus) {
                 stopBlocking(true)
                 return@handler
             } else {
@@ -490,7 +492,6 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
             // Generate clicks based on distance from us to target.
             val generatedClicks = if (generateClicksBasedOnDist) {
-                val distance = player.getDistanceToEntityBox(target!!)
                 ((distance / distanceFactor.random()) * cpsMultiplier.random()).roundToInt()
             } else 0
 
@@ -575,6 +576,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
      * Attack enemy
      */
     private fun runAttack(isFirstClick: Boolean, isLastClick: Boolean) {
+        // TODO: Use target, instead
         val currentTarget = this.target ?: return
 
         val player = mc.thePlayer ?: return
