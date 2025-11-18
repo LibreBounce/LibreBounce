@@ -92,7 +92,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         val prediction = target.currPos.subtract(target.prevPos).times(predictEnemyPosition.toDouble())
         val boundingBox = target.hitBox.offset(prediction)
 
-        val simDist = player.getDistanceToBox(boundingBox)
+        var simDist = player.getDistanceToBox(boundingBox)
 
         val simPlayer = SimulatedPlayer.fromClientPlayer(RotationUtils.modifiedInput)
 
@@ -105,7 +105,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
         player.setPosAndPrevPos(simPlayer.pos)
 
-        simDist = player.getDistanceToEntityBox(target)
+        simDist = player.getDistanceToBox(boundingBox)
 
         player.setPosAndPrevPos(currPos, prevPos)
 

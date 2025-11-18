@@ -335,7 +335,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
      */
     private fun getNearestEntityInRange(): Entity? {
         mc.thePlayer ?: return null
-        return entities.minByOrNull { mc.thePlayer?.getDistanceToEntityBox(it) }
+        return entities.minByOrNull { mc.thePlayer.getDistanceToEntityBox(it) }
     }
 
     /**
