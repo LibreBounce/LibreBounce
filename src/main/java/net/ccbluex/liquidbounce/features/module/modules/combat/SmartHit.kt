@@ -70,9 +70,6 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
          * Say you have 200 ping; in about half that time, the packet will be received by the server; in the other half,
          * you will see the attack itself. As such, you are seeing what has happened 2-4 ticks ago.
          *
-         * This messes up hit timing severely, so much that I'll need to add some system to simulate the hurttime number.
-         * Otherwise, as has been proven in tests, it will delay hits when they ought not to be delayed.
-         *
          * Credits to all the Raven versions, Augustus, and Vape for some of these ideas!
          */
         val player = mc.thePlayer ?: return false
@@ -87,6 +84,8 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
         // The reason why I also have this is because the combat range of a player is a beam starting from the eyes
         // in lower/higher ground situations, this effectively means 2 players can have lower or higher range
+        // TODO: Have another value that checks own pos from (combinedPing / 2).toTicks() ago, and predict the target position
+        // then, to be even more accurate
         val targetDist = target.getDistanceToEntityBox(player)
 
         val prediction = target.currPos.subtract(target.prevPos).times(predictEnemyPosition.toDouble())
@@ -149,6 +148,8 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
             // TODO: Instead, simulate both players' positions and check if you can hit on the tick after (or 2 ticks after, or both); if not, hit immediately
             (distance > notAboveRange || simDist > notAbovePredRange) && player.hurtTime !in hurtTimeNoEscape..8 && targetHitLikely -> true
+
+            distance <= 3f && targetDist > 3.12f && target.hurtTime < 2 -> true
 
             // Panic hitting is also not a very good idea either, n'est-ce pas?
             player.health < notBelowOwnHealth -> true
