@@ -6,7 +6,6 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import net.ccbluex.liquidbounce.event.AttackEvent
-import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
@@ -14,21 +13,13 @@ import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.rotation.RaycastUtils.raycastEntity
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils
-import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.currentRotation
-import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.getVectorForRotation
-import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.isRotationFaced
-import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.isVisible
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.rotationDifference
-import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.searchCenter
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.serverRotation
-import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.setTargetRotation
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.toRotation
 import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.minecraft.entity.Entity
-import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.init.Items
 import net.minecraft.util.Vec3
 import kotlin.math.max
 import kotlin.math.sqrt
