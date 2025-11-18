@@ -45,6 +45,8 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
     private val notOnEdgeLimit by float("NotOnEdgeLimit", 1f, 0f..8f, suffix = "blocks") { notOnEdge }
 
     // Prediction
+    // Change these values to your preference; however, you should fine-tune PredictEnemyPosition for each server,
+    // since they all have different knockback strengths
     private val predictClientMovement by int("PredictClientMovement", 2, 0..5, suffix = "ticks")
     private val predictEnemyPosition by float("PredictEnemyPosition", 1.5f, 0f..2f)
 
@@ -98,6 +100,10 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
         val distance = player.getDistanceToEntityBox(target)
 
+        // The reason why I also have this is because the combat range of a player is a beam starting from the eyes
+        // in lower/higher ground situations, this effectively means 2 players can have lower or higher range
+        val targetDist = target.getDistanceToEntityBox(player)
+
         val prediction = target.currPos.subtract(target.prevPos).times(predictEnemyPosition.toDouble())
         val boundingBox = target.hitBox.offset(prediction)
 
@@ -107,8 +113,6 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         val simDist = with(simPos) {
             player.getDistanceToBox(boundingBox)
         }
-
-        val targetDist = target.getDistanceToEntityBox(player)
 
         val rotationToPlayer = toRotation(player.hitBox.center, true, target!!)
         val rotDiff = rotationDifference(rotationToPlayer, target.rotation)
@@ -155,6 +159,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
             player.health < notBelowOwnHealth -> true
 
             // TODO: Instead, calculate whether you can 1-tap your opponent
+            // ItemStack.attackDamage defenseFactor
             target.health < notBelowEnemyHealth -> true
 
             // If you are near an edge, you should hit as much as possible to reduce received knockback

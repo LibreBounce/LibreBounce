@@ -97,7 +97,7 @@ val ItemStack.durability
 // Calculates how much estimated durability does the item have thanks to its unbreaking level
 val ItemStack.totalDurability: Int
     get() {
-        // See https://minecraft.fandom.com/wiki/Unbreaking?oldid=2326887
+        // See https://minecraft.wiki/w/Unbreaking or https://minecraft.fandom.com/wiki/Unbreaking?oldid=2326887
         val multiplier =
             if (item is ItemArmor) 1 / (0.6 + (0.4 / (getEnchantmentLevel(Enchantment.unbreaking) + 1)))
             else getEnchantmentLevel(Enchantment.unbreaking) + 1.0

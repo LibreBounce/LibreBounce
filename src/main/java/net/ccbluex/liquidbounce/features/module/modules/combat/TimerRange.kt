@@ -368,6 +368,9 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
                 shouldReset = true
             }
         } else {
+            // mc.timer.timerSpeed = 1f
+            // shouldReset = !shouldReset
+            // TODO: Maybe replace this mess with the code above?
             if (!shouldReset && mc.timer.timerSpeed != 1f) {
                 mc.timer.timerSpeed = 1f
                 shouldReset = true
@@ -392,7 +395,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
                 blinked = true
             }
 
-            if (blink && blinked) {
+            if (blinked) {
                 when (packet) {
                     // Flush on doing/getting action.
                     is S08PacketPlayerPosLook, is C07PacketPlayerDigging, is C12PacketUpdateSign, is C19PacketResourcePackStatus -> {
@@ -424,11 +427,12 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
             shouldResetTimer()
 
             if (shouldReset) {
-                if (chatDebug) {
-                    chat("Lagback Received | Timer Reset")
-                }
-                if (notificationDebug) {
-                    hud.addNotification(Notification.informative(this, "Lagback Received - Resetting Timer", 1000L))
+                val message = "Lagback Received | Timer Reset"
+
+                when {
+                    chatDebug -> chat(message)
+                    notificationDebug -> hud.addNotification(Notification.informative(this, message, 1000L))
+                    else -> null
                 }
 
                 shouldReset = false
@@ -440,11 +444,12 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
             shouldResetTimer()
 
             if (shouldReset) {
-                if (chatDebug) {
-                    chat("Knockback Received | Timer Reset")
-                }
-                if (notificationDebug) {
-                    hud.addNotification(Notification.informative(this, "Knockback Received - Resetting Timer", 1000L))
+                val message = "Knockback Received | Timer Reset"
+
+                when {
+                    chatDebug -> chat(message)
+                    notificationDebug -> hud.addNotification(Notification.informative(this, message, 1000L))
+                    else -> null
                 }
 
                 shouldReset = false
