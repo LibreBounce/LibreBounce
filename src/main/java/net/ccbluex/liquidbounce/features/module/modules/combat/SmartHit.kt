@@ -77,12 +77,6 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
          */
         val player = mc.thePlayer ?: return false
 
-        val simPlayer = SimulatedPlayer.fromClientPlayer(RotationUtils.modifiedInput)
-
-        repeat(predictClientMovement) {
-            simPlayer.tick()
-        }
-
         // Latency affects many things, so it is worth to be included in our calculations
         val playerPing = (player as EntityPlayer).getPing()
         val targetPing = (target as EntityPlayer).getPing()
@@ -98,12 +92,22 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         val prediction = target.currPos.subtract(target.prevPos).times(predictEnemyPosition.toDouble())
         val boundingBox = target.hitBox.offset(prediction)
 
-        val simPos = Vec3(simPlayer.posX, simPlayer.posY, simPlayer.posZ)
+        val simDist = player.getDistanceToBox(boundingBox)
 
-        // TODO: Fix this not using own simulated pos
-        val simDist = with(simPos) {
-            player.getDistanceToBox(boundingBox)
+        val simPlayer = SimulatedPlayer.fromClientPlayer(RotationUtils.modifiedInput)
+
+        val currPos = player.currPos
+        val prevPos = player.prevPos
+
+        repeat(predictClientMovement) {
+            simPlayer.tick()
         }
+
+        player.setPosAndPrevPos(simPlayer.pos)
+
+        simDist = player.getDistanceToEntityBox(target)
+
+        player.setPosAndPrevPos(currPos, prevPos)
 
         val rotationToPlayer = toRotation(player.hitBox.center, true, target!!)
         val rotDiff = rotationDifference(rotationToPlayer, target.rotation)
