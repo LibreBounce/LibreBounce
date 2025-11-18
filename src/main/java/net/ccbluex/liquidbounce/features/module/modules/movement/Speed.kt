@@ -203,35 +203,35 @@ object Speed : Module("Speed", Category.MOVEMENT) {
     }
 
     val onMove = handler<MoveEvent> { event ->
-        if (mc.thePlayer?.isSneaking)
+        if (mc.thePlayer.isSneaking)
             return@handler
 
         modeModule.onMove(event)
     }
 
     val tickHandler = handler<GameTickEvent> {
-        if (mc.thePlayer?.isSneaking)
+        if (mc.thePlayer.isSneaking)
             return@handler
 
         modeModule.onTick()
     }
 
     val onStrafe = handler<StrafeEvent> {
-        if (mc.thePlayer?.isSneaking)
+        if (mc.thePlayer.isSneaking)
             return@handler
 
         modeModule.onStrafe()
     }
 
     val onJump = handler<JumpEvent> { event ->
-        if (mc.thePlayer?.isSneaking)
+        if (mc.thePlayer.isSneaking)
             return@handler
 
         modeModule.onJump(event)
     }
 
     val onPacket = handler<PacketEvent> { event ->
-        if (mc.thePlayer?.isSneaking)
+        if (mc.thePlayer.isSneaking)
             return@handler
 
         modeModule.onPacket(event)
