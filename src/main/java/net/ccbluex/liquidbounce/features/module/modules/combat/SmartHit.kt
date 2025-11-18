@@ -108,6 +108,8 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
             player.getDistanceToBox(boundingBox)
         }
 
+        val targetDist = target.getDistanceToEntityBox(player)
+
         val rotationToPlayer = toRotation(player.hitBox.center, true, target!!)
         val rotDiff = rotationDifference(rotationToPlayer, target.rotation)
 
@@ -130,7 +132,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         // TODO: Also consider a target that is holding the backwards key for over 6-10 ticks as not likely to hit, and a target not moving, too
         // TODO: Turn this into an integer (0-100), and have a treshold of when it starts being considered likely
         //if (simDist > distance && distance > 2.8 && player.hurtTime == 0 && target.hurtTime == 0) targetHitLikely = false
-        val targetHitLikely = rotDiff < 30f + (12f * combinedPingMult) && !target.hitBox.isVecInside(player.eyes) && !target.isUsingItem
+        val targetHitLikely = rotDiff < 30f + (12f * combinedPingMult) && !target.hitBox.isVecInside(player.eyes) && !target.isUsingItem && targetDist > 2.9f
 
         val baseHurtTime = 3f / (1f + sqrt(distance) - (rotDiff / 180f))
         val optimalHurtTime = max(baseHurtTime.toInt(), 2)
@@ -162,45 +164,8 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
             else -> false
         }
 
-        if (debug) chat("(SmartHit) Will hit: ${shouldHit}, predicted distance: ${simDist}, current distance: ${distance}, combined ping: ${combinedPing}, combined ping multiplier: ${combinedPingMult}, rotation difference: ${rotDiff}, target hit likely: ${targetHitLikely}, own hurttime: ${player.hurtTime}, target hurttime: ${target.hurtTime}, on ground: ${player.onGround}, falling: ${falling}")
+        if (debug) chat("(SmartHit) Will hit: ${shouldHit}, predicted distance: ${simDist}, current distance: ${distance}, current distance (target POV): ${targetDist}, combined ping: ${combinedPing}, combined ping multiplier: ${combinedPingMult}, rotation difference: ${rotDiff}, target hit likely: ${targetHitLikely}, own hurttime: ${player.hurtTime}, target hurttime: ${target.hurtTime}, on ground: ${player.onGround}, falling: ${falling}")
 
         return shouldHit
     }
-
-    /*private fun updatePredicting(entity: Entity): Boolean {
-        val player = mc.thePlayer ?: return false
-
-        val prediction = entity.currPos.subtract(entity.prevPos).times(predictEnemyPosition.toDouble())
-        val boundingBox = entity.hitBox.offset(prediction)
-        val (currPos, oldPos) = player.currPos to player.prevPos
-
-        val simPlayer = SimulatedPlayer.fromClientPlayer(RotationUtils.modifiedInput)
-
-        var pos = currPos
-
-        repeat(predictClientMovement) {
-            val previousPos = simPlayer.pos
-
-            simPlayer.tick()
-
-            player.setPosAndPrevPos(simPlayer.pos)
-
-            simDist = player.getDistanceToBox(entity.hitBox.offset(prediction))
-            val simDist2 = player.getDistanceToEntityBox(entity)
-
-            player.setPosAndPrevPos(previousPos)
-
-            val prevDist = player.getDistanceToEntityBox(entity)
-
-            player.setPosAndPrevPos(currPos, oldPos)
-            pos = simPlayer.pos
-
-            pos = previousPos
-        }
-
-        player.setPosAndPrevPos(pos)
-        player.setPosAndPrevPos(currPos, oldPos)
-
-        return true
-    }*/
 }
