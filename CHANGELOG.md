@@ -6,9 +6,14 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 ## [Unreleased]
 
+### Fixed
+
+- `PredictClientMovement` not affecting the simulated distance, in SmartHit (thatonecoder)
+
 ### Changed
 
-- Add missing SmartHit entry and improve other things, in the EN_US language localization
+- Fine-tune and improve SmartHit further (thatonecoder)
+- Add missing SmartHit entry and improve other things, in the EN_US localization (thatonecoder)
 
 ## [0.7.0-alpha.2] - 2025-11-15
 
