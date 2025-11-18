@@ -177,6 +177,8 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
 
         if (timerBoostMode != "Modern") return@handler
 
+        val moving = if (!onForwardOnly) player.isMoving else player.moveForward != 0f && player.moveStrafing == 0f
+
         val nearbyEntity = getNearestEntityInRange() ?: return@handler
 
         val randomTickDelay = tickDelay.random()
@@ -187,7 +189,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
             return@handler
         }
 
-        if (isPlayerMoving()) {
+        if (moving) {
             smartTick++
 
             if (smartTick >= randomTickDelay) {
@@ -198,7 +200,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
             smartTick = 0
         }
 
-        if (isPlayerMoving() && !confirmStop) {
+        if (moving && !confirmStop) {
             if (isLookingOnEntities(nearbyEntity, maxAngleDifference.toDouble())) {
                 val entityDistance = player.getDistanceToEntityBox(nearbyEntity)
                 if (confirmTick && entityDistance in randomRange..range.endInclusive) {
@@ -249,10 +251,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
         return true
     }
 
-    /**
-     * Motion event
-     * (Resets player speed when less/more than target distance)
-     */
+    // Resets player speed when less/more than target distance
     val onMotion = handler<MotionEvent> { event ->
         if (blink && event.eventState == EventState.POST) {
             synchronized(packetsReceived) {
@@ -262,10 +261,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
         }
     }
 
-    /**
-     * World Event
-     * (Clear packets on disconnect)
-     */
+    // Clears packets when disconnecting
     val onWorld = handler<WorldEvent> { event ->
         if (blink && event.worldClient == null) {
             packets.clear()
@@ -273,9 +269,6 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
         }
     }
 
-    /**
-     * Update event
-     */
     val onUpdate = handler<UpdateEvent> {
         // Randomize the timer & charged delay a bit, to bypass some AntiCheat
         val timerBoost = boostDelay.random()
@@ -330,21 +323,10 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
                 Color(210, 60, 60, 70)
             }
 
-            if (markMode != "Off") {
-                when (markMode) {
-                    "Box" -> drawEntityBox(nearbyEntity, color, outline)
-                    "Platform" -> drawPlatform(nearbyEntity, color)
-                }
+            when (markMode) {
+                "Box" -> drawEntityBox(nearbyEntity, color, outline)
+                "Platform" -> drawPlatform(nearbyEntity, color)
             }
-        }
-    }
-
-    /**
-     * Check if player is moving
-     */
-    private fun isPlayerMoving(): Boolean {
-        return if (!onForwardOnly) mc.thePlayer?.isMoving == true else {
-            mc.thePlayer?.moveForward != 0f && mc.thePlayer?.moveStrafing == 0f
         }
     }
 
@@ -352,8 +334,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
      * Find the nearest entity in range.
      */
     private fun getNearestEntityInRange(): Entity? {
-        val player = mc.thePlayer ?: return null
-        return entities.minByOrNull { player.getDistanceToEntityBox(it) }
+        return entities.minByOrNull { mc.thePlayer?.getDistanceToEntityBox(it) }
     }
 
     /**
@@ -380,14 +361,11 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
         }
     }
 
-    /**
-     * Lagback Reset is Inspired from Nextgen TimerRange
-     * Reset Timer on Lagback & Knockback.
-     */
     val onPacket = handler<PacketEvent> { event ->
+        val player = mc.thePlayer ?: return@handler
         val packet = event.packet
 
-        if (mc.thePlayer == null || mc.thePlayer.isDead) return@handler
+        if (player.isDead) return@handler
 
         if (blink) {
             if (playerTicks > 0 && !blinked) {
@@ -413,7 +391,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
 
                     // Flush on damage
                     is S06PacketUpdateHealth -> {
-                        if (packet.health < mc.thePlayer.health) {
+                        if (packet.health < player.health) {
                             BlinkUtils.unblink()
                             return@handler
                         }
@@ -440,7 +418,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
         }
 
         // Check for knockback
-        if (resetOnKnockback && packet is S12PacketEntityVelocity && mc.thePlayer?.entityId == packet.entityID) {
+        if (resetOnKnockback && packet is S12PacketEntityVelocity && player.entityId == packet.entityID) {
             shouldResetTimer()
 
             if (shouldReset) {

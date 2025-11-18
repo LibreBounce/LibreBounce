@@ -128,7 +128,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         // TODO: Turn this into an integer (0-100), and have a treshold of when it starts being considered likely
         //if (simDist > distance && distance > 2.8 && player.hurtTime == 0 && target.hurtTime == 0) targetHitLikely = false
         val rotHittable = rotDiff < 30f + (12f * combinedPingMult) && !target.hitBox.isVecInside(player.eyes)
-        val targetHitLikely = rotHittable && !target.isUsingItem && (targetDist < 3.05f && dist <= 3f)
+        val targetHitLikely = rotHittable && !target.isUsingItem && (targetDist < 3.05f && distance <= 3f)
 
         val baseHurtTime = 3f / (1f + sqrt(distance) - (rotDiff / 180f))
         val optimalHurtTime = max(baseHurtTime.toInt(), 2)
