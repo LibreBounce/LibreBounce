@@ -5,87 +5,68 @@
  */
 /*package net.ccbluex.liquidbounce.features.module.modules.combat
 
-import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.event.StrafeEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.utils.attack.EntityUtils.isSelected
-import net.ccbluex.liquidbounce.utils.extensions.tryJump
-import net.ccbluex.liquidbounce.utils.extensions.isMoving
-import net.ccbluex.liquidbounce.utils.extensions.getDistanceToEntityBox
-import net.ccbluex.liquidbounce.utils.rotation.RaycastUtils.raycastEntity
-import net.ccbluex.liquidbounce.utils.timing.MSTimer
+import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
+import net.ccbluex.liquidbounce.utils.client.chat
+import net.ccbluex.liquidbounce.utils.extensions.*
+import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
-import net.minecraft.init.Items
 
 object CombatJump : Module("CombatJump", Category.COMBAT) {
 
-    private val distance by floatRange("TargetDistance", 7f..7.5f, 0f..20f)
-    private val enemiesNearby by int("EnemiesNearby", 1, 1..5)
-    private val delay by intRange("Delay", 350..600, 0..1000)
+    private val endDistance by floatRange("EndDistance", 3.05f..3.25f, 0f..8f)
     private val onlyMove by boolean("OnlyMove", true)
-    private val onUsingItem by boolean("OnUsingItem", false)
 
-    private var shouldJump = false
-    private val jumpTimer = MSTimer()
+    private val predictClientMovement by boolean("PredictClientMovement", 6, 0..10, suffix = "ticks")
+    private val predictEnemyPosition by float("PredictEnemyPosition", 1.5f, 0f..2f)
+
+    private val debug by boolean("Debug", false).subjective()
 
     // Anti-cheats such as Grim flag when you don't do it on this event
     val onStrafe = handler<StrafeEvent> { event ->
         val player = mc.thePlayer ?: return@handler
 
+        val target = KillAura.target ?: return@handler
+
         if (onlyMove && !player.isMoving) return@handler
 
-        val target = target
-
-        if (shouldJump) {
+        if (shouldJump(target)) {
             player.tryJump()
-            jumpTimer.reset()
+
+            if (debug) chat("(CombatJump) Jumped to the target")
         }
     }
 
-    val onUpdate = handler<UpdateEvent> {
-        val player = mc.thePlayer ?: return@handler
+    private fun shouldJump(): Boolean {
+        val distance = player.getDistanceToEntityBox(target)
 
-        var jump = false
+        val simPlayer = SimulatedPlayer.fromClientPlayer(RotationUtils.modifiedInput)
+    
+        val simDist = player.getDistanceToEntityBox(target)
 
-        if (facingEnemy) {
-            var facingEntity = mc.objectMouseOver?.entityHit
-            val nearbyEnemies = getAllNearbyEnemies()
+        val prediction = target.currPos.subtract(target.prevPos).times(predictEnemyPosition.toDouble())
+        val boundingBox = target.hitBox.offset(prediction)
 
-            if (facingEntity == null) {
-                // Check if the player is looking at the enemy
-                facingEntity = raycastEntity(activationDistance.toDouble()) { isSelected(it, true) }
-            }
+        val currPos = player.currPos
+        val prevPos = player.prevPos
 
-            // Check whether the player is using items/blocking
-            if (!onUsingItem) {
-                if (player?.isUsingItem == true || KillAura.blockStatus) {
-                    return@handler
-                }
-            }
+        if (simPlayer.onGround) simPlayer.jump()
 
-            if (isSelected(facingEntity, true)) {
-                // Checks how many enemies are nearby, if <= then should jump
-                if (nearbyEnemies.size <= enemiesNearby) {
-                    jump = true
-                }
-            }
-        } else if (!facingEnemy) {
-            jump = false
+        repeat(predictClientMovement) {
+            simPlayer.tick()
         }
 
-        if (jump && jumpTimer.hasTimePassed(delay)) {
-            shouldJump = true
-        }
-    }
+        player.setPosAndPrevPos(simPlayer.pos)
 
-    private fun getAllNearbyEnemies(): List<Entity> {
-        val player = mc.thePlayer ?: return emptyList()
+        simDist = player.getDistanceToBox(boundingBox)
 
-        return mc.theWorld.loadedEntityList.filter {
-            isSelected(it, true) && player.getDistanceToEntityBox(it) < activationDistance
-        }
+        player.setPosAndPrevPos(currPos, prevPos)
+
+        return simDist in distance
+        
     }
 }*/

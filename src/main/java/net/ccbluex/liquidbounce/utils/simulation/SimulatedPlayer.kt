@@ -1347,4 +1347,109 @@ class SimulatedPlayer(
         return !capabilities.isFlying
     }
 
+    /*class SimulatedPlayerInput(
+        val directionalInput: DirectionalInput,
+        jumping: Boolean,
+        var sprinting: Boolean,
+        sneaking: Boolean,
+        var ignoreClippingAtLedge: Boolean = false
+    ) : Input() {
+        var forceSafeWalk: Boolean = false
+
+        init {
+            set(
+                forward = directionalInput.forwards,
+                backward = directionalInput.backwards,
+                left = directionalInput.left,
+                right = directionalInput.right,
+                jump = jumping,
+                sneak = sneaking
+            )
+        }
+
+        fun update() {
+            if (this.playerInput.forward != this.playerInput.backward) {
+                this.movementForward = if (this.playerInput.forward) 1.0f else -1.0f
+            } else {
+                this.movementForward = 0.0f
+            }
+
+            movementSideways = if (playerInput.left == playerInput.right) {
+                0.0f
+            } else if (playerInput.left) {
+                1.0f
+            } else {
+                -1.0f
+            }
+
+            if (playerInput.sneak) {
+                movementSideways = (movementSideways.toDouble() * 0.3).toFloat()
+                movementForward = (movementForward.toDouble() * 0.3).toFloat()
+            }
+        }
+
+        override fun toString(): String {
+            return "SimulatedPlayerInput(forwards={${this.playerInput.forward}}, backwards={${this.playerInput.backward}}, left={${this.playerInput.left}}, right={${this.playerInput.right}}, jumping={${this.playerInput.jump}}, sprinting=$sprinting, slowDown=${playerInput.sneak})"
+        }
+
+        companion object {
+            private const val MAX_WALKING_SPEED = 0.121
+
+            fun fromClientPlayer(
+                directionalInput: DirectionalInput,
+                jump: Boolean = player.input.playerInput.jump,
+                sprinting: Boolean = player.isSprinting,
+                sneaking: Boolean = player.isSneaking
+            ): SimulatedPlayerInput {
+                val input = SimulatedPlayerInput(
+                    directionalInput,
+                    jump,
+                    sprinting,
+                    sneaking
+                )
+
+                val safeWalkEvent = PlayerSafeWalkEvent()
+
+                callEvent(safeWalkEvent)
+
+                if (safeWalkEvent.isSafeWalk) {
+                    input.forceSafeWalk = true
+                }
+
+                return input
+            }
+
+            /**
+             * Guesses the current input of a server player based on player position and velocity
+             */
+            fun guessInput(entity: PlayerEntity): SimulatedPlayerInput {
+                val velocity = entity.pos.subtract(entity.lastPos)
+
+                val horizontalVelocity = velocity.horizontalLengthSquared()
+
+                val sprinting = horizontalVelocity >= MAX_WALKING_SPEED * MAX_WALKING_SPEED
+
+                val input = if (horizontalVelocity > 0.05 * 0.05) {
+                    val velocityAngle = getDegreesRelativeToView(velocity, yaw = entity.yaw)
+
+                    val velocityAngle1 = MathHelper.wrapDegrees(velocityAngle)
+
+                    getDirectionalInputForDegrees(DirectionalInput.NONE, velocityAngle1)
+                } else {
+                    DirectionalInput.NONE
+                }
+
+                val jumping = !entity.isOnGround
+
+                return SimulatedPlayerInput(
+                    input,
+                    jumping,
+                    sprinting,
+                    sneaking=entity.isSneaking
+                )
+            }
+        }
+
+    }*/
+
 }
