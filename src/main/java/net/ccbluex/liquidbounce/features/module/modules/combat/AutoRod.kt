@@ -96,7 +96,7 @@ object AutoRod : Module("AutoRod", Category.COMBAT) {
 
                 // Check whether player is using items/blocking
                 if (!onUsingItem) {
-                    if (player?.itemInUse?.item != Items.fishing_rod && (player?.isUsingItem == true || KillAura.blockStatus)) {
+                    if (player?.itemInUse?.item != Items.fishing_rod && (player?.isUsingItem || KillAura.blockStatus)) {
                         return@handler
                     }
                 }
@@ -150,23 +150,18 @@ object AutoRod : Module("AutoRod", Category.COMBAT) {
         }
     }
 
-    /**
-     * Use rod
-     */
     private fun rod() {
         val rod = findRod(36, 45)
 
         mc.thePlayer.inventory.currentItem = rod
         // We do not need to send our own packet, because sendUseItem will handle it for us
+        // TODO: Use SilentHotbar, instead
         mc.playerController.sendUseItem(mc.thePlayer, mc.theWorld, mc.thePlayer.hotBarSlot(rod).stack)
 
         rodInUse = true
         rodPullTimer.reset()
     }
 
-    /**
-     * Find rod in inventory
-     */
     private fun findRod(startSlot: Int, endSlot: Int): Int {
         for (i in startSlot until endSlot) {
             val stack = mc.thePlayer.inventorySlot(i).stack
