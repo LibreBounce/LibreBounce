@@ -163,6 +163,60 @@ class SimulatedPlayer(
             )
         }
 
+        /*fun fromOtherPlayer(player: EntityPlayerSP, input: MovementInput): SimulatedPlayer {
+            val capabilities = createCapabilitiesCopy(player)
+            val foodStats = createFoodStatsCopy(player)
+
+            val movementInput = MovementInput().apply {
+                this.jump = input.jump
+                this.moveForward = input.moveForward
+                this.moveStrafe = input.moveStrafe
+                this.sneak = input.sneak
+            }
+
+            return SimulatedPlayer(player,
+                player.entityBoundingBox,
+                movementInput,
+                player.jumpTicks,
+                player.motionZ,
+                player.motionY,
+                player.motionX,
+                player.isInWater,
+                player.onGround,
+                player.isAirBorne,
+                player.rotationYaw,
+                player.posX,
+                player.posY,
+                player.posZ,
+                capabilities,
+                player.ridingEntity,
+                player.jumpMovementFactor,
+                player.worldObj,
+                player.isCollidedHorizontally,
+                player.isCollidedVertically,
+                player.worldObj.worldBorder,
+                player.worldObj.chunkProvider,
+                player.isOutsideBorder,
+                player.riddenByEntity,
+                player.attributeMap,
+                player.isSpectator,
+                player.fallDistance,
+                player.stepHeight,
+                player.isCollided,
+                player.fire,
+                player.distanceWalkedModified,
+                player.distanceWalkedOnStepModified,
+                player.nextStepDistance,
+                player.height,
+                player.width,
+                player.fireResistance,
+                player.isInWeb,
+                player.noClip,
+                player.isSprinting,
+                foodStats
+            )
+        }*/
+
         private fun createFoodStatsCopy(player: EntityPlayerSP): FoodStats {
             val foodStatsNBT = NBTTagCompound()
             val foodStats = FoodStats()
