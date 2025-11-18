@@ -102,7 +102,7 @@ _Updates may slow down from now on, since I am prioritizing quality over quantit
 - **Breaking:** Rename `View Distance` to `ViewDistance`, `Player Shape` to `PlayerShape`, `Player Size` to `PlayerSize`, `Use ESP Colors` to `UseESPColor`, `FOV Size` to `FOVSize`, `FOV Angle` to `FOVAngle`, `Border-Strength` to `BorderStrength`, `Rainbow-X` to `RainbowX`, and `Rainbow-Y` to `RainbowY`, in the Radar element (thatonecoder)
 - **Breaking:** Rename `Rounded-Radius` to `RoundedRadius`, `Border-Strength` to `BorderStrength`, `Rainbow-X` to `RainbowX`, `Rainbow-Y` to `RainbowY`, and `TextPosition-Y` to `TextPositionY` in the TabGUI element (thatonecoder)
 - **Breaking:** Rename `Rounded-Radius` to `RoundedRadius`, `Border-Strength` to `BorderStrength`, `Background-ColorMode` to `BackgroundColorMode`, `Background-Color` to `BackgroundColor`, `HealthBar-Gradient1` to `HealthBarGradient1`, `HealthBar-Gradient2` to `HealthBarGradient2`, `Border-Color` to `BorderColor`, `Rainbow-X` to `RainbowX`, and `Rainbow-Y` to `RainbowY` in the Target element (thatonecoder)
-- Make even more values have sufixes (thatonecoder)
+- Make even more values have suffixes (thatonecoder)
 - Make Parkour not jump when using an item (thatonecoder)
 
 ### Removed
