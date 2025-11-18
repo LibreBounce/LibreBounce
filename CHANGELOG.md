@@ -9,6 +9,7 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 ### Fixed
 
 - `PredictClientMovement` not affecting the simulated distance, in SmartHit (thatonecoder)
+- InventoryMove not working, when `Undetected` is enabled and the ClickGUI is enabled on the `Panel` mode (thatonecoder)
 
 ### Changed
 
@@ -45,7 +46,7 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 - Lower the minimum value in `EnemiesNearby` to 0 in AutoRod, allowing you to ignore the limit (thatonecoder)
 - Lower the minimum value in `PulseDelay` from 500 to 0 in Blink (thatonecoder)
 - Make the `Jump` mode in Velocity also use the `HurtTime` range (thatonecoder)
-- Improve EN_US language localization (thatonecoder)
+- Improve EN_US localization (thatonecoder)
 
 ## [0.6.0] - 2025-10-22
 

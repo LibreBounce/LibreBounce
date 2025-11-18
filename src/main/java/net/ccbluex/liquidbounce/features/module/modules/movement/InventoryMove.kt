@@ -9,6 +9,7 @@ import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.ui.client.clickgui.ClickGui
+import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
 import net.ccbluex.liquidbounce.utils.client.PacketUtils
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
@@ -94,7 +95,7 @@ object InventoryMove : Module("InventoryMove", Category.MOVEMENT, gameDetecting 
         // Don't make player move when chat or ESC menu are open
         if (screen is GuiChat || screen is GuiIngameMenu) return true
 
-        if (undetectable && (screen != null && screen !is GuiHudDesigner && screen !is ClickGui)) return true
+        if (undetectable && (screen != null && screen !is GuiHudDesigner && screen !is ClickGui && screen !is PanelStyle)) return true
 
         if (notInChests && screen is GuiChest) return true
 
