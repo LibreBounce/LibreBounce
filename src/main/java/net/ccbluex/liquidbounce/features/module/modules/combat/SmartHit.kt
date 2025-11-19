@@ -49,7 +49,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
         lastHitCrit = player.fallDistance > 0
 
-        hitOnTheWay = targetEntity.hurtTime == 0
+        hitOnTheWay = event.targetEntity.hurtTime < 1
     }
 
     fun shouldHit(target: Entity): Boolean {
