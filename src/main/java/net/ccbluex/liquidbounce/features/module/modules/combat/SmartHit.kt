@@ -46,10 +46,11 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
     val onAttack = handler<AttackEvent> { event ->
         val player = mc.thePlayer ?: return@handler
+        val targetHurtTime = event.targetEntity.hurtTime
 
         lastHitCrit = player.fallDistance > 0
 
-        hitOnTheWay = event.targetEntity.hurtTime < 1
+        hitOnTheWay = targetHurtTime < 1
     }
 
     fun shouldHit(target: Entity): Boolean {
