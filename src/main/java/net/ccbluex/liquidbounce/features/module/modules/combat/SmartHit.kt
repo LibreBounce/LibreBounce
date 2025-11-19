@@ -43,7 +43,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
     private var lastHitCrit = false
 
-    private var hitOnTheWay = false
+    //private var hitOnTheWay = false
 
     val onAttack = handler<AttackEvent> { event ->
         val player = mc.thePlayer ?: return@handler
@@ -51,7 +51,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
         lastHitCrit = player.fallDistance > 0
 
-        hitOnTheWay = target.hurtTime < 1
+        //hitOnTheWay = true
     }
 
     fun shouldHit(target: Entity): Boolean {
@@ -125,7 +125,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         if (target.hurtTime == 0) lastHitCrit = false
 
         // TODO: Check if you hit the player in the last ticks; latency may affect when the hit lands
-        if (target.hurtTime > 0) hitOnTheWay = false
+        // if (target.HurtTime > 0) hitOnTheWay = true
 
         /*
          * If a target is running or cannot hit you, it is not beneficial to hit more than required (i.e., when the target is hittable), since the slowdown
@@ -143,7 +143,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         val baseHurtTime = 3f / (1f + sqrt(distance) - (rotDiff / 180f))
         val optimalHurtTime = max(baseHurtTime.toInt(), 2)
 
-        val groundHit = properGround && if (targetHitLikely) target.hurtTime !in 2..optimalHurtTime else !hitOnTheWay
+        val groundHit = properGround && if (targetHitLikely) target.hurtTime !in 2..optimalHurtTime else target.hurtTime == 0
         val fallingHit = falling && if (targetHitLikely) target.hurtTime !in 2..optimalHurtTime else !lastHitCrit
         val airHit = fallingHit || (target.hurtTime in 4..5 && targetHitLikely)
 
