@@ -42,10 +42,14 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
     private var lastHitCrit = false
 
+    private var hitOnTheWay = false
+
     val onAttack = handler<AttackEvent> { event ->
         val player = mc.thePlayer ?: return@handler
 
         lastHitCrit = player.fallDistance > 0
+
+        hitOnTheWay = targetEntity.hurtTime == 0
     }
 
     fun shouldHit(target: Entity): Boolean {
@@ -90,6 +94,8 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
         var simDist = player.getDistanceToBox(boundingBox)
 
+        // Currently, this is the best way I've found to do it, even though the code does
+        // look quite messy
         val simPlayer = SimulatedPlayer.fromClientPlayer(RotationUtils.modifiedInput)
 
         val currPos = player.currPos
@@ -114,8 +120,10 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         // If you are "falling" (as in fallDistance > 0; it doesn't reset when you go up, only when on ground), you can land critical hits
         val falling = player.fallDistance > 0 || simPlayer.fallDistance > 0
 
-        // TODO: Check if you hit the player in the last ticks; latency may affect when the hit lands
         if (target.hurtTime == 0) lastHitCrit = false
+
+        // TODO: Check if you hit the player in the last ticks; latency may affect when the hit lands
+        if (target.hurtTime > 0) hitOnTheWay = false
 
         /*
          * If a target is running or cannot hit you, it is not beneficial to hit more than required (i.e., when the target is hittable), since the slowdown
@@ -133,7 +141,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         val baseHurtTime = 3f / (1f + sqrt(distance) - (rotDiff / 180f))
         val optimalHurtTime = max(baseHurtTime.toInt(), 2)
 
-        val groundHit = properGround && if (targetHitLikely) target.hurtTime !in 2..optimalHurtTime else target.hurtTime == 0
+        val groundHit = properGround && if (targetHitLikely) target.hurtTime !in 2..optimalHurtTime else !hitOnTheWay
         val fallingHit = falling && if (targetHitLikely) target.hurtTime !in 2..optimalHurtTime else !lastHitCrit
         val airHit = fallingHit || (target.hurtTime in 4..5 && targetHitLikely)
 
@@ -146,7 +154,8 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
             // TODO: Instead, simulate both players' positions and check if you can hit on the tick after (or 2 ticks after, or both); if not, hit immediately
             (distance > notAboveRange || simDist > notAbovePredRange) && player.hurtTime !in hurtTimeNoEscape..8 && targetHitLikely -> true
 
-            distance <= 3f && targetDist > 3.12f && target.hurtTime < 2 -> true
+            // Hits the opponent when the opponent can't hit you; should give plenty of free hits
+            distance in 2.8f..3f && targetDist > 3.05f && target.hurtTime !in 2..7 -> true
 
             // Panic hitting is also not a very good idea either, n'est-ce pas?
             player.health < notBelowOwnHealth -> true
