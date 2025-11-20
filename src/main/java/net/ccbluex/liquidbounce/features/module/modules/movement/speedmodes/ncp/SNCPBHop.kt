@@ -61,16 +61,16 @@ object SNCPBHop : SpeedMode("SNCPBHop") {
             event.y -= 0.09316090325960147
             player.posY -= 0.09316090325960147
         }
-        if (level == 1 && player.isMoving) {
+        if (level++ && player.isMoving) {
             level = 2
             moveSpeed = 1.35 * baseMoveSpeed - 0.01
         } else if (level == 2) {
-            level = 3
+            level++
             player.motionY = 0.399399995803833
             event.y = 0.399399995803833
             moveSpeed *= 2.149
         } else if (level == 3) {
-            level = 4
+            level++
             val difference = 0.66 * (lastDist - baseMoveSpeed)
             moveSpeed = lastDist - difference
         } else if (level == 88) {

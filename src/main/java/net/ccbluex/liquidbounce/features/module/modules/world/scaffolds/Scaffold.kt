@@ -906,6 +906,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
             simPlayer.tick()
 
             // We don't want to use block safe all the time, so we check if it's not needed.
+            // TODO: Make this adaptive
             options.instant =
                 blockSafe && simPlayer.fallDistance > player.fallDistance + 0.05 && rotationDifference > rotationDifference2 / 2
 
