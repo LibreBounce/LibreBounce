@@ -34,8 +34,6 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT) {
     private val simulateDoubleClicking by boolean("SimulateDoubleClicking", false)
     private val cps by intRange("CPS", 5..8, 1..50)
 
-    // TODO: Add smart hit selecting
-    // A decent starting hit selecting formula may be (16 / (distance * 2.2)) * (combinedPing / 160) * (combinedMoveSpeed / 10)
     private val hurtTime by int("HurtTime", 10, 0..10) { left && !SmartHit.handleEvents() }
 
     private val right by boolean("Right", true)

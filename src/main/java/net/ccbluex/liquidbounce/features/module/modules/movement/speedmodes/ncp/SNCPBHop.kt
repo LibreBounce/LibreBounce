@@ -61,8 +61,8 @@ object SNCPBHop : SpeedMode("SNCPBHop") {
             event.y -= 0.09316090325960147
             player.posY -= 0.09316090325960147
         }
-        if (level++ && player.isMoving) {
-            level = 2
+        if (level == 1 && player.isMoving) {
+            level++
             moveSpeed = 1.35 * baseMoveSpeed - 0.01
         } else if (level == 2) {
             level++
@@ -101,10 +101,10 @@ object SNCPBHop : SpeedMode("SNCPBHop") {
         }
         moveSpeed = moveSpeed.coerceAtLeast(baseMoveSpeed)
 
-        val movementInput = player.movementInput
-        var forward = movementInput.moveForward
-        var strafe = movementInput.moveStrafe
+        var forward = player.movementInput.moveForward
+        var strafe = player.movementInput.moveStrafe
         var yaw = player.rotationYaw
+
         if (forward == 0f && strafe == 0f) {
             event.x = 0.0
             event.z = 0.0
