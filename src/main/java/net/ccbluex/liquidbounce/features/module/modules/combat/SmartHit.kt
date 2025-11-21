@@ -125,7 +125,6 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         // TODO: Check if you hit the player in the last ticks; latency may affect when the hit lands
         if (target.hurtTime > 0) {
             hitOnTheWay = false
-            critHitOnTheWay = false
         }
 
         /*
