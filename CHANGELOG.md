@@ -6,6 +6,10 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 ## [Unreleased]
 
+### Added
+
+- `AttackableHurtTime` integer range value to SmartHit; defines when SmartHit considers the target as ready-to-hit (thatonecoder) 
+
 ### Fixed
 
 - `PredictClientMovement` not affecting the simulated distance, in SmartHit (thatonecoder)

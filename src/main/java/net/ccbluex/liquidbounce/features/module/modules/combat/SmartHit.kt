@@ -26,6 +26,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
     // TODO: Not on 1-tap option, taking into account your weapon + enchantments, the opponent's armor + enchantments, and potion effects
     // Also add an option that makes it click anyway, if the knockback is large enough to combo you
+    private val attackableHurtTime by intRange("AttackableHurtTime", 0..0, 0..10)
     private val notAboveRange by float("NotAboveRange", 2.7f, 0f..8f, suffix = "blocks")
     private val notAbovePredRange by float("NotAbovePredictedRange", 2.8f, 0f..8f, suffix = "blocks")
     private val notBelowOwnHealth by float("NotBelowOwnHealth", 5f, 0f..20f)
@@ -120,10 +121,12 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         // If you are "falling" (as in fallDistance > 0; it doesn't reset when you go up, only when on ground), you can land critical hits
         val falling = player.fallDistance > 0 || simPlayer.fallDistance > 0
 
-        if (target.hurtTime == 1) lastHitCrit = false
+        val canHitTarget = target.hurtTime in attackableHurtTime
+
+        if (target.hurtTime <= attackableHurtTime.last) lastHitCrit = false
 
         // TODO: Check if you hit the player in the last ticks; latency may affect when the hit lands
-        if (target.hurtTime > 0) {
+        if (!canHitTarget) {
             hitOnTheWay = false
         }
 
@@ -137,14 +140,14 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         // TODO: Also consider a target that is holding the backwards key for over 6-10 ticks as not likely to hit, and a target not moving, too
         // TODO: Turn this into an integer (0-100), and have a treshold of when it starts being considered likely
         //if (simDist > distance && distance > 2.8 && player.hurtTime == 0 && target.hurtTime == 0) targetHitLikely = false
-        val rotHittable = rotDiff < 30f + (12f * combinedPingMult) && !target.hitBox.isVecInside(player.eyes)
-        val targetHitLikely = rotHittable && !target.isUsingItem && (targetDist < 3.05f && distance <= 3f)
+        val rotHittable = rotDiff < 20f + (12f * combinedPingMult) && !target.hitBox.isVecInside(player.eyes)
+        val targetHitLikely = rotHittable && !target.isUsingItem && targetDist < 3.05f
 
         val baseHurtTime = 3f / (1f + sqrt(distance) - (rotDiff / 180f))
         val optimalHurtTime = max(baseHurtTime.toInt(), 2)
 
-        val groundHit = properGround && if (targetHitLikely) target.hurtTime !in 2..optimalHurtTime else target.hurtTime == 0 && !hitOnTheWay
-        val fallingHit = falling && if (targetHitLikely) target.hurtTime !in 2..optimalHurtTime else target.hurtTime == 0 && (!hitOnTheWay || !lastHitCrit)
+        val groundHit = properGround && if (targetHitLikely) target.hurtTime !in 2..optimalHurtTime else canHitTarget && !hitOnTheWay
+        val fallingHit = falling && if (targetHitLikely) target.hurtTime !in 2..optimalHurtTime else canHitTarget && (!hitOnTheWay || !lastHitCrit)
         val airHit = fallingHit || (target.hurtTime in 4..5 && targetHitLikely)
 
         val hurtTimeNoEscape = (2 * distance * 8).toInt() / 10
@@ -157,7 +160,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
             (distance > notAboveRange || simDist > notAbovePredRange) && player.hurtTime !in hurtTimeNoEscape..8 && targetHitLikely -> true
 
             // Hits the opponent when the opponent can't hit you; should give plenty of free hits
-            distance in 2.8f..3f && targetDist > 3.05f && target.hurtTime !in 2..7 -> true
+            targetDist > 3.05f && canHitTarget -> true
 
             // Panic hitting is also not a very good idea either, n'est-ce pas?
             player.health < notBelowOwnHealth -> true
