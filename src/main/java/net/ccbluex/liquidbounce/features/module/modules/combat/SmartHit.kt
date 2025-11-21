@@ -42,16 +42,14 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
     private val debug by boolean("Debug", false).subjective()
 
     private var lastHitCrit = false
-
-    //private var hitOnTheWay = false
+    private var hitOnTheWay = false
 
     val onAttack = handler<AttackEvent> { event ->
         val player = mc.thePlayer ?: return@handler
-        val target = event.targetEntity as? EntityLivingBase ?: return@handler
 
         lastHitCrit = player.fallDistance > 0
 
-        //hitOnTheWay = true
+        hitOnTheWay = true
     }
 
     fun shouldHit(target: Entity): Boolean {
@@ -122,10 +120,13 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         // If you are "falling" (as in fallDistance > 0; it doesn't reset when you go up, only when on ground), you can land critical hits
         val falling = player.fallDistance > 0 || simPlayer.fallDistance > 0
 
-        if (target.hurtTime == 0) lastHitCrit = false
+        if (target.hurtTime == 1) lastHitCrit = false
 
         // TODO: Check if you hit the player in the last ticks; latency may affect when the hit lands
-        // if (target.HurtTime > 0) hitOnTheWay = true
+        if (target.hurtTime > 0) {
+            hitOnTheWay = false
+            critHitOnTheWay = false
+        }
 
         /*
          * If a target is running or cannot hit you, it is not beneficial to hit more than required (i.e., when the target is hittable), since the slowdown
@@ -143,8 +144,8 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         val baseHurtTime = 3f / (1f + sqrt(distance) - (rotDiff / 180f))
         val optimalHurtTime = max(baseHurtTime.toInt(), 2)
 
-        val groundHit = properGround && if (targetHitLikely) target.hurtTime !in 2..optimalHurtTime else target.hurtTime == 0
-        val fallingHit = falling && if (targetHitLikely) target.hurtTime !in 2..optimalHurtTime else !lastHitCrit
+        val groundHit = properGround && if (targetHitLikely) target.hurtTime !in 2..optimalHurtTime else target.hurtTime == 0 && !hitOnTheWay
+        val fallingHit = falling && if (targetHitLikely) target.hurtTime !in 2..optimalHurtTime else target.hurtTime == 0 && (!hitOnTheWay || !lastHitCrit)
         val airHit = fallingHit || (target.hurtTime in 4..5 && targetHitLikely)
 
         val hurtTimeNoEscape = (2 * distance * 8).toInt() / 10
