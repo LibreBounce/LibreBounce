@@ -35,8 +35,8 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
     private val notOnEdgeLimit by float("NotOnEdgeLimit", 1f, 0f..8f, suffix = "blocks") { notOnEdge }
 
     // Prediction
-    // Change these values to your preference; however, you should fine-tune PredictEnemyPosition for each server,
-    // since they all have different knockback strengths
+    // Change these values to your preference; you should fine-tune PredictEnemyPosition for each server,
+    // since they are all slightly different
     private val predictClientMovement by int("PredictClientMovement", 2, 0..5, suffix = "ticks")
     private val predictEnemyPosition by float("PredictEnemyPosition", 1.5f, 0f..2f)
 
@@ -125,10 +125,8 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
         if (target.hurtTime <= attackableHurtTime.last) lastHitCrit = false
 
-        // TODO: Check if you hit the player in the last ticks; latency may affect when the hit lands
-        if (!canHitTarget) {
-            hitOnTheWay = false
-        }
+        // TODO: Improve code quality, assure it works
+        if (!canHitTarget) hitOnTheWay = false
 
         /*
          * If a target is running or cannot hit you, it is not beneficial to hit more than required (i.e., when the target is hittable), since the slowdown
@@ -156,7 +154,6 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
             // This currently does not fully account for burst clicking, timed hits, zest tapping, etc
             groundHit || airHit -> true
 
-            // TODO: Instead, simulate both players' positions and check if you can hit on the tick after (or 2 ticks after, or both); if not, hit immediately
             (distance > notAboveRange || simDist > notAbovePredRange) && player.hurtTime !in hurtTimeNoEscape..8 && targetHitLikely -> true
 
             // Hits the opponent when the opponent can't hit you; should give plenty of free hits
@@ -170,7 +167,6 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
             target.health < notBelowEnemyHealth -> true
 
             // If you are near an edge, you should hit as much as possible to reduce received knockback
-            // I assume this checks for all edges, including ones that are irrelevant
             // TODO: Check if the target is near an edge; if so, you can also spam hit to deal as much knockback as possible
             notOnEdge && player.isNearEdge(notOnEdgeLimit) -> true
 
