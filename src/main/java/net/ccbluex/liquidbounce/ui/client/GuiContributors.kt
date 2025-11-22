@@ -159,8 +159,8 @@ class GuiContributors(private val prevGui: GuiScreen) : AbstractScreen() {
     override fun keyTyped(typedChar: Char, keyCode: Int) {
         when (keyCode) {
             Keyboard.KEY_ESCAPE -> mc.displayGuiScreen(prevGui)
-            Keyboard.KEY_UP -> list.selectedSlot -= 1
-            Keyboard.KEY_DOWN -> list.selectedSlot += 1
+            Keyboard.KEY_UP -> list.selectedSlot--
+            Keyboard.KEY_DOWN -> list.selectedSlot++
             Keyboard.KEY_TAB ->
                 list.selectedSlot += if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) -1 else 1
 

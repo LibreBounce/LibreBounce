@@ -124,7 +124,7 @@ object FastClimb : Module("FastClimb", Category.MOVEMENT) {
                             posY = prevPosY
 
                             playerClimb()
-                            climbCount += 1
+                            climbCount++
 
                         }
                     }

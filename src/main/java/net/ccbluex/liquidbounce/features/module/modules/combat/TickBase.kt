@@ -118,7 +118,7 @@ object TickBase : Module("TickBase", Category.COMBAT) {
             fun tick() {
                 repeat(skipTicks) {
                     player.onUpdate()
-                    tickBalance -= 1
+                    tickBalance--
                 }
             }
 

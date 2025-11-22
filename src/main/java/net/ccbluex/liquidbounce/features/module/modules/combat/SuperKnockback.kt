@@ -29,6 +29,7 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
     private val hurtTime by int("HurtTime", 10, 0..10)
 
     // TODO: Fix SprintTap flagging on prediction anti-cheats
+    // TODO: Add SneakTap mode
     private val mode by choices(
         "Mode",
         arrayOf("WTap", "SprintTap", "SprintTap2", "Old", "Silent", "Packet", "SneakPacket"),
@@ -53,7 +54,7 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
 
     private val minEnemyRotDiffToIgnore by float("MinRotationDiffFromEnemyToIgnore", 180f, 0f..180f, suffix = "º")
 
-    // TODO: Add an OnSword option, in case someone is using legit AutoBlock
+    // TODO: Add an OnSword or OnBlocking option, in case someone is using legit AutoBlock
     private val onlyGround by boolean("OnlyGround", false)
     val onlyMove by boolean("OnlyMove", true)
     val onlyMoveForward by boolean("OnlyMoveForward", true) { onlyMove }
@@ -187,44 +188,45 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
 
     val onPostSprintUpdate = handler<PostSprintUpdateEvent> {
         val player = mc.thePlayer ?: return@handler
-        if (mode == "SprintTap") {
-            when (ticks) {
-                2 -> {
-                    player.isSprinting = false
-                    forceSprintState = 2
-                    ticks--
-                }
 
-                1 -> {
-                    if (player.movementInput.moveForward > 0.8) {
-                        player.isSprinting = true
-                    }
-                    forceSprintState = 1
-                    ticks--
-                }
+        if (mode != "SprintTap") return@handler
 
-                else -> {
-                    forceSprintState = 0
-                }
+        when (ticks) {
+            2 -> {
+                player.isSprinting = false
+                forceSprintState = 2
+                ticks--
+            }
+
+            1 -> {
+                if (player.movementInput.moveForward > 0.8)
+                    player.isSprinting = true
+
+                forceSprintState = 1
+                ticks--
+            }
+
+            else -> {
+                forceSprintState = 0
             }
         }
     }
 
     val onUpdate = handler<UpdateEvent> {
-        if (mode == "WTap") {
-            if (blockInput) {
-                if (ticksElapsed++ >= allowInputTicks) {
-                    blockInput = false
-                    ticksElapsed = 0
-                }
-            } else {
-                if (startWaiting) {
-                    blockInput = blockTicksElapsed++ >= blockInputTicks
+        if (mode != "WTap") return@handler
 
-                    if (blockInput) {
-                        startWaiting = false
-                        blockTicksElapsed = 0
-                    }
+        if (blockInput) {
+            if (ticksElapsed++ >= allowInputTicks) {
+                blockInput = false
+                ticksElapsed = 0
+            }
+        } else {
+            if (startWaiting) {
+                blockInput = blockTicksElapsed++ >= blockInputTicks
+
+                if (blockInput) {
+                    startWaiting = false
+                    blockTicksElapsed = 0
                 }
             }
         }
@@ -233,7 +235,7 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
     val onPacket = handler<PacketEvent> { event ->
         val player = mc.thePlayer ?: return@handler
 
-        if (event.packet is C03PacketPlayer && mode == "Silent") {
+        if (mode == "Silent" && event.packet is C03PacketPlayer) {
             if (ticks == 2) {
                 sendPacket(C0BPacketEntityAction(player, STOP_SPRINTING))
                 ticks--

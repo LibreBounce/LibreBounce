@@ -222,7 +222,7 @@ object BlackStyle : Style() {
                                 }
                             }
                             if (!value.openList) {
-                                yPos += 1
+                                yPos++
                             }
                         }
 

@@ -719,7 +719,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
                 if (entity is EntityLivingBase && isSelected(entity, true) && distance <= getRange(entity)) {
                     attackEntity(entity, isLastClick)
 
-                    targets += 1
+                    targets++
 
                     if (limitedMultiTargets != 0 && limitedMultiTargets <= targets) break
                 }

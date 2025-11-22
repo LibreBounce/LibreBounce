@@ -16,7 +16,6 @@ import net.minecraft.network.play.client.C03PacketPlayer
 import java.awt.Color
 
 object AAC1910 : FlyMode("AAC1.9.10") {
-
     private var jump = 0.0
 
     override fun onEnable() {

@@ -43,7 +43,8 @@ object Boost : SpeedMode("Boost") {
                     speed -= 0.1
 
 
-                motionDelay += 1
+                motionDelay++
+
                 when (motionDelay) {
                     1 -> {
                         motionX *= speed

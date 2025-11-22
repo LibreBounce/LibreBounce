@@ -11,13 +11,10 @@ object VulcanOld : FlyMode("VulcanOld") {
     override fun onUpdate() {
         mc.thePlayer?.run {
             if (!onGround && fallDistance > 0) {
-                if (ticksExisted % 2 == 0) {
-                    motionY = -0.1
-                    jumpMovementFactor = 0.0265f
-                } else {
-                    motionY = -0.16
-                    jumpMovementFactor = 0.0265f
-                }
+                motionY = if (ticksExisted % 2 == 0) -0.1
+                    else -0.16
+
+                jumpMovementFactor = 0.0265f
             }
         }
     }

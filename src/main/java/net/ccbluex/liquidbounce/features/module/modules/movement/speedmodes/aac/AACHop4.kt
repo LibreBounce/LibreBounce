@@ -21,12 +21,11 @@ object AACHop4 : SpeedMode("AACHop4") {
             if (onGround) {
                 tryJump()
             } else {
-                if (fallDistance <= 0.1)
-                    mc.timer.timerSpeed = 1.5f
-                else if (fallDistance < 1.3)
-                    mc.timer.timerSpeed = 0.7f
-                else
-                    mc.timer.timerSpeed = 1f
+                mc.timer.timerSpeed = when {
+                    fallDistance <= 0.1 -> 1.5f
+                    fallDistance < 1.3 -> 0.7f
+                    else -> 1f
+                }
             }
 
             isSprinting = movementInput.moveForward > 0.8

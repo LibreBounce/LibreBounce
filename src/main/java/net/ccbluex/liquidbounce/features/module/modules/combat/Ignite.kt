@@ -61,7 +61,7 @@ object Ignite : Module("Ignite", Category.COMBAT) {
                 if (player.getDistanceSq(blockPos) >= 22.3 || !blockPos.isReplaceable || blockPos.block !is BlockAir)
                     continue
 
-                resetTicks += 1
+                resetTicks++
 
                 selectSlotSilently(this, fireInHotbar, 0, immediate = true, render = false)
 

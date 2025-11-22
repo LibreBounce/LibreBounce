@@ -729,23 +729,23 @@ object Velocity : Module("Velocity", Category.COMBAT) {
     val onBlockBB = handler<BlockBBEvent> { event ->
         val player = mc.thePlayer ?: return@handler
 
-        if (mode == "GhostBlock") {
-            if (hasReceivedVelocity) {
-                if (player.hurtTime in hurtTimeToAct) {
-                    // Check if there is air exactly 1 level above the player's Y position
-                    if (event.block is BlockAir && event.y == mc.thePlayer.posY.toInt() + 1) {
-                        event.boundingBox = AxisAlignedBB(
-                            event.x.toDouble(),
-                            event.y.toDouble(),
-                            event.z.toDouble(),
-                            event.x + 1.0,
-                            event.y + 1.0,
-                            event.z + 1.0
-                        )
-                    }
-                } else if (player.hurtTime == 0) {
-                    hasReceivedVelocity = false
+        if (mode != "GhostBlock") return@handler
+
+        if (hasReceivedVelocity) {
+            if (player.hurtTime in hurtTimeToAct) {
+                // Check if there is air exactly 1 level above the player's Y position
+                if (event.block is BlockAir && event.y == mc.thePlayer.posY.toInt() + 1) {
+                    event.boundingBox = AxisAlignedBB(
+                        event.x.toDouble(),
+                        event.y.toDouble(),
+                        event.z.toDouble(),
+                        event.x + 1.0,
+                        event.y + 1.0,
+                        event.z + 1.0
+                    )
                 }
+            } else if (player.hurtTime == 0) {
+                hasReceivedVelocity = false
             }
         }
     }

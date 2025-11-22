@@ -40,11 +40,9 @@ object HighJump : Module("HighJump", Category.MOVEMENT) {
         mc.thePlayer?.run {
             if (glass && BlockPos(mc.thePlayer).block !is BlockPane)
                 return@handler
-            if (!onGround) {
-                if (mode == "Mineplex") {
-                    motionY += if (fallDistance == 0f) 0.0499 else 0.05
-                }
-            }
+
+            if (mode == "Mineplex" && !onGround)
+                motionY += if (fallDistance == 0f) 0.0499 else 0.05
         }
     }
 
@@ -53,6 +51,7 @@ object HighJump : Module("HighJump", Category.MOVEMENT) {
 
         if (glass && BlockPos(player).block !is BlockPane)
             return@handler
+
         when (mode) {
             "Vanilla" -> event.motion *= height
             "Mineplex" -> event.motion = 0.47f

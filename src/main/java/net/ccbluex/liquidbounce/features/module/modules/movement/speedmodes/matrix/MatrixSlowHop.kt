@@ -38,11 +38,8 @@ object MatrixSlowHop : SpeedMode("MatrixSlowHop") {
                     mc.timer.timerSpeed = 1.0973f
                 }
 
-                if (fallDistance <= 0.4 && moveStrafing == 0f) {
-                    speedInAir = 0.02035f
-                } else {
-                    speedInAir = 0.02f
-                }
+                speedInAir = if (fallDistance <= 0.4 && moveStrafing == 0f)
+                    0.02035f else 0.02f
             } else {
                 mc.timer.timerSpeed = 1f
             }

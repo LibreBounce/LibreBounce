@@ -37,11 +37,8 @@ object MatrixHop : SpeedMode("MatrixHop") {
                     }
                 }
 
-                if (fallDistance <= 0.4 && moveStrafing == 0f) {
-                    speedInAir = 0.02035f
-                } else {
-                    speedInAir = 0.02f
-                }
+                speedInAir = if (fallDistance <= 0.4 && moveStrafing == 0f)
+                    0.02035f else 0.02f
             }
         }
     }

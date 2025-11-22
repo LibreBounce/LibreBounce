@@ -27,6 +27,7 @@ object IceSpeed : Module("IceSpeed", Category.MOVEMENT) {
             ice.slipperiness = 0.39f
             packed_ice.slipperiness = 0.39f
         }
+
         super.onEnable()
     }
 

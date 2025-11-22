@@ -17,12 +17,9 @@ object HypixelHop : SpeedMode("HypixelHop") {
             if (isInLiquid) return
 
             if (onGround && isMoving) {
-                if (isUsingItem) {
-                    tryJump()
-                } else {
-                    tryJump()
-                    strafe(0.4f)
-                }
+                if (!isUsingItem) strafe(0.4f)
+
+                tryJump()
             }
         }
     }

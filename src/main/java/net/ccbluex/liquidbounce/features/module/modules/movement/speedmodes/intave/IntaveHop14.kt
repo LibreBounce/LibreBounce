@@ -22,8 +22,7 @@ import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 * Credit: @thatonecoder & @larryngton / Intave14
 */
 object IntaveHop14 : SpeedMode("IntaveHop14") {
-
-    private const val boost_constant = 0.003
+    private const val boostConstant = 0.003
 
     override fun onUpdate() {
         mc.thePlayer?.run {
@@ -40,8 +39,8 @@ object IntaveHop14 : SpeedMode("IntaveHop14") {
             }
 
             if (boost && motionY > 0.003 && isSprinting) {
-                motionX *= 1f + (boost_constant * initialBoostMultiplier)
-                motionZ *= 1f + (boost_constant * initialBoostMultiplier)
+                motionX *= 1f + (boostConstant * initialBoostMultiplier)
+                motionZ *= 1f + (boostConstant * initialBoostMultiplier)
             }
         }
     }

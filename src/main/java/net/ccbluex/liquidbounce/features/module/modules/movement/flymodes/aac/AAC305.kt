@@ -17,10 +17,8 @@ object AAC305 : FlyMode("AAC3.0.5") {
                 motionY = 0.1
             else if (tick > 2) tick = 0
 
-            if (aacFast) {
-                if (moveStrafing == 0f) jumpMovementFactor = 0.08f
-                    else jumpMovementFactor = 0f
-            }
+            if (aacFast)
+                jumpMovementFactor = if (moveStrafing == 0f) 0.08f else 0f
 
             tick++
         }

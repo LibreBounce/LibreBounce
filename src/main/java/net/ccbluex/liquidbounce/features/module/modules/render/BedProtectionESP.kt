@@ -93,7 +93,7 @@ object BedProtectionESP : Module("BedProtectionESP", Category.RENDER) {
                     currentLayerBlocks += nextLayerBlocks
                     cachedBlocks += nextLayerBlocks
                     nextLayerBlocks.clear()
-                    currentLayer += 1
+                    currentLayer++
                 }
             }
 

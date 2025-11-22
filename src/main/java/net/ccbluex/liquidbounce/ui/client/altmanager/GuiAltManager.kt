@@ -333,10 +333,10 @@ class GuiAltManager(private val prevGui: GuiScreen) : AbstractScreen() {
             Keyboard.KEY_ESCAPE -> mc.displayGuiScreen(prevGui)
 
             // Go one up in account list
-            Keyboard.KEY_UP -> altsList.selectedSlot -= 1
+            Keyboard.KEY_UP -> altsList.selectedSlot--
 
             // Go one down in account list
-            Keyboard.KEY_DOWN -> altsList.selectedSlot += 1
+            Keyboard.KEY_DOWN -> altsList.selectedSlot++
 
             // Go up or down in account list
             Keyboard.KEY_TAB -> altsList.selectedSlot += if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) -1 else 1

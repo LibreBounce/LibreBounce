@@ -92,10 +92,10 @@ class GuiFontManager(private val prevGui: GuiScreen) : AbstractScreen() {
             Keyboard.KEY_ESCAPE -> mc.displayGuiScreen(prevGui)
 
             // Go one up in account list
-            Keyboard.KEY_UP -> fontListView.selectedSlot -= 1
+            Keyboard.KEY_UP -> fontListView.selectedSlot--
 
             // Go one down in account list
-            Keyboard.KEY_DOWN -> fontListView.selectedSlot += 1
+            Keyboard.KEY_DOWN -> fontListView.selectedSlot++
 
             // Go up or down in account list
             Keyboard.KEY_TAB -> fontListView.selectedSlot += if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) -1 else 1
