@@ -29,6 +29,7 @@ object NCPHop : SpeedMode("NCPHop") {
                     tryJump()
                     speedInAir = 0.0223f
                 }
+
                 strafe()
             } else {
                 motionX = 0.0

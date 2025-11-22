@@ -25,6 +25,7 @@ object NCPFHop : SpeedMode("NCPFHop") {
                     motionZ *= 1.01
                     speedInAir = 0.0223f
                 }
+
                 motionY -= 0.00099999
                 strafe()
             } else {

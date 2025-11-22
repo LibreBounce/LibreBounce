@@ -57,33 +57,45 @@ object BlocksMC2 : FlyMode("BlocksMC2"), Listenable {
 
         if (isFlying) {
             if (player.onGround && stopOnLanding) {
-                if (debugFly)
-                    chat("Ground Detected.. Stopping Fly")
+                if (debugFly) chat("(BlocksMC2 Fly) Ground detected, automatically disabling")
+
                 Fly.state = false
             }
 
             if (!player.isMoving && stopOnNoMove) {
-                if (debugFly)
-                    chat("No Movement Detected.. Stopping Fly. (Could be flagged)")
+                if (debugFly) chat("(BlocksMC2 Fly) No movement detected, automatically disabling (could be a flag)")
+
                 Fly.state = false
             }
         }
 
         if (shouldFly(player, mc.theWorld)) {
             if (isBlinked) {
+                if (stable) player.motionY = 0.0
 
-                if (stable)
-                    player.motionY = 0.0
+                mc.timer.timerSpeed = if (!player.onGround && timerSlowed) {
+                    if (player.ticksExisted % 4 == 0) 0.45f else 0.4f
+                } else 1.0f
 
-                handleTimerSlow(player)
-                handlePlayerFlying(player)
+                when (player.airTicks) {
+                    0 -> {
+                        if (isNotUnder) {
+                            strafe(boostSpeed + extraBoost)
+                            player.tryJump()
+                            isFlying = true
+                            isNotUnder = false
+                        }
+                    }
+
+                    1 -> {
+                        if (isFlying) strafe(boostSpeed)
+                    }
+                }
             } else {
-                if (player.onGround)
-                    strafe()
+                if (player.onGround) strafe()
             }
         } else {
-            if (debugFly)
-                chat("Pls stand under a block")
+            if (debugFly) chat("(BlocksMC2 Fly) Please stand under a block")
         }
     }
 
@@ -106,18 +118,6 @@ object BlocksMC2 : FlyMode("BlocksMC2"), Listenable {
         if (event.worldClient == null) {
             packets.clear()
             packetsReceived.clear()
-        }
-    }
-
-    private fun handleTimerSlow(player: EntityPlayerSP) {
-        if (!player.onGround && timerSlowed) {
-            if (player.ticksExisted % 4 == 0) {
-                mc.timer.timerSpeed = 0.45f
-            } else {
-                mc.timer.timerSpeed = 0.4f
-            }
-        } else {
-            mc.timer.timerSpeed = 1.0f
         }
     }
 
@@ -162,8 +162,7 @@ object BlocksMC2 : FlyMode("BlocksMC2"), Listenable {
             isNotUnder = true
             isBlinked = true
 
-            if (debugFly)
-                chat("blinked.. fly now!")
+            if (debugFly) chat("blinked.. fly now!")
 
             if (event.eventType == EventState.RECEIVE && mc.thePlayer.ticksExisted > 10) {
                 event.cancelEvent()
@@ -191,6 +190,7 @@ object BlocksMC2 : FlyMode("BlocksMC2"), Listenable {
         synchronized(packets) {
             sendPackets(*packets.toTypedArray(), triggerEvents = false)
         }
+
         packets.clear()
     }
 
@@ -198,6 +198,7 @@ object BlocksMC2 : FlyMode("BlocksMC2"), Listenable {
         synchronized(packetsReceived) {
             PacketUtils.schedulePacketProcess(packetsReceived)
         }
+
         synchronized(packets) {
             sendPackets(packets = packets.toTypedArray(), triggerEvents = false)
         }

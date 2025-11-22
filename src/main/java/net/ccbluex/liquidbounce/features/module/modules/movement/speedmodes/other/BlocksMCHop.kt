@@ -43,11 +43,7 @@ object BlocksMCHop : SpeedMode("BlocksMCHop") {
                     }
 
                     if (bmcLowHop && airTicks == 4) {
-                        if (safeY) {
-                            if (posY % 1.0 == 0.16610926093821377) {
-                                motionY = -0.09800000190734863
-                            }
-                        } else {
+                        if ((safeY && posY % 1.0 == 0.16610926093821377) || !safeY) {
                             motionY = -0.09800000190734863
                         }
                     }
@@ -56,10 +52,8 @@ object BlocksMCHop : SpeedMode("BlocksMCHop") {
                         strafe(speed.coerceAtLeast(0.7F))
                     }
 
-                    if (damageLowHop && hurtTime >= 1) {
-                        if (motionY > 0) {
-                            motionY -= 0.15
-                        }
+                    if (damageLowHop && hurtTime >= 1 && motionY > 0) {
+                        motionY -= 0.15
                     }
                 }
             }

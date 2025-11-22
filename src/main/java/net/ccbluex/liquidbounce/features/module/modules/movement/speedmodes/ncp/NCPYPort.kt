@@ -23,9 +23,10 @@ object NCPYPort : SpeedMode("NCPYPort") {
             if (jumps >= 4 && onGround) jumps = 0
 
             if (onGround) {
-                motionY = if (jumps <= 1) 0.42 else 0.4
                 val f = rotationYaw.toRadians()
+
                 motionX -= sin(f) * 0.2f
+                motionY = if (jumps <= 1) 0.42 else 0.4
                 motionZ += cos(f) * 0.2f
                 jumps++
             } else {

@@ -22,6 +22,7 @@ object NCPBHop : SpeedMode("NCPBHop") {
     private var moveSpeed = 0.2873
     private var lastDist = 0.0
     private var timerDelay = 0
+
     override fun onEnable() {
         mc.timer.timerSpeed = 1f
         level = if (mc.theWorld.getCollidingBoundingBoxes(
@@ -44,12 +45,14 @@ object NCPBHop : SpeedMode("NCPBHop") {
     }
 
 
-    //TODO: Recode this mess
+    // TODO: Recode this mess
     override fun onMove(event: MoveEvent) {
         val player = mc.thePlayer
 
         ++timerDelay
+
         timerDelay %= 5
+
         if (timerDelay != 0) {
             mc.timer.timerSpeed = 1f
         } else {
@@ -60,12 +63,15 @@ object NCPBHop : SpeedMode("NCPBHop") {
                 player.motionZ *= 1.0199999809265137
             }
         }
+
         if (player.onGround && player.isMoving) level = 2
+
         if (round(player.posY - player.posY.toInt().toDouble()) == round(0.138)) {
             player.motionY -= 0.08
             event.y -= 0.09316090325960147
             player.posY -= 0.09316090325960147
         }
+
         if (level == 1 && player.isMoving) {
             level = 2
             moveSpeed = 1.35 * baseMoveSpeed - 0.01
@@ -86,13 +92,14 @@ object NCPBHop : SpeedMode("NCPBHop") {
             ) level = 1
             moveSpeed = lastDist - lastDist / 159.0
         }
+
         moveSpeed = max(moveSpeed, baseMoveSpeed)
 
         // TODO: Use a proper strafe system
-        val movementInput = player.movementInput
-        var forward = movementInput.moveForward
-        var strafe = movementInput.moveStrafe
+        var forward = player.movementInput.moveForward
+        var strafe = player.movementInput.moveStrafe
         var yaw = player.rotationYaw
+
         if (forward == 0f && strafe == 0f) {
             event.zeroXZ()
         } else if (forward != 0f) {
@@ -103,12 +110,14 @@ object NCPBHop : SpeedMode("NCPBHop") {
                 yaw += (if (forward > 0f) 45 else -45).toFloat()
                 strafe = 0f
             }
+
             if (forward > 0f) {
                 forward = 1f
             } else if (forward < 0f) {
                 forward = -1f
             }
         }
+
         val mx2 = cos((yaw + 90.0).toRadians())
         val mz2 = sin((yaw + 90.0).toRadians())
         event.x = forward.toDouble() * moveSpeed * mx2 + strafe.toDouble() * moveSpeed * mz2

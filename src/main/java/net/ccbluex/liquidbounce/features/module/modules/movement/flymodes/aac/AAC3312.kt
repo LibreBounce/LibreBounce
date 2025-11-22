@@ -8,7 +8,7 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.flymodes.aac
 import net.ccbluex.liquidbounce.event.Render3DEvent
 import net.ccbluex.liquidbounce.features.module.modules.movement.Fly.aacMotion
 import net.ccbluex.liquidbounce.features.module.modules.movement.flymodes.FlyMode
-import net.ccbluex.liquidbounce.utils.render.RenderUtils
+import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawPlatform
 import org.lwjgl.input.Keyboard
 import java.awt.Color
 
@@ -28,6 +28,6 @@ object AAC3312 : FlyMode("AAC3.3.12") {
     }
 
     override fun onRender3D(event: Render3DEvent) {
-        RenderUtils.drawPlatform(-70.0, Color(0, 0, 255, 90), 1.0)
+        drawPlatform(-70.0, Color(0, 0, 255, 90), 1.0)
     }
 }

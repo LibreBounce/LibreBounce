@@ -46,22 +46,15 @@ object CustomSpeed : SpeedMode("Custom") {
 
             if (isMoving) {
                 if (onGround) {
-                    if (customGroundStrafe > 0) {
-                        strafe(customGroundStrafe)
-                    }
+                    if (customGroundStrafe > 0) strafe(customGroundStrafe)
 
                     mc.timer.timerSpeed = customGroundTimer
                     motionY = customY.toDouble()
                 } else {
-                    if (customAirStrafe > 0) {
-                        strafe(customAirStrafe)
-                    }
+                    if (customAirStrafe > 0) strafe(customAirStrafe)
 
-                    if (ticksExisted % customAirTimerTick == 0) {
-                        mc.timer.timerSpeed = customAirTimer
-                    } else {
-                        mc.timer.timerSpeed = 1f
-                    }
+                    mc.timer.timerSpeed = if (ticksExisted % customAirTimerTick == 0) customAirTimer
+                    else 1f
                 }
             }
         }

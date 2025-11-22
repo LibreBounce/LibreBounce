@@ -19,16 +19,16 @@ object AACHop350 : SpeedMode("AACHop3.5.0") {
             if (isMoving && !isInLiquid) {
                 jumpMovementFactor += 0.00208f
 
-                if (fallDistance <= 1f) {
-                    if (onGround) {
-                        tryJump()
-                        motionX *= 1.0118f
-                        motionZ *= 1.0118f
-                    } else {
-                        motionY -= 0.0147f
-                        motionX *= 1.00138f
-                        motionZ *= 1.00138f
-                    }
+                if (fallDistance > 1f) return
+
+                if (onGround) {
+                    tryJump()
+                    motionX *= 1.0118f
+                    motionZ *= 1.0118f
+                } else {
+                    motionY -= 0.0147f
+                    motionX *= 1.00138f
+                    motionZ *= 1.00138f
                 }
             }
         }

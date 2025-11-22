@@ -25,7 +25,7 @@ object MatrixSlowHop : SpeedMode("MatrixSlowHop") {
             if (isInLiquid || isInWeb || isOnLadder) return
 
             if (isMoving) {
-                if (!onGround && fallDistance > 2) {
+                if (fallDistance > 2) {
                     mc.timer.timerSpeed = 1f
                     return
                 }

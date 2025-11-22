@@ -12,9 +12,7 @@ import net.ccbluex.liquidbounce.utils.extensions.tryJump
 object Legit : SpeedMode("Legit") {
     override fun onStrafe() {
         mc.thePlayer?.run {
-            if (onGround && isMoving) {
-                tryJump()
-            }
+            if (onGround && isMoving) tryJump()
         }
     }
 

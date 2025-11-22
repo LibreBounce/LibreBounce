@@ -38,7 +38,7 @@ import net.minecraft.world.World
  * Caution: Prolonged flying over long distances is not recommended.
  *
  * Additionally, ensure that you avoid flight before you got flagged or
- * (S08 Packet) teleported, as this will flag u more, or you can wait till
+ * (S08 Packet) teleported, as this will flag you more, or wait until
  * you get the Fly message Line(153). Also avoid flying too many times (At long distance).
  *
  * @author EclipsesDev
@@ -55,28 +55,42 @@ object BlocksMC : FlyMode("BlocksMC"), Listenable {
 
         if (isFlying) {
             if (player.onGround && stopOnLanding) {
-                if (debugFly)
-                    chat("Ground Detected.. Stopping Fly")
+                if (debugFly) chat("(BlocksMC Fly) Ground detected, automatically disabling")
+
                 Fly.state = false
             }
 
             if (!player.isMoving && stopOnNoMove) {
-                if (debugFly)
-                    chat("No Movement Detected.. Stopping Fly. (Could be flagged)")
+                if (debugFly) chat("(BlocksMC Fly) No movement detected, automatically disabling (could be a flag)")
+
                 Fly.state = false
             }
         }
 
         if (shouldFly(player, mc.theWorld)) {
             if (isTeleported) {
-                if (stable)
-                    player.motionY = 0.0
+                if (stable) player.motionY = 0.0
 
-                handleTimerSlow(player)
-                handlePlayerFlying(player)
+                mc.timer.timerSpeed = if (!player.onGround && timerSlowed) {
+                    if (player.ticksExisted % 7 == 0) 0.415f else 0.35f
+                } else 1.0f
+
+                when (player.airTicks) {
+                    0 -> {
+                        if (isNotUnder && isTeleported) {
+                            strafe(boostSpeed + extraBoost)
+                            player.tryJump()
+                            isFlying = true
+                            isNotUnder = false
+                        }
+                    }
+
+                    1 -> {
+                        if (isFlying) strafe(boostSpeed)
+                    }
+                }
             } else {
-                if (debugFly)
-                    chat("Waiting to be Teleported.. Please ensure you're below a block.")
+                if (debugFly) chat("(BlocksMC2 Fly) Waiting to be teleported; please ensure you have a block above you")
             }
         } else {
             handleTeleport(player)
@@ -96,44 +110,14 @@ object BlocksMC : FlyMode("BlocksMC"), Listenable {
         Fly.state = false
     }
 
-    private fun handleTimerSlow(player: EntityPlayerSP) {
-        if (!player.onGround && timerSlowed) {
-            if (player.ticksExisted % 7 == 0) {
-                mc.timer.timerSpeed = 0.415f
-            } else {
-                mc.timer.timerSpeed = 0.35f
-            }
-        } else {
-            mc.timer.timerSpeed = 1.0f
-        }
-    }
-
     private fun shouldFly(player: EntityPlayerSP, world: World): Boolean {
         return world.getCollidingBoundingBoxes(player, player.entityBoundingBox.offset(0.0, 1.0, 0.0))
             .isEmpty() || isFlying
     }
 
-    private fun handlePlayerFlying(player: EntityPlayerSP) {
-        when (player.airTicks) {
-            0 -> {
-                if (isNotUnder && isTeleported) {
-                    strafe(boostSpeed + extraBoost)
-                    player.tryJump()
-                    isFlying = true
-                    isNotUnder = false
-                }
-            }
-
-            1 -> {
-                if (isFlying) {
-                    strafe(boostSpeed)
-                }
-            }
-        }
-    }
-
     private fun handleTeleport(player: EntityPlayerSP) {
         isNotUnder = true
+
         if (!isTeleported) {
             sendPackets(
                 C04PacketPlayerPosition(
@@ -142,9 +126,8 @@ object BlocksMC : FlyMode("BlocksMC"), Listenable {
                     player.posY - 0.05,
                     player.posZ,
                     false
-                )
-            )
-            sendPackets(
+                ),
+
                 C04PacketPlayerPosition(
                     player.posX,
                     player.posY,
@@ -154,6 +137,7 @@ object BlocksMC : FlyMode("BlocksMC"), Listenable {
             )
 
             isTeleported = true
+
             if (debugFly)
                 chat("Teleported.. Fly Now!")
         }

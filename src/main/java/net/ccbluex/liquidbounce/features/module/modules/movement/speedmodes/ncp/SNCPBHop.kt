@@ -44,8 +44,11 @@ object SNCPBHop : SpeedMode("SNCPBHop") {
     // TODO: Recode this mess
     override fun onMove(event: MoveEvent) {
         val player = mc.thePlayer ?: return
+
         ++timerDelay
+
         timerDelay %= 5
+
         if (timerDelay != 0) {
             mc.timer.timerSpeed = 1f
         } else {
@@ -55,12 +58,15 @@ object SNCPBHop : SpeedMode("SNCPBHop") {
                 player.motionZ *= 1.0199999809265137
             }
         }
+
         if (player.onGround && player.isMoving) level = 2
+
         if (round(player.posY - player.posY.toInt().toDouble()) == round(0.138)) {
             player.motionY -= 0.08
             event.y -= 0.09316090325960147
             player.posY -= 0.09316090325960147
         }
+
         if (level == 1 && player.isMoving) {
             level++
             moveSpeed = 1.35 * baseMoveSpeed - 0.01
@@ -99,6 +105,7 @@ object SNCPBHop : SpeedMode("SNCPBHop") {
             }
             moveSpeed = lastDist - lastDist / 159.0
         }
+
         moveSpeed = moveSpeed.coerceAtLeast(baseMoveSpeed)
 
         var forward = player.movementInput.moveForward
@@ -122,6 +129,7 @@ object SNCPBHop : SpeedMode("SNCPBHop") {
                 forward = -1f
             }
         }
+
         val mx2 = cos((yaw + 90f).toRadiansD())
         val mz2 = sin((yaw + 90f).toRadiansD())
         event.x = forward * moveSpeed * mx2 + strafe * moveSpeed * mz2
