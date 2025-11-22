@@ -18,7 +18,7 @@ object OldMatrixHop : SpeedMode("OldMatrixHop") {
             if (isInLiquid || isInWeb || isOnLadder) return
 
             if (isMoving) {
-                if (onGround)
+                if (onGround) {
                     tryJump()
                     speedInAir = 0.02098f
                     mc.timer.timerSpeed = 1.055f
