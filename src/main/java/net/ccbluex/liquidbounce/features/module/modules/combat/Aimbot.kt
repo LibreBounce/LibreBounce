@@ -213,11 +213,8 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
         val rotationDiff = rotationDifference(playerRotation, destinationRotation)
 
         // Checks whether the enemy is visible on-screen. Not perfectly accurate, but accurate enough and very fast.
-        val supposedTurnSpeed = if (rotationDiff < mc.gameSettings.fovSetting) {
-            inViewMaxAngleChange
-        } else {
-            maxAngleChange
-        }
+        val supposedTurnSpeed = if (rotationDiff < mc.gameSettings.fovSetting) inViewMaxAngleChange
+            else maxAngleChange
 
         val gaussian = random.nextGaussian()
 

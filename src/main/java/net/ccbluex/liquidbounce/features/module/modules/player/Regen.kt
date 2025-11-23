@@ -33,11 +33,8 @@ object Regen : Module("Regen", Category.PLAYER) {
     private var resetTimer = false
 
     val onUpdate = handler<UpdateEvent> {
-        if (resetTimer) {
-            mc.timer.timerSpeed = 1F
-        } else {
-            resetTimer = false
-        }
+        if (resetTimer) mc.timer.timerSpeed = 1F
+        else resetTimer = false
 
         mc.thePlayer?.run {
             if (

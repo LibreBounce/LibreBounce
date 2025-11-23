@@ -12,7 +12,7 @@ object VulcanOld : FlyMode("VulcanOld") {
         mc.thePlayer?.run {
             if (!onGround && fallDistance > 0) {
                 motionY = if (ticksExisted % 2 == 0) -0.1
-                    else -0.16
+                else -0.16
 
                 jumpMovementFactor = 0.0265f
             }

@@ -16,14 +16,12 @@ object IntaveNew : NoWebMode("IntaveNew") {
             if (!isInWeb)
                 return
 
-            if (isMoving && moveStrafing == 0.0f) {
-                if (onGround) {
-                    if (ticksExisted % 3 == 0) {
-                        strafe(0.734f)
-                    } else {
-                        tryJump()
-                        strafe(0.346f)
-                    }
+            if (isMoving && onGround && moveStrafing == 0.0f) {
+                if (ticksExisted % 3 == 0) {
+                    strafe(0.734f)
+                } else {
+                    tryJump()
+                    strafe(0.346f)
                 }
             }
         }

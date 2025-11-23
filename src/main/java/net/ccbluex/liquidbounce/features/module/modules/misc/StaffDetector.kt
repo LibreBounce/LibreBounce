@@ -156,6 +156,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
                         if (!isStaff && otherSpectator) {
                             chat("§d${player} §3is using the spectator menu §e(compass/left)")
                         }
+
                         checkedSpectator.remove(player)
                     }
 
@@ -181,11 +182,8 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
                     attemptLeave = false
                     autoLeave()
 
-                    if (warn == "Chat") {
-                        chat("§3Staff is Watching")
-                    } else {
-                        hud.addNotification(Notification.warning(this, "§3Staff is Watching", 3000L))
-                    }
+                    if (warn == "Chat") chat("§3Staff is Watching")
+                    else hud.addNotification(Notification.warning(this, "§3Staff is Watching", 3000L))
                 }
             }
         }
@@ -199,19 +197,13 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
         val isStaff = isStaff(player)
 
         if (isStaff && spectator) {
-            if (warn == "Chat") {
-                chat("§c[STAFF] §d${player} §3is a spectator")
-            } else {
-                hud.addNotification(Notification.warning(this, "§c[STAFF] §d${player} §3is a spectator", 3000L))
-            }
+            if (warn == "Chat") chat("§c[STAFF] §d${player} §3is a spectator")
+            else hud.addNotification(Notification.warning(this, "§c[STAFF] §d${player} §3is a spectator", 3000L))
         }
 
         if (!isStaff && otherSpectator) {
-            if (warn == "Chat") {
-                chat("§d${player} §3is a spectators")
-            } else {
-                hud.addNotification(Notification.warning(this, "§d${player} §3is a spectators", 3000L))
-            }
+            if (warn == "Chat") chat("§d${player} §3is a spectator")
+            else hud.addNotification(Notification.warning(this, "§d${player} §3is a spectator", 3000L))
         }
 
         attemptLeave = false
@@ -255,11 +247,8 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
             val warnings = "§c[STAFF] §d${player} §3is a staff §b(TAB) $condition"
 
             if (isStaff && player !in checkedStaff) {
-                if (warn == "Chat") {
-                    chat(warnings)
-                } else {
-                    hud.addNotification(Notification.warning(this, warnings.removePrefix("§c[STAFF] "), 3000L))
-                }
+                if (warn == "Chat") chat(warnings)
+                else hud.addNotification(Notification.warning(this, warnings.removePrefix("§c[STAFF] "), 3000L))
 
                 attemptLeave = false
                 checkedStaff.add(player)
@@ -280,11 +269,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
             return
         }
 
-        val isStaff = if (staff is EntityPlayer) {
-            isStaff(staff.gameProfile.name)
-        } else {
-            false
-        }
+        val isStaff = staff is EntityPlayer && isStaff(staff.gameProfile.name)
 
         val condition = when (staff) {
             is EntityPlayer -> {
@@ -304,11 +289,8 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
         val warnings = "§c[STAFF] §d${playerName} §3is a staff §b(Packet) $condition"
 
         if (isStaff && playerName !in checkedStaff) {
-            if (warn == "Chat") {
-                chat(warnings)
-            } else {
-                hud.addNotification(Notification.warning(this, warnings.removePrefix("§c[STAFF] "), 3000L))
-            }
+            if (warn == "Chat") chat(warnings)
+            else hud.addNotification(Notification.warning(this, warnings.removePrefix("§c[STAFF] "), 3000L))
 
             attemptLeave = false
             checkedStaff.add(playerName)
@@ -344,22 +326,16 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
             val playerListSize = mc.netHandler?.playerInfoMap?.size ?: 0
 
             if (entries.size != playerListSize) {
-                if (warn == "Chat") {
-                    chat("§aA player might be vanished.")
-                } else {
-                    hud.addNotification(Notification.warning(this, "§aA player might be vanished.", 3000L))
-                }
+                if (warn == "Chat") chat("§aA player might be vanished.")
+                else hud.addNotification(Notification.warning(this, "§aA player might be vanished.", 3000L))
 
                 alertClearVanish = false
             } else {
                 if (alertClearVanish)
                     return
 
-                if (warn == "Chat") {
-                    chat("§cNo players are vanished")
-                } else {
-                    hud.addNotification(Notification.warning(this, "§cNo players are vanished", 3000L))
-                }
+                if (warn == "Chat") chat("§cNo players are vanished")
+                else hud.addNotification(Notification.warning(this, "§cNo players are vanished", 3000L))
 
                 alertClearVanish = true
             }

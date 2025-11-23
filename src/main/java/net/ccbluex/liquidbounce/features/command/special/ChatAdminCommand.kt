@@ -21,19 +21,13 @@ object ChatAdminCommand : Command("chatadmin") {
 
         when (args[1].lowercase()) {
             "ban" -> {
-                if (args.size > 2) {
-                    LiquidChat.client.banUser(args[2])
-                } else {
-                    chatSyntax("chatadmin ban <username>")
-                }
+                if (args.size > 2) LiquidChat.client.banUser(args[2])
+                else chatSyntax("chatadmin ban <username>")
             }
 
             "unban" -> {
-                if (args.size > 2) {
-                    LiquidChat.client.unbanUser(args[2])
-                } else {
-                    chatSyntax("chatadmin unban <username>")
-                }
+                if (args.size > 2) LiquidChat.client.unbanUser(args[2])
+                else chatSyntax("chatadmin unban <username>")
             }
         }
     }

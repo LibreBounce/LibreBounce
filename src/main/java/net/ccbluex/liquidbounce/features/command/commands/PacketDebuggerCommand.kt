@@ -48,6 +48,7 @@ object PacketDebuggerCommand : Command("packetdebugger", "debug") {
                 }
 
                 val packetName = args[2]
+
                 if (selectedPackets.contains(packetName)) {
                     chat("§cPacket §b$packetName §cis already in the debug list.")
                 } else {
@@ -63,6 +64,7 @@ object PacketDebuggerCommand : Command("packetdebugger", "debug") {
                 }
 
                 val packetName = args[2]
+
                 if (selectedPackets.contains(packetName)) {
                     selectedPackets.remove(packetName)
                     chat("§b$packetName §6has been removed from the list.")

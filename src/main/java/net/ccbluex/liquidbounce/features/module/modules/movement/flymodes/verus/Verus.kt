@@ -76,11 +76,8 @@ object Verus : FlyMode("Verus") {
             boostTicks--
 
             if (timerSlow) {
-                if (ticksExisted % 3 == 0) {
-                    mc.timer.timerSpeed = 0.15f
-                } else {
-                    mc.timer.timerSpeed = 0.08f
-                }
+                mc.timer.timerSpeed = if (ticksExisted % 3 == 0) 0.15f
+                else 0.08f
             }
 
             if (damaged) strafe(boostMotion, true)

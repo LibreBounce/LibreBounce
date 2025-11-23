@@ -31,10 +31,8 @@ object BlocksMCHop : SpeedMode("BlocksMCHop") {
                 } else {
                     if (fullStrafe) {
                         strafe(speed - 0.004F)
-                    } else {
-                        if (airTicks >= 6) {
-                            strafe()
-                        }
+                    } else if (airTicks >= 6) {
+                        strafe()
                     }
 
                     if ((getActivePotionEffect(Potion.moveSpeed)?.amplifier ?: 0) > 0 && airTicks == 3) {

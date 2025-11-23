@@ -28,17 +28,13 @@ object VulcanLowHop : SpeedMode("VulcanLowHop") {
                     strafe(0.4815f)
                     mc.timer.timerSpeed = 1.263f
                 } else if (ticksExisted % 4 == 0) {
-                    if (ticksExisted % 3 == 0) {
-                        motionY = -0.01 / motionY
-                    } else {
-                        motionY = -motionY / posY
-                    }
+                    motionY = if (ticksExisted % 3 == 0) -0.01 / motionY
+                    else -motionY / posY
+
                     mc.timer.timerSpeed = 0.8985f
                 }
 
-            } else {
-                mc.timer.timerSpeed = 1f
-            }
+            } else mc.timer.timerSpeed = 1f
         }
     }
 }

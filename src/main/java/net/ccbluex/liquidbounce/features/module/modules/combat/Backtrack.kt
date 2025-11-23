@@ -132,11 +132,8 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
                     }
 
                     is S14PacketEntity, is S18PacketEntityTeleport -> if (legacyPos == "ServerPos") {
-                        val id = if (packet is S14PacketEntity) {
-                            packet.entityId
-                        } else {
-                            (packet as S18PacketEntityTeleport).entityId
-                        }
+                        val id = if (packet is S14PacketEntity) packet.entityId
+                        else (packet as S18PacketEntityTeleport).entityId
 
                         val entity = mc.theWorld?.getEntityByID(id)
                         val entityMixin = entity as? IMixinEntity

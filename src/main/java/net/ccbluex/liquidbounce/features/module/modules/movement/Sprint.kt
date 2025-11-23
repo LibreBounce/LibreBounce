@@ -91,11 +91,8 @@ object Sprint : Module("Sprint", Category.MOVEMENT, gameDetecting = false) {
 
         val isLegitModeActive = mode == "Legit"
 
-        val modifiedForward = if (currentRotation != null && activeSettings?.strict == true) {
-            player.movementInput.moveForward
-        } else {
-            movementInput.moveForward
-        }
+        val modifiedForward = if (currentRotation != null && activeSettings?.strict == true) player.movementInput.moveForward
+        else movementInput.moveForward
 
         if (!player.isMoving) {
             return true

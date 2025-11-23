@@ -275,11 +275,8 @@ object AntiBot : Module("AntiBot", Category.MISC) {
                     val distance = mc.thePlayer.getDistanceToEntity(entity)
                     val currentTicks = entityTickMap.getOrDefault(entity.entityId, 0)
 
-                    if (distance < alwaysRadius) {
-                        entityTickMap[entity.entityId] = currentTicks + 1
-                    } else {
-                        entityTickMap[entity.entityId] = 0
-                    }
+                    entityTickMap[entity.entityId] = if (distance < alwaysRadius) currentTicks + 1
+                    else 0
 
                     if (entityTickMap[entity.entityId]!! >= alwaysRadiusTick) {
                         notAlwaysInRadiusList -= entity.entityId

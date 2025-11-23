@@ -118,12 +118,8 @@ object ClickRecorder : Module("ClickRecorder", Category.MISC) {
         ticks += runTimeTicks
         leftClicks += CPSCounter.getCPS(CPSCounter.MouseButton.LEFT, runTimeTicks)
 
-        rightClicks += if (recordRightClick) {
-            CPSCounter.getCPS(CPSCounter.MouseButton.RIGHT, runTimeTicks)
-        } else 0
+        rightClicks += if (recordRightClick) CPSCounter.getCPS(CPSCounter.MouseButton.RIGHT, runTimeTicks) else 0
 
-        middleClicks += if (recordMiddleClick) {
-            CPSCounter.getCPS(CPSCounter.MouseButton.MIDDLE, runTimeTicks)
-        } else 0
+        middleClicks += if (recordMiddleClick) CPSCounter.getCPS(CPSCounter.MouseButton.MIDDLE, runTimeTicks) else 0
     }
 }

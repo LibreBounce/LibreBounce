@@ -9,15 +9,11 @@ import net.ccbluex.liquidbounce.LiquidBounce
 import java.util.*
 
 object ClientUpdate {
-
     val gitInfo = Properties().also {
         val inputStream = LiquidBounce::class.java.classLoader.getResourceAsStream("git.properties")
 
-        if (inputStream != null) {
-            it.load(inputStream)
-        } else {
-            it["git.build.version"] = "unofficial"
-        }
+        if (inputStream != null) it.load(inputStream)
+        else it["git.build.version"] = "unofficial"
     }
 }
 

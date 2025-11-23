@@ -24,18 +24,13 @@ object VulcanHop : SpeedMode("VulcanHop") {
 
                 if (onGround) {
                     tryJump()
-                    if (motionY > 0) {
+
+                    if (motionY > 0) 
                         mc.timer.timerSpeed = 1.1453f
-                    }
+
                     strafe(0.4815f)
-                } else {
-                    if (motionY < 0) {
-                        mc.timer.timerSpeed = 0.9185f
-                    }
-                }
-            } else {
-                mc.timer.timerSpeed = 1f
-            }
+                } else if (motionY < 0) mc.timer.timerSpeed = 0.9185f
+            } else mc.timer.timerSpeed = 1f
         }
     }
 }

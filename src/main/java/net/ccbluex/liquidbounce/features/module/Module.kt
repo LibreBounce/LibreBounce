@@ -103,11 +103,8 @@ open class Module(
             // Play sound and add notification
             if (!isStarting) {
                 try {
-                    val state = if (value) {
-                        "Enabled" to Notifications.SeverityType.SUCCESS
-                    } else {
-                        "Disabled" to Notifications.SeverityType.RED_SUCCESS
-                    }
+                    val state = if (value) "Enabled" to Notifications.SeverityType.SUCCESS
+                        else "Disabled" to Notifications.SeverityType.RED_SUCCESS
 
                     val texts = translation("notification.module${state.first}", getName()).split(" ")
                     val (title, description) = texts[0] to texts[1]

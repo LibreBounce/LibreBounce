@@ -85,10 +85,7 @@ object Rotations : Module("Rotations", Category.RENDER, gameDetecting = false) {
     fun getRotation(): Rotation? {
         val currRotation = if (specialCases) serverRotation else currentRotation
 
-        return if (smoothRotations && currRotation != null) {
-            smoothRotation(lastRotation ?: return currRotation, currRotation)
-        } else {
-            currRotation
-        }
+        return if (smoothRotations && currRotation != null) smoothRotation(lastRotation ?: return currRotation, currRotation)
+        else currRotation
     }
 }
