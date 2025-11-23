@@ -585,7 +585,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         if (noConsumeAttack == "NoHits" && isConsumingItem())
             return
 
-        var shouldHit = if (SmartHit.handleEvents()) SmartHit.shouldHit(currentTarget) else currentTarget.hurtTime < hurtTime
+        var shouldHit = if (SmartHit.handleEvents()) SmartHit.shouldHit(currentTarget) else currentTarget.hurtTime <= hurtTime
 
         val manipulateInventory = simulateClosingInventory && !noInventoryAttack && serverOpenInventory
 

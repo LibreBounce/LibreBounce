@@ -13,6 +13,7 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 ### Fixed
 
 - `PredictClientMovement` not affecting the simulated distance, in SmartHit (thatonecoder)
+- `HurtTime` values not working as intended, in KillAura and AutoClicker (thatonecoder)
 - InventoryMove not working, when `Undetected` is enabled and the ClickGUI is enabled on the `Panel` mode (thatonecoder)
 
 ### Changed

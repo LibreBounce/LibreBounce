@@ -74,6 +74,9 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT) {
         val targetEntity = event.targetEntity as EntityLivingBase
 
         target = targetEntity
+
+        // TODO: Cancel from here, instead of having a per-module system; this may additionally allow for compatibility
+        // with AutoClicker, TriggerBot, and even KillAura modules from other clients
     }
 
     val onRender3D = handler<Render3DEvent> {
@@ -136,7 +139,7 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT) {
     private fun shouldAutoRightClick() = mc.thePlayer.heldItem?.itemUseAction in arrayOf(EnumAction.BLOCK)
 
     private fun handleLeftClick(time: Long, doubleClick: Int) {
-        val shouldHit = (target != null && if (SmartHit.handleEvents()) SmartHit.shouldHit(target!!) else target!!.hurtTime < hurtTime) || target == null
+        val shouldHit = (target != null && if (SmartHit.handleEvents()) SmartHit.shouldHit(target!!) else target!!.hurtTime <= hurtTime) || target == null
 
         if (!shouldHit) return
 

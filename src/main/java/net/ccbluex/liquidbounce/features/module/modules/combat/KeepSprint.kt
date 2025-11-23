@@ -9,6 +9,8 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 
 object KeepSprint : Module("KeepSprint", Category.COMBAT) {
+
+    // TODO: Add smart option, assumedly to not keep sprinting when hurtTime > 0
     val motionAfterAttackOnGround by float("MotionAfterAttackOnGround", 0.6f, 0.0f..1f)
     val motionAfterAttackInAir by float("MotionAfterAttackInAir", 0.6f, 0.0f..1f)
 
