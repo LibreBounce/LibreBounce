@@ -36,7 +36,7 @@ object MovementUtils : MinecraftInstance, Listenable {
         strength: Double = 1.0,
     ) =
         mc.thePlayer?.run {
-            if (!mc.thePlayer.isMoving) {
+            if (!isMoving) {
                 if (stopWhenNoInput) {
                     moveEvent?.zeroXZ()
                     stopXZ()
@@ -97,12 +97,12 @@ object MovementUtils : MinecraftInstance, Listenable {
             if (movementInput.moveForward < 0f) {
                 yaw += 180f
                 forward = -0.5f
-            } else {
+            } else if (movementInput.moveForward > 0f) {
                 forward = 0.5f
             }
 
             if (movementInput.moveStrafe < 0f) yaw += 90f * forward
-            else yaw -= 90f * forward
+            else if (movementInput.moveForward > 0f) yaw -= 90f * forward
 
             yaw.toRadiansD()
         } ?: 0.0
@@ -135,6 +135,4 @@ object MovementUtils : MinecraftInstance, Listenable {
             }
         }
     }
-
-    
 }
