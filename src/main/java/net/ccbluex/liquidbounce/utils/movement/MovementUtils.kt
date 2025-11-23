@@ -102,7 +102,7 @@ object MovementUtils : MinecraftInstance, Listenable {
             }
 
             if (movementInput.moveStrafe < 0f) yaw += 90f * forward
-            else if (movementInput.moveForward > 0f) yaw -= 90f * forward
+            else if (movementInput.moveStrafe > 0f) yaw -= 90f * forward
 
             yaw.toRadiansD()
         } ?: 0.0
