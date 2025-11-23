@@ -25,7 +25,7 @@ object AACHop5 : SpeedMode("AACHop5") {
             if (fallDistance < 2.5) {
                 if (fallDistance > 0.7) {
                     mc.timer.timerSpeed = if (ticksExisted % 3 == 0) 1.925f
-                    else if (fallDistance < 1.25) 1.7975f
+                    else { if (fallDistance < 1.25) 1.7975f }
                 }
 
                 speedInAir = 0.02f
