@@ -13,11 +13,9 @@ import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.rotationDifference
-import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.serverRotation
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.toRotation
 import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
 import net.minecraft.entity.Entity
-import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
 import kotlin.math.max
 import kotlin.math.sqrt
@@ -50,7 +48,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
         lastHitCrit = player.fallDistance > 0
 
-        hitOnTheWay = true
+        hitOnTheWay = player.getDistanceToEntityBox(event.targetEntity) < 3f
     }
 
     fun shouldHit(target: Entity): Boolean {
@@ -132,20 +130,21 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
          * If a target is running or cannot hit you, it is not beneficial to hit more than required (i.e., when the target is hittable), since the slowdown
          * may make it impossible to properly chase the target, and in the latter case, the opponent will be confused by your movements
          * This is only here because it is very difficult to have proper rotation prediction, and latency makes it so
-         * even if a target is not looking at you client-sidedly (past rotation), that target can still hit you
+         * even if a target is not looking at your latest pos client-sidedly (because that is a past rotation), that target can still hit you
          * As such, it's better to have it like this
          */
         // TODO: Also consider a target that is holding the backwards key for over 6-10 ticks as not likely to hit, and a target not moving, too
         // TODO: Turn this into an integer (0-100), and have a treshold of when it starts being considered likely
         //if (simDist > distance && distance > 2.8 && player.hurtTime == 0 && target.hurtTime == 0) targetHitLikely = false
         val rotHittable = rotDiff < 20f + (12f * combinedPingMult) && !target.hitBox.isVecInside(player.eyes)
-        val targetHitLikely = rotHittable && !target.isUsingItem && targetDist < 3.05f
+        val targetHitLikely = rotHittable && !target.isUsingItem && targetDist < 3.08f
 
         val baseHurtTime = 3f / (1f + sqrt(distance) - (rotDiff / 180f))
         val optimalHurtTime = max(baseHurtTime.toInt(), 2)
 
         val groundHit = properGround && if (targetHitLikely) target.hurtTime !in 2..optimalHurtTime else canHitTarget && !hitOnTheWay
-        val fallingHit = falling && if (targetHitLikely) target.hurtTime !in 2..optimalHurtTime else canHitTarget && (!hitOnTheWay || !lastHitCrit)
+
+        val fallingHit = falling && if (targetHitLikely) target.hurtTime !in (attackableHurtTime.last + 1)..optimalHurtTime else canHitTarget && (!hitOnTheWay || !lastHitCrit)
         val airHit = fallingHit || (target.hurtTime in 4..5 && targetHitLikely)
 
         val hurtTimeNoEscape = (2 * distance * 8).toInt() / 10
