@@ -48,7 +48,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
         lastHitCrit = player.fallDistance > 0
 
-        hitOnTheWay = player.getDistanceToEntityBox(event.targetEntity) < 3f
+        hitOnTheWay = player.getDistanceToEntityBox(event?.targetEntity) < 3f
     }
 
     fun shouldHit(target: Entity): Boolean {
