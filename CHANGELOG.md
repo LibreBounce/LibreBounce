@@ -6,6 +6,8 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 ## [Unreleased]
 
+## [0.7.0-beta.1] - 2025-11-24
+
 ### Added
 
 - `AttackableHurtTime` integer range value to SmartHit; defines when SmartHit considers the target as ready-to-hit (thatonecoder) 
@@ -228,7 +230,8 @@ _Initial release, forked from LiquidBounce Legacy._
 
 - Warning to upgrade from `LiquidBounce` legacy to nextgen (thatonecoder)
 
-[Unreleased]: https://github.com/LibreBounce/LibreBounce/compare/v0.7.0-alpha.2...HEAD
+[Unreleased]: https://github.com/LibreBounce/LibreBounce/compare/v0.7.0-beta.1...HEAD
+[0.7.0-beta.1]: https://github.com/LibreBounce/LibreBounce/compare/v0.7.0-alpha.2...v0.7.0-beta.1
 [0.7.0-alpha.2]: https://github.com/LibreBounce/LibreBounce/compare/v0.7.0-alpha.1...v0.7.0-alpha.2
 [0.7.0-alpha.1]: https://github.com/LibreBounce/LibreBounce/compare/v0.6.0...v0.7.0-alpha.1
 [0.6.0]: https://github.com/LibreBounce/LibreBounce/compare/v0.5.0...v0.6.0

@@ -124,7 +124,8 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
         if (target.hurtTime <= attackableHurtTime.last) lastHitCrit = false
 
-        // TODO: Improve code quality, assure it works
+        // TODO: Fix this requiring you to give the first hit
+        // Perhaps a better implementation could be made, which would do hurtTime + (playerPing / 2), when you hit the opponent
         if (!canHitTarget) hitOnTheWay = false
 
         /*
@@ -133,6 +134,10 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
          * This is only here because it is very difficult to have proper rotation prediction, and latency makes it so
          * even if a target is not looking at your latest pos client-sidedly (because that is a past rotation), that target can still hit you
          * As such, it's better to have it like this
+         *
+         * On the other hand, I would suggest to keep a list of previous positions, and figure out if the target is aiming at one of them,
+         * presumably the one from the visual delay ago (let's assume combined ping, and then adjust)
+         *
          */
         // TODO: Also consider a target that is holding the backwards key for over 6-10 ticks as not likely to hit, and a target not moving, too
         // TODO: Turn this into an integer (0-100), and have a treshold of when it starts being considered likely

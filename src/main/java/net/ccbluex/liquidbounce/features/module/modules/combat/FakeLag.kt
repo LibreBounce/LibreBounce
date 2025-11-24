@@ -40,7 +40,7 @@ import java.awt.Color
 import java.util.*
 import kotlin.math.min
 
-object  FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
+object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
 
     private val delay by int("Delay", 550, 0..1000, suffix = "ms")
     private val recoilTime by int("RecoilTime", 750, 0..2000, suffix = "ms")
