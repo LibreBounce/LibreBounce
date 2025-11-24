@@ -45,10 +45,11 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
     val onAttack = handler<AttackEvent> { event ->
         val player = mc.thePlayer ?: return@handler
+        val target = event.targetEntity ?: return@handler
 
         lastHitCrit = player.fallDistance > 0
 
-        hitOnTheWay = player.getDistanceToEntityBox(event?.targetEntity) < 3f
+        hitOnTheWay = player.getDistanceToEntityBox(target) < 3f
     }
 
     fun shouldHit(target: Entity): Boolean {
