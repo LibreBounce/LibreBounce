@@ -3,7 +3,7 @@
  * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
  * https://github.com/CCBlueX/LiquidBounce/
  */
-/*package net.ccbluex.liquidbounce.features.module.modules.combat
+package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import net.ccbluex.liquidbounce.event.StrafeEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -11,10 +11,11 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
 import net.ccbluex.liquidbounce.utils.client.chat
-import net.ccbluex.liquidbounce.utils.extensions.*
+import net.ccbluex.liquidbounce.utils.extensions.isMoving
+import net.ccbluex.liquidbounce.utils.extensions.getDistanceToBox
+import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
 import net.minecraft.entity.Entity
-import net.minecraft.entity.EntityLivingBase
 
 object CombatJump : Module("CombatJump", Category.COMBAT) {
 
@@ -26,10 +27,9 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
 
     private val debug by boolean("Debug", false).subjective()
 
-    // Anti-cheats such as Grim flag when you don't do it on this event
+    // Anti-cheats such as Grim flag when you don't jump on this event
     val onStrafe = handler<StrafeEvent> { event ->
         val player = mc.thePlayer ?: return@handler
-
         val target = KillAura.target ?: return@handler
 
         if (onlyMove && !player.isMoving) return@handler
@@ -41,18 +41,14 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
         }
     }
 
-    private fun shouldJump(): Boolean {
-        val distance = player.getDistanceToEntityBox(target)
-
+    private fun shouldJump(target: Entity): Boolean {
+        val player = mc.thePlayer ?: return false
         val simPlayer = SimulatedPlayer.fromClientPlayer(RotationUtils.modifiedInput)
     
-        val simDist = player.getDistanceToEntityBox(target)
-
         val prediction = target.currPos.subtract(target.prevPos).times(predictEnemyPosition.toDouble())
         val boundingBox = target.hitBox.offset(prediction)
 
-        val currPos = player.currPos
-        val prevPos = player.prevPos
+        val (currPos, prevPos) = player
 
         if (simPlayer.onGround) simPlayer.jump()
 
@@ -62,11 +58,10 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
 
         player.setPosAndPrevPos(simPlayer.pos)
 
-        simDist = player.getDistanceToBox(boundingBox)
+        val simDist = player.getDistanceToBox(boundingBox)
 
         player.setPosAndPrevPos(currPos, prevPos)
 
-        return simDist in distance
-        
+        return simDist in endDistance       
     }
-}*/
+}
