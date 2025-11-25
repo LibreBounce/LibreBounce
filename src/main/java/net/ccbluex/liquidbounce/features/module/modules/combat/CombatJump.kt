@@ -21,7 +21,7 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
     private val endDistance by floatRange("EndDistance", 3.05f..3.25f, 0f..8f)
     private val onlyMove by boolean("OnlyMove", true)
 
-    private val predictClientMovement by boolean("PredictClientMovement", 6, 0..10, suffix = "ticks")
+    private val predictClientMovement by int("PredictClientMovement", 6, 0..10, suffix = "ticks")
     private val predictEnemyPosition by float("PredictEnemyPosition", 1.5f, 0f..2f)
 
     private val debug by boolean("Debug", false).subjective()
