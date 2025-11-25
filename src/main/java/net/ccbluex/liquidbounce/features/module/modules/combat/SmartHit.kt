@@ -16,6 +16,7 @@ import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.rotationDifference
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.toRotation
 import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
 import net.minecraft.entity.Entity
+import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.util.AxisAlignedBB
 import kotlin.math.max
@@ -50,7 +51,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
         lastHitCrit = player.fallDistance > 0
 
-        hitOnTheWay = player.getDistanceToEntityBox(target) < 3f && target.hurtTime in attackableHurtTime
+        hitOnTheWay = player.getDistanceToEntityBox(target) < 3f && (target as EntityLivingBase).hurtTime in attackableHurtTime
     }
 
     fun shouldHit(target: Entity): Boolean {
