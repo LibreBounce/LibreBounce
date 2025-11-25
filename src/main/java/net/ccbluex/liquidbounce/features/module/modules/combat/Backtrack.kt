@@ -67,7 +67,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
     private val smart by boolean("Smart", true) { mode == "Modern" }
 
     private val attackableHurtTime by intRange("AttackableHurtTime", 0..1, 0..10) { mode == "Modern" }
-    private val flushOnAttackableHurtTime by bool("FlushOnAttackableHurtTime", false) { mode == "Modern" }
+    private val flushOnAttackableHurtTime by boolean("FlushOnAttackableHurtTime", false) { mode == "Modern" }
 
     // ESP
     private val espMode by choices(
@@ -643,7 +643,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
 
     private fun shouldBacktrack() =
         mc.thePlayer != null && mc.theWorld != null && target != null && mc.thePlayer.health > 0 && (target!!.health > 0 || target!!.health.isNaN()) && mc.playerController.currentGameType != WorldSettings.GameType.SPECTATOR && System.currentTimeMillis() >= delayForNextBacktrack && target?.let {
-            isSelected(it, true) && (mc.thePlayer?.ticksExisted ?: 0) > 20 && !ignoreWholeTick && (target!!.hurtTime in attackableHurtTime || !flushOnAttackableHurtTime)
+            isSelected(it, true) && (mc.thePlayer?.ticksExisted ?: 0) > 20 && !ignoreWholeTick && (target!!.hurtTime !in attackableHurtTime || !flushOnAttackableHurtTime)
         } == true
 
     private fun reset() {
