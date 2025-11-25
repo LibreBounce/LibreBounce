@@ -109,6 +109,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         )
 
         // The ground ticks and simPlayer checks are there since you stay on ground for a tick, before being able to jump
+        // This does not account for getting hit, either
         val properGround = player.onGround && player.groundTicks > 1 && simPlayer.onGround
 
         // If you are "falling" (as in fallDistance > 0; it doesn't reset when you go up, only when on ground), you can land critical hits
@@ -172,13 +173,13 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
             else -> false
         }
 
-        if (debug) chat("(SmartHit) Will hit: ${shouldHit}, hit on the way: ${hitOnTheWay}, predicted distance: ${simulatedDistance}, current distance: ${distance}, current distance (target POV): ${targetDist}, combined ping: ${combinedPing}, combined ping multiplier: ${combinedPingMult}, rotation difference: ${rotDiff}, target hit likely: ${targetHitLikely}, own hurttime: ${player.hurtTime}, target hurttime: ${target.hurtTime}, on ground: ${player.onGround}, falling: ${falling}")
+        if (debug) chat("(SmartHit) Will hit: ${shouldHit}, hit on the way: ${hitOnTheWay}, predicted distance: ${simulatedDistance}, current distance: ${distance}, current distance (target POV): ${targetDistance}, combined ping: ${combinedPing}, combined ping multiplier: ${combinedPingMult}, rotation difference: ${rotDiff}, target hit likely: ${targetHitLikely}, own hurttime: ${player.hurtTime}, target hurttime: ${target.hurtTime}, on ground: ${player.onGround}, predicted ground: ${properGround}, falling: ${falling}")
 
         return shouldHit
     }
 
-    private fun simulateDistance(simPlayer: SimulatedPlayer, boundingBox: AxisAlignedBB): Float {
-        val player = mc.thePlayer ?: return 0
+    private fun simulateDistance(simPlayer: SimulatedPlayer, boundingBox: AxisAlignedBB): Double {
+        val player = mc.thePlayer ?: return 0.0
         val (currPos, prevPos) = player.currPos to player.prevPos
 
         player.setPosAndPrevPos(simPlayer.pos)
