@@ -181,7 +181,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
     private fun simulateDistance(simPlayer: SimulatedPlayer, boundingBox: AxisAlignedBB): Double {
         val player = mc.thePlayer ?: return 0.0
-        val (currPos, prevPos) = player
+        val (currPos, prevPos) = player.currPos to player.prevPos
 
         player.setPosAndPrevPos(simPlayer.pos)
 

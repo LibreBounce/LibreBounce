@@ -11,9 +11,8 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
 import net.ccbluex.liquidbounce.utils.client.chat
-import net.ccbluex.liquidbounce.utils.extensions.isMoving
-import net.ccbluex.liquidbounce.utils.extensions.getDistanceToBox
-import net.ccbluex.liquidbounce.utils.extensions.isMoving
+import net.ccbluex.liquidbounce.utils.extensions.*
+import net.ccbluex.liquidbounce.utils.rotation.RotationUtils
 import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
 import net.minecraft.entity.Entity
 
@@ -43,14 +42,18 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
 
     private fun shouldJump(target: Entity): Boolean {
         val player = mc.thePlayer ?: return false
-        val simPlayer = SimulatedPlayer.fromClientPlayer(RotationUtils.modifiedInput)
+        val modifiedInput = RotationUtils.modifiedInput
+        val simPlayer = SimulatedPlayer.fromClientPlayer(modifiedInput)
     
         val prediction = target.currPos.subtract(target.prevPos).times(predictEnemyPosition.toDouble())
         val boundingBox = target.hitBox.offset(prediction)
 
-        val (currPos, prevPos) = player
+        val (currPos, prevPos) = player.currPos to player.prevPos
 
-        if (simPlayer.onGround) simPlayer.jump()
+        if (simPlayer.onGround) {
+            modifiedInput.jump = true
+            chat("(CombatJump) Simulated a jump")
+        }
 
         repeat(predictClientMovement) {
             simPlayer.tick()
