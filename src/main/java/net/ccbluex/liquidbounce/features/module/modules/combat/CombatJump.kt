@@ -33,7 +33,7 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
 
         if (onlyMove && !player.isMoving) return@handler
 
-        if (shouldJump(target)) {
+        if (player.onGround && shouldJump(target)) {
             player.tryJump()
 
             if (debug) chat("(CombatJump) Jumped to the target")
@@ -52,7 +52,7 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
 
         if (simPlayer.onGround) {
             modifiedInput.jump = true
-            chat("(CombatJump) Simulated a jump")
+            if (debug) chat("(CombatJump) Simulated a jump")
         }
 
         repeat(predictClientMovement) {

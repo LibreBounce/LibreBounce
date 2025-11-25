@@ -66,13 +66,16 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
     private val distance by floatRange("Distance", 2f..3f, 0f..6f) { mode == "Modern" }
     private val smart by boolean("Smart", true) { mode == "Modern" }
 
+    private val attackableHurtTime by intRange("AttackableHurtTime", 0..1, 0..10) { mode == "Modern" }
+    private val flushOnAttackableHurtTime by bool("FlushOnAttackableHurtTime", false) { mode == "Modern" }
+
     // ESP
     private val espMode by choices(
         "ESPMode",
         arrayOf("None", "Box", "Model", "Wireframe"),
         "Box"
     ) { mode == "Modern" }.subjective()
-    private val wireframeWidth by float("WireframeWidth", 1f, 0.5f..5f) { espMode == "Wireframe" }
+    private val wireframeWidth by float("WireframeWidth", 1f, 0.5f..5f) { espMode == "Wireframe" }.subjective()
 
     private val espColor =
         ColorSettingsInteger(this, "ESPColor") { espMode != "Model" && mode == "Modern" }.with(0, 255, 0)
@@ -248,7 +251,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
 
                         if (mc.thePlayer.getDistanceToEntityBox(target) in distance) {
                             handlePackets()
-                            if (debug && target.hurtTime == 10) chat("(Backtrack) Lag distance: ${dist}, true distance: ${trueDist}")
+                            if (debug && target.hurtTime in attackableHurtTime) chat("(Backtrack) Lag distance: ${dist}, true distance: ${trueDist}")
                         } else {
                             handlePacketsRange()
                         }
@@ -640,7 +643,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
 
     private fun shouldBacktrack() =
         mc.thePlayer != null && mc.theWorld != null && target != null && mc.thePlayer.health > 0 && (target!!.health > 0 || target!!.health.isNaN()) && mc.playerController.currentGameType != WorldSettings.GameType.SPECTATOR && System.currentTimeMillis() >= delayForNextBacktrack && target?.let {
-            isSelected(it, true) && (mc.thePlayer?.ticksExisted ?: 0) > 20 && !ignoreWholeTick
+            isSelected(it, true) && (mc.thePlayer?.ticksExisted ?: 0) > 20 && !ignoreWholeTick && (target!!.hurtTime in attackableHurtTime || !flushOnAttackableHurtTime)
         } == true
 
     private fun reset() {
