@@ -21,7 +21,7 @@ object AAC3311 : LiquidWalkMode("AAC3.3.11") {
 
                 if (isCollidedHorizontally) {
                     motionY = 0.24
-                } else if (BlockPos(mc.thePlayer).up().block != Blocks.air) {
+                } else if (BlockPos(this).up().block != Blocks.air) {
                     motionY += 0.04
                 }
             }

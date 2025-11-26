@@ -23,19 +23,21 @@ object AAC1910 : FlyMode("AAC1.9.10") {
     }
 
     override fun onUpdate() {
-        if (mc.gameSettings.keyBindJump.isKeyDown)
-            jump += 0.2
+        mc.thePlayer?.run {
+            if (mc.gameSettings.keyBindJump.isKeyDown)
+                jump += 0.2
 
-        if (mc.gameSettings.keyBindSneak.isKeyDown)
-            jump -= 0.2
+            if (mc.gameSettings.keyBindSneak.isKeyDown)
+                jump -= 0.2
 
-        if (startY + jump > mc.thePlayer.posY) {
-            sendPacket(C03PacketPlayer(true))
-            mc.thePlayer.motionY = 0.8
-            strafe(aacSpeed)
+            if (startY + jump > posY) {
+                sendPacket(C03PacketPlayer(true))
+                motionY = 0.8
+                strafe(aacSpeed)
+            }
+
+            strafe()
         }
-
-        strafe()
     }
 
     override fun onRender3D(event: Render3DEvent) {

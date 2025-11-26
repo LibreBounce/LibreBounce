@@ -13,6 +13,7 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils
+import net.ccbluex.liquidbounce.utils.movement.FallingPlayer
 import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
 import net.minecraft.entity.Entity
 
@@ -30,6 +31,8 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
     // Anti-cheats such as Grim flag when you don't jump on this event
     val onStrafe = handler<StrafeEvent> { event ->
         val player = mc.thePlayer ?: return@handler
+
+        // TODO: Use some other target selecting system
         val target = KillAura.target ?: return@handler
 
         if (onlyMove && !player.isMoving) return@handler
@@ -69,8 +72,10 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
 
         val simDist = player.getDistanceToBox(boundingBox)
 
+        val fallingPlayer = FallingPlayer(player)
+
         player.setPosAndPrevPos(currPos, prevPos)
 
-        return simDist < distance && simDist in endDistance       
+        return simDist in endDistance && simDist < distance && !simPlayer.onGround && fallingPlayer.findCollision(2) != null
     }
 }
