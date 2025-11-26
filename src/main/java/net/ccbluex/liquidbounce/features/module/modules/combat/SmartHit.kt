@@ -98,7 +98,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
             simPlayer.tick()
         }
 
-        val simulatedDistance = simulateDistance(simPlayer, boundingBox)
+        val simulatedDistance = simulateDistance(simPlayer, target)
 
         // The ground ticks and simPlayer checks are there since you stay on ground for a tick, before being able to jump
         // This does not account for getting hit, either

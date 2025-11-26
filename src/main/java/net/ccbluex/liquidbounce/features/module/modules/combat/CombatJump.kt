@@ -48,6 +48,8 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
         val prediction = target.currPos.subtract(target.prevPos).times(predictEnemyPosition.toDouble())
         val boundingBox = target.hitBox.offset(prediction)
 
+        val distance = player.getDistanceToEntityBox(target)
+
         val (currPos, prevPos) = player.currPos to player.prevPos
 
         if (simPlayer.onGround) {
