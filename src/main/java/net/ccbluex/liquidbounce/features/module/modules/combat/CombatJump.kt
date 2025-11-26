@@ -19,7 +19,7 @@ import net.minecraft.entity.Entity
 
 object CombatJump : Module("CombatJump", Category.COMBAT) {
 
-    private val allowedJumpDistance by floatRange("AllowedJumpDistance", 5f..8f, 0..12f)
+    private val allowedJumpDistance by floatRange("AllowedJumpDistance", 5f..8f, 0f..12f)
     private val endDistance by floatRange("EndDistance", 3.05f..3.25f, 0f..6f)
     private val onlyMove by boolean("OnlyMove", true)
 
