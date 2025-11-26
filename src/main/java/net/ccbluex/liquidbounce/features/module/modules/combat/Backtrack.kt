@@ -63,7 +63,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
     // Also add an option that stops Backtrack if you can 1-tap your opponent
     // Add a PacketType option, with Sent, Received, and Both modes
     private val style by choices("Style", arrayOf("Pulse", "Smooth"), "Smooth") { mode == "Modern" }
-    private val packetMode by choices("PacketMode", arrayOf("Sent", "Received", "Both"), "Both") { mode == "Modern" }
+    //private val packetMode by choices("PacketMode", arrayOf("Sent", "Received", "Both"), "Both") { mode == "Modern" }
     private val distance by floatRange("Distance", 2f..3f, 0f..6f) { mode == "Modern" }
     private val smart by boolean("Smart", true) { mode == "Modern" }
 
@@ -160,10 +160,10 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
                     return@handler
                 }
 
-                if (packetMode == "Received") return@handler
-
                 // Prevent cancelling packets when not needed
                 if (isPacketQueueEmpty && areQueuedPacketsEmpty && !shouldBacktrack()) return@handler
+
+                //if (packetMode == "Received") return@handler
 
                 when (packet) {
                     // Ignore server related packets
@@ -205,7 +205,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
 
                 // Cancel every received packet to avoid possible server synchronization issues from random causes.
                 if (event.eventType == EventState.RECEIVE) {
-                    if (packetMode == "Sent") return@handler
+                    //if (packetMode == "Sent") return@handler
 
                     when (packet) {
                         is S14PacketEntity -> if (packet.entityId == target?.entityId) {

@@ -18,7 +18,8 @@ import net.minecraft.entity.Entity
 
 object CombatJump : Module("CombatJump", Category.COMBAT) {
 
-    private val endDistance by floatRange("EndDistance", 3.05f..3.25f, 0f..8f)
+    private val allowedJumpDistance by floatRange("AllowedJumpDistance", 5f..8f, 0..12f)
+    private val endDistance by floatRange("EndDistance", 3.05f..3.25f, 0f..6f)
     private val onlyMove by boolean("OnlyMove", true)
 
     private val predictClientMovement by int("PredictClientMovement", 6, 0..10, suffix = "ticks")
@@ -32,6 +33,8 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
         val target = KillAura.target ?: return@handler
 
         if (onlyMove && !player.isMoving) return@handler
+
+        if (player.getDistanceToEntityBox(target) !in allowedJumpDistance) return@handler
 
         if (player.onGround && shouldJump(target)) {
             player.tryJump()
