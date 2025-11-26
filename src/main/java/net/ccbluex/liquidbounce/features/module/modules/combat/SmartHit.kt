@@ -18,7 +18,6 @@ import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.util.AxisAlignedBB
 import kotlin.math.max
 import kotlin.math.sqrt
 
@@ -67,7 +66,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
          * No edge case has been implemented that does (at the very least) rudimentary future knockback calculations, which should be
          * as customizable as possible, to be accurate on all servers (given the right config, of course).
          *
-         * Currently, however, it only checks 2 ticks ahead, for performance reasons.
+         * Currently, however, it only checks the ticks ahead as defined by PredictClientMovement, for performance reasons.
          *
          * Another thing that must be implemented is client-side target hurttime checking.
          * Say you have 200 ping; in about half that time, the packet will be received by the server; in the other half,
@@ -83,19 +82,16 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         val combinedPing = playerPing + targetPing
         val combinedPingMult = combinedPing.toFloat() / 100f
 
+        /*
+         * The combat range of a player is a beam starting from the eyes.
+         * This gives a low ground advantage, which can only be calculated in this manner.
+         * As such, calculating both distances is paramount for good hit selecting.
+         *
+         * One thing is missing, for now; that is, also predicting the true POV of the target.
+         */
         val distance = player.getDistanceToEntityBox(target)
-
-        // The reason why I also have this is because the combat range of a player is a beam starting from the eyes
-        // in lower/higher ground situations, this effectively means 2 players can have lower or higher range
-        // TODO: Have another value that checks own pos from (combinedPing / 2).toTicks() ago, and predict the target position
-        // then, to be even more accurate
         val targetDistance = target.getDistanceToEntityBox(player)
 
-        val prediction = target.currPos.subtract(target.prevPos).times(predictEnemyPosition.toDouble())
-        val boundingBox = target.hitBox.offset(prediction)
-
-        // Currently, this is the best way I've found to do it, even though the code does
-        // look quite messy
         val simPlayer = SimulatedPlayer.fromClientPlayer(RotationUtils.modifiedInput)
 
         repeat(predictClientMovement) {
@@ -103,11 +99,6 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         }
 
         val simulatedDistance = simulateDistance(simPlayer, boundingBox)
-
-        val rotDiff = rotationDifference(
-            toRotation(player.hitBox.center, true, target!!),
-            target.rotation
-        )
 
         // The ground ticks and simPlayer checks are there since you stay on ground for a tick, before being able to jump
         // This does not account for getting hit, either
@@ -125,31 +116,38 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         if (!targetHittable) hitOnTheWay = false
 
         /*
-         * If a target is running or cannot hit you, it is not beneficial to hit more than required (i.e., when the target is hittable), since the slowdown
-         * may make it impossible to properly chase the target, and in the latter case, the opponent will be confused by your movements.
+         * If a target is running or cannot hit you, it is not beneficial to hit more than required (i.e. when the target can be hit), since the slowdown
+         * will make it much harder to properly chase the target, and in the latter case, the opponent will be confused by your movements.
+         *
+         * A great idea would be to have this as an integer (chance that the target will hit you), and let the user
+         * decide when it should spam hit or time hits. Additionally, it should predict if the target is holding S, and also time hits if so.
+         *
+         */
+        val rotDiff = rotationDifference(
+            toRotation(player.hitBox.center, true, target!!),
+            target.rotation
+        )
+
+        /*
          * This is only here because it is very difficult to have proper rotation prediction, and latency makes it so,
          * even if a target is not looking at your latest pos client-sidedly (because that is a past rotation), that target can still hit you.
          * As such, it's better to have it like this.
          *
          * On the other hand, I would suggest to keep a list of previous positions, and figure out if the target is aiming at one of them,
          * presumably the one from the visual delay ago (let's assume combined ping, and then adjust).
-         *
-         * Another great idea would be to have this as an integer (chance that the target will hit you), and let the user
-         * decide when it should spam hit or time hits. Finally, it should predict if the target is holding S, and also time hits if so.
-         *
          */
         val rotHittable = rotDiff < 20f + (12f * combinedPingMult) && !target.hitBox.isVecInside(player.eyes)
         val targetHitLikely = rotHittable && !target.isUsingItem && targetDistance < 3.08f
 
+        // Many magic numbers, but this is the best implementation I've done, so far
         val baseHurtTime = 3f / (1f + sqrt(distance) - (rotDiff / 180f))
         val optimalHurtTime = max(baseHurtTime.toInt(), 2)
+        val hurtTimeNoEscape = (2 * distance * 8).toInt() / 10
 
         val groundHit = properGround && if (targetHitLikely) target.hurtTime !in 2..optimalHurtTime else targetHittable && !hitOnTheWay
 
         val fallingHit = falling && if (targetHitLikely) target.hurtTime !in (attackableHurtTime.last + 1)..optimalHurtTime else targetHittable && (!hitOnTheWay || !lastHitCrit)
         val airHit = fallingHit || (target.hurtTime in 4..5 && targetHitLikely)
-
-        val hurtTimeNoEscape = (2 * distance * 8).toInt() / 10
 
         val shouldHit = when {
             // This currently does not fully account for burst clicking, timed hits, zest tapping, etc, but it is a start
@@ -174,18 +172,23 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
             else -> false
         }
 
-        if (debug) chat("(SmartHit) Will hit: ${shouldHit}, hit on the way: ${hitOnTheWay}, predicted distance: ${simulatedDistance}, current distance: ${distance}, current distance (target POV): ${targetDistance}, combined ping: ${combinedPing}, combined ping multiplier: ${combinedPingMult}, rotation difference: ${rotDiff}, target hit likely: ${targetHitLikely}, own hurttime: ${player.hurtTime}, target hurttime: ${target.hurtTime}, on ground: ${player.onGround}, predicted ground: ${properGround}, falling: ${falling}")
+        if (debug) chat("(SmartHit) Will hit: ${shouldHit}, hit on the way: ${hitOnTheWay}, current distance: ${distance}, current distance (target POV): ${targetDistance}, predicted distance: ${simulatedDistance}, combined ping: ${combinedPing}, combined ping multiplier: ${combinedPingMult}, rotation difference: ${rotDiff}, target hit likely: ${targetHitLikely}, own hurttime: ${player.hurtTime}, target hurttime: ${target.hurtTime}, on ground: ${player.onGround}, predicted ground: ${properGround}, falling: ${falling}")
 
         return shouldHit
     }
 
-    private fun simulateDistance(simPlayer: SimulatedPlayer, boundingBox: AxisAlignedBB): Double {
+    // TODO: Maybe turn this into a util, as it is commonly used
+    private fun simulateDistance(simPlayer: SimulatedPlayer, target: Entity): Double {
         val player = mc.thePlayer ?: return 0.0
+
+        val prediction = target.currPos.subtract(target.prevPos).times(predictEnemyPosition.toDouble())
+        val targetBox = target.hitBox.offset(prediction)
+
         val (currPos, prevPos) = player.currPos to player.prevPos
 
         player.setPosAndPrevPos(simPlayer.pos)
 
-        val distance = player.getDistanceToBox(boundingBox)
+        val distance = player.getDistanceToBox(targetBox)
 
         player.setPosAndPrevPos(currPos, prevPos)
 

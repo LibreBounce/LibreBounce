@@ -510,6 +510,8 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
             shouldRender = false
             ignoreWholeTick = true
         }
+
+        if (debug) chat("(BackTrack) Flushed all delayed packets")
     }
 
     private fun addBacktrackData(id: UUID, x: Double, y: Double, z: Double, time: Long) {

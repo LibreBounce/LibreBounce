@@ -52,6 +52,7 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
 
         if (simPlayer.onGround) {
             modifiedInput.jump = true
+
             if (debug) chat("(CombatJump) Simulated a jump")
         }
 
@@ -65,6 +66,6 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
 
         player.setPosAndPrevPos(currPos, prevPos)
 
-        return simDist in endDistance       
+        return simDist < distance && simDist in endDistance       
     }
 }

@@ -9,7 +9,12 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 ### Added
 
 - CombatJump module; jumps at the right time to gain higher momentum (thatonecoder)
-- `AttackableOnHurtTime` and `FlushAttackableOnHurtTime` values to BackTrack (thatonecoder)
+- `AttackableOnHurtTime` and `FlushAttackableOnHurtTime` values to Backtrack (thatonecoder)
+
+### Changed
+
+- Improve Backtrack debugging (thatonecoder)
+- Fine-tune SmartHit even further (thatonecoder)
 
 ## [0.7.0-beta.1] - 2025-11-24
 

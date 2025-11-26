@@ -171,7 +171,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
 
         repeat(predictClientMovement) {
             simPlayer.tick()
-            }
+        }
 
         player.setPosAndPrevPos(simPlayer.pos)
 
