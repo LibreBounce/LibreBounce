@@ -32,7 +32,7 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
     val onStrafe = handler<StrafeEvent> { event ->
         val player = mc.thePlayer ?: return@handler
 
-        // TODO: Use some other target selecting system
+        // TODO: Use a different target picking system
         val target = KillAura.target ?: return@handler
 
         if (onlyMove && !player.isMoving) return@handler
@@ -58,13 +58,15 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
 
         val (currPos, prevPos) = player.currPos to player.prevPos
 
-        if (simPlayer.onGround) {
-            modifiedInput.jump = true
+        repeat(1) {
+            if (simPlayer.onGround) {
+                modifiedInput.jump = true
 
-            if (debug) chat("(CombatJump) Simulated a jump")
+                if (debug) chat("(CombatJump) Simulated a jump")
+            }
         }
 
-        repeat(predictClientMovement) {
+        repeat(predictClientMovement - 1) {
             simPlayer.tick()
         }
 
@@ -76,6 +78,7 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
 
         player.setPosAndPrevPos(currPos, prevPos)
 
-        return simDist in endDistance && simDist < distance && !simPlayer.onGround && fallingPlayer.findCollision(2) != null
+        // TODO: Use fallingPlayer for ground hit checking
+        return simDist in endDistance && simDist < distance && !simPlayer.onGround
     }
 }
