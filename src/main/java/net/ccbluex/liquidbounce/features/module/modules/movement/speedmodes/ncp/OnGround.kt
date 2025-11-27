@@ -9,6 +9,9 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.Spee
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
 
 object OnGround : SpeedMode("OnGround") {
+    private const val horizontal = 1.590000033378601
+    private const val vertical = 0.3993000090122223
+
     override fun onMotion() {
         mc.thePlayer?.run {
             if (isInWater || isOnLadder || isCollidedHorizontally)
@@ -16,18 +19,18 @@ object OnGround : SpeedMode("OnGround") {
 
             if (!isMoving || fallDistance > 3.994) return
 
-            posY -= 0.3993000090122223
+            posY -= vertical
             motionY = -1000.0
             cameraPitch = 0.3f
             distanceWalkedModified = 44f
             mc.timer.timerSpeed = 1f
 
             if (onGround) {
-                posY += 0.3993000090122223
-                motionY = 0.3993000090122223
+                posY += vertical
+                motionY = vertical
                 distanceWalkedOnStepModified = 44f
-                motionX *= 1.590000033378601
-                motionZ *= 1.590000033378601
+                motionX *= horizontal
+                motionZ *= horizontal
                 cameraPitch = 0f
                 mc.timer.timerSpeed = 1.199f
             }

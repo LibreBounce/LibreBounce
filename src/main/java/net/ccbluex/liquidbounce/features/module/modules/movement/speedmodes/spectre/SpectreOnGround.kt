@@ -26,6 +26,7 @@ object SpectreOnGround : SpeedMode("SpectreOnGround") {
                 }
                 return
             }
+
             if (onGround && mc.gameSettings.keyBindForward.isKeyDown) {
                 val f = rotationYaw.toRadians()
                 motionX -= sin(f) * 0.145f

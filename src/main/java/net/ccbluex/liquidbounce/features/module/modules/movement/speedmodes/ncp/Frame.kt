@@ -20,6 +20,7 @@ object Frame : SpeedMode("Frame") {
         mc.thePlayer?.run {
             if (isMoving) {
                 val speed = 4.25
+
                 if (onGround) {
                     tryJump()
                     if (motionTicks == 1) {
@@ -36,6 +37,7 @@ object Frame : SpeedMode("Frame") {
                     motionZ *= speed
                     move = true
                 }
+
                 if (!onGround) strafe()
                 tickTimer.update()
             }

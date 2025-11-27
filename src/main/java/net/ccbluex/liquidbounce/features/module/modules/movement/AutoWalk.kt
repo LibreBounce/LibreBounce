@@ -18,7 +18,6 @@ object AutoWalk : Module("AutoWalk", Category.MOVEMENT, subjective = true, gameD
     }
 
     override fun onDisable() {
-        if (!GameSettings.isKeyDown(mc.gameSettings.keyBindForward))
-            mc.gameSettings.keyBindForward.pressed = false
+        mc.gameSettings.keyBindForward.pressed = GameSettings.isKeyDown(mc.gameSettings.keyBindForward)
     }
 }

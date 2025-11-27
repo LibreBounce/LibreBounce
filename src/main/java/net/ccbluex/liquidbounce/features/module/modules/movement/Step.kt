@@ -219,7 +219,6 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
             return@handler
 
         if (player.entityBoundingBox.minY - stepY > 0.6) { // Check if full block step
-
             when (mode) {
                 "NCP", "AAC" -> {
                     fakeJump()

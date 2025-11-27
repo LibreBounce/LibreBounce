@@ -76,10 +76,10 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
         arrayOf("None", "Box", "Model", "Wireframe"),
         "Box"
     ) { mode == "Modern" }.subjective()
-    private val wireframeWidth by float("WireframeWidth", 1f, 0.5f..5f) { espMode == "Wireframe" }.subjective()
+    private val wireframeWidth by float("WireframeWidth", 1f, 0.5f..5f) { mode == "Modern" && espMode == "Wireframe" }.subjective()
 
     private val espColor =
-        ColorSettingsInteger(this, "ESPColor") { espMode != "Model" && mode == "Modern" }.with(0, 255, 0)
+        ColorSettingsInteger(this, "ESPColor") { mode == "Modern" && espMode != "Model" }.with(0, 255, 0)
 
     private val debug by boolean("Debug", false) { mode == "Modern" }.subjective()
 
@@ -256,6 +256,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
 
                         if (mc.thePlayer.getDistanceToEntityBox(target) in distance) {
                             handlePackets()
+
                             if (debug && target.hurtTime in attackableHurtTime) chat("(Backtrack) Lag distance: ${dist}, true distance: ${trueDist}")
                         } else {
                             handlePacketsRange()
@@ -510,8 +511,6 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
             shouldRender = false
             ignoreWholeTick = true
         }
-
-        if (debug) chat("(BackTrack) Flushed all delayed packets")
     }
 
     private fun addBacktrackData(id: UUID, x: Double, y: Double, z: Double, time: Long) {

@@ -120,7 +120,7 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT) {
 
             if (jitter && ((left && shouldAutoClick && shouldJitter)
                         || (right && !isUsingItem && mc.gameSettings.keyBindUseItem.isKeyDown
-                        && ((onlyBlocks && heldItem?.item is ItemBlock) || !onlyBlocks)))
+                        && (!onlyBlocks || (onlyBlocks && heldItem?.item is ItemBlock))))
             ) {
                 if (nextBoolean()) fixedSensitivityYaw += nextFloat(-1F, 1F)
                 if (nextBoolean()) fixedSensitivityPitch += nextFloat(-1F, 1F)

@@ -21,12 +21,11 @@ import net.minecraft.potion.Potion
 * https://github.com/CCBlueX/LiquidBounce/pull/3798/files
 */
 object UNCPHopNew : SpeedMode("UNCPHopNew") {
-
     private var airTick = 0
 
-    private const val SPEED_VALUE = 0.199999999
-    private const val BOOST_MULTIPLIER = 0.00718
-    private const val DAMAGE_BOOST_SPEED = 0.5F
+    private const val speedValue = 0.199999999
+    private const val boostMultiplier = 0.00718
+    private const val damageBoostSpeed = 0.5f
 
     override fun onUpdate() {
         mc.thePlayer?.run {
@@ -64,24 +63,24 @@ object UNCPHopNew : SpeedMode("UNCPHopNew") {
             }
 
             if (Speed.timerBoost) {
-                if (hurtTime <= 1) {
+                mc.timer.timerSpeed = if (hurtTime <= 1) {
                     when (ticksExisted % 5) {
-                        0 -> mc.timer.timerSpeed = 1.025F
-                        2 -> mc.timer.timerSpeed = 1.08F
-                        4 -> mc.timer.timerSpeed = 1F
+                        0 -> 1.025f
+                        2 -> 1.08f
+                        4 -> 1f
                     }
-                } else if (hurtTime > 1) {
-                    mc.timer.timerSpeed = 1F
+                } else {
+                    1f
                 }
             }
 
             if (Speed.shouldBoost) {
-                motionX *= 1F + BOOST_MULTIPLIER
-                motionZ *= 1F + BOOST_MULTIPLIER
+                motionX *= 1f + boostMultiplier
+                motionZ *= 1f + boostMultiplier
             }
 
             if (Speed.damageBoost && hurtTime >= 1) {
-                strafe(speed = MovementUtils.speed.coerceAtLeast(DAMAGE_BOOST_SPEED))
+                strafe(speed = MovementUtils.speed.coerceAtLeast(damageBoostSpeed))
             }
         }
     }
@@ -90,7 +89,7 @@ object UNCPHopNew : SpeedMode("UNCPHopNew") {
         val player = mc.thePlayer ?: return 0.0
 
         val speedAmplifier = player.getActivePotionEffect(Potion.moveSpeed)?.amplifier ?: 0
-        return baseValue + SPEED_VALUE * speedAmplifier
+        return baseValue + speedValue * speedAmplifier
     }
 
     override fun onDisable() {

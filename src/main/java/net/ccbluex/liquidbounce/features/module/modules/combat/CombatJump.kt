@@ -74,7 +74,7 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
 
         val simDist = player.getDistanceToBox(boundingBox)
 
-        val fallingPlayer = FallingPlayer(player)
+        //val fallingPlayer = FallingPlayer(player)
 
         player.setPosAndPrevPos(currPos, prevPos)
 

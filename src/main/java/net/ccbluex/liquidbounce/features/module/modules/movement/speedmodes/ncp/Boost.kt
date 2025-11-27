@@ -10,10 +10,10 @@ import net.ccbluex.liquidbounce.utils.extensions.isMoving
 
 object Boost : SpeedMode("Boost") {
     private var motionDelay = 0
-    private var ground = 0f
 
     override fun onMotion() {
         mc.thePlayer?.run {
+            var ground = 0f
             var speed = 3.1981
             var offset = 4.69
             var shouldOffset = true
@@ -28,6 +28,7 @@ object Boost : SpeedMode("Boost") {
 
             if (onGround && ground < 1f)
                 ground += 0.2f
+
             if (!onGround)
                 ground = 0f
 
@@ -39,6 +40,7 @@ object Boost : SpeedMode("Boost") {
                     speed -= 0.1
                     offset += 0.5
                 }
+
                 if (isInWater)
                     speed -= 0.1
 
@@ -71,5 +73,5 @@ object Boost : SpeedMode("Boost") {
 
 
     private fun shouldSpeedUp() =
-        !mc.thePlayer.isInLava && !mc.thePlayer.isOnLadder && !mc.thePlayer.isSneaking && mc.thePlayer.isMoving
+        mc.thePlayer.isMoving && !mc.thePlayer.isInLava && !mc.thePlayer.isOnLadder
 }

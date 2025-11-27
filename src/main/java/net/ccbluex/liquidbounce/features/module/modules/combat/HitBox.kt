@@ -48,9 +48,9 @@ object HitBox : Module("HitBox", Category.COMBAT) {
             }
 
             else -> {
-                if (entity.isMob() && targetMobs) {
+                if (targetMobs && entity.isMob()) {
                     return mobSize
-                } else if (entity.isAnimal() && targetAnimals) {
+                } else if (targetAnimals && entity.isAnimal()) {
                     return animalSize
                 }
 

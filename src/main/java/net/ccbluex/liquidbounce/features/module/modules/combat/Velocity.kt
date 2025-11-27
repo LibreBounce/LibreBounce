@@ -81,7 +81,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
     private val legitDisableInAir by boolean("DisableInAir", true) { mode == "Legit" }
 
     // Chance
-    private val chance by int("Chance", 100, 0..100, suffix = "%") { mode == "Jump" || mode == "Legit" }
+    private val chance by int("Chance", 100, 0..100, suffix = "%") { mode in arrayOf("Jump", "Legit") }
 
     // Jump
     // TODO: Make this mode an option instead, add an option for it to work only out of range (to mitigate rod knockback)

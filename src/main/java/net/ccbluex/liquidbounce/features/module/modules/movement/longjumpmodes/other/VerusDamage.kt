@@ -58,7 +58,7 @@ object VerusDamage : LongJumpMode("VerusDamage") {
 
                 // player onGround checks will not work due to sendPacket ground, therefore motionY is used instead
                 if (autoDisable && motionY <= -0.4330104027478734) {
-                stopXZ()
+                    stopXZ()
                     LongJump.state = false
                 }
             } else if (autoDisable) {

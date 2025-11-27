@@ -31,6 +31,7 @@ object CustomSpeed : SpeedMode("Custom") {
     override fun onMotion() {
         mc.thePlayer?.run {
             val fallingPlayer = FallingPlayer()
+
             if (notOnVoid && fallingPlayer.findCollision(500) == null
                 || notOnFalling && fallDistance > 2.5f
                 || notOnConsuming && isUsingItem
