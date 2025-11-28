@@ -1018,7 +1018,7 @@ class SimulatedPlayer(
         val blockZ = MathHelper.floor_double(posZ)
 
         val block = worldObj.getBlockState(BlockPos(blockX, blockY, blockZ)).block
-        return isLivingOnLadder(block, worldObj, BlockPos(i, j, k), player)
+        return isLivingOnLadder(block, worldObj, BlockPos(blockX, blockY, blockZ), player)
     }
 
     private fun moveFlying(strafe: Float, forward: Float, friction: Float) {
