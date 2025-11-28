@@ -1,3 +1,4 @@
+
 /*
  * LiquidBounce Hacked Client
  * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
@@ -27,9 +28,9 @@ object Timer : Module("Timer", Category.WORLD, gameDetecting = false) {
         val player = mc.thePlayer ?: return@handler
 
         val shouldTimer = when (mode) {
-            "Always" -> true
             "OnMove" -> player.isMoving
             "NoMove" -> !player.isMoving
+            else -> true
         }
 
         mc.timer.timerSpeed = when {

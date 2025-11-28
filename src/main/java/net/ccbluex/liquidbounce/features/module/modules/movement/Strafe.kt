@@ -10,6 +10,7 @@ import net.ccbluex.liquidbounce.utils.extensions.isInLiquid
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.utils.extensions.toDegreesF
 import net.ccbluex.liquidbounce.utils.extensions.tryJump
+import net.ccbluex.liquidbounce.utils.extensions.stopXZ
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils.direction
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils.speed
 import kotlin.math.cos
