@@ -58,15 +58,13 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
 
         val (currPos, prevPos) = player.currPos to player.prevPos
 
-        repeat(1) {
-            if (simPlayer.onGround) {
-                modifiedInput.jump = true
+        if (simPlayer.onGround) {
+            modifiedInput.jump = true
 
-                if (debug) chat("(CombatJump) Simulated a jump")
-            }
+            if (debug) chat("(CombatJump) Simulated a jump")
         }
 
-        repeat(predictClientMovement - 1) {
+        repeat(predictClientMovement) {
             simPlayer.tick()
         }
 
@@ -78,7 +76,9 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
 
         player.setPosAndPrevPos(currPos, prevPos)
 
+        if (debug) chat("(CombatJump) Distance: ${distance}, simulated distance: ${simDist}, simulated ground: ${simPlayer.onGround}")
+
         // TODO: Use fallingPlayer for ground hit checking
-        return simDist in endDistance && simDist < distance && !simPlayer.onGround
+        return simDist in endDistance && !simPlayer.onGround
     }
 }

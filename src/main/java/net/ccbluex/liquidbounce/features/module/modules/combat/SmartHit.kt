@@ -15,11 +15,14 @@ import net.ccbluex.liquidbounce.utils.rotation.RotationUtils
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.rotationDifference
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.toRotation
 import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
+import net.minecraft.enchantment.EnchantmentHelper.getKnockbackModifier
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.util.MathHelper
 import kotlin.math.max
 import kotlin.math.sqrt
+import kotlin.math.PI
 
 object SmartHit : Module("SmartHit", Category.COMBAT) {
 
@@ -183,6 +186,8 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         val prediction = target.currPos.subtract(target.prevPos).times(predictEnemyPosition.toDouble())
         val targetBox = target.hitBox.offset(prediction)
 
+        simulateOwnKnockback(simPlayer, target)
+
         val (currPos, prevPos) = player.currPos to player.prevPos
 
         player.setPosAndPrevPos(simPlayer.pos)
@@ -192,5 +197,28 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         player.setPosAndPrevPos(currPos, prevPos)
 
         return distance
+    }
+
+    private fun simulateOwnKnockback(simPlayer: SimulatedPlayer, target: Entity) {
+        if (simPlayer.hurtTime != 0)
+            return
+
+        val knockbackModifier = getKnockbackModifier(target)
+
+        if (knockbackModifier > 0) {
+            // Calculate knockback direction
+            val knockbackX = -MathHelper.sin(target.rotationYaw * (PI / 180.0F)) * knockbackModifier * 0.5F
+            val knockbackY = 0.1
+            val knockbackZ = MathHelper.cos(target.rotationYaw * (PI / 180.0F)) * knockbackModifier * 0.5F
+
+            // Apply knockback
+            simPlayer.motionX += knockbackX
+            simPlayer.motionY += knockbackY
+            simPlayer.motionZ += knockbackZ
+        }
+
+        simPlayer.hurtTime = 10
+
+        if (debug) chat("(SmartHit) Simulated knockback. KnockbackX: ${knockbackX}, KnockbackY: ${knockbackY}, KnockbackZ: ${knockbackZ}")
     }
 }
