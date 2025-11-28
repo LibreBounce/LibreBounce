@@ -65,9 +65,9 @@ object UNCPHopNew : SpeedMode("UNCPHopNew") {
             if (Speed.timerBoost) {
                 mc.timer.timerSpeed = if (hurtTime <= 1) {
                     when (ticksExisted % 5) {
-                        0 -> 1.025f
-                        2 -> 1.08f
-                        4 -> 1f
+                        0, 1 -> 1.025f
+                        2, 3 -> 1.08f
+                        else -> 1f
                     }
                 } else {
                     1f

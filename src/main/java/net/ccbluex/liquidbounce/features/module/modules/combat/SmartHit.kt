@@ -177,7 +177,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
             else -> false
         }
 
-        if (debug) chat("(SmartHit) Will hit: ${shouldHit}, hit on the way: ${hitOnTheWay}, current distance: ${distance}, current distance (target POV): ${targetDistance}, predicted distance: ${simulatedDistance}, combined ping: ${combinedPing}, combined ping multiplier: ${combinedPingMult}, rotation difference: ${rotDiff}, target hit likely: ${targetHitLikely}, own hurttime: ${player.hurtTime}, target hurttime: ${target.hurtTime}, on ground: ${player.onGround}, predicted ground: ${simPlayer.onGround}, falling: ${falling}")
+        if (debug) chat("(SmartHit) Will hit: ${shouldHit}, hit on the way: ${hitOnTheWay}, current distance: ${distance}, current distance (target POV): ${targetDistance}, predicted distance: ${simulatedDistance}, combined ping: ${combinedPing}, combined ping multiplier: ${combinedPingMult}, rotation difference: ${rotDiff}, target hit likely: ${targetHitLikely}, own hurttime: ${player.hurtTime}, simulated own hurttime: ${simHurtTime}, target hurttime: ${target.hurtTime}, on ground: ${player.onGround}, predicted ground: ${simPlayer.onGround}, falling: ${falling}")
 
         return shouldHit
     }
@@ -210,9 +210,9 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
         if (knockbackModifier > 0) {
             // Calculate knockback direction
-            val knockbackX = -MathHelper.sin(target.rotationYaw * (PI / 180.0F)) * knockbackModifier * 0.5F
+            val knockbackX = -MathHelper.sin(target.rotationYaw.toFloat() * (PI / 180.0F)) * knockbackModifier * 0.5F
             val knockbackY = 0.1
-            val knockbackZ = MathHelper.cos(target.rotationYaw * (PI / 180.0F)) * knockbackModifier * 0.5F
+            val knockbackZ = MathHelper.cos(target.rotationYaw.toFloat() * (PI / 180.0F)) * knockbackModifier * 0.5F
 
             // Apply knockback
             simPlayer.motionX += knockbackX
