@@ -210,9 +210,9 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
         if (knockbackModifier > 0) {
             // Calculate knockback direction
-            val knockbackX = -MathHelper.sin(target.rotationYaw.toFloat() * (PI / 180.0F)) * knockbackModifier * 0.5F
+            val knockbackX = -MathHelper.sin(target.rotationYaw * (PI.toFloat() / 180.0f)) * knockbackModifier * 0.5f
             val knockbackY = 0.1
-            val knockbackZ = MathHelper.cos(target.rotationYaw.toFloat() * (PI / 180.0F)) * knockbackModifier * 0.5F
+            val knockbackZ = MathHelper.cos(target.rotationYaw * (PI.toFloat() / 180.0f)) * knockbackModifier * 0.5f
 
             // Apply knockback
             simPlayer.motionX += knockbackX

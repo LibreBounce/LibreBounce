@@ -26,7 +26,7 @@ object MiJump : SpeedMode("MiJump") {
                 val currSpeed = speed
                 val maxSpeed = 0.66
 
-                if (currentSpeed > maxSpeed) {
+                if (currSpeed > maxSpeed) {
                     val speedDivider = currSpeed * maxSpeed
 
                     motionX /= speedDivider
