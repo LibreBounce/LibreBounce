@@ -43,6 +43,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
     private val debug by boolean("Debug", false).subjective()
 
+    private var simHurtTime = 0
     private var lastHitCrit = false
     private var hitOnTheWay = false
 
@@ -95,9 +96,11 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         val targetDistance = target.getDistanceToEntityBox(player)
 
         val simPlayer = SimulatedPlayer.fromClientPlayer(RotationUtils.modifiedInput)
+        simHurtTime = player.hurtTime
 
         repeat(predictClientMovement) {
             simPlayer.tick()
+            --simHurtTime
         }
 
         val simulatedDistance = simulateDistance(simPlayer, target)
@@ -186,7 +189,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         val prediction = target.currPos.subtract(target.prevPos).times(predictEnemyPosition.toDouble())
         val targetBox = target.hitBox.offset(prediction)
 
-        simulateOwnKnockback(simPlayer, target)
+        if (target.getDistanceToEntityBox(player) <= 3.15f) simulateOwnKnockback(simPlayer, target)
 
         val (currPos, prevPos) = player.currPos to player.prevPos
 
@@ -200,10 +203,10 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
     }
 
     private fun simulateOwnKnockback(simPlayer: SimulatedPlayer, target: Entity) {
-        if (simPlayer.hurtTime != 0)
+        if (simHurtTime != 0)
             return
 
-        val knockbackModifier = getKnockbackModifier(target)
+        val knockbackModifier = getKnockbackModifier(target as EntityLivingBase)
 
         if (knockbackModifier > 0) {
             // Calculate knockback direction
@@ -215,10 +218,10 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
             simPlayer.motionX += knockbackX
             simPlayer.motionY += knockbackY
             simPlayer.motionZ += knockbackZ
+
+            if (debug) chat("(SmartHit) Simulated knockback. KnockbackX: ${knockbackX}, KnockbackY: ${knockbackY}, KnockbackZ: ${knockbackZ}")
         }
 
-        simPlayer.hurtTime = 10
-
-        if (debug) chat("(SmartHit) Simulated knockback. KnockbackX: ${knockbackX}, KnockbackY: ${knockbackY}, KnockbackZ: ${knockbackZ}")
+        simHurtTime = 10
     }
 }
