@@ -98,8 +98,9 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         val simPlayer = SimulatedPlayer.fromClientPlayer(RotationUtils.modifiedInput)
         simHurtTime = player.hurtTime
 
-        repeat(predictClientMovement) {
+        repeat(predictClientMovement + 1) {
             simPlayer.tick()
+
             --simHurtTime
         }
 
@@ -138,15 +139,15 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
          * even if a target is not looking at your latest pos client-sidedly (because that is a past rotation), that target can still hit you.
          * As such, it's better to have it like this.
          *
-         * On the other hand, I would suggest to keep a list of previous positions, and figure out if the target is aiming at one of them,
-         * presumably the one from the visual delay ago (let's assume combined ping, and then adjust).
+         * Another alternative is to keep a list of previous positions, and figure out if the target is aiming at one of them,
+         * presumably the one from the visual delay ago (let's initially assume combined ping, and then adjust).
          */
         val rotHittable = rotDiff < 20f + (12f * combinedPingMult) && !target.hitBox.isVecInside(player.eyes)
         val targetHitLikely = rotHittable && !target.isUsingItem && targetDistance < 3.08f
 
         // Many magic numbers, but this is the best implementation I've done, so far
         val baseHurtTime = 3f / (1f + sqrt(distance) - (rotDiff / 180f))
-        val optimalHurtTime = max(baseHurtTime.toInt(), 2)
+        val optimalHurtTime = max(baseHurtTime.toInt(), attackableHurtTime.last + 1)
         val hurtTimeNoEscape = (2 * distance * 8).toInt() / 10
 
         val groundHit = properGround && if (targetHitLikely) target.hurtTime !in 2..optimalHurtTime else targetHittable && !hitOnTheWay
@@ -203,7 +204,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
     }
 
     private fun simulateOwnKnockback(simPlayer: SimulatedPlayer, target: Entity) {
-        if (simHurtTime != 0)
+        if (simHurtTime > 0)
             return
 
         val knockbackModifier = getKnockbackModifier(target as EntityLivingBase)
@@ -211,7 +212,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         if (knockbackModifier > 0) {
             // Calculate knockback direction
             val knockbackX = -MathHelper.sin(target.rotationYaw * (PI.toFloat() / 180.0f)) * knockbackModifier * 0.5f
-            val knockbackY = 0.1
+            val knockbackY = 0.4
             val knockbackZ = MathHelper.cos(target.rotationYaw * (PI.toFloat() / 180.0f)) * knockbackModifier * 0.5f
 
             // Apply knockback
@@ -221,6 +222,8 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
             if (debug) chat("(SmartHit) Simulated knockback. KnockbackX: ${knockbackX}, KnockbackY: ${knockbackY}, KnockbackZ: ${knockbackZ}")
         }
+
+        if (debug) chat("(SmartHit) Attemped to simulate knockback. Knockback modifier: ${knockbackModifier}")
 
         simHurtTime = 10
     }

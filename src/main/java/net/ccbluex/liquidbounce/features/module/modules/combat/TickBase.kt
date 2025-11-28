@@ -71,6 +71,7 @@ object TickBase : Module("TickBase", Category.COMBAT) {
     }
 
     private var modificationFlag = false
+
     val onGameLoop = handler<GameLoopEvent> {
         if (modificationFlag) {
             modificationFlag = false
@@ -134,7 +135,7 @@ object TickBase : Module("TickBase", Category.COMBAT) {
                 modificationFlag = true
             }
 
-            if (debug) chat("LAG TICKS: ${skipTicks} (BEST TICKS: ${bestTick}, ADDITIONAL PAUSE TICKS: ${pauseAfterTick})")
+            if (debug) chat("(TickBase) Lag ticks: ${skipTicks}, best ticks: ${bestTick}, additional pause ticks: ${pauseAfterTick})")
 
         }
     }
@@ -148,9 +149,9 @@ object TickBase : Module("TickBase", Category.COMBAT) {
 
         tickBuffer.clear()
 
-        val simulatedPlayer = SimulatedPlayer.fromClientPlayer(RotationUtils.modifiedInput)
+        val simPlayer = SimulatedPlayer.fromClientPlayer(RotationUtils.modifiedInput)
 
-        simulatedPlayer.rotationYaw = RotationUtils.currentRotation?.yaw ?: player.rotationYaw
+        simPlayer.rotationYaw = RotationUtils.currentRotation?.yaw ?: player.rotationYaw
 
         if (tickBalance <= 0) {
             reachedTheLimit = true
@@ -165,15 +166,16 @@ object TickBase : Module("TickBase", Category.COMBAT) {
         if (reachedTheLimit) return@handler
 
         repeat(minOf(tickBalance.toInt(), maxTicksAtATime * if (mode == "Past") 2 else 1)) {
-            simulatedPlayer.tick()
+            simPlayer.tick()
+
             tickBuffer += TickData(
-                simulatedPlayer.pos,
-                simulatedPlayer.fallDistance,
-                simulatedPlayer.motionX,
-                simulatedPlayer.motionY,
-                simulatedPlayer.motionZ,
-                simulatedPlayer.onGround,
-                simulatedPlayer.isCollidedHorizontally
+                simPlayer.pos,
+                simPlayer.fallDistance,
+                simPlayer.motionX,
+                simPlayer.motionY,
+                simPlayer.motionZ,
+                simPlayer.onGround,
+                simPlayer.isCollidedHorizontally
             )
         }
     }

@@ -241,14 +241,9 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
             attackRange = if (Reach.handleEvents()) Reach.combatReach else 3f,
         )
 
-        if (distance == null) {
-            player.setPosAndPrevPos(currPos, oldPos)
-            return false
-        }
-
         player.setPosAndPrevPos(currPos, oldPos)
 
-        return true
+        return distance != null
     }
 
     // Resets player speed when less/more than target distance
@@ -270,7 +265,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
     }
 
     val onUpdate = handler<UpdateEvent> {
-        // Randomize the timer & charged delay a bit, to bypass some AntiCheat
+        // Randomize the timer & charged delay a bit, to potentially bypass some anti-cheats
         val timerBoost = boostDelay.random()
         val charged = chargedDelay.random()
 

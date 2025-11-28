@@ -51,6 +51,7 @@ import kotlin.math.ceil
  * }
  */
 // TODO: Add getDistanceToBox and getDistanceToEntityBox
+// TODO: Properly check simulated ground
 @Suppress("SameParameterValue", "MemberVisibilityCanBePrivate")
 class SimulatedPlayer(
     private val player: EntityPlayerSP,
@@ -854,9 +855,9 @@ class SimulatedPlayer(
     private fun setFire(seconds: Int) {
         var i = seconds * 20
         i = EnchantmentProtection.getFireTimeForEntity(player, i)
-        if (fire < i) {
+
+        if (fire < i)
             fire = i
-        }
     }
 
     private fun isWet(): Boolean {
@@ -1012,10 +1013,11 @@ class SimulatedPlayer(
     }
 
     fun isOnLadder(): Boolean {
-        val i = MathHelper.floor_double(posX)
-        val j = MathHelper.floor_double(box.minY)
-        val k = MathHelper.floor_double(posZ)
-        val block = worldObj.getBlockState(BlockPos(i, j, k)).block
+        val blockX = MathHelper.floor_double(posX)
+        val blockY = MathHelper.floor_double(box.minY)
+        val blockZ = MathHelper.floor_double(posZ)
+
+        val block = worldObj.getBlockState(BlockPos(blockX, blockY, blockZ)).block
         return isLivingOnLadder(block, worldObj, BlockPos(i, j, k), player)
     }
 
@@ -1023,6 +1025,7 @@ class SimulatedPlayer(
         var newStrafe = strafe
         var newForward = forward
         var f = newStrafe * newStrafe + newForward * newForward
+
         if (f >= 1.0E-4f) {
             f = MathHelper.sqrt_float(f)
             if (f < 1.0f) {
@@ -1038,11 +1041,11 @@ class SimulatedPlayer(
         }
     }
 
-    private fun jump() {
+    fun jump() {
         motionY = getJumpUpwardsMotion().toDouble()
-        if (isPotionActive(Potion.jump)) {
+
+        if (isPotionActive(Potion.jump))
             motionY += ((getActivePotionEffect(Potion.jump).amplifier + 1).toFloat() * 0.1f).toDouble()
-        }
 
         if (isSprinting()) {
             val f = rotationYaw * 0.017453292f

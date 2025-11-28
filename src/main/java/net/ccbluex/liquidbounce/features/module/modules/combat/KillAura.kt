@@ -888,7 +888,6 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
         var pos = currPos
 
-        // TODO: Separate the SmartHit-related code
         repeat(predictClientMovement) {
             val previousPos = simPlayer.pos
 
@@ -927,17 +926,11 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             horizontalSearch = horizontalBodySearchRange
         )
 
-        if (rotation == null) {
-            player.setPosAndPrevPos(currPos, oldPos)
-
-            return false
-        }
-
-        setTargetRotation(rotation, options = options)
+        if (rotation != null) setTargetRotation(rotation, options = options)
 
         player.setPosAndPrevPos(currPos, oldPos)
 
-        return true
+        return rotation != null
     }
 
     private fun ticksSinceClick() = runTimeTicks - (attackTickTimes.lastOrNull()?.second ?: 0)
