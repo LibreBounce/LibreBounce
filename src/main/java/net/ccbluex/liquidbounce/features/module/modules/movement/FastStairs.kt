@@ -25,64 +25,63 @@ object FastStairs : Module("FastStairs", Category.MOVEMENT) {
     private var walkingDown = false
 
     val onUpdate = handler<UpdateEvent> {
-        val player = mc.thePlayer ?: return@handler
+        mc.thePlayer?.run {
+            if (!isMoving || Speed.handleEvents())
+                return@handler
 
-        if (!player.isMoving || Speed.handleEvents())
-            return@handler
-
-        when {
-            player.fallDistance > 0 && !walkingDown -> walkingDown = true
-            player.posY > player.prevChasingPosY -> walkingDown = false
-        }
-
-        val mode = mode
-
-        if (!player.onGround)
-            return@handler
-
-        val blockPos = BlockPos(player)
-
-        if (blockPos.block is BlockStairs && !walkingDown) {
-            player.setPosition(player.posX, player.posY + 0.5, player.posZ)
-
-            val motion = when (mode) {
-                "NCP" -> 1.4
-                "AAC3.1.0" -> 1.5
-                "AAC3.3.13" -> 1.2
-                else -> 1.0
+            when {
+                fallDistance > 0 && !walkingDown -> walkingDown = true
+                posY > prevChasingPosY -> walkingDown = false
             }
 
-            player.motionX *= motion
-            player.motionZ *= motion
-        }
 
-        if (blockPos.down().block is BlockStairs) {
-            if (walkingDown) {
-                when (mode) {
-                    "NCP" -> player.motionY = -1.0
-                    "AAC3.3.13" -> player.motionY -= 0.014
+            if (!onGround)
+                return@handler
+
+            val blockPos = BlockPos(this)
+
+            if (blockPos.block is BlockStairs && !walkingDown) {
+                setPosition(posX, posY + 0.5, posZ)
+
+                val motion = when (mode) {
+                    "NCP" -> 1.4
+                    "AAC3.1.0" -> 1.5
+                    "AAC3.3.13" -> 1.2
+                    else -> 1.0
                 }
 
-                return@handler
+                motionX *= motion
+                motionZ *= motion
             }
 
-            val motion = when (mode) {
-                "AAC3.3.6" -> 1.48
-                "AAC3.3.13" -> 1.52
-                else -> 1.3
-            }
+            if (blockPos.down().block is BlockStairs) {
+                if (walkingDown) {
+                    when (mode) {
+                        "NCP" -> motionY = -1.0
+                        "AAC3.3.13" -> motionY -= 0.014
+                    }
 
-            player.motionX *= motion
-            player.motionZ *= motion
-            canJump = true
-        } else if (mode.startsWith("AAC") && canJump) {
-            if (longJump) {
-                player.tryJump()
-                player.motionX *= 1.35
-                player.motionZ *= 1.35
-            }
+                    return@handler
+                }
 
-            canJump = false
+                val motion = when (mode) {
+                    "AAC3.3.6" -> 1.48
+                    "AAC3.3.13" -> 1.52
+                    else -> 1.3
+                }
+
+                motionX *= motion
+                motionZ *= motion
+                canJump = true
+            } else if (mode.startsWith("AAC") && canJump) {
+                if (longJump) {
+                    tryJump()
+                    motionX *= 1.35
+                    motionZ *= 1.35
+                }
+
+                canJump = false
+            }
         }
     }
 

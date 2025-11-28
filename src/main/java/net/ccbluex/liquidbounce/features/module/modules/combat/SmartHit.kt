@@ -207,7 +207,8 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         if (simHurtTime > 0)
             return
 
-        val knockbackModifier = getKnockbackModifier(target as EntityLivingBase)
+        //val knockbackModifier = getKnockbackModifier(target as EntityLivingBase)
+        val knockbackModifier = 0.88
 
         if (knockbackModifier > 0) {
             // Calculate knockback direction

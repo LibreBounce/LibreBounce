@@ -46,6 +46,7 @@ object WallClimb : Module("WallClimb", Category.MOVEMENT) {
                 "Clip" -> {
                     if (motionY < 0)
                         glitch = true
+
                     if (isCollidedHorizontally) {
                         when (clipMode) {
                             "Jump" -> if (onGround)
@@ -70,23 +71,14 @@ object WallClimb : Module("WallClimb", Category.MOVEMENT) {
                 }
 
                 "AAC3.3.12" -> if (isCollidedHorizontally && !isOnLadder) {
-                    waited++
-                    if (waited == 1)
-                        motionY = 0.43
-                    if (waited == 12)
-                        motionY = 0.43
-                    if (waited == 23)
-                        motionY = 0.43
-                    if (waited == 29)
-                        setPosition(posX, posY + 0.5, posZ)
-                    if (waited >= 30)
-                        waited = 0
+                    when (++waited) {
+                        1, 12, 23 -> motionY = 0.43
+                        29 -> setPosition(posX, posY + 0.5, posZ)
+                        30 -> waited = 0
+                    }
                 } else if (onGround) waited = 0
 
-                "AACGlide" -> {
-                    if (!isCollidedHorizontally || isOnLadder) return@loopSequence
-                    motionY = -0.19
-                }
+                "AACGlide" -> if (isCollidedHorizontally && !isOnLadder) motionY = -0.19
             }
         }
     }
@@ -94,13 +86,12 @@ object WallClimb : Module("WallClimb", Category.MOVEMENT) {
     val onPacket = handler<PacketEvent> { event ->
         val packet = event.packet
 
-        if (packet is C03PacketPlayer) {
-            if (glitch) {
-                val yaw = direction
-                packet.x -= sin(yaw) * 0.00000001
-                packet.z += cos(yaw) * 0.00000001
-                glitch = false
-            }
+        if (packet is C03PacketPlayer && glitch) {
+            val yaw = direction
+
+            packet.x -= sin(yaw) * 0.00000001
+            packet.z += cos(yaw) * 0.00000001
+            glitch = false
         }
     }
 
@@ -108,6 +99,7 @@ object WallClimb : Module("WallClimb", Category.MOVEMENT) {
         mc.thePlayer?.run {
             when (mode) {
                 "CheckerClimb" -> if (event.y > posY) event.boundingBox = null
+
                 "Clip" ->
                     if (event.block == Blocks.air && event.y < posY && isCollidedHorizontally
                         && !isOnLadder && !isInLiquid

@@ -45,7 +45,7 @@ object ReverseStep : Module("ReverseStep", Category.MOVEMENT) {
                 }) return@handler
 
             if (!mc.gameSettings.keyBindJump.isKeyDown && !onGround && !movementInput.jump && motionY <= 0.0 && fallDistance <= 1f && !jumped)
-            motionY = (-motion).toDouble()
+                motionY = -motion.toDouble()
         }
     }
 

@@ -32,8 +32,6 @@ object IceSpeed : Module("IceSpeed", Category.MOVEMENT) {
     }
 
     val onUpdate = handler<UpdateEvent> {
-        val mode = mode
-
         mc.thePlayer?.run {
             if (!onGround || isOnLadder || isSneaking || !isSprinting || !isMoving) {
                 return@handler
@@ -64,7 +62,7 @@ object IceSpeed : Module("IceSpeed", Category.MOVEMENT) {
                 }
 
                 "Spartan" -> {
-                    val upBlock = BlockPos(mc.thePlayer).up(2).block
+                    val upBlock = BlockPos(this).up(2).block
 
                     if (upBlock != Blocks.air) {
                         motionX *= 1.342

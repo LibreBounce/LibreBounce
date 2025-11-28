@@ -36,16 +36,16 @@ object FastClimb : Module("FastClimb", Category.MOVEMENT) {
     private var climbCount = 0
 
     private fun playerClimb() {
-        mc.thePlayer.motionY = 0.0
-        mc.thePlayer.isInWeb = true
-        mc.thePlayer.onGround = true
+        mc.thePlayer?.run {
+            motionY = 0.0
+            isInWeb = true
+            onGround = true
 
-        mc.thePlayer.isInWeb = false
+            isInWeb = false
+        }
     }
 
     val onMove = handler<MoveEvent> { event ->
-        val mode = mode
-
         mc.thePlayer?.run {
             when {
                 mode == "AAC3.0.0" && isCollidedHorizontally -> {

@@ -63,10 +63,9 @@ object Strafe : Module("Strafe", Category.MOVEMENT, gameDetecting = false) {
     val onStrafe = handler<StrafeEvent> {
         mc.thePlayer?.run {
             if (!isMoving) {
-                if (noMoveStop) {
-                    motionX = .0
-                    motionZ = .0
-                }
+                if (noMoveStop)
+                    stopXZ()
+
                 return@handler
             }
 
