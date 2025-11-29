@@ -79,6 +79,6 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
         if (debug) chat("(CombatJump) Distance: ${distance}, simulated distance: ${simDist}, simulated ground: ${simPlayer.onGround}")
 
         // TODO: Use fallingPlayer for ground hit checking
-        return simDist in endDistance && simPlayer.fallDistance > 0.2f
+        return simDist in endDistance
     }
 }

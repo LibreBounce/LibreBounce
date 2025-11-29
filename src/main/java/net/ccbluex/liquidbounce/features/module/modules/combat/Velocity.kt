@@ -55,15 +55,15 @@ object Velocity : Module("Velocity", Category.COMBAT) {
         ), "Simple"
     )
 
-    private val horizontal by float("Horizontal", 0F, -1F..1F) { mode in arrayOf("Simple", "AAC", "Legit") }
-    private val vertical by float("Vertical", 0F, -1F..1F) { mode in arrayOf("Simple", "Legit") }
+    private val horizontal by float("Horizontal", 0f, -1f..1f) { mode in arrayOf("Simple", "AAC", "Legit") }
+    private val vertical by float("Vertical", 0f, -1f..1f) { mode in arrayOf("Simple", "Legit") }
 
     // Reverse
-    private val reverseStrength by float("ReverseStrength", 1F, 0.1F..1F) { mode == "Reverse" }
-    private val reverse2Strength by float("SmoothReverseStrength", 0.05F, 0.02F..0.1F) { mode == "SmoothReverse" }
+    private val reverseStrength by float("ReverseStrength", 1f, 0.1f..1f) { mode == "Reverse" }
+    private val reverse2Strength by float("SmoothReverseStrength", 0.05f, 0.02f..0.1f) { mode == "SmoothReverse" }
 
     private val onLook by boolean("OnLook", false) { mode in arrayOf("Reverse", "SmoothReverse") }
-    private val range by float("Range", 3.0F, 1F..5.0F) {
+    private val range by float("Range", 3.0f, 1f..5.0f) {
         onLook && mode in arrayOf("Reverse", "SmoothReverse")
     }
     private val maxAngleDifference by float("MaxAngleDifference", 45.0f, 5.0f..90f, suffix = "º") {
@@ -71,11 +71,11 @@ object Velocity : Module("Velocity", Category.COMBAT) {
     }
 
     // AAC Push
-    private val aacPushXZReducer by float("AACPushXZReducer", 2F, 1F..3F) { mode == "AACPush" }
+    private val aacPushXZReducer by float("AACPushXZReducer", 2f, 1f..3f) { mode == "AACPush" }
     private val aacPushYReducer by boolean("AACPushYReducer", true) { mode == "AACPush" }
 
     // AAC v4
-    private val aacv4MotionReducer by float("AACv4MotionReducer", 0.62F, 0F..1F) { mode == "AACv4" }
+    private val aacv4MotionReducer by float("AACv4MotionReducer", 0.62f, 0f..1f) { mode == "AACv4" }
 
     // Legit
     private val legitDisableInAir by boolean("DisableInAir", true) { mode == "Legit" }
@@ -88,9 +88,10 @@ object Velocity : Module("Velocity", Category.COMBAT) {
     private val jumpCooldownMode by choices("JumpCooldownMode", arrayOf("Ticks", "ReceivedHits"), "Ticks")
     { mode == "Jump" }
     private val ticksUntilJump by int("TicksUntilJump", 4, 0..20)
-    { jumpCooldownMode == "Ticks" && mode == "Jump" }
+    { mode == "Jump" && jumpCooldownMode == "Ticks" }
     private val hitsUntilJump by int("ReceivedHitsUntilJump", 2, 0..5)
-    { jumpCooldownMode == "ReceivedHits" && mode == "Jump" }
+    { mode == "Jump" && jumpCooldownMode == "ReceivedHits" }
+    private val onlySprinting by boolean("OnlySprinting", true) { mode == "Jump" }
 
     // Delay
     private val spoofDelay by int("SpoofDelay", 500, 0..5000) { mode == "Delay" }
@@ -502,6 +503,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
                             packetDirection = atan2(motionX, motionZ)
                         }
                     }
+
                     val degreePlayer = getDirection()
                     val degreePacket = Math.floorMod(packetDirection.toDegrees().toInt(), 360).toDouble()
                     var angle = abs(degreePacket + degreePlayer)
@@ -548,12 +550,10 @@ object Velocity : Module("Velocity", Category.COMBAT) {
                 "Hypixel" -> {
                     hasReceivedVelocity = true
 
-                    if (!player.onGround) {
-                        if (!absorbedVelocity) {
-                            event.cancelEvent()
-                            absorbedVelocity = true
-                            return@handler
-                        }
+                    if (!player.onGround && !absorbedVelocity) {
+                        event.cancelEvent()
+                        absorbedVelocity = true
+                        return@handler
                     }
 
                     if (packet is S12PacketEntityVelocity && packet.entityID == player.entityId) {
@@ -709,7 +709,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
     val onStrafe = handler<StrafeEvent> {
         mc.thePlayer?.run {
             if (mode == "Jump" && hasReceivedVelocity) {
-                if (!isJumping && nextInt(endExclusive = 100) < chance && shouldJump() && isSprinting && onGround && hurtTime in hurtTimeToAct) {
+                if (!isJumping && nextInt(endExclusive = 100) < chance && shouldJump() && (isSprinting || !onlySprinting) && onGround && hurtTime in hurtTimeToAct) {
                     tryJump()
                     if (debug) chat("Velocity jumped at hurttime ${hurtTime}")
                     limitUntilJump = 0

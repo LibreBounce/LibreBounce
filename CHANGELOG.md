@@ -9,7 +9,9 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 ### Added
 
 - CombatJump module; jumps at the right time to gain higher momentum (thatonecoder)
+- `SimulatedHorizontalKnockback` and `SimulatedVerticalKnockback` values to SmartHit (thatonecoder)
 - `AttackableOnHurtTime` and `FlushAttackableOnHurtTime` values to Backtrack (thatonecoder)
+- `ÒnlySprinting` option to the Jump mode in Velocity; previously hardcoded (thatonecoder)
 
 ### Changed
 

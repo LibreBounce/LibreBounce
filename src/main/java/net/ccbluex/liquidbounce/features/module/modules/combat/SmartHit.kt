@@ -41,6 +41,10 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
     private val predictClientMovement by int("PredictClientMovement", 2, 0..5, suffix = "ticks")
     private val predictEnemyPosition by float("PredictEnemyPosition", 1.5f, 0f..2f)
 
+    // Allows you to alter how strong the simulated knockback is
+    private val simulatedHorizontalKnockback by floatRange("SimulatedHorizontalKnockback", 0.88f..1f, 0f..4f)
+    private val simulatedVerticalKnockback by floatRange("SimulatedVerticalKnockback", 0.4f..0.5f, 0f..2f)
+
     private val debug by boolean("Debug", false).subjective()
 
     private var simHurtTime = 0
@@ -208,12 +212,12 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
             return
 
         //val knockbackModifier = getKnockbackModifier(target as EntityLivingBase)
-        val knockbackModifier = 0.88
+        val knockbackModifier = simulatedHorizontalKnockback.random()
 
         if (knockbackModifier > 0) {
             // Calculate knockback direction
             val knockbackX = -MathHelper.sin(target.rotationYaw * (PI.toFloat() / 180.0f)) * knockbackModifier * 0.5f
-            val knockbackY = 0.4
+            val knockbackY = simulatedVerticalKnockback.random()
             val knockbackZ = MathHelper.cos(target.rotationYaw * (PI.toFloat() / 180.0f)) * knockbackModifier * 0.5f
 
             // Apply knockback
