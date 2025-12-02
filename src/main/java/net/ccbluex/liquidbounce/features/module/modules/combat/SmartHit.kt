@@ -108,8 +108,6 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
             --simHurtTime
         }
 
-        val simulatedDistance = simulateDistance(simPlayer, target)
-
         // The ground ticks and simPlayer checks are there since you stay on ground for a tick, before being able to jump
         // This does not account for getting hit, either
         val properGround = player.onGround && player.groundTicks > 1 && simPlayer.onGround
@@ -148,6 +146,8 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
          */
         val rotHittable = rotDiff < 20f + (12f * combinedPingMult) && !target.hitBox.isVecInside(player.eyes)
         val targetHitLikely = rotHittable && !target.isUsingItem && targetDistance < 3.08f
+
+        val simulatedDistance = simulateDistance(simPlayer, target, targetHitLikely)
 
         // Many magic numbers, but this is the best implementation I've done, so far
         val baseHurtTime = 3f / (1f + sqrt(distance) - (rotDiff / 180f))
@@ -188,13 +188,13 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
     }
 
     // TODO: Maybe turn this into a util, as it is commonly used
-    private fun simulateDistance(simPlayer: SimulatedPlayer, target: Entity): Double {
+    private fun simulateDistance(simPlayer: SimulatedPlayer, target: Entity, simulateKnockback: Boolean): Double {
         val player = mc.thePlayer ?: return 0.0
 
         val prediction = target.currPos.subtract(target.prevPos).times(predictEnemyPosition.toDouble())
         val targetBox = target.hitBox.offset(prediction)
 
-        if (target.getDistanceToEntityBox(player) <= 3.15f) simulateOwnKnockback(simPlayer, target)
+        if (simHurtTime <= 0 && simulateKnockback) simulateOwnKnockback(simPlayer, target)
 
         val (currPos, prevPos) = player.currPos to player.prevPos
 
@@ -208,27 +208,19 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
     }
 
     private fun simulateOwnKnockback(simPlayer: SimulatedPlayer, target: Entity) {
-        if (simHurtTime > 0)
-            return
-
         //val knockbackModifier = getKnockbackModifier(target as EntityLivingBase)
         val knockbackModifier = simulatedHorizontalKnockback.random()
 
-        if (knockbackModifier > 0) {
-            // Calculate knockback direction
-            val knockbackX = -MathHelper.sin(target.rotationYaw * (PI.toFloat() / 180.0f)) * knockbackModifier * 0.5f
-            val knockbackY = simulatedVerticalKnockback.random()
-            val knockbackZ = MathHelper.cos(target.rotationYaw * (PI.toFloat() / 180.0f)) * knockbackModifier * 0.5f
+        // Calculate knockback direction
+        val knockbackX = -MathHelper.sin(target.rotationYaw * (PI.toFloat() / 180.0f)) * knockbackModifier * 0.5f
+        val knockbackZ = MathHelper.cos(target.rotationYaw * (PI.toFloat() / 180.0f)) * knockbackModifier * 0.5f
 
-            // Apply knockback
-            simPlayer.motionX += knockbackX
-            simPlayer.motionY += knockbackY
-            simPlayer.motionZ += knockbackZ
+        // Apply knockback
+        simPlayer.motionX += knockbackX
+        simPlayer.motionY += simulatedVerticalKnockback.random()
+        simPlayer.motionZ += knockbackZ
 
-            if (debug) chat("(SmartHit) Simulated knockback. KnockbackX: ${knockbackX}, KnockbackY: ${knockbackY}, KnockbackZ: ${knockbackZ}")
-        }
-
-        if (debug) chat("(SmartHit) Attemped to simulate knockback. Knockback modifier: ${knockbackModifier}")
+        if (debug) chat("(SmartHit) Simulated knockback. X: ${knockbackX}, Y: ${knockbackY}, Z: ${knockbackZ}, modifier: ${knockbackModifier}")
 
         simHurtTime = 10
     }
