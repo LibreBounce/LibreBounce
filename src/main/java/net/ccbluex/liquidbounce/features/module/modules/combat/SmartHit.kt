@@ -105,12 +105,12 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         repeat(predictClientMovement + 1) {
             simPlayer.tick()
 
-            --simHurtTime
+            if (simHurtTime > 0) --simHurtTime
         }
 
         // The ground ticks and simPlayer checks are there since you stay on ground for a tick, before being able to jump
         // This does not account for getting hit, either
-        val properGround = player.onGround && player.groundTicks > 1 && simPlayer.onGround
+        val trueGround = player.onGround && player.groundTicks > 1 && simPlayer.onGround
 
         // If you are "falling" (as in fallDistance > 0; it doesn't reset when you go up, only when on ground), you can land critical hits
         val falling = player.fallDistance > 0 || simPlayer.fallDistance > 0
@@ -144,7 +144,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
          * Another alternative is to keep a list of previous positions, and figure out if the target is aiming at one of them,
          * presumably the one from the visual delay ago (let's initially assume combined ping, and then adjust).
          */
-        val rotHittable = rotDiff < 20f + (12f * combinedPingMult) && !target.hitBox.isVecInside(player.eyes)
+        val rotHittable = rotDiff < 22f + (10f * combinedPingMult) && !target.hitBox.isVecInside(player.eyes)
         val targetHitLikely = rotHittable && !target.isUsingItem && targetDistance < 3.08f
 
         val simulatedDistance = simulateDistance(simPlayer, target, targetHitLikely)
@@ -154,7 +154,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         val optimalHurtTime = max(baseHurtTime.toInt(), attackableHurtTime.last + 1)
         val hurtTimeNoEscape = (2 * distance * 8).toInt() / 10
 
-        val groundHit = properGround && if (targetHitLikely) target.hurtTime !in 2..optimalHurtTime else targetHittable && !hitOnTheWay
+        val groundHit = trueGround && if (targetHitLikely) target.hurtTime !in 2..optimalHurtTime else targetHittable && !hitOnTheWay
 
         val fallingHit = falling && if (targetHitLikely) target.hurtTime !in (attackableHurtTime.last + 1)..optimalHurtTime else targetHittable && (!hitOnTheWay || !lastHitCrit)
         val airHit = fallingHit || (target.hurtTime in 4..5 && targetHitLikely)
@@ -213,11 +213,12 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
         // Calculate knockback direction
         val knockbackX = -MathHelper.sin(target.rotationYaw * (PI.toFloat() / 180.0f)) * knockbackModifier * 0.5f
+        val knockbackY = simulatedVerticalKnockback.random()
         val knockbackZ = MathHelper.cos(target.rotationYaw * (PI.toFloat() / 180.0f)) * knockbackModifier * 0.5f
 
         // Apply knockback
         simPlayer.motionX += knockbackX
-        simPlayer.motionY += simulatedVerticalKnockback.random()
+        simPlayer.motionY += knockbackY
         simPlayer.motionZ += knockbackZ
 
         if (debug) chat("(SmartHit) Simulated knockback. X: ${knockbackX}, Y: ${knockbackY}, Z: ${knockbackZ}, modifier: ${knockbackModifier}")
