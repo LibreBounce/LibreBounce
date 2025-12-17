@@ -38,10 +38,11 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
     // Change these values to your preference; you should fine-tune PredictEnemyPosition for each server,
     // since they are all slightly different
-    private val predictClientMovement by int("PredictClientMovement", 2, 0..5, suffix = "ticks")
+    private val predictClientMovement by int("PredictClientMovement", 5, 0..5, suffix = "ticks")
     private val predictEnemyPosition by float("PredictEnemyPosition", 1.5f, 0f..2f)
 
     // Allows you to alter how strong the simulated knockback is
+    private val simulateKnockback by boolean("SimulateKnockback", true)
     private val simulatedHorizontalKnockback by floatRange("SimulatedHorizontalKnockback", 0.88f..1f, 0f..4f)
     private val simulatedVerticalKnockback by floatRange("SimulatedVerticalKnockback", 0.4f..0.5f, 0f..2f)
 
@@ -129,7 +130,6 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
          *
          * A great idea would be to have this as an integer (chance that the target will hit you), and let the user
          * decide when it should spam hit or time hits. Additionally, it should predict if the target is holding S, and also time hits if so.
-         *
          */
         val rotDiff = rotationDifference(
             toRotation(player.hitBox.center, true, target!!),
@@ -147,7 +147,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         val rotHittable = rotDiff < 22f + (10f * combinedPingMult) && !target.hitBox.isVecInside(player.eyes)
         val targetHitLikely = rotHittable && !target.isUsingItem && targetDistance < 3.08f
 
-        val simulatedDistance = simulateDistance(simPlayer, target, targetHitLikely)
+        val simulatedDistance = simulateDistance(simPlayer, target, simulateKnockback && targetHitLikely)
 
         // Many magic numbers, but this is the best implementation I've done, so far
         val baseHurtTime = 3f / (1f + sqrt(distance) - (rotDiff / 180f))
@@ -208,10 +208,15 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
     }
 
     private fun simulateOwnKnockback(simPlayer: SimulatedPlayer, target: Entity) {
+        /*
+         * This is an extremely hacky way of simulating the knockback you will take,
+         * and does not account for knockback enchantments, future positions, or anything else of the sort.
+         * Indeed, I would recommend for a recode of this, to ensure maintainabiity.
+         */
         //val knockbackModifier = getKnockbackModifier(target as EntityLivingBase)
         val knockbackModifier = simulatedHorizontalKnockback.random()
 
-        // Calculate knockback direction
+        // This is where the knockback calculating magic happens
         val knockbackX = -MathHelper.sin(target.rotationYaw * (PI.toFloat() / 180.0f)) * knockbackModifier * 0.5f
         val knockbackY = simulatedVerticalKnockback.random()
         val knockbackZ = MathHelper.cos(target.rotationYaw * (PI.toFloat() / 180.0f)) * knockbackModifier * 0.5f
@@ -223,6 +228,8 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
         if (debug) chat("(SmartHit) Simulated knockback. X: ${knockbackX}, Y: ${knockbackY}, Z: ${knockbackZ}, modifier: ${knockbackModifier}")
 
+        // It is expected that, if this reduces, it will be like the normal damage cycle
+        // However, SmartHit going out of range, this, that, may break this
         simHurtTime = 10
     }
 }
