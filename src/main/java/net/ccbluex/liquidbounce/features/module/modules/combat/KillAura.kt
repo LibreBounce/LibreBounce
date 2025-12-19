@@ -138,6 +138,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     val autoBlock by choices("AutoBlock", arrayOf("Off", "Packet", "Fake"), "Packet")
 
     private val blockMaxRange by float("BlockMaxRange", 3f, 0f..8f, suffix = "blocks") { autoBlock == "Packet" }
+    private val blockMaxEnemyRange by float("BlockMaxEnemyRange", 3f, 0f..8f, suffix = "blocks") { autoBlock == "Packet" }
 
     private val unblockMode by choices(
         "UnblockMode", arrayOf("Stop", "Switch", "Empty"), "Stop"
@@ -1277,11 +1278,17 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
             if (target != null && player.heldItem?.item is ItemSword) {
                 val distance = player.getDistanceToEntityBox(target!!)
-                val rotationToPlayer = toRotation(player.hitBox.center, true, target!!)
-                val rotationDifference = rotationDifference(rotationToPlayer, target!!.rotation)
+                val targetDistance = target!!.getDistanceToEntityBox(player)
+
+                val rotationDifference = rotationDifference(
+                    toRotation(player.hitBox.center, true, target!!),
+                    target!!.rotation
+                )
 
                 // TODO: Check if player is moving away, on 10 HurtTime (to ignore when the player is taking knockback, thus moving backwards)
                 // Additionally, check for all players that might hit you, instead of just one
+
+                // TODO: Use `when` for all this
                 if (smartAutoBlock) {
                     if (player.isMoving && forceBlock) return false
 
@@ -1297,6 +1304,8 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
                 }
 
                 if (distance > blockMaxRange) return false
+
+                if (targetDistance > blockMaxEnemyRange) return false
 
                 return true
             }

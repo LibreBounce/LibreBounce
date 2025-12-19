@@ -11,6 +11,7 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 - CombatJump module; jumps at the right time to gain higher momentum (thatonecoder)
 - `SimulateKnockback` option, along with `SimulatedHorizontalKnockback` and `SimulatedVerticalKnockback` values to SmartHit (thatonecoder)
 - `AttackableOnHurtTime` and `FlushAttackableOnHurtTime` values to Backtrack (thatonecoder)
+- `BlockMaxEnemyRange` value to KillAura (thatonecoder)
 - `ÒnlySprinting` option to the Jump mode in Velocity; previously hardcoded (thatonecoder)
 
 ### Changed

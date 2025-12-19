@@ -194,7 +194,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         val prediction = target.currPos.subtract(target.prevPos).times(predictEnemyPosition.toDouble())
         val targetBox = target.hitBox.offset(prediction)
 
-        if (simHurtTime <= 0 && simulateKnockback) simulateOwnKnockback(simPlayer, target)
+        if (simulateKnockback && simHurtTime <= 0) simulateOwnKnockback(simPlayer, target)
 
         val (currPos, prevPos) = player.currPos to player.prevPos
 
