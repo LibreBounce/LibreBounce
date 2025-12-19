@@ -29,8 +29,7 @@ object Derp : Module("Derp", Category.FUN, subjective = true) {
 
             val rot = Rotation(rotationToUse.yaw, nextFloat(-90f, 90f))
 
-            if (headless)
-                rot.pitch = 180F
+            if (headless) rot.pitch = 180F
 
             rot.yaw += if (spinny) increment else nextFloat(-180f, 180f)
 

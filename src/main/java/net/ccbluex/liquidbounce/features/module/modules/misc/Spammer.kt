@@ -44,6 +44,7 @@ object Spammer : Module("Spammer", Category.MISC, subjective = true) {
         val newString = StringBuilder(this)
         while (true) {
             index = newString.indexOf(oldValue, startIndex = index)
+
             if (index == -1) {
                 break
             }

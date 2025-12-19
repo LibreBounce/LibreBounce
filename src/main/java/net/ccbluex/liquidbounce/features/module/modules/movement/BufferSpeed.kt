@@ -28,13 +28,11 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT) {
 
     private val buffer by boolean("Buffer", true)
 
-    private val stairs by boolean("Stairs", true)
-    private val stairsMode by choices("StairsMode", arrayOf("Old", "New"), "New") { stairs }
-    private val stairsBoost by float("StairsBoost", 1.87f, 1f..2f) { stairs && stairsMode == "Old" }
+    private val stairsMode by choices("Stairs", arrayOf("Off", "Old", "New"), "New")
+    private val stairsBoost by float("StairsBoost", 1.87f, 1f..2f) { stairsMode == "Old" }
 
-    private val slabs by boolean("Slabs", true)
-    private val slabsMode by choices("SlabsMode", arrayOf("Old", "New"), "New") { slabs }
-    private val slabsBoost by float("SlabsBoost", 1.87f, 1f..2f) { slabs && slabsMode == "Old" }
+    private val slabsMode by choices("SlabsMode", arrayOf("Off", "Old", "New"), "New") { slabs }
+    private val slabsBoost by float("SlabsBoost", 1.87f, 1f..2f) { slabsMode == "Old" }
 
     private val doIce by boolean("Ice", false)
     private val iceBoost by float("IceBoost", 1.342f, 1f..2f) { doIce }
@@ -43,9 +41,8 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT) {
     private val snowBoost by float("SnowBoost", 1.87f, 1f..2f) { snow }
     private val snowPort by boolean("SnowPort", true) { snow }
 
-    private val wall by boolean("Wall", true)
-    private val wallMode by choices("WallMode", arrayOf("Old", "New"), "New") { wall }
-    private val wallBoost by float("WallBoost", 1.87f, 1f..2f) { wall && wallMode == "Old" }
+    private val wallMode by choices("WallMode", arrayOf("Off", "Old", "New"), "New")
+    private val wallBoost by float("WallBoost", 1.87f, 1f..2f) { wallMode == "Old" }
 
     private val headBlock by boolean("HeadBlock", true)
     private val headBlockBoost by float("HeadBlockBoost", 1.87f, 1f..2f) { headBlock }
@@ -62,151 +59,152 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT) {
     private var legitHop = false
 
     val onUpdate = handler<UpdateEvent> {
-        val player = mc.thePlayer ?: return@handler
-
-        if (Speed.handleEvents() || noHurt && player.hurtTime > 0) {
-            reset()
-            return@handler
-        }
-
-        val blockPos = BlockPos(player)
-
-        if (forceDown || down && player.motionY == 0.0) {
-            player.motionY = -1.0
-            down = false
-            forceDown = false
-        }
-
-        if (fastHop) {
-            player.speedInAir = 0.0211f
-            hadFastHop = true
-        } else if (hadFastHop) {
-            player.speedInAir = 0.02f
-            hadFastHop = false
-        }
-
-        if (!player.isMoving || player.isSneaking || player.isInWater || mc.gameSettings.keyBindJump.isKeyDown) {
-            reset()
-            return@handler
-        }
-
-        if (player.onGround) {
-            fastHop = false
-
-            if (slime && (blockPos.down().block is BlockSlime || blockPos.block is BlockSlime)) {
-                player.tryJump()
-
-                player.motionX = player.motionY * 1.132
-                player.motionY = 0.08
-                player.motionZ = player.motionY * 1.132
-
-                down = true
+        mc.thePlayer?.run {
+            if (Speed.handleEvents() || noHurt && hurtTime > 0) {
+                reset()
                 return@handler
             }
-            if (slabs && blockPos.block is BlockSlab) {
-                when (slabsMode) {
-                    "Old" -> {
-                        boost(slabsBoost)
-                        return@handler
-                    }
 
-                    "New" -> {
-                        fastHop = true
-                        if (legitHop) {
-                            player.tryJump()
-                            player.onGround = false
-                            legitHop = false
-                            return@handler
-                        }
-                        player.onGround = false
+            val blockPos = BlockPos(this)
 
-                        strafe(0.375f)
-
-                        player.tryJump()
-                        player.motionY = 0.41
-                        return@handler
-                    }
-                }
+            if (forceDown || down && motionY == 0.0) {
+                motionY = -1.0
+                down = false
+                forceDown = false
             }
-            if (stairs && (blockPos.down().block is BlockStairs || blockPos.block is BlockStairs)) {
-                when (stairsMode) {
-                    "Old" -> {
-                        boost(stairsBoost)
-                        return@handler
-                    }
 
-                    "New" -> {
-                        fastHop = true
+            if (fastHop) {
+                speedInAir = 0.0211f
+                hadFastHop = true
+            } else if (hadFastHop) {
+                speedInAir = 0.02f
+                hadFastHop = false
+            }
 
-                        if (legitHop) {
-                            player.tryJump()
-                            player.onGround = false
-                            legitHop = false
+            if (!isMoving || isSneaking || isInWater || mc.gameSettings.keyBindJump.isKeyDown) {
+                reset()
+                return@handler
+            }
+
+            if (onGround) {
+                fastHop = false
+
+                if (slime && (blockPos.down().block is BlockSlime || blockPos.block is BlockSlime)) {
+                    tryJump()
+
+                    motionX = motionY * 1.132
+                    motionY = 0.08
+                    motionZ = motionY * 1.132
+
+                    down = true
+                    return@handler
+                }
+
+                if (blockPos.block is BlockSlab) {
+                    when (slabsMode) {
+                        "Old" -> {
+                            boost(slabsBoost)
                             return@handler
                         }
 
-                        player.onGround = false
-                        strafe(0.375f)
-                        player.tryJump()
-                        player.motionY = 0.41
-                        return@handler
+                        "New" -> {
+                            fastHop = true
+                            if (legitHop) {
+                                tryJump()
+                                onGround = false
+                                legitHop = false
+                                return@handler
+                            }
+                            onGround = false
+
+                            strafe(0.375f)
+
+                            tryJump()
+                            motionY = 0.41
+                            return@handler
+                        }
                     }
                 }
-            }
-            legitHop = true
 
-            if (headBlock && blockPos.up(2).block != air) {
-                boost(headBlockBoost)
-                return@handler
-            }
+                if (blockPos.down().block is BlockStairs || blockPos.block is BlockStairs) {
+                    when (stairsMode) {
+                        "Old" -> {
+                            boost(stairsBoost)
+                            return@handler
+                        }
 
-            if (doIce && blockPos.down().block.let { it == ice || it == packed_ice }) {
-                boost(iceBoost)
-                return@handler
-            }
+                        "New" -> {
+                            fastHop = true
 
-            if (snow && blockPos.block == snow_layer && (snowPort || player.posY - player.posY.toInt() >= 0.12500)) {
-                if (player.posY - player.posY.toInt() >= 0.12500) {
-                    boost(snowBoost)
-                } else {
-                    player.tryJump()
-                    forceDown = true
+                            if (legitHop) {
+                                tryJump()
+                                onGround = false
+                                legitHop = false
+                                return@handler
+                            }
+
+                            onGround = false
+                            strafe(0.375f)
+                            tryJump()
+                            motionY = 0.41
+                            return@handler
+                        }
+                    }
                 }
-                return@handler
-            }
 
-            if (wall) {
+                legitHop = true
+
+                if (headBlock && blockPos.up(2).block != air) {
+                    boost(headBlockBoost)
+                    return@handler
+                }
+
+                if (doIce && blockPos.down().block.let { it == ice || it == packed_ice }) {
+                    boost(iceBoost)
+                    return@handler
+                }
+
+                if (snow && blockPos.block == snow_layer && (snowPort || posY - posY.toInt() >= 0.12500)) {
+                    if (posY - posY.toInt() >= 0.12500) {
+                        boost(snowBoost)
+                    } else {
+                        tryJump()
+                        forceDown = true
+                    }
+                    return@handler
+                }
+
                 when (wallMode) {
-                    "Old" -> if (player.isCollidedVertically && isNearBlock || BlockPos(player).up(2).block != air) {
+                    "Old" -> if (isCollidedVertically && isNearBlock || BlockPos(this).up(2).block != air) {
                         boost(wallBoost)
                         return@handler
                     }
 
                     "New" ->
-                        if (isNearBlock && !player.movementInput.jump) {
-                            player.tryJump()
-                            player.motionY = 0.08
-                            player.motionX *= 0.99
-                            player.motionZ *= 0.99
+                        if (isNearBlock && !movementInput.jump) {
+                            tryJump()
+                            motionY = 0.08
+                            motionX *= 0.99
+                            motionZ *= 0.99
                             down = true
                             return@handler
                         }
+                    }
                 }
+
+                val currentSpeed = speed
+
+                if (speed < currentSpeed) speed = currentSpeed
+
+                if (buffer && speed > 0.2) {
+                    speed /= 1.0199999809265137
+                    strafe()
+                }
+            } else {
+                speed = 0.0
+
+                if (airStrafe) strafe()
             }
-            val currentSpeed = speed
-
-            if (speed < currentSpeed)
-                speed = currentSpeed
-
-            if (buffer && speed > 0.2) {
-                speed /= 1.0199999809265137
-                strafe()
-            }
-        } else {
-            speed = 0.0
-
-            if (airStrafe)
-                strafe()
         }
     }
 

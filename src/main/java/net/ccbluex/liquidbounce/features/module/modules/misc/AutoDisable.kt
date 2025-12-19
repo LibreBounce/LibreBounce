@@ -16,7 +16,7 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
 import net.ccbluex.liquidbounce.features.module.modules.movement.Fly
 import net.ccbluex.liquidbounce.features.module.modules.movement.Speed
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffolds.Scaffold
-import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
+import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification.informative
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.minecraft.network.play.server.S08PacketPlayerPosLook
 
@@ -38,15 +38,11 @@ object AutoDisable : Module("AutoDisable", Category.MISC, gameDetecting = false)
     val onUpdate = handler<UpdateEvent> {
         val player = mc.thePlayer ?: return@handler
 
-        if (onDeath && player.isDead) {
-            disabled("deaths")
-        }
+        if (onDeath && player.isDead) disabled("deaths")
     }
 
     val onWorld = handler<WorldEvent> {
-        if (onWorldChange) {
-            disabled("world changed")
-        }
+        if (onWorldChange) disabled("world changed")
     }
 
     private fun disabled(reason: String) {
@@ -60,7 +56,7 @@ object AutoDisable : Module("AutoDisable", Category.MISC, gameDetecting = false)
             if (warn == "Chat") {
                 chat("§eModules have been disabled due to §c$reason")
             } else {
-                hud.addNotification(Notification.informative(this, "Modules have been disabled due to $reason", 2000L))
+                hud.addNotification(informative(this, "Modules have been disabled due to $reason", 2000L))
             }
         }
     }

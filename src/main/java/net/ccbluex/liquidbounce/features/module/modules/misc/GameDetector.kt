@@ -31,7 +31,7 @@ object GameDetector : Module("GameDetector", Category.MISC, gameDetecting = fals
     // Check if player has compass inside their inventory
     private val compass by boolean("CompassCheck", false)
 
-    // Check for compass inside inventory. If false, then it should only check for selected slot
+    // Check for compass inside inventory; if false, then it should only check for selected slot
     private val checkAllSlots by boolean("CheckAllSlots", true) { compass }
     private val slot by int("Slot", 1, 1..9) { compass && !checkAllSlots }
 
