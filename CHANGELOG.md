@@ -17,6 +17,7 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 - Improve Backtrack debugging (thatonecoder)
 - Fine-tune SmartHit even further (thatonecoder)
+- Move the `Stairs`, `Slabs`, and `Walls` options into `Off` modes for their respective option values, in BufferSpeed (thatonecoder)
 
 ## [0.7.0-beta.1] - 2025-11-24
 

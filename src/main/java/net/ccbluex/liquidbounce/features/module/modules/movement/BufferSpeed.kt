@@ -23,6 +23,7 @@ import net.minecraft.network.play.server.S08PacketPlayerPosLook
 import net.minecraft.util.BlockPos
 
 object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT) {
+
     private val speedLimit by boolean("SpeedLimit", true)
     private val maxSpeed by float("MaxSpeed", 2f, 1f..5f) { speedLimit }
 
@@ -31,7 +32,7 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT) {
     private val stairsMode by choices("Stairs", arrayOf("Off", "Old", "New"), "New")
     private val stairsBoost by float("StairsBoost", 1.87f, 1f..2f) { stairsMode == "Old" }
 
-    private val slabsMode by choices("SlabsMode", arrayOf("Off", "Old", "New"), "New") { slabs }
+    private val slabsMode by choices("SlabsMode", arrayOf("Off", "Old", "New"), "New")
     private val slabsBoost by float("SlabsBoost", 1.87f, 1f..2f) { slabsMode == "Old" }
 
     private val doIce by boolean("Ice", false)
