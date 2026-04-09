@@ -1,5 +1,5 @@
 # LibreBounce
-A [libre software](https://www.gnu.org/philosophy/free-sw.html), mixin-based injection hacked client for the Forge Mod Loader, version 1.8.9; it's a fork of [LiquidBounce legacy](https://github.com/CCBlueX/LiquidBounce/tree/legacy), aiming to compete with paid & nonlibre hacked clients.
+A [libre software](https://www.gnu.org/philosophy/free-sw.html), mixin-based injection hacked client for the Forge Mod Loader, version 1.8.9; it's a fork of [LiquidBounce legacy](https://github.com/CCBlueX/LiquidBounce/tree/legacy), aiming to compete with paid & non-libre hacked clients.
 
 If anyone would like to contact me through Discord, my username is `thatonecoder_`. More contact methods may be found through my [Codeberg profile page](https://codeberg.org/thatonecoder), although I cannot guarantee any attempts will be successful.
 
@@ -39,7 +39,7 @@ We highly appreciate contributions. If you would like to support us, feel free t
 3. Make a centralized clicking system, with legit patterns.
 4. Add full backwards-compatibility with historical LiquidBounce versions (b68, b72).
 
-Any additional goals are easily found by code searching "TODO", and are equally as important, if not more.
+Any additional goals are easily found by code searching "TO-DO", and are equally as important, if not more.
 If you have experience in one or more of these fields, we would highly appreciate your support.
 
 ## Stats
