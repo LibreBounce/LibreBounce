@@ -155,7 +155,9 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT) {
 
                 legitHop = true
 
-                if (headBlock && blockPos.up(2).block != air) {
+                val aboveBlockAir = blockPos.up(2).block == air
+
+                if (headBlock && aboveBlockAir) {
                     boost(headBlockBoost)
                     return@handler
                 }
@@ -176,7 +178,7 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT) {
                 }
 
                 when (wallMode) {
-                    "Old" -> if (isCollidedVertically && isNearBlock || BlockPos(this).up(2).block != air) {
+                    "Old" -> if (isCollidedVertically && isNearBlock || !aboveBlockAir) {
                         boost(wallBoost)
                         return@handler
                     }
@@ -242,6 +244,7 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT) {
     private val isNearBlock: Boolean
         get() {
             val player = mc.thePlayer
+
             val blocks = arrayOf(
                 BlockPos(player.posX, player.posY + 1, player.posZ - 0.7),
                 BlockPos(player.posX + 0.7, player.posY + 1, player.posZ),

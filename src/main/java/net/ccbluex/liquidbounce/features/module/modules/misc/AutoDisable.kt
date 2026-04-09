@@ -56,7 +56,7 @@ object AutoDisable : Module("AutoDisable", Category.MISC, gameDetecting = false)
             if (warn == "Chat") {
                 chat("§eModules have been disabled due to §c$reason")
             } else {
-                hud.addNotification(informative(this, "Modules have been disabled due to $reason", 2000L))
+                hud.addNotification(Notification.informative(this, "Modules have been disabled due to $reason", 2000L))
             }
         }
     }
