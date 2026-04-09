@@ -154,10 +154,11 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         val optimalHurtTime = max(baseHurtTime.toInt(), attackableHurtTime.last + 1)
         val hurtTimeNoEscape = (2 * distance * 8).toInt() / 10
 
-        val groundHit = trueGround && if (targetHitLikely) target.hurtTime !in 2..optimalHurtTime else targetHittable && !hitOnTheWay
+        //val groundHit = trueGround && if (targetHitLikely) target.hurtTime !in 2..optimalHurtTime else targetHittable && !hitOnTheWay
+        val groundHit = trueGround && targetHittable && !hitOnTheWay
 
         val fallingHit = falling && if (targetHitLikely) target.hurtTime !in (attackableHurtTime.last + 1)..optimalHurtTime else targetHittable && (!hitOnTheWay || !lastHitCrit)
-        val airHit = fallingHit || (target.hurtTime in 4..5 && targetHitLikely)
+        val airHit = fallingHit //|| (target.hurtTime in 4..5 && targetHitLikely)
 
         val shouldHit = when {
             // This currently does not fully account for burst clicking, timed hits, zest tapping, etc, but it is a start
