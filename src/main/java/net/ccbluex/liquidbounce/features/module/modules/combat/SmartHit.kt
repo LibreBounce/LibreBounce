@@ -51,14 +51,15 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
     private var simHurtTime = 0
     private var lastHitCrit = false
     private var hitOnTheWay = false
+    private var hitWasBlocked = false
 
     val onAttack = handler<AttackEvent> { event ->
         val player = mc.thePlayer ?: return@handler
         val target = event.targetEntity ?: return@handler
 
         lastHitCrit = player.fallDistance > 0
-
         hitOnTheWay = player.getDistanceToEntityBox(target) < 3f && (target as EntityLivingBase).hurtTime in attackableHurtTime
+        hitWasBlocked = (target as EntityLivingBase).isBlocking
     }
 
     fun shouldHit(target: Entity): Boolean {
@@ -158,11 +159,12 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         val groundHit = trueGround && targetHittable && !hitOnTheWay
 
         val fallingHit = falling && if (targetHitLikely) target.hurtTime !in (attackableHurtTime.last + 1)..optimalHurtTime else targetHittable && (!hitOnTheWay || !lastHitCrit)
-        val airHit = fallingHit //|| (target.hurtTime in 4..5 && targetHitLikely)
 
         val shouldHit = when {
             // This currently does not fully account for burst clicking, timed hits, zest tapping, etc, but it is a start
-            groundHit || airHit -> true
+            groundHit || fallingHit -> true
+
+            hitWasBlocked && !target.isBlocking -> true
 
             (distance > notAboveRange || simulatedDistance > notAbovePredRange) && player.hurtTime !in hurtTimeNoEscape..8 && targetHitLikely -> true
 
@@ -195,6 +197,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         val prediction = target.currPos.subtract(target.prevPos).times(predictEnemyPosition.toDouble())
         val targetBox = target.hitBox.offset(prediction)
 
+        // The <= is there because the method used to calculate the hurtTime can go to negatives
         if (simulateKnockback && simHurtTime <= 0) simulateOwnKnockback(simPlayer, target)
 
         val (currPos, prevPos) = player.currPos to player.prevPos
