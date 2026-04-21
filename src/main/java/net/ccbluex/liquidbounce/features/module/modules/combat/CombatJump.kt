@@ -29,10 +29,10 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
 
     private val debug by boolean("Debug", false).subjective()
 
-    var target: Entity = KillAura.target
+    var target = KillAura.target
     
     val onAttack = handler<AttackEvent> { event ->
-        target = event.targetEntity ?: return@handler
+        target = (event.targetEntity as EntityLivingBase) ?: return@handler
     }
     
     // Anti-cheats such as Grim flag when you don't jump on this event
