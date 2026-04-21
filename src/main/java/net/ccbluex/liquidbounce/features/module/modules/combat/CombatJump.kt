@@ -45,9 +45,9 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
 
         if (onlyMove && !player.isMoving) return@handler
 
-        if (player.getDistanceToEntityBox(target) !in allowedJumpDistance) return@handler
+        if (player.getDistanceToEntityBox(target2) !in allowedJumpDistance) return@handler
 
-        if (player.onGround && shouldJump(target)) {
+        if (player.onGround && shouldJump(target2)) {
             player.tryJump()
 
             if (debug) chat("(CombatJump) Jumped to the target")
