@@ -46,8 +46,9 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
 
     private val nextBacktrackDelay by int("NextBacktrackDelay", 0, 0..2000, suffix = "ms") { mode == "Modern" }
     private val delay by intRange("Delay", 80..80, 0..2000, suffix = "ms") { mode == "Modern" }
-    private val legacyDelay by int("Delay", 80, 0..2000, suffix = "ms") { mode == "Legacy" }
+    private val legacyDelay by int("LegacyDelay", 80, 0..2000, suffix = "ms") { mode == "Legacy" }
 
+    // TODO: Maybe remove Legacy mode?
     val mode by choices("Mode", arrayOf("Legacy", "Modern"), "Modern").onChanged {
         clearPackets()
         backtrackedPlayer.clear()
@@ -69,6 +70,9 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
 
     private val attackableHurtTime by intRange("AttackableHurtTime", 0..1, 0..10) { mode == "Modern" }
     private val flushOnAttackableHurtTime by boolean("FlushOnAttackableHurtTime", false) { mode == "Modern" }
+
+    private val flushOnOwnHurtTime by boolean("FlushOnOwnHurtTime", false) { mode == "Modern" }
+    private val hurtTimeToFlush by intRange("HurtTimeToFlush", 9..10, 0..10) { mode == "Modern" && flushOnOwnHurtTime }
 
     // ESP
     private val espMode by choices(
@@ -649,7 +653,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
 
     private fun shouldBacktrack() =
         mc.thePlayer != null && mc.theWorld != null && target != null && mc.thePlayer.health > 0 && (target!!.health > 0 || target!!.health.isNaN()) && mc.playerController.currentGameType != WorldSettings.GameType.SPECTATOR && System.currentTimeMillis() >= delayForNextBacktrack && target?.let {
-            isSelected(it, true) && (mc.thePlayer?.ticksExisted ?: 0) > 20 && !ignoreWholeTick && (target!!.hurtTime !in attackableHurtTime || !flushOnAttackableHurtTime)
+            isSelected(it, true) && (mc.thePlayer?.ticksExisted ?: 0) > 20 && !ignoreWholeTick && (target!!.hurtTime !in attackableHurtTime || !flushOnAttackableHurtTime) && (mc.thePlayer?.hurtTime !in hurtTimeToFlush || !flushOnOwnHurtTime)
         } == true
 
     private fun reset() {
