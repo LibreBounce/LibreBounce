@@ -30,7 +30,7 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
     private val debug by boolean("Debug", false).subjective()
 
     //var target = KillAura.target
-    var target: Entity
+    var target: Entity? = null
     
     val onAttack = handler<AttackEvent> { event ->
         target = event.targetEntity ?: return@handler
