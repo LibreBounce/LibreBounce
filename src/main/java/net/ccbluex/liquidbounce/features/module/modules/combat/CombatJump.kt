@@ -40,7 +40,7 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
     val onStrafe = handler<StrafeEvent> { event ->
         val player = mc.thePlayer ?: return@handler
 
-        if (target == null) return@handler
+        val target2 = target ?: return@handler
         //if (target == null || KillAura.target != null) target = KillAura.target ?: return@handler
 
         if (onlyMove && !player.isMoving) return@handler
