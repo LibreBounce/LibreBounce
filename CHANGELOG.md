@@ -8,14 +8,15 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 ### Added
 
-- CombatJump module; jumps at the right time to gain higher momentum (thatonecoder)
+- CombatJump module; jumps at the right time to gain higher momentum in fights (thatonecoder)
 - `SimulateKnockback` option, along with `SimulatedHorizontalKnockback` and `SimulatedVerticalKnockback` values to SmartHit (thatonecoder)
-- `AttackableOnHurtTime` and `FlushAttackableOnHurtTime` values to Backtrack (thatonecoder)
+- `AttackableOnHurtTime`, `FlushAttackableOnHurtTime`, `FlushOnOwnHurtTime`, and `HurtTimeToFlush` values to Backtrack (thatonecoder)
 - `BlockMaxEnemyRange` value to KillAura (thatonecoder)
 - `ÒnlySprinting` option to the Jump mode in Velocity; previously hardcoded (thatonecoder)
 
 ### Changed
 
+- **Breaking:** Rename the Legacy mode `Delay` to `LegacyDelay`, in Backtrack (thatonecoder)
 - Improve Backtrack debugging (thatonecoder)
 - Fine-tune SmartHit even further (thatonecoder)
 
