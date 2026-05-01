@@ -59,7 +59,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
         lastHitCrit = player.fallDistance > 0
         hitOnTheWay = player.getDistanceToEntityBox(target) < 3f && (target as EntityLivingBase).hurtTime in attackableHurtTime
-        hitWasBlocked = false //temporarily disabled(target as EntityLivingBase).isBlocking
+        hitWasBlocked = target.isBlocking
     }
 
     fun shouldHit(target: Entity): Boolean {
