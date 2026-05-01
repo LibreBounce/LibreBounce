@@ -121,8 +121,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
         if (target.hurtTime <= attackableHurtTime.last) lastHitCrit = false
 
-        // TODO: Fix this requiring you to give the first hit
-        // Perhaps a better implementation could be made, which would do hurtTime + (playerPing / 2), when you hit the opponent
+        // Perhaps a better implementation could be made, which would do hurtTime + (playerPing / 2) when you hit the opponent
         if (!targetHittable) hitOnTheWay = false
 
         /*
@@ -155,14 +154,12 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         val optimalHurtTime = max(baseHurtTime.toInt(), attackableHurtTime.last + 1)
         val hurtTimeNoEscape = (2 * distance * 8).toInt() / 10
 
-        //val groundHit = trueGround && if (targetHitLikely) target.hurtTime !in 2..optimalHurtTime else targetHittable && !hitOnTheWay
         val groundHit = trueGround && targetHittable && !hitOnTheWay
-
-        val fallingHit = falling && if (targetHitLikely) target.hurtTime !in (attackableHurtTime.last + 1)..optimalHurtTime else targetHittable && (!hitOnTheWay || !lastHitCrit)
+        val airHit = falling && if (targetHitLikely) target.hurtTime !in (attackableHurtTime.last + 1)..optimalHurtTime else targetHittable && (!hitOnTheWay || !lastHitCrit)
 
         val shouldHit = when {
-            // This currently does not fully account for burst clicking, timed hits, zest tapping, etc, but it is a start
-            groundHit || fallingHit -> true
+            // This currently does not account for burst clicking, timed hits, zest tapping, etc, but it is a start
+            groundHit || airHit -> true
 
             hitWasBlocked && !target.isBlocking -> true
 
@@ -185,7 +182,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
             else -> false
         }
 
-        if (debug) chat("(SmartHit) Will hit: ${shouldHit}, hit on the way: ${hitOnTheWay}, current distance: ${distance}, current distance (target POV): ${targetDistance}, predicted distance: ${simulatedDistance}, combined ping: ${combinedPing}, combined ping multiplier: ${combinedPingMult}, rotation difference: ${rotDiff}, target hit likely: ${targetHitLikely}, own hurttime: ${player.hurtTime}, simulated own hurttime: ${simHurtTime}, target hurttime: ${target.hurtTime}, on ground: ${player.onGround}, predicted ground: ${simPlayer.onGround}, falling: ${falling}")
+        if (debug) chat("(SmartHit) Will hit: ${shouldHit}, hit on the way: ${hitOnTheWay}, last hit blocked: ${hitWasBlocked}, current distance: ${distance}, current distance (target POV): ${targetDistance}, predicted distance: ${simulatedDistance}, combined ping: ${combinedPing}, combined ping multiplier: ${combinedPingMult}, rotation difference: ${rotDiff}, target hit likely: ${targetHitLikely}, own hurttime: ${player.hurtTime}, simulated own hurttime: ${simHurtTime}, target hurttime: ${target.hurtTime}, on ground: ${player.onGround}, predicted ground: ${simPlayer.onGround}, falling: ${falling}")
 
         return shouldHit
     }
@@ -215,9 +212,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         /*
          * This is an extremely hacky way of simulating the knockback you will take,
          * and does not account for knockback enchantments, future positions, or anything else of the sort.
-         * Indeed, I would recommend for a recode of this, to ensure maintainabiity.
          */
-        //val knockbackModifier = getKnockbackModifier(target as EntityLivingBase)
         val knockbackModifier = simulatedHorizontalKnockback.random()
 
         // This is where the knockback calculating magic happens
