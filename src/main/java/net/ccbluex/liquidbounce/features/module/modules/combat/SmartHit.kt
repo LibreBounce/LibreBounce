@@ -31,7 +31,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
     // TODO: Not on 1-tap option, taking into account your weapon + enchantments, the opponent's armor + enchantments, and potion effects
     // Also add an option that makes it click anyway, if the knockback is large enough to combo you
     private val usePredictedTargetHurtTime by boolean("UsePredictedTargetHurtTime", true)
-    private val AttackDelay by int("AttackDelay", 10, 0..10)
+    private val attackDelay by int("AttackDelay", 10, 0..10)
     private val notAboveRange by float("NotAboveRange", 2.7f, 0f..8f, suffix = "blocks")
     private val notAbovePredRange by float("NotAbovePredictedRange", 2.8f, 0f..8f, suffix = "blocks")
     private val notBelowOwnHealth by float("NotBelowOwnHealth", 5f, 0f..20f)
@@ -52,23 +52,23 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
     private val debug by boolean("Debug", false).subjective()
 
     private var simHurtTime = 0
+    private var simTargetHurtTime = 0
     private var lastHitCrit = false
     private var hitOnTheWay = false
     private var lastHitBlocked = false
-    private var targetHurtTimeToUse = target.hurtTime
 
     val onAttack = handler<AttackEvent> { event ->
         val player = mc.thePlayer ?: return@handler
         val target = event.targetEntity ?: return@handler
 
-        lastHitCrit = player.fallDistance > 0
-        hitOnTheWay = player.getDistanceToEntityBox(target) < 3f && (target as EntityLivingBase).hurtTime in attackableHurtTime
-        lastHitBlocked = (target as EntityPlayer).isBlocking
+        val playerPing = (player as EntityPlayer).getPing
+        simTargetHurtTime = (target as EntityPlayer).hurtTime - ((playerPing / 2) / 20)
+        simTargetHurtTime = if (simTargetHurtTime <= (10 - attackDelay))
+            10 + ((playerPing / 2) / 20) else simTargetHurtTime
 
-        val playerPing = (player as EntityPlayer).getPing()
-        val currentPredTargetHurtTime = target.hurtTime - ((playerPing / 2) / 20)
-        targetHurtTimeToUse = if (currentPredTargetHurtTime <= (10 - attackDelay))
-            10 + ((playerPing / 2) / 20) else currentPredTargetHurtTime
+        lastHitCrit = player.fallDistance > 0
+        hitOnTheWay = simTargetHurtTime <= (10 - attackDelay)
+        lastHitBlocked = (target as EntityPlayer).isBlocking
     }
 
     val onGameTick = handler<GameTickEvent> { event ->
@@ -135,7 +135,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
             player.ridingEntity == null
 
         //val targetHurtTimeToUse = if (usePredictedTargetHurtTime) targetHurtTime - ((playerPing / 2) / 20) else target.hurtTime
-        val targetHittable = currentPredTargetHurtTime <= (10 - attackDelay)
+        val targetHittable = simTargetHurtTime <= (10 - attackDelay)
 
         if (!targetHittable) {
             lastHitCrit = false
@@ -201,7 +201,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
             else -> false
         }
 
-        if (debug) chat("(SmartHit) Will hit: ${shouldHit}, hit on the way: ${hitOnTheWay}, last hit blocked: ${lastHitBlocked}, current distance: ${distance}, current distance (target POV): ${targetDistance}, predicted distance: ${simulatedDistance}, combined ping: ${combinedPing}, combined ping multiplier: ${combinedPingMult}, rotation difference: ${rotDiff}, target hit likely: ${targetHitLikely}, own hurttime: ${player.hurtTime}, simulated own hurttime: ${simHurtTime}, target hurttime: ${target.hurtTime}, simulated target hurt time: ${targetHurtTimeToUse}, on ground: ${player.onGround}, predicted ground: ${simPlayer.onGround}, falling: ${falling}")
+        if (debug) chat("(SmartHit) Will hit: ${shouldHit}, hit on the way: ${hitOnTheWay}, last hit blocked: ${lastHitBlocked}, current distance: ${distance}, current distance (target POV): ${targetDistance}, predicted distance: ${simDistance}, combined ping: ${combinedPing}, combined ping multiplier: ${combinedPingMult}, rotation difference: ${rotDiff}, target hit likely: ${targetHitLikely}, own hurttime: ${player.hurtTime}, simulated own hurttime: ${simHurtTime}, target hurttime: ${target.hurtTime}, simulated target hurt time: ${simTargetHurtTime}, on ground: ${player.onGround}, predicted ground: ${simPlayer.onGround}, can critical hit: ${canCritHit}")
 
         return shouldHit
     }
