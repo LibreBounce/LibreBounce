@@ -61,7 +61,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         val player = mc.thePlayer ?: return@handler
         val target = event.targetEntity ?: return@handler
 
-        val playerPing = (player as EntityPlayer).getPing
+        val playerPing = (player as EntityPlayer).getPing()
         simTargetHurtTime = (target as EntityPlayer).hurtTime - ((playerPing / 2) / 20)
         simTargetHurtTime = if (simTargetHurtTime <= (10 - attackDelay))
             10 + ((playerPing / 2) / 20) else simTargetHurtTime
@@ -72,7 +72,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
     }
 
     val onGameTick = handler<GameTickEvent> { event ->
-        targetHurtTimeToUse--
+        simTargetHurtTime--
     }
 
     fun shouldHit(target: Entity): Boolean {
