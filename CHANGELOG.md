@@ -9,7 +9,7 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 ### Added
 
 - CombatJump module; jumps at the right time to gain higher momentum in fights (thatonecoder)
-- `SimulateKnockback` option, along with `SimulatedHorizontalKnockback` and `SimulatedVerticalKnockback` values to SmartHit (thatonecoder)
+- `SimulateKnockback` option, along with `SimulatedHorizontalKnockback` and `SimulatedVerticalKnockback` values to SmartHit, along with client-side target hurttime checking, and another check for target block-hitting (thatonecoder)
 - `AttackableOnHurtTime`, `FlushAttackableOnHurtTime`, `FlushOnOwnHurtTime`, and `HurtTimeToFlush` values to Backtrack (thatonecoder)
 - `BlockMaxEnemyRange` value to KillAura (thatonecoder)
 - `ÒnlySprinting` option to the Jump mode in Velocity; previously hardcoded (thatonecoder)
@@ -17,8 +17,9 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 ### Changed
 
 - **Breaking:** Rename the Legacy mode `Delay` to `LegacyDelay`, in Backtrack (thatonecoder)
+- **Breaking:** Rename `AttackableHurtTime` to `AttackDelay` in SmartHit, also changing how it works (thatonecoder)
 - Improve Backtrack debugging (thatonecoder)
-- Fine-tune SmartHit even further (thatonecoder)
+- Simplify some checks and complete the critical hit check in SmartHit (thatonecoder)
 
 ## [0.7.0-beta.1] - 2025-11-24
 
