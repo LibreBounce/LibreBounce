@@ -9,7 +9,7 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 ### Added
 
 - CombatJump module; jumps at the right time to gain higher momentum in fights (thatonecoder)
-- `SimulateKnockback` option, along with `SimulatedHorizontalKnockback` and `SimulatedVerticalKnockback` values to SmartHit, along with client-side target hurttime checking, and another check for target block-hitting (thatonecoder)
+- `UsePredictedTargetHurtTime`, along with client-side target hurttime checking, `ExperimentalChecks`, `CheckForCriticalHits`, `CheckForBlockedlHits`, `SimulateKnockback`, `SimulatedHorizontalKnockback`. and `SimulatedVerticalKnockback` values to SmartHit (thatonecoder)
 - `AttackableOnHurtTime`, `FlushAttackableOnHurtTime`, `FlushOnOwnHurtTime`, and `HurtTimeToFlush` values to Backtrack (thatonecoder)
 - `BlockMaxEnemyRange` value to KillAura (thatonecoder)
 - `ÒnlySprinting` option to the Jump mode in Velocity; previously hardcoded (thatonecoder)
