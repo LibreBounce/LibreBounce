@@ -77,8 +77,8 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
          * Having it in this manner allows SmartHit to more-or-less know the server's target hurttime,
          * whilst allowing you to disable it, if any servers have issues with it
          */
-        simTargetHurtTime = targetHurtTime - playerLatencyTicks
-        simTargetHurtTime = if (predictedHurtTime)
+        simTargetHurtTime = targetHurtTime - playerLatencyInTicks
+        simTargetHurtTime = if (usePredictedTargetHurtTime)
             if (simTargetHurtTime <= (10 - attackDelay))
             10 + playerLatencyInTicks else simTargetHurtTime
             else targetHurtTime
