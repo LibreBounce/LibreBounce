@@ -32,8 +32,11 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
     // Also add an option that makes it click anyway, if the knockback is large enough to combo you
     private val usePredictedTargetHurtTime by boolean("UsePredictedTargetHurtTime", true)
     private val attackDelay by int("AttackDelay", 10, 0..10)
+    private val experimentalChecks by boolean("ExperimentalChecks", true)
     private val notAboveRange by float("NotAboveRange", 2.7f, 0f..8f, suffix = "blocks")
     private val notAbovePredRange by float("NotAbovePredictedRange", 2.8f, 0f..8f, suffix = "blocks")
+    private val checkForCriticalHits by boolean("CheckForCriticalHits", true)
+    private val checkForBlockedHits by boolean("CheckForBlockedlHits", true)
     private val notBelowOwnHealth by float("NotBelowOwnHealth", 5f, 0f..20f)
     private val notBelowEnemyHealth by float("NotBelowEnemyHealth", 5f, 0f..20f)
     private val notOnEdge by boolean("NotOnEdge", false)
@@ -53,8 +56,9 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
     private var simHurtTime = 0
     private var simTargetHurtTime = 0
-    private var lastHitCrit = false
+    private var ticksSinceHit = 0
     private var hitOnTheWay = false
+    private var lastHitCrit = false
     private var lastHitBlocked = false
 
     val onAttack = handler<AttackEvent> { event ->
@@ -62,17 +66,39 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         val target = event.targetEntity ?: return@handler
 
         val playerPing = (player as EntityPlayer).getPing()
-        simTargetHurtTime = (target as EntityPlayer).hurtTime - ((playerPing / 2) / 20)
-        simTargetHurtTime = if (simTargetHurtTime <= (10 - attackDelay))
-            10 + ((playerPing / 2) / 20) else simTargetHurtTime
+        val playerLatencyInTicks = ((playerPing / 2) / 20)
+        val targetHurtTime = (target as EntityPlayer).hurtTime
 
-        lastHitCrit = player.fallDistance > 0
+        /*
+         * This is the code responsible for client-side target hurttime checking
+         * Say you have 200 milliseconds ping; in about half that time (100 milliseconds, AKA 2 ticks), the packet will be received by the server; in the other half,
+         * you will see the attack itself. As such, you are seeing what has took 4 ticks in total, 2 of those until it registers.
+         *
+         * Having it in this manner allows SmartHit to more-or-less know the server's target hurttime,
+         * whilst allowing you to disable it, if any servers have issues with it
+         */
+        simTargetHurtTime = targetHurtTime - playerLatencyTicks
+        simTargetHurtTime = if (predictedHurtTime)
+            if (simTargetHurtTime <= (10 - attackDelay))
+            10 + playerLatencyInTicks else simTargetHurtTime
+            else targetHurtTime
+
         hitOnTheWay = simTargetHurtTime <= (10 - attackDelay)
+        lastHitCrit = player.fallDistance > 0 &&
+            !player.isOnLadder &&
+            !player.isInWater &&
+            !player.isPotionActive(blindness) &&
+            player.ridingEntity == null
         lastHitBlocked = (target as EntityPlayer).isBlocking
+
+        // A failsafe to compensate for cases in which a server blocks your hit
+        if (ticksSinceHit > playerLatencyInTicks && targetHurtTime == 0)
+            hitOnTheWay = false
     }
 
     val onGameTick = handler<GameTickEvent> { event ->
         simTargetHurtTime--
+        ticksSinceHit++
     }
 
     fun shouldHit(target: Entity): Boolean {
@@ -88,11 +114,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
          * No edge case has been implemented that does (at the very least) rudimentary future knockback calculations, which should be
          * as customizable as possible, to be accurate on all servers (given the right config, of course).
          *
-         * Currently, however, it only checks the ticks ahead as defined by PredictClientMovement, for performance reasons.
-         *
-         * Another thing that must be implemented is client-side target hurttime checking.
-         * Say you have 200 ping; in about half that time, the packet will be received by the server; in the other half,
-         * you will see the attack itself. As such, you are seeing what has happened 2-4 ticks ago.
+         * Currently, however, it only checks the ticks ahead as defined by PredictClientMovement, due to performance and code complexity concerns
          *
          * Credits to all the Raven versions, Augustus, and Vape for some of these ideas!
          */
@@ -134,7 +156,6 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
             !player.isPotionActive(blindness) &&
             player.ridingEntity == null
 
-        //val targetHurtTimeToUse = if (usePredictedTargetHurtTime) targetHurtTime - ((playerPing / 2) / 20) else target.hurtTime
         val targetHittable = simTargetHurtTime <= (10 - attackDelay)
 
         if (!targetHittable) {
@@ -162,27 +183,27 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
          * Another alternative is to keep a list of previous positions, and figure out if the target is aiming at one of them,
          * presumably the one from the visual delay ago (let's initially assume combined ping, and then adjust).
          */
-        val rotHittable = rotDiff < 22f + (10f * combinedPingMult) && !target.hitBox.isVecInside(player.eyes)
-        val targetHitLikely = rotHittable && !target.isUsingItem && targetDistance < 3.08f
+        val targetCanHit = rotDiff < 22f + (10f * combinedPingMult) && !target.hitBox.isVecInside(player.eyes)
+        val targetHitLikely = targetCanHit && !target.isUsingItem && targetDistance < 3.08f
 
         val simDistance = simulateDistance(simPlayer, target, simulateKnockback && targetHitLikely)
 
         // Many magic numbers, but this is the best implementation I've done, so far
         val baseHurtTime = 3f / (1f + sqrt(distance) - (rotDiff / 180f))
-        //val optimalHurtTime = max(baseHurtTime.toInt(), attackableHurtTime.last + 1)
         val hurtTimeNoEscape = (2 * distance * 8).toInt() / 10
 
-        val groundHit = trueGround && targetHittable && !hitOnTheWay
-        //val airHit = falling && if (targetHitLikely) target.hurtTime !in (attackableHurtTime.last + 1)..optimalHurtTime else targetHittable && (!hitOnTheWay || !lastHitCrit)
-        val airHit = targetHittable && ((canCritHit && !lastHitCrit) || !hitOnTheWay)
+        val groundHit =
+            player.onGround && player.groundTicks > 1 && simPlayer.onGround &&
+            targetHittable && !hitOnTheWay
+        val airHit = targetHittable && ((checkForCriticalHits && canCritHit && !lastHitCrit) || !hitOnTheWay)
         
         val shouldHit = when {
             // This currently does not account for burst clicking, timed hits, zest tapping, etc, but it is a start
             groundHit || airHit -> true
 
-            lastHitBlocked && !target.isBlocking -> true
+            checkForBlockedHits && lastHitBlocked && !target.isBlocking -> true
 
-            (distance > notAboveRange || simDistance > notAbovePredRange) && player.hurtTime !in hurtTimeNoEscape..8 && targetHitLikely -> true
+            experimentalChecks && (distance > notAboveRange || simDistance > notAbovePredRange) && player.hurtTime !in hurtTimeNoEscape..8 && targetHitLikely -> true
 
             // Hits the opponent when the opponent can't hit you; should give plenty of free hits
             targetDistance > 3.05f && targetHittable -> true
