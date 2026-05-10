@@ -219,7 +219,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
             else -> false
         }
 
-        if (debug) chat("(SmartHit) Will hit: ${shouldHit}, hit on the way: ${hitOnTheWay}, last hit blocked: ${lastHitBlocked}, current distance: ${distance}, current distance (target POV): ${targetDistance}, predicted distance: ${simDistance}, combined ping: ${combinedPing}, combined ping multiplier: ${combinedPingMult}, rotation difference: ${rotDiff}, target hit likely: ${targetHitLikely}, own hurttime: ${player.hurtTime}, simulated own hurttime: ${simHurtTime}, target hurttime: ${target.hurtTime}, simulated target hurt time: ${simTargetHurtTime}, on ground: ${player.onGround}, predicted ground: ${simPlayer.onGround}, can critical hit: ${canCritHit}")
+        if (debug) chat("(SmartHit) Will hit: ${shouldHit}, hit on the way: ${hitOnTheWay}, last hit blocked: ${lastHitBlocked}, current distance: ${distance}, current distance (target POV): ${targetDistance}, predicted distance: ${simDistance}, combined ping: ${combinedPing}, combined ping multiplier: ${combinedPingMult}, rotation difference: ${rotDiff}, target hit likely: ${targetHitLikely}, own hurttime: ${player.hurtTime}, simulated own hurttime: ${simHurtTime}, target hurttime: ${target.hurtTime}, simulated target hurt time: ${simTargetHurtTime}, on ground: ${player.onGround}, predicted ground: ${simPlayer.onGround}, can critical hit: ${canCritHit(player)}")
 
         return shouldHit
     }
@@ -259,17 +259,21 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
          * This is an extremely hacky way of simulating the knockback you will take,
          * and does not account for knockback enchantments, future positions, or anything else of the sort.
          */
-        val targetYaw = target.rotationYaw * (PI.toFloat() / 180.0f))
+        val targetYaw = target.rotationYaw * (PI.toFloat() / 180.0f)
         val modifier = simulatedHorizontalKnockback.random()
+
+        val knockbackX = -MathHelper.sin(targetYaw * modifier * 0.5f)
+        val knockbackY = simulatedHorizontalKnockback.random()
+        val knockbackZ = MathHelper.cos(targetYaw * modifier * 0.5f)
 
         // Apply knockback
         simPlayer.apply {
-            motionX += -MathHelper.sin(targetYaw * modifier * 0.5f)
+            motionX += knockbackX
             motionY += knockbackY
-            motionZ += MathHelper.cos(targetYaw * modifier * 0.5f)
+            motionZ += knockbackZ
         }
 
-        if (debug) chat("(SmartHit) Simulated knockback. X: ${knockbackX}, Y: ${knockbackY}, Z: ${knockbackZ}, modifier: ${knockbackModifier}")
+        if (debug) chat("(SmartHit) Simulated knockback. X: ${knockbackX}, Y + vertical modifier: ${knockbackY}, Z: ${knockbackZ}, horizontal modifier: ${modifier}")
 
         // It is expected that, if this reduces, it will be like the normal damage cycle
         // However, SmartHit going out of range, this, that, may break this
