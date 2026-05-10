@@ -19,8 +19,7 @@ import net.minecraft.entity.Entity
 import net.minecraft.util.*
 import javax.vecmath.Vector2f
 import kotlin.math.abs
-import kotlin.math.rem
-import kotlin.math.floorDiv
+import kotlin.math.ceil
 import kotlin.math.roundToInt
 
 /**
