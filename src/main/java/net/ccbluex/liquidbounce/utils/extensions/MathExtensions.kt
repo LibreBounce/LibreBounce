@@ -74,7 +74,7 @@ operator fun Vec3.plus(vec: Vec3): Vec3 = add(vec)
 operator fun Vec3.minus(vec: Vec3): Vec3 = subtract(vec)
 operator fun Vec3.times(number: Double) = Vec3(xCoord * number, yCoord * number, zCoord * number)
 operator fun Vec3.div(number: Double) = times(1 / number)
-operator fun Vec3.unaryMinus(): Vec3 = this.times(-1.0)
+operator fun Vec3.unaryMinus(): Vec3 = times(-1.0)
 
 fun Vec3i.manhattanDistance(another: Vec3i): Int {
     return abs(x - another.x) + abs(y - another.y) + abs(z - another.z)
@@ -125,13 +125,7 @@ fun Float.withGCD() = (this / getFixedAngleDelta()).roundToInt() * getFixedAngle
 infix fun Int.safeDiv(b: Int) = if (b == 0) 0f else this.toFloat() / b.toFloat()
 infix fun Int.safeDivI(b: Int) = if (b == 0) 0 else this / b
 infix fun Int.safeDivD(b: Double) = if (b == 0.0) 0.0 else this / b
-
-/**
- * Divides this value by the other value, ceiling the result to an integer that is closer to positive infinity.
- */
-fun Int.ceilDiv(other: Int): Int {
-    return floorDiv(other) + rem(other).sign.absoluteValue
-}
+infix fun Int.ceilDiv(b: Int): Int = ceil(this / b.toDouble()).toInt()
 
 infix fun Float.safeDiv(b: Float) = if (b == 0f) 0f else this / b
 
