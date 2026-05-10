@@ -19,6 +19,8 @@ import net.minecraft.entity.Entity
 import net.minecraft.util.*
 import javax.vecmath.Vector2f
 import kotlin.math.abs
+import kotlin.math.rem
+import kotlin.math.floorDiv
 import kotlin.math.roundToInt
 
 /**
@@ -123,6 +125,13 @@ fun Float.withGCD() = (this / getFixedAngleDelta()).roundToInt() * getFixedAngle
 infix fun Int.safeDiv(b: Int) = if (b == 0) 0f else this.toFloat() / b.toFloat()
 infix fun Int.safeDivI(b: Int) = if (b == 0) 0 else this / b
 infix fun Int.safeDivD(b: Double) = if (b == 0.0) 0.0 else this / b
+
+/**
+ * Divides this value by the other value, ceiling the result to an integer that is closer to positive infinity.
+ */
+fun Int.ceilDiv(other: Int): Int {
+    return floorDiv(other) + rem(other).sign.absoluteValue
+}
 
 infix fun Float.safeDiv(b: Float) = if (b == 0f) 0f else this / b
 
