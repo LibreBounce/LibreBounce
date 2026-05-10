@@ -149,7 +149,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
         val targetHittable = simTargetHurtTime <= 10 - attackDelay
 
-        if (!targetHittable) {
+        if (targetHittable) {
             lastHitCrit = false
             hitOnTheWay = false
         }
