@@ -78,12 +78,14 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
          * whilst allowing you to disable it, if any servers have issues with it
          */
         simTargetHurtTime = targetHurtTime - playerLatencyInTicks
+
         simTargetHurtTime = if (usePredictedTargetHurtTime)
             if (simTargetHurtTime <= (10 - attackDelay))
             10 + playerLatencyInTicks else simTargetHurtTime
             else targetHurtTime
 
         hitOnTheWay = simTargetHurtTime <= (10 - attackDelay)
+
         lastHitCrit = player.fallDistance > 0 &&
             !player.isOnLadder &&
             !player.isInWater &&
@@ -145,17 +147,6 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
             if (simHurtTime > 0) --simHurtTime
         }
 
-        // The ground ticks and simPlayer checks are there since you stay on ground for a tick, before being able to jump
-        // This does not account for getting hit, either
-        val trueGround = player.onGround && player.groundTicks > 1 && simPlayer.onGround
-
-        // If you are "falling" (as in fallDistance > 0; it doesn't reset when you go up, only when on ground), you can land critical hits
-        val canCritHit = player.fallDistance > 0 &&
-            !player.isOnLadder &&
-            !player.isInWater &&
-            !player.isPotionActive(blindness) &&
-            player.ridingEntity == null
-
         val targetHittable = simTargetHurtTime <= (10 - attackDelay)
 
         if (!targetHittable) {
@@ -188,15 +179,29 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
         val simDistance = simulateDistance(simPlayer, target, simulateKnockback && targetHitLikely)
 
-        // Many magic numbers, but this is the best implementation I've done, so far
-        val baseHurtTime = 3f / (1f + sqrt(distance) - (rotDiff / 180f))
-        val hurtTimeNoEscape = (2 * distance * 8).toInt() / 10
+        // The ground ticks and simPlayer checks are there since you stay on ground for a tick, before being able to jump
+        // This does not account for getting hit, either
+        val trueGround = player.onGround && player.groundTicks > 1 && simPlayer.onGround
+
+        // If you are "falling" (as in fallDistance > 0; it doesn't reset when you go up, only when on ground), you can land critical hits
+        val canCritHit = player.fallDistance > 0 &&
+            !player.isOnLadder &&
+            !player.isInWater &&
+            !player.isPotionActive(blindness) &&
+            player.ridingEntity == null
 
         val groundHit =
             player.onGround && player.groundTicks > 1 && simPlayer.onGround &&
             targetHittable && !hitOnTheWay
-        val airHit = targetHittable && ((checkForCriticalHits && canCritHit && !lastHitCrit) || !hitOnTheWay)
-        
+    
+        val airHit =
+            (targetHittable && !hitOnTheWay) ||
+            (checkForCriticalHits && canCritHit && !lastHitCrit)
+
+        // Many magic numbers, but this is the best implementation I've done, so far
+        val baseHurtTime = 3f / (1f + sqrt(distance) - (rotDiff / 180f))
+        val hurtTimeNoEscape = (2 * distance * 8).toInt() / 10
+            
         val shouldHit = when {
             // This currently does not account for burst clicking, timed hits, zest tapping, etc, but it is a start
             groundHit || airHit -> true
@@ -206,7 +211,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
             experimentalChecks && (distance > notAboveRange || simDistance > notAbovePredRange) && player.hurtTime !in hurtTimeNoEscape..8 && targetHitLikely -> true
 
             // Hits the opponent when the opponent can't hit you; should give plenty of free hits
-            targetDistance > 3.05f && targetHittable -> true
+            experimentalChecks && targetDistance > 3.05f && targetHittable -> true
 
             // Panic hitting is also not a very good idea either, n'est-ce pas?
             player.health < notBelowOwnHealth -> true
@@ -218,6 +223,8 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
             // If you are near an edge, you should hit as much as possible to reduce received knockback
             // TODO: Check if the target is near an edge; if so, you can also spam hit to deal as much knockback as possible
             notOnEdge && player.isNearEdge(notOnEdgeLimit) -> true
+
+            target.isDead -> false
 
             else -> false
         }
