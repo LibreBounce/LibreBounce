@@ -44,6 +44,7 @@ import net.ccbluex.liquidbounce.utils.rotation.RotationSettings
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.currentRotation
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.getVectorForRotation
+import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.isFaced
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.isRotationFaced
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.isVisible
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.rotationDifference
@@ -73,14 +74,15 @@ import kotlin.math.roundToInt
 object Aimbot : Module("Aimbot", Category.COMBAT) {
     
     // Range
-    private val attackRange by float("AttackRange", 3f, 1f..8f, suffix = "blocks")
-    private val range by floatRange("Range", 0f..3f, 1f..8f, suffix = "blocks")
+    private val attackRange by float("AttackRange", 3f, 0f..8f, suffix = "blocks")
+    private val range by floatRange("Range", 0f..3f, 0f..8f, suffix = "blocks")
     private val throughWallsRange by floatRange("ThroughWallsRange", 0f..3f, 0f..8f, suffix = "blocks")
 
     private val activationSlot by boolean("ActivationSlot", false)
     private val preferredSlot by int("PreferredSlot", 1, 1..9) { activationSlot }
 
     private val clickOnly by boolean("ClickOnly", false)
+    private val clickDelay by int("ClickDelay", 1, 1..1000) { clickOnly }
     private val notOnConsume by boolean("NotOnConsume", true)
     
     // Modes
@@ -148,6 +150,8 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
         "HorizontalBodySearchRange", 0f..1f, 0f..1f
     ) { options.rotationsActive }
 
+    private val lock by boolean("Lock", false)
+
     private val fov by float("FOV", 180f, 0f..180f, suffix = "º")
 
     // Prediction
@@ -188,11 +192,8 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
     var target: EntityLivingBase? = null
     private val prevTargetEntities = mutableListOf<Int>()
 
-    // Container Delay
-    private var containerOpen = -1L
-
-    // Switch Delay
     private val switchTimer = MSTimer()
+    private val clickTimer = MSTimer()
 
     override fun onToggle(state: Boolean) {
         target = null
@@ -202,10 +203,6 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
     }
 
     val onRotationUpdate = handler<RotationUpdateEvent> {
-        if (clickOnly && !mc.gameSettings.keyBindAttack.isKeyDown && !AutoClicker.handleEvents()) {
-            return@handler
-        }
-
         update()
     }
 
@@ -237,6 +234,9 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
             target = null
             return@handler
         }
+
+        // Clicking delay
+        if (mc.gameSettings.keyBindAttack.isKeyDown) clickTimer.reset()
     }
 
     /**
@@ -378,6 +378,13 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
      */
     private fun updateRotations(entity: Entity): Boolean {
         val player = mc.thePlayer ?: return false
+
+        if (clickOnly && (clickTimer.hasTimePassed(clickDelay) || !mc.gameSettings.keyBindAttack.isKeyDown && AutoClicker.handleEvents())) {
+            return false
+        }
+
+        // Should it always keep trying to lock on the enemy or just try to assist you?
+        if (!lock && isFaced(entity, range.toDouble())) return false
 
         if (player.getDistanceToEntityBox(entity) !in range) return false
 
