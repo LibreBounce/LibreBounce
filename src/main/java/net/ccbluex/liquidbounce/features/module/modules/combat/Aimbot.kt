@@ -198,10 +198,6 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
         prevTargetEntities.clear()
 
         if (autoF5) mc.gameSettings.thirdPersonView = 0
-
-        synchronized(swingFails) {
-            swingFails.clear()
-        }
     }
 
     val onRotationUpdate = handler<RotationUpdateEvent> {
@@ -246,8 +242,6 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
      * Render event
      */
     val onRender3D = handler<Render3DEvent> {
-        handleFailedSwings()
-
         drawAimPointBox()
 
         if (cancelRun) {
@@ -257,13 +251,13 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
 
         target ?: return@handler
 
-        val hittableColor = if (target.hurtTime == 0) markHittableColor else markColor
+        val color = if ((target as EntityLivingBase).hurtTime == 0) markHittableColor else markColor
 
         if (targetMode != "Multi") {
             when (mark) {
                 "None" -> return@handler
-                "Platform" -> drawPlatform(target!!, hittableColor)
-                "Box" -> drawEntityBox(target!!, hittableColor, boxOutline)
+                "Platform" -> drawPlatform(target!!, color)
+                "Box" -> drawEntityBox(target!!, color, boxOutline)
                 "Circle" -> drawCircle(
                     target!!,
                     duration * 1000F,
@@ -289,7 +283,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
         val player = mc.thePlayer ?: return@handler
         val world = mc.theWorld ?: return@handler
 
-        if (!isLastClick) return
+        if (!isLastClick) return@handler
 
         val switchMode = targetMode == "Switch"
 
@@ -301,7 +295,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
             }
         }
 
-        if (shouldPrioritize()) return
+        if (shouldPrioritize()) return@handler
 
         resetLastAttackedTicks()
     }
@@ -388,6 +382,8 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
     private fun updateRotations(entity: Entity): Boolean {
         val player = mc.thePlayer ?: return false
 
+        if (player.getDistanceToEntityBox(entity) !in range) return false
+
         if (shouldPrioritize()) return false
 
         val prediction = entity.currPos.subtract(entity.prevPos).times(2 + predictEnemyPosition.toDouble())
@@ -416,7 +412,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
             player.setPosAndPrevPos(currPos, oldPos)
             pos = simPlayer.pos
 
-            if (predictOnlyWhenOutOfRange && simDist <= range && simDist <= prevDist) {
+            if (predictOnlyWhenOutOfRange && simDist !in range && simDist <= prevDist) {
                 return@repeat
             }
 
@@ -431,8 +427,8 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
             outBorder,
             randomization,
             predict = false,
-            lookRange = range + randomizedScanRange,
-            attackRange = range,
+            lookRange = range.last,
+            attackRange = range.last,
             throughWallsRange = throughWallsRange,
             bodyPoints = listOf(highestBodyPointToTarget, lowestBodyPointToTarget),
             horizontalSearch = horizontalBodySearchRange
@@ -445,7 +441,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
         return rotation != null
     }
 
-    private fun checkIfAimingAtBox(
+    /*private fun checkIfAimingAtBox(
         targetToCheck: Entity, currentRotation: Rotation, eyes: Vec3, onSuccess: () -> Unit,
         onFail: () -> Unit = { },
     ) {
@@ -468,7 +464,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
         }
 
         onFail()
-    }
+    }*/
 
     private fun switchToSlot(slot: Int) {
         SilentHotbar.selectSlotSilently(this, slot, immediate = true)
