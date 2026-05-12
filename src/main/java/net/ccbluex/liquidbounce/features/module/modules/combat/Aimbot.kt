@@ -202,6 +202,10 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
     }
 
     val onRotationUpdate = handler<RotationUpdateEvent> {
+        if (clickOnly && !mc.gameSettings.keyBindAttack.isKeyDown && !AutoClicker.handleEvents()) {
+            return@handler
+        }
+
         update()
     }
 
@@ -226,10 +230,6 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
 
         if (shouldPrioritize()) {
             target = null
-            return@handler
-        }
-
-        if (clickOnly && !mc.gameSettings.keyBindAttack.isKeyDown && !AutoClicker.handleEvents()) {
             return@handler
         }
 
@@ -424,7 +424,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
             outBorder,
             randomization,
             predict = false,
-            lookRange = attackRange,
+            lookRange = range.endInclusive,
             attackRange = attackRange,
             throughWallsRange = throughWallsRange.endInclusive,
             bodyPoints = listOf(highestBodyPointToTarget, lowestBodyPointToTarget),
