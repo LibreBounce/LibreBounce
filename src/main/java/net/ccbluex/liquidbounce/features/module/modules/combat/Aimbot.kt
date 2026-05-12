@@ -73,6 +73,7 @@ import kotlin.math.roundToInt
 object Aimbot : Module("Aimbot", Category.COMBAT) {
     
     // Range
+    private val attackRange by float("AttackRange", 3f, 1f..8f, suffix = "blocks")
     private val range by floatRange("Range", 0f..3f, 1f..8f, suffix = "blocks")
     private val throughWallsRange by floatRange("ThroughWallsRange", 0f..3f, 0f..8f, suffix = "blocks")
 
@@ -283,8 +284,6 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
         val player = mc.thePlayer ?: return@handler
         val world = mc.theWorld ?: return@handler
 
-        if (!isLastClick) return@handler
-
         val switchMode = targetMode == "Switch"
 
         if (!switchMode || switchTimer.hasTimePassed(switchDelay)) {
@@ -296,8 +295,6 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
         }
 
         if (shouldPrioritize()) return@handler
-
-        resetLastAttackedTicks()
     }
 
     /**
@@ -427,9 +424,9 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
             outBorder,
             randomization,
             predict = false,
-            lookRange = range.last,
-            attackRange = range.last,
-            throughWallsRange = throughWallsRange,
+            lookRange = attackRange,
+            attackRange = attackRange,
+            throughWallsRange = throughWallsRange.endInclusive,
             bodyPoints = listOf(highestBodyPointToTarget, lowestBodyPointToTarget),
             horizontalSearch = horizontalBodySearchRange
         )
@@ -440,31 +437,6 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
 
         return rotation != null
     }
-
-    /*private fun checkIfAimingAtBox(
-        targetToCheck: Entity, currentRotation: Rotation, eyes: Vec3, onSuccess: () -> Unit,
-        onFail: () -> Unit = { },
-    ) {
-        if (targetToCheck.hitBox.isVecInside(eyes)) {
-            onSuccess()
-            return
-        }
-
-        // Recreate raycast logic
-        val intercept = targetToCheck.hitBox.calculateIntercept(
-            eyes, eyes + getVectorForRotation(currentRotation) * range.toDouble()
-        )
-
-        if (intercept != null) {
-            // Is the entity box raycast vector visible? If not, check through-wall range
-            if (isVisible(intercept.hitVec) || mc.thePlayer.getDistanceToEntityBox(targetToCheck) <= throughWallsRange) {
-                onSuccess()
-                return
-            }
-        }
-
-        onFail()
-    }*/
 
     private fun switchToSlot(slot: Int) {
         SilentHotbar.selectSlotSilently(this, slot, immediate = true)
@@ -499,7 +471,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
             runWithSimulatedPosition(target, target.interpolatedPosition(target.prevPos)) {
                 val rotationVec = player.eyes + getVectorForRotation(
                     serverRotation.lerpWith(currentRotation ?: player.rotation, mc.timer.renderPartialTicks)
-                ) * player.getDistanceToEntityBox(target).coerceAtMost(range.toDouble())
+                ) * player.getDistanceToEntityBox(target).coerceAtMost(attackRange.toDouble())
 
                 val offSetBox = box.offset(rotationVec - renderManager.renderPos)
 
