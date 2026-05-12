@@ -74,7 +74,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
     
     // Range
     private val range by floatRange("Range", 0f..3f, 1f..8f, suffix = "blocks")
-    private val throughWallsRange by floatRange("ThroughWallsRange", 0..3f, 0f..8f, suffix = "blocks")
+    private val throughWallsRange by floatRange("ThroughWallsRange", 0f..3f, 0f..8f, suffix = "blocks")
 
     private val activationSlot by boolean("ActivationSlot", false)
     private val preferredSlot by int("PreferredSlot", 1, 1..9) { activationSlot }
@@ -193,13 +193,9 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
     // Switch Delay
     private val switchTimer = MSTimer()
 
-    // Swing fails
-    private val swingFails = mutableListOf<SwingFailData>()
-
     override fun onToggle(state: Boolean) {
         target = null
         prevTargetEntities.clear()
-        clicks = 0
 
         if (autoF5) mc.gameSettings.thirdPersonView = 0
 
@@ -237,7 +233,6 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
         }
 
         if (clickOnly && !mc.gameSettings.keyBindAttack.isKeyDown && !AutoClicker.handleEvents()) {
-            clicks = 0
             return@handler
         }
 
@@ -289,10 +284,10 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
      */
     val attackEvent = handler<AttackEvent> {
         // TODO: Use target, instead
-        val currentTarget = this.target ?: return
+        val currentTarget = this.target ?: return@handler
 
-        val player = mc.thePlayer ?: return
-        val world = mc.theWorld ?: return
+        val player = mc.thePlayer ?: return@handler
+        val world = mc.theWorld ?: return@handler
 
         if (!isLastClick) return
 
@@ -307,9 +302,6 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
         }
 
         if (shouldPrioritize()) return
-
-        // Randomizes scan range after hit
-        randomizedScanRange = scanRange.random()
 
         resetLastAttackedTicks()
     }
@@ -343,7 +335,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
 
             val entityFov = rotationDifference(entity)
 
-            if (distance !in maxRange || fov != 180F && entityFov > fov) continue
+            if (distance !in range || fov != 180F && entityFov > fov) continue
 
             if (switchMode && !isLookingOnEntities(entity, maxSwitchFOV.toDouble())) continue
 
@@ -493,30 +485,6 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
         else -> false
     }
 
-    private fun handleFailedSwings() {
-        if (!renderBoxOnSwingFail) return
-
-        val box = AxisAlignedBB(0.0, 0.0, 0.0, 0.05, 0.05, 0.05)
-
-        synchronized(swingFails) {
-            val fadeSeconds = renderBoxFadeSeconds * 1000L
-            val colorSettings = renderBoxColor
-
-            val renderManager = mc.renderManager
-
-            swingFails.removeAll {
-                val timestamp = System.currentTimeMillis() - it.startTime
-                val transparency = (0f..255f).lerpWith(1 - (timestamp / fadeSeconds).coerceAtMost(1.0F))
-
-                val offsetBox = box.offset(it.vec3 - renderManager.renderPos)
-
-                RenderUtils.drawAxisAlignedBB(offsetBox, colorSettings.color(a = transparency.roundToInt()))
-
-                timestamp > fadeSeconds
-            }
-        }
-    }
-
     private fun drawAimPointBox() {
         val player = mc.thePlayer ?: return
         val target = this.target ?: return
@@ -556,15 +524,6 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
     private fun isAlive(entity: EntityLivingBase) = entity.isEntityAlive && entity.health > 0
 
     /**
-     * Range
-     */
-    private val maxRange
-        get() = max(range, throughWallsRange)
-
-    private fun getRange(entity: Entity) =
-        if (mc.thePlayer.getDistanceToEntityBox(entity) >= throughWallsRange) range else throughWallsRange
-
-    /**
      * HUD Tag
      */
     override val tag
@@ -573,5 +532,3 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
     val isBlockingChestAura
         get() = handleEvents() && target != null
 }
-
-data class SwingFailData(val vec3: Vec3, val startTime: Long)
