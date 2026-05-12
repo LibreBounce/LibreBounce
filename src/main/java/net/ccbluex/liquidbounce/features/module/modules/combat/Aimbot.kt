@@ -9,6 +9,7 @@ import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.modules.combat.AutoClicker
 import net.ccbluex.liquidbounce.features.module.modules.combat.Backtrack.runWithSimulatedPosition
 import net.ccbluex.liquidbounce.features.module.modules.player.Blink
 import net.ccbluex.liquidbounce.features.module.modules.world.Fucker
@@ -54,8 +55,6 @@ import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.utils.timing.TickTimer
 import net.ccbluex.liquidbounce.utils.timing.TickedActions.nextTick
-import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomClickDelay
-import net.minecraft.client.gui.inventory.GuiContainer
 import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
@@ -63,11 +62,6 @@ import net.minecraft.entity.item.EntityArmorStand
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.item.ItemAxe
 import net.minecraft.item.ItemSword
-import net.minecraft.network.play.client.C02PacketUseEntity
-import net.minecraft.network.play.client.C02PacketUseEntity.Action.*
-import net.minecraft.network.play.client.C07PacketPlayerDigging
-import net.minecraft.network.play.client.C07PacketPlayerDigging.Action.RELEASE_USE_ITEM
-import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
 import net.minecraft.potion.Potion
 import net.minecraft.util.*
 import org.lwjgl.input.Keyboard
@@ -77,22 +71,17 @@ import kotlin.math.sqrt
 import kotlin.math.roundToInt
 
 object Aimbot : Module("Aimbot", Category.COMBAT) {
-
-    private val hurtTime by int("HurtTime", 10, 0..10) { !simulateCooldown && !SmartHit.handleEvents() }
+    
+    // Range
+    private val range by floatRange("Range", 0f..3f, 1f..8f, suffix = "blocks")
+    private val throughWallsRange by floatRange("ThroughWallsRange", 0..3f, 0f..8f, suffix = "blocks")
 
     private val activationSlot by boolean("ActivationSlot", false)
     private val preferredSlot by int("PreferredSlot", 1, 1..9) { activationSlot }
 
     private val clickOnly by boolean("ClickOnly", false)
-
-    // Range
-    private val range: Float by float("Range", 3f, 1f..8f, suffix = "blocks")
-    private val scanRange by floatRange("ScanRange", 2f..2f, 0f..10f, suffix = "blocks").onChanged {
-        randomizedScanRange = it.random()
-    }
-    private val throughWallsRange by float("ThroughWallsRange", 3f, 0f..8f, suffix = "blocks")
-    private val rangeSprintReduction by float("RangeSprintReduction", 0f, 0f..0.4f, suffix = "blocks")
-
+    private val notOnConsume by boolean("NotOnConsume", true)
+    
     // Modes
     private val priority by choices(
         "Priority", arrayOf(
@@ -194,43 +183,21 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
     // Box option
     private val boxOutline by boolean("Outline", true) { mark == "Box" }.subjective()
 
-    /**
-     * MODULE
-     */
-
     // Target
     var target: EntityLivingBase? = null
-    private var hittable = false
     private val prevTargetEntities = mutableListOf<Int>()
-    private var randomizedScanRange: Float = scanRange.random()
-
-    // Attack delay
-    private val attackTimer = MSTimer()
-    private var attackDelay = 0
-    private var clicks = 0
-    private var attackTickTimes = mutableListOf<Pair<MovingObjectPosition, Int>>()
 
     // Container Delay
     private var containerOpen = -1L
 
-    // Block status
-    var renderBlocking = false
-    var blockStatus = false
-    private var blockStopInDead = false
-    private val blockTicks = TickTimer()
-
     // Switch Delay
     private val switchTimer = MSTimer()
-
-    // Blink AutoBlock
-    private var blinked = false
 
     // Swing fails
     private val swingFails = mutableListOf<SwingFailData>()
 
     override fun onToggle(state: Boolean) {
         target = null
-        hittable = false
         prevTargetEntities.clear()
         clicks = 0
 
@@ -246,7 +213,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
     }
 
     fun update() {
-        if (cancelRun || (noInventoryAttack && (mc.currentScreen is GuiContainer || System.currentTimeMillis() - containerOpen < noInventoryDelay))) return
+        if (cancelRun) return
 
         // Update target
         updateTarget()
@@ -269,20 +236,13 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
             return@handler
         }
 
-        if (clickOnly && !mc.gameSettings.keyBindAttack.isKeyDown) {
+        if (clickOnly && !mc.gameSettings.keyBindAttack.isKeyDown && !AutoClicker.handleEvents()) {
             clicks = 0
             return@handler
         }
 
         if (cancelRun) {
             target = null
-            stopBlocking()
-            return@handler
-        }
-
-        if (target == null && !blockStopInDead) {
-            blockStopInDead = true
-            stopBlocking()
             return@handler
         }
     }
@@ -297,13 +257,12 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
 
         if (cancelRun) {
             target = null
-            hittable = false
             return@handler
         }
 
         target ?: return@handler
 
-        val hittableColor = if (hittable) markHittableColor else markColor
+        val hittableColor = if (target.hurtTime == 0) markHittableColor else markColor
 
         if (targetMode != "Multi") {
             when (mark) {
@@ -326,16 +285,14 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
     }
 
     /**
-     * Attack enemy
+     * Attack event
      */
-    private fun runAttack(isFirstClick: Boolean, isLastClick: Boolean) {
+    val attackEvent = handler<AttackEvent> {
         // TODO: Use target, instead
         val currentTarget = this.target ?: return
 
         val player = mc.thePlayer ?: return
         val world = mc.theWorld ?: return
-
-        attackEntity(currentTarget, isLastClick)
 
         if (!isLastClick) return
 
@@ -348,6 +305,13 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
                 switchTimer.reset()
             }
         }
+
+        if (shouldPrioritize()) return
+
+        // Randomizes scan range after hit
+        randomizedScanRange = scanRange.random()
+
+        resetLastAttackedTicks()
     }
 
     /**
@@ -375,11 +339,11 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
 
             val distance = Backtrack.runWithNearestTrackedDistance(entity) { player.getDistanceToEntityBox(entity) }
 
-            if (switchMode && distance > range && prevTargetEntities.isNotEmpty()) continue
+            if (switchMode && distance !in range && prevTargetEntities.isNotEmpty()) continue
 
             val entityFov = rotationDifference(entity)
 
-            if (distance > maxRange || fov != 180F && entityFov > fov) continue
+            if (distance !in maxRange || fov != 180F && entityFov > fov) continue
 
             if (switchMode && !isLookingOnEntities(entity, maxSwitchFOV.toDouble())) continue
 
@@ -427,35 +391,12 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
     }
 
     /**
-     * Attack [entity]
-     */
-    private fun attackEntity(entity: EntityLivingBase, isLastClick: Boolean) {
-        val player = mc.thePlayer
-
-        if (shouldPrioritize()) return
-
-        // The function is only called when we are facing an entity
-        if (shouldDelayClick(MovingObjectPosition.MovingObjectType.ENTITY)) {
-            return
-        }
-
-        // Randomizes scan range after hit
-        randomizedScanRange = scanRange.random()
-
-        resetLastAttackedTicks()
-    }
-
-    /**
      * Update rotations to enemy
      */
     private fun updateRotations(entity: Entity): Boolean {
         val player = mc.thePlayer ?: return false
 
         if (shouldPrioritize()) return false
-
-        if (!options.rotationsActive) {
-            return player.getDistanceToEntityBox(entity) <= range
-        }
 
         val prediction = entity.currPos.subtract(entity.prevPos).times(2 + predictEnemyPosition.toDouble())
         val boundingBox = entity.hitBox.offset(prediction)
@@ -495,7 +436,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
         val rotation = searchCenter(
             boundingBox,
             generateSpotBasedOnDistance,
-            outBorder && !attackTimer.hasTimePassed(attackDelay / 2),
+            outBorder,
             randomization,
             predict = false,
             lookRange = range + randomizedScanRange,
@@ -528,10 +469,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
 
         if (intercept != null) {
             // Is the entity box raycast vector visible? If not, check through-wall range
-            hittable =
-                isVisible(intercept.hitVec) || mc.thePlayer.getDistanceToEntityBox(targetToCheck) <= throughWallsRange
-
-            if (hittable) {
+            if (isVisible(intercept.hitVec) || mc.thePlayer.getDistanceToEntityBox(targetToCheck) <= throughWallsRange) {
                 onSuccess()
                 return
             }
@@ -610,7 +548,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
      * Check if run should be cancelled
      */
     private val cancelRun
-        inline get() = mc.thePlayer.isSpectator || !isAlive(mc.thePlayer) || noConsumeAttack == "NoRotation" && isConsumingItem()
+        inline get() = mc.thePlayer.isSpectator || !isAlive(mc.thePlayer) || notOnConsume && isConsumingItem()
 
     /**
      * Check if [entity] is alive
@@ -621,10 +559,10 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
      * Range
      */
     private val maxRange
-        get() = max(range + randomizedScanRange, throughWallsRange)
+        get() = max(range, throughWallsRange)
 
     private fun getRange(entity: Entity) =
-        (if (mc.thePlayer.getDistanceToEntityBox(entity) >= throughWallsRange) range + randomizedScanRange else throughWallsRange) - if (mc.thePlayer.isSprinting) rangeSprintReduction else 0F
+        if (mc.thePlayer.getDistanceToEntityBox(entity) >= throughWallsRange) range else throughWallsRange
 
     /**
      * HUD Tag
