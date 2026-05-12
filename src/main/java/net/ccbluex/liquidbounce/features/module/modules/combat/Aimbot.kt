@@ -384,7 +384,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
         }
 
         // Should it always keep trying to lock on the enemy or just try to assist you?
-        if (!lock && isFaced(entity, range.toDouble())) return false
+        if (!lock && isFaced(entity, attackRange.toDouble())) return false
 
         if (player.getDistanceToEntityBox(entity) !in range) return false
 
