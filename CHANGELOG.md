@@ -9,17 +9,19 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 ### Added
 
 - CombatJump module; jumps at the right time to gain higher momentum in fights (thatonecoder)
-- `UsePredictedTargetHurtTime`, along with client-side target hurttime checking, `ExperimentalChecks`, `CheckForCriticalHits`, `CheckForBlockedlHits`, `SimulateKnockback`, `SimulatedHorizontalKnockback`. and `SimulatedVerticalKnockback` values to SmartHit (thatonecoder)
+- `UsePredictedTargetHurtTime`, along with client-side target hurttime checking based on latency rounded upwards and a hit detection fail-safe to SmartHit (thatonecoder)
+- `ExperimentalChecks`, `CheckForCriticalHits` (both previously hardcoded on), and `CheckForBlockedHits` to SmartHit (thatonecoder)
+- `SimulateKnockback`, `SimulatedHorizontalKnockback`. and `SimulatedVerticalKnockback` values to SmartHit (thatonecoder)
 - `AttackableOnHurtTime`, `FlushAttackableOnHurtTime`, `FlushOnOwnHurtTime`, and `HurtTimeToFlush` values to Backtrack (thatonecoder)
 - `BlockMaxEnemyRange` value to KillAura (thatonecoder)
-- `ÒnlySprinting` option to the Jump mode in Velocity; previously hardcoded (thatonecoder)
+- `OnlySprinting` option to the Jump mode in Velocity; previously hardcoded (thatonecoder)
 
 ### Changed
 
 - **Breaking:** Rename the Legacy mode `Delay` to `LegacyDelay`, in Backtrack (thatonecoder)
 - **Breaking:** Rename `AttackableHurtTime` to `AttackDelay` in SmartHit, also changing how it works (thatonecoder)
+- Heavily cleaned up the SmartHit code, along with completion the critical hit check in SmartHit (thatonecoder)
 - Improve Backtrack debugging (thatonecoder)
-- Simplify some checks and complete the critical hit check in SmartHit (thatonecoder)
 
 ## [0.7.0-beta.1] - 2025-11-24
 

@@ -65,9 +65,12 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         val player = mc.thePlayer ?: return@handler
         val target = event.targetEntity ?: return@handler
 
+        val targetPlayer = target as EntityPlayer
+
         val playerPing = (player as EntityPlayer).getPing()
-        val playerLatencyInTicks = ((playerPing / 2) / 20)
-        val targetHurtTime = (target as EntityPlayer).hurtTime
+        // Note that this is rounded up because a single millisecond after a tick makes a huge difference
+        val playerLatencyInTicks = playerPing.ceilDiv(2).ceilDiv(20)
+        val targetHurtTime = targetPlayer.hurtTime
 
         /*
          * This is the code responsible for client-side target hurttime checking
@@ -78,18 +81,17 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
          * whilst allowing you to disable it, if any servers have issues with it
          */
         simTargetHurtTime = targetHurtTime - playerLatencyInTicks
+
         simTargetHurtTime = if (usePredictedTargetHurtTime)
-            if (simTargetHurtTime <= (10 - attackDelay))
+            if (simTargetHurtTime <= 10 - attackDelay)
             10 + playerLatencyInTicks else simTargetHurtTime
             else targetHurtTime
 
-        hitOnTheWay = simTargetHurtTime <= (10 - attackDelay)
-        lastHitCrit = player.fallDistance > 0 &&
-            !player.isOnLadder &&
-            !player.isInWater &&
-            !player.isPotionActive(blindness) &&
-            player.ridingEntity == null
-        lastHitBlocked = (target as EntityPlayer).isBlocking
+        if (simTargetHurtTime <= 10 - attackDelay)
+            hitOnTheWay = true
+
+        lastHitCrit = canCritHit(player)
+        lastHitBlocked = targetPlayer.isBlocking
 
         // A failsafe to compensate for cases in which a server blocks your hit
         if (ticksSinceHit > playerLatencyInTicks && targetHurtTime == 0)
@@ -145,20 +147,9 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
             if (simHurtTime > 0) --simHurtTime
         }
 
-        // The ground ticks and simPlayer checks are there since you stay on ground for a tick, before being able to jump
-        // This does not account for getting hit, either
-        val trueGround = player.onGround && player.groundTicks > 1 && simPlayer.onGround
+        val targetHittable = simTargetHurtTime <= 10 - attackDelay
 
-        // If you are "falling" (as in fallDistance > 0; it doesn't reset when you go up, only when on ground), you can land critical hits
-        val canCritHit = player.fallDistance > 0 &&
-            !player.isOnLadder &&
-            !player.isInWater &&
-            !player.isPotionActive(blindness) &&
-            player.ridingEntity == null
-
-        val targetHittable = simTargetHurtTime <= (10 - attackDelay)
-
-        if (!targetHittable) {
+        if (targetHittable) {
             lastHitCrit = false
             hitOnTheWay = false
         }
@@ -188,15 +179,20 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
         val simDistance = simulateDistance(simPlayer, target, simulateKnockback && targetHitLikely)
 
-        // Many magic numbers, but this is the best implementation I've done, so far
-        val baseHurtTime = 3f / (1f + sqrt(distance) - (rotDiff / 180f))
-        val hurtTimeNoEscape = (2 * distance * 8).toInt() / 10
-
+        // The ground ticks and simPlayer checks are there since you stay on ground for a tick, before being able to jump
+        // This does not account for getting hit, either
         val groundHit =
             player.onGround && player.groundTicks > 1 && simPlayer.onGround &&
             targetHittable && !hitOnTheWay
-        val airHit = targetHittable && ((checkForCriticalHits && canCritHit && !lastHitCrit) || !hitOnTheWay)
-        
+    
+        val airHit =
+            (targetHittable && !hitOnTheWay) ||
+            (checkForCriticalHits && canCritHit(player) && !lastHitCrit)
+
+        // Many magic numbers, but this is the best implementation I've done, so far
+        val baseHurtTime = 3f / (1f + sqrt(distance) - (rotDiff / 180f))
+        val hurtTimeNoEscape = (2 * distance * 8).toInt() / 10
+            
         val shouldHit = when {
             // This currently does not account for burst clicking, timed hits, zest tapping, etc, but it is a start
             groundHit || airHit -> true
@@ -206,7 +202,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
             experimentalChecks && (distance > notAboveRange || simDistance > notAbovePredRange) && player.hurtTime !in hurtTimeNoEscape..8 && targetHitLikely -> true
 
             // Hits the opponent when the opponent can't hit you; should give plenty of free hits
-            targetDistance > 3.05f && targetHittable -> true
+            experimentalChecks && targetDistance > 3.05f && targetHittable -> true
 
             // Panic hitting is also not a very good idea either, n'est-ce pas?
             player.health < notBelowOwnHealth -> true
@@ -219,10 +215,12 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
             // TODO: Check if the target is near an edge; if so, you can also spam hit to deal as much knockback as possible
             notOnEdge && player.isNearEdge(notOnEdgeLimit) -> true
 
+            target.isDead -> false
+
             else -> false
         }
 
-        if (debug) chat("(SmartHit) Will hit: ${shouldHit}, hit on the way: ${hitOnTheWay}, last hit blocked: ${lastHitBlocked}, current distance: ${distance}, current distance (target POV): ${targetDistance}, predicted distance: ${simDistance}, combined ping: ${combinedPing}, combined ping multiplier: ${combinedPingMult}, rotation difference: ${rotDiff}, target hit likely: ${targetHitLikely}, own hurttime: ${player.hurtTime}, simulated own hurttime: ${simHurtTime}, target hurttime: ${target.hurtTime}, simulated target hurt time: ${simTargetHurtTime}, on ground: ${player.onGround}, predicted ground: ${simPlayer.onGround}, can critical hit: ${canCritHit}")
+        if (debug) chat("(SmartHit) Will hit: ${shouldHit}, hit on the way: ${hitOnTheWay}, last hit blocked: ${lastHitBlocked}, current distance: ${distance}, current distance (target POV): ${targetDistance}, predicted distance: ${simDistance}, combined ping: ${combinedPing}, combined ping multiplier: ${combinedPingMult}, rotation difference: ${rotDiff}, target hit likely: ${targetHitLikely}, own hurttime: ${player.hurtTime}, simulated own hurttime: ${simHurtTime}, target hurttime: ${target.hurtTime}, simulated target hurt time: ${simTargetHurtTime}, on ground: ${player.onGround}, predicted ground: ${simPlayer.onGround}, can critical hit: ${canCritHit(player)}")
 
         return shouldHit
     }
@@ -231,11 +229,12 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
     private fun simulateDistance(simPlayer: SimulatedPlayer, target: Entity, simulateKnockback: Boolean): Double {
         val player = mc.thePlayer ?: return 0.0
 
-        val prediction = target.currPos.subtract(target.prevPos).times(predictEnemyPosition.toDouble())
-        val targetBox = target.hitBox.offset(prediction)
+        val targetBox = target.hitBox.offset(
+            target.currPos.subtract(target.prevPos).times(predictEnemyPosition.toDouble())
+        )
 
         // The <= is there because the method used to calculate the hurtTime can go to negatives
-        if (simulateKnockback && simHurtTime <= 0) simulateOwnKnockback(simPlayer, target)
+        if (simulateKnockback && simHurtTime <= 10 - attackDelay) simulateOwnKnockback(simPlayer, target)
 
         val (currPos, prevPos) = player.currPos to player.prevPos
 
@@ -248,27 +247,37 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         return distance
     }
 
+    // If you are "falling" (as in fallDistance > 0; it doesn't reset when you go up, only when on ground), you can land critical hits
+    private fun canCritHit(player: EntityPlayer): Boolean =
+        player.fallDistance > 0 &&
+        !player.isOnLadder &&
+        !player.isInWater &&
+        !player.isPotionActive(blindness) &&
+        player.ridingEntity == null
+
     private fun simulateOwnKnockback(simPlayer: SimulatedPlayer, target: Entity) {
         /*
          * This is an extremely hacky way of simulating the knockback you will take,
          * and does not account for knockback enchantments, future positions, or anything else of the sort.
          */
-        val knockbackModifier = simulatedHorizontalKnockback.random()
+        val targetYaw = target.rotationYaw * (PI.toFloat() / 180.0f)
+        val modifier = simulatedHorizontalKnockback.random()
 
-        // This is where the knockback calculating magic happens
-        val knockbackX = -MathHelper.sin(target.rotationYaw * (PI.toFloat() / 180.0f)) * knockbackModifier * 0.5f
-        val knockbackY = simulatedVerticalKnockback.random()
-        val knockbackZ = MathHelper.cos(target.rotationYaw * (PI.toFloat() / 180.0f)) * knockbackModifier * 0.5f
+        val knockbackX = -MathHelper.sin(targetYaw * modifier * 0.5f)
+        val knockbackY = simulatedHorizontalKnockback.random()
+        val knockbackZ = MathHelper.cos(targetYaw * modifier * 0.5f)
 
         // Apply knockback
-        simPlayer.motionX += knockbackX
-        simPlayer.motionY += knockbackY
-        simPlayer.motionZ += knockbackZ
+        simPlayer.apply {
+            motionX += knockbackX
+            motionY += knockbackY
+            motionZ += knockbackZ
+        }
 
-        if (debug) chat("(SmartHit) Simulated knockback. X: ${knockbackX}, Y: ${knockbackY}, Z: ${knockbackZ}, modifier: ${knockbackModifier}")
+        if (debug) chat("(SmartHit) Simulated knockback. X: ${knockbackX}, Y + vertical modifier: ${knockbackY}, Z: ${knockbackZ}, horizontal modifier: ${modifier}")
 
         // It is expected that, if this reduces, it will be like the normal damage cycle
         // However, SmartHit going out of range, this, that, may break this
-        simHurtTime = 10
+        simHurtTime = attackDelay
     }
 }
