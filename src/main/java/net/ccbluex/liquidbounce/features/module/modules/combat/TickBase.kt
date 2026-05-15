@@ -105,7 +105,7 @@ object TickBase : Module("TickBase", Category.COMBAT) {
 
             if (bestTick == 0) return@handler
 
-            if (RandomUtils.nextInt(endExclusive = 100) > change ||
+            if (!withinChance(change) ||
                 onlyOnKillAura && (!state || KillAura.target == null)
             ) {
                 ticksToSkip = 0
