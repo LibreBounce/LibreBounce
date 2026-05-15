@@ -25,6 +25,8 @@ object RandomUtils {
 
     fun nextBoolean() = Random.nextBoolean()
 
+    fun withinChance(threshold: Int): Boolean = nextInt(endExclusive = 100) < threshold
+    
     fun randomNumber(length: Int) = random(length, "123456789")
 
     fun randomString(length: Int) = random(length, "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
