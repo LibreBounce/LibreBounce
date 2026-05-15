@@ -23,7 +23,7 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
     private val allowedJumpDistance by floatRange("AllowedJumpDistance", 5f..8f, 0f..16f)
     private val endDistance by floatRange("EndDistance", 3.05f..3.25f, 0f..6f)
     private val onlyMove by boolean("OnlyMove", true)
-    private val onlySprint by boolean("OnlySprint", true)
+    private val onlySprint by boolean("OnlySprint", true) { onlyMove }
 
     private val predictClientMovement by int("PredictClientMovement", 6, 0..10, suffix = "ticks")
     private val predictEnemyPosition by float("PredictEnemyPosition", 1.5f, 0f..10f)
@@ -33,7 +33,9 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
     var target: Entity? = null
     
     val onAttack = handler<AttackEvent> { event ->
-        target = event.targetEntity ?: return@handler
+        if (event.targetEntity is EntityLivingBase) {
+            target = event.targetEntity ?: return@handler
+        }
     }
     
     // Anti-cheats such as Grim flag when you don't jump on this event
@@ -41,15 +43,14 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
         val player = mc.thePlayer ?: return@handler
 
         // TO-DO: KillAura target check
-        val fixedTarget = target ?: return@handler
+        //val fixedTarget = target ?: return@handler
         //if (target == null || KillAura.target != null) target = KillAura.target ?: return@handler
 
-        if ((onlyMove &&
-            (!player.isMoving || (onlySprint && !player.isSprinting)) ||
-            (player.getDistanceToEntityBox(fixedTarget) !in allowedJumpDistance)
+        if ((onlyMove && (!player.isMoving || (onlySprint && !player.isSprinting))) ||
+            (player.getDistanceToEntityBox(target) !in allowedJumpDistance)
         ) return@handler
 
-        if (player.onGround && shouldJump(fixedTarget)) {
+        if (player.onGround && shouldJump(target)) {
             player.tryJump()
 
             if (debug) chat("(CombatJump) Jumped to the target")
