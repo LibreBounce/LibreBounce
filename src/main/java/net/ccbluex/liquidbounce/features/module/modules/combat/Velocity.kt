@@ -296,7 +296,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
                     if (maxHurtResistantTime != hurtResistantTime || maxHurtResistantTime == 0)
                         return@handler
 
-                    if (nextInt(endExclusive = 100) < chance) {
+                    if (withinChance(chance)) {
                         val horizontal = horizontal / 100f
                         val vertical = vertical / 100f
 
