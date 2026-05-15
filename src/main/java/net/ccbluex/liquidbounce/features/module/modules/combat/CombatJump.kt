@@ -30,12 +30,10 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
 
     private val debug by boolean("Debug", false).subjective()
 
-    var target: EntityLivingBase? = null
+    var target: Entity? = null
     
     val onAttack = handler<AttackEvent> { event ->
-        if (event.targetEntity is EntityLivingBase) {
-            target = event.targetEntity
-        }
+        target = event.targetEntity
     }
     
     // Anti-cheats such as Grim flag when you don't jump on this event
@@ -43,14 +41,14 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
         val player = mc.thePlayer ?: return@handler
 
         // TO-DO: KillAura target check
-        //val fixedTarget = target ?: return@handler
+        val fixedTarget = (KillAura.target as Entity) ?: target ?: return@handler
         //if (target == null || KillAura.target != null) target = KillAura.target ?: return@handler
 
         if ((onlyMove && (!player.isMoving || (onlySprint && !player.isSprinting))) ||
-            player.getDistanceToEntityBox(target) !in allowedJumpDistance
+            player.getDistanceToEntityBox(fixedTarget) !in allowedJumpDistance
         ) return@handler
 
-        if (player.onGround && shouldJump(target)) {
+        if (player.onGround && shouldJump(fixedTarget)) {
             player.tryJump()
 
             if (debug) chat("(CombatJump) Jumped to the target")
