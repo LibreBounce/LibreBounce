@@ -99,7 +99,7 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
         if (event.targetEntity.hurtTime !in hurtTime ||
             !timer.hasTimePassed(delay) ||
             onlyGround && !player.onGround ||
-            (onlyMove && (!player.isMoving || onlyMoveForward && player.movementInput.moveStrafe != 0f))
+            (onlyMove && (!player.isMoving || onlyMoveForward && player.movementInput.moveStrafe != 0f)) ||
             !onWeb && player.isInWeb ||
             !onLiquid && player.isInLiquid ||
             !withinChance(chance)
