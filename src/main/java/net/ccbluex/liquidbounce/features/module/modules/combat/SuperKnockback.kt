@@ -12,7 +12,7 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPackets
 import net.ccbluex.liquidbounce.utils.extensions.*
-import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils
+import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.withinChance
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.angleDifference
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.toRotation
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
@@ -102,7 +102,7 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
             (onlyMove && (!player.isMoving || onlyMoveForward && player.movementInput.moveStrafe != 0f))
             !onWeb && player.isInWeb ||
             !onLiquid && player.isInLiquid ||
-            RandomUtils.nextInt(endExclusive = 100) > chance
+            !withinChance(chance)
         ) return@handler
 
         // Is the enemy facing their back on us?
@@ -152,17 +152,16 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
             "WTap" -> {
                 // We want the player to be sprinting before we block inputs
                 if (player.isSprinting && player.serverSprintState && !blockInput && !startWaiting) {
-                    val delayMultiplier = if (useDelayMultiplier) 1.0 / (abs(targetDistance - distance) + 1) else 1
+                    val delayMultiplier = if (useDelayMultiplier) 1.0 / (abs(targetDistance - distance) + 1.0) else 1.0
 
-                    blockInputTicks = (ticksUntilBlock.random() * delayMultiplier).toInt()
-
+                    blockInputTicks = (ticksUntilBlock.random().toDouble() * delayMultiplier).toInt()
                     blockInput = blockInputTicks == 0
-
+    
                     if (!blockInput) {
                         startWaiting = true
                     }
 
-                    allowInputTicks = (reSprintTicks.random() * delayMultiplier).toInt()
+                    allowInputTicks = (reSprintTicks.random().toDouble() * delayMultiplier).toInt()
                 }
             }
 
