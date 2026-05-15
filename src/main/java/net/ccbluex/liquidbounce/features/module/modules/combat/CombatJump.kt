@@ -14,9 +14,9 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils
-import net.ccbluex.liquidbounce.utils.movement.FallingPlayer
 import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
 import net.minecraft.entity.Entity
+import net.minecraft.entity.EntityLivingBase
 
 object CombatJump : Module("CombatJump", Category.COMBAT) {
 
@@ -30,11 +30,11 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
 
     private val debug by boolean("Debug", false).subjective()
 
-    var target: Entity? = null
+    var target: EntityLivingBase? = null
     
     val onAttack = handler<AttackEvent> { event ->
         if (event.targetEntity is EntityLivingBase) {
-            target = event.targetEntity ?: return@handler
+            target = event.targetEntity
         }
     }
     
@@ -47,7 +47,7 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
         //if (target == null || KillAura.target != null) target = KillAura.target ?: return@handler
 
         if ((onlyMove && (!player.isMoving || (onlySprint && !player.isSprinting))) ||
-            (player.getDistanceToEntityBox(target) !in allowedJumpDistance)
+            player.getDistanceToEntityBox(target) !in allowedJumpDistance
         ) return@handler
 
         if (player.onGround && shouldJump(target)) {
