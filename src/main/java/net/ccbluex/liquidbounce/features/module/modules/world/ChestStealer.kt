@@ -22,7 +22,7 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.extensions.component1
 import net.ccbluex.liquidbounce.utils.extensions.component2
-import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.nextInt
+import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.withinChance
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.canClickInventory
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.chestStealerCurrentSlot
@@ -207,7 +207,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
                         missClickChance
                     }
 
-                    if (missClick && nextInt(endExclusive = 100) < missClickingChance.toInt()) {
+                    if (missClick && withinChance(missClickingChance)) {
                         performMissClick(screen, screen.inventorySlots.inventorySlots[slot])
                         delay(pauseAfterMissClickLength.toLong())
                     }
@@ -250,7 +250,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
                     delay(stealingDelay.toLong())
 
-                    if (simulateShortStop && nextInt(endExclusive = 100) < shortStopChance) 
+                    if (simulateShortStop && withinChance(shortStopChance)) 
                         delay(shortStopLength.random().toLong())                    
                 }
             }
