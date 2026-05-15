@@ -20,16 +20,16 @@ import net.minecraft.entity.Entity
 
 object CombatJump : Module("CombatJump", Category.COMBAT) {
 
-    private val allowedJumpDistance by floatRange("AllowedJumpDistance", 5f..8f, 0f..12f)
+    private val allowedJumpDistance by floatRange("AllowedJumpDistance", 5f..8f, 0f..16f)
     private val endDistance by floatRange("EndDistance", 3.05f..3.25f, 0f..6f)
     private val onlyMove by boolean("OnlyMove", true)
+    private val onlySprint by boolean("OnlySprint", true)
 
     private val predictClientMovement by int("PredictClientMovement", 6, 0..10, suffix = "ticks")
-    private val predictEnemyPosition by float("PredictEnemyPosition", 1.5f, 0f..2f)
+    private val predictEnemyPosition by float("PredictEnemyPosition", 1.5f, 0f..10f)
 
     private val debug by boolean("Debug", false).subjective()
 
-    //var target = KillAura.target
     var target: Entity? = null
     
     val onAttack = handler<AttackEvent> { event ->
@@ -40,14 +40,16 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
     val onStrafe = handler<StrafeEvent> { event ->
         val player = mc.thePlayer ?: return@handler
 
-        val target2 = target ?: return@handler
+        // TO-DO: KillAura target check
+        val fixedTarget = target ?: return@handler
         //if (target == null || KillAura.target != null) target = KillAura.target ?: return@handler
 
-        if (onlyMove && !player.isMoving) return@handler
+        if ((onlyMove &&
+            (!player.isMoving || (onlySprint && !player.isSprinting)) ||
+            (player.getDistanceToEntityBox(fixedTarget) !in allowedJumpDistance)
+        ) return@handler
 
-        if (player.getDistanceToEntityBox(target2) !in allowedJumpDistance) return@handler
-
-        if (player.onGround && shouldJump(target2)) {
+        if (player.onGround && shouldJump(fixedTarget)) {
             player.tryJump()
 
             if (debug) chat("(CombatJump) Jumped to the target")
@@ -59,8 +61,9 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
         val modifiedInput = RotationUtils.modifiedInput
         val simPlayer = SimulatedPlayer.fromClientPlayer(modifiedInput)
     
-        val prediction = target.currPos.subtract(target.prevPos).times(predictEnemyPosition.toDouble())
-        val boundingBox = target.hitBox.offset(prediction)
+        val targetBox = target.hitBox.offset(
+            target.currPos.subtract(target.prevPos).times(predictEnemyPosition.toDouble())
+        )
 
         val distance = player.getDistanceToEntityBox(target)
 
@@ -77,16 +80,11 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
         }
 
         player.setPosAndPrevPos(simPlayer.pos)
-
-        val simDist = player.getDistanceToBox(boundingBox)
-
-        //val fallingPlayer = FallingPlayer(player)
-
+        val simDist = player.getDistanceToBox(targetBox)
         player.setPosAndPrevPos(currPos, prevPos)
 
         if (debug) chat("(CombatJump) Distance: ${distance}, simulated distance: ${simDist}, simulated ground: ${simPlayer.onGround}")
 
-        // TODO: Use fallingPlayer for ground hit checking
         return simDist in endDistance
     }
 }
