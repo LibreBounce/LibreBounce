@@ -252,7 +252,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
                     val trueDist = mc.thePlayer.getDistance(targetMixin.trueX, targetMixin.trueY, targetMixin.trueZ)
                     val dist = mc.thePlayer.getDistance(target.posX, target.posY, target.posZ)
 
-                    if (trueDist <= 6f && (!smart || trueDist >= dist) && (style == "Smooth" || !globalTimer.hasTimePassed(
+                    if (trueDist <= 6f && (!smart || trueDist > dist) && (style == "Smooth" || !globalTimer.hasTimePassed(
                             supposedDelay
                         ))
                     ) {
