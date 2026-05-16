@@ -17,7 +17,7 @@ import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPackets
 import net.ccbluex.liquidbounce.utils.extensions.*
-import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.nextInt
+import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.withinChance
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils.isOnGround
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils.speed
 import net.ccbluex.liquidbounce.utils.rotation.RaycastUtils.runWithModifiedRaycastResult
@@ -263,16 +263,13 @@ object Velocity : Module("Velocity", Category.COMBAT) {
                         if (onGround)
                             jump = false
                     } else {
-                        // Strafe
                         if (hurtTime > 0 && motionX != 0.0 && motionZ != 0.0)
                             onGround = true
 
-                        // Reduce Y
                         if (hurtResistantTime > 0 && aacPushYReducer && !Speed.handleEvents())
                             motionY -= 0.014999993
                     }
 
-                    // Reduce XZ
                     if (hurtResistantTime >= 19) {
                         val reduce = aacPushXZReducer
 
@@ -299,7 +296,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
                     if (maxHurtResistantTime != hurtResistantTime || maxHurtResistantTime == 0)
                         return@handler
 
-                    if (nextInt(endExclusive = 100) < chance) {
+                    if (withinChance(chance)) {
                         val horizontal = horizontal / 100f
                         val vertical = vertical / 100f
 
@@ -709,7 +706,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
     val onStrafe = handler<StrafeEvent> {
         mc.thePlayer?.run {
             if (mode == "Jump" && hasReceivedVelocity) {
-                if (!isJumping && nextInt(endExclusive = 100) < chance && shouldJump() && (isSprinting || !onlySprinting) && onGround && hurtTime in hurtTimeToAct) {
+                if (!isJumping && withinChance(chance) && shouldJump() && (isSprinting || !onlySprinting) && onGround && hurtTime in hurtTimeToAct) {
                     tryJump()
                     if (debug) chat("Velocity jumped at hurttime ${hurtTime}")
                     limitUntilJump = 0

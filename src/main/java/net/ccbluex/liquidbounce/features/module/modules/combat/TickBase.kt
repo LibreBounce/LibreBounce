@@ -13,7 +13,7 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.player.Blink
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.attack.EntityUtils
-import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils
+import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.withinChance
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils
 import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
@@ -105,7 +105,7 @@ object TickBase : Module("TickBase", Category.COMBAT) {
 
             if (bestTick == 0) return@handler
 
-            if (RandomUtils.nextInt(endExclusive = 100) > change ||
+            if (!withinChance(change) ||
                 onlyOnKillAura && (!state || KillAura.target == null)
             ) {
                 ticksToSkip = 0

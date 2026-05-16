@@ -12,7 +12,7 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPackets
 import net.ccbluex.liquidbounce.utils.extensions.*
-import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils
+import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.withinChance
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.angleDifference
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.toRotation
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
@@ -26,7 +26,7 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
 
     private val chance by int("Chance", 100, 0..100, suffix = "%")
     private val delay by int("Delay", 0, 0..500, suffix = "ms")
-    private val hurtTime by int("HurtTime", 10, 0..10)
+    private val hurtTime by intRange("HurtTime", 0..10, 0..10)
 
     // TODO: Fix SprintTap flagging on prediction anti-cheats
     // TODO: Add SneakTap mode
@@ -40,6 +40,8 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
     private val reSprintTicks by intRange("ReSprintTicks", 1..2, 1..5) { mode == "WTap" }
 
     private val targetDistance by int("TargetDistance", 3, 1..5, suffix = "blocks") { mode == "WTap" }
+
+    private val useDelayMultiplier by boolean("UseDelayMultiplier", true) { mode == "WTap" }
 
     private val stopTicks: Value<Int> = int("PressBackTicks", 1, 1..5) {
         mode == "SprintTap2"
@@ -94,18 +96,19 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
         val rotationToPlayer = toRotation(player.hitBox.center, false, target).fixedSensitivity().yaw
         val angleDifferenceToPlayer = abs(angleDifference(rotationToPlayer, target.rotationYaw))
 
-        if (event.targetEntity.hurtTime > hurtTime || !timer.hasTimePassed(delay) || onlyGround && !player.onGround || !onWeb && player.isInWeb || !onLiquid && player.isInLiquid || RandomUtils.nextInt(
-                endExclusive = 100
-            ) > chance
+        if (event.targetEntity.hurtTime !in hurtTime ||
+            !timer.hasTimePassed(delay) ||
+            onlyGround && !player.onGround ||
+            (onlyMove && (!player.isMoving || onlyMoveForward && player.movementInput.moveStrafe != 0f)) ||
+            !onWeb && player.isInWeb ||
+            !onLiquid && player.isInLiquid ||
+            !withinChance(chance)
         ) return@handler
-
-        if ((onlyMove && !player.isMoving) || (onlyMoveForward && player.movementInput.moveStrafe != 0f)) return@handler
 
         // Is the enemy facing their back on us?
         if (angleDifferenceToPlayer > minEnemyRotDiffToIgnore && !target.hitBox.isVecInside(player.eyes)) return@handler
 
         val pos = target.currPos - target.lastTickPos
-
         val distanceBasedOnMotion = player.getDistanceToBox(target.hitBox.offset(pos))
 
         // Is the entity's distance based on motion farther than the normal distance?
@@ -149,17 +152,16 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
             "WTap" -> {
                 // We want the player to be sprinting before we block inputs
                 if (player.isSprinting && player.serverSprintState && !blockInput && !startWaiting) {
-                    val delayMultiplier = 1.0 / (abs(targetDistance - distance) + 1)
+                    val delayMultiplier = if (useDelayMultiplier) 1.0 / (abs(targetDistance - distance) + 1.0) else 1.0
 
-                    blockInputTicks = (ticksUntilBlock.random() * delayMultiplier).toInt()
-
+                    blockInputTicks = (ticksUntilBlock.random().toDouble() * delayMultiplier).toInt()
                     blockInput = blockInputTicks == 0
-
+    
                     if (!blockInput) {
                         startWaiting = true
                     }
 
-                    allowInputTicks = (reSprintTicks.random() * delayMultiplier).toInt()
+                    allowInputTicks = (reSprintTicks.random().toDouble() * delayMultiplier).toInt()
                 }
             }
 

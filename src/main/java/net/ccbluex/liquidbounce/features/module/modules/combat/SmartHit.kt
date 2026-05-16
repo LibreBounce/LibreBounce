@@ -28,26 +28,21 @@ import kotlin.math.PI
 
 object SmartHit : Module("SmartHit", Category.COMBAT) {
 
-    // TODO: Not on 1-tap option, taking into account your weapon + enchantments, the opponent's armor + enchantments, and potion effects
-    // Also add an option that makes it click anyway, if the knockback is large enough to combo you
     private val usePredictedTargetHurtTime by boolean("UsePredictedTargetHurtTime", true)
     private val attackDelay by int("AttackDelay", 10, 0..10)
     private val experimentalChecks by boolean("ExperimentalChecks", true)
     private val notAboveRange by float("NotAboveRange", 2.7f, 0f..8f, suffix = "blocks")
     private val notAbovePredRange by float("NotAbovePredictedRange", 2.8f, 0f..8f, suffix = "blocks")
     private val checkForCriticalHits by boolean("CheckForCriticalHits", true)
-    private val checkForBlockedHits by boolean("CheckForBlockedlHits", true)
+    private val checkForBlockedHits by boolean("CheckForBlockedHits", true)
     private val notBelowOwnHealth by float("NotBelowOwnHealth", 5f, 0f..20f)
     private val notBelowEnemyHealth by float("NotBelowEnemyHealth", 5f, 0f..20f)
     private val notOnEdge by boolean("NotOnEdge", false)
     private val notOnEdgeLimit by float("NotOnEdgeLimit", 1f, 0f..8f, suffix = "blocks") { notOnEdge }
 
-    // Change these values to your preference; you should fine-tune PredictEnemyPosition for each server,
-    // since they are all slightly different
     private val predictClientMovement by int("PredictClientMovement", 5, 0..5, suffix = "ticks")
     private val predictEnemyPosition by float("PredictEnemyPosition", 1.5f, 0f..2f)
 
-    // Allows you to alter how strong the simulated knockback is
     private val simulateKnockback by boolean("SimulateKnockback", true)
     private val simulatedHorizontalKnockback by floatRange("SimulatedHorizontalKnockback", 0.88f..1f, 0f..4f)
     private val simulatedVerticalKnockback by floatRange("SimulatedVerticalKnockback", 0.4f..0.5f, 0f..2f)
@@ -68,18 +63,9 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         val targetPlayer = target as EntityPlayer
 
         val playerPing = (player as EntityPlayer).getPing()
-        // Note that this is rounded up because a single millisecond after a tick makes a huge difference
         val playerLatencyInTicks = playerPing.ceilDiv(2).ceilDiv(20)
         val targetHurtTime = targetPlayer.hurtTime
 
-        /*
-         * This is the code responsible for client-side target hurttime checking
-         * Say you have 200 milliseconds ping; in about half that time (100 milliseconds, AKA 2 ticks), the packet will be received by the server; in the other half,
-         * you will see the attack itself. As such, you are seeing what has took 4 ticks in total, 2 of those until it registers.
-         *
-         * Having it in this manner allows SmartHit to more-or-less know the server's target hurttime,
-         * whilst allowing you to disable it, if any servers have issues with it
-         */
         simTargetHurtTime = targetHurtTime - playerLatencyInTicks
 
         simTargetHurtTime = if (usePredictedTargetHurtTime)
@@ -92,10 +78,6 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
         lastHitCrit = canCritHit(player)
         lastHitBlocked = targetPlayer.isBlocking
-
-        // A failsafe to compensate for cases in which a server blocks your hit
-        if (ticksSinceHit > playerLatencyInTicks && targetHurtTime == 0)
-            hitOnTheWay = false
     }
 
     val onGameTick = handler<GameTickEvent> { event ->
@@ -104,37 +86,14 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
     }
 
     fun shouldHit(target: Entity): Boolean {
-        /*
-         * This is the code responsible for SmartHit.
-         *
-         * This would optimally have calculations for every tick, and simulate when you can or cannot hit.
-         * It can get more complicated than that, though, since both the player and the target can do plenty of things
-         * that affect calculations, rendering them inaccurate - as such, this would take more than the current code.
-         * If you can hit now but not in the next tick (or in the one after), that means you should hit now, and continue reducing
-         * to not get comboed.
-         *
-         * No edge case has been implemented that does (at the very least) rudimentary future knockback calculations, which should be
-         * as customizable as possible, to be accurate on all servers (given the right config, of course).
-         *
-         * Currently, however, it only checks the ticks ahead as defined by PredictClientMovement, due to performance and code complexity concerns
-         *
-         * Credits to all the Raven versions, Augustus, and Vape for some of these ideas!
-         */
         val player = mc.thePlayer ?: return false
 
-        // Latency affects many things, so it is worth to be included in our calculations
         val playerPing = (player as EntityPlayer).getPing()
+        val playerLatencyInTicks = playerPing.ceilDiv(2).ceilDiv(20)
         val targetPing = (target as EntityPlayer).getPing()
         val combinedPing = playerPing + targetPing
         val combinedPingMult = combinedPing.toFloat() / 100f
 
-        /*
-         * The combat range of a player is a beam starting from the eyes.
-         * This gives a low ground advantage, which can only be calculated in this manner.
-         * As such, calculating both distances is paramount for good hit selecting.
-         *
-         * One thing is missing, for now; that is, also predicting the true POV of the target.
-         */
         val distance = player.getDistanceToEntityBox(target)
         val targetDistance = target.getDistanceToEntityBox(player)
 
@@ -149,38 +108,24 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
         val targetHittable = simTargetHurtTime <= 10 - attackDelay
 
+        if (ticksSinceHit > playerLatencyInTicks && target.hurtTime == 0)
+            hitOnTheWay = false
+
         if (targetHittable) {
             lastHitCrit = false
             hitOnTheWay = false
         }
 
-        /*
-         * If a target is running or cannot hit you, it is not beneficial to hit more than required (i.e. when the target can be hit), since the slowdown
-         * will make it much harder to properly chase the target, and in the latter case, the opponent will be confused by your movements.
-         *
-         * A great idea would be to have this as an integer (chance that the target will hit you), and let the user
-         * decide when it should spam hit or time hits. Additionally, it should predict if the target is holding S, and also time hits if so.
-         */
         val rotDiff = rotationDifference(
             toRotation(player.hitBox.center, true, target!!),
             target.rotation
         )
 
-        /*
-         * This is only here because it is very difficult to have proper rotation prediction, and latency makes it so,
-         * even if a target is not looking at your latest pos client-sidedly (because that is a past rotation), that target can still hit you.
-         * As such, it's better to have it like this.
-         *
-         * Another alternative is to keep a list of previous positions, and figure out if the target is aiming at one of them,
-         * presumably the one from the visual delay ago (let's initially assume combined ping, and then adjust).
-         */
         val targetCanHit = rotDiff < 22f + (10f * combinedPingMult) && !target.hitBox.isVecInside(player.eyes)
         val targetHitLikely = targetCanHit && !target.isUsingItem && targetDistance < 3.08f
 
         val simDistance = simulateDistance(simPlayer, target, simulateKnockback && targetHitLikely)
 
-        // The ground ticks and simPlayer checks are there since you stay on ground for a tick, before being able to jump
-        // This does not account for getting hit, either
         val groundHit =
             player.onGround && player.groundTicks > 1 && simPlayer.onGround &&
             targetHittable && !hitOnTheWay
@@ -189,34 +134,18 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
             (targetHittable && !hitOnTheWay) ||
             (checkForCriticalHits && canCritHit(player) && !lastHitCrit)
 
-        // Many magic numbers, but this is the best implementation I've done, so far
         val baseHurtTime = 3f / (1f + sqrt(distance) - (rotDiff / 180f))
         val hurtTimeNoEscape = (2 * distance * 8).toInt() / 10
             
         val shouldHit = when {
-            // This currently does not account for burst clicking, timed hits, zest tapping, etc, but it is a start
             groundHit || airHit -> true
-
             checkForBlockedHits && lastHitBlocked && !target.isBlocking -> true
-
             experimentalChecks && (distance > notAboveRange || simDistance > notAbovePredRange) && player.hurtTime !in hurtTimeNoEscape..8 && targetHitLikely -> true
-
-            // Hits the opponent when the opponent can't hit you; should give plenty of free hits
             experimentalChecks && targetDistance > 3.05f && targetHittable -> true
-
-            // Panic hitting is also not a very good idea either, n'est-ce pas?
             player.health < notBelowOwnHealth -> true
-
-            // TODO: Instead, calculate whether you can 1-tap your opponent
-            // ItemStack.attackDamage defenseFactor
             target.health < notBelowEnemyHealth -> true
-
-            // If you are near an edge, you should hit as much as possible to reduce received knockback
-            // TODO: Check if the target is near an edge; if so, you can also spam hit to deal as much knockback as possible
             notOnEdge && player.isNearEdge(notOnEdgeLimit) -> true
-
             target.isDead -> false
-
             else -> false
         }
 
@@ -225,7 +154,6 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         return shouldHit
     }
 
-    // TODO: Maybe turn this into a util, as it is commonly used
     private fun simulateDistance(simPlayer: SimulatedPlayer, target: Entity, simulateKnockback: Boolean): Double {
         val player = mc.thePlayer ?: return 0.0
 
@@ -233,21 +161,16 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
             target.currPos.subtract(target.prevPos).times(predictEnemyPosition.toDouble())
         )
 
-        // The <= is there because the method used to calculate the hurtTime can go to negatives
-        if (simulateKnockback && simHurtTime <= 10 - attackDelay) simulateOwnKnockback(simPlayer, target)
+        if (simulateKnockback && simHurtTime <= 10 - attackDelay)
+            simulateOwnKnockback(simPlayer, target)
 
         val (currPos, prevPos) = player.currPos to player.prevPos
-
         player.setPosAndPrevPos(simPlayer.pos)
-
         val distance = player.getDistanceToBox(targetBox)
-
         player.setPosAndPrevPos(currPos, prevPos)
-
         return distance
     }
 
-    // If you are "falling" (as in fallDistance > 0; it doesn't reset when you go up, only when on ground), you can land critical hits
     private fun canCritHit(player: EntityPlayer): Boolean =
         player.fallDistance > 0 &&
         !player.isOnLadder &&
@@ -256,18 +179,13 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         player.ridingEntity == null
 
     private fun simulateOwnKnockback(simPlayer: SimulatedPlayer, target: Entity) {
-        /*
-         * This is an extremely hacky way of simulating the knockback you will take,
-         * and does not account for knockback enchantments, future positions, or anything else of the sort.
-         */
-        val targetYaw = target.rotationYaw * (PI.toFloat() / 180.0f)
         val modifier = simulatedHorizontalKnockback.random()
+        val fullModifier = (target.rotationYaw * (PI.toFloat() / 180.0f)) * modifier * 0.5f
 
-        val knockbackX = -MathHelper.sin(targetYaw * modifier * 0.5f)
-        val knockbackY = simulatedHorizontalKnockback.random()
-        val knockbackZ = MathHelper.cos(targetYaw * modifier * 0.5f)
+        val knockbackX = -MathHelper.sin(fullModifier)
+        val knockbackY = simulatedVerticalKnockback.random()
+        val knockbackZ = MathHelper.cos(fullModifier)
 
-        // Apply knockback
         simPlayer.apply {
             motionX += knockbackX
             motionY += knockbackY
@@ -276,8 +194,6 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
         if (debug) chat("(SmartHit) Simulated knockback. X: ${knockbackX}, Y + vertical modifier: ${knockbackY}, Z: ${knockbackZ}, horizontal modifier: ${modifier}")
 
-        // It is expected that, if this reduces, it will be like the normal damage cycle
-        // However, SmartHit going out of range, this, that, may break this
         simHurtTime = attackDelay
     }
 }

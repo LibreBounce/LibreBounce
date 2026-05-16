@@ -8,18 +8,26 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 ### Added
 
+- **Breaking:** Aimbot recode, now having more maintainable code, along with more features (thatonecoder)
 - CombatJump module; jumps at the right time to gain higher momentum in fights (thatonecoder)
 - `UsePredictedTargetHurtTime`, along with client-side target hurttime checking based on latency rounded upwards and a hit detection fail-safe to SmartHit (thatonecoder)
 - `ExperimentalChecks`, `CheckForCriticalHits` (both previously hardcoded on), and `CheckForBlockedHits` to SmartHit (thatonecoder)
-- `SimulateKnockback`, `SimulatedHorizontalKnockback`. and `SimulatedVerticalKnockback` values to SmartHit (thatonecoder)
+- `SimulateKnockback`, `SimulatedHorizontalKnockback`, and `SimulatedVerticalKnockback` values to SmartHit (thatonecoder)
 - `AttackableOnHurtTime`, `FlushAttackableOnHurtTime`, `FlushOnOwnHurtTime`, and `HurtTimeToFlush` values to Backtrack (thatonecoder)
+- `UseDelayMultiplier` to SuperKnockback; previously hardcoded (thatonecoder)
 - `BlockMaxEnemyRange` value to KillAura (thatonecoder)
 - `OnlySprinting` option to the Jump mode in Velocity; previously hardcoded (thatonecoder)
+
+### Fixed
+
+- `OnlyMoveForward` still applying when `OnlyMove` is off, in SuperKnockback (thatonecoder)
+- Distance checking in Backtrack using `>=` instead of `>`, leading to unnecessary activations (thatonecoder)
 
 ### Changed
 
 - **Breaking:** Rename the Legacy mode `Delay` to `LegacyDelay`, in Backtrack (thatonecoder)
 - **Breaking:** Rename `AttackableHurtTime` to `AttackDelay` in SmartHit, also changing how it works (thatonecoder)
+- **Breaking:** Change `HurtTime` from an integer to an integer range value, in SuperKnockback (thatonecoder)
 - Heavily cleaned up the SmartHit code, along with completion the critical hit check in SmartHit (thatonecoder)
 - Improve Backtrack debugging (thatonecoder)
 
