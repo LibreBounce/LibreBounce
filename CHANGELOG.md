@@ -8,6 +8,7 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 ### Added
 
+- **Breaking:** Aimbot recode, now having more maintainable code, along with more features (thatonecoder)
 - CombatJump module; jumps at the right time to gain higher momentum in fights (thatonecoder)
 - `UsePredictedTargetHurtTime`, along with client-side target hurttime checking based on latency rounded upwards and a hit detection fail-safe to SmartHit (thatonecoder)
 - `ExperimentalChecks`, `CheckForCriticalHits` (both previously hardcoded on), and `CheckForBlockedHits` to SmartHit (thatonecoder)
