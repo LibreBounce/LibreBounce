@@ -78,9 +78,6 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
         lastHitCrit = canCritHit(player)
         lastHitBlocked = targetPlayer.isBlocking
-
-        if (ticksSinceHit > playerLatencyInTicks && targetHurtTime == 0)
-            hitOnTheWay = false
     }
 
     val onGameTick = handler<GameTickEvent> { event ->
@@ -92,6 +89,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         val player = mc.thePlayer ?: return false
 
         val playerPing = (player as EntityPlayer).getPing()
+        val playerLatencyInTicks = playerPing.ceilDiv(2).ceilDiv(20)
         val targetPing = (target as EntityPlayer).getPing()
         val combinedPing = playerPing + targetPing
         val combinedPingMult = combinedPing.toFloat() / 100f
@@ -109,6 +107,9 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         }
 
         val targetHittable = simTargetHurtTime <= 10 - attackDelay
+
+        if (ticksSinceHit > playerLatencyInTicks && target.hurtTime == 0)
+            hitOnTheWay = false
 
         if (targetHittable) {
             lastHitCrit = false
