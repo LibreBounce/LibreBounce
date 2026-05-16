@@ -102,7 +102,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
     val onPacket = handler<PacketEvent> { event ->
         val packet = event.packet
 
-        if (TickBase.duringTickModification && mode == "Modern") {
+        if (TickBase.duringTickModification) {
             clearPackets(stopRendering = false)
             return@handler
         }
@@ -320,18 +320,6 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
         }
     }
 
-    val onEntityMove = handler<EntityMovementEvent> { event ->
-        if (mode == "Legacy" && legacyPos == "ClientPos") {
-            val entity = event.movedEntity
-
-            // Check if entity is a player
-            if (entity is EntityPlayer) {
-                // Add new data
-                addBacktrackData(entity.uniqueID, entity.posX, entity.posY, entity.posZ, System.currentTimeMillis())
-            }
-        }
-    }
-
     val onWorld = handler<WorldEvent> { event ->
         // Clear packets on disconnect only
         // Set target to null on world change
@@ -438,41 +426,8 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
 
     private fun removeBacktrackData(id: UUID) = backtrackedPlayer.remove(id)
 
-    /**
-     * This function will return the nearest tracked range of an entity.
-     */
-    fun getNearestTrackedDistance(entity: Entity): Double {
-        var nearestRange = 0.0
-
-        loopThroughBacktrackData(entity) {
-            val range = entity.getDistanceToEntityBox(mc.thePlayer)
-
-            if (range < nearestRange || nearestRange == 0.0) {
-                nearestRange = range
-            }
-
-            false
-        }
-
-        return nearestRange
-    }
-
     fun <T> runWithNearestTrackedDistance(entity: Entity, f: () -> T): T {
-        if (entity !is EntityPlayer || !handleEvents() || mode == "Modern") {
-            return f()
-        }
-
-        var backtrackDataArray = getBacktrackData(entity.uniqueID)?.toMutableList() ?: return f()
-
-        backtrackDataArray = backtrackDataArray.sortedBy { (x, y, z, _) ->
-            runWithSimulatedPosition(entity, Vec3(x, y, z)) {
-                mc.thePlayer.getDistanceToBox(entity.hitBox)
-            }
-        }.toMutableList()
-
-        val (x, y, z, _) = backtrackDataArray.first()
-
-        return runWithSimulatedPosition(entity, Vec3(x, y, z)) { f() } ?: f() // Edge case
+        return f()
     }
 
     fun <T> runWithSimulatedPosition(entity: Entity, vec3: Vec3, f: () -> T?): T? {
