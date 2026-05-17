@@ -548,7 +548,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             if (cps.last > 0) clicks++
             attackTimer.reset()
 
-            attackDelay = randomClickDelay(cps.first, cps.last)
+            attackDelay = randomClickDelay(cps.first)
         }
 
         val hittableColor = if (hittable) markHittableColor else markColor
