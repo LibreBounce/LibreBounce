@@ -5,8 +5,7 @@
  */
 package net.ccbluex.liquidbounce.utils.timing
 
-import net.ccbluex.liquidbounce.config.IntRangeValue.first
-import net.ccbluex.liquidbounce.config.IntRangeValue.last
+import net.ccbluex.liquidbounce.config.IntRangeValue
 import net.ccbluex.liquidbounce.utils.extensions.safeDiv
 import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.nextInt
 import kotlin.math.roundToInt
@@ -21,6 +20,6 @@ object TimeUtils {
     }
 
     fun randomClickDelay(cps: IntRangeValue): Int {
-        return randomClickDelay(cps.first, cps.last)
+        return randomClickDelay(cps.get().first, cps.get().last)
     }
 }
