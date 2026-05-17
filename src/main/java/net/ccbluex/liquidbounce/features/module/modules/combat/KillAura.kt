@@ -548,7 +548,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             if (cps.last > 0) clicks++
             attackTimer.reset()
 
-            attackDelay = randomClickDelay(cps.first)
+            attackDelay = randomClickDelay(cps)
         }
 
         val hittableColor = if (hittable) markHittableColor else markColor
@@ -998,21 +998,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
         var checkNormally = true
 
-        if (Backtrack.handleEvents()) {
-            Backtrack.loopThroughBacktrackData(targetToCheck) {
-                var result = false
-
-                checkIfAimingAtBox(targetToCheck, currentRotation, eyes, onSuccess = {
-                    checkNormally = false
-
-                    result = true
-                }, onFail = {
-                    result = false
-                })
-
-                return@loopThroughBacktrackData result
-            }
-        } else if (ForwardTrack.handleEvents()) {
+        if (ForwardTrack.handleEvents()) {
             ForwardTrack.includeEntityTruePos(targetToCheck) {
                 checkIfAimingAtBox(targetToCheck, currentRotation, eyes, onSuccess = { checkNormally = false })
             }
