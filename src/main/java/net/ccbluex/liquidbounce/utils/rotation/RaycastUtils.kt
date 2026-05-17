@@ -5,8 +5,6 @@
  */
 package net.ccbluex.liquidbounce.utils.rotation
 
-import net.ccbluex.liquidbounce.features.module.modules.combat.Backtrack
-import net.ccbluex.liquidbounce.features.module.modules.combat.Backtrack.loopThroughBacktrackData
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.getVectorForRotation
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.isVisible
@@ -81,8 +79,6 @@ object RaycastUtils : MinecraftInstance {
 
             // Check newest entity first
             checkEntity()
-            if (Backtrack.mode == "Legacy")
-                loopThroughBacktrackData(entity, checkEntity)
         }
 
         return pointedEntity
