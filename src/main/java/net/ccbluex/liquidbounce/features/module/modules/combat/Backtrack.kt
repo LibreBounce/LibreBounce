@@ -154,11 +154,11 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
                 return@handler
             }
 
-                is S19PacketEntityStatus -> if (packet.entityId == target?.entityId) return@handler
-            }
+            is S19PacketEntityStatus -> if (packet.entityId == target?.entityId) return@handler
+        }
 
-            // Cancel every received packet to avoid possible server synchronization issues from random causes.
-            if (event.eventType == EventState.RECEIVE) {
+        // Cancel every received packet to avoid possible server synchronization issues from random causes.
+        if (event.eventType == EventState.RECEIVE) {
             //if (packetMode == "Sent") return@handler
 
             when (packet) {
@@ -331,7 +331,6 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
 
     override fun onDisable() {
         clearPackets()
-        backtrackedPlayer.clear()
     }
 
     private fun handlePackets() {
@@ -401,30 +400,6 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
             ignoreWholeTick = true
         }
     }
-
-    private fun addBacktrackData(id: UUID, x: Double, y: Double, z: Double, time: Long) {
-        // Get backtrack data of player
-        val backtrackData = getBacktrackData(id)
-
-        // Check if there is already data of the player
-        if (backtrackData != null) {
-            // Check if there is already enough data of the player
-            if (backtrackData.size >= maximumCachedPositions) {
-                // Remove first data
-                backtrackData.removeFirst()
-            }
-
-            // Insert new data
-            backtrackData += BacktrackData(x, y, z, time)
-        } else {
-            // Create new list
-            backtrackedPlayer[id] = mutableListOf(BacktrackData(x, y, z, time))
-        }
-    }
-
-    private fun getBacktrackData(id: UUID) = backtrackedPlayer[id]
-
-    private fun removeBacktrackData(id: UUID) = backtrackedPlayer.remove(id)
 
     fun <T> runWithNearestTrackedDistance(entity: Entity, f: () -> T): T {
         return f()
