@@ -20,6 +20,6 @@ object TimeUtils {
     }
 
     fun randomClickDelay(cps: IntRange): Int {
-        return randomClickDelay(cps.get().first, cps.get().last)
+        return randomClickDelay(cps.first, cps.last)
     }
 }
