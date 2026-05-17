@@ -32,13 +32,13 @@ import kotlin.random.Random.Default.nextBoolean
 object AutoClicker : Module("AutoClicker", Category.COMBAT) {
 
     private val simulateDoubleClicking by boolean("SimulateDoubleClicking", false)
-    private val cps by intRange("CPS", 5..8, 1..50)
+    private val left by boolean("Left", true)
+    private val leftCPS by intRange("LeftCPS", 5..8, 1..50) { left }
 
     private val hurtTime by int("HurtTime", 10, 0..10) { left && !SmartHit.handleEvents() }
 
-    private val right by boolean("Right", true)
-    private val left by boolean("Left", true)
-    private val jitter by boolean("Jitter", false)
+    private val breakBlocks by boolean("BreakBlocks", true)
+
     private val block by boolean("AutoBlock", false) { left }
     private val blockDelay by int("BlockDelay", 50, 0..100, suffix = "ms") { block }
 
@@ -46,19 +46,19 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT) {
     private val maxAngleDifference by float("MaxAngleDifference", 30f, 10f..180f, suffix = "º") { left && requiresNoInput }
     private val range by float("Range", 3f, 0.1f..5f, suffix = "blocks") { left && requiresNoInput }
 
+    private val right by boolean("Right", true)
+    private val rightCPS by intRange("RightCPS", 5..8, 1..50) { right }
     private val onlyBlocks by boolean("OnlyBlocks", true) { right }
 
-    private var rightDelay = generateNewClickTime()
+    private var rightDelay = generateNewClickTime(rightCPS)
     private var rightLastSwing = 0L
-    private var leftDelay = generateNewClickTime()
+    private var leftDelay = generateNewClickTime(leftCPS)
     private var leftLastSwing = 0L
 
     private var lastBlocking = 0L
 
     private val shouldAutoClick
-        get() = mc.thePlayer.capabilities.isCreativeMode || !mc.objectMouseOver.typeOfHit.isBlock
-
-    private var shouldJitter = false
+        get() = mc.thePlayer.capabilities.isCreativeMode || (!breakBlocks || !mc.objectMouseOver.typeOfHit.isBlock)
 
     private var target: EntityLivingBase? = null
 
@@ -74,9 +74,6 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT) {
         val targetEntity = event.targetEntity as EntityLivingBase
 
         target = targetEntity
-
-        // TODO: Cancel from here, instead of having a per-module system; this may additionally allow for compatibility
-        // with AutoClicker, TriggerBot, and even KillAura modules from other clients
     }
 
     val onRender3D = handler<Render3DEvent> {
@@ -104,26 +101,13 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT) {
                     handleBlock(time)
                 }
             } else {
-                if (left && mc.gameSettings.keyBindAttack.isKeyDown && !mc.gameSettings.keyBindUseItem.isKeyDown && shouldAutoClick && time - leftLastSwing >= leftDelay) {
+                if (left && mc.gameSettings.keyBindAttack.isKeyDown && !mc.gameSettings.keyBindUseItem.isKeyDown &&
+                    shouldAutoClick && time - leftLastSwing >= leftDelay
+                ) {
                     handleLeftClick(time, doubleClick)
                 } else if (block && mc.gameSettings.keyBindAttack.isKeyDown && !mc.gameSettings.keyBindUseItem.isKeyDown && shouldAutoClick && shouldAutoRightClick() && mc.gameSettings.keyBindAttack.pressTime != 0) {
                     handleBlock(time)
                 }
-            }
-        }
-    }
-
-    val onTick = handler<UpdateEvent> {
-        mc.thePlayer?.run {
-            shouldJitter = !mc.objectMouseOver.typeOfHit.isBlock &&
-                    (isSwingInProgress || mc.gameSettings.keyBindAttack.pressTime != 0)
-
-            if (jitter && ((left && shouldAutoClick && shouldJitter)
-                        || (right && !isUsingItem && mc.gameSettings.keyBindUseItem.isKeyDown
-                        && (!onlyBlocks || (onlyBlocks && heldItem?.item is ItemBlock))))
-            ) {
-                if (nextBoolean()) fixedSensitivityYaw += nextFloat(-1F, 1F)
-                if (nextBoolean()) fixedSensitivityPitch += nextFloat(-1F, 1F)
             }
         }
     }
@@ -139,7 +123,7 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT) {
     private fun shouldAutoRightClick() = mc.thePlayer.heldItem?.itemUseAction in arrayOf(EnumAction.BLOCK)
 
     private fun handleLeftClick(time: Long, doubleClick: Int) {
-        val shouldHit = (target != null && if (SmartHit.handleEvents()) SmartHit.shouldHit(target!!) else target!!.hurtTime <= hurtTime) || target == null
+        val shouldHit = target == null || if (SmartHit.handleEvents()) SmartHit.shouldHit(target!!) else target!!.hurtTime <= hurtTime
 
         if (!shouldHit) return
 
@@ -147,7 +131,7 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT) {
             KeyBinding.onTick(mc.gameSettings.keyBindAttack.keyCode)
 
             leftLastSwing = time
-            leftDelay = generateNewClickTime()
+            leftDelay = generateNewClickTime(leftCPS)
         }
     }
 
@@ -156,7 +140,7 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT) {
             KeyBinding.onTick(mc.gameSettings.keyBindUseItem.keyCode)
 
             rightLastSwing = time
-            rightDelay = generateNewClickTime()
+            rightDelay = generateNewClickTime(rightCPS)
         }
     }
 
@@ -167,6 +151,4 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT) {
             lastBlocking = time
         }
     }
-
-    fun generateNewClickTime() = randomClickDelay(cps.first, cps.last)
 }
