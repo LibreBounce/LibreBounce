@@ -50,9 +50,9 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT) {
     private val rightCPS by intRange("RightCPS", 5..8, 1..50) { right }
     private val onlyBlocks by boolean("OnlyBlocks", true) { right }
 
-    private var rightDelay = generateNewClickTime(rightCPS)
+    private var rightDelay = randomClickDelay(rightCPS)
     private var rightLastSwing = 0L
-    private var leftDelay = generateNewClickTime(leftCPS)
+    private var leftDelay = randomClickDelay(leftCPS)
     private var leftLastSwing = 0L
 
     private var lastBlocking = 0L
@@ -131,7 +131,7 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT) {
             KeyBinding.onTick(mc.gameSettings.keyBindAttack.keyCode)
 
             leftLastSwing = time
-            leftDelay = generateNewClickTime(leftCPS)
+            leftDelay = randomClickDelay(leftCPS)
         }
     }
 
@@ -140,7 +140,7 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT) {
             KeyBinding.onTick(mc.gameSettings.keyBindUseItem.keyCode)
 
             rightLastSwing = time
-            rightDelay = generateNewClickTime(rightCPS)
+            rightDelay = randomClickDelay(rightCPS)
         }
     }
 
