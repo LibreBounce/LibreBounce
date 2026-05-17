@@ -138,11 +138,6 @@ object RaycastUtils : MinecraftInstance {
 
                 boxes.add(entity1.entityBoundingBox.expand(f1.toDouble(), f1.toDouble(), f1.toDouble()))
 
-                loopThroughBacktrackData(entity1) {
-                    boxes.add(entity1.entityBoundingBox.expand(f1.toDouble(), f1.toDouble(), f1.toDouble()))
-                    false
-                }
-
                 for (box in boxes) {
                     val intercept = box.calculateIntercept(vec3, vec32)
 
