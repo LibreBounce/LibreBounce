@@ -177,7 +177,6 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
                 if (player.isSprinting && player.serverSprintState && !GameSettings.isKeyDown(mc.gameSettings.keyBindSneak) && !mc.gameSettings.keyBindSneak.pressed) {
                     mc.gameSettings.keyBindSneak.pressed = true
                     sneakInputTicks = sneakTicks.random()
-                    sneakTimer.update()
                 }
             }
 
@@ -253,6 +252,8 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
             }
 
             "Sneak" -> {
+                sneakTimer.update()
+
                 if (mc.gameSettings.keyBindSneak.pressed && !GameSettings.isKeyDown(mc.gameSettings.keyBindSneak) && sneakTimer.hasTimePassed(sneakInputTicks)) {
                     mc.gameSettings.keyBindSneak.pressed = false
                     sneakTimer.reset()
