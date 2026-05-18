@@ -82,7 +82,7 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
 
     // Sneak
     private val sneakTimer = TickTimer()
-    private val sneakInputTicks = sneakTicks.random()
+    private var sneakInputTicks = sneakTicks.random()
 
     // SprintTap2
     private var sprintTicks = 0
