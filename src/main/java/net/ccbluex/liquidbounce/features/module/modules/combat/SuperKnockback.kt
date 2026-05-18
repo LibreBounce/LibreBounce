@@ -176,11 +176,11 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
                 if (player.isSprinting && player.serverSprintState) {        
                     if (!player.isSneaking) {
                         player.isSneaking = true
-                    } else if (sneakTimer.hasTimePassed(sneakInputTicks) {
+                    } else if (sneakTimer.hasTimePassed(sneakInputTicks)) {
                         player.isSneaking = false
                         sneakTimer.reset()
                     }
-                }    
+                }
             }
 
             "SprintTap2" -> {
