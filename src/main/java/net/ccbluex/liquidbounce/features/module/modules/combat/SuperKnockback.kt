@@ -80,6 +80,7 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
     private var ticksElapsed = 0
 
     // Sneak
+    private val sneakInputTicks = sneakTicks.random()
     private val sneakTimer = TickTimer()
 
     // SprintTap2
@@ -172,16 +173,14 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
             }
 
             "Sneak" -> {
-                if (player.isSprinting && player.serverSprintState) {
-                    sneakTicks = sneakTicks.random()
-        
-                    if (!player.isSneaking)
+                if (player.isSprinting && player.serverSprintState) {        
+                    if (!player.isSneaking) {
                         player.isSneaking = true
-                    else if (sneakTimer.hasTimePassed(sneakTicks) {
+                    } else if (sneakTimer.hasTimePassed(sneakInputTicks) {
                         player.isSneaking = false
                         sneakTimer.reset()
                     }
-                }
+                }    
             }
 
             "SprintTap2" -> {
