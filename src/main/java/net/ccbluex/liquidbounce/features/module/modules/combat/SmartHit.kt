@@ -97,6 +97,8 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         val distance = player.getDistanceToEntityBox(target)
         val targetDistance = target.getDistanceToEntityBox(player)
 
+        val targetHurtTime = (target as EntityPlayer).hurtTime
+    
         val simPlayer = SimulatedPlayer.fromClientPlayer(RotationUtils.modifiedInput)
         simHurtTime = player.hurtTime
 
