@@ -21,6 +21,7 @@ import net.minecraft.entity.EntityLivingBase
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.client.C0BPacketEntityAction
 import net.minecraft.network.play.client.C0BPacketEntityAction.Action.*
+import net.minecraft.client.settings.GameSettings
 import kotlin.math.abs
 
 object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
@@ -176,8 +177,9 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
                 if (player.isSprinting && player.serverSprintState && !GameSettings.isKeyDown(mc.gameSettings.keyBindSneak)) {        
                     if (!mc.gameSettings.keyBindSneak.pressed) {
                         mc.gameSettings.keyBindSneak.pressed = true
+                        sneakTimer.update()
                     } else if (sneakTimer.hasTimePassed(sneakInputTicks)) {
-                        mc.gameSettings.keyBindSneak.pressed = = false
+                        mc.gameSettings.keyBindSneak.pressed = false
                         sneakTimer.reset()
                     }
                 }
