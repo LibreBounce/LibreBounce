@@ -108,8 +108,10 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
         val targetHittable = simTargetHurtTime <= 10 - attackDelay
 
-        if (ticksSinceHit > playerLatencyInTicks && target.hurtTime == 0)
-            hitOnTheWay = false
+        if (ticksSinceHit > playerLatencyInTicks) {
+            if (targetHurtTime < 10 - attackDelay) hitOnTheWay = false 
+            else if (targetHurtTime > 8) ticksSinceHit = 0
+        }
 
         if (targetHittable) {
             lastHitCrit = false
@@ -139,6 +141,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
             
         val shouldHit = when {
             groundHit || airHit -> true
+            distance > notAboveRange || simDistance > notAbovePredRange -> true
             checkForBlockedHits && lastHitBlocked && !target.isBlocking -> true
             experimentalChecks && (distance > notAboveRange || simDistance > notAbovePredRange) && player.hurtTime !in hurtTimeNoEscape..8 && targetHitLikely -> true
             experimentalChecks && targetDistance > 3.05f && targetHittable -> true
