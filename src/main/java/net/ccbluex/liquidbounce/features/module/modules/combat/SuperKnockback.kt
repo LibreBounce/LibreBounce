@@ -174,7 +174,7 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
             }
 
             "Sneak" -> {
-                if (player.isSprinting && player.serverSprintState && mc.gameSettings.keyBindSneak.pressed) {
+                if (player.isSprinting && player.serverSprintState && !mc.gameSettings.keyBindSneak.pressed) {
                     mc.gameSettings.keyBindSneak.pressed = true
                     sneakTimer.update()
                 } else if (mc.gameSettings.keyBindSneak.pressed && sneakTimer.hasTimePassed(sneakInputTicks)) {
