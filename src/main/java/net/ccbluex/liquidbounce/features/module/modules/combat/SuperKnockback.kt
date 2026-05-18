@@ -174,12 +174,10 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
             }
 
             "Sneak" -> {
-                if (player.isSprinting && player.serverSprintState && !mc.gameSettings.keyBindSneak.pressed) {
+                if (player.isSprinting && player.serverSprintState && !GameSettings.isKeyDown(mc.gameSettings.keyBindSneak) && !mc.gameSettings.keyBindSneak.pressed) {
                     mc.gameSettings.keyBindSneak.pressed = true
+                    sneakInputTicks = sneakTicks.random()
                     sneakTimer.update()
-                } else if (mc.gameSettings.keyBindSneak.pressed && sneakTimer.hasTimePassed(sneakInputTicks)) {
-                    mc.gameSettings.keyBindSneak.pressed = false
-                    sneakTimer.reset()
                 }
             }
 
@@ -235,18 +233,29 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
     val onUpdate = handler<UpdateEvent> {
         if (mode != "WTap") return@handler
 
-        if (blockInput) {
-            if (ticksElapsed++ >= allowInputTicks) {
-                blockInput = false
-                ticksElapsed = 0
-            }
-        } else {
-            if (startWaiting) {
-                blockInput = blockTicksElapsed++ >= blockInputTicks
-
+        when (mode) {
+            "WTap" -> {
                 if (blockInput) {
-                    startWaiting = false
-                    blockTicksElapsed = 0
+                    if (ticksElapsed++ >= allowInputTicks) {
+                        blockInput = false
+                        ticksElapsed = 0
+                    }
+                } else {
+                    if (startWaiting) {
+                        blockInput = blockTicksElapsed++ >= blockInputTicks
+
+                        if (blockInput) {
+                            startWaiting = false
+                            blockTicksElapsed = 0
+                        }
+                    }
+                }
+            }
+
+            "Sneak" -> {
+                if (mc.gameSettings.keyBindSneak.pressed && !GameSettings.isKeyDown(mc.gameSettings.keyBindSneak) && sneakTimer.hasTimePassed(sneakInputTicks)) {
+                    mc.gameSettings.keyBindSneak.pressed = false
+                    sneakTimer.reset()
                 }
             }
         }
