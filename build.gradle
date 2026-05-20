@@ -41,7 +41,7 @@ configurations {
 }
 
 dependencies {
-    implementation("org.spongepowered:mixin:0.7.11-SNAPSHOT") {
+    implementation("org.spongepowered:mixin:0.8.7") {
         transitive = false
         exclude module: "guava"
         exclude module: "commons-io"
@@ -51,7 +51,7 @@ dependencies {
         exclude module: "slf4j-api"
     }
 
-    annotationProcessor("org.spongepowered:mixin:0.7.11-SNAPSHOT")
+    annotationProcessor("org.spongepowered:mixin:0.8.7")
 
     implementation("com.jagrosh:DiscordIPC:0.4")
 
