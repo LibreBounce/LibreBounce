@@ -28,8 +28,12 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 - **Breaking:** Rename the Legacy mode `Delay` to `LegacyDelay`, in Backtrack (thatonecoder)
 - **Breaking:** Rename `AttackableHurtTime` to `AttackDelay` in SmartHit, also changing how it works (thatonecoder)
 - **Breaking:** Change `HurtTime` from an integer to an integer range value, in SuperKnockback (thatonecoder)
+- **Breaking:** Split `CPS` in two, `LeftCPS` and `RightCPS`, in AutoClicker (thatonecoder)
 - Heavily cleaned up the SmartHit code, along with completion the critical hit check in SmartHit (thatonecoder)
 - Improve Backtrack debugging (thatonecoder)
+
+### Removed
+- `Jitter` option in AutoClicker (thatonecoder)
 
 ## [0.7.0-beta.1] - 2025-11-24
 
