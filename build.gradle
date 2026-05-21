@@ -63,7 +63,7 @@ dependencies {
     implementation("com.github.TheAltening:TheAltening4j:d0771f42d3")
     implementation("com.github.TheAltening:API-Java-AuthLib:63a9702615")
 
-    implementation("org.knowm.xchart:xchart:3.8.8")
+    implementation("org.knowm.xchart:xchart:4.0.0")
 
     // HTTP Client
     implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.16") {
