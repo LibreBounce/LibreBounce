@@ -462,13 +462,13 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
         val playerAllowed = when (ownHurtTimeHandling) {
                 "Allow" -> mc.thePlayer!!.hurtTime in ownHurtTime
                 "Forbid" -> mc.thePlayer!!.hurtTime !in ownHurtTime
-                "Ignore" -> true
+                else -> true
             }
 
         val targetAllowed = when (targetHurtTimeHandling) {
                 "Allow" -> target!!.hurtTime in targetHurtTime
                 "Forbid" -> target!!.hurtTime !in targetHurtTime
-                "Ignore" -> true
+                else -> true
             }
 
         return playerAllowed && targetAllowed
