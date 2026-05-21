@@ -53,12 +53,13 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
     //private val packetMode by choices("PacketMode", arrayOf("Sent", "Received", "Both"), "Both")
     private val distance by floatRange("Distance", 2f..3f, 0f..6f, suffix = "blocks")
     private val smart by boolean("Smart", true)
+    private val advantageTreshold by float("AdvantageTreshold", 0f, 0f..1f, suffix = "blocks") { smart }
 
-    private val attackableHurtTime by intRange("AttackableHurtTime", 0..1, 0..10)
-    private val flushOnAttackableHurtTime by boolean("FlushOnAttackableHurtTime", false)
+    private val targetHurtTimeHandling by choices("TargetHurtTimeHandling", arrayOf("Allow", "Forbid", "Ignore"), "Ignore")
+    private val targetHurtTime by intRange("TargetHurtTime", 0..1, 0..10) { targetHurtTimeHandling != "Ignore" }
 
-    private val flushOnOwnHurtTime by boolean("FlushOnOwnHurtTime", false)
-    private val hurtTimeToFlush by intRange("HurtTimeToFlush", 9..10, 0..10) { flushOnOwnHurtTime }
+    private val ownHurtTimeHandling by choices("OwnHurtTimeHandling", arrayOf("Allow", "Forbid", "Ignore"), "Ignore")
+    private val ownHurtTime by intRange("OwnHurtTime", 9..10, 0..10) { ownHurtTimeHandling != "Ignore" }
 
     // ESP
     private val espMode by choices(
@@ -72,6 +73,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
         ColorSettingsInteger(this, "ESPColor") { espMode != "Model" }.with(0, 255, 0)
 
     private val debug by boolean("Debug", false).subjective()
+    private val targetHurtTimeToDebug by intRange("TargetHurtTimeToDebug", 0..1, 0..10) { debug }
 
     private val packetQueue = ConcurrentLinkedQueue<QueueData>()
     private val positions = ConcurrentLinkedQueue<Pair<Vec3, Long>>()
@@ -189,7 +191,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
                 val trueDist = mc.thePlayer.getDistance(targetMixin.trueX, targetMixin.trueY, targetMixin.trueZ)
                 val dist = mc.thePlayer.getDistance(target.posX, target.posY, target.posZ)
 
-                if (trueDist <= 6f && (!smart || trueDist > dist) && (style == "Smooth" || !globalTimer.hasTimePassed(
+                if (trueDist <= 6f && (!smart || trueDist > dist + advantageTreshold) && (style == "Smooth" || !globalTimer.hasTimePassed(
                         supposedDelay
                     ))
                 ) {
@@ -198,7 +200,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
                     if (mc.thePlayer.getDistanceToEntityBox(target) in distance) {
                         handlePackets()
 
-                        if (debug && target.hurtTime in attackableHurtTime) chat("(Backtrack) Lag distance: ${dist}, true distance: ${trueDist}")
+                        if (debug && target.hurtTime in targetHurtTimeToDebug) chat("(Backtrack) Lag distance: ${dist}, true distance: ${trueDist}")
                     } else {
                         handlePacketsRange()
                     }
@@ -456,9 +458,25 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
     val color
         get() = espColor.color()
 
+    private fun onAllowedHurtTime() =
+        mc.thePlayer?.let {
+            when (ownHurtTimeHandling) {
+                "Allow" -> hurtTime in ownHurtTime
+                "Forbid" -> hurtTime !in ownHurtTime
+                "Ignore" -> true
+            }
+        } == true &&
+        target?.let {
+            when (targetHurtTimeHandling) {
+                "Allow" -> hurtTime in targetHurtTime
+                "Forbid" -> hurtTime !in targetHurtTime
+                "Ignore" -> true
+            }
+        } == true
+
     private fun shouldBacktrack() =
         mc.thePlayer != null && mc.theWorld != null && target != null && mc.thePlayer.health > 0 && (target!!.health > 0 || target!!.health.isNaN()) && mc.playerController.currentGameType != WorldSettings.GameType.SPECTATOR && System.currentTimeMillis() >= delayForNextBacktrack && target?.let {
-            isSelected(it, true) && (mc.thePlayer?.ticksExisted ?: 0) > 20 && !ignoreWholeTick && (target!!.hurtTime !in attackableHurtTime || !flushOnAttackableHurtTime) && (mc.thePlayer?.hurtTime !in hurtTimeToFlush || !flushOnOwnHurtTime)
+            isSelected(it, true) && (mc.thePlayer?.ticksExisted ?: 0) > 20 && !ignoreWholeTick && onAllowedHurtTime()
         } == true
 
     private fun reset() {
