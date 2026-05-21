@@ -40,6 +40,12 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
     private val notOnEdge by boolean("NotOnEdge", false)
     private val notOnEdgeLimit by float("NotOnEdgeLimit", 1f, 0f..8f, suffix = "blocks") { notOnEdge }
 
+    private val targetHurtTimeHandling by choices("TargetHurtTimeHandling", arrayOf("Allow", "Forbid", "Ignore"), "Ignore")
+    private val targetHurtTime by intRange("TargetHurtTime", 0..1, 0..10) { targetHurtTimeHandling != "Ignore" }
+
+    private val ownHurtTimeHandling by choices("OwnHurtTimeHandling", arrayOf("Allow", "Forbid", "Ignore"), "Ignore")
+    private val ownHurtTime by intRange("OwnHurtTime", 9..10, 0..10) { ownHurtTimeHandling != "Ignore" }
+
     private val predictClientMovement by int("PredictClientMovement", 5, 0..5, suffix = "ticks")
     private val predictEnemyPosition by float("PredictEnemyPosition", 1.5f, 0f..2f)
 
@@ -130,6 +136,18 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
         val simDistance = simulateDistance(simPlayer, target, simulateKnockback && targetHitLikely)
 
+        val playerAllowed = when (ownHurtTimeHandling) {
+            "Allow" -> player.hurtTime in ownHurtTime
+            "Forbid" -> player.hurtTime !in ownHurtTime
+            else -> false
+        }
+
+        val targetAllowed = when (targetHurtTimeHandling) {
+            "Allow" -> target.hurtTime in targetHurtTime
+            "Forbid" -> target.hurtTime !in targetHurtTime
+            else -> false
+        }
+    
         val groundHit =
             player.onGround && player.groundTicks > 1 && simPlayer.onGround &&
             targetHittable && !hitOnTheWay
@@ -151,7 +169,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
             target.health < notBelowEnemyHealth -> true
             notOnEdge && player.isNearEdge(notOnEdgeLimit) -> true
             target.isDead -> false
-            else -> false
+            else -> playerAllowed || targetAllowed
         }
 
         if (debug) chat("(SmartHit) Will hit: ${shouldHit}, hit on the way: ${hitOnTheWay}, last hit blocked: ${lastHitBlocked}, current distance: ${distance}, current distance (target POV): ${targetDistance}, predicted distance: ${simDistance}, combined ping: ${combinedPing}, combined ping multiplier: ${combinedPingMult}, rotation difference: ${rotDiff}, target hit likely: ${targetHitLikely}, own hurttime: ${player.hurtTime}, simulated own hurttime: ${simHurtTime}, target hurttime: ${target.hurtTime}, simulated target hurt time: ${simTargetHurtTime}, on ground: ${player.onGround}, predicted ground: ${simPlayer.onGround}, can critical hit: ${canCritHit(player)}")
