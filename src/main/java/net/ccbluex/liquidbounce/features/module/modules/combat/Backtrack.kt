@@ -458,21 +458,21 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
     val color
         get() = espColor.color()
 
-    private fun onAllowedHurtTime() =
-        mc.thePlayer?.let {
-            when (ownHurtTimeHandling) {
-                "Allow" -> hurtTime in ownHurtTime
-                "Forbid" -> hurtTime !in ownHurtTime
+    private fun onAllowedHurtTime(): Boolean {
+        val playerAllowed = when (ownHurtTimeHandling) {
+                "Allow" -> mc.thePlayer!!.hurtTime in ownHurtTime
+                "Forbid" -> mc.thePlayer!!.hurtTime !in ownHurtTime
                 "Ignore" -> true
             }
-        } == true &&
-        target?.let {
-            when (targetHurtTimeHandling) {
-                "Allow" -> hurtTime in targetHurtTime
-                "Forbid" -> hurtTime !in targetHurtTime
+
+        val targetAllowed = when (targetHurtTimeHandling) {
+                "Allow" -> target!!.hurtTime in targetHurtTime
+                "Forbid" -> target!!.hurtTime !in targetHurtTime
                 "Ignore" -> true
             }
-        } == true
+
+        return playerAllowed && targetAllowed
+    }
 
     private fun shouldBacktrack() =
         mc.thePlayer != null && mc.theWorld != null && target != null && mc.thePlayer.health > 0 && (target!!.health > 0 || target!!.health.isNaN()) && mc.playerController.currentGameType != WorldSettings.GameType.SPECTATOR && System.currentTimeMillis() >= delayForNextBacktrack && target?.let {
