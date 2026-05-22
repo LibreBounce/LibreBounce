@@ -29,19 +29,24 @@ import kotlin.math.PI
 object SmartHit : Module("SmartHit", Category.COMBAT) {
 
     private val usePredictedTargetHurtTime by boolean("UsePredictedTargetHurtTime", true)
-    private val attackDelay by int("AttackDelay", 10, 0..10)
+    private val attackDelay by int("AttackDelay", 10, 0..10, suffix "ticks")
     private val experimentalChecks by boolean("ExperimentalChecks", true)
+
     private val notAboveRange by float("NotAboveRange", 2.7f, 0f..8f, suffix = "blocks")
     private val notAbovePredRange by float("NotAbovePredictedRange", 2.8f, 0f..8f, suffix = "blocks")
+
     private val checkForCriticalHits by boolean("CheckForCriticalHits", true)
+    private val improveCritHandling by boolean("ImproveCritHandling", false) { checkForCriticalHits }
     private val checkForBlockedHits by boolean("CheckForBlockedHits", true)
+
     private val notBelowOwnHealth by float("NotBelowOwnHealth", 5f, 0f..20f)
-    private val notBelowEnemyHealth by float("NotBelowEnemyHealth", 5f, 0f..20f)
+    private val notBelowTargetHealth by float("NotBelowTargetHealth", 5f, 0f..20f)
+
     private val notOnEdge by boolean("NotOnEdge", false)
     private val notOnEdgeLimit by float("NotOnEdgeLimit", 1f, 0f..8f, suffix = "blocks") { notOnEdge }
 
     private val targetHurtTimeHandling by choices("TargetHurtTimeHandling", arrayOf("Allow", "Forbid", "Ignore"), "Ignore")
-    private val targetHurtTime by intRange("TargetHurtTime", 0..1, 0..10) { targetHurtTimeHandling != "Ignore" }
+    private val targetHurtTimeVal by intRange("TargetHurtTime", 0..1, 0..10) { targetHurtTimeHandling != "Ignore" }
 
     private val ownHurtTimeHandling by choices("OwnHurtTimeHandling", arrayOf("Allow", "Forbid", "Ignore"), "Ignore")
     private val ownHurtTime by intRange("OwnHurtTime", 9..10, 0..10) { ownHurtTimeHandling != "Ignore" }
@@ -143,8 +148,8 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         }
 
         val targetAllowed = when (targetHurtTimeHandling) {
-            "Allow" -> target.hurtTime in targetHurtTime
-            "Forbid" -> target.hurtTime !in targetHurtTime
+            "Allow" -> targetHurtTime in targetHurtTimeVal
+            "Forbid" -> targetHurtTime !in targetHurtTimeVal
             else -> false
         }
     
@@ -153,7 +158,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
             targetHittable && !hitOnTheWay
     
         val airHit =
-            (targetHittable && !hitOnTheWay) ||
+            (targetHittable && !hitOnTheWay && !improvedCritHandling) ||
             (checkForCriticalHits && canCritHit(player) && !lastHitCrit)
 
         val baseHurtTime = 3f / (1f + sqrt(distance) - (rotDiff / 180f))
@@ -166,7 +171,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
             experimentalChecks && (distance > notAboveRange || simDistance > notAbovePredRange) && player.hurtTime !in hurtTimeNoEscape..8 && targetHitLikely -> true
             experimentalChecks && targetDistance > 3.05f && targetHittable -> true
             player.health < notBelowOwnHealth -> true
-            target.health < notBelowEnemyHealth -> true
+            target.health < notBelowTargetHealth -> true
             notOnEdge && player.isNearEdge(notOnEdgeLimit) -> true
             target.isDead -> false
             else -> playerAllowed || targetAllowed
