@@ -29,7 +29,7 @@ import kotlin.math.PI
 object SmartHit : Module("SmartHit", Category.COMBAT) {
 
     private val usePredictedTargetHurtTime by boolean("UsePredictedTargetHurtTime", true)
-    private val attackDelay by int("AttackDelay", 10, 0..10, suffix "ticks")
+    private val attackDelay by int("AttackDelay", 10, 0..10, suffix = "ticks")
     private val experimentalChecks by boolean("ExperimentalChecks", true)
 
     private val notAboveRange by float("NotAboveRange", 2.7f, 0f..8f, suffix = "blocks")
@@ -158,7 +158,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
             targetHittable && !hitOnTheWay
     
         val airHit =
-            (targetHittable && !hitOnTheWay && !improvedCritHandling) ||
+            (targetHittable && !hitOnTheWay && !improveCritHandling) ||
             (checkForCriticalHits && canCritHit(player) && !lastHitCrit)
 
         val baseHurtTime = 3f / (1f + sqrt(distance) - (rotDiff / 180f))
