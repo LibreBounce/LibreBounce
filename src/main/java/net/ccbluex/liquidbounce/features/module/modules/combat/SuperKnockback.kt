@@ -230,8 +230,6 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
     }
 
     val onUpdate = handler<UpdateEvent> {
-        if (mode != "WTap") return@handler
-
         when (mode) {
             "WTap" -> {
                 if (blockInput) {
