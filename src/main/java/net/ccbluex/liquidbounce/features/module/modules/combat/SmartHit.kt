@@ -73,8 +73,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
         val targetPlayer = target as EntityPlayer
 
-        val playerPing = (player as EntityPlayer).getPing()
-        val playerLatencyInTicks = playerPing.ceilDiv(2).ceilDiv(20)
+        val playerLatencyInTicks = latencyInTicks(player as EntityPlayer)
         val targetHurtTime = targetPlayer.hurtTime
 
         simTargetHurtTime = targetHurtTime - playerLatencyInTicks
@@ -100,7 +99,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         val player = mc.thePlayer ?: return false
 
         val playerPing = (player as EntityPlayer).getPing()
-        val playerLatencyInTicks = playerPing.ceilDiv(2).ceilDiv(20)
+        val playerLatencyInTicks = latencyInTicks(player as EntityPlayer)
         val targetPing = (target as EntityPlayer).getPing()
         val combinedPing = playerPing + targetPing
         val combinedPingMult = combinedPing.toFloat() / 100f
@@ -158,7 +157,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
             targetHittable && !hitOnTheWay
     
         val airHit =
-            (targetHittable && !hitOnTheWay && !improveCritHandling) ||
+            (targetHittable && !hitOnTheWay && (!checkForCriticalHits || !improveCritHandling)) ||
             (checkForCriticalHits && canCritHit(player) && !lastHitCrit)
 
         val baseHurtTime = 3f / (1f + sqrt(distance) - (rotDiff / 180f))
@@ -168,10 +167,9 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
             groundHit || airHit -> true
             distance > notAboveRange || simDistance > notAbovePredRange -> true
             checkForBlockedHits && lastHitBlocked && !target.isBlocking -> true
-            experimentalChecks && (distance > notAboveRange || simDistance > notAbovePredRange) && player.hurtTime !in hurtTimeNoEscape..8 && targetHitLikely -> true
+            experimentalChecks && player.hurtTime !in hurtTimeNoEscape..8 && targetHitLikely -> true
             experimentalChecks && targetDistance > 3.05f && targetHittable -> true
-            player.health < notBelowOwnHealth -> true
-            target.health < notBelowTargetHealth -> true
+            player.health < notBelowOwnHealth || target.health < notBelowTargetHealth -> true
             notOnEdge && player.isNearEdge(notOnEdgeLimit) -> true
             target.isDead -> false
             else -> playerAllowed || targetAllowed
@@ -206,6 +204,9 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         !player.isPotionActive(blindness) &&
         player.ridingEntity == null
 
+    private fun latencyInTicks(player: EntityPlayer): Int =
+        player.getPing().ceilDiv(2).ceilDiv(20)
+        
     private fun simulateOwnKnockback(simPlayer: SimulatedPlayer, target: Entity) {
         val modifier = simulatedHorizontalKnockback.random()
         val fullModifier = (target.rotationYaw * (PI.toFloat() / 180.0f)) * modifier * 0.5f
