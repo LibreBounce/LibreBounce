@@ -84,7 +84,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         simTargetHurtTime = if (usePredictedTargetHurtTime)
             if (canHit(simTargetHurtTime))
             10 + playerLatencyInTicks else simTargetHurtTime
-            else targetPlayer. urtTime
+            else targetPlayer.hurtTime
 
         if (canHit(simTargetHurtTime))
             hitOnTheWay = true
