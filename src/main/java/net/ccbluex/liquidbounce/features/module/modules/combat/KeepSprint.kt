@@ -10,10 +10,22 @@ import net.ccbluex.liquidbounce.features.module.Module
 
 object KeepSprint : Module("KeepSprint", Category.COMBAT) {
 
-    // TODO: Add smart option, assumedly to not keep sprinting when hurtTime > 0
-    val motionAfterAttackOnGround by float("MotionAfterAttackOnGround", 0.6f, 0.0f..1f)
-    val motionAfterAttackInAir by float("MotionAfterAttackInAir", 0.6f, 0.0f..1f)
+    private val ownHurtTimeHandling by choices("OwnHurtTimeHandling", arrayOf("Allow", "Forbid", "Ignore"), "Ignore")
+    private val ownHurtTime by intRange("OwnHurtTime", 9..10, 0..10) { ownHurtTimeHandling != "Ignore" }
+
+    private val motionAfterAttackOnGround by float("MotionAfterAttackOnGround", 0.6f, 0.0f..1f)
+    private val motionAfterAttackInAir by float("MotionAfterAttackInAir", 0.6f, 0.0f..1f)
 
     val motionAfterAttack
-        get() = if (mc.thePlayer.onGround) motionAfterAttackOnGround else motionAfterAttackInAir
+        get() {
+            mc.thePlayer?.run {
+                val allowed = when (ownHurtTimeHandling) {
+                    "Allow" -> hurtTime in ownHurtTime
+                    "Forbid" -> hurtTime !in ownHurtTime
+                    else -> true
+                }
+
+                if (onGround && allowed) motionAfterAttackOnGround else motionAfterAttackInAir
+            }
+        }
 }
