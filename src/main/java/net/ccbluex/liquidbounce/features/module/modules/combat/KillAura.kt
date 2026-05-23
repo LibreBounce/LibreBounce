@@ -1301,7 +1301,6 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
                         !playerAllowed || !targetAllowed -> return false
                         rotationDifference > maxDirectionDiff -> return false
                         target!!.swingProgressInt > maxSwingProgress -> return false
-                        else -> continue
                     }
                 }
 
