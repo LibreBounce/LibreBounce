@@ -16,7 +16,7 @@ object KeepSprint : Module("KeepSprint", Category.COMBAT) {
     private val motionAfterAttackOnGround by float("MotionAfterAttackOnGround", 0.6f, 0.0f..1f)
     private val motionAfterAttackInAir by float("MotionAfterAttackInAir", 0.6f, 0.0f..1f)
 
-    val motionAfterAttack
+    val motionAfterAttack: Float
         get() {
             mc.thePlayer?.run {
                 val allowed = when (ownHurtTimeHandling) {
@@ -25,7 +25,11 @@ object KeepSprint : Module("KeepSprint", Category.COMBAT) {
                     else -> true
                 }
 
-                if (onGround && allowed) motionAfterAttackOnGround else motionAfterAttackInAir
+                if (allowed)
+                    if (onGround) motionAfterAttackOnGround else motionAfterAttackInAir
+                else
+                    0.6f
             }
         }
+    }
 }

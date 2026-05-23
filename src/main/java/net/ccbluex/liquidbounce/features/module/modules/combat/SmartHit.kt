@@ -62,8 +62,10 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
     private var simHurtTime = 0
     private var simTargetHurtTime = 0
+
     private var ticksSinceHit = 0
     private var hitOnTheWay = false
+
     private var lastHitCrit = false
     private var lastHitBlocked = false
 
@@ -101,6 +103,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         val playerPing = (player as EntityPlayer).getPing()
         val playerLatencyInTicks = latencyInTicks(player as EntityPlayer)
         val targetPing = (target as EntityPlayer).getPing()
+
         val combinedPing = playerPing + targetPing
         val combinedPingMult = combinedPing.toFloat() / 100f
 
@@ -121,8 +124,8 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         val targetHittable = simTargetHurtTime <= 10 - attackDelay
 
         if (ticksSinceHit > playerLatencyInTicks) {
-            if (targetHurtTime < 10 - attackDelay) hitOnTheWay = false 
-            else if (targetHurtTime > 8) ticksSinceHit = 0
+            if (target.hurtTime < 10 - attackDelay) hitOnTheWay = false 
+            else if (target.hurtTime > 8) ticksSinceHit = 0
         }
 
         if (targetHittable) {
@@ -147,8 +150,8 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         }
 
         val targetAllowed = when (targetHurtTimeHandling) {
-            "Allow" -> targetHurtTime in targetHurtTimeVal
-            "Forbid" -> targetHurtTime !in targetHurtTimeVal
+            "Allow" -> target.hurtTime in targetHurtTimeVal
+            "Forbid" -> target.hurtTime !in targetHurtTimeVal
             else -> false
         }
     
