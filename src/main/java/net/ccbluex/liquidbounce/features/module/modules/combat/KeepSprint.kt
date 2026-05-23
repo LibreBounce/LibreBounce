@@ -25,10 +25,9 @@ object KeepSprint : Module("KeepSprint", Category.COMBAT) {
                     else -> true
                 }
 
-                return if (allowed)
-                    if (onGround) motionAfterAttackOnGround else motionAfterAttackInAir
-                else
-                    0.6f
+                val motion = if (allowed) if (onGround) motionAfterAttackOnGround else motionAfterAttackInAir else 0.6f
+
+                return motion
             }
         }
     }
