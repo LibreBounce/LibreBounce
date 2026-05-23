@@ -29,6 +29,8 @@ object KeepSprint : Module("KeepSprint", Category.COMBAT) {
 
                 return motion
             }
+
+            return 0.6f
         }
     }
 }
