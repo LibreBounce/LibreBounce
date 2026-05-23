@@ -18,19 +18,15 @@ object KeepSprint : Module("KeepSprint", Category.COMBAT) {
 
     val motionAfterAttack: Float
         get() {
-            mc.thePlayer?.run {
-                val allowed = when (ownHurtTimeHandling) {
-                    "Allow" -> hurtTime in ownHurtTime
-                    "Forbid" -> hurtTime !in ownHurtTime
-                    else -> true
-                }
-
-                val motion = if (allowed) if (onGround) motionAfterAttackOnGround else motionAfterAttackInAir else 0.6f
-
-                return motion
+            val allowed = when (ownHurtTimeHandling) {
+                "Allow" -> mc.thePlayer.hurtTime in ownHurtTime
+                "Forbid" -> mc.thePlayer.hurtTime !in ownHurtTime
+                else -> true
             }
 
-            return 0.6f
+            val motion = if (allowed) if (mc.thePlayer.onGround) motionAfterAttackOnGround else motionAfterAttackInAir else 0.6f
+
+            return motion
         }
     }
 }
