@@ -71,7 +71,7 @@ object NoFall : Module("NoFall", Category.PLAYER) {
     val maxRetrievalWaitingTime by maxRetrievalWaitingTimeValue
 
     val autoMLG by choices("AutoMLG", arrayOf("Off", "Pick", "Spoof"), "Spoof") { mode == "MLG" }
-    val swing by boolean("Swing", true) { mode == "MLG" }
+    val swing by boolean("Swing", true).subjective() { mode == "MLG" }
 
     val options = AlwaysRotationSettings(this) { mode == "MLG" }
 

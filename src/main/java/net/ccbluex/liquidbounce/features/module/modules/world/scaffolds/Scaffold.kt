@@ -32,12 +32,12 @@ import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.setTargetRotation
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.toRotation
 import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
 import net.ccbluex.liquidbounce.utils.timing.*
+import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomClickDelay
 import net.minecraft.block.BlockBush
 import net.minecraft.client.settings.GameSettings
 import net.minecraft.init.Blocks.air
 import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemStack
-import net.minecraft.network.play.client.C0APacketAnimation
 import net.minecraft.network.play.client.C0BPacketEntityAction
 import net.minecraft.util.*
 import net.minecraft.world.WorldSettings
@@ -195,8 +195,8 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
     private val sameY by boolean("SameY", false) { scaffoldMode != "GodBridge" }
     private val jumpOnUserInput by boolean("JumpOnUserInput", true) { sameY && scaffoldMode != "GodBridge" }
 
-    private val safeWalkValue = boolean("SafeWalk", true) { scaffoldMode != "GodBridge" }
-    private val airSafe by boolean("AirSafe", false) { safeWalkValue.isActive() }
+    private val safeWalk = boolean("SafeWalk", true) { scaffoldMode != "GodBridge" }
+    private val airSafe by boolean("AirSafe", false) { safeWalk }
 
     // Visuals
     private val mark by boolean("Mark", false).subjective()
@@ -232,18 +232,15 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
     private val isEagleEnabled
         get() = eagle != "Off" && !shouldGoDown && scaffoldMode != "GodBridge"
 
-    // Downwards
     val shouldGoDown
         get() = down && !sameY && GameSettings.isKeyDown(mc.gameSettings.keyBindSneak) && scaffoldMode !in arrayOf(
             "GodBridge", "Telly"
         ) && blocksAmount() > 1
 
-    // Current rotation
     private val currRotation
         get() = RotationUtils.currentRotation ?: mc.thePlayer.rotation
 
-    // Extra clicks
-    private var extraClick = ExtraClickInfo(TimeUtils.randomClickDelay(extraClickCPS.first, extraClickCPS.last), 0L, 0)
+    private var extraClick = ExtraClickInfo(TimeUtils.randomClickDelay(extraClickCPS), 0L, 0)
 
     // GodBridge
     private var blocksPlacedUntilJump = 0
@@ -763,23 +760,16 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
         options.instant = false
     }
 
-    // Entity movement event
     val onMove = handler<MoveEvent> { event ->
         val player = mc.thePlayer ?: return@handler
 
-        if (!safeWalkValue.isActive() || shouldGoDown) {
-            return@handler
-        }
-
-        if (airSafe || player.onGround) {
+        if (safeWalk && shouldGoDown && (airSafe || player.onGround)) {
             event.isSafeWalk = true
         }
     }
 
     val jumpHandler = handler<JumpEvent> { event ->
-        if (!jumpStrafe) return@handler
-
-        if (event.eventState == EventState.POST) {
+        if (jumpStrafe && event.eventState == EventState.POST) {
             MovementUtils.strafe(
                 (if (!isLookingDiagonally) jumpStraightStrafe else jumpDiagonalStrafe).random()
             )
@@ -800,7 +790,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
                     if (raytrace.typeOfHit.isBlock && timePassed) {
                         extraClick = ExtraClickInfo(
-                            TimeUtils.randomClickDelay(extraClickCPS.first, extraClickCPS.last),
+                            TimeUtils.randomClickDelay(extraClickCPS),
                             System.currentTimeMillis(),
                             extraClick.clicks + 1
                         )
@@ -1075,8 +1065,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
                 }
             }
 
-            if (swing) player.swingItem()
-            else sendPacket(C0APacketAnimation())
+            player.swingItem(!swing)
 
             if (isManualJumpOptionActive) blocksPlacedUntilJump++
 

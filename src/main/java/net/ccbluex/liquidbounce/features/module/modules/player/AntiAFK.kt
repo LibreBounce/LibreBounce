@@ -21,12 +21,12 @@ object AntiAFK : Module("AntiAFK", Category.PLAYER, gameDetecting = false) {
 
     private val mode by choices("Mode", arrayOf("Old", "Random", "Custom"), "Random")
 
-    private val rotateValue = boolean("Rotate", true) { mode == "Custom" }
-    private val rotationDelay by int("RotationDelay", 100, 0..1000, suffix = "ms") { rotateValue.isActive() }
-    private val rotationAngle by float("RotationAngle", 1f, -180f..180f, suffix = "º") { rotateValue.isActive() }
+    private val rotate = boolean("Rotate", true) { mode == "Custom" }
+    private val rotationDelay by int("RotationDelay", 100, 0..1000, suffix = "ms") { rotate }
+    private val rotationAngle by floatRange("RotationAngle", 1f..1f, -180f..180f, suffix = "º") { rotate }
 
-    private val swingValue = boolean("Swing", true) { mode == "Custom" }
-    private val swingDelay by int("SwingDelay", 100, 0..1000, suffix = "ms") { swingValue.isActive() }
+    private val swing = boolean("Swing", true) { mode == "Custom" }
+    private val swingDelay by int("SwingDelay", 100, 0..1000, suffix = "ms") { swing }
 
     private val jump by boolean("Jump", true) { mode == "Custom" }
     private val move by boolean("Move", true) { mode == "Custom" }
@@ -56,6 +56,7 @@ object AntiAFK : Module("AntiAFK", Category.PLAYER, gameDetecting = false) {
                 if (!delayTimer.hasTimePassed(randomTimerDelay)) return@handler
                 shouldMove = false
                 randomTimerDelay = 500L
+
                 when (nextInt(0, 6)) {
                     0 -> {
                         if (player.onGround) player.tryJump()
@@ -98,13 +99,14 @@ object AntiAFK : Module("AntiAFK", Category.PLAYER, gameDetecting = false) {
                 if (jump && player.onGround)
                     player.tryJump()
 
-                if (rotateValue.get() && delayTimer.hasTimePassed(rotationDelay)) {
-                    player.fixedSensitivityYaw += rotationAngle
+                if (rotate && delayTimer.hasTimePassed(rotationDelay)) {
+                    player.fixedSensitivityYaw += rotationAngle.random()
                     player.fixedSensitivityPitch += nextFloat(0F, 1F) * 2 - 1
+
                     delayTimer.reset()
                 }
 
-                if (swingValue.get() && !player.isSwingInProgress && swingDelayTimer.hasTimePassed(swingDelay)) {
+                if (swing && !player.isSwingInProgress && swingDelayTimer.hasTimePassed(swingDelay)) {
                     player.swingItem()
                     swingDelayTimer.reset()
                 }
@@ -123,7 +125,6 @@ object AntiAFK : Module("AntiAFK", Category.PLAYER, gameDetecting = false) {
     private fun getRandomMoveKeyBind() = moveKeyBindings.random()
 
     override fun onDisable() {
-        if (!GameSettings.isKeyDown(mc.gameSettings.keyBindForward))
-            mc.gameSettings.keyBindForward.pressed = false
+        mc.gameSettings.keyBindForward.pressed = GameSettings.isKeyDown(mc.gameSettings.keyBindForward)
     }
 }

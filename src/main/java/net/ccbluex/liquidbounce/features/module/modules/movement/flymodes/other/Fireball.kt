@@ -16,6 +16,7 @@ import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.utils.extensions.isNearEdge
 import net.ccbluex.liquidbounce.utils.extensions.sendUseItem
+import net.ccbluex.liquidbounce.utils.extensions.swingItem
 import net.ccbluex.liquidbounce.utils.extensions.tryJump
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.findItem
 import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar
@@ -24,7 +25,6 @@ import net.ccbluex.liquidbounce.utils.rotation.Rotation
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils
 import net.ccbluex.liquidbounce.utils.timing.TickedActions.nextTick
 import net.minecraft.init.Items
-import net.minecraft.network.play.client.C0APacketAnimation
 import net.minecraft.util.BlockPos
 
 object Fireball : FlyMode("Fireball") {
@@ -87,7 +87,7 @@ object Fireball : FlyMode("Fireball") {
 
         if (player.isMoving) {
             Fly.nextTick {
-                if (Fly.swing) player.swingItem() else sendPacket(C0APacketAnimation())
+                player.swingItem(!Fly.swing)
 
                 // NOTE: You may increase max try to `2` if a fireball doesn't work. (Ex: BlocksMC)
                 repeat(Fly.fireballTry) {

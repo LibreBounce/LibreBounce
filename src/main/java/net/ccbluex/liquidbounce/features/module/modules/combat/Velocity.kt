@@ -108,7 +108,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
     private val ignoreBlocking by boolean("IgnoreBlocking", false) { mode == "Click" }
     // TODO: Make this a float range
     private val clickRange by float("ClickRange", 3f, 1f..6f) { mode == "Click" }
-    private val swingMode by choices("SwingMode", arrayOf("Off", "Normal", "Packet"), "Normal") { mode == "Click" }
+    private val swing by choices("Swing", arrayOf("Off", "Normal", "Packet"), "Normal") { mode == "Click" }
 
     private val pauseOnExplosion by boolean("PauseOnExplosion", true)
     private val ticksToPause by int("TicksToPause", 20, 1..50) { pauseOnExplosion }
@@ -380,15 +380,8 @@ object Velocity : Module("Velocity", Category.COMBAT) {
 
         entity ?: return@handler
 
-        val swingHand = {
-            when (swingMode) {
-                "Normal" -> player.swingItem()
-                "Packet" -> sendPacket(C0APacketAnimation())
-            }
-        }
-
         repeat(clicks.random()) {
-            player.attackEntityWithModifiedSprint(entity, true) { swingHand() }
+            player.attackEntityWithModifiedSprint(entity, true) { if (swing != "Off") player.swingItem(swing == "Packet") }
         }
     }
 

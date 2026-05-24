@@ -27,11 +27,13 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 - `OnlyMoveForward` still applying when `OnlyMove` is off, in SuperKnockback (thatonecoder)
 - Distance checking in Backtrack using `>=` instead of `>`, leading to unnecessary activations (thatonecoder)
+- A few `Swing` options not being subjective (thatonecoder)
 
 ### Changed
 
-- **Breaking:** Rename `AttackableHurtTime` to `AttackDelay` in SmartHit, also changing how it works (thatonecoder)
 - **Breaking:** Change `HurtTime` from an integer to an integer range value, in SuperKnockback (thatonecoder)
+- **Breaking:** Rename `AttackableHurtTime` to `AttackDelay` in SmartHit, also changing how it works (thatonecoder)
+- **Breaking:** Rename `VisualSwing` to `Swing`, in CivBreak and ChestAura (thatonecoder)
 - **Breaking:** Split `CPS` in two, `LeftCPS` and `RightCPS`, in AutoClicker (thatonecoder)
 - Improve Backtrack debugging (thatonecoder)
 

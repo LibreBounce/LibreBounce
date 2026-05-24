@@ -18,6 +18,7 @@ import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.extensions.eyes
 import net.ccbluex.liquidbounce.utils.extensions.onPlayerRightClick
 import net.ccbluex.liquidbounce.utils.extensions.rotation
+import net.ccbluex.liquidbounce.utils.extensions.swingItem
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBlockBox
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBlockDamageText
 import net.ccbluex.liquidbounce.utils.rotation.RotationSettings
@@ -32,7 +33,6 @@ import net.minecraft.block.Block
 import net.minecraft.init.Blocks.air
 import net.minecraft.network.play.client.C07PacketPlayerDigging
 import net.minecraft.network.play.client.C07PacketPlayerDigging.Action.*
-import net.minecraft.network.play.client.C0APacketAnimation
 import net.minecraft.network.play.server.S08PacketPlayerPosLook
 import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing
@@ -283,7 +283,7 @@ object Fucker : Module("Fucker", Category.WORLD) {
             // Use block
             action == "Use" -> {
                 if (player.onPlayerRightClick(currentPos, raytrace.sideHit, raytrace.hitVec, player.heldItem)) {
-                    if (swing) player.swingItem() else sendPacket(C0APacketAnimation())
+                    player.swingItem(!swing)
                     blockHitDelay = 4
                     clearTarget(currentPos)
                 }

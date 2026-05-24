@@ -31,7 +31,6 @@ import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.minecraft.block.BlockChest
 import net.minecraft.block.BlockEnderChest
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.network.play.client.C0APacketAnimation
 import net.minecraft.network.play.server.S0EPacketSpawnObject
 import net.minecraft.network.play.server.S24PacketBlockAction
 import net.minecraft.network.play.server.S29PacketSoundEffect
@@ -71,7 +70,7 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
         minDistanceFromOpponentSq = value.pow(2)
     }
 
-    private val visualSwing by boolean("VisualSwing", true).subjective()
+    private val swing by boolean("Swing", true).subjective()
 
     private val ignoreLooted by boolean("IgnoreLootedChests", true)
     private val detectRefill by boolean("DetectChestRefill", true)
@@ -289,8 +288,7 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
 
             (visibleResult ?: invisibleResult)?.run {
                 if (player.onPlayerRightClick(blockPos, sideHit, hitVec)) {
-                    if (visualSwing) player.swingItem()
-                    else sendPacket(C0APacketAnimation())
+                    player.swingItem(!swing)
 
                     timer.reset()
                 }

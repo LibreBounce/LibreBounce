@@ -139,16 +139,12 @@ open class Module(
 
     // HUD
     val hue = nextFloat()
-    var slide = 0F
+    var slide = 0f
     var yAnim = 0f
 
-    // Tag
     open val tag: String?
         get() = null
 
-    /**
-     * Toggle module
-     */
     fun toggle() {
         state = !state
     }

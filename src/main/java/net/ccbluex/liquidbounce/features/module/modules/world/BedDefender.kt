@@ -43,7 +43,7 @@ import java.awt.Color
 object BedDefender : Module("BedDefender", Category.WORLD) {
 
     private val autoBlock by choices("AutoBlock", arrayOf("Off", "Pick", "Spoof", "Switch"), "Spoof")
-    private val swing by boolean("Swing", true)
+    private val swing by boolean("Swing", true).subjective()
     private val placeDelay by int("PlaceDelay", 500, 0..1000, suffix = "ms")
     private val raycastMode by choices(
         "Raycast",
@@ -227,7 +227,7 @@ object BedDefender : Module("BedDefender", Category.WORLD) {
         val clickedSuccessfully = player.onPlayerRightClick(clickPos, side, hitVec, stack)
 
         if (clickedSuccessfully) {
-            if (swing) player.swingItem() else sendPacket(C0APacketAnimation())
+            player.swingItem(!swing)
 
             if (stack.stackSize <= 0) {
                 player.inventory.mainInventory[SilentHotbar.currentSlot] = null

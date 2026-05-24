@@ -33,6 +33,7 @@ import net.minecraft.entity.passive.EntityVillager
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemStack
+import net.minecraft.network.play.client.C0APacketAnimation
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
 import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.BlockPos
@@ -310,6 +311,10 @@ fun EntityPlayerSP.tryJump() {
     if (!mc.gameSettings.keyBindJump.isKeyDown) {
         jump()
     }
+}
+
+fun EntityPlayerSP.swingItem(silent: Boolean) {
+    if (silent) sendPacket(C0APacketAnimation()) else swingItem()
 }
 
 inline fun EntityPlayerSP.attackEntityWithModifiedSprint(

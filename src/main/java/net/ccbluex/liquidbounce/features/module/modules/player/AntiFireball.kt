@@ -24,7 +24,6 @@ import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.entity.Entity
 import net.minecraft.entity.projectile.EntityFireball
-import net.minecraft.network.play.client.C0APacketAnimation
 import net.minecraft.util.ResourceLocation
 import kotlin.math.atan2
 import kotlin.math.cos
@@ -36,7 +35,7 @@ object AntiFireball : Module("AntiFireball", Category.PLAYER) {
 
     private val indicators by boolean("Indicator", true)
     private val range by float("Range", 4.5f, 3f..8f, suffix = "blocks")
-    private val swing by choices("Swing", arrayOf("Normal", "Packet", "None"), "Normal")
+    private val swing by choices("Swing", arrayOf("Off", "Normal", "Packet"), "Normal")
     private val options = RotationSettings(this).withoutKeepRotation()
     private val fireballTickCheck by boolean("FireballTickCheck", true)
     private val minFireballTick by int("MinFireballTick", 10, 1..20) { fireballTickCheck }
@@ -168,10 +167,7 @@ object AntiFireball : Module("AntiFireball", Category.PLAYER) {
             || isRotationFaced(entity, range.toDouble(), rotation)
         ) {
             player.attackEntityWithModifiedSprint(entity) {
-                when (swing) {
-                    "Normal" -> player.swingItem()
-                    "Packet" -> sendPacket(C0APacketAnimation())
-                }
+                if (swing != "Off") player.swingItem(swing == "Packet")
             }
             target = null
         }

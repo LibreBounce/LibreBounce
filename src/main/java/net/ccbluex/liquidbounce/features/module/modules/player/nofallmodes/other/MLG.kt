@@ -35,7 +35,6 @@ import net.minecraft.init.Blocks.water
 import net.minecraft.init.Items
 import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemStack
-import net.minecraft.network.play.client.C0APacketAnimation
 import net.minecraft.util.*
 import net.minecraftforge.event.ForgeEventFactory
 import kotlin.math.min
@@ -271,7 +270,7 @@ object MLG : NoFallMode("MLG") {
         val clickedSuccessfully = player.onPlayerRightClick(clickPos, side, hitVec, stack)
 
         if (clickedSuccessfully) {
-            if (swing) player.swingItem() else sendPacket(C0APacketAnimation())
+            player.swingItem(!swing)
 
             if (stack.stackSize <= 0) {
                 player.inventory.mainInventory[SilentHotbar.currentSlot] = null

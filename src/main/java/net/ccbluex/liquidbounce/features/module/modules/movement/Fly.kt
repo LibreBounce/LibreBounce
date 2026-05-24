@@ -161,7 +161,7 @@ object Fly : Module("Fly", Category.MOVEMENT, Keyboard.KEY_F) {
         arrayOf("Off", "Pick", "Spoof", "Switch"),
         "Spoof"
     ) { mode == "Fireball" }
-    val swing by boolean("Swing", true) { mode == "Fireball" }
+    val swing by boolean("Swing", true).subjective() { mode == "Fireball" }
     val fireballTry by int("MaxFireballTry", 1, 0..2) { mode == "Fireball" }
     val fireBallThrowMode by choices("FireballThrow", arrayOf("Normal", "Edge"), "Normal") { mode == "Fireball" }
     val edgeThreshold by float(
