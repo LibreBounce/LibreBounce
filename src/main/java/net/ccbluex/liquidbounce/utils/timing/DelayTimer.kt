@@ -36,6 +36,14 @@ open class TickDelayTimer(
 
     open fun hasTimePassed() = baseTimer.hasTimePassed(ticks)
 
+    open fun resetIfPassed(): Boolean {
+        if (!baseTimer.hasTimePassed(ticks)) return false
+
+        reset()
+
+        return true
+    }
+
     fun resetTicks() {
         ticks = randomDelay(minDelay, maxDelay)
     }
@@ -50,7 +58,7 @@ open class TickDelayTimer(
     }
 }
 
-open class TickDelayTimer(
+open class TickRangeDelayTimer(
     private val delay: IntRange,
     private val baseTimer: TickTimer = TickTimer()
 ) {
