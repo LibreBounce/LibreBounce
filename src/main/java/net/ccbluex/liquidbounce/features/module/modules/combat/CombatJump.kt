@@ -33,16 +33,14 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
     var target: Entity? = null
     
     val onAttack = handler<AttackEvent> { event ->
-        target = event.targetEntity
+        target = event.targetEntity ?: return@handler
     }
     
     // Anti-cheats such as Grim flag when you don't jump on this event
     val onStrafe = handler<StrafeEvent> { event ->
         val player = mc.thePlayer ?: return@handler
 
-        // TO-DO: KillAura target check
         val fixedTarget = (KillAura.target as Entity) ?: target ?: return@handler
-        //if (target == null || KillAura.target != null) target = KillAura.target ?: return@handler
 
         if ((onlyMove && (!player.isMoving || (onlySprint && !player.isSprinting))) ||
             player.getDistanceToEntityBox(fixedTarget) !in allowedJumpDistance

@@ -9,11 +9,16 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 ### Added
 
 - **Breaking:** Aimbot recode, now having more maintainable code, along with more features (thatonecoder)
+- **Breaking:** `TargetHurtTimeHandling`, `TargetHurtTime`, `OwnHurtTimeHandling`, and `OwnHurtTime` values to KillAura's Smart AutoBlock; replaces `MaxOwnHurtTime` (thatonecoder)
 - CombatJump module; jumps at the right time to gain higher momentum in fights (thatonecoder)
 - `UsePredictedTargetHurtTime`, along with client-side target hurttime checking based on latency rounded upwards and a hit detection fail-safe to SmartHit (thatonecoder)
-- `ExperimentalChecks`, `CheckForCriticalHits` (both previously hardcoded on), and `CheckForBlockedHits` to SmartHit (thatonecoder)
+- `ExperimentalChecks`, `CheckForCriticalHits`, `ImproveCritHandling`, (all previously hardcoded), and `CheckForBlockedHits` to SmartHit (thatonecoder)
 - `SimulateKnockback`, `SimulatedHorizontalKnockback`, and `SimulatedVerticalKnockback` values to SmartHit (thatonecoder)
-- `AttackableOnHurtTime`, `FlushAttackableOnHurtTime`, `FlushOnOwnHurtTime`, and `HurtTimeToFlush` values to Backtrack (thatonecoder)
+- `TargetHurtTimeHandling`, `TargetHurtTime`, `OwnHurtTimeHandling`, and `OwnHurtTime` values to SmartHit & Backtrack (thatonecoder)
+- `OwnHurtTimeHandling` and `OwnHurtTime` values to KeepSprint (thatonecoder)
+- `AdvantageTreshold` value to Backtrack (thatonecoder)
+- `TargetHurtTimeToDebug` value to Backtrack (thatonecoder)
+- `Sneak` mode to SuperKnockback (thatonecoder)
 - `UseDelayMultiplier` to SuperKnockback; previously hardcoded (thatonecoder)
 - `BlockMaxEnemyRange` value to KillAura (thatonecoder)
 - `OnlySprinting` option to the Jump mode in Velocity; previously hardcoded (thatonecoder)
@@ -25,11 +30,15 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 ### Changed
 
-- **Breaking:** Rename the Legacy mode `Delay` to `LegacyDelay`, in Backtrack (thatonecoder)
 - **Breaking:** Rename `AttackableHurtTime` to `AttackDelay` in SmartHit, also changing how it works (thatonecoder)
 - **Breaking:** Change `HurtTime` from an integer to an integer range value, in SuperKnockback (thatonecoder)
-- Heavily cleaned up the SmartHit code, along with completion the critical hit check in SmartHit (thatonecoder)
+- **Breaking:** Split `CPS` in two, `LeftCPS` and `RightCPS`, in AutoClicker (thatonecoder)
 - Improve Backtrack debugging (thatonecoder)
+
+### Removed
+
+- `Legacy` mode in Backtrack (thatonecoder)
+- `Jitter` option in AutoClicker (thatonecoder)
 
 ## [0.7.0-beta.1] - 2025-11-24
 

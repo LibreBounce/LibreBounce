@@ -15,11 +15,13 @@ import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.withinChance
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.angleDifference
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.toRotation
+import net.ccbluex.liquidbounce.utils.timing.TickTimer
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.client.C0BPacketEntityAction
 import net.minecraft.network.play.client.C0BPacketEntityAction.Action.*
+import net.minecraft.client.settings.GameSettings
 import kotlin.math.abs
 
 object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
@@ -32,7 +34,7 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
     // TODO: Add SneakTap mode
     private val mode by choices(
         "Mode",
-        arrayOf("WTap", "SprintTap", "SprintTap2", "Old", "Silent", "Packet", "SneakPacket"),
+        arrayOf("WTap", "Sneak", "SprintTap", "SprintTap2", "Old", "Silent", "Packet", "SneakPacket"),
         "Old"
     )
 
@@ -42,6 +44,8 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
     private val targetDistance by int("TargetDistance", 3, 1..5, suffix = "blocks") { mode == "WTap" }
 
     private val useDelayMultiplier by boolean("UseDelayMultiplier", true) { mode == "WTap" }
+
+    private val sneakTicks by intRange("SneakTicks", 1..2, 1..5) { mode == "Sneak" }
 
     private val stopTicks: Value<Int> = int("PressBackTicks", 1, 1..5) {
         mode == "SprintTap2"
@@ -75,6 +79,10 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
     private var blockInput = false
     private var allowInputTicks = reSprintTicks.random()
     private var ticksElapsed = 0
+
+    // Sneak
+    private val sneakTimer = TickTimer()
+    private var sneakInputTicks = sneakTicks.random()
 
     // SprintTap2
     private var sprintTicks = 0
@@ -165,6 +173,13 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
                 }
             }
 
+            "Sneak" -> {
+                if (player.isSprinting && player.serverSprintState && !GameSettings.isKeyDown(mc.gameSettings.keyBindSneak) && !mc.gameSettings.keyBindSneak.pressed) {
+                    mc.gameSettings.keyBindSneak.pressed = true
+                    sneakInputTicks = sneakTicks.random()
+                }
+            }
+
             "SprintTap2" -> {
                 if (++sprintTicks == stopTicks.get()) {
                     if (player.isSprinting && player.serverSprintState) {
@@ -215,20 +230,31 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
     }
 
     val onUpdate = handler<UpdateEvent> {
-        if (mode != "WTap") return@handler
-
-        if (blockInput) {
-            if (ticksElapsed++ >= allowInputTicks) {
-                blockInput = false
-                ticksElapsed = 0
-            }
-        } else {
-            if (startWaiting) {
-                blockInput = blockTicksElapsed++ >= blockInputTicks
-
+        when (mode) {
+            "WTap" -> {
                 if (blockInput) {
-                    startWaiting = false
-                    blockTicksElapsed = 0
+                    if (ticksElapsed++ >= allowInputTicks) {
+                        blockInput = false
+                        ticksElapsed = 0
+                    }
+                } else {
+                    if (startWaiting) {
+                        blockInput = blockTicksElapsed++ >= blockInputTicks
+
+                        if (blockInput) {
+                            startWaiting = false
+                            blockTicksElapsed = 0
+                        }
+                    }
+                }
+            }
+
+            "Sneak" -> {
+                sneakTimer.update()
+
+                if (mc.gameSettings.keyBindSneak.pressed && !GameSettings.isKeyDown(mc.gameSettings.keyBindSneak) && sneakTimer.hasTimePassed(sneakInputTicks)) {
+                    mc.gameSettings.keyBindSneak.pressed = false
+                    sneakTimer.reset()
                 }
             }
         }

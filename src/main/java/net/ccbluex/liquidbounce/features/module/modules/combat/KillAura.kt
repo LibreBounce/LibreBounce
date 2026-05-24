@@ -173,25 +173,31 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     // AutoBlock conditions
     private val smartAutoBlock by boolean("SmartAutoBlock", false) { autoBlock == "Packet" }
 
+    private val smart = autoBlock == "Packet" && smartAutoBlock
+
     // Ignore all blocking conditions, except for block rate, when standing still
-    private val forceBlock by boolean("ForceBlockWhenStill", true) { autoBlock == "Packet" && smartAutoBlock }
+    private val forceBlock by boolean("ForceBlockWhenStill", true) { smart }
 
     // Don't block if target isn't holding a sword or an axe
-    private val checkWeapon by boolean("CheckEnemyWeapon", true) { autoBlock == "Packet" && smartAutoBlock }
+    private val checkWeapon by boolean("CheckEnemyWeapon", true) { smart }
 
     // Don't block if target isn't sprinting, since less momentum = less chances of attacking you, and might be running from you
     // TODO: Rename this option to something else, since it has multiple more checks that verify whether the target is
     // likely to land a hit on you or not
-    private val checkSprinting by boolean("CheckEnemySprinting", true) { autoBlock == "Packet" && smartAutoBlock }
+    private val checkSprinting by boolean("CheckEnemySprinting", true) { smart }
 
     // Don't block when you can't get damaged
-    private val maxOwnHurtTime by int("MaxOwnHurtTime", 3, 0..10) { autoBlock == "Packet" && smartAutoBlock }
+    private val targetHurtTimeHandling by choices("TargetHurtTimeHandling", arrayOf("Allow", "Forbid", "Ignore"), "Ignore") { smart }
+    private val targetHurtTime by intRange("TargetHurtTime", 0..1, 0..10) { smart && targetHurtTimeHandling != "Ignore" }
+
+    private val ownHurtTimeHandling by choices("OwnHurtTimeHandling", arrayOf("Allow", "Forbid", "Ignore"), "Ignore") { smart }
+    private val ownHurtTime by intRange("OwnHurtTime", 9..10, 0..10) { smart && ownHurtTimeHandling != "Ignore" }
 
     // Don't block if target isn't looking at you
-    private val maxDirectionDiff by float("MaxOpponentDirectionDiff", 60f, 30f..180f, suffix = "º") { autoBlock == "Packet" && smartAutoBlock }
+    private val maxDirectionDiff by float("MaxOpponentDirectionDiff", 60f, 30f..180f, suffix = "º") { smart }
 
     // Don't block if target is swinging an item and therefore cannot attack
-    private val maxSwingProgress by int("MaxOpponentSwingProgress", 1, 0..5) { autoBlock == "Packet" && smartAutoBlock }
+    private val maxSwingProgress by int("MaxOpponentSwingProgress", 1, 0..5) { smart }
 
     // Rotations
     private val options = RotationSettings(this).withoutKeepRotation()
@@ -548,7 +554,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             if (cps.last > 0) clicks++
             attackTimer.reset()
 
-            attackDelay = randomClickDelay(cps.first, cps.last)
+            attackDelay = randomClickDelay(cps)
         }
 
         val hittableColor = if (hittable) markHittableColor else markColor
@@ -998,21 +1004,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
         var checkNormally = true
 
-        if (Backtrack.handleEvents()) {
-            Backtrack.loopThroughBacktrackData(targetToCheck) {
-                var result = false
-
-                checkIfAimingAtBox(targetToCheck, currentRotation, eyes, onSuccess = {
-                    checkNormally = false
-
-                    result = true
-                }, onFail = {
-                    result = false
-                })
-
-                return@loopThroughBacktrackData result
-            }
-        } else if (ForwardTrack.handleEvents()) {
+        if (ForwardTrack.handleEvents()) {
             ForwardTrack.includeEntityTruePos(targetToCheck) {
                 checkIfAimingAtBox(targetToCheck, currentRotation, eyes, onSuccess = { checkNormally = false })
             }
@@ -1290,17 +1282,26 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
                 // TODO: Use `when` for all this
                 if (smartAutoBlock) {
-                    if (player.isMoving && forceBlock) return false
+                    val playerAllowed = when (ownHurtTimeHandling) {
+                        "Allow" -> player.hurtTime in ownHurtTime
+                        "Forbid" -> player.hurtTime !in ownHurtTime
+                        else -> true
+                    }
 
-                    if (checkWeapon && target!!.heldItem?.item !is ItemSword && target!!.heldItem?.item !is ItemAxe) return false
+                    val targetAllowed = when (targetHurtTimeHandling) {
+                        "Allow" -> target!!.hurtTime in targetHurtTime
+                        "Forbid" -> target!!.hurtTime !in targetHurtTime
+                        else -> true
+                    }
 
-                    if (checkSprinting && !target!!.isSprinting && distance > 2.8f && rotationDifference > 60f / distance) return false
-
-                    if (player.hurtTime > maxOwnHurtTime) return false
-
-                    if (rotationDifference > maxDirectionDiff) return false
-
-                    if (target!!.swingProgressInt > maxSwingProgress) return false
+                    when {
+                        player.isMoving && forceBlock -> return false
+                        checkWeapon && target!!.heldItem?.item !is ItemSword && target!!.heldItem?.item !is ItemAxe -> return false
+                        checkSprinting && !target!!.isSprinting && distance > 2.8f && rotationDifference > 60f / distance -> return false
+                        !playerAllowed || !targetAllowed -> return false
+                        rotationDifference > maxDirectionDiff -> return false
+                        target!!.swingProgressInt > maxSwingProgress -> return false
+                    }
                 }
 
                 if (distance > blockMaxRange) return false
