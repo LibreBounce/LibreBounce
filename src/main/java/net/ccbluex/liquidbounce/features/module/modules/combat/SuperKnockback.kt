@@ -15,7 +15,7 @@ import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.withinChance
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.angleDifference
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.toRotation
-import net.ccbluex.liquidbounce.utils.timing.TickTimer
+import net.ccbluex.liquidbounce.utils.timing.TickDelayTimer
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.network.play.client.C03PacketPlayer
@@ -81,8 +81,7 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
     private var ticksElapsed = 0
 
     // Sneak
-    private val sneakTimer = TickTimer()
-    private var sneakInputTicks = sneakTicks.random()
+    private val sneakTimer = TickDelayTimer(sneakTicks.first, sneakTicks.last)
 
     // SprintTap2
     private var sprintTicks = 0
@@ -176,7 +175,6 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
             "Sneak" -> {
                 if (player.isSprinting && player.serverSprintState && !GameSettings.isKeyDown(mc.gameSettings.keyBindSneak) && !mc.gameSettings.keyBindSneak.pressed) {
                     mc.gameSettings.keyBindSneak.pressed = true
-                    sneakInputTicks = sneakTicks.random()
                 }
             }
 
@@ -250,12 +248,8 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
             }
 
             "Sneak" -> {
-                sneakTimer.update()
-
-                if (mc.gameSettings.keyBindSneak.pressed && !GameSettings.isKeyDown(mc.gameSettings.keyBindSneak) && sneakTimer.hasTimePassed(sneakInputTicks)) {
+                if (mc.gameSettings.keyBindSneak.pressed && !GameSettings.isKeyDown(mc.gameSettings.keyBindSneak) && sneakTimer.resetIfPassed())
                     mc.gameSettings.keyBindSneak.pressed = false
-                    sneakTimer.reset()
-                }
             }
         }
     }

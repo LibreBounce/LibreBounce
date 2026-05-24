@@ -36,11 +36,13 @@ open class TickDelayTimer(
 
     open fun hasTimePassed() = baseTimer.hasTimePassed(ticks)
 
-    open fun resetIfPassed(): Boolean {
-        if (!baseTimer.hasTimePassed(ticks)) return false
+    open fun resetIfPassed(private val t = ticks): Boolean {
+        if (!baseTimer.hasTimePassed(t)) {
+            update()
+            return false
+        }
 
         reset()
-
         return true
     }
 

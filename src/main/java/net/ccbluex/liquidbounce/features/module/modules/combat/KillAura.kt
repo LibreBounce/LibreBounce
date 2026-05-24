@@ -52,7 +52,6 @@ import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.setTargetRotation
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.toRotation
 import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
-import net.ccbluex.liquidbounce.utils.timing.TickTimer
 import net.ccbluex.liquidbounce.utils.timing.TickedActions.nextTick
 import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomClickDelay
 import net.minecraft.client.gui.inventory.GuiContainer
@@ -162,12 +161,6 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     private val switchStartBlock by boolean("SwitchStartBlock", false) { autoBlock == "Packet" }
 
     private val interactAutoBlock by boolean("InteractAutoBlock", true) { autoBlock == "Packet" }
-
-    val blinkAutoBlock by boolean("BlinkAutoBlock", false) { autoBlock == "Packet" }
-
-    private val blinkBlockTicks by int("BlinkBlockTicks", 3, 2..5) {
-        autoBlock == "Packet" && blinkAutoBlock
-    }
 
     // AutoBlock conditions
     private val smartAutoBlock by boolean("SmartAutoBlock", false) { autoBlock == "Packet" }
@@ -342,13 +335,9 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     var renderBlocking = false
     var blockStatus = false
     private var blockStopInDead = false
-    private val blockTicks = TickTimer()
 
     // Switch Delay
     private val switchTimer = MSTimer()
-
-    // Blink AutoBlock
-    private var blinked = false
 
     // Swing fails
     private val swingFails = mutableListOf<SwingFailData>()
@@ -360,11 +349,6 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         attackTickTimes.clear()
         attackTimer.reset()
         clicks = 0
-
-        if (blinkAutoBlock) {
-            BlinkUtils.unblink()
-            blinked = false
-        }
 
         if (autoF5) mc.gameSettings.thirdPersonView = 0
 
@@ -394,8 +378,6 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
     val onWorld = handler<WorldEvent> {
         attackTickTimes.clear()
-
-        if (blinkAutoBlock && BlinkUtils.isBlinking) BlinkUtils.unblink()
 
         synchronized(swingFails) {
             swingFails.clear()
@@ -453,31 +435,6 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             blockStopInDead = true
             stopBlocking()
             return@handler
-        }
-
-        if (blinkAutoBlock) {
-            when (player.ticksExisted % (blinkBlockTicks + 1)) {
-                0 -> {
-                    if (blockStatus && !blinked && !BlinkUtils.isBlinking) {
-                        blinked = true
-                    }
-                }
-
-                1 -> {
-                    if (blockStatus && blinked && BlinkUtils.isBlinking) {
-                        stopBlocking()
-                    }
-                }
-
-                blinkBlockTicks -> {
-                    if (!blockStatus && blinked && BlinkUtils.isBlinking) {
-                        BlinkUtils.unblink()
-                        blinked = false
-
-                        startBlocking(target!!, interactAutoBlock, autoBlock == "Fake") // block again
-                    }
-                }
-            }
         }
 
         if (target != null) {
@@ -847,22 +804,20 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             return
         }
 
-        if (!blinkAutoBlock || !BlinkUtils.isBlinking) {
-            val affectSprint = false.takeIf { KeepSprint.handleEvents() || keepSprint }
+        val affectSprint = false.takeIf { KeepSprint.handleEvents() || keepSprint }
 
-            player.attackEntityWithModifiedSprint(entity, affectSprint) { if (swing) player.swingItem() }
+        player.attackEntityWithModifiedSprint(entity, affectSprint) { if (swing) player.swingItem() }
 
-            // Apply enchantment critical effect if FakeSharp is enabled
-            if (EnchantmentHelper.getModifierForCreature(
-                    player.heldItem, entity.creatureAttribute
-                ) <= 0F && fakeSharp
-            ) {
-                player.onEnchantmentCritical(entity)
-            }
+        // Apply enchantment critical effect if FakeSharp is enabled
+        if (EnchantmentHelper.getModifierForCreature(
+                player.heldItem, entity.creatureAttribute
+            ) <= 0F && fakeSharp
+        ) {
+            player.onEnchantmentCritical(entity)
         }
 
         // Start blocking after attack
-        if (autoBlock != "Off" && (player.isBlocking || canBlock) && (!blinkAutoBlock && isLastClick || blinkAutoBlock && (!blinked || !BlinkUtils.isBlinking))) {
+        if (autoBlock != "Off" && (player.isBlocking || canBlock) && isLastClick) {
             startBlocking(entity, interactAutoBlock, autoBlock == "Fake")
         }
 
@@ -1029,7 +984,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     private fun startBlocking(interactEntity: Entity, interact: Boolean, fake: Boolean = false) {
         val player = mc.thePlayer ?: return
 
-        if (blockStatus && (!uncpAutoBlock || !blinkAutoBlock) || shouldPrioritize()) return
+        if (blockStatus && !uncpAutoBlock || shouldPrioritize()) return
 
         if (player.isBlocking) {
             blockStatus = true
@@ -1118,13 +1073,12 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         }
 
         renderBlocking = false
-        blockTicks.reset()
     }
 
     val onPacket = handler<PacketEvent> { event ->
         val player = mc.thePlayer ?: return@handler
 
-        if (autoBlock == "Off" || !blinkAutoBlock || !blinked) return@handler
+        if (autoBlock == "Off") return@handler
 
         if (player.isDead || player.ticksExisted < 20) {
             BlinkUtils.unblink()

@@ -13,7 +13,7 @@ import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPackets
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils.direction
-import net.ccbluex.liquidbounce.utils.timing.TickTimer
+import net.ccbluex.liquidbounce.utils.timing.TickDelayTimer
 import net.minecraft.init.Blocks.air
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
@@ -28,7 +28,8 @@ object BoostHypixel : FlyMode("BoostHypixel") {
     private var state = 1
     private var moveSpeed = 0.0
     private var lastDistance = 0.0
-    private val tickTimer = TickTimer()
+
+    private val tickTimer = TickDelayTimer(2)
 
     override fun onEnable() {
         mc.thePlayer?.run {
@@ -71,13 +72,8 @@ object BoostHypixel : FlyMode("BoostHypixel") {
         mc.thePlayer?.run {
             when (event.eventState) {
                 EventState.PRE -> {
-                    tickTimer.update()
-
-                    if (tickTimer.hasTimePassed(2)) {
+                    if (tickTimer.resetIfPassed())
                         setPosition(posX, posY + 1.0E-5, posZ)
-
-                        tickTimer.reset()
-                    }
 
                     motionY = 0.0
                 }

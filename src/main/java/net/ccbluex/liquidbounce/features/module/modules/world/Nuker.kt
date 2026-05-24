@@ -76,7 +76,7 @@ object Nuker : Module("Nuker", Category.WORLD, gameDetecting = false) {
     private var currentBlock: BlockPos? = null
     private var blockHitDelay = 0
 
-    private val nukeTimer = TickTimer()
+    private val nukeTimer = TickDelayTimer(nukeDelay)
     private var nukedCount = 0
 
     var currentDamage = 0F
@@ -88,13 +88,8 @@ object Nuker : Module("Nuker", Category.WORLD, gameDetecting = false) {
             return@handler
         }
 
-        // Reset bps
-        nukeTimer.update()
-
-        if (nukeTimer.hasTimePassed(nukeDelay)) {
+        if (nukeTimer.resetIfPassed())
             nukedCount = 0
-            nukeTimer.reset()
-        }
 
         // Clear blocks
         attackedBlocks.clear()

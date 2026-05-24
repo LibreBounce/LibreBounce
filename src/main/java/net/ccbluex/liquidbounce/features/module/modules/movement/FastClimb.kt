@@ -31,7 +31,6 @@ object FastClimb : Module("FastClimb", Category.MOVEMENT) {
     private val climbSpeed by float("ClimbSpeed", 1f, 0.01f..5f) { mode == "Delay" }
     private val tickDelay by int("TickDelay", 10, 1..20) { mode == "Delay" }
 
-
     private val climbDelay = tickDelay
     private var climbCount = 0
 

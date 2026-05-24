@@ -21,14 +21,14 @@ import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.movement.FallingPlayer
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBacktrackBox
 import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
-import net.ccbluex.liquidbounce.utils.timing.TickTimer
+import net.ccbluex.liquidbounce.utils.timing.TickDelayTimer
 import net.minecraft.network.play.client.C03PacketPlayer
 import java.awt.Color
 
 object Blink : NoFallMode("Blink") {
     private var blinked = false
 
-    private val tick = TickTimer()
+    private val tick = TickDelayTimer(100)
 
     override fun onDisable() {
         BlinkUtils.unblink()
@@ -48,19 +48,13 @@ object Blink : NoFallMode("Blink") {
         simPlayer.tick()
 
         if (simPlayer.onGround && blinked) {
-            if (player.onGround) {
-                tick.update()
+            if (player.onGround && tick.resetIfPassed()) {
+                BlinkUtils.unblink()
+                blinked = false
+                chat("Unblink")
 
-                if (tick.hasTimePassed(100)) {
-                    BlinkUtils.unblink()
-                    blinked = false
-                    chat("Unblink")
-
-                    if (autoOff) {
-                        state = false
-                    }
-                    tick.reset()
-                }
+                if (autoOff)
+                    state = false
             }
         }
 
