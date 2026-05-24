@@ -21,7 +21,7 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBlockDamageText
 import net.ccbluex.liquidbounce.utils.rotation.RotationSettings
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.faceBlock
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.setTargetRotation
-import net.ccbluex.liquidbounce.utils.timing.TickTimer
+import net.ccbluex.liquidbounce.utils.timing.TickDelayTimer
 import net.minecraft.block.Block
 import net.minecraft.block.BlockLiquid
 import net.minecraft.init.Blocks.air

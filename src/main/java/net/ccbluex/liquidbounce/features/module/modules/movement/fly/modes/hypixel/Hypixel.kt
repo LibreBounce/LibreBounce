@@ -20,7 +20,7 @@ import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.util.AxisAlignedBB
 
 object Hypixel : FlyMode("Hypixel") {
-    private val tickTimer = TickDelayTimer()
+    private val tickTimer = TickDelayTimer(2)
     private val msTimer = MSTimer()
 
     override fun onEnable() {

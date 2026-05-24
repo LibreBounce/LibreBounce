@@ -9,7 +9,7 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.Spe
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.utils.extensions.tryJump
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
-import net.ccbluex.liquidbounce.utils.timing.TickDelayTimer
+import net.ccbluex.liquidbounce.utils.timing.TickTimer
 
 object Frame : SpeedMode("Frame") {
     private var motionTicks = 0
@@ -25,11 +25,13 @@ object Frame : SpeedMode("Frame") {
                     tryJump()
                     if (motionTicks == 1) {
                         tickTimer.reset()
+
                         if (move) {
                             motionX = 0.0
                             motionZ = 0.0
                             move = false
                         }
+
                         motionTicks = 0
                     } else motionTicks = 1
                 } else if (!move && motionTicks == 1 && tickTimer.hasTimePassed(5)) {

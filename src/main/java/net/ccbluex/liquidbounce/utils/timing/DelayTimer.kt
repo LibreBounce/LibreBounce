@@ -36,7 +36,7 @@ open class TickDelayTimer(
 
     open fun hasTimePassed() = baseTimer.hasTimePassed(ticks)
 
-    open fun resetIfPassed(private val t = ticks): Boolean {
+    open fun resetIfPassed(t = ticks): Boolean {
         if (!baseTimer.hasTimePassed(t)) {
             update()
             return false

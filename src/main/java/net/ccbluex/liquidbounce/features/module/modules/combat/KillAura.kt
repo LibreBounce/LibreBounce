@@ -791,7 +791,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
         if (shouldPrioritize()) return
 
-        if (player.isBlocking && (autoBlock == "Off" && blockStatus || autoBlock == "Packet" && releaseAutoBlock && blockTicks.hasTimePassed(blockLength))) {
+        if (player.isBlocking && (autoBlock == "Off" && blockStatus || autoBlock == "Packet" && releaseAutoBlock) {
             stopBlocking()
 
             if (!ignoreTickRule || autoBlock == "Off") {
