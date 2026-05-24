@@ -23,7 +23,7 @@ object AntiAFK : Module("AntiAFK", Category.PLAYER, gameDetecting = false) {
 
     private val rotate by boolean("Rotate", true) { mode == "Custom" }
     private val rotationDelay by int("RotationDelay", 100, 0..1000, suffix = "ms") { rotate }
-    private val rotationAngle by floatRange("RotationAngle", 1f..1f, -180f..180f, suffix = "º") { rotate }
+    private val rotationAngle by float("RotationAngle", 1f, -180f..180f, suffix = "º") { rotate }
 
     private val swing by boolean("Swing", true) { mode == "Custom" }
     private val swingDelay by int("SwingDelay", 100, 0..1000, suffix = "ms") { swing }
@@ -101,9 +101,7 @@ object AntiAFK : Module("AntiAFK", Category.PLAYER, gameDetecting = false) {
                     player.tryJump()
 
                 if (rotate && delayTimer.hasTimePassed(rotationDelay)) {
-                    val angle = rotationAngle.random()
-
-                    player.fixedSensitivityYaw += angle
+                    player.fixedSensitivityYaw += rotationAngle
                     player.fixedSensitivityPitch += nextFloat(0F, 1F) * 2 - 1
 
                     delayTimer.reset()
