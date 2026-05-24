@@ -54,6 +54,7 @@ object AntiAFK : Module("AntiAFK", Category.PLAYER, gameDetecting = false) {
                 getRandomMoveKeyBind().pressed = shouldMove
 
                 if (!delayTimer.hasTimePassed(randomTimerDelay)) return@handler
+
                 shouldMove = false
                 randomTimerDelay = 500L
 
@@ -100,7 +101,9 @@ object AntiAFK : Module("AntiAFK", Category.PLAYER, gameDetecting = false) {
                     player.tryJump()
 
                 if (rotate && delayTimer.hasTimePassed(rotationDelay)) {
-                    player.fixedSensitivityYaw += rotationAngle.random()
+                    val angle = rotationAngle.random()
+
+                    player.fixedSensitivityYaw += angle
                     player.fixedSensitivityPitch += nextFloat(0F, 1F) * 2 - 1
 
                     delayTimer.reset()

@@ -19,8 +19,7 @@ import net.ccbluex.liquidbounce.utils.extensions.fixedSensitivityPitch
 import net.ccbluex.liquidbounce.utils.extensions.fixedSensitivityYaw
 import net.ccbluex.liquidbounce.utils.extensions.getDistanceToEntityBox
 import net.ccbluex.liquidbounce.utils.extensions.isBlock
-import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils
-import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.nextFloat
+import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.nextInt
 import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomClickDelay
 import net.minecraft.client.settings.KeyBinding
 import net.minecraft.entity.Entity
@@ -79,7 +78,7 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT) {
     val onRender3D = handler<Render3DEvent> {
         mc.thePlayer?.let { player ->
             val time = System.currentTimeMillis()
-            val doubleClick = if (simulateDoubleClicking) RandomUtils.nextInt(-1, 1) else 0
+            val doubleClick = if (simulateDoubleClicking) nextInt(-1, 1) else 0
 
             if (block && player.swingProgress > 0 && !mc.gameSettings.keyBindUseItem.isKeyDown) {
                 mc.gameSettings.keyBindUseItem.pressTime = 0
