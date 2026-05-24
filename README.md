@@ -1,7 +1,9 @@
 # LibreBounce
-A [libre software](https://www.gnu.org/philosophy/free-sw.html), mixin-based injection hacked client for the Forge Mod Loader, version 1.8.9; it's a fork of [LiquidBounce legacy](https://github.com/CCBlueX/LiquidBounce/tree/legacy), aiming to compete with paid & non-libre hacked clients.
+A [libre software](https://www.gnu.org/philosophy/free-sw.html), mixin-based injection hacked client for the Forge Mod Loader, version 1.8.9; it's a fork of [LiquidBounce Legacy](https://github.com/CCBlueX/LiquidBounce/tree/legacy), aiming to compete with paid & non-libre hacked clients.
 
 If anyone would like to contact me through Discord, my username is `thatonecoder_`. More contact methods may be found through my [Codeberg profile page](https://codeberg.org/thatonecoder), although I cannot guarantee any attempts will be successful.
+
+Divergences from LiquidBounce Legacy are listed in the [changelog](CHANGELOG.md); note that there are also many refactors, making the code much cleaner.
 
 ## Issues
 If you notice any bugs or would like a feature added, you can let us know by opening an issue [here](https://github.com/LibreBounce/LibreBounce/issues).
