@@ -1,0 +1,28 @@
+/*
+ * LiquidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
+ * https://github.com/CCBlueX/LiquidBounce/
+ */
+package net.ccbluex.liquidbounce.features.module.modules.player.nofall.modes.aac
+
+import net.ccbluex.liquidbounce.features.module.modules.player.nofall.modes.NoFallMode
+import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPackets
+import net.ccbluex.liquidbounce.utils.extensions.stopXZ
+import net.ccbluex.liquidbounce.utils.movement.MovementUtils.serverOnGround
+import net.minecraft.network.play.client.C03PacketPlayer
+import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
+
+object AAC3311 : NoFallMode("AAC3.3.11") {
+    override fun onUpdate() {
+        mc.thePlayer?.run {
+            if (fallDistance > 2) {
+                stopXZ()
+
+                sendPackets(
+                    C04PacketPlayerPosition(posX, posY - 10E-4, posZ, serverOnGround),
+                    C03PacketPlayer(true)
+                )
+            }
+        }
+    }
+}

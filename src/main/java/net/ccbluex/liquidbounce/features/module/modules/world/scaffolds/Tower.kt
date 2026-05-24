@@ -7,8 +7,8 @@ package net.ccbluex.liquidbounce.features.module.modules.world.scaffolds
 
 import net.ccbluex.liquidbounce.config.Configurable
 import net.ccbluex.liquidbounce.event.*
-import net.ccbluex.liquidbounce.features.module.modules.movement.Fly
-import net.ccbluex.liquidbounce.features.module.modules.movement.Speed
+import net.ccbluex.liquidbounce.features.module.modules.movement.fly.Fly
+import net.ccbluex.liquidbounce.features.module.modules.movement.speed.Speed
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffolds.Scaffold.searchMode
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffolds.Scaffold.shouldGoDown
 import net.ccbluex.liquidbounce.utils.block.block

@@ -11,6 +11,7 @@ import net.ccbluex.liquidbounce.event.async.waitTicks
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.exploit.Phase
+import net.ccbluex.liquidbounce.features.module.modules.movement.fly.Fly
 import net.ccbluex.liquidbounce.utils.block.BlockUtils
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPackets

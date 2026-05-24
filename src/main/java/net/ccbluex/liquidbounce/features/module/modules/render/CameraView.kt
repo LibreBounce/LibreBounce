@@ -11,8 +11,8 @@ import net.ccbluex.liquidbounce.event.MotionEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.modules.movement.Fly
-import net.ccbluex.liquidbounce.features.module.modules.movement.LongJump
+import net.ccbluex.liquidbounce.features.module.modules.movement.fly.Fly
+import net.ccbluex.liquidbounce.features.module.modules.movement.longjump.LongJump
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffolds.Scaffold
 
 object CameraView : Module("CameraView", Category.RENDER, gameDetecting = false) {
