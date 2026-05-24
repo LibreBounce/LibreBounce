@@ -34,9 +34,9 @@ open class TickDelayTimer(
 ) {
     private var ticks = 0
 
-    open fun hasTimePassed() = baseTimer.hasTimePassed(ticks)
+    open fun hasTimePassed(t: Int = ticks) = baseTimer.hasTimePassed(ticks)
 
-    open fun resetIfPassed(t = ticks): Boolean {
+    open fun resetIfPassed(t: Int = ticks): Boolean {
         if (!baseTimer.hasTimePassed(t)) {
             update()
             return false
