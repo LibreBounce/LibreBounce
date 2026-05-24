@@ -195,7 +195,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
     private val sameY by boolean("SameY", false) { scaffoldMode != "GodBridge" }
     private val jumpOnUserInput by boolean("JumpOnUserInput", true) { sameY && scaffoldMode != "GodBridge" }
 
-    private val safeWalk = boolean("SafeWalk", true) { scaffoldMode != "GodBridge" }
+    private val safeWalk by boolean("SafeWalk", true) { scaffoldMode != "GodBridge" }
     private val airSafe by boolean("AirSafe", false) { safeWalk }
 
     // Visuals
