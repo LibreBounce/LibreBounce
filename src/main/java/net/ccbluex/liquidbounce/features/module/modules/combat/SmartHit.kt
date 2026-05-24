@@ -77,7 +77,6 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         val targetPlayer = target as EntityPlayer
 
         val playerLatencyInTicks = latencyInTicks(player as EntityPlayer)
-        val targetHurtTime = targetPlayer.hurtTime
 
         simTargetHurtTime = targetPlayer.hurtTime - playerLatencyInTicks
 
