@@ -1,0 +1,209 @@
+/*
+ * LiquidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
+ * https://github.com/CCBlueX/LiquidBounce/
+ */
+package net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.blocksmc
+
+import net.ccbluex.liquidbounce.event.*
+import net.ccbluex.liquidbounce.features.module.modules.movement.fly.Fly
+import net.ccbluex.liquidbounce.features.module.modules.movement.fly.Fly.boostSpeed
+import net.ccbluex.liquidbounce.features.module.modules.movement.fly.Fly.debugFly
+import net.ccbluex.liquidbounce.features.module.modules.movement.fly.Fly.extraBoost
+import net.ccbluex.liquidbounce.features.module.modules.movement.fly.Fly.stable
+import net.ccbluex.liquidbounce.features.module.modules.movement.fly.Fly.stopOnLanding
+import net.ccbluex.liquidbounce.features.module.modules.movement.fly.Fly.stopOnNoMove
+import net.ccbluex.liquidbounce.features.module.modules.movement.fly.Fly.timerSlowed
+import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.FlyMode
+import net.ccbluex.liquidbounce.utils.client.PacketUtils
+import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPackets
+import net.ccbluex.liquidbounce.utils.client.chat
+import net.ccbluex.liquidbounce.utils.extensions.airTicks
+import net.ccbluex.liquidbounce.utils.extensions.isMoving
+import net.ccbluex.liquidbounce.utils.extensions.tryJump
+import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
+import net.minecraft.client.entity.EntityPlayerSP
+import net.minecraft.network.Packet
+import net.minecraft.network.handshake.client.C00Handshake
+import net.minecraft.network.play.server.S02PacketChat
+import net.minecraft.network.play.server.S40PacketDisconnect
+import net.minecraft.network.status.client.C00PacketServerQuery
+import net.minecraft.network.status.client.C01PacketPing
+import net.minecraft.world.World
+
+/**
+ * Implements a flying method similar to BlocksMC Fly mode, but instead of clipping,
+ * it lags (blinks) the player instead.
+ *
+ * Note:
+ * Clipping is likely patched, as players may receive false bans if phased through a block after reaching
+ * certain (VL). Prolonged flight over long distances is not recommended.
+ *
+ * @author EclipsesDev
+ */
+object BlocksMC2 : FlyMode("BlocksMC2"), Listenable {
+
+    private var isFlying = false
+    private var isNotUnder = false
+    private var isBlinked = false
+    private var jumped = false
+
+    private val packets = mutableListOf<Packet<*>>()
+    private val packetsReceived = mutableListOf<Packet<*>>()
+
+    override fun onUpdate() {
+        val player = mc.thePlayer ?: return
+        mc.theWorld ?: return
+
+        if (isFlying) {
+            if (player.onGround && stopOnLanding) {
+                if (debugFly) chat("(BlocksMC2 Fly) Ground detected, automatically disabling")
+
+                Fly.state = false
+            }
+
+            if (!player.isMoving && stopOnNoMove) {
+                if (debugFly) chat("(BlocksMC2 Fly) No movement detected, automatically disabling (could be a flag)")
+
+                Fly.state = false
+            }
+        }
+
+        if (shouldFly(player, mc.theWorld)) {
+            if (isBlinked) {
+                if (stable) player.motionY = 0.0
+
+                mc.timer.timerSpeed = if (!player.onGround && timerSlowed) {
+                    if (player.ticksExisted % 4 == 0) 0.45f else 0.4f
+                } else 1.0f
+
+                when (player.airTicks) {
+                    0 -> {
+                        if (isNotUnder) {
+                            strafe(boostSpeed + extraBoost)
+                            player.tryJump()
+                            isFlying = true
+                            isNotUnder = false
+                        }
+                    }
+
+                    1 -> {
+                        if (isFlying) strafe(boostSpeed)
+                    }
+                }
+            } else {
+                if (player.onGround) strafe()
+            }
+        } else {
+            if (debugFly) chat("(BlocksMC2 Fly) Please stand under a block")
+        }
+    }
+
+    override fun onDisable() {
+        isNotUnder = false
+        isFlying = false
+        jumped = false
+        isBlinked = false
+
+        if (mc.thePlayer == null)
+            return
+
+        blink()
+    }
+
+    val onWorld = handler<WorldEvent> { event ->
+        Fly.state = false
+
+        // Clear packets on disconnect
+        if (event.worldClient == null) {
+            packets.clear()
+            packetsReceived.clear()
+        }
+    }
+
+    private fun shouldFly(player: EntityPlayerSP, world: World): Boolean {
+        return world.getCollidingBoundingBoxes(player, player.entityBoundingBox.offset(0.0, 0.5, 0.0))
+            .isEmpty() || isFlying
+    }
+
+    private fun handlePlayerFlying(player: EntityPlayerSP) {
+        when (player.airTicks) {
+            0 -> {
+                if (isNotUnder) {
+                    strafe(boostSpeed + extraBoost)
+                    player.tryJump()
+                    isFlying = true
+                    isNotUnder = false
+                }
+            }
+
+            1 -> {
+                if (isFlying) {
+                    strafe(boostSpeed)
+                }
+            }
+        }
+    }
+
+    override fun onPacket(event: PacketEvent) {
+        if (mc.thePlayer == null || mc.theWorld == null || mc.thePlayer.isDead)
+            return
+
+        if (event.isCancelled)
+            return
+
+        when (event.packet) {
+            is C00Handshake, is C00PacketServerQuery, is C01PacketPing, is S02PacketChat, is S40PacketDisconnect -> {
+                return
+            }
+        }
+
+        if (!isBlinked) {
+            isNotUnder = true
+            isBlinked = true
+
+            if (debugFly) chat("blinked.. fly now!")
+
+            if (event.eventType == EventState.RECEIVE && mc.thePlayer.ticksExisted > 10) {
+                event.cancelEvent()
+                synchronized(packetsReceived) {
+                    packetsReceived += event.packet
+                }
+            }
+            if (event.eventType == EventState.SEND) {
+                synchronized(packets) {
+                    sendPackets(*packets.toTypedArray(), triggerEvents = false)
+                }
+
+                packets.clear()
+            }
+        }
+    }
+
+    override fun onMotion(event: MotionEvent) {
+        val player = mc.thePlayer ?: return
+
+        if (player.isDead || player.ticksExisted <= 10) {
+            blink()
+        }
+
+        synchronized(packets) {
+            sendPackets(*packets.toTypedArray(), triggerEvents = false)
+        }
+
+        packets.clear()
+    }
+
+    private fun blink() {
+        synchronized(packetsReceived) {
+            PacketUtils.schedulePacketProcess(packetsReceived)
+        }
+
+        synchronized(packets) {
+            sendPackets(packets = packets.toTypedArray(), triggerEvents = false)
+        }
+
+        packets.clear()
+        packetsReceived.clear()
+    }
+}

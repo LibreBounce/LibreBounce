@@ -16,7 +16,13 @@ import net.ccbluex.liquidbounce.features.module.modules.`fun`.SkinDerp
 import net.ccbluex.liquidbounce.features.module.modules.`fun`.SnakeGame
 import net.ccbluex.liquidbounce.features.module.modules.misc.*
 import net.ccbluex.liquidbounce.features.module.modules.movement.*
+import net.ccbluex.liquidbounce.features.module.modules.movement.fly.Fly
+import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalk.LiquidWalk
+import net.ccbluex.liquidbounce.features.module.modules.movement.longjump.LongJump
+import net.ccbluex.liquidbounce.features.module.modules.movement.noweb.NoWeb
+import net.ccbluex.liquidbounce.features.module.modules.movement.speed.Speed
 import net.ccbluex.liquidbounce.features.module.modules.player.*
+import net.ccbluex.liquidbounce.features.module.modules.player.nofall.NoFall
 import net.ccbluex.liquidbounce.features.module.modules.render.*
 import net.ccbluex.liquidbounce.features.module.modules.world.*
 import net.ccbluex.liquidbounce.features.module.modules.world.Timer

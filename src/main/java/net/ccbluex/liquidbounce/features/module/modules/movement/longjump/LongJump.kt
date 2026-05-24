@@ -1,0 +1,107 @@
+/*
+ * LiquidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
+ * https://github.com/CCBlueX/LiquidBounce/
+ */
+package net.ccbluex.liquidbounce.features.module.modules.movement
+
+import net.ccbluex.liquidbounce.event.JumpEvent
+import net.ccbluex.liquidbounce.event.MoveEvent
+import net.ccbluex.liquidbounce.event.UpdateEvent
+import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.features.module.Category
+import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.modules.movement.longjump.modes.aac.AACv1
+import net.ccbluex.liquidbounce.features.module.modules.movement.longjump.modes.aac.AACv2
+import net.ccbluex.liquidbounce.features.module.modules.movement.longjump.modes.aac.AACv3
+import net.ccbluex.liquidbounce.features.module.modules.movement.longjump.modes.aac.AACv3.teleported
+import net.ccbluex.liquidbounce.features.module.modules.movement.longjump.modes.ncp.NCP
+import net.ccbluex.liquidbounce.features.module.modules.movement.longjump.modes.other.Buzz
+import net.ccbluex.liquidbounce.features.module.modules.movement.longjump.modes.other.Hycraft
+import net.ccbluex.liquidbounce.features.module.modules.movement.longjump.modes.other.Redesky
+import net.ccbluex.liquidbounce.features.module.modules.movement.longjump.modes.other.VerusDamage
+import net.ccbluex.liquidbounce.features.module.modules.movement.longjump.modes.other.VerusDamage.damaged
+import net.ccbluex.liquidbounce.utils.extensions.isMoving
+import net.ccbluex.liquidbounce.utils.extensions.tryJump
+
+object LongJump : Module("LongJump", Category.MOVEMENT) {
+
+    private val longJumpModes = arrayOf(
+        // NCP
+        NCP,
+
+        // AAC
+        AACv1, AACv2, AACv3,
+
+        // Other
+        Redesky, Hycraft, Buzz, VerusDamage
+    )
+
+    private val modes = longJumpModes.map { it.modeName }.toTypedArray()
+
+    val mode by choices("Mode", modes, "NCP")
+    val ncpBoost by float("NCPBoost", 4.25f, 1f..10f) { mode == "NCP" }
+
+    private val autoJump by boolean("AutoJump", true)
+
+    val autoDisable by boolean("AutoDisable", true) { mode == "VerusDamage" }
+
+    var jumped = false
+    var canBoost = false
+
+    val onUpdate = handler<UpdateEvent> {
+        mc.thePlayer?.run {
+            if (jumped) {
+                if (onGround || capabilities.isFlying) {
+                    jumped = false
+
+                    if (mode == "NCP") {
+                        motionX = 0.0
+                        motionZ = 0.0
+                    }
+
+                    return@handler
+                }
+
+                modeModule.onUpdate()
+            }
+
+            if (autoJump && onGround && isMoving) {
+                if (autoDisable && !damaged) {
+                    return@handler
+                }
+
+                jumped = true
+                tryJump()
+            }
+        }
+    }
+
+    val onMove = handler<MoveEvent> { event ->
+        modeModule.onMove(event)
+    }
+
+    override fun onEnable() {
+        modeModule.onEnable()
+    }
+
+    override fun onDisable() {
+        modeModule.onDisable()
+    }
+
+    val onJump = handler<JumpEvent>(always = true) { event ->
+        jumped = true
+        canBoost = true
+        teleported = false
+
+        if (handleEvents()) {
+            modeModule.onJump(event)
+        }
+    }
+
+    override val tag
+        get() = mode
+
+    private val modeModule
+        get() = longJumpModes.find { it.modeName == mode }!!
+}

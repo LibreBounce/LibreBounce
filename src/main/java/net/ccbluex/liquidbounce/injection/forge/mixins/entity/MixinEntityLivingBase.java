@@ -8,7 +8,7 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.entity;
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.EventState;
 import net.ccbluex.liquidbounce.event.JumpEvent;
-import net.ccbluex.liquidbounce.features.module.modules.movement.LiquidWalk;
+import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalk.LiquidWalk;
 import net.ccbluex.liquidbounce.features.module.modules.movement.NoJumpDelay;
 import net.ccbluex.liquidbounce.features.module.modules.movement.Sprint;
 import net.ccbluex.liquidbounce.features.module.modules.render.Animations;
