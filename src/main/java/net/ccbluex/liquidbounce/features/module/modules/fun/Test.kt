@@ -32,6 +32,8 @@ object Test : Module("Test", Category.FUN, subjective = true) {
     //val timer = MSTimer()
     var targetPotentialDelay = 0
     var targetRealPing = 0
+    var lowestTargetPing = 0
+    var potentiallyCheating = false
 
     val onAttack = handler<AttackEvent> { event ->
         target = event.targetEntity ?: return@handler
@@ -48,16 +50,22 @@ object Test : Module("Test", Category.FUN, subjective = true) {
     private fun isFakeLagging(target: Entity): Boolean {
         val player = mc.thePlayer ?: return false
 
+        chat("(Test) Checking target legitimacy (real ping: ${targetRealPing}, potential delay: ${targetPotentialDelay}, difference to flag: ${differenceToFlag})")
+
+        val targetPing = (target as EntityPlayer).getPing()
+
+        lowestTargetPing = if (targetPing < lowestTargetPing) targetPing else lowestTargetPing
+
         if (player.getDistanceToEntityBox(target) in potentialDelayDistance)
-            targetPotentialDelay = (target as EntityPlayer).getPing()
+            targetOutOfRangePing = targetPing
 
         if (player.getDistanceToEntityBox(target) in legitDistance)
-            targetRealPing = (target as EntityPlayer).getPing()
+            targetInRangePing = targetPing
 
-        if (targetRealPing < targetPotentialDelay - differenceToFlag)
-            return true
-        else chat("(Test) Target is probably legit (real ping: ${targetRealPing}, potential delay: ${targetPotentialDelay}, difference to flag: ${differenceToFlag})")
+        if (max(targetPotentialDelay, targetInRangePing) > lowestTargetPing + differenceToFlag)
+            potentiallyCheating = true
+        else potentiallyCheating = false
 
-        return false
+        return potentiallyCheating
     }
 }
