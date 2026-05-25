@@ -7,6 +7,7 @@ package net.ccbluex.liquidbounce.features.module.modules.misc.cheatdetector.chec
 
 import net.ccbluex.liquidbounce.features.module.modules.misc.cheatdetector.checks.Check
 import net.ccbluex.liquidbounce.features.module.modules.misc.cheatdetector.CheatDetector.*
+import net.ccbluex.liquidbounce.utils.extensions.*
 import net.minecraft.entity.player.EntityPlayer
 import kotlin.math.max
 

@@ -54,19 +54,19 @@ object CheatDetector : Module("CheatDetector", Category.MISC) {
             return@handler
         }
 
-        if (lastTarget != fixedTarget) {
+        if (lastTarget != target) {
             reset()
         }
-
-        if (vl >= maxVL)
-            chat("(CheatDetector) $fixedTarget is cheating")
 
         if (vlDecay.resetIfPassed()) {
             vl--
             if (debug) chat("(CheatDetector) Reduced VL by 1")
         }
 
-        lastTarget = fixedTarget
+        if (vl >= maxVL)
+            chat("(CheatDetector) $target is cheating")
+
+        lastTarget = target
 
         check.onUpdate()
     }
