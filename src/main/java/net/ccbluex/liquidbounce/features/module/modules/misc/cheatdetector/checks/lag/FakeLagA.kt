@@ -6,7 +6,11 @@
 package net.ccbluex.liquidbounce.features.module.modules.misc.cheatdetector.checks.lag
 
 import net.ccbluex.liquidbounce.features.module.modules.misc.cheatdetector.checks.Check
-import net.ccbluex.liquidbounce.features.module.modules.misc.cheatdetector.CheatDetector.*
+import net.ccbluex.liquidbounce.features.module.modules.misc.cheatdetector.CheatDetector.flag
+import net.ccbluex.liquidbounce.features.module.modules.misc.cheatdetector.CheatDetector.target
+import net.ccbluex.liquidbounce.features.module.modules.misc.cheatdetector.CheatDetector.legitDistance
+import net.ccbluex.liquidbounce.features.module.modules.misc.cheatdetector.CheatDetector.potentialDelayDistance
+import net.ccbluex.liquidbounce.features.module.modules.misc.cheatdetector.CheatDetector.differenceToFlag
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.minecraft.entity.player.EntityPlayer
 import kotlin.math.max
@@ -18,6 +22,8 @@ object FakeLagA : Check("Fake Lag A") {
     provate var lowestPing = 0
 
     override fun onUpdate() {
+        if (target == null) return
+
         val player = mc.thePlayer
 
         val targetPing = target.getPing()

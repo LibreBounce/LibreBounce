@@ -28,9 +28,9 @@ object CheatDetector : Module("CheatDetector", Category.MISC) {
 
     private val debug by boolean("Debug", false)
     private val lagBased by boolean("LagBased", true)
-    private val potentialDelayDistance by floatRange("PotentialDelayDistance", 5f..8f, 0f..16f) { lagBased }
-    private val legitDistance by floatRange("LegitDistance", 3.0f..3.5f, 0f..6f) { lagBased }
-    private val differenceToFlag by int("DifferenceToFlag", 30, 0..1000, suffix = "ms") { lagBased }
+    val potentialDelayDistance by floatRange("PotentialDelayDistance", 5f..8f, 0f..16f) { lagBased }
+    val legitDistance by floatRange("LegitDistance", 3.0f..3.5f, 0f..6f) { lagBased }
+    val differenceToFlag by int("DifferenceToFlag", 30, 0..1000, suffix = "ms") { lagBased }
 
     var target: Entity? = null
 
