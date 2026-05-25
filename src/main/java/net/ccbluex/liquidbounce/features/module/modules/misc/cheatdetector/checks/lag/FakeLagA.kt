@@ -26,7 +26,7 @@ object FakeLagA : Check("FakeLagA") {
 
         val player = mc.thePlayer
 
-        val targetPing = target.getPing()
+        val targetPing = (target as EntityPlayer).getPing()
 
         if (targetPing != 0) {
             lowestPing = if (targetPing < lowestPing && lowestPing != 0) targetPing else lowestPing

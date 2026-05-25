@@ -11,6 +11,7 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
+import net.ccbluex.liquidbounce.features.module.modules.misc.cheatdetector.checks.lag.FakeLagA
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.timing.TickDelayTimer
@@ -55,7 +56,7 @@ object CheatDetector : Module("CheatDetector", Category.MISC) {
     val onUpdate = handler<UpdateEvent> { event ->
         val player = mc.thePlayer ?: return@handler
 
-        target: Entity? = KillAura.target as EntityPlayer? ?: target as EntityPlayer?
+        target: Entity? = KillAura.target ?: target
         var lastTarget: Entity? = null
 
         if (target == null) {
