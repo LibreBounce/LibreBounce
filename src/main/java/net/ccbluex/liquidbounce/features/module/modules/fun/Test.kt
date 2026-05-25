@@ -45,13 +45,10 @@ object Test : Module("Test", Category.FUN, subjective = true) {
 
         val fixedTarget = (KillAura.target as Entity) ?: target ?: return@handler
 
-        if (isFakeLagging(fixedTarget)) chat("(Test) Target may be using fake lag (real ping: ${targetRealPing}, potential delay: ${targetPotentialDelay}, difference to flag: ${differenceToFlag})")
-    }
+        checkFakeLagging(fixedTarget)
 
-    private fun isFakeLagging(target: Entity): Boolean {
-        val player = mc.thePlayer ?: return false
-
-        chat("(Test) Checking target legitimacy (real ping: ${targetRealPing}, potential delay: ${targetPotentialDelay}, difference to flag: ${differenceToFlag})")
+    private fun checkFakeLagging(target: Entity) {
+        val player = mc.thePlayer
 
         val targetPing = (target as EntityPlayer).getPing()
 
@@ -67,6 +64,6 @@ object Test : Module("Test", Category.FUN, subjective = true) {
             potentiallyCheating = true
         else potentiallyCheating = false
 
-        return potentiallyCheating
+        chat("(Test) Potentially fake lagging: $potentiallyCheating (real ping: ${targetInRangePing}, potential delay: ${targetOutOfRangePing}, difference to flag: ${differenceToFlag})")
     }
 }
