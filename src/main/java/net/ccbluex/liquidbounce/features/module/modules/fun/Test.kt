@@ -48,10 +48,10 @@ object Test : Module("Test", Category.FUN, subjective = true) {
     private fun isFakeLagging(target: Entity): Boolean {
         val player = mc.thePlayer ?: return false
 
-        if (player.getDistanceToEntityBox(target) >= potentialDelayDistance)
+        if (player.getDistanceToEntityBox(target) in potentialDelayDistance)
             targetPotentialDelay = (target as EntityPlayer).getPing()
 
-        if (player.getDistanceToEntityBox(target) <= legitDistance)
+        if (player.getDistanceToEntityBox(target) in legitDistance)
             targetRealPing = (target as EntityPlayer).getPing()
 
         if (targetRealPing < targetPotentialDelay - differenceToFlag)
