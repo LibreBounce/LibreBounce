@@ -74,7 +74,7 @@ object CheatDetector : Module("CheatDetector", Category.MISC) {
     private fun reset() {
         vl = 0
 
-        if (debug) chat("(CheatDetector) Reset the target!")
+        if (debug) chat("(CheatDetector) Reset the VL to 0, as the target has changed")
 
         check.onReset()
     }
