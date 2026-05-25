@@ -6,36 +6,39 @@
 package net.ccbluex.liquidbounce.features.module.modules.misc.cheatdetector.checks.lag
 
 import net.ccbluex.liquidbounce.features.module.modules.misc.cheatdetector.checks.Check
-import net.ccbluex.liquidbounce.features.module.modules.misc.cheatdetector.CheatDetector.flag
-import net.ccbluex.liquidbounce.features.module.modules.misc.cheatdetector.CheatDetector.target
+import net.ccbluex.liquidbounce.features.module.modules.misc.cheatdetector.CheatDetector.*
+import net.minecraft.entity.player.EntityPlayer
+import kotlin.math.max
 
-object FakeLagA : Check("FakeLag A") {
-    private var targetOutOfRangePing = 0
-    private var targetInRangePing = 0
-    provate var lowestTargetPing = 0
-    private var potentiallyCheating = false
+object FakeLagA : Check("Fake Lag A") {
+
+    private var outOfRangePing = 0
+    private var inRangePing = 0
+    provate var lowestPing = 0
 
     override fun onUpdate() {
         val player = mc.thePlayer
 
         val targetPing = target.getPing()
 
-        lowestTargetPing = if (targetPing < lowestTargetPing && lowestTargetPing != 0) targetPing else lowestTargetPing
+        if (targetPing != 0) {
+            lowestPing = if (targetPing < lowestPing && lowestPing != 0) targetPing else lowestPing
 
-        if (player.getDistanceToEntityBox(target) in potentialDelayDistance)
-            if (targetPing != 0) targetOutOfRangePing = targetPing
+            if (player.getDistanceToEntityBox(target) in potentialDelayDistance)
+                outOfRangePing = targetPing
 
-        if (player.getDistanceToEntityBox(target) in legitDistance)
-            if (targetPing != 0) targetInRangePing = targetPing
+            if (player.getDistanceToEntityBox(target) in legitDistance)
+                inRangePing = targetPing
+        }
 
-        if (max(targetOutOfRangePing, targetInRangePing) > lowestTargetPing + differenceToFlag) {
-            flag("FakeLag A", " (in range ping: ${targetInRangePing}, out of range ping: ${targetOutOfRangePing}, lowest target ping: ${lowestTargetPing}, difference to flag: ${differenceToFlag}")
+        if (max(outOfRangePing, inRangePing) > lowestPing + differenceToFlag) {
+            flag("Fake Lag A", " (in range ping: ${inRangePing}, out of range ping: ${outOfRangePing}, lowest target ping: ${lowestPing}, difference to flag: ${differenceToFlag}")
         }
     }
 
     override fun onReset() {
-        targetOutOfRangePing = 0
-        targetInRangePing = 0
-        lowestTargetPing = 0
+        outOfRangePing = 0
+        inRangePing = 0
+        lowestPing = 0
     }
 }
