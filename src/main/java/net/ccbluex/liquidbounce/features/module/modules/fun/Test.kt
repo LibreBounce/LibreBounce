@@ -18,6 +18,7 @@ import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
+import kotlin.math.max
 
 object Test : Module("Test", Category.FUN, subjective = true) {
 
@@ -30,8 +31,8 @@ object Test : Module("Test", Category.FUN, subjective = true) {
     var target: Entity? = null
 
     //val timer = MSTimer()
-    var targetPotentialDelay = 0
-    var targetRealPing = 0
+    var targetOutOfRangePing = 0
+    var targetInRangePing = 0
     var lowestTargetPing = 0
     var potentiallyCheating = false
 
