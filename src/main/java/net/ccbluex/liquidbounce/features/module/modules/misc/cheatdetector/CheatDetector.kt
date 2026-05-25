@@ -3,7 +3,7 @@
  * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
  * https://github.com/CCBlueX/LiquidBounce/
  */
-package net.ccbluex.liquidbounce.features.module.modules.misc
+package net.ccbluex.liquidbounce.features.module.modules.misc.cheatdetector
 
 import net.ccbluex.liquidbounce.event.AttackEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
@@ -32,7 +32,6 @@ object CheatDetector : Module("CheatDetector", Category.MISC) {
     private val lagBased by boolean("LagBased", true)
     private val potentialDelayDistance by floatRange("PotentialDelayDistance", 5f..8f, 0f..16f) { lagBased }
     private val legitDistance by floatRange("LegitDistance", 3.0f..3.5f, 0f..6f) { lagBased }
-
     private val differenceToFlag by int("DifferenceToFlag", 30, 0..1000, suffix = "ms") { lagBased }
 
     var target: Entity? = null
@@ -42,11 +41,6 @@ object CheatDetector : Module("CheatDetector", Category.MISC) {
     val vlDecay = TickDelayTimer(vlDecayTime * 20)
     val flagTimer = TickDelayTimer(flagDelay)
 
-    var targetOutOfRangePing = 0
-    var targetInRangePing = 0
-    var lowestTargetPing = 0
-    var potentiallyCheating = false
-
     val onAttack = handler<AttackEvent> { event ->
         target = event.targetEntity ?: return@handler
     }
@@ -54,10 +48,10 @@ object CheatDetector : Module("CheatDetector", Category.MISC) {
     val onUpdate = handler<UpdateEvent> { event ->
         val player = mc.thePlayer ?: return@handler
 
-        val fixedTarget: Entity? = KillAura.target ?: target
+        target: Entity? = KillAura.target as EntityPlayer? ?: target as EntityPlayer?
         var lastTarget: Entity? = null
 
-        if (fixedTarget == null) {
+        if (target == null) {
             reset()
             return@handler
         }
@@ -66,44 +60,33 @@ object CheatDetector : Module("CheatDetector", Category.MISC) {
             reset()
         }
 
-        if (lagBased) checkFakeLagging(fixedTarget)
-
         if (vl >= maxVL)
             chat("(CheatDetector) $fixedTarget is cheating")
 
-        if (vlDecay.resetIfPassed())
+        if (vlDecay.resetIfPassed()) {
             vl--
+            if (debug) chat("(CheatDetector) Reduced VL by 1")
+        }
 
         lastTarget = fixedTarget
+
+        check.onUpdate()
     }
 
     private fun reset() {
         vl = 0
 
-        targetOutOfRangePing = 0
-        targetInRangePing = 0
-        lowestTargetPing = 0
+        if (debug) chat("(CheatDetector) Reset the target!")
+
+        check.onReset()
     }
 
-    private fun checkFakeLagging(target: Entity) {
-        val player = mc.thePlayer
-
-        val targetPing = (target as EntityPlayer).getPing()
-
-        lowestTargetPing = if (targetPing < lowestTargetPing && lowestTargetPing != 0) targetPing else lowestTargetPing
-
-        if (player.getDistanceToEntityBox(target) in potentialDelayDistance)
-            if (targetPing != 0) targetOutOfRangePing = targetPing
-
-        if (player.getDistanceToEntityBox(target) in legitDistance)
-            if (targetPing != 0) targetInRangePing = targetPing
-
-        if (max(targetOutOfRangePing, targetInRangePing) > lowestTargetPing + differenceToFlag &&
-            flagTimer.resetIfPassed()
-        ) {
-            val string = if (debug) " (real ping: ${targetInRangePing}, potential delay: ${targetOutOfRangePing}, difference to flag: ${differenceToFlag})" else ""
+    fun flag(checkName: String, debugInformation: String) {
+        if (flagTimer.resetIfPassed()) {
             vl++
-            chat("(CheatDetector) %target flagged lag-based module(s) (${vl}, ${maxVL})" + string)
+
+            val extraInfo = if (debug) debugInformation else ""
+            chat("(CheatDetector) %target failed %checkName (${vl}, ${maxVL})" + extraInfo)
         }
     }
 }

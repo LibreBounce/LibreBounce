@@ -121,9 +121,9 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
         val targetHittable = canHit(simTargetHurtTime)
 
-        if (ticksSinceHit > playerLatencyInTicks) {
-            if (target.hurtTime < 10 - attackDelay) hitOnTheWay = false 
-            else if (target.hurtTime > 8) ticksSinceHit = 0
+        if (ticksSinceHit > playerLatencyInTicks + 10) {
+            if (targetHittable) hitOnTheWay = false
+            else ticksSinceHit = 0
         }
 
         if (targetHittable) {
