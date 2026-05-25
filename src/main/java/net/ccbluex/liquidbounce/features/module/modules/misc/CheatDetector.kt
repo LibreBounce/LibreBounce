@@ -70,6 +70,7 @@ object CheatDetector : Module("CheatDetector", Category.MISC) {
 
         if (vl >= maxVL)
             chat("(CheatDetector) $fixedTarget is cheating")
+
         if (vlDecay.resetIfPassed())
             vl--
 
@@ -92,18 +93,17 @@ object CheatDetector : Module("CheatDetector", Category.MISC) {
         lowestTargetPing = if (targetPing < lowestTargetPing && lowestTargetPing != 0) targetPing else lowestTargetPing
 
         if (player.getDistanceToEntityBox(target) in potentialDelayDistance)
-            targetOutOfRangePing = targetPing
+            if (targetPing != 0) targetOutOfRangePing = targetPing
 
         if (player.getDistanceToEntityBox(target) in legitDistance)
-            targetInRangePing = targetPing
+            if (targetPing != 0) targetInRangePing = targetPing
 
         if (max(targetOutOfRangePing, targetInRangePing) > lowestTargetPing + differenceToFlag &&
             flagTimer.resetIfPassed()
         ) {
-            val string = if (debug) "(real ping: ${targetInRangePing}, potential delay: ${targetOutOfRangePing}, difference to flag: ${differenceToFlag})" else ""
-
-            chat("(CheatDetector) Lag-based module(s) (${vl}, ${maxVL})" + string)
+            val string = if (debug) " (real ping: ${targetInRangePing}, potential delay: ${targetOutOfRangePing}, difference to flag: ${differenceToFlag})" else ""
             vl++
+            chat("(CheatDetector) %target flagged lag-based module(s) (${vl}, ${maxVL})" + string)
         }
     }
 }

@@ -40,7 +40,6 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 ### Removed
 
 - `Legacy` mode in Backtrack (thatonecoder)
-- `BlinkAutoBlock` option in KillAura (thatonecoder)
 - `Jitter` option in AutoClicker (thatonecoder)
 
 ## [0.7.0-beta.1] - 2025-11-24

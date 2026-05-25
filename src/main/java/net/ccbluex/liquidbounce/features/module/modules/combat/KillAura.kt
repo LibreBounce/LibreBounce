@@ -162,6 +162,12 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
     private val interactAutoBlock by boolean("InteractAutoBlock", true) { autoBlock == "Packet" }
 
+    val blinkAutoBlock by boolean("BlinkAutoBlock", false) { autoBlock == "Packet" }
+
+    private val blinkBlockTicks by int("BlinkBlockTicks", 3, 2..5) {
+        autoBlock == "Packet" && blinkAutoBlock
+    }
+
     // AutoBlock conditions
     private val smartAutoBlock by boolean("SmartAutoBlock", false) { autoBlock == "Packet" }
 
@@ -1285,4 +1291,3 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 }
 
 data class SwingFailData(val vec3: Vec3, val startTime: Long)
-
