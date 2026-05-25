@@ -28,7 +28,7 @@ object CheatDetector : Module("CheatDetector", Category.MISC) {
 
     private val checks = cheatDetectorChecks.map { it.checkName }.toTypedArray()
 
-    val cheatChecks by choices("Checks", cheatChecks, "FakeLagA")
+    val cheatChecks by choices("Checks", checks, "FakeLagA")
     private val flagDelay by int("FlagDelay", 10, 0..40, suffix = "ticks")
 
     private val maxVL by int("MaxVL", 60, 0..200)

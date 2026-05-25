@@ -19,22 +19,22 @@ object FakeLagA : Check("FakeLagA") {
 
     private var outOfRangePing = 0
     private var inRangePing = 0
-    provate var lowestPing = 0
+    private var lowestPing = 0
 
     override fun onUpdate() {
         if (target == null) return
 
         val player = mc.thePlayer
 
-        val targetPing = (target as EntityPlayer).getPing()
+        val targetPing = (target!! as EntityPlayer).getPing()
 
         if (targetPing != 0) {
             lowestPing = if (targetPing < lowestPing && lowestPing != 0) targetPing else lowestPing
 
-            if (player.getDistanceToEntityBox(target) in potentialDelayDistance)
+            if (player.getDistanceToEntityBox(target!!) in potentialDelayDistance)
                 outOfRangePing = targetPing
 
-            if (player.getDistanceToEntityBox(target) in legitDistance)
+            if (player.getDistanceToEntityBox(target!!) in legitDistance)
                 inRangePing = targetPing
         }
 
