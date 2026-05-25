@@ -165,31 +165,29 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     // AutoBlock conditions
     private val smartAutoBlock by boolean("SmartAutoBlock", false) { autoBlock == "Packet" }
 
-    private val smart = autoBlock == "Packet" && smartAutoBlock
-
     // Ignore all blocking conditions, except for block rate, when standing still
-    private val forceBlock by boolean("ForceBlockWhenStill", true) { smart }
+    private val forceBlock by boolean("ForceBlockWhenStill", true) { autoBlock == "Packet" && smartAutoBlock }
 
     // Don't block if target isn't holding a sword or an axe
-    private val checkWeapon by boolean("CheckEnemyWeapon", true) { smart }
+    private val checkWeapon by boolean("CheckEnemyWeapon", true) { autoBlock == "Packet" && smartAutoBlock }
 
     // Don't block if target isn't sprinting, since less momentum = less chances of attacking you, and might be running from you
     // TODO: Rename this option to something else, since it has multiple more checks that verify whether the target is
     // likely to land a hit on you or not
-    private val checkSprinting by boolean("CheckEnemySprinting", true) { smart }
+    private val checkSprinting by boolean("CheckEnemySprinting", true) { autoBlock == "Packet" && smartAutoBlock }
 
     // Don't block when you can't get damaged
-    private val targetHurtTimeHandling by choices("TargetHurtTimeHandling", arrayOf("Allow", "Forbid", "Ignore"), "Ignore") { smart }
-    private val targetHurtTime by intRange("TargetHurtTime", 0..1, 0..10) { smart && targetHurtTimeHandling != "Ignore" }
+    private val targetHurtTimeHandling by choices("TargetHurtTimeHandling", arrayOf("Allow", "Forbid", "Ignore"), "Ignore") { autoBlock == "Packet" && smartAutoBlock }
+    private val targetHurtTime by intRange("TargetHurtTime", 0..1, 0..10) { autoBlock == "Packet" && smartAutoBlock && targetHurtTimeHandling != "Ignore" }
 
-    private val ownHurtTimeHandling by choices("OwnHurtTimeHandling", arrayOf("Allow", "Forbid", "Ignore"), "Ignore") { smart }
-    private val ownHurtTime by intRange("OwnHurtTime", 9..10, 0..10) { smart && ownHurtTimeHandling != "Ignore" }
+    private val ownHurtTimeHandling by choices("OwnHurtTimeHandling", arrayOf("Allow", "Forbid", "Ignore"), "Ignore") { autoBlock == "Packet" && smartAutoBlock }
+    private val ownHurtTime by intRange("OwnHurtTime", 9..10, 0..10) { autoBlock == "Packet" && smartAutoBlock && ownHurtTimeHandling != "Ignore" }
 
     // Don't block if target isn't looking at you
-    private val maxDirectionDiff by float("MaxOpponentDirectionDiff", 60f, 30f..180f, suffix = "º") { smart }
+    private val maxDirectionDiff by float("MaxOpponentDirectionDiff", 60f, 30f..180f, suffix = "º") { autoBlock == "Packet" && smartAutoBlock }
 
     // Don't block if target is swinging an item and therefore cannot attack
-    private val maxSwingProgress by int("MaxOpponentSwingProgress", 1, 0..5) { smart }
+    private val maxSwingProgress by int("MaxOpponentSwingProgress", 1, 0..5) { autoBlock == "Packet" && smartAutoBlock }
 
     // Rotations
     private val options = RotationSettings(this).withoutKeepRotation()

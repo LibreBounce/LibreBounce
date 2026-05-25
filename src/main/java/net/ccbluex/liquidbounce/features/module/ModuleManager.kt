@@ -14,7 +14,6 @@ import net.ccbluex.liquidbounce.features.module.modules.exploit.*
 import net.ccbluex.liquidbounce.features.module.modules.`fun`.Derp
 import net.ccbluex.liquidbounce.features.module.modules.`fun`.SkinDerp
 import net.ccbluex.liquidbounce.features.module.modules.`fun`.SnakeGame
-import net.ccbluex.liquidbounce.features.module.modules.`fun`.Test
 import net.ccbluex.liquidbounce.features.module.modules.misc.*
 import net.ccbluex.liquidbounce.features.module.modules.movement.*
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.Fly
@@ -93,6 +92,7 @@ object ModuleManager : Listenable, Collection<Module> by MODULE_REGISTRY {
             CameraView,
             Chams,
             Chat,
+            CheatDetector,
             ChestAura,
             ChestStealer,
             CivBreak,
@@ -205,7 +205,6 @@ object ModuleManager : Listenable, Collection<Module> by MODULE_REGISTRY {
             TNTESP,
             TNTTimer,
             Teams,
-            Test,
             TimerRange,
             Timer,
             Tracers,
