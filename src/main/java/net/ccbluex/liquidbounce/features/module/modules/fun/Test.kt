@@ -43,7 +43,7 @@ object Test : Module("Test", Category.FUN, subjective = true) {
     val onUpdate = handler<UpdateEvent> { event ->
         val player = mc.thePlayer ?: return@handler
 
-        val fixedTarget = (KillAura.target as Entity) ?: (target as Entity) ?: return@handler
+        val fixedTarget = (KillAura.target as Entity) ?: (target as? Entity) ?: return@handler
 
         if (checkFakeLagging) checkFakeLagging(fixedTarget)
     }
@@ -65,6 +65,6 @@ object Test : Module("Test", Category.FUN, subjective = true) {
             potentiallyCheating = true
         else potentiallyCheating = false
 
-        chat("(Test) Potentially fake lagging: $potentiallyCheating (real ping: ${targetInRangePing}, potential delay: ${targetOutOfRangePing}, difference to flag: ${differenceToFlag})")
+        chat("(CheatDetector) Potentially fake lagging: $potentiallyCheating (real ping: ${targetInRangePing}, potential delay: ${targetOutOfRangePing}, difference to flag: ${differenceToFlag})")
     }
 }
