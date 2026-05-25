@@ -55,7 +55,7 @@ object CheatDetector : Module("CheatDetector", Category.MISC) {
         val player = mc.thePlayer ?: return@handler
 
         val fixedTarget: Entity? = KillAura.target ?: target
-        val lastTarget: Entity? = null
+        var lastTarget: Entity? = null
 
         if (fixedTarget == null) {
             reset()
@@ -66,7 +66,7 @@ object CheatDetector : Module("CheatDetector", Category.MISC) {
             reset()
         }
 
-        if (checkFakeLagging) checkFakeLagging(fixedTarget)
+        if (lagBased) checkFakeLagging(fixedTarget)
 
         if (vl >= maxVL)
             chat("(CheatDetector) $fixedTarget is cheating")
@@ -98,9 +98,11 @@ object CheatDetector : Module("CheatDetector", Category.MISC) {
             targetInRangePing = targetPing
 
         if (max(targetOutOfRangePing, targetInRangePing) > lowestTargetPing + differenceToFlag &&
-            flagTimer.resetIfPassed
+            flagTimer.resetIfPassed()
         ) {
-            chat("(CheatDetector) Lag-based module(s) (${vl}, ${maxVL}) (real ping: ${targetInRangePing}, potential delay: ${targetOutOfRangePing}, difference to flag: ${differenceToFlag})")
+            val string = if (debug) "(real ping: ${targetInRangePing}, potential delay: ${targetOutOfRangePing}, difference to flag: ${differenceToFlag})" else ""
+
+            chat("(CheatDetector) Lag-based module(s) (${vl}, ${maxVL})" + string)
             vl++
         }
     }
