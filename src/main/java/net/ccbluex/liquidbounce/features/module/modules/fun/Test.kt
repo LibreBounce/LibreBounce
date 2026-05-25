@@ -61,7 +61,7 @@ object Test : Module("Test", Category.FUN, subjective = true) {
         if (player.getDistanceToEntityBox(target) in legitDistance)
             targetInRangePing = targetPing
 
-        if (max(targetPotentialDelay, targetInRangePing) > lowestTargetPing + differenceToFlag)
+        if (max(targetOutOfRangePing, targetInRangePing) > lowestTargetPing + differenceToFlag)
             potentiallyCheating = true
         else potentiallyCheating = false
 
