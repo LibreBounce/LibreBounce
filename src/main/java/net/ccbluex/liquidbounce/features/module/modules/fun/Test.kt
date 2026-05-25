@@ -16,6 +16,7 @@ import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils
 import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
 import net.minecraft.entity.Entity
+import net.minecraft.entity.EntityPlayer
 import net.minecraft.entity.EntityLivingBase
 
 object Test : Module("Test", Category.FUN, subjective = true) {
