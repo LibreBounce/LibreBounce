@@ -16,8 +16,8 @@ import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils
 import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
 import net.minecraft.entity.Entity
-import net.minecraft.entity.EntityPlayer
 import net.minecraft.entity.EntityLivingBase
+import net.minecraft.entity.player.EntityPlayer
 
 object Test : Module("Test", Category.FUN, subjective = true) {
 
@@ -29,7 +29,7 @@ object Test : Module("Test", Category.FUN, subjective = true) {
 
     var target: Entity? = null
 
-    val timer = MSTimer()
+    //val timer = MSTimer()
     var targetPotentialDelay = 0
     var targetRealPing = 0
 
@@ -42,15 +42,17 @@ object Test : Module("Test", Category.FUN, subjective = true) {
 
         val fixedTarget = (KillAura.target as Entity) ?: target ?: return@handler
 
-        if (player.getDistanceToEntityBox(fixedTarget) >= potentialDelayDistance) targetPotentialDelay = (fixedTarget as EntityPlayer).getPing()
-
         if (isFakeLagging(fixedTarget)) chat("(Test) Target may be using fake lag (real ping: ${targetRealPing}, potential delay: ${targetPotentialDelay}, difference to flag: ${differenceToFlag})")
     }
 
     private fun isFakeLagging(target: Entity): Boolean {
         val player = mc.thePlayer ?: return false
 
-        if (player.getDistanceToEntityBox(fixedTarget) <= legitDistance) targetRealPing = (target as EntityPlayer).getPing()
+        if (player.getDistanceToEntityBox(target) >= potentialDelayDistance)
+            targetPotentialDelay = (target as EntityPlayer).getPing()
+
+        if (player.getDistanceToEntityBox(target) <= legitDistance)
+            targetRealPing = (target as EntityPlayer).getPing()
 
         if (targetRealPing < targetPotentialDelay - differenceToFlag)
             return true
