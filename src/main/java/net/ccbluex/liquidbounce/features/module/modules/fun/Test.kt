@@ -43,7 +43,7 @@ object Test : Module("Test", Category.FUN, subjective = true) {
     val onUpdate = handler<UpdateEvent> { event ->
         val player = mc.thePlayer ?: return@handler
 
-        val fixedTarget = (KillAura.target as Entity) ?: target ?: return@handler
+        val fixedTarget = (KillAura.target as Entity) ?: (target as Entity) ?: return@handler
 
         if (checkFakeLagging) checkFakeLagging(fixedTarget)
     }
