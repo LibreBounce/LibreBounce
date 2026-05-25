@@ -26,7 +26,7 @@ object Test : Module("Test", Category.FUN, subjective = true) {
     private val legitDistance by floatRange("LegitDistance", 3.0f..3.5f, 0f..6f)
 
     private val differenceToFlag by int("DifferenceToFlag", 30, 0..1000, suffix = "ms")
-    private val predictEnemyPosition by float("PredictEnemyPosition", 1.5f, 0f..10f)
+    private val checkFakeLagging by boolean("CheckFakeLagging", true)
 
     var target: Entity? = null
 
@@ -45,7 +45,8 @@ object Test : Module("Test", Category.FUN, subjective = true) {
 
         val fixedTarget = (KillAura.target as Entity) ?: target ?: return@handler
 
-        checkFakeLagging(fixedTarget)
+        if (checkFakeLagging) checkFakeLagging(fixedTarget)
+    }
 
     private fun checkFakeLagging(target: Entity) {
         val player = mc.thePlayer
