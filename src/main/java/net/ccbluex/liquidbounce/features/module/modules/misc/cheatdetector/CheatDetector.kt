@@ -21,13 +21,22 @@ import kotlin.math.max
 
 object CheatDetector : Module("CheatDetector", Category.MISC) {
 
+    private val cheatDetectorChecks = arrayOf(
+        FakeLagA
+    )
+
+    private val checks = cheatDetectorChecks.map { it.checkName }.toTypedArray()
+
+    val cheatChecks by choices("Checks", cheatChecks, "FakeLagA")
     private val flagDelay by int("FlagDelay", 10, 0..40, suffix = "ticks")
 
     private val maxVL by int("MaxVL", 60, 0..200)
     private val vlDecayTime by int("VLDecayTime", 2, 0..20, suffix = "seconds")
 
     private val debug by boolean("Debug", false)
+
     private val lagBased by boolean("LagBased", true)
+
     val potentialDelayDistance by floatRange("PotentialDelayDistance", 5f..8f, 0f..16f) { lagBased }
     val legitDistance by floatRange("LegitDistance", 3.0f..3.5f, 0f..6f) { lagBased }
     val differenceToFlag by int("DifferenceToFlag", 30, 0..1000, suffix = "ms") { lagBased }
@@ -87,4 +96,7 @@ object CheatDetector : Module("CheatDetector", Category.MISC) {
             chat("(CheatDetector) %target failed %checkName (${vl}, ${maxVL})" + extraInfo)
         }
     }
+
+    private val check
+        get() = cheatDetectorChecks.find { it.checkName == cheatChecks }!!
 }

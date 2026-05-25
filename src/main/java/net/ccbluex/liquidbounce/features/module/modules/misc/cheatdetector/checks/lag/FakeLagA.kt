@@ -15,7 +15,7 @@ import net.ccbluex.liquidbounce.utils.extensions.*
 import net.minecraft.entity.player.EntityPlayer
 import kotlin.math.max
 
-object FakeLagA : Check("Fake Lag A") {
+object FakeLagA : Check("FakeLagA") {
 
     private var outOfRangePing = 0
     private var inRangePing = 0
