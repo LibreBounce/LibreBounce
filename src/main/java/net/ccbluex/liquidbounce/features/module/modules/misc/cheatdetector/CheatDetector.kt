@@ -38,7 +38,7 @@ object CheatDetector : Module("CheatDetector", Category.MISC) {
     private val maxVL by int("MaxVL", 60, 0..200)
     private val vlDecayTime by int("VLDecayTime", 2, 0..20, suffix = "seconds")
 
-    private val debug by boolean("Verbose", false)
+    private val verbose by boolean("Verbose", false)
     private val debug by boolean("Debug", false)
 
 
@@ -91,10 +91,11 @@ object CheatDetector : Module("CheatDetector", Category.MISC) {
     }
 
     fun flag(checkName: String, debugInformation: String) {
+        val extraInfo = if (debug) debugInformation else ""
+
         if (flagTimer.resetIfPassed()) {
             vl++
 
-            val extraInfo = if (debug) debugInformation else ""
             chat("(CheatDetector) %target failed %checkName (${vl}, ${maxVL})" + extraInfo)
         } else {
             if (verbose) chat("(CheatDetector) VERBOSE: %target failed %checkName (${vl}, ${maxVL})" + extraInfo)
