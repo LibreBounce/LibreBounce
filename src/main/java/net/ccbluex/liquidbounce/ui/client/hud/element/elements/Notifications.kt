@@ -87,10 +87,11 @@ class Notifications(
     }
 
     enum class SeverityType(val path: ResourceLocation) {
-        SUCCESS(ResourceLocation("librebounce/notifications/success.png")), RED_SUCCESS(ResourceLocation("librebounce/notifications/redsuccess.png")), INFO(
-            ResourceLocation("librebounce/notifications/info.png")
-        ),
-        WARNING(ResourceLocation("librebounce/notifications/warning.png")), ERROR(ResourceLocation("librebounce/notifications/error.png"))
+        SUCCESS(ResourceLocation("librebounce/notifications/success.png")),
+        RED_SUCCESS(ResourceLocation("librebounce/notifications/redsuccess.png")),
+        INFO(ResourceLocation("librebounce/notifications/info.png")),
+        WARNING(ResourceLocation("librebounce/notifications/warning.png")),
+        ERROR(ResourceLocation("librebounce/notifications/error.png"))
     }
 }
 
