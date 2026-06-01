@@ -138,31 +138,35 @@ class Target : Element("Target") {
                     width = stringWidth
                     height = 36f
 
-                    val targetText =
-                        if (shouldRender) textColor.alpha else if (delayCounter >= vanishDelay) 0f else alphaText
-                    alphaText =
-                        AnimationUtil.base(alphaText.toDouble(), targetText.toDouble(), animationSpeed.toDouble())
-                            .toInt()
+                    val targetText = when {
+                        shouldRender -> textColor.alpha
+                        delayCounter >= vanishDelay -> 0f
+                        else -> alphaText
+                    }
 
-                    val targetBackground = if (shouldRender) {
-                        backgroundColor.alpha
-                    } else if (delayCounter >= vanishDelay) {
-                        0f
-                    } else alphaBackground
+                    alphaText = AnimationUtil.base(
+                        alphaText.toDouble(), targetText.toDouble(), animationSpeed.toDouble()
+                    ).toInt()
+
+                    val targetBackground = when {
+                        shouldRender -> backgroundColor.alpha
+                        delayCounter >= vanishDelay -> 0f
+                        else -> alphaBackground
+                    }
 
                     alphaBackground = AnimationUtil.base(
                         alphaBackground.toDouble(), targetBackground.toDouble(), animationSpeed.toDouble()
                     ).toInt()
 
-                    val targetBorder = if (shouldRender) {
-                        borderColor.alpha
-                    } else if (delayCounter >= vanishDelay) {
-                        0f
-                    } else alphaBorder
+                    val targetBorder = when {
+                        shouldRender -> borderColor.alpha
+                        delayCounter >= vanishDelay -> 0f
+                        else -> alphaBorder
+                    }
 
-                    alphaBorder =
-                        AnimationUtil.base(alphaBorder.toDouble(), targetBorder.toDouble(), animationSpeed.toDouble())
-                            .toInt()
+                    alphaBorder = AnimationUtil.base(
+                        alphaBorder.toDouble(), targetBorder.toDouble(), animationSpeed.toDouble()
+                    ).toInt()
                 }
 
                 val backgroundCustomColor = backgroundColor.withAlpha(

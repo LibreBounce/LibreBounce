@@ -89,7 +89,6 @@ object SilentHotbar : Listenable, MinecraftInstance {
     }
 
     fun renderSlot(option: Boolean): Int {
-        val player = mc.thePlayer ?: return 0
 
         val original = player.inventory.currentItem
 

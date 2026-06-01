@@ -564,8 +564,7 @@ class SimulatedPlayer(
                             motionY = -0.15
                         }
 
-                        val flag = isSneaking()
-                        if (flag && motionY < 0.0) {
+                        if (isSneaking() && motionY < 0.0) {
                             motionY = 0.0
                         }
                     }
@@ -916,9 +915,6 @@ class SimulatedPlayer(
         if (handleMaterialAcceleration(getEntityBoundingBox().expand(0.0, -0.4000000059604645, 0.0)
                 .contract(0.001, 0.001, 0.001), Material.water
             )) {
-            /*if (!inWater && !this.firstUpdate) {
-                 this.resetHeight()
-            }*/
             fallDistance = 0.0f
             inWater = true
             fire = 0
@@ -1316,8 +1312,8 @@ class SimulatedPlayer(
         if (block is BlockSlime) {
             if (isSneaking()) {
                 motionY = 0.0
-            } else if (motionY < 0.0) {
-                motionY = -motionY
+            } else {
+                motionY = abs(motionY)
             }
         } else {
             motionY = 0.0
