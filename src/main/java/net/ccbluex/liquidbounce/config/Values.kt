@@ -42,9 +42,9 @@ class BoolValue(
         }
 
     override fun fromTextF(text: String): Boolean? =
-        when (text.lowercase()) {
-            "true", "t", "yes", "y" -> true
-            "false", "f", "no", "n" -> false
+        when (text.lowercase().take(1)) {
+            "t", "y" -> true
+            "f", "n" -> false
             else -> null
         }
 

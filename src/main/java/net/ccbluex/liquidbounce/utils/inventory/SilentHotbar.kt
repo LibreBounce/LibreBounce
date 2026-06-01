@@ -126,16 +126,14 @@ object SilentHotbar : Listenable, MinecraftInstance {
     }
 
     val onPacket = handler<PacketEvent> { event ->
-        val packet = event.packet
-
-        if (packet !is C09PacketHeldItemChange)
+        if (event.packet !is C09PacketHeldItemChange)
             return@handler
 
         /**
          * When a class (module usually) directly sends this packet and [SilentHotbarState.resetManually]
          * is active, it lets the class' slot change request override [currentSlot]
          */
-        if (shouldReset(packet.slotId, currentSlot))
+        if (shouldReset(event.packet.slotId, currentSlot))
             resetSlot()
     }
 

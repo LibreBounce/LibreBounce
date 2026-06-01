@@ -123,15 +123,13 @@ object MovementUtils : MinecraftInstance, Listenable {
         if (event.isCancelled)
             return@handler
 
-        val packet = event.packet
+        (packet as? C03PacketPlayer).let {
+            serverOnGround = it.onGround
 
-        if (packet is C03PacketPlayer) {
-            serverOnGround = packet.onGround
-
-            if (packet.isMoving) {
-                serverX = packet.x
-                serverY = packet.y
-                serverZ = packet.z
+            if (it.isMoving) {
+                serverX = it.x
+                serverY = ir.y
+                serverZ = it.z
             }
         }
     }

@@ -17,12 +17,12 @@ import net.ccbluex.liquidbounce.utils.timing.MSTimer
 
 object PacketDebugger : Module("PacketDebugger", Category.MISC, gameDetecting = false) {
 
-    private val notify by choices("Notify", arrayOf("Chat", "Notification"), "Chat")
+    private val notify by choices("Notify", arrayOf("Chat", "Notification", "Both"), "Chat")
     val packetType by choices("PacketType", arrayOf("Both", "Server", "Client", "Custom"), "Both")
     private val delay by int("Delay", 100, 0..1000, suffix = "ms")
     private val notificationStayTime by float(
         "NotificationStayTime", 3f, 0.5f..60f, suffix = "Seconds"
-    ) { notify == "Notification" }
+    ) { notify == "Notification" || notify == "Both" }
 
     private val timer = MSTimer()
     val selectedPackets = mutableSetOf<String>()
@@ -71,11 +71,9 @@ object PacketDebugger : Module("PacketDebugger", Category.MISC, gameDetecting = 
             }
         }
 
-        if (notify == "Chat") {
-            chat(packetInfo)
-        } else {
-            // Not a good idea...
-            hud.addNotification(Notification.informative(this, packetInfo, (notificationStayTime * 1000).toLong()))
+        when (notify) {
+            "Chat", "Both" -> chat(packetInfo)
+            "Notification", "Both" -> hud.addNotification(Notification.informative(this, packetInfo, (notificationStayTime * 1000).toLong()))
         }
     }
 }
