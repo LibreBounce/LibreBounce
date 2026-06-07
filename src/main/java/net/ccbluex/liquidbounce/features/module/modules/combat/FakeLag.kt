@@ -42,6 +42,7 @@ import kotlin.math.min
 
 object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
 
+    private val style by choices("Style", arrayOf("Pulse", "Smooth"), "Smooth")
     private val delay by int("Delay", 550, 0..1000, suffix = "ms")
     private val recoilTime by int("RecoilTime", 750, 0..2000, suffix = "ms")
 
@@ -50,6 +51,9 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
     // TODO: Fix this being buggy
     private val onlyWhenNearEnemy by boolean("OnlyWhenNearEnemy", true)
     private val distanceToLag by floatRange("DistanceToLag", 3.5f..4.5f, 0f..6f, suffix = "blocks") { onlyWhenNearEnemy }
+
+    private val smart by boolean("Smart", true)
+    private val advantageTreshold by float("AdvantageTreshold", 0f, 0f..1f, suffix = "blocks") { smart }
 
     // TODO: Add an option that blinks if a projectile is predicted to hit you (and make it blink shortly before that would happen, considering latency)
     private val blinkOnAction by boolean("BlinkOnAction", true)
@@ -202,21 +206,23 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
                 val eyes = getTruePositionEyes(otherPlayer)
 
                 val playerDistance = eyes.distanceTo(getNearestPointBB(eyes, playerBox))
+                val currPlayerDistance = eyes.distanceTo(getNearestPointBB(eyes, player.hitBox))
 
                 if (entityMixin != null) {
+                    if (smart && playerDistance + advantageTreshold < currPlayerDistance) {
+                        blink()
+                        return@handler
+                    }
+
                     if (playerDistance in allowedDistToEnemy) {
                         blink()
                         wasNearEnemy = true
                         return@handler
                     }
 
-                    if (onlyWhenNearEnemy) {
-                        val shouldLag = playerDistance in distanceToLag
-
-                        if (!shouldLag) {
-                            blink()
-                            return@handler
-                        }
+                    if (onlyWhenNearEnemy && !playerDistance in distanceToLag) {
+                        blink()
+                        return@handler
                     }
                 }
             }
@@ -313,7 +319,7 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
     private fun handlePackets(clear: Boolean = false) {
         synchronized(packetQueue) {
             packetQueue.removeEach { (packet, timestamp) ->
-                if (timestamp <= System.currentTimeMillis() - delay || clear) {
+                if (timestamp <= System.currentTimeMillis() - delay || clear || style == "Pulse") {
                     sendPacket(packet, false)
                     true
                 } else false
@@ -321,7 +327,7 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
         }
 
         synchronized(positions) {
-            positions.removeEach { (_, timestamp) -> timestamp <= System.currentTimeMillis() - delay || clear }
+            positions.removeEach { (_, timestamp) -> timestamp <= System.currentTimeMillis() - delay || clear || style == "Pulse" }
         }
     }
 

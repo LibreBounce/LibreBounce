@@ -16,6 +16,7 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 - `SimulateKnockback`, `SimulatedHorizontalKnockback`, and `SimulatedVerticalKnockback` values to SmartHit (thatonecoder)
 - `TargetHurtTimeHandling`, `TargetHurtTime`, `OwnHurtTimeHandling`, and `OwnHurtTime` values to SmartHit & Backtrack (thatonecoder)
 - `OwnHurtTimeHandling` and `OwnHurtTime` values to KeepSprint (thatonecoder)
+- `Style`, `Smart` and `AdvantageTreshold` values to FakeLag (thatonecoder)
 - `AdvantageTreshold` value to Backtrack (thatonecoder)
 - `TargetHurtTimeToDebug` value to Backtrack (thatonecoder)
 - `Sneak` mode to SuperKnockback (thatonecoder)
@@ -39,6 +40,7 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 ### Removed
 
+- `SprintTap2` mode in SuperKnockback (thatonecoder)
 - `Legacy` mode in Backtrack (thatonecoder)
 - `Jitter` option in AutoClicker (thatonecoder)
 
