@@ -220,7 +220,7 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
                         return@handler
                     }
 
-                    if (onlyWhenNearEnemy && !playerDistance in distanceToLag) {
+                    if (onlyWhenNearEnemy && playerDistance !in distanceToLag) {
                         blink()
                         return@handler
                     }
