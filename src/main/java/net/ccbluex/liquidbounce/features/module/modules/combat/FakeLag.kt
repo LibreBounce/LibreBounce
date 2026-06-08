@@ -47,8 +47,10 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
     private val recoilTime by int("RecoilTime", 750, 0..2000, suffix = "ms")
 
     // TODO: Fix this being buggy
-    private val distanceHandling by choices("DistanceHandling", arrayOf("Allow", "Forbid", "Ignore"), "Forbid")
-    private val distance by floatRange("Distance", 1.5f..3.5f, 0f..6f, suffix = "blocks") { distanceHandling != "Ignore" }
+    private val clientDistanceHandling by choices("ClientDistanceHandling", arrayOf("Allow", "Forbid", "Ignore"), "Forbid")
+    private val clientDistance by floatRange("ClientDistance", 1.5f..3.5f, 0f..6f, suffix = "blocks") { clientDistanceHandling != "Ignore" }
+    private val serverDistanceHandling by choices("ServerDistanceHandling", arrayOf("Allow", "Forbid", "Ignore"), "Forbid")
+    private val serverDistance by floatRange("ServerDistance", 1.5f..3.5f, 0f..6f, suffix = "blocks") { serverDistanceHandling != "Ignore" }
 
     private val smart by boolean("Smart", true)
     private val advantageTreshold by float("AdvantageTreshold", 0f, 0f..1f, suffix = "blocks") { smart }
@@ -196,7 +198,7 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
         val player = mc.thePlayer ?: return@handler
         mc.theWorld ?: return@handler
 
-        if (allowedDistToEnemy.endInclusive > 0) {
+        if (clientDistanceHandling != "Ignore" || serverDistanceHandling != "Ignore") {
             val playerPos = player.currPos
             val serverPos = positions.firstOrNull()?.pos ?: playerPos
 
@@ -215,17 +217,9 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
                 val currPlayerDistance = eyes.distanceTo(getNearestPointBB(eyes, player.hitBox))
 
                 if (entityMixin != null) {
-                    if (smart && playerDistance + advantageTreshold < currPlayerDistance) {
-                        blink()
-                        return@handler
-                    }
-
-                    if (playerDistance in allowedDistToEnemy) {
-                        blink()
-                        return@handler
-                    }
-
-                    if (onlyWhenNearEnemy && playerDistance !in distanceToLag) {
+                    if ((smart && playerDistance + advantageTreshold < currPlayerDistance) ||
+                        !onAllowedDistance(currPlayerDistance, playerDistance
+                    ) {
                         blink()
                         return@handler
                     }
@@ -345,18 +339,26 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
 
     private fun onAllowedHurtTime(): Boolean {
         return when (ownHurtTimeHandling) {
-                "Allow" -> mc.thePlayer!!.hurtTime in ownHurtTime
-                "Forbid" -> mc.thePlayer!!.hurtTime !in ownHurtTime
-                else -> true
-            }
+            "Allow" -> mc.thePlayer!!.hurtTime in ownHurtTime
+            "Forbid" -> mc.thePlayer!!.hurtTime !in ownHurtTime
+            else -> true
+        }
     }
 
-    private fun onAllowedDistance(currDistance: Float): Boolean {
-        return when (distanceHandling) {
-                "Allow" -> currDistance in distance
-                "Forbid" -> currDistance !in distance
-                else -> true
-            }
+    private fun onAllowedDistance(clientDist: Float, serverDist: Float): Boolean {
+        val clientAllowed = when (clientDistanceHandling) {
+            "Allow" -> clientDist in clientDistance
+            "Forbid" -> clientDist !in clientDistance
+            else -> true
+        }
+
+        val serverAllowed = when (serverDistanceHandling) {
+            "Allow" -> serverDist in serverDistance
+            "Forbid" -> serverDist !in serverDistance
+            else -> true
+        }
+
+        return clientAllowed && serverAllowed
     }
 }
 
