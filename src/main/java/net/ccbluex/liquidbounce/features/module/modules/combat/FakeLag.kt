@@ -46,14 +46,15 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
     private val delay by int("Delay", 550, 0..1000, suffix = "ms")
     private val recoilTime by int("RecoilTime", 750, 0..2000, suffix = "ms")
 
-    private val allowedDistToEnemy by floatRange("MinAllowedDistToEnemy", 1.5f..3.5f, 0f..6f, suffix = "blocks")
-
     // TODO: Fix this being buggy
-    private val onlyWhenNearEnemy by boolean("OnlyWhenNearEnemy", true)
-    private val distanceToLag by floatRange("DistanceToLag", 3.5f..4.5f, 0f..6f, suffix = "blocks") { onlyWhenNearEnemy }
+    private val distanceHandling by choices("DistanceHandling", arrayOf("Allow", "Forbid", "Ignore"), "Forbid")
+    private val distance by floatRange("Distance", 1.5f..3.5f, 0f..6f, suffix = "blocks") { distanceHandling != "Ignore" }
 
     private val smart by boolean("Smart", true)
     private val advantageTreshold by float("AdvantageTreshold", 0f, 0f..1f, suffix = "blocks") { smart }
+
+    private val ownHurtTimeHandling by choices("OwnHurtTimeHandling", arrayOf("Allow", "Forbid", "Ignore"), "Allow")
+    private val ownHurtTime by intRange("OwnHurtTime", 0..0, 0..10) { ownHurtTimeHandling != "Ignore" }
 
     // TODO: Add an option that blinks if a projectile is predicted to hit you (and make it blink shortly before that would happen, considering latency)
     private val blinkOnAction by boolean("BlinkOnAction", true)
@@ -68,8 +69,8 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
 
     private val packetQueue = Queues.newArrayDeque<QueueData>()
     private val positions = Queues.newArrayDeque<PositionData>()
+    private val pulseTimer = MSTimer()
     private val resetTimer = MSTimer()
-    private var wasNearEnemy = false
     private var ignoreWholeTick = false
 
     private var renderData = ModelRenderData(Vec3_ZERO, Rotation.ZERO)
@@ -84,7 +85,7 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
         val player = mc.thePlayer ?: return@handler
         val packet = event.packet
 
-        if (!handleEvents() || player.isDead || event.isCancelled || allowedDistToEnemy.endInclusive > 0.0 && wasNearEnemy || ignoreWholeTick) {
+        if (!handleEvents() || player.isDead || event.isCancelled || ignoreWholeTick) {
             return@handler
         }
 
@@ -94,11 +95,9 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
         }
 
         // Flush on damaged received
-        if (player.health < player.maxHealth) {
-            if (player.hurtTime != 0) {
-                blink()
-                return@handler
-            }
+        if (!onAllowedHurtTime()) {
+            blink()
+            return@handler
         }
 
         // Flush on Scaffold/Tower usage
@@ -147,6 +146,13 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
                     return@handler
                 }
             }
+        }
+
+        if (style == "Pulse" && pulseTimer.hasTimePassed(delay)) {
+            pulseTimer.reset()
+            blink()
+
+            return@handler
         }
 
         if (!resetTimer.hasTimePassed(recoilTime)) return@handler
@@ -216,7 +222,6 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
 
                     if (playerDistance in allowedDistToEnemy) {
                         blink()
-                        wasNearEnemy = true
                         return@handler
                     }
 
@@ -230,6 +235,13 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
 
         if (Blink.blinkingSend() || player.isDead || player.isUsingItem) {
             blink()
+            return@handler
+        }
+
+        if (style == "Pulse" && pulseTimer.hasTimePassed(delay)) {
+            pulseTimer.reset()
+            blink()
+
             return@handler
         }
 
@@ -319,7 +331,7 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
     private fun handlePackets(clear: Boolean = false) {
         synchronized(packetQueue) {
             packetQueue.removeEach { (packet, timestamp) ->
-                if (timestamp <= System.currentTimeMillis() - delay || clear || style == "Pulse") {
+                if (timestamp <= System.currentTimeMillis() - delay || clear) {
                     sendPacket(packet, false)
                     true
                 } else false
@@ -327,10 +339,25 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
         }
 
         synchronized(positions) {
-            positions.removeEach { (_, timestamp) -> timestamp <= System.currentTimeMillis() - delay || clear || style == "Pulse" }
+            positions.removeEach { (_, timestamp) -> timestamp <= System.currentTimeMillis() - delay || clear }
         }
     }
 
+    private fun onAllowedHurtTime(): Boolean {
+        return when (ownHurtTimeHandling) {
+                "Allow" -> mc.thePlayer!!.hurtTime in ownHurtTime
+                "Forbid" -> mc.thePlayer!!.hurtTime !in ownHurtTime
+                else -> true
+            }
+    }
+
+    private fun onAllowedDistance(currDistance: Float): Boolean {
+        return when (distanceHandling) {
+                "Allow" -> currDistance in distance
+                "Forbid" -> currDistance !in distance
+                else -> true
+            }
+    }
 }
 
 data class ModelRenderData(var pos: Vec3, var rotation: Rotation) {
