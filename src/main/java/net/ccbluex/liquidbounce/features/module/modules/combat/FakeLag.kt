@@ -204,8 +204,6 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
 
             val playerBox = player.hitBox.offset(serverPos - playerPos)
 
-            wasNearEnemy = false
-
             mc.theWorld.playerEntities.forEach { otherPlayer ->
                 if (otherPlayer == player) return@forEach
 
@@ -218,7 +216,7 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
 
                 if (entityMixin != null) {
                     if ((smart && playerDistance + advantageTreshold < currPlayerDistance) ||
-                        !onAllowedDistance(currPlayerDistance, playerDistance
+                        !onAllowedDistance(currPlayerDistance, playerDistance)
                     ) {
                         blink()
                         return@handler
