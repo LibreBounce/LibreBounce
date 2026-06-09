@@ -343,7 +343,7 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
         }
     }
 
-    private fun onAllowedDistance(clientDist: Float, serverDist: Float): Boolean {
+    private fun onAllowedDistance(clientDist: Double, serverDist: Double): Boolean {
         val clientAllowed = when (clientDistanceHandling) {
             "Allow" -> clientDist in clientDistance
             "Forbid" -> clientDist !in clientDistance
