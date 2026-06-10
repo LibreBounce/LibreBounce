@@ -10,7 +10,7 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 - **Breaking:** Aimbot recode, now having more maintainable code, along with more features (thatonecoder)
 - **Breaking:** `TargetHurtTimeHandling`, `TargetHurtTime`, `OwnHurtTimeHandling`, and `OwnHurtTime` values to KillAura's Smart AutoBlock; replaces `MaxOwnHurtTime` (thatonecoder)
-- **Breaking:** `DistanceHandling` and `Distance` values to FakeLag; replaces `MinAllowedDistToEnemy`, `OnlyWhenNearEnemy`, and `DistanceToLag` (thatonecoder)
+- **Breaking:** ` ClientDistanceHandling`, `Distance`, `ServerDistanceHandling`, `ServerDistance` values to FakeLag; replaces `MinAllowedDistToEnemy`, `OnlyWhenNearEnemy`, and `DistanceToLag` (thatonecoder)
 - CombatJump module; jumps at the right time to gain higher momentum in fights (thatonecoder)
 - `UsePredictedTargetHurtTime`, along with client-side target hurttime checking based on latency rounded upwards and a hit detection fail-safe to SmartHit (thatonecoder)
 - `ExperimentalChecks`, `CheckForCriticalHits`, `ImproveCritHandling`, (all previously hardcoded), and `CheckForBlockedHits` to SmartHit (thatonecoder)
