@@ -356,10 +356,12 @@ class MultiListValue(
             else -> null
         }
 
-    override fun fromTextF(text: String): List<String> = values.forEach { it.equals(text.split(", "), true) }
+    override fun fromTextF(text: String): List<String> = text.split(", ").filter { searchTerm ->
+        values.any { it.equals(searchTerm, true) }
+    }
 
     fun updateValues(newValues: List<String>) {
-        if (newValue.isEmpty()) return
+        if (newValues.isEmpty()) return
 
         val filteredValues = newValues.filter { valueToKeep -> values.any { it.equals(valueToKeep, true) } }
 

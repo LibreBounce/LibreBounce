@@ -221,7 +221,7 @@ object LiquidBounceStyle : Style() {
                                 for (valueOfList in value.values) {
                                     moduleElement.settingsWidth = fontSemibold35.getStringWidth("> $valueOfList") + 12
 
-                                    val isSelected = value.values.get().contains(valueOfList)
+                                    val isSelected = value.get().contains(valueOfList)
 
                                     if (mouseButton == 0 && mouseX in minX..maxX && mouseY in yPos + 2..yPos + 14) {
                                         if (isSelected) {
