@@ -77,7 +77,6 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         val targetPlayer = target as EntityPlayer
 
         val playerLatencyInTicks = latencyInTicks(player as EntityPlayer)
-        val targetHurtTime = targetPlayer.hurtTime
 
         simTargetHurtTime = targetPlayer.hurtTime - playerLatencyInTicks
 
@@ -94,7 +93,8 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
     }
 
     val onGameTick = handler<GameTickEvent> { event ->
-        simTargetHurtTime--
+        if (simTargetHurtTime > 0) simTargetHurtTime--
+
         ticksSinceHit++
     }
 
@@ -122,9 +122,9 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
         val targetHittable = canHit(simTargetHurtTime)
 
-        if (ticksSinceHit > playerLatencyInTicks) {
-            if (target.hurtTime < 10 - attackDelay) hitOnTheWay = false 
-            else if (target.hurtTime > 8) ticksSinceHit = 0
+        if (ticksSinceHit > playerLatencyInTicks + 1) {
+            if (targetHittable) hitOnTheWay = false
+            else ticksSinceHit = 0
         }
 
         if (targetHittable) {

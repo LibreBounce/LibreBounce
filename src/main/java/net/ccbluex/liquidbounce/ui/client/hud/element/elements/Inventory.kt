@@ -96,6 +96,7 @@ class Inventory : Element("Inventory", 300.0, 50.0) {
      */
     private fun renderInv(slot: Int, endSlot: Int, x: Int, y: Int, font: FontRenderer) {
         var xOffset = x
+
         for (i in slot..endSlot) {
             xOffset += 18
             val stack = mc.thePlayer.inventorySlot(i).stack ?: continue

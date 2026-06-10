@@ -21,7 +21,7 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBlockDamageText
 import net.ccbluex.liquidbounce.utils.rotation.RotationSettings
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.faceBlock
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.setTargetRotation
-import net.ccbluex.liquidbounce.utils.timing.TickTimer
+import net.ccbluex.liquidbounce.utils.timing.TickDelayTimer
 import net.minecraft.block.Block
 import net.minecraft.block.BlockLiquid
 import net.minecraft.init.Blocks.air
@@ -76,7 +76,7 @@ object Nuker : Module("Nuker", Category.WORLD, gameDetecting = false) {
     private var currentBlock: BlockPos? = null
     private var blockHitDelay = 0
 
-    private val nukeTimer = TickTimer()
+    private val nukeTimer = TickDelayTimer(nukeDelay)
     private var nukedCount = 0
 
     var currentDamage = 0F
@@ -88,13 +88,8 @@ object Nuker : Module("Nuker", Category.WORLD, gameDetecting = false) {
             return@handler
         }
 
-        // Reset bps
-        nukeTimer.update()
-
-        if (nukeTimer.hasTimePassed(nukeDelay)) {
+        if (nukeTimer.resetIfPassed())
             nukedCount = 0
-            nukeTimer.reset()
-        }
 
         // Clear blocks
         attackedBlocks.clear()

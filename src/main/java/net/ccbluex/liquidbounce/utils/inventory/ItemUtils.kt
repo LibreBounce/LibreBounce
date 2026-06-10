@@ -77,11 +77,9 @@ object ItemUtils : MinecraftInstance {
      * Allows you to check if player is consuming item
      */
     fun isConsumingItem(): Boolean {
-        if (!mc.thePlayer.isUsingItem)
-            return false
-
         val usingItem = mc.thePlayer.itemInUse.item
-        return usingItem is ItemFood || usingItem is ItemBucketMilk || usingItem is ItemPotion
+
+        return mc.thePlayer.isUsingItem && (usingItem is ItemFood || usingItem is ItemBucketMilk || usingItem is ItemPotion)
     }
 }
 

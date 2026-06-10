@@ -10,16 +10,18 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 - **Breaking:** Aimbot recode, now having more maintainable code, along with more features (thatonecoder)
 - **Breaking:** `TargetHurtTimeHandling`, `TargetHurtTime`, `OwnHurtTimeHandling`, and `OwnHurtTime` values to KillAura's Smart AutoBlock; replaces `MaxOwnHurtTime` (thatonecoder)
+- **Breaking:** ` ClientDistanceHandling`, `Distance`, `ServerDistanceHandling`, `ServerDistance` values to FakeLag; replaces `MinAllowedDistToEnemy`, `OnlyWhenNearEnemy`, and `DistanceToLag` (thatonecoder)
 - CombatJump module; jumps at the right time to gain higher momentum in fights (thatonecoder)
 - `UsePredictedTargetHurtTime`, along with client-side target hurttime checking based on latency rounded upwards and a hit detection fail-safe to SmartHit (thatonecoder)
 - `ExperimentalChecks`, `CheckForCriticalHits`, `ImproveCritHandling`, (all previously hardcoded), and `CheckForBlockedHits` to SmartHit (thatonecoder)
 - `SimulateKnockback`, `SimulatedHorizontalKnockback`, and `SimulatedVerticalKnockback` values to SmartHit (thatonecoder)
 - `TargetHurtTimeHandling`, `TargetHurtTime`, `OwnHurtTimeHandling`, and `OwnHurtTime` values to SmartHit & Backtrack (thatonecoder)
-- `OwnHurtTimeHandling` and `OwnHurtTime` values to KeepSprint (thatonecoder)
+- `OwnHurtTimeHandling` and `OwnHurtTime` values to KeepSprint & FakeLag (thatonecoder)
+- `Style`, `Smart` and `AdvantageTreshold` values to FakeLag (thatonecoder)
 - `AdvantageTreshold` value to Backtrack (thatonecoder)
 - `TargetHurtTimeToDebug` value to Backtrack (thatonecoder)
 - `Sneak` mode to SuperKnockback (thatonecoder)
-- `UseDelayMultiplier` to SuperKnockback; previously hardcoded (thatonecoder)
+- `UseDelayMultiplier` option to SuperKnockback; previously hardcoded (thatonecoder)
 - `BlockMaxEnemyRange` value to KillAura (thatonecoder)
 - `OnlySprinting` option to the Jump mode in Velocity; previously hardcoded (thatonecoder)
 
@@ -39,6 +41,7 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 ### Removed
 
+- `SprintTap2` mode in SuperKnockback (thatonecoder)
 - `Legacy` mode in Backtrack (thatonecoder)
 - `Jitter` option in AutoClicker (thatonecoder)
 

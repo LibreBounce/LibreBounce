@@ -29,15 +29,55 @@ open class DelayTimer(
 }
 
 open class TickDelayTimer(
-    private val minDelayValue: Int, private val maxDelayValue: Int = minDelayValue,
+    private val minDelay: Int, private val maxDelay: Int = minDelay,
+    private val baseTimer: TickTimer = TickTimer()
+) {
+    private var ticks = 0
+
+    open fun hasTimePassed(t: Int = ticks) = baseTimer.hasTimePassed(ticks)
+
+    open fun resetIfPassed(t: Int = ticks): Boolean {
+        if (!baseTimer.hasTimePassed(t)) {
+            update()
+            return false
+        }
+
+        reset()
+        return true
+    }
+
+    fun resetTicks() {
+        ticks = randomDelay(minDelay, maxDelay)
+    }
+
+    fun resetTimer() = baseTimer.reset()
+
+    fun update() = baseTimer.update()
+
+    fun reset() {
+        resetTimer()
+        resetTicks()
+    }
+}
+
+open class TickRangeDelayTimer(
+    private val delay: IntRange,
     private val baseTimer: TickTimer = TickTimer()
 ) {
     private var ticks = 0
 
     open fun hasTimePassed() = baseTimer.hasTimePassed(ticks)
 
+    open fun resetIfPassed(): Boolean {
+        if (!baseTimer.hasTimePassed(ticks)) return false
+
+        reset()
+
+        return true
+    }
+
     fun resetTicks() {
-        ticks = randomDelay(minDelayValue, maxDelayValue)
+        ticks = randomDelay(delay.first, delay.last)
     }
 
     fun resetTimer() = baseTimer.reset()

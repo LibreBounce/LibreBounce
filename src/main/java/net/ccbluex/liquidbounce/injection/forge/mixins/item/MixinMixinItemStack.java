@@ -45,7 +45,7 @@ public class MixinMixinItemStack implements IMixinItemStack {
 
         if ((Object) this == mc.getItemRenderer().itemToRender) {
             boolean isForceBlocking = (item instanceof ItemSword && !killAura.getAutoBlock().equals("Off") &&
-                    (killAura.getRenderBlocking() || killAura.getTarget() != null && (killAura.getBlinkAutoBlock() || killAura.getForceBlockRender()))
+                    (killAura.getRenderBlocking() || killAura.getTarget() != null && killAura.getForceBlockRender())
                     || noSlow.isUNCPBlocking()) && ClassUtils.INSTANCE.hasClass("com.orangemarshall.animations.BlockhitAnimation");
 
             if (isForceBlocking) {

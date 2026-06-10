@@ -40,7 +40,9 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
     val onStrafe = handler<StrafeEvent> { event ->
         val player = mc.thePlayer ?: return@handler
 
-        val fixedTarget = (KillAura.target as Entity) ?: target ?: return@handler
+        val fixedTarget: Entity? = KillAura.target ?: target
+
+        if (fixedTarget == null) return@handler
 
         if ((onlyMove && (!player.isMoving || (onlySprint && !player.isSprinting))) ||
             player.getDistanceToEntityBox(fixedTarget) !in allowedJumpDistance

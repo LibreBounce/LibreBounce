@@ -10,7 +10,7 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.block.block
-import net.ccbluex.liquidbounce.utils.timing.TickTimer
+import net.ccbluex.liquidbounce.utils.timing.TickDelayTimer
 import net.minecraft.client.settings.GameSettings
 import net.minecraft.init.Blocks.air
 import net.minecraft.item.ItemBlock
@@ -24,7 +24,7 @@ object Eagle : Module("Eagle", Category.PLAYER) {
     private val onlyBlocks by boolean("OnlyBlocks", false)
     private val notOnForward by boolean("NotOnForward", false)
 
-    private val sneakTimer = TickTimer()
+    private val sneakTimer = TickDelayTimer(maxSneakTime.first, maxSneakTime.last)
 
     val onUpdate = handler<UpdateEvent> {
         val player = mc.thePlayer ?: return@handler
@@ -35,11 +35,8 @@ object Eagle : Module("Eagle", Category.PLAYER) {
             val shouldSneak = (!onlyWhenLookingDown || player.rotationPitch >= lookDownThreshold) && (!onlyBlocks || player.heldItem?.item is ItemBlock) && (!notOnForward || !GameSettings.isKeyDown(mc.gameSettings.keyBindForward))
 
             mc.gameSettings.keyBindSneak.pressed = shouldSneak && !GameSettings.isKeyDown(mc.gameSettings.keyBindSneak)
-        } else {
-            if (sneakTimer.hasTimePassed(maxSneakTime.random())) {
-                mc.gameSettings.keyBindSneak.pressed = false
-                sneakTimer.reset()
-            } else sneakTimer.update()
+        } else if (sneakTimer.resetIfPassed()) {
+            mc.gameSettings.keyBindSneak.pressed = false
         }
     }
 

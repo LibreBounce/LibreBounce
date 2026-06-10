@@ -104,7 +104,6 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true) {
 
     val onPacket = handler<PacketEvent> { event ->
         val player = mc.thePlayer ?: return@handler
-        val packet = event.packet
 
         if (player.ticksExisted <= 100)
             return@handler
@@ -112,50 +111,51 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true) {
         if (player.isDead || (player.capabilities.isFlying && player.capabilities.disableDamage && !player.onGround))
             return@handler
 
-        if (packet is S08PacketPlayerPosLook) {
-            val deltaYaw = calculateAngleDelta(packet.yaw, lastYaw)
-            val deltaPitch = calculateAngleDelta(packet.pitch, lastPitch)
-
-            lastServerPos = Vec3(packet.x, packet.y, packet.z)
-            serverPosTime = System.currentTimeMillis()
-
-            if (deltaYaw > 90 || deltaPitch > 90) {
-                forceRotateDetected = true
-                flagCount++
-                chat("§dDetected §3Force-Rotate §e(${deltaYaw.roundToLong()}° | ${deltaPitch.roundToLong()}°) §b(§c${flagCount}x§b)")
-            } else {
-                forceRotateDetected = false
-            }
-
-            if (!forceRotateDetected) {
-                lagbackDetected = true
-                flagCount++
-                chat("§dDetected §3Lagback §b(§c${flagCount}x§b)")
-            }
-
-            if (player.ticksExisted % 3 == 0) {
-                lagbackDetected = false
-            }
-
-            lastYaw = mc.thePlayer.rotationYawHead
-            lastPitch = mc.thePlayer.rotationPitch
-        }
-
-        if (packet is C08PacketPlayerBlockPlacement) {
-            val blockPos = packet.position
-            blockPlacementAttempts[blockPos] = System.currentTimeMillis()
-            successfulPlacements.add(blockPos)
-        }
-
-        when (packet) {
+        when (val packet = event.packet) {
             is S01PacketJoinGame, is S00PacketDisconnect -> {
                 clearFlags()
+            }
+
+            is S08PacketPlayerPosLook -> {
+                val deltaYaw = calculateAngleDelta(packet.yaw, lastYaw)
+                val deltaPitch = calculateAngleDelta(packet.pitch, lastPitch)
+
+                lastServerPos = Vec3(packet.x, packet.y, packet.z)
+                serverPosTime = System.currentTimeMillis()
+
+                if (deltaYaw > 90 || deltaPitch > 90) {
+                    forceRotateDetected = true
+                    flagCount++
+                    chat("§dDetected §3Force-Rotate §e(${deltaYaw.roundToLong()}° | ${deltaPitch.roundToLong()}°) §b(§c${flagCount}x§b)")
+                } else {
+                    forceRotateDetected = false
+                }
+
+                if (!forceRotateDetected) {
+                    lagbackDetected = true
+                    flagCount++
+                    chat("§dDetected §3Lagback §b(§c${flagCount}x§b)")
+                }
+
+                if (player.ticksExisted % 3 == 0) {
+                    lagbackDetected = false
+                }
+
+                lastYaw = mc.thePlayer.rotationYawHead
+                lastPitch = mc.thePlayer.rotationPitch
+            }
+
+            is C08PacketPlayerBlockPlacement -> {
+                val blockPos = packet.position
+                blockPlacementAttempts[blockPos] = System.currentTimeMillis()
+                successfulPlacements.add(blockPos)
             }
         }
     }
 
     private fun calculateAngleDelta(newAngle: Float, oldAngle: Float): Float {
         var delta = newAngle - oldAngle
+
         if (delta > 180) delta -= 360
         if (delta < -180) delta += 360
         return abs(delta)

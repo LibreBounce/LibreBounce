@@ -14,6 +14,7 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
 import net.minecraft.client.renderer.GlStateManager.resetColor
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
+import kotlin.math.abs
 import kotlin.math.sqrt
 
 /**
@@ -44,19 +45,18 @@ class SpeedGraph(
 
             if (lastTick != player.ticksExisted) {
                 lastTick = player.ticksExisted
-                val z2 = player.posZ
-                val z1 = player.prevPosZ
-                val x2 = player.posX
-                val x1 = player.prevPosX
-                var speed = sqrt((z2 - z1) * (z2 - z1) + (x2 - x1) * (x2 - x1))
-                if (speed < 0)
-                    speed = -speed
+                val zDelta = player.posZ - player.prevPosZ
+                val xDelta = player.posX - player.prevPosX
+
+                var speed = abs(sqrt(zDelta * zDelta + xDelta * xDelta))
 
                 speedList += speed
+
                 while (speedList.size > width) {
                     speedList.removeAt(0)
                 }
             }
+
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
             glEnable(GL_BLEND)
             glEnable(GL_LINE_SMOOTH)
@@ -70,6 +70,7 @@ class SpeedGraph(
             val size = speedList.size
 
             val start = (if (size > width) size - width else 0)
+
             for (i in start until size - 1) {
                 val y = speedList[i] * 10 * yMultiplier
                 val y1 = speedList[i + 1] * 10 * yMultiplier

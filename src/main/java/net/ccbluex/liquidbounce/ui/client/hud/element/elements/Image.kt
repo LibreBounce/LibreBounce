@@ -64,9 +64,8 @@ class Image : Element("Image") {
      * Draw element
      */
     override fun drawElement(): Border {
-        if (shadow) {
+        if (shadow)
             drawImage(resourceLocation, xDistance, yDistance, width / 2, height / 2, shadowColor)
-        }
 
         drawImage(resourceLocation, 0, 0, width / 2, height / 2, color)
 

@@ -15,7 +15,7 @@ import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.withinChance
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.angleDifference
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.toRotation
-import net.ccbluex.liquidbounce.utils.timing.TickTimer
+import net.ccbluex.liquidbounce.utils.timing.TickDelayTimer
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.network.play.client.C03PacketPlayer
@@ -34,7 +34,7 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
     // TODO: Add SneakTap mode
     private val mode by choices(
         "Mode",
-        arrayOf("WTap", "Sneak", "SprintTap", "SprintTap2", "Old", "Silent", "Packet", "SneakPacket"),
+        arrayOf("WTap", "Sneak", "SprintTap", "Old", "Silent", "Packet", "SneakPacket"),
         "Old"
     )
 
@@ -46,17 +46,6 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
     private val useDelayMultiplier by boolean("UseDelayMultiplier", true) { mode == "WTap" }
 
     private val sneakTicks by intRange("SneakTicks", 1..2, 1..5) { mode == "Sneak" }
-
-    private val stopTicks: Value<Int> = int("PressBackTicks", 1, 1..5) {
-        mode == "SprintTap2"
-    }.onChange { _, new ->
-        new.coerceAtMost(unSprintTicks.get())
-    }
-    private val unSprintTicks: Value<Int> = int("ReleaseBackTicks", 2, 1..5) {
-        mode == "SprintTap2"
-    }.onChange { _, new ->
-        new.coerceAtLeast(stopTicks.get())
-    }
 
     private val minEnemyRotDiffToIgnore by float("MinRotationDiffFromEnemyToIgnore", 180f, 0f..180f, suffix = "º")
 
@@ -81,8 +70,7 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
     private var ticksElapsed = 0
 
     // Sneak
-    private val sneakTimer = TickTimer()
-    private var sneakInputTicks = sneakTicks.random()
+    private val sneakTimer = TickDelayTimer(sneakTicks.first, sneakTicks.last)
 
     // SprintTap2
     private var sprintTicks = 0
@@ -176,26 +164,6 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
             "Sneak" -> {
                 if (player.isSprinting && player.serverSprintState && !GameSettings.isKeyDown(mc.gameSettings.keyBindSneak) && !mc.gameSettings.keyBindSneak.pressed) {
                     mc.gameSettings.keyBindSneak.pressed = true
-                    sneakInputTicks = sneakTicks.random()
-                }
-            }
-
-            "SprintTap2" -> {
-                if (++sprintTicks == stopTicks.get()) {
-                    if (player.isSprinting && player.serverSprintState) {
-                        player.isSprinting = false
-                        player.serverSprintState = false
-                    } else {
-                        player.isSprinting = true
-                        player.serverSprintState = true
-                    }
-
-                    player.stopXZ()
-                } else if (sprintTicks >= unSprintTicks.get()) {
-                    player.isSprinting = false
-                    player.serverSprintState = false
-
-                    sprintTicks = 0
                 }
             }
         }
@@ -250,12 +218,8 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
             }
 
             "Sneak" -> {
-                sneakTimer.update()
-
-                if (mc.gameSettings.keyBindSneak.pressed && !GameSettings.isKeyDown(mc.gameSettings.keyBindSneak) && sneakTimer.hasTimePassed(sneakInputTicks)) {
+                if (mc.gameSettings.keyBindSneak.pressed && !GameSettings.isKeyDown(mc.gameSettings.keyBindSneak) && sneakTimer.resetIfPassed())
                     mc.gameSettings.keyBindSneak.pressed = false
-                    sneakTimer.reset()
-                }
             }
         }
     }

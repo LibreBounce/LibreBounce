@@ -118,7 +118,7 @@ public abstract class MixinItemRenderer {
 
         if (itemToRender != null) {
             boolean isForceBlocking = (itemToRender.getItem() instanceof ItemSword && !killAura.getAutoBlock().equals("Off") &&
-                    (killAura.getRenderBlocking() || killAura.getTarget() != null && (killAura.getBlinkAutoBlock() || killAura.getForceBlockRender()))
+                    (killAura.getRenderBlocking() || killAura.getTarget() != null && killAura.getForceBlockRender())
                     || noSlow.isUNCPBlocking());
 
             if (itemToRender.getItem() instanceof ItemMap) {

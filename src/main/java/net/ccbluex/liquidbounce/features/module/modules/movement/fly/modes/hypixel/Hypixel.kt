@@ -14,13 +14,13 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.fly.Fly.hypixel
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.Fly.hypixelBoostTimer
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.FlyMode
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
-import net.ccbluex.liquidbounce.utils.timing.TickTimer
+import net.ccbluex.liquidbounce.utils.timing.TickDelayTimer
 import net.minecraft.init.Blocks.air
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.util.AxisAlignedBB
 
 object Hypixel : FlyMode("Hypixel") {
-    private val tickTimer = TickTimer()
+    private val tickTimer = TickDelayTimer(2)
     private val msTimer = MSTimer()
 
     override fun onEnable() {
@@ -35,12 +35,8 @@ object Hypixel : FlyMode("Hypixel") {
                     1f + hypixelBoostTimer * (msTimer.hasTimeLeft(hypixelBoostDelay) / hypixelBoostDelay.toFloat())
                 else 1f
 
-            tickTimer.update()
-
-            if (tickTimer.hasTimePassed(2)) {
+            if (tickTimer.resetIfPassed())
                 setPosition(posX, posY + 1.0E-5, posZ)
-                tickTimer.reset()
-            }
         }
     }
 

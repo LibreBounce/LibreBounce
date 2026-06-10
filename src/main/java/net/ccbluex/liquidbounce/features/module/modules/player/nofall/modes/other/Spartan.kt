@@ -7,21 +7,19 @@ package net.ccbluex.liquidbounce.features.module.modules.player.nofall.modes.oth
 
 import net.ccbluex.liquidbounce.features.module.modules.player.nofall.modes.NoFallMode
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPackets
-import net.ccbluex.liquidbounce.utils.timing.TickTimer
+import net.ccbluex.liquidbounce.utils.timing.TickDelayTimer
 import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
 
 object Spartan : NoFallMode("Spartan") {
-    private val spartanTimer = TickTimer()
+    private val spartanTimer = TickDelayTimer(10)
 
     override fun onUpdate() {
         mc.thePlayer?.run {
-            spartanTimer.update()
-            if (fallDistance > 1.5 && spartanTimer.hasTimePassed(10)) {
+            if (fallDistance > 1.5 && spartanTimer.resetIfPassed()) {
                 sendPackets(
                     C04PacketPlayerPosition(posX, posY + 10, posZ, true),
                     C04PacketPlayerPosition(posX, posY - 10, posZ, true)
                 )
-                spartanTimer.reset()
             }
         }
     }

@@ -220,7 +220,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
     // Delay
     private val delayTimer = DelayTimer(delay.first, delay.last, MSTimer())
 
-    private val zitterTickTimer = TickDelayTimer(zitterTicks.first, zitterTicks.last)
+    private val zitterTimer = TickDelayTimer(zitterTicks.first, zitterTicks.last)
 
     // Eagle
     private var placedBlocksWithoutEagle = 0
@@ -809,7 +809,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
             val z = if (omniDirectionalExpand) cos(yaw).roundToInt() else player.horizontalFacing.directionVec.z
             val blockPos = BlockPos(
                 player.posX + x * it,
-                if (shouldKeepLaunchPosition && launchY <= player.posY) launchY - 1.0 else player.posY - (if (player.posY == player.posY + 0.5) 0.0 else 1.0) - if (shouldGoDown) 1.0 else 0.0,
+                if (shouldKeepLaunchPosition && launchY <= player.posY) launchY - 1.0 else player.posY - 1.0 - if (shouldGoDown) 1.0 else 0.0,
                 player.posZ + z * it
             )
             val placeInfo = PlaceInfo.get(blockPos)
@@ -1114,7 +1114,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
                 }
 
                 if (input.jump || mc.gameSettings.keyBindJump.isKeyDown || notOnGround) {
-                    zitterTickTimer.reset()
+                    zitterTimer.reset()
 
                     if (useSneakMidAir) {
                         input.sneak = true
@@ -1140,11 +1140,8 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
                     return
                 }
 
-                if (zitterTickTimer.hasTimePassed()) {
+                if (zitterTimer.resetIfPassed()) {
                     zitterDirection = !zitterDirection
-                    zitterTickTimer.reset()
-                } else {
-                    zitterTickTimer.update()
                 }
 
                 if (zitterDirection) {

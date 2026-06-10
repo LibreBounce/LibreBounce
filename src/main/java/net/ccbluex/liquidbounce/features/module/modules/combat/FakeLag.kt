@@ -42,14 +42,21 @@ import kotlin.math.min
 
 object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
 
+    private val style by choices("Style", arrayOf("Pulse", "Smooth"), "Smooth")
     private val delay by int("Delay", 550, 0..1000, suffix = "ms")
     private val recoilTime by int("RecoilTime", 750, 0..2000, suffix = "ms")
 
-    private val allowedDistToEnemy by floatRange("MinAllowedDistToEnemy", 1.5f..3.5f, 0f..6f, suffix = "blocks")
-
     // TODO: Fix this being buggy
-    private val onlyWhenNearEnemy by boolean("OnlyWhenNearEnemy", true)
-    private val distanceToLag by floatRange("DistanceToLag", 3.5f..4.5f, 0f..6f, suffix = "blocks") { onlyWhenNearEnemy }
+    private val clientDistanceHandling by choices("ClientDistanceHandling", arrayOf("Allow", "Forbid", "Ignore"), "Forbid")
+    private val clientDistance by floatRange("ClientDistance", 1.5f..3.5f, 0f..6f, suffix = "blocks") { clientDistanceHandling != "Ignore" }
+    private val serverDistanceHandling by choices("ServerDistanceHandling", arrayOf("Allow", "Forbid", "Ignore"), "Forbid")
+    private val serverDistance by floatRange("ServerDistance", 1.5f..3.5f, 0f..6f, suffix = "blocks") { serverDistanceHandling != "Ignore" }
+
+    private val smart by boolean("Smart", true)
+    private val advantageTreshold by float("AdvantageTreshold", 0f, 0f..1f, suffix = "blocks") { smart }
+
+    private val ownHurtTimeHandling by choices("OwnHurtTimeHandling", arrayOf("Allow", "Forbid", "Ignore"), "Allow")
+    private val ownHurtTime by intRange("OwnHurtTime", 0..0, 0..10) { ownHurtTimeHandling != "Ignore" }
 
     // TODO: Add an option that blinks if a projectile is predicted to hit you (and make it blink shortly before that would happen, considering latency)
     private val blinkOnAction by boolean("BlinkOnAction", true)
@@ -64,8 +71,8 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
 
     private val packetQueue = Queues.newArrayDeque<QueueData>()
     private val positions = Queues.newArrayDeque<PositionData>()
+    private val pulseTimer = MSTimer()
     private val resetTimer = MSTimer()
-    private var wasNearEnemy = false
     private var ignoreWholeTick = false
 
     private var renderData = ModelRenderData(Vec3_ZERO, Rotation.ZERO)
@@ -80,7 +87,7 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
         val player = mc.thePlayer ?: return@handler
         val packet = event.packet
 
-        if (!handleEvents() || player.isDead || event.isCancelled || allowedDistToEnemy.endInclusive > 0.0 && wasNearEnemy || ignoreWholeTick) {
+        if (!handleEvents() || player.isDead || event.isCancelled || ignoreWholeTick) {
             return@handler
         }
 
@@ -90,11 +97,9 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
         }
 
         // Flush on damaged received
-        if (player.health < player.maxHealth) {
-            if (player.hurtTime != 0) {
-                blink()
-                return@handler
-            }
+        if (!onAllowedHurtTime()) {
+            blink()
+            return@handler
         }
 
         // Flush on Scaffold/Tower usage
@@ -145,6 +150,13 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
             }
         }
 
+        if (style == "Pulse" && pulseTimer.hasTimePassed(delay)) {
+            pulseTimer.reset()
+            blink()
+
+            return@handler
+        }
+
         if (!resetTimer.hasTimePassed(recoilTime)) return@handler
 
         if (mc.isSingleplayer || mc.currentServerData == null) {
@@ -186,13 +198,11 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
         val player = mc.thePlayer ?: return@handler
         mc.theWorld ?: return@handler
 
-        if (allowedDistToEnemy.endInclusive > 0) {
+        if (clientDistanceHandling != "Ignore" || serverDistanceHandling != "Ignore") {
             val playerPos = player.currPos
             val serverPos = positions.firstOrNull()?.pos ?: playerPos
 
             val playerBox = player.hitBox.offset(serverPos - playerPos)
-
-            wasNearEnemy = false
 
             mc.theWorld.playerEntities.forEach { otherPlayer ->
                 if (otherPlayer == player) return@forEach
@@ -202,21 +212,14 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
                 val eyes = getTruePositionEyes(otherPlayer)
 
                 val playerDistance = eyes.distanceTo(getNearestPointBB(eyes, playerBox))
+                val currPlayerDistance = eyes.distanceTo(getNearestPointBB(eyes, player.hitBox))
 
                 if (entityMixin != null) {
-                    if (playerDistance in allowedDistToEnemy) {
+                    if ((smart && playerDistance + advantageTreshold < currPlayerDistance) ||
+                        !onAllowedDistance(currPlayerDistance, playerDistance)
+                    ) {
                         blink()
-                        wasNearEnemy = true
                         return@handler
-                    }
-
-                    if (onlyWhenNearEnemy) {
-                        val shouldLag = playerDistance in distanceToLag
-
-                        if (!shouldLag) {
-                            blink()
-                            return@handler
-                        }
                     }
                 }
             }
@@ -224,6 +227,13 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
 
         if (Blink.blinkingSend() || player.isDead || player.isUsingItem) {
             blink()
+            return@handler
+        }
+
+        if (style == "Pulse" && pulseTimer.hasTimePassed(delay)) {
+            pulseTimer.reset()
+            blink()
+
             return@handler
         }
 
@@ -325,6 +335,29 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
         }
     }
 
+    private fun onAllowedHurtTime(): Boolean {
+        return when (ownHurtTimeHandling) {
+            "Allow" -> mc.thePlayer!!.hurtTime in ownHurtTime
+            "Forbid" -> mc.thePlayer!!.hurtTime !in ownHurtTime
+            else -> true
+        }
+    }
+
+    private fun onAllowedDistance(clientDist: Double, serverDist: Double): Boolean {
+        val clientAllowed = when (clientDistanceHandling) {
+            "Allow" -> clientDist in clientDistance
+            "Forbid" -> clientDist !in clientDistance
+            else -> true
+        }
+
+        val serverAllowed = when (serverDistanceHandling) {
+            "Allow" -> serverDist in serverDistance
+            "Forbid" -> serverDist !in serverDistance
+            else -> true
+        }
+
+        return clientAllowed && serverAllowed
+    }
 }
 
 data class ModelRenderData(var pos: Vec3, var rotation: Rotation) {

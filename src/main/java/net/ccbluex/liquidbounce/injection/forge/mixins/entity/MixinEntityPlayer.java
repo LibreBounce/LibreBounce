@@ -128,7 +128,7 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase {
             }
 
             boolean isForceBlocking = (stack.getItem() instanceof ItemSword && !killAura.getAutoBlock().equals("Off") &&
-                    (killAura.getRenderBlocking() || killAura.getTarget() != null && (killAura.getBlinkAutoBlock() || killAura.getForceBlockRender()))
+                    (killAura.getRenderBlocking() || killAura.getTarget() != null && killAura.getForceBlockRender())
                     || noSlow.isUNCPBlocking());
 
             if (isForceBlocking) {
