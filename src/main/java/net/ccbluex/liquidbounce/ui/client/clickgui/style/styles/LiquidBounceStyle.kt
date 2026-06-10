@@ -221,13 +221,13 @@ object LiquidBounceStyle : Style() {
                                 for (valueOfList in value.values) {
                                     moduleElement.settingsWidth = fontSemibold35.getStringWidth("> $valueOfList") + 12
 
-                                    val isSelected = value.value.contains(valueOfList)
+                                    val isSelected = value.value.get().contains(valueOfList)
 
                                     if (mouseButton == 0 && mouseX in minX..maxX && mouseY in yPos + 2..yPos + 14) {
                                         if (isSelected) {
-                                            value.changeValue(value.value - listOf(valueOfList).toSet())
+                                            value.set(value.value - listOf(valueOfList).toSet())
                                         } else {
-                                            value.changeValue(value.value + listOf(valueOfList))
+                                            value.set(value.value + listOf(valueOfList))
                                         }
                                         clickSound()
                                         return true

@@ -342,8 +342,6 @@ class MultiListValue(
     value: List<String>
 ) : Value<List<String>>(name, value) {
 
-    override fun validate(newValue: String): String = values.forEach { it.equals(newValue, true) } ?: default
-
     var openList = false
 
     operator fun contains(string: String?) = values.any { it.equals(string, true) }
@@ -358,7 +356,7 @@ class MultiListValue(
             else -> null
         }
 
-    override fun fromTextF(text: String): String? = values.forEach { it.equals(text.split(", "), true) }
+    override fun fromTextF(text: String): List<String> = values.forEach { it.equals(text.split(", "), true) }
 
     fun updateValues(newValues: List<String>) {
         if (newValue.isEmpty()) return

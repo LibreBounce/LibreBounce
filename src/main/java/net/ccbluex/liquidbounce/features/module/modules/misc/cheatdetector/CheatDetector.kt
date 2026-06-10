@@ -30,9 +30,9 @@ object CheatDetector : Module("CheatDetector", Category.MISC) {
     private val checks = cheatDetectorChecks.map { it.checkName }.toTypedArray()
 
     val cheatChecks by multiChoices("Checks", checks, "FakeLagA")
-    val potentialDelayDistance by floatRange("PotentialDelayDistance", 5f..8f, 0f..16f) { cheatChecks == "FakeLagA" }
-    val legitDistance by floatRange("LegitDistance", 3.0f..3.5f, 0f..6f) { cheatChecks == "FakeLagA" }
-    val differenceToFlag by int("DifferenceToFlag", 30, 0..1000, suffix = "ms") { cheatChecks == "FakeLagA" }
+    val potentialDelayDistance by floatRange("PotentialDelayDistance", 5f..8f, 0f..16f) { cheatChecks.contains("FakeLagA") }
+    val legitDistance by floatRange("LegitDistance", 3.0f..3.5f, 0f..6f) { cheatChecks.contains("FakeLagA") }
+    val differenceToFlag by int("DifferenceToFlag", 30, 0..1000, suffix = "ms") { cheatChecks.contains("FakeLagA") }
 
     private val flagDelay by int("FlagDelay", 10, 0..40, suffix = "ticks")
 
@@ -80,7 +80,7 @@ object CheatDetector : Module("CheatDetector", Category.MISC) {
 
         lastTarget = target
 
-        check.forEach { onUpdate() }
+        check.forEach { it.onUpdate() }
     }
 
     private fun reset() {
@@ -88,7 +88,7 @@ object CheatDetector : Module("CheatDetector", Category.MISC) {
 
         if (debug) chat("(CheatDetector) Reset the VL to 0, as the target has changed")
 
-        check.forEach { onReset() }
+        check.forEach { it.onReset() }
     }
 
     fun flag(checkName: String, debugInformation: String) {
