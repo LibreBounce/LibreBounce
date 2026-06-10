@@ -12,10 +12,9 @@ If you notice any bugs or would like a feature added, you can let us know by ope
 This project is subject to the [GNU General Public License v3.0](LICENSE). This only applies for source code located directly in this clean repository. During the development and compilation process, additional source code may be used to which we have obtained no rights. Such code is not covered by the GPL license.
 For those who are unfamiliar with the license, here is a summary of its main points. This is by no means legal advice nor legally binding.
 
-You are allowed to use, share, or modify this project, entirely or partially, for free (and even commercially). However, please consider the following:
+You are allowed to use, share, or modify this project, entirely or partially, and distribute at any cost.
 
-- **You must distribute the source code of your modified work and the source code you took from this project, along with any binary you distribute. This means you are not allowed to use code from this project (even partially) in a closed-source (or even obfuscated) application.**
-- **Your modified application must also be licensed under the GPL.**
+However, note that your modified application must also be licensed under the GPL. This means you cannot use this code in a non-libre or non GPL-compatible program, and when you distribute any binaries, you must also make the source code of the modified work available.
 
 Do the above and share your source code with everyone, just like we do.
 
