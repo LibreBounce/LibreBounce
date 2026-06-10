@@ -174,6 +174,7 @@ class ModuleCommand(val module: Module, val values: Collection<Value<*>> = modul
 
                         is IntValue -> value.set(args[2].toInt()) to args[2]
                         is FloatValue -> value.set(args[2].toFloat()) to args[2]
+
                         is ListValue -> {
                             if (args[2] !in value) {
                                 chatSyntax(
