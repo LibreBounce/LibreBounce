@@ -333,6 +333,44 @@ class ListValue(
     }
 }
 
+/**
+ * MultiList value represents multi-selectable list of values
+ */
+class MultiListValue(
+    name: String,
+    var values: Array<String>,
+    value: List<String>
+) : Value<List<String>>(name, value) {
+
+    override fun validate(newValue: String): String = values.forEach { it.equals(newValue, true) } ?: default
+
+    var openList = false
+
+    operator fun contains(string: String?) = values.any { it.equals(string, true) }
+
+    override fun toJson() = JsonArray().apply {
+        value.forEach { add(it) }
+    }
+
+    override fun fromJsonF(element: JsonElement) =
+        when {
+            element.isJsonArray -> element.asJsonArray.map { it.asString }
+            else -> null
+        }
+
+    override fun fromTextF(text: String): String? = values.forEach { it.equals(text.split(", "), true) }
+
+    fun updateValues(newValues: List<String>) {
+        if (newValue.isEmpty()) return
+
+        val filteredValues = newValues.filter { valueToKeep -> values.any { it.equals(valueToKeep, true) } }
+
+        if (filteredValues.isEmpty()) return
+
+        values = filteredValues
+    }
+}
+
 class ColorValue(
     name: String, defaultColor: Color, var rainbow: Boolean = false
 ) : Value<Color>(name, defaultColor) {

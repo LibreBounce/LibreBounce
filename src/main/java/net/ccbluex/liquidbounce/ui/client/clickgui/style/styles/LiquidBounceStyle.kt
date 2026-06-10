@@ -106,6 +106,7 @@ object LiquidBounceStyle : Style() {
         )
 
         val moduleValues = moduleElement.module.values.filter { it.shouldRender() }
+
         if (moduleValues.isNotEmpty()) {
             fontSemibold35.drawString(
                 if (moduleElement.showSettings) "-" else "+",
@@ -188,6 +189,57 @@ object LiquidBounceStyle : Style() {
                                         minX + 10,
                                         yPos + 4,
                                         if (value.get() == valueOfList) guiColor else Int.MAX_VALUE
+                                    )
+
+                                    yPos += 12
+                                }
+                            }
+                        }
+
+                        is MultiListValue -> {
+                            val text = value.name
+
+                            moduleElement.settingsWidth = fontSemibold35.getStringWidth(text) + 16
+
+                            if (mouseButton == 0 && mouseX in minX..maxX && mouseY in yPos + 2..yPos + 14) {
+                                value.openList = !value.openList
+                                clickSound()
+                                return true
+                            }
+
+                            drawRect(minX, yPos + 2, maxX, yPos + 14, Int.MIN_VALUE)
+
+                            fontSemibold35.drawString("§c$text", minX + 2, yPos + 4, Color.WHITE.rgb)
+                            fontSemibold35.drawString(
+                                if (value.openList) "-" else "+",
+                                maxX - if (value.openList) 5 else 6, yPos + 4, Color.WHITE.rgb
+                            )
+
+                            yPos += 12
+
+                            if (value.openList) {
+                                for (valueOfList in value.values) {
+                                    moduleElement.settingsWidth = fontSemibold35.getStringWidth("> $valueOfList") + 12
+
+                                    val isSelected = value.value.contains(valueOfList)
+
+                                    if (mouseButton == 0 && mouseX in minX..maxX && mouseY in yPos + 2..yPos + 14) {
+                                        if (isSelected) {
+                                            value.changeValue(value.value - listOf(valueOfList).toSet())
+                                        } else {
+                                            value.changeValue(value.value + listOf(valueOfList))
+                                        }
+                                        clickSound()
+                                        return true
+                                    }
+
+                                    drawRect(minX, yPos + 2, maxX, yPos + 14, Int.MIN_VALUE)
+
+                                    fontSemibold35.drawString(
+                                        "> $valueOfList",
+                                        minX + 2,
+                                        yPos + 4,
+                                        if (isSelected) guiColor else Int.MAX_VALUE
                                     )
 
                                     yPos += 12
