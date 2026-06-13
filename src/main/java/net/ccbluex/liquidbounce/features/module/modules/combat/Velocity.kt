@@ -642,6 +642,8 @@ object Velocity : Module("Velocity", Category.COMBAT) {
                 synchronized(packets) {
                     packets[packet] = System.currentTimeMillis()
                 }
+
+                sendPacketsByOrder(true)
             }
             delayMode = true
         } else {

@@ -96,9 +96,9 @@ object CheatDetector : Module("CheatDetector", Category.MISC) {
         if (flagTimer.resetIfPassed()) {
             vl++
 
-            chat("(CheatDetector) %target failed %checkName (${vl}, ${maxVL})" + extraInfo)
+            chat("(CheatDetector) $target failed $checkName (${vl}, ${maxVL})" + extraInfo)
         } else {
-            if (verbose) chat("(CheatDetector) VERBOSE: %target failed %checkName (${vl}, ${maxVL})" + extraInfo)
+            if (verbose) chat("(CheatDetector) VERBOSE: $target failed $checkName (${vl}, ${maxVL})" + extraInfo)
         }
     }
 

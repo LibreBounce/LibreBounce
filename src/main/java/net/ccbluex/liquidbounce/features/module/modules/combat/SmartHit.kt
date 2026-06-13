@@ -32,8 +32,13 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
     private val attackDelay by int("AttackDelay", 10, 0..10, suffix = "ticks")
     private val experimentalChecks by boolean("ExperimentalChecks", true)
 
-    private val notAboveRange by float("NotAboveRange", 2.7f, 0f..8f, suffix = "blocks")
-    private val notAbovePredRange by float("NotAbovePredictedRange", 2.8f, 0f..8f, suffix = "blocks")
+    private val distanceHandling by choices("DistanceHandling", arrayOf("Allow", "Forbid", "Ignore"), "Allow")
+    private val distance by floatRange("Distance", 2.7f..8f, 0f..8f, suffix = "blocks") { distanceHandling != "Ignore" }
+
+    private val predictedDistanceHandling by choices("PredictedDistanceHandling", arrayOf("Allow", "Forbid", "Ignore"), "Allow")
+    private val predictedDistance by floatRange("PredictedDistance", 2.8f..8f, 0f..8f, suffix = "blocks") { predictedDistanceHandling != "Ignore" }
+
+    private val minTargetRotationDifference by float("MinTargetRotationDifference", 70f, 0f..180f, suffix = "º")
 
     private val checkForCriticalHits by boolean("CheckForCriticalHits", true)
     private val improveCritHandling by boolean("ImproveCritHandling", false) { checkForCriticalHits }
@@ -108,7 +113,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         val combinedPing = playerPing + targetPing
         val combinedPingMult = combinedPing.toFloat() / 100f
 
-        val distance = player.getDistanceToEntityBox(target)
+        val dist = player.getDistanceToEntityBox(target)
         val targetDistance = target.getDistanceToEntityBox(player)
     
         val simPlayer = SimulatedPlayer.fromClientPlayer(RotationUtils.modifiedInput)
@@ -142,15 +147,27 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
         val simDistance = simulateDistance(simPlayer, target, simulateKnockback && targetHitLikely)
 
-        val playerAllowed = when (ownHurtTimeHandling) {
+        val playerHurtTimeAllowed = when (ownHurtTimeHandling) {
             "Allow" -> player.hurtTime in ownHurtTime
             "Forbid" -> player.hurtTime !in ownHurtTime
             else -> false
         }
 
-        val targetAllowed = when (targetHurtTimeHandling) {
+        val targetHurtTimeAllowed = when (targetHurtTimeHandling) {
             "Allow" -> target.hurtTime in targetHurtTime
             "Forbid" -> target.hurtTime !in targetHurtTime
+            else -> false
+        }
+
+        val distanceAllowed = when (distanceHandling) {
+            "Allow" -> dist in distance
+            "Forbid" -> dist !in distance
+            else -> false
+        }
+
+        val predictedDistanceAllowed = when (predictedDistanceHandling) {
+            "Allow" -> simDistance in predictedDistance
+            "Forbid" -> simDistance !in predictedDistance
             else -> false
         }
     
@@ -162,26 +179,42 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
             (!hitOnTheWay && (!checkForCriticalHits || !improveCritHandling)) ||
             (checkForCriticalHits && canCritHit(player) && !lastHitCrit)
 
-        val baseHurtTime = 3f / (1f + sqrt(distance) - (rotDiff / 180f))
-        val hurtTimeNoEscape = (2 * distance * 8).toInt() / 10
+        val baseHurtTime = 3f / (1f + sqrt(dist) - (rotDiff / 180f))
+        val hurtTimeNoEscape = (2 * dist * 8).toInt() / 10
             
         val shouldHit = when {
+            target.isDead -> false
+            minTargetRotationDifference != 0f && rotDiff < minTargetRotationDifference -> false
+    
             groundHit || airHit -> true
-            distance > notAboveRange || simDistance > notAbovePredRange -> true
             checkForBlockedHits && lastHitBlocked && !target.isBlocking -> true
             experimentalChecks && player.hurtTime !in hurtTimeNoEscape..8 && targetHitLikely -> true
             experimentalChecks && targetDistance > 3.05f && targetHittable -> true
             player.health < notBelowOwnHealth || target.health < notBelowTargetHealth -> true
             notOnEdge && player.isNearEdge(notOnEdgeLimit) -> true
-            target.isDead -> false
-            else -> playerAllowed || targetAllowed
+            else -> playerHurtTimeAllowed || targetHurtTimeAllowed || distanceAllowed || predictedDistanceAllowed
         }
 
-        if (debug) chat("(SmartHit) Will hit: ${shouldHit}, hit on the way: ${hitOnTheWay}, last hit blocked: ${lastHitBlocked}, current distance: ${distance}, current distance (target POV): ${targetDistance}, predicted distance: ${simDistance}, combined ping: ${combinedPing}, combined ping multiplier: ${combinedPingMult}, rotation difference: ${rotDiff}, target hit likely: ${targetHitLikely}, own hurttime: ${player.hurtTime}, simulated own hurttime: ${simHurtTime}, target hurttime: ${target.hurtTime}, simulated target hurt time: ${simTargetHurtTime}, on ground: ${player.onGround}, predicted ground: ${simPlayer.onGround}, can critical hit: ${canCritHit(player)}")
+        if (debug) chat("(SmartHit) Will hit: ${shouldHit}, hit on the way: ${hitOnTheWay}, last hit blocked: ${lastHitBlocked}, current distance: ${dist}, current distance (target POV): ${targetDistance}, predicted distance: ${simDistance}, combined ping: ${combinedPing}, combined ping multiplier: ${combinedPingMult}, rotation difference: ${rotDiff}, target hit likely: ${targetHitLikely}, own hurttime: ${player.hurtTime}, simulated own hurttime: ${simHurtTime}, target hurttime: ${target.hurtTime}, simulated target hurt time: ${simTargetHurtTime}, on ground: ${player.onGround}, predicted ground: ${simPlayer.onGround}, can critical hit: ${canCritHit(player)}")
 
         return shouldHit
     }
 
+    // Can you land a critical hit on the subject?
+    private fun canCritHit(player: EntityPlayer): Boolean =
+        player.fallDistance > 0 &&
+        !player.isOnLadder &&
+        !player.isInWater &&
+        !player.isPotionActive(blindness) &&
+        player.ridingEntity == null
+
+    // Can the subject be hit?
+    private fun canHit(hurtTime: Int): Boolean = hurtTime <= 10 - attackDelay
+    private fun canHit(player: EntityPlayer): Boolean = canHit(player.hurtTime)
+
+    private fun latencyInTicks(player: EntityPlayer): Int =
+        player.getPing().ceilDiv(2).ceilDiv(20)
+    
     private fun simulateDistance(simPlayer: SimulatedPlayer, target: Entity, simulateKnockback: Boolean): Double {
         val player = mc.thePlayer ?: return 0.0
 
@@ -199,21 +232,6 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         return distance
     }
 
-    // Can you land a critical hit on the subject?
-    private fun canCritHit(player: EntityPlayer): Boolean =
-        player.fallDistance > 0 &&
-        !player.isOnLadder &&
-        !player.isInWater &&
-        !player.isPotionActive(blindness) &&
-        player.ridingEntity == null
-
-    // Can the subject be hit?
-    private fun canHit(hurtTime: Int): Boolean = hurtTime <= 10 - attackDelay
-    private fun canHit(player: EntityPlayer): Boolean = canHit(player.hurtTime)
-
-    private fun latencyInTicks(player: EntityPlayer): Int =
-        player.getPing().ceilDiv(2).ceilDiv(20)
-        
     private fun simulateOwnKnockback(simPlayer: SimulatedPlayer, target: Entity) {
         val modifier = simulatedHorizontalKnockback.random()
         val fullModifier = (target.rotationYaw * (PI.toFloat() / 180.0f)) * modifier * 0.5f

@@ -51,6 +51,9 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
     private val clientDistance by floatRange("ClientDistance", 1.5f..3.5f, 0f..6f, suffix = "blocks") { clientDistanceHandling != "Ignore" }
     private val serverDistanceHandling by choices("ServerDistanceHandling", arrayOf("Allow", "Forbid", "Ignore"), "Forbid")
     private val serverDistance by floatRange("ServerDistance", 1.5f..3.5f, 0f..6f, suffix = "blocks") { serverDistanceHandling != "Ignore" }
+    
+    private val stopAvoidableHits by boolean("StopAvoidableHits", true)
+    private val hittableRange by float("HittableRange", 3.04f, 0f..6f, suffix = "blocks") { stopAvoidableHits } 
 
     private val smart by boolean("Smart", true)
     private val advantageTreshold by float("AdvantageTreshold", 0f, 0f..1f, suffix = "blocks") { smart }
@@ -198,29 +201,28 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
         val player = mc.thePlayer ?: return@handler
         mc.theWorld ?: return@handler
 
-        if (clientDistanceHandling != "Ignore" || serverDistanceHandling != "Ignore") {
-            val playerPos = player.currPos
-            val serverPos = positions.firstOrNull()?.pos ?: playerPos
+        val playerPos = player.currPos
+        val serverPos = positions.firstOrNull()?.pos ?: playerPos
 
-            val playerBox = player.hitBox.offset(serverPos - playerPos)
+        val playerBox = player.hitBox.offset(serverPos - playerPos)
 
-            mc.theWorld.playerEntities.forEach { otherPlayer ->
-                if (otherPlayer == player) return@forEach
+        mc.theWorld.playerEntities.forEach { otherPlayer ->
+            if (otherPlayer == player) return@forEach
 
-                val entityMixin = otherPlayer as? IMixinEntity
+            val entityMixin = otherPlayer as? IMixinEntity
 
-                val eyes = getTruePositionEyes(otherPlayer)
+            val eyes = getTruePositionEyes(otherPlayer)
 
-                val playerDistance = eyes.distanceTo(getNearestPointBB(eyes, playerBox))
-                val currPlayerDistance = eyes.distanceTo(getNearestPointBB(eyes, player.hitBox))
+            val playerDistance = eyes.distanceTo(getNearestPointBB(eyes, playerBox))
+            val currPlayerDistance = eyes.distanceTo(getNearestPointBB(eyes, player.hitBox))
 
-                if (entityMixin != null) {
-                    if ((smart && playerDistance + advantageTreshold < currPlayerDistance) ||
-                        !onAllowedDistance(currPlayerDistance, playerDistance)
-                    ) {
-                        blink()
-                        return@handler
-                    }
+            if (entityMixin != null) {
+                if ((smart && playerDistance + advantageTreshold < currPlayerDistance) ||
+                    !onAllowedDistance(currPlayerDistance, playerDistance) || 
+                    (stopAvoidableHits && playerDistance >= hittableRange && currPlayerDistance < hittableRange)
+                ) {
+                    blink()
+                    return@handler
                 }
             }
         }
