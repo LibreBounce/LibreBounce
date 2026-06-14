@@ -125,14 +125,14 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
             if (simHurtTime > 0) --simHurtTime
         }
 
-        val targetHittable = canHit(simTargetHurtTime)
+        var targetHittable = canHit(simTargetHurtTime)
 
         if (ticksSinceHit > playerLatencyInTicks + 1) {
             if (targetHittable) hitOnTheWay = false
             else ticksSinceHit = 0
         }
 
-        if (targetHittable) {
+        if (ticksSinceHit > attackDelay) {
             lastHitCrit = false
             hitOnTheWay = false
         }

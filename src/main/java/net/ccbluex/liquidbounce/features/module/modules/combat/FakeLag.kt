@@ -64,6 +64,7 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
     // TODO: Add an option that blinks if a projectile is predicted to hit you (and make it blink shortly before that would happen, considering latency)
     private val blinkOnAction by boolean("BlinkOnAction", true)
 
+    private val pauseOnKnockback by boolean("PauseOnKnockback", true)
     private val pauseOnNoMove by boolean("PauseOnNoMove", true)
     private val pauseOnChest by boolean("PauseOnChest", false)
 
@@ -139,7 +140,7 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
 
             // Flush on knockback
             is S12PacketEntityVelocity -> {
-                if (player.entityId == packet.entityID) {
+                if (pauseOnKnockback && player.entityId == packet.entityID) {
                     blink()
                     return@handler
                 }
@@ -194,6 +195,7 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
 
     private fun getTruePositionEyes(player: EntityPlayer): Vec3 {
         val mixinPlayer = player as? IMixinEntity
+
         return Vec3(mixinPlayer!!.trueX, mixinPlayer.trueY + player.getEyeHeight().toDouble(), mixinPlayer.trueZ)
     }
 
@@ -216,8 +218,24 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
             val playerDistance = eyes.distanceTo(getNearestPointBB(eyes, playerBox))
             val currPlayerDistance = eyes.distanceTo(getNearestPointBB(eyes, player.hitBox))
 
+            var bestDistance = eyes.distanceTo(getNearestPointBB(eyes, playerBox))
+            var index = 0
+            var bestIndex = 0
+
+            for (pos in positions) {
+                val testPos = player.hitBox.offset(pos - playerPos)
+                val testDist = eyes.distanceTo(getNearestPointBB(eyes, testPos))
+
+                index++
+
+                if (testDist > bestDistance) {
+                    bestDistance = testDist
+                    bestIndex = index
+                }
+            }
+
             if (entityMixin != null) {
-                if ((smart && playerDistance + advantageTreshold < currPlayerDistance) ||
+                if ((smart && playerPos != serverPos && playerDistance + advantageTreshold < currPlayerDistance) ||
                     !onAllowedDistance(currPlayerDistance, playerDistance) || 
                     (stopAvoidableHits && playerDistance >= hittableRange && currPlayerDistance < hittableRange)
                 ) {
