@@ -147,7 +147,7 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
             }
 
             is S27PacketExplosion -> {
-                if (packet.field_149153_g != 0f || packet.field_149152_f != 0f || packet.field_149159_h != 0f) {
+                if (pauseOnKnockback && packet.field_149153_g != 0f || packet.field_149152_f != 0f || packet.field_149159_h != 0f) {
                     blink()
                     return@handler
                 }
@@ -222,7 +222,7 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
             var index = 0
             var bestIndex = 0
 
-            for (pos in positions) {
+            for ((pos) in positions) {
                 val testPos = player.hitBox.offset(pos - playerPos)
                 val testDist = eyes.distanceTo(getNearestPointBB(eyes, testPos))
 
