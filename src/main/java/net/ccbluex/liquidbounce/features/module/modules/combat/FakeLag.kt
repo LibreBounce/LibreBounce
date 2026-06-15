@@ -56,6 +56,7 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
     private val hittableRange by float("HittableRange", 3.04f, 0f..6f, suffix = "blocks") { stopAvoidableHits } 
 
     private val smart by boolean("Smart", true)
+    private val distanceTresholdToCheck by float("DistanceTresholdToCheck", 4f, 0f..12f, suffix = "blocks") { smart }
     private val advantageTreshold by float("AdvantageTreshold", 0f, 0f..1f, suffix = "blocks") { smart }
 
     private val ownHurtTimeHandling by choices("OwnHurtTimeHandling", arrayOf("Allow", "Forbid", "Ignore"), "Allow")
@@ -63,9 +64,11 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
 
     // TODO: Add an option that blinks if a projectile is predicted to hit you (and make it blink shortly before that would happen, considering latency)
     private val blinkOnAction by boolean("BlinkOnAction", true)
+    private val blinkOnActionDelay by int("BlinkOnActionDelay", 550, 0..1000, suffix = "ms") { blinkOnAction }
 
     private val pauseOnKnockback by boolean("PauseOnKnockback", true)
     private val pauseOnNoMove by boolean("PauseOnNoMove", true)
+    private val timeNecessaryToPause by int("TimeNecessaryToPause", 550, 0..1000, suffix = "ms") { pauseOnNoMove }
     private val pauseOnChest by boolean("PauseOnChest", false)
 
     private val line by boolean("Line", true).subjective()
@@ -75,6 +78,9 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
 
     private val packetQueue = Queues.newArrayDeque<QueueData>()
     private val positions = Queues.newArrayDeque<PositionData>()
+
+    private val pauseTime = MSTimer()
+    private val lastActionTime = MSTimer()
     private val pulseTimer = MSTimer()
     private val resetTimer = MSTimer()
     private var ignoreWholeTick = false
@@ -96,11 +102,15 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
         }
 
         if (pauseOnNoMove && !player.isMoving) {
-            blink()
-            return@handler
+            if (pauseTime.hasTimePassed(timeNecessaryToPause)) {
+                pauseTime.reset()
+                blink()
+                return@handler
+            }
+        } else {
+            pauseTime.reset()
         }
 
-        // Flush on damaged received
         if (!onAllowedHurtTime()) {
             blink()
             return@handler
@@ -113,7 +123,8 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
         }
 
         // Flush on attack/interact
-        if (blinkOnAction && packet is C02PacketUseEntity) {
+        if (blinkOnAction && packet is C02PacketUseEntity && lastActionTime.hasTimePassed(blinkOnActionDelay)) {
+            lastActionTime.reset()
             blink()
             return@handler
         }
@@ -235,7 +246,7 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
             }
 
             if (entityMixin != null) {
-                if ((smart && playerPos != serverPos && playerDistance + advantageTreshold < currPlayerDistance) ||
+                if ((smart && playerPos != serverPos && currPlayerDistance < distanceTresholdToCheck && playerDistance + advantageTreshold < currPlayerDistance) ||
                     !onAllowedDistance(currPlayerDistance, playerDistance) || 
                     (stopAvoidableHits && playerDistance >= hittableRange && currPlayerDistance < hittableRange)
                 ) {
