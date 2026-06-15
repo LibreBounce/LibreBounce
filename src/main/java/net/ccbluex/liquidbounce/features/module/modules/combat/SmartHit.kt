@@ -30,7 +30,6 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
     private val usePredictedTargetHurtTime by boolean("UsePredictedTargetHurtTime", true)
     private val attackDelay by int("AttackDelay", 10, 0..10, suffix = "ticks")
-    private val experimentalChecks by boolean("ExperimentalChecks", true)
 
     private val distanceHandling by choices("DistanceHandling", arrayOf("Allow", "Forbid", "Ignore"), "Allow")
     private val distance by floatRange("Distance", 2.7f..8f, 0f..8f, suffix = "blocks") { distanceHandling != "Ignore" }
@@ -44,6 +43,9 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
     private val improveCritHandling by boolean("ImproveCritHandling", false) { checkForCriticalHits }
 
     private val checkForBlockedHits by boolean("CheckForBlockedHits", true)
+
+    private val experimentalChecks by boolean("ExperimentalChecks", true)
+    private val failsafe by boolean("Failsafe", true)
 
     private val notBelowOwnHealth by float("NotBelowOwnHealth", 5f, 0f..20f)
     private val notBelowTargetHealth by float("NotBelowTargetHealth", 5f, 0f..20f)
@@ -61,8 +63,8 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
     private val predictEnemyPosition by float("PredictEnemyPosition", 1.5f, 0f..2f)
 
     private val simulateKnockback by boolean("SimulateKnockback", true)
-    private val simulatedHorizontalKnockback by floatRange("SimulatedHorizontalKnockback", 0.88f..1f, 0f..4f)
-    private val simulatedVerticalKnockback by floatRange("SimulatedVerticalKnockback", 0.4f..0.5f, 0f..2f)
+    private val simulatedHorizontalKnockback by floatRange("SimulatedHorizontalKnockback", 0.88f..1f, 0f..4f) { simulateKnockback }
+    private val simulatedVerticalKnockback by floatRange("SimulatedVerticalKnockback", 0.4f..0.5f, 0f..2f) { simulateKnockback }
 
     private val debug by boolean("Debug", false).subjective()
 
@@ -92,6 +94,8 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
         if (canHit(simTargetHurtTime))
             hitOnTheWay = true
+
+        ticksSinceHit = 0
 
         lastHitCrit = canCritHit(player)
         lastHitBlocked = targetPlayer.isBlocking
@@ -127,12 +131,12 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
         var targetHittable = canHit(simTargetHurtTime)
 
-        if (ticksSinceHit > playerLatencyInTicks + 1) {
+        if (failsafe && ticksSinceHit > playerLatencyInTicks + 1) {
             if (targetHittable) hitOnTheWay = false
             else ticksSinceHit = 0
         }
 
-        if (ticksSinceHit > attackDelay) {
+        if (ticksSinceHit >= attackDelay) {
             lastHitCrit = false
             hitOnTheWay = false
         }
