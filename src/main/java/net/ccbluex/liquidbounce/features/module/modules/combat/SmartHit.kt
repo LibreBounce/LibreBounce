@@ -86,7 +86,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         val hittable = canHit(simTargetHurtTime)
         val latency = latencyInTicks(player as EntityPlayer)
 
-        simTargetHurtTime = targetPlayer.hurtTime + latency
+        simTargetHurtTime = targetPlayer.hurtTime - latency
 
         simTargetHurtTime = if (usePredictedTargetHurtTime)
             if (hittable)
