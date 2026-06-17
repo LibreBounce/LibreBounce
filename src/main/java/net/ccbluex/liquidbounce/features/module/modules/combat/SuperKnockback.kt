@@ -232,7 +232,7 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
             }
 
             "STap" -> {
-                if (mc.gameSettings.keyBindBack.pressed && !GameSettings.isKeyDown(mc.gameSettings.keyBindBack)
+                if (mc.gameSettings.keyBindBack.pressed && !GameSettings.isKeyDown(mc.gameSettings.keyBindBack) &&
                     !mc.gameSettings.keyBindForward.pressed && GameSettings.isKeyDown(mc.gameSettings.keyBindForward) &&
                     sTapTimer.resetIfPassed()
                 )
