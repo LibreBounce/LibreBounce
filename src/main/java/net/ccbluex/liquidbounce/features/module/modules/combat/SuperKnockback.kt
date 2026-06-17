@@ -34,7 +34,7 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
     // TODO: Add SneakTap mode
     private val mode by choices(
         "Mode",
-        arrayOf("WTap", "Sneak", "SprintTap", "Old", "Silent", "Packet", "SneakPacket"),
+        arrayOf("WTap", "STap", "SprintTap", "Sneak", "Old", "Silent", "Packet", "SneakPacket"),
         "Old"
     )
 
@@ -44,6 +44,8 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
     private val targetDistance by int("TargetDistance", 3, 1..5, suffix = "blocks") { mode == "WTap" }
 
     private val useDelayMultiplier by boolean("UseDelayMultiplier", true) { mode == "WTap" }
+
+    private val sTapTicks by intRange("STapTicks", 1..2, 1..5) { mode == "STap" }
 
     private val sneakTicks by intRange("SneakTicks", 1..2, 1..5) { mode == "Sneak" }
 
@@ -68,6 +70,8 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
     private var blockInput = false
     private var allowInputTicks = reSprintTicks.random()
     private var ticksElapsed = 0
+
+    private val sTapTimer = TickDelayTimer(sTapTicks.first, sTapTicks.last)
 
     // Sneak
     private val sneakTimer = TickDelayTimer(sneakTicks.first, sneakTicks.last)
@@ -161,6 +165,16 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
                 }
             }
 
+            "STap" -> {
+                if (player.isSprinting && player.serverSprintState &&
+                    GameSettings.isKeyDown(mc.gameSettings.keyBindForward) && mc.gameSettings.keyBindForward.pressed &&
+                    !GameSettings.isKeyDown(mc.gameSettings.keyBindBack) && !mc.gameSettings.keyBindBack.pressed
+                ) {
+                    mc.gameSettings.keyBindForward.pressed = false
+                    mc.gameSettings.keyBindBack.pressed = true
+                }
+            }
+
             "Sneak" -> {
                 if (player.isSprinting && player.serverSprintState && !GameSettings.isKeyDown(mc.gameSettings.keyBindSneak) && !mc.gameSettings.keyBindSneak.pressed) {
                     mc.gameSettings.keyBindSneak.pressed = true
@@ -215,6 +229,15 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
                         }
                     }
                 }
+            }
+
+            "STap" -> {
+                if (mc.gameSettings.keyBindBack.pressed && !GameSettings.isKeyDown(mc.gameSettings.keyBindBack)
+                    !mc.gameSettings.keyBindForward.pressed && GameSettings.isKeyDown(mc.gameSettings.keyBindForward) &&
+                    sTapTimer.resetIfPassed()
+                )
+                    mc.gameSettings.keyBindBack.pressed = false
+                    mc.gameSettings.keyBindForward.pressed = true
             }
 
             "Sneak" -> {

@@ -44,8 +44,8 @@ import java.util.concurrent.ConcurrentLinkedQueue
 
 object Backtrack : Module("Backtrack", Category.COMBAT) {
 
-    private val nextBacktrackDelay by int("NextBacktrackDelay", 0, 0..2000, suffix = "ms")
-    private val delay by intRange("Delay", 80..80, 0..2000, suffix = "ms")
+    private val nextBacktrackDelay by int("NextBacktrackDelay", 0, 0..10000, suffix = "ms")
+    private val delay by intRange("Delay", 80..80, 0..10000, suffix = "ms")
 
     // Also add an option that stops Backtrack if you can 1-tap your opponent
     // Add a PacketType option, with Sent, Received, and Both modes

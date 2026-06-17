@@ -188,10 +188,10 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
             
         val shouldHit = when {
             target.isDead -> false
-            minTargetRotationDifference != 0f && rotDiff < minTargetRotationDifference -> false
     
             groundHit || airHit -> true
             checkForBlockedHits && lastHitBlocked && !target.isBlocking -> true
+            minTargetRotationDifference != 0f && rotDiff < minTargetRotationDifference -> true
             experimentalChecks && player.hurtTime !in hurtTimeNoEscape..8 && targetHitLikely -> true
             experimentalChecks && targetDistance > 3.05f && targetHittable -> true
             player.health < notBelowOwnHealth || target.health < notBelowTargetHealth -> true
