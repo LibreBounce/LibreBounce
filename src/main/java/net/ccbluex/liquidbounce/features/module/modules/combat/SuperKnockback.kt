@@ -166,10 +166,7 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
             }
 
             "STap" -> {
-                if (player.isSprinting && player.serverSprintState &&
-                    GameSettings.isKeyDown(mc.gameSettings.keyBindForward) && mc.gameSettings.keyBindForward.pressed &&
-                    !GameSettings.isKeyDown(mc.gameSettings.keyBindBack) && !mc.gameSettings.keyBindBack.pressed
-                ) {
+                if (player.isSprinting && player.serverSprintState) {
                     mc.gameSettings.keyBindForward.pressed = false
                     mc.gameSettings.keyBindBack.pressed = true
                 }
@@ -233,7 +230,6 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
 
             "STap" -> {
                 if (mc.gameSettings.keyBindBack.pressed && !GameSettings.isKeyDown(mc.gameSettings.keyBindBack) &&
-                    !mc.gameSettings.keyBindForward.pressed && GameSettings.isKeyDown(mc.gameSettings.keyBindForward) &&
                     sTapTimer.resetIfPassed()
                 )
                     mc.gameSettings.keyBindBack.pressed = false
