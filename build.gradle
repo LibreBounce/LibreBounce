@@ -79,7 +79,7 @@ dependencies {
     implementation("org.semver4j:semver4j:5.8.0")
 
     // Swing theme
-    implementation("com.formdev:flatlaf:3.6.1")
+    implementation("com.formdev:flatlaf:3.7.1")
 
     implementation fileTree(include: ["*.jar"], dir: "libs")
 }
