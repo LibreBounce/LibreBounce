@@ -54,9 +54,14 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
     // TODO: Make SmartOrder prioritize slightly farther but more essential items, e.g, armor
     // instead of arrows
+    private val sorting by choices("Sorting", arrayOf("Normal", "Random", "Smart"), "Normal")
+
+    private val delay by intRange("Delay", 50..50, 0..500, suffix = "ms")
+    private val startDelay by intRange("StartDelay", 50..100, 0..500, suffix = "ms")
+    private val closeDelay by intRange("CloseDelay", 50..100, 0..500, suffix = "ms")
+
     private val smartDelay by boolean("SmartDelay", false)
     private val multiplier by intRange("DelayMultiplier", 120..140, 0..500) { smartDelay }
-    private val smartOrder by boolean("SmartOrder", true) { smartDelay }
 
     // TODO: This is currently based on a chance option; while it still needs randomness,
     // it is better to make it stop shortly in a more legit manner, e.g., after taking many items
@@ -70,17 +75,11 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
     private val missClickChanceDistMult by boolean("MissClickChanceDistanceMultiply", true) { missClick }
     private val pauseAfterMissClick by intRange("PauseAfterMissClick", 350..650, 0..1000, suffix = "ms") { missClick }
 
-    private val delay by intRange("Delay", 50..50, 0..500, suffix = "ms")
-    private val startDelay by intRange("StartDelay", 50..100, 0..500, suffix = "ms")
-    private val closeDelay by intRange("CloseDelay", 50..100, 0..500, suffix = "ms")
-
     private val noMove by +InventoryManager.noMoveValue
     private val noMoveAir by +InventoryManager.noMoveAirValue
     private val noMoveGround by +InventoryManager.noMoveGroundValue
 
     val chestTitle by boolean("ChestTitle", true)
-
-    private val randomSlot by boolean("RandomSlot", true)
 
     // TODO: The progress bar currently "show" all the items in the chest
     // Instead, it should "show" only the items that are planned to be stolen
@@ -365,21 +364,21 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
                 ItemTakeRecord(index, stack, sortableTo)
             }.also { it ->
-                if (randomSlot)
-                    it.shuffle()
+                when (sorting) {
+                    "Normal" -> {
+                        // Prioritise armor pieces with lower priority, so that as many pieces can get equipped from hotbar after chest gets closed
+                        it.sortByDescending { it.stack.item is ItemArmor }
 
-                // Prioritise armor pieces with lower priority, so that as many pieces can get equipped from hotbar after chest gets closed
-                it.sortByDescending { it.stack.item is ItemArmor }
+                        // Prioritize items that can be sorted
+                        it.sortByDescending { it.sortableToSlot != null }
 
-                // Prioritize items that can be sorted
-                it.sortByDescending { it.sortableToSlot != null }
+                        // Fully prioritise armor pieces when it is possible to equip armor while in chest
+                        if (AutoArmor.canEquipFromChest())
+                            it.sortByDescending { it.stack.item is ItemArmor }
+                    }
 
-                // Fully prioritise armor pieces when it is possible to equip armor while in chest
-                if (AutoArmor.canEquipFromChest())
-                    it.sortByDescending { it.stack.item is ItemArmor }
-
-                if (smartOrder) {
-                    sortBasedOnOptimumPath(it)
+                    "Random" -> it.shuffle()
+                    "Smart" -> sortBasedOnOptimumPath(it)
                 }
             }
 
