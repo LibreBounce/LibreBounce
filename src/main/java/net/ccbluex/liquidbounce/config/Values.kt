@@ -367,7 +367,7 @@ class MultiSelectValue(
 
     override fun fromJsonF(element: JsonElement): Set<String>? {
         val array = element as? JsonArray ?: return null
-        return array.mapNotNull { it.asStringOrNull() }.toSet()
+        return array.mapNotNull { (it as? JsonPrimitive)?.takeIf { it.isString }?.asString }.toSet()
     }
 
     override fun toText(): String = value.joinToString(",")
