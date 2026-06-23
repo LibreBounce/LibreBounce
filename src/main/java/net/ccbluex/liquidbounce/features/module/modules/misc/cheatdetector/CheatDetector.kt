@@ -24,12 +24,13 @@ import kotlin.math.max
 object CheatDetector : Module("CheatDetector", Category.MISC) {
 
     private val cheatDetectorChecks = arrayOf(
-        FakeLagA
+        FakeLagA,
+        ReachA
     )
 
     private val checks = cheatDetectorChecks.map { it.checkName }.toTypedArray()
 
-    val cheatChecks by multiChoices("Checks", checks, "FakeLagA")
+    val cheatChecks by multiChoices("Checks", checks, setOf("FakeLagA"))
     val potentialDelayDistance by floatRange("PotentialDelayDistance", 5f..8f, 0f..16f) { cheatChecks.contains("FakeLagA") }
     val legitDistance by floatRange("LegitDistance", 3.0f..3.5f, 0f..6f) { cheatChecks.contains("FakeLagA") }
     val differenceToFlag by int("DifferenceToFlag", 30, 0..1000, suffix = "ms") { cheatChecks.contains("FakeLagA") }

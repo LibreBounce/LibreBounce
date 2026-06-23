@@ -334,41 +334,48 @@ class ListValue(
 }
 
 /**
- * MultiList value represents multi-selectable list of values
+ * Multi select value represents a set of chosen options out of a fixed list of [choices].
  */
-class MultiListValue(
+class MultiSelectValue(
     name: String,
-    var values: Array<String>,
-    value: List<String>
-) : Value<List<String>>(name, value) {
+    value: Set<String>,
+    val choices: Array<String>,
+) : Value<Set<String>>(name, value) {
+
+    override fun describe(text: String): MultiSelectValue = apply { descriptionField = text }
 
     var openList = false
 
-    operator fun contains(string: String?) = values.any { it.equals(string, true) }
+    override fun validate(newValue: Set<String>): Set<String> =
+        newValue.mapNotNull { selected -> choices.find { it.equals(selected, true) } }.toSet()
 
-    override fun toJson() = JsonArray().apply {
-        value.forEach { add(it) }
-    }
+    fun isSelected(choice: String) = value.any { it.equals(choice, true) }
 
-    override fun fromJsonF(element: JsonElement) =
-        when {
-            element.isJsonArray -> element.asJsonArray.map { it.asString }
-            else -> null
+    fun toggle(choice: String) {
+        val known = choices.find { it.equals(choice, true) } ?: return
+        val updated = if (isSelected(known)) {
+            value.filterNot { it.equals(known, true) }.toSet()
+        } else {
+            value + known
         }
-
-    override fun fromTextF(text: String): List<String> = text.split(", ").filter { searchTerm ->
-        values.any { it.equals(searchTerm, true) }
+        set(updated)
     }
 
-    fun updateValues(newValues: List<String>) {
-        if (newValues.isEmpty()) return
-
-        val filteredValues = newValues.filter { valueToKeep -> values.any { it.equals(valueToKeep, true) } }
-
-        if (filteredValues.isEmpty()) return
-
-        values = filteredValues
+    override fun toJson(): JsonElement = jsonArray {
+        for (selected in value) {
+            +JsonPrimitive(selected)
+        }
     }
+
+    override fun fromJsonF(element: JsonElement): Set<String>? {
+        val array = element as? JsonArray ?: return null
+        return array.mapNotNull { it.asStringOrNull() }.toSet()
+    }
+
+    override fun toText(): String = value.joinToString(",")
+
+    override fun fromTextF(text: String): Set<String> =
+        validate(text.split(",").map { it.trim() }.filter { it.isNotEmpty() }.toSet())
 }
 
 class ColorValue(

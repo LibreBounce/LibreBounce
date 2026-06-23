@@ -83,9 +83,10 @@ open class Configurable(
         if (isSupported != null) setSupport { isSupported.invoke() }
     }
 
+
     fun multiChoices(
-        name: String, values: Array<String>, value: List<String>, isSupported: (() -> Boolean)? = null
-    ) = +MultiListValue(name, values, value).apply {
+        name: String, choices: Array<String>, default: Set<String> = emptySet(), isSupported: (() -> Boolean)? = null
+    ) = +MultiSelectValue(name, default, choices).apply {
         if (isSupported != null) setSupport { isSupported.invoke() }
     }
 

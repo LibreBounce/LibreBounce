@@ -226,6 +226,98 @@ object BlackStyle : Style() {
                             }
                         }
 
+                        is MultiSelectValue -> {
+                            moduleElement.settingsWidth = fontSemibold35.getStringWidth(text) + 16
+
+                            if (mouseButton == 0 && mouseX in minX..maxX && mouseY in yPos..yPos + fontSemibold35.fontHeight) {
+                                value.openList = !value.openList
+                                clickSound()
+                                return true
+                            }
+
+                            fontSemibold35.drawString(text, minX + 2, yPos + 2, Color.WHITE.rgb)
+                            fontSemibold35.drawString(
+                                if (value.openList) "-" else "+",
+                                (maxX - if (value.openList) 5 else 6),
+                                yPos + 2,
+                                Color.WHITE.rgb
+                            )
+
+                            yPos += fontSemibold35.fontHeight + 1
+
+                            for (valueOfList in value.values) {
+                                val valueName = if (spacedValues) valueOfList.addSpaces() else valueOfList
+                                moduleElement.settingsWidth = fontSemibold35.getStringWidth("> $valueName") + 12
+
+                                if (value.openList) {
+                                    if (mouseButton == 0 && mouseX in minX..maxX && mouseY in yPos..yPos + 9) {
+                                        value.toggle(valueOfList)
+                                        clickSound()
+                                        return true
+                                    }
+
+                                    fontSemibold35.drawString(
+                                        "> $valueName",
+                                        minX + 2,
+                                        yPos + 2,
+                                        if (value.isSelected(valueOfList)) Color.WHITE.rgb else Int.MAX_VALUE
+                                    )
+
+                                    yPos += fontSemibold35.fontHeight + 1
+                                }
+                            }
+                            if (!value.openList) {
+                                yPos++
+                            }
+                        }
+
+                        if (setting is MultiSelectValue) {
+                            Fonts.InterMedium_18.drawString(
+                                setting.name,
+                                roundToHalf((x + 4).toDouble()).toInt().toFloat(),
+                                settingY + 5,
+                                textColor.rgb
+                            )
+                            count += 0.5
+
+                            for (choice in setting.choices) {
+                                val rowY = roundToHalf(y + (count * rectHeight)).toFloat()
+                                val selected = setting.isSelected(choice)
+
+                                val hoveringRow = isClickable(rowY + 2)
+                                        && RenderUtils.isHovering(x + 5, rowY + 2, width - 10, rectHeight - 1, mouseX, mouseY)
+
+                                if (hoveringRow) {
+                                    drawCustomShapeWithRadius(
+                                        x + 5, rowY + 2, width - 10, rectHeight - 1, 2f,
+                                        RenderUtils.applyOpacity(textColor, .15f)
+                                    )
+                                }
+
+                                if (type == GuiEvents.CLICK && hoveringRow && button == 0) {
+                                    setting.toggle(choice)
+                                }
+
+                                val boxSize = 6f
+                                val boxX = x + width - (boxSize + 6)
+                                val boxY = rowY + (rectHeight - boxSize) / 2f
+                                drawCustomShapeWithRadius(
+                                    boxX, boxY, boxSize, boxSize, 1.5f,
+                                    if (selected) (if (accent) accentedColor2 else textColor)
+                                    else RenderUtils.applyOpacity(darkRectHover, .5f)
+                                )
+
+                                Fonts.InterMedium_18.drawString(
+                                    choice,
+                                    x + 13,
+                                    rowY + Fonts.InterMedium_18.getMiddleOfBox(rectHeight) / 2f,
+                                    textColor.rgb
+                                )
+
+                                count += 0.5
+                            }
+                        }
+
                         is FloatValue -> {
                             val floatText = text + "§f: " + round(value.get()) + " §7$suffix"
 
