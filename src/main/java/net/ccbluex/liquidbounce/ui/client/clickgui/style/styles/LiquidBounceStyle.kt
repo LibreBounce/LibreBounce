@@ -196,57 +196,6 @@ object LiquidBounceStyle : Style() {
                             }
                         }
 
-                        is MultiListValue -> {
-                            val text = value.name
-
-                            moduleElement.settingsWidth = fontSemibold35.getStringWidth(text) + 16
-
-                            if (mouseButton == 0 && mouseX in minX..maxX && mouseY in yPos + 2..yPos + 14) {
-                                value.openList = !value.openList
-                                clickSound()
-                                return true
-                            }
-
-                            drawRect(minX, yPos + 2, maxX, yPos + 14, Int.MIN_VALUE)
-
-                            fontSemibold35.drawString("§c$text", minX + 2, yPos + 4, Color.WHITE.rgb)
-                            fontSemibold35.drawString(
-                                if (value.openList) "-" else "+",
-                                maxX - if (value.openList) 5 else 6, yPos + 4, Color.WHITE.rgb
-                            )
-
-                            yPos += 12
-
-                            if (value.openList) {
-                                for (valueOfList in value.values) {
-                                    moduleElement.settingsWidth = fontSemibold35.getStringWidth("> $valueOfList") + 12
-
-                                    val isSelected = value.get().contains(valueOfList)
-
-                                    if (mouseButton == 0 && mouseX in minX..maxX && mouseY in yPos + 2..yPos + 14) {
-                                        if (isSelected) {
-                                            value.set(value.values - listOf(valueOfList).toSet())
-                                        } else {
-                                            value.set(value.values + listOf(valueOfList))
-                                        }
-                                        clickSound()
-                                        return true
-                                    }
-
-                                    drawRect(minX, yPos + 2, maxX, yPos + 14, Int.MIN_VALUE)
-
-                                    fontSemibold35.drawString(
-                                        "> $valueOfList",
-                                        minX + 2,
-                                        yPos + 4,
-                                        if (isSelected) guiColor else Int.MAX_VALUE
-                                    )
-
-                                    yPos += 12
-                                }
-                            }
-                        }
-
                         is FloatValue -> {
                             val floatText = text + "§f: §c" + round(value.get()) + " §8${suffix}§c"
                             moduleElement.settingsWidth = fontSemibold35.getStringWidth(floatText) + 8

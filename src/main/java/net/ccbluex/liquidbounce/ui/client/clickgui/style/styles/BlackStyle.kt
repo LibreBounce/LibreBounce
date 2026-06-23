@@ -271,53 +271,6 @@ object BlackStyle : Style() {
                             }
                         }
 
-                        if (setting is MultiSelectValue) {
-                            Fonts.InterMedium_18.drawString(
-                                setting.name,
-                                roundToHalf((x + 4).toDouble()).toInt().toFloat(),
-                                settingY + 5,
-                                textColor.rgb
-                            )
-                            count += 0.5
-
-                            for (choice in setting.choices) {
-                                val rowY = roundToHalf(y + (count * rectHeight)).toFloat()
-                                val selected = setting.isSelected(choice)
-
-                                val hoveringRow = isClickable(rowY + 2)
-                                        && RenderUtils.isHovering(x + 5, rowY + 2, width - 10, rectHeight - 1, mouseX, mouseY)
-
-                                if (hoveringRow) {
-                                    drawCustomShapeWithRadius(
-                                        x + 5, rowY + 2, width - 10, rectHeight - 1, 2f,
-                                        RenderUtils.applyOpacity(textColor, .15f)
-                                    )
-                                }
-
-                                if (type == GuiEvents.CLICK && hoveringRow && button == 0) {
-                                    setting.toggle(choice)
-                                }
-
-                                val boxSize = 6f
-                                val boxX = x + width - (boxSize + 6)
-                                val boxY = rowY + (rectHeight - boxSize) / 2f
-                                drawCustomShapeWithRadius(
-                                    boxX, boxY, boxSize, boxSize, 1.5f,
-                                    if (selected) (if (accent) accentedColor2 else textColor)
-                                    else RenderUtils.applyOpacity(darkRectHover, .5f)
-                                )
-
-                                Fonts.InterMedium_18.drawString(
-                                    choice,
-                                    x + 13,
-                                    rowY + Fonts.InterMedium_18.getMiddleOfBox(rectHeight) / 2f,
-                                    textColor.rgb
-                                )
-
-                                count += 0.5
-                            }
-                        }
-
                         is FloatValue -> {
                             val floatText = text + "§f: " + round(value.get()) + " §7$suffix"
 
