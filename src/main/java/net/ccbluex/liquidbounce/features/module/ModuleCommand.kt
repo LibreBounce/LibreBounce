@@ -188,27 +188,6 @@ class ModuleCommand(val module: Module, val values: Collection<Value<*>> = modul
                             value.set(args[2]) to args[2]
                         }
 
-                        is MultiListValue -> {
-                            val newValue = value.value.toMutableList()
-
-                            if (args[2] !in value.values) {
-                                chatSyntax(
-                                    "$moduleName ${args[1].lowercase()} <${
-                                        value.values.joinToString(separator = "/").lowercase()
-                                    }>"
-                                )
-                                return
-                            }
-
-                            if (newValue.contains(args[2])) {
-                                newValue.remove(args[2])
-                            } else {
-                                newValue.add(args[2])
-                            }
-
-                            value.set(args[2]) to args[2]
-                        }
-
                         is TextValue -> {
                             val string = StringUtils.toCompleteString(args, 2)
                             value.set(string) to string
