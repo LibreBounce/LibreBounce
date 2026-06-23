@@ -342,8 +342,6 @@ class MultiSelectValue(
     val choices: Array<String>,
 ) : Value<Set<String>>(name, value) {
 
-    override fun describe(text: String): MultiSelectValue = apply { descriptionField = text }
-
     var openList = false
 
     override fun validate(newValue: Set<String>): Set<String> =

@@ -245,13 +245,13 @@ object BlackStyle : Style() {
 
                             yPos += fontSemibold35.fontHeight + 1
 
-                            for (valueOfList in value.values) {
-                                val valueName = if (spacedValues) valueOfList.addSpaces() else valueOfList
+                            value.choices.forEachIndexed { index, choice ->
+                                val valueName = if (spacedValues) choice.addSpaces() else choice
                                 moduleElement.settingsWidth = fontSemibold35.getStringWidth("> $valueName") + 12
 
                                 if (value.openList) {
                                     if (mouseButton == 0 && mouseX in minX..maxX && mouseY in yPos..yPos + 9) {
-                                        value.toggle(valueOfList)
+                                        value.toggle(choice)
                                         clickSound()
                                         return true
                                     }
@@ -260,7 +260,7 @@ object BlackStyle : Style() {
                                         "> $valueName",
                                         minX + 2,
                                         yPos + 2,
-                                        if (value.isSelected(valueOfList)) Color.WHITE.rgb else Int.MAX_VALUE
+                                        if (value.isSelected(choice)) Color.WHITE.rgb else Int.MAX_VALUE
                                     )
 
                                     yPos += fontSemibold35.fontHeight + 1
