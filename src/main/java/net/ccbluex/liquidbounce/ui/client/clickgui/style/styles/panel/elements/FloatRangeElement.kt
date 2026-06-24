@@ -3,14 +3,14 @@
  * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
  * https://github.com/CCBlueX/LiquidBounce/
  */
-package net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel
+package net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel.elements
 
 import net.ccbluex.liquidbounce.config.RangeSlider
 import net.ccbluex.liquidbounce.config.FloatRangeValue
 import net.ccbluex.liquidbounce.ui.font.Fonts.fontRegular35
-import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle.highlightColor
-import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle.highlightColorAlpha
-import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle.referenceColor
+import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel.PanelStyle.highlightColor
+import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel.PanelStyle.highlightColorAlpha
+import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel.PanelStyle.referenceColor
 import net.ccbluex.liquidbounce.utils.extensions.lerpWith
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
 import net.vitox.particle.util.RenderUtils.drawCircle

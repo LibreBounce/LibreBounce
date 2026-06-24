@@ -1,18 +1,22 @@
-package net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel
+/*
+ * LiquidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
+ * https://github.com/CCBlueX/LiquidBounce/
+ */
+package net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel.elements
 
-import net.ccbluex.liquidbounce.config.FloatValue
+import net.ccbluex.liquidbounce.config.IntValue
 import net.ccbluex.liquidbounce.ui.font.Fonts.fontRegular35
-import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle.highlightColor
-import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle.highlightColorAlpha
-import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle.referenceColor
+import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel.PanelStyle.highlightColor
+import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel.PanelStyle.highlightColorAlpha
+import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel.PanelStyle.referenceColor
 import net.ccbluex.liquidbounce.utils.extensions.lerpWith
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
 import net.vitox.particle.util.RenderUtils.drawCircle
 import java.awt.Color.WHITE
-import kotlin.math.roundToLong
 
-class FloatElement(
-    var value: FloatValue,
+class IntElement(
+    var value: IntValue,
     var valueName: String = "",
     override var startX: Float,
     override var startY: Float = 0f,
@@ -48,7 +52,7 @@ class FloatElement(
             WHITE.rgb
         )
 
-        val curValue = value.get()
+        val curValue = value.get().toFloat()
         val min = value.minimum
         val max = value.maximum
         val progress = (curValue - min) / (max - min)
@@ -74,14 +78,13 @@ class FloatElement(
             WHITE.rgb
         )
 
-        if (dragging && hitboxX.contains(mouseX) && hitboxY.contains(mouseY)) {
-            val minX = startX + width + 10f
-            val maxX = startX + width + 110f
-            val progress = (mouseX - minX) / (max - minX)
+        if (dragging) {
+            val min = startX + width + 10f
+            val max = startX + width + 110f
+            val progress = (mouseX - min) / (max - min)
             var newValue = value.lerpWith(progress)
 
             // Round to 2 decimal places
-            newValue = ((newValue * 100f).roundToLong() / 100.0f)
             value.set(newValue)
         }
     }

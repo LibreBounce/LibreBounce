@@ -3,16 +3,16 @@
  * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
  * https://github.com/CCBlueX/LiquidBounce/
  */
-package net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel
+package net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel.elements
 
 import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.render.ClickGUI.spacedModules
 import net.ccbluex.liquidbounce.features.module.modules.render.ClickGUI.spacedValues
-import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle.accentColor
-import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle.elements
-import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle.mainColor
-import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle.referenceColor
+import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel.PanelStyle.accentColor
+import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel.PanelStyle.elements
+import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel.PanelStyle.mainColor
+import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel.PanelStyle.referenceColor
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.BlackStyle.clickSound
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedRect

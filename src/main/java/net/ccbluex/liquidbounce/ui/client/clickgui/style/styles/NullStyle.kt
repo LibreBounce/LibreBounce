@@ -198,6 +198,58 @@ object NullStyle : Style() {
                             }
                         }
 
+                        is MultiSelectValue -> {
+                            moduleElement.settingsWidth = fontSemibold35.getStringWidth(text) + 16
+
+                            if (mouseButton == 0 && mouseX in minX..maxX && mouseY in yPos..yPos + fontSemibold35.fontHeight) {
+                                value.openList = !value.openList
+                                clickSound()
+                                return true
+                            }
+
+                            fontSemibold35.drawString("§c$text", minX + 2, yPos + 4, Color.WHITE.rgb)
+                            fontSemibold35.drawString(
+                                if (value.openList) "-" else "+",
+                                (maxX - if (value.openList) 5 else 6),
+                                yPos + 2,
+                                Color.WHITE.rgb
+                            )
+
+                            yPos += fontSemibold35.fontHeight + 1
+
+                            value.choices.forEachIndexed { index, choice ->
+                                val valueName = if (spacedValues) choice.addSpaces() else choice
+                                moduleElement.settingsWidth = fontSemibold35.getStringWidth("> $valueName") + 12
+
+                                if (value.openList) {
+                                    if (mouseButton == 0 && mouseX in minX..maxX && mouseY in yPos..yPos + 9) {
+                                        value.toggle(choice)
+                                        clickSound()
+                                        return true
+                                    }
+
+                                    fontSemibold35.drawString(
+                                        ">",
+                                        minX + 2,
+                                        yPos + 4,
+                                        if (value.isSelected(choice)) guiColor else Int.MAX_VALUE
+                                    )
+
+                                    fontSemibold35.drawString(
+                                        "$valueName",
+                                        minX + 10,
+                                        yPos + 4,
+                                        if (value.isSelected(choice)) guiColor else Int.MAX_VALUE
+                                    )
+
+                                    yPos += fontSemibold35.fontHeight + 1
+                                }
+                            }
+                            if (!value.openList) {
+                                yPos++
+                            }
+                        }
+
                         is FloatValue -> {
                             val floatText = text + "§f: §c" + round(value.get()) + " §8${suffix}§c"
 

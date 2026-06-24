@@ -13,7 +13,7 @@ import net.ccbluex.liquidbounce.file.FileManager.clickGuiConfig
 import net.ccbluex.liquidbounce.file.FileManager.saveConfig
 import net.ccbluex.liquidbounce.ui.client.clickgui.Panel
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.Style
-import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel.ModuleElement
+import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel.elements.ModuleElement
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts

@@ -11,9 +11,9 @@ import net.ccbluex.liquidbounce.file.FileConfig
 import net.ccbluex.liquidbounce.file.FileManager.PRETTY_GSON
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.ui.client.clickgui.ClickGui
-import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle.selectedCategory
+import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel.PanelStyle.selectedCategory
 import net.ccbluex.liquidbounce.ui.client.clickgui.elements.ModuleElement
-import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel.ModuleElement.Companion.moduleSettingsState
+import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel.elements.ModuleElement.Companion.moduleSettingsState
 import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.io.readJson
 import java.io.*

@@ -36,7 +36,7 @@ import net.ccbluex.liquidbounce.tabs.ExploitsTab
 import net.ccbluex.liquidbounce.tabs.HeadsTab
 import net.ccbluex.liquidbounce.ui.client.altmanager.GuiAltManager.Companion.loadActiveGenerators
 import net.ccbluex.liquidbounce.ui.client.clickgui.ClickGui
-import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle
+import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel.PanelStyle
 import net.ccbluex.liquidbounce.ui.client.hud.HUD
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.client.BlinkUtils

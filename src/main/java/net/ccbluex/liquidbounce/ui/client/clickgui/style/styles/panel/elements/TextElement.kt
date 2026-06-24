@@ -3,27 +3,26 @@
  * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
  * https://github.com/CCBlueX/LiquidBounce/
  */
-package net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel
+package net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel.elements
 
-import net.ccbluex.liquidbounce.config.BoolValue
+import net.ccbluex.liquidbounce.config.TextValue
 import net.ccbluex.liquidbounce.ui.font.Fonts.fontRegular35
-import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle.highlightColor
-import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle.highlightColorAlpha
-import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle.referenceColor
-import net.vitox.particle.util.RenderUtils.drawCircle
 import java.awt.Color.WHITE
 
-class BoolElement(
-    var value: BoolValue,
+// TODO: Make this editable
+class TextElement(
+    var value: TextValue,
     var valueName: String = "",
     override var startX: Float,
     override var startY: Float = 0f,
     override var previousValue: ValueElement? = null
 ) : ValueElement() {
 
+    private val string = "${valueName}: ${value.get()}"
+
     override var margin: Float = 5f
     override var height: Float = fontRegular35.fontHeight.toFloat() + margin
-    override var width: Float = fontRegular35.getStringWidth(valueName).toFloat()
+    override var width: Float = fontRegular35.getStringWidth(string).toFloat()
 
     private var hitboxX = 0f..0f
     private var hitboxY = 0f..0f
@@ -32,35 +31,21 @@ class BoolElement(
         if (previousValue != null) {
             startY = previousValue!!.startY + previousValue!!.height
         }
+
         this.hitboxX = startX .. (startX + width + 14f)
-        this.hitboxY = startY .. (startY + height-margin)
+        this.hitboxY = startY .. (startY + height - margin)
     }
 
     override fun drawElement(mouseX: Float, mouseY: Float, partialTicks: Float) {
         updateElement()
 
         fontRegular35.drawString(
-            valueName,
+            string,
             startX,
             startY,
             WHITE.rgb
         )
-
-        drawCircle(
-            startX + width + 10f,
-            startY + fontRegular35.fontHeight / 2f - 1.5f,
-            2.5f,
-            if (value.isActive()) highlightColor else referenceColor
-        )
     }
-
-    override fun handleClick(mouseX: Float, mouseY: Float, button: Int) {
-        if (button == 0 && hitboxX.contains(mouseX) && hitboxY.contains(mouseY)) {
-            value.toggle()
-        }
-    }
-
-    override fun mouseReleased(mouseX: Float, mouseY: Float, state: Int) {}
 
     private fun updateElement() {
         if (previousValue != null) {
@@ -70,4 +55,8 @@ class BoolElement(
         this.hitboxX = startX .. (startX + width + 14f)
         this.hitboxY = startY .. (startY + height - margin)
     }
+
+    override fun handleClick(mouseX: Float, mouseY: Float, button: Int) {}
+
+    override fun mouseReleased(mouseX: Float, mouseY: Float, state: Int) {}
 }

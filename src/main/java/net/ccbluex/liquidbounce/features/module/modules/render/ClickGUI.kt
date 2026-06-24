@@ -16,7 +16,7 @@ import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.BlackStyle
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.LiquidBounceStyle
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.NullStyle
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.SlowlyStyle
-import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.PanelStyle
+import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel.PanelStyle
 import net.minecraft.network.play.server.S2EPacketCloseWindow
 import org.lwjgl.input.Keyboard
 import java.awt.Color
