@@ -262,7 +262,6 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
         }
 
         if (style == "Pulse" && pulseTimer.hasTimePassed(delay)) {
-            pulseTimer.reset()
             blink()
 
             return@handler
@@ -345,6 +344,8 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
             if (handlePackets) {
                 resetTimer.reset()
             }
+
+            pulseTimer.reset()
 
             handlePackets(true)
             ignoreWholeTick = true
