@@ -226,6 +226,51 @@ object BlackStyle : Style() {
                             }
                         }
 
+                        is MultiSelectValue -> {
+                            moduleElement.settingsWidth = fontSemibold35.getStringWidth(text) + 16
+
+                            if (mouseButton == 0 && mouseX in minX..maxX && mouseY in yPos..yPos + fontSemibold35.fontHeight) {
+                                value.openList = !value.openList
+                                clickSound()
+                                return true
+                            }
+
+                            fontSemibold35.drawString(text, minX + 2, yPos + 2, Color.WHITE.rgb)
+                            fontSemibold35.drawString(
+                                if (value.openList) "-" else "+",
+                                (maxX - if (value.openList) 5 else 6),
+                                yPos + 2,
+                                Color.WHITE.rgb
+                            )
+
+                            yPos += fontSemibold35.fontHeight + 1
+
+                            value.choices.forEachIndexed { index, choice ->
+                                val valueName = if (spacedValues) choice.addSpaces() else choice
+                                moduleElement.settingsWidth = fontSemibold35.getStringWidth("> $valueName") + 12
+
+                                if (value.openList) {
+                                    if (mouseButton == 0 && mouseX in minX..maxX && mouseY in yPos..yPos + 9) {
+                                        value.toggle(choice)
+                                        clickSound()
+                                        return true
+                                    }
+
+                                    fontSemibold35.drawString(
+                                        "> $valueName",
+                                        minX + 2,
+                                        yPos + 2,
+                                        if (value.isSelected(choice)) Color.WHITE.rgb else Int.MAX_VALUE
+                                    )
+
+                                    yPos += fontSemibold35.fontHeight + 1
+                                }
+                            }
+                            if (!value.openList) {
+                                yPos++
+                            }
+                        }
+
                         is FloatValue -> {
                             val floatText = text + "§f: " + round(value.get()) + " §7$suffix"
 

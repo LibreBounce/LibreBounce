@@ -333,6 +333,49 @@ class ListValue(
     }
 }
 
+/**
+ * Multi select value represents a set of chosen options out of a fixed list of [choices].
+ */
+class MultiSelectValue(
+    name: String,
+    value: Set<String>,
+    val choices: Array<String>,
+) : Value<Set<String>>(name, value) {
+
+    var openList = false
+
+    override fun validate(newValue: Set<String>): Set<String> =
+        newValue.mapNotNull { selected -> choices.find { it.equals(selected, true) } }.toSet()
+
+    fun isSelected(choice: String) = value.any { it.equals(choice, true) }
+
+    fun toggle(choice: String) {
+        val known = choices.find { it.equals(choice, true) } ?: return
+        val updated = if (isSelected(known)) {
+            value.filterNot { it.equals(known, true) }.toSet()
+        } else {
+            value + known
+        }
+        set(updated)
+    }
+
+    override fun toJson(): JsonElement = jsonArray {
+        for (selected in value) {
+            +JsonPrimitive(selected)
+        }
+    }
+
+    override fun fromJsonF(element: JsonElement): Set<String>? {
+        val array = element as? JsonArray ?: return null
+        return array.mapNotNull { (it as? JsonPrimitive)?.takeIf { it.isString }?.asString }.toSet()
+    }
+
+    override fun toText(): String = value.joinToString(",")
+
+    override fun fromTextF(text: String): Set<String> =
+        validate(text.split(",").map { it.trim() }.filter { it.isNotEmpty() }.toSet())
+}
+
 class ColorValue(
     name: String, defaultColor: Color, var rainbow: Boolean = false
 ) : Value<Color>(name, defaultColor) {

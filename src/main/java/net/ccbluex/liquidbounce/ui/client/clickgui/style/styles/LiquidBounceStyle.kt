@@ -106,6 +106,7 @@ object LiquidBounceStyle : Style() {
         )
 
         val moduleValues = moduleElement.module.values.filter { it.shouldRender() }
+
         if (moduleValues.isNotEmpty()) {
             fontSemibold35.drawString(
                 if (moduleElement.showSettings) "-" else "+",

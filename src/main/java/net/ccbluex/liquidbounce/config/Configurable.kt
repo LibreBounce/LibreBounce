@@ -83,6 +83,13 @@ open class Configurable(
         if (isSupported != null) setSupport { isSupported.invoke() }
     }
 
+
+    fun multiChoices(
+        name: String, choices: Array<String>, default: Set<String> = emptySet(), isSupported: (() -> Boolean)? = null
+    ) = +MultiSelectValue(name, default, choices).apply {
+        if (isSupported != null) setSupport { isSupported.invoke() }
+    }
+
     fun block(
         name: String, value: Int, isSupported: (() -> Boolean)? = null
     ) = +BlockValue(name, value).apply {

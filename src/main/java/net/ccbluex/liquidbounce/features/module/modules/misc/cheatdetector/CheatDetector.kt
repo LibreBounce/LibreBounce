@@ -12,6 +12,7 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
 import net.ccbluex.liquidbounce.features.module.modules.misc.cheatdetector.checks.lag.FakeLagA
+import net.ccbluex.liquidbounce.features.module.modules.misc.cheatdetector.checks.reach.ReachA
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.timing.TickDelayTimer
@@ -23,15 +24,16 @@ import kotlin.math.max
 object CheatDetector : Module("CheatDetector", Category.MISC) {
 
     private val cheatDetectorChecks = arrayOf(
-        FakeLagA
+        FakeLagA,
+        ReachA
     )
 
     private val checks = cheatDetectorChecks.map { it.checkName }.toTypedArray()
 
-    val cheatChecks by choices("Checks", checks, "FakeLagA")
-    val potentialDelayDistance by floatRange("PotentialDelayDistance", 5f..8f, 0f..16f) { cheatChecks == "FakeLagA" }
-    val legitDistance by floatRange("LegitDistance", 3.0f..3.5f, 0f..6f) { cheatChecks == "FakeLagA" }
-    val differenceToFlag by int("DifferenceToFlag", 30, 0..1000, suffix = "ms") { cheatChecks == "FakeLagA" }
+    val cheatChecks by multiChoices("Checks", checks, setOf("FakeLagA"))
+    val potentialDelayDistance by floatRange("PotentialDelayDistance", 5f..8f, 0f..16f) { cheatChecks.contains("FakeLagA") }
+    val legitDistance by floatRange("LegitDistance", 3.0f..3.5f, 0f..6f) { cheatChecks.contains("FakeLagA") }
+    val differenceToFlag by int("DifferenceToFlag", 30, 0..1000, suffix = "ms") { cheatChecks.contains("FakeLagA") }
 
     private val flagDelay by int("FlagDelay", 10, 0..40, suffix = "ticks")
 
@@ -79,7 +81,7 @@ object CheatDetector : Module("CheatDetector", Category.MISC) {
 
         lastTarget = target
 
-        check.onUpdate()
+        check.forEach { it.onUpdate() }
     }
 
     private fun reset() {
@@ -87,7 +89,7 @@ object CheatDetector : Module("CheatDetector", Category.MISC) {
 
         if (debug) chat("(CheatDetector) Reset the VL to 0, as the target has changed")
 
-        check.onReset()
+        check.forEach { it.onReset() }
     }
 
     fun flag(checkName: String, debugInformation: String) {
@@ -103,5 +105,5 @@ object CheatDetector : Module("CheatDetector", Category.MISC) {
     }
 
     private val check
-        get() = cheatDetectorChecks.find { it.checkName == cheatChecks }!!
+        get() = cheatDetectorChecks.filter { cheatChecks.contains(it.checkName) }!!
 }

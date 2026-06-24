@@ -174,6 +174,7 @@ class ModuleCommand(val module: Module, val values: Collection<Value<*>> = modul
 
                         is IntValue -> value.set(args[2].toInt()) to args[2]
                         is FloatValue -> value.set(args[2].toFloat()) to args[2]
+
                         is ListValue -> {
                             if (args[2] !in value) {
                                 chatSyntax(
@@ -238,6 +239,16 @@ class ModuleCommand(val module: Module, val values: Collection<Value<*>> = modul
                         }
                         return emptyList()
                     }
+
+                    /*is MultiListValue -> {
+                        values.forEach { value ->
+                            if (!value.name.equals(args[0], true))
+                                return@forEach
+                            if (value is MultListValue)
+                                return value.values.forEach { it.string.split(", ").startsWith(args[1], true) }
+                        }
+                        return emptyList()
+                    }*/
 
                     else -> emptyList()
                 }
