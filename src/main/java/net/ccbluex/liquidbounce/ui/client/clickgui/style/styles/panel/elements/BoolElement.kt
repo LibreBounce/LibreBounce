@@ -6,7 +6,7 @@
 package net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel.elements
 
 import net.ccbluex.liquidbounce.config.BoolValue
-import net.ccbluex.liquidbounce.ui.font.Fonts.fontRegular35
+import net.ccbluex.liquidbounce.ui.font.Fonts.font35
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel.PanelStyle.highlightColor
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel.PanelStyle.highlightColorAlpha
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel.PanelStyle.referenceColor
@@ -22,8 +22,8 @@ class BoolElement(
 ) : ValueElement() {
 
     override var margin: Float = 5f
-    override var height: Float = fontRegular35.fontHeight.toFloat() + margin
-    override var width: Float = fontRegular35.getStringWidth(valueName).toFloat()
+    override var height: Float = font35.fontHeight.toFloat() + margin
+    override var width: Float = font35.getStringWidth(valueName).toFloat()
 
     private var hitboxX = 0f..0f
     private var hitboxY = 0f..0f
@@ -39,7 +39,7 @@ class BoolElement(
     override fun drawElement(mouseX: Float, mouseY: Float, partialTicks: Float) {
         updateElement()
 
-        fontRegular35.drawString(
+        font35.drawString(
             valueName,
             startX,
             startY,
@@ -48,7 +48,7 @@ class BoolElement(
 
         drawCircle(
             startX + width + 10f,
-            startY + fontRegular35.fontHeight / 2f - 1.5f,
+            startY + font35.fontHeight / 2f - 1.5f,
             2.5f,
             if (value.isActive()) highlightColor else referenceColor
         )

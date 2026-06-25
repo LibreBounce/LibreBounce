@@ -67,7 +67,7 @@ class Arraylist(
     private val textGradColors =
         ColorSettingsFloat.create(this, "TextGradient") { textColorMode == "Gradient" && it <= maxTextGradientColors }
 
-    private val rectMode by choices("RectMode", arrayOf("None", "Left", "Right", "Outline"), "Right")
+    private val rectMode by choices("RectMode", arrayOf("None", "Left", "Right", "Outline"), "None")
     private val roundedRectRadius by float("RoundedRectRadius", 0F, 0F..2F) { rectMode !in setOf("None", "Outline") }
     private val rectColorMode by choices(
         "RectColorMode", arrayOf("Custom", "Fade", "Random", "Rainbow", "Gradient"), "Custom"
@@ -134,7 +134,7 @@ class Arraylist(
 
     private val tagCase by choices("TagCase", arrayOf("Normal", "Uppercase", "Lowercase"), "Normal")
 
-    private val font by font("Font", Fonts.fontSemibold35)
+    private val font by font("Font", Fonts.font40)
     private val textShadow by boolean("TextShadow", true)
     private val moduleCase by choices("ModuleCase", arrayOf("Normal", "Uppercase", "Lowercase"), "Normal")
     private val space by float("Space", 1F, 0F..5F)

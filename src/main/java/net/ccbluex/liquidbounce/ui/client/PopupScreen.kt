@@ -64,7 +64,7 @@ class PopupScreen(
     private var x: Int = 0
     private var y: Int = 0
     private val messageYOffset = 50
-    private val fontHeight = Fonts.fontSemibold35.fontHeight
+    private val fontHeight = Fonts.font35.fontHeight
     private var scrollOffset = 0
 
     private val buttonRects = mutableListOf<Rect>()
@@ -87,7 +87,7 @@ class PopupScreen(
 
             for (word in words) {
                 val tempLine = if (currentLine.isEmpty()) word else "$currentLine $word"
-                val width = Fonts.fontSemibold35.getStringWidth(tempLine)
+                val width = Fonts.font35.getStringWidth(tempLine)
 
                 if (width > maxWidth && currentLine.isNotEmpty()) {
                     lines.add(currentLine)
@@ -116,7 +116,7 @@ class PopupScreen(
             5f, backgroundColor, borderColor, 3f
         )
 
-        Fonts.fontExtraBold40.drawCenteredString(
+        Fonts.font40.drawCenteredString(
             title,
             (screenWidth / 2).toFloat(),
             (y + 15).toFloat(),
@@ -133,7 +133,7 @@ class PopupScreen(
         var messageY = y + messageYOffset + scrollOffset
 
         for (line in messageLines) {
-            Fonts.fontSemibold35.drawString(
+            Fonts.font35.drawString(
                 line,
                 (x + 10).toFloat(),
                 messageY.toFloat(),
@@ -174,10 +174,10 @@ class PopupScreen(
             3f
         )
 
-        Fonts.fontRegular35.drawCenteredString(
+        Fonts.font35.drawCenteredString(
             "X",
             (dismissX + size / 2).toFloat() + 0.5f,
-            (dismissY + size / 2 - Fonts.fontRegular35.fontHeight / 2).toFloat() + 2f,
+            (dismissY + size / 2 - Fonts.font35.fontHeight / 2).toFloat() + 2f,
             textColor
         )
     }
@@ -214,10 +214,10 @@ class PopupScreen(
                 4f
             )
 
-            Fonts.fontRegular35.drawCenteredString(
+            Fonts.font35.drawCenteredString(
                 button.text,
                 (rect.x + rect.width / 2).toFloat(),
-                (rect.y + rect.height / 2 - Fonts.fontRegular35.fontHeight / 2).toFloat() + 2f,
+                (rect.y + rect.height / 2 - Fonts.font35.fontHeight / 2).toFloat() + 2f,
                 textColor
             )
 

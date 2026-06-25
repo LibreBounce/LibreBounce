@@ -23,7 +23,7 @@ abstract class Element(
     var x: Double = 2.0, var y: Double = 2.0, scale: Float = 1F, var side: Side = Side.default(),
 ) : Configurable(name), MinecraftInstance {
 
-    val blueRibbon = Color(41, 75, 255)
+    val blueRibbon = Color(0, 111, 255)
 
     val info = javaClass.getAnnotation(ElementInfo::class.java)
         ?: throw IllegalArgumentException("Passed element with missing element info")

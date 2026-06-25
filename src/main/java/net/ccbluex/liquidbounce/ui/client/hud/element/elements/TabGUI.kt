@@ -37,7 +37,7 @@ class TabGUI(x: Double = 16.0, y: Double = 43.0) : Element("TabGUI", x = x, y = 
     private val rectRainbow
         get() = rectColor.rainbow && rectColor.isSupported()
 
-    private val roundedRectRadius by float("RoundedRadius", 3f, 0f..5f)
+    private val roundedRectRadius by float("RoundedRadius", 0f, 0f..5f)
 
     private val bgColor by color("BackgroundColor", Color.BLACK.withAlpha(150))
 
@@ -53,7 +53,7 @@ class TabGUI(x: Double = 16.0, y: Double = 43.0) : Element("TabGUI", x = x, y = 
     private val rainbowY by float("RainbowY", -1000f, -2000f..2000f) { rectRainbow || (borderValue && borderRainbow) }
 
     // Icons
-    private val displayIcons by boolean("DisplayIcons", true)
+    private val displayIcons by boolean("DisplayIcons", false)
     private val iconRectColor by color("IconRectColor", Color.BLACK.withAlpha(200)) { displayIcons }
     private val useRectangleColorForChosenIconColor by boolean(
         "UseRectangleColorForChosenIconColor", true
@@ -67,13 +67,13 @@ class TabGUI(x: Double = 16.0, y: Double = 43.0) : Element("TabGUI", x = x, y = 
     private val yDistance by float("ShadowYDistance", 1.0F, -2F..2F) { iconShadows }
     private val shadowColor by color("ShadowColor", Color.BLACK.withAlpha(128)) { iconShadows }
 
-    private val arrows by boolean("Arrows", false)
-    private val font by font("Font", Fonts.fontSemibold35)
+    private val arrows by boolean("Arrows", trueOK)
+    private val font by font("Font", Fonts.font35)
     private val textShadow by boolean("TextShadow", false)
-    private val textFade by boolean("TextFade", true)
-    private val textPositionY by float("TextPositionY", 2F, 0F..5F)
-    private val width by float("Width", 60F, 55F..100F)
-    private val tabHeight by float("TabHeight", 13F, 10F..15F)
+    private val textFade by boolean("TextFade", false)
+    private val textPositionY by float("TextPositionY", 2f, 0f..5f)
+    private val width by float("Width", 60f, 55f..100f)
+    private val tabHeight by float("TabHeight", 13f, 10f..15f)
     private val categoryCase by choices("CategoryCase", arrayOf("Normal", "Uppercase", "Lowercase"), "Normal")
     private val moduleCase by choices("ModuleCase", arrayOf("Normal", "Uppercase", "Lowercase"), "Normal")
     private val spacedModules by boolean("SpacedModules", false)

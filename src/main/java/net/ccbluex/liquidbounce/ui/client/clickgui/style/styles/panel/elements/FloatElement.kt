@@ -1,7 +1,7 @@
 package net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel.elements
 
 import net.ccbluex.liquidbounce.config.FloatValue
-import net.ccbluex.liquidbounce.ui.font.Fonts.fontRegular35
+import net.ccbluex.liquidbounce.ui.font.Fonts.font35
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel.PanelStyle.highlightColor
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel.PanelStyle.highlightColorAlpha
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel.PanelStyle.referenceColor
@@ -21,8 +21,8 @@ class FloatElement(
 
     override var margin: Float = 5f
 
-    override var height: Float = fontRegular35.fontHeight.toFloat() + margin
-    override var width: Float = fontRegular35.getStringWidth(valueName).toFloat()
+    override var height: Float = font35.fontHeight.toFloat() + margin
+    override var width: Float = font35.getStringWidth(valueName).toFloat()
 
     private var hitboxX = 0f..0f
     private var hitboxY = 0f..0f
@@ -41,7 +41,7 @@ class FloatElement(
     override fun drawElement(mouseX: Float, mouseY: Float, partialTicks: Float) {
         updateElement()
 
-        fontRegular35.drawString(
+        font35.drawString(
             valueName,
             startX,
             startY,
@@ -55,7 +55,7 @@ class FloatElement(
         val offsetX = 100f * progress
 
         val circleX = startX + width + 10f + offsetX
-        val circleY = startY + fontRegular35.fontHeight / 2f - 1.5f
+        val circleY = startY + font35.fontHeight / 2f - 1.5f
 
         drawRect(
             startX + width + 10f,
@@ -67,10 +67,10 @@ class FloatElement(
 
         drawCircle(circleX, circleY, 2f, highlightColor)
 
-        fontRegular35.drawString(
+        font35.drawString(
             value.get().toString() + " " + (value.suffix ?: ""),
             startX + width + 120f,
-            circleY - fontRegular35.fontHeight / 4f,
+            circleY - font35.fontHeight / 4f,
             WHITE.rgb
         )
 

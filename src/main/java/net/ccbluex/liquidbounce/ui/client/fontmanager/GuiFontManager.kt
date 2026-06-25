@@ -123,29 +123,29 @@ class GuiFontManager(private val prevGui: GuiScreen) : AbstractScreen() {
         assumeNonVolatile {
             drawBackground(0)
             fontListView.drawScreen(mouseX, mouseY, partialTicks)
-            Fonts.fontSemibold40.drawCenteredString(translationMenu("fontManager"), width / 2f, 6f, 0xffffff)
+            Fonts.font40.drawCenteredString(translationMenu("fontManager"), width / 2f, 6f, 0xffffff)
             val count = Fonts.customFonts.size
             val text = if (count == 1) {
                 translationText("fontManager.customFonts", count)
             } else {
                 translationText("fontManager.customFonts.plural", count)
             }
-            Fonts.fontSemibold35.drawCenteredString(
+            Fonts.font35.drawCenteredString(
                 text,
                 width / 2f,
                 18f,
                 0xffffff
             )
-            Fonts.fontSemibold35.drawCenteredString(status.text, width / 2f, 32f, 0xffffff)
+            Fonts.font35.drawCenteredString(status.text, width / 2f, 32f, 0xffffff)
 
             this.textFields.forEach { it.drawTextBox() }
-            if (nameField.text.isEmpty() && !nameField.isFocused) Fonts.fontSemibold40.drawStringWithShadow(
+            if (nameField.text.isEmpty() && !nameField.isFocused) Fonts.font40.drawStringWithShadow(
                 translationText("fontManager.name") + "...", nameField.xPosition + 4f, nameField.yPosition + 7f, Color.GRAY.rgb
             )
-            if (sizeField.text.isEmpty() && !sizeField.isFocused) Fonts.fontSemibold40.drawStringWithShadow(
+            if (sizeField.text.isEmpty() && !sizeField.isFocused) Fonts.font40.drawStringWithShadow(
                 translationText("fontManager.size") + "...", sizeField.xPosition + 4f, sizeField.yPosition + 7f, Color.GRAY.rgb
             )
-            if (textField.text.isEmpty() && !textField.isFocused) Fonts.fontSemibold40.drawStringWithShadow(
+            if (textField.text.isEmpty() && !textField.isFocused) Fonts.font40.drawStringWithShadow(
                 translationText("fontManager.preview") + "...", textField.xPosition + 4f, 17f, Color.GRAY.rgb
             ) else {
                 val font = fontListView.selectedEntry.value

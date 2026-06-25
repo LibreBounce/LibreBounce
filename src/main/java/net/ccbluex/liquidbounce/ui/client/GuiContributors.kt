@@ -109,39 +109,39 @@ class GuiContributors(private val prevGui: GuiScreen) : AbstractScreen() {
 
                 y += imageSize
 
-                Fonts.fontSemibold40.drawString("@" + credit.name, x + infoOffset + 5f, 48f, Color.WHITE.rgb, true)
-                Fonts.fontSemibold40.drawString(
+                Fonts.font40.drawString("@" + credit.name, x + infoOffset + 5f, 48f, Color.WHITE.rgb, true)
+                Fonts.font40.drawString(
                     "${credit.commits} commits §a${DECIMAL_FORMAT.format(credit.additions)}++ §4${
                         DECIMAL_FORMAT.format(
                             credit.deletions
                         )
-                    }--", x + infoOffset + 5f, (y - Fonts.fontSemibold40.fontHeight).toFloat(), Color.WHITE.rgb, true
+                    }--", x + infoOffset + 5f, (y - Fonts.font40.fontHeight).toFloat(), Color.WHITE.rgb, true
                 )
 
                 for (s in credit.contributions) {
-                    y += Fonts.fontSemibold40.fontHeight + 2
+                    y += Fonts.font40.fontHeight + 2
 
                     disableTexture2D()
                     glColor4f(1f, 1f, 1f, 1f)
                     glBegin(GL_LINES)
 
-                    glVertex2f(x.toFloat(), y + Fonts.fontSemibold40.fontHeight / 2f - 1)
-                    glVertex2f(x + 3f, y + Fonts.fontSemibold40.fontHeight / 2f - 1)
+                    glVertex2f(x.toFloat(), y + Fonts.font40.fontHeight / 2f - 1)
+                    glVertex2f(x + 3f, y + Fonts.font40.fontHeight / 2f - 1)
 
                     glEnd()
 
-                    Fonts.fontSemibold40.drawString(s, (x + 5f), y.toFloat(), Color.WHITE.rgb, true)
+                    Fonts.font40.drawString(s, (x + 5f), y.toFloat(), Color.WHITE.rgb, true)
                 }
             }
 
-            Fonts.fontSemibold40.drawCenteredString(translationMenu("contributors"), width / 2F, 6F, 0xffffff)
+            Fonts.font40.drawCenteredString(translationMenu("contributors"), width / 2F, 6F, 0xffffff)
 
             if (credits.isEmpty()) {
                 if (failed) {
                     val gb = ((sin(System.currentTimeMillis() * (1 / 333.0)) + 1) * (0.5 * 255)).toInt()
-                    Fonts.fontSemibold40.drawCenteredString("Failed to load", width / 8f, height / 2f, Color(255, gb, gb).rgb)
+                    Fonts.font40.drawCenteredString("Failed to load", width / 8f, height / 2f, Color(255, gb, gb).rgb)
                 } else {
-                    Fonts.fontSemibold40.drawCenteredString("Loading...", width / 8f, height / 2f, Color.WHITE.rgb)
+                    Fonts.font40.drawCenteredString("Loading...", width / 8f, height / 2f, Color.WHITE.rgb)
                     drawLoadingCircle(width / 8f, height / 2f - 40)
                 }
             }
@@ -259,7 +259,7 @@ class GuiContributors(private val prevGui: GuiScreen) : AbstractScreen() {
         ) {
             val credit = credits[entryID]
 
-            Fonts.fontSemibold40.drawCenteredString(credit.name, width / 2F, p_180791_3_ + 2F, Color.WHITE.rgb, true)
+            Fonts.font40.drawCenteredString(credit.name, width / 2F, p_180791_3_ + 2F, Color.WHITE.rgb, true)
         }
 
         override fun drawBackground() {}

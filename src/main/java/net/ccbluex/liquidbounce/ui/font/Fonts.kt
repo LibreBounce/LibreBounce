@@ -58,16 +58,8 @@ object Fonts : MinecraftInstance {
         mc.fontRendererObj
     }
 
-    lateinit var fontExtraBold35: GameFontRenderer
-    lateinit var fontExtraBold40: GameFontRenderer
-    lateinit var fontSemibold35: GameFontRenderer
-    lateinit var fontSemibold40: GameFontRenderer
-    lateinit var fontRegular40: GameFontRenderer
-    lateinit var fontRegular45: GameFontRenderer
-    lateinit var fontRegular35: GameFontRenderer
-    lateinit var fontRegular30: GameFontRenderer
-    lateinit var fontRegular25: GameFontRenderer
-    lateinit var fontRegular20: GameFontRenderer
+    lateinit var font35: GameFontRenderer
+    lateinit var font40: GameFontRenderer
     lateinit var fontBold180: GameFontRenderer
 
     private fun <T : FontRenderer> register(fontInfo: FontInfo, fontRenderer: T): T {
@@ -97,64 +89,19 @@ object Fonts : MinecraftInstance {
 
             register(minecraftFontInfo, minecraftFont)
 
-            fontRegular20 = register(
-                FontInfo(name = "Outfit Regular", size = 20),
-                getFontFromFile("Outfit-Regular.ttf", 20).asGameFontRenderer()
+            font35 = register(
+                FontInfo(name = "Roboto Medium", size = 35),
+                getFontFromFile("Roboto-Medium.ttf", 35).asGameFontRenderer()
             )
 
-            fontRegular25 = register(
-                FontInfo(name = "Outfit Regular", size = 25),
-                getFontFromFile("Outfit-Regular.ttf", 25).asGameFontRenderer()
-            )
-
-            fontRegular30 = register(
-                FontInfo(name = "Outfit Regular", size = 30),
-                getFontFromFile("Outfit-Regular.ttf", 30).asGameFontRenderer()
-            )
-
-            fontSemibold35 = register(
-                FontInfo(name = "Outfit Semibold", size = 35),
-                getFontFromFile("Outfit-Semibold.ttf", 35).asGameFontRenderer()
-            )
-
-            fontRegular35 = register(
-                FontInfo(name = "Outfit Regular", size = 35),
-                getFontFromFile("Outfit-Regular.ttf", 35).asGameFontRenderer()
-            )
-
-            fontRegular40 = register(
-                FontInfo(name = "Outfit Regular", size = 40),
-                getFontFromFile("Outfit-Regular.ttf", 40).asGameFontRenderer()
-            )
-
-            fontSemibold40 = register(
-                FontInfo(name = "Outfit Semibold", size = 40),
-                getFontFromFile("Outfit-Semibold.ttf", 40).asGameFontRenderer()
-            )
-
-            fontRegular45 = register(
-                FontInfo(name = "Outfit Regular", size = 45),
-                getFontFromFile("Outfit-Regular.ttf", 45).asGameFontRenderer()
-            )
-
-            fontSemibold40 = register(
-                FontInfo(name = "Outfit Semibold", size = 40),
-                getFontFromFile("Outfit-Semibold.ttf", 40).asGameFontRenderer()
-            )
-
-            fontExtraBold35 = register(
-                FontInfo(name = "Outfit Extrabold", size = 35),
-                getFontFromFile("Outfit-Extrabold.ttf", 35).asGameFontRenderer()
-            )
-
-            fontExtraBold40 = register(
-                FontInfo(name = "Outfit Extrabold", size = 40),
-                getFontFromFile("Outfit-Extrabold.ttf", 40).asGameFontRenderer()
+            font40 = register(
+                FontInfo(name = "Roboto Medium", size = 40),
+                getFontFromFile("Roboto-Medium.ttf", 40).asGameFontRenderer()
             )
 
             fontBold180 = register(
-                FontInfo(name = "Outfit Bold", size = 180),
-                getFontFromFile("Outfit-Bold.ttf", 180).asGameFontRenderer()
+                FontInfo(name = "Roboto Bold", size = 180),
+                getFontFromFile("Roboto-Bold.ttf", 180).asGameFontRenderer()
             )
 
             loadCustomFonts()
@@ -172,10 +119,10 @@ object Fonts : MinecraftInstance {
 
     fun downloadFonts() {
         fontsDir.mkdirs()
-        val outputFile = File(fontsDir, "outfit.zip")
+        val outputFile = File(fontsDir, "roboto.zip")
         if (!outputFile.exists()) {
             LOGGER.info("Downloading fonts...")
-            Downloader.downloadWholeFile("$CLIENT_CLOUD/fonts/Outfit.zip", outputFile)
+            Downloader.downloadWholeFile("$CLIENT_CLOUD/fonts/Roboto.zip", outputFile)
             LOGGER.info("Extracting fonts...")
             outputFile.extractZipTo(fontsDir)
         }

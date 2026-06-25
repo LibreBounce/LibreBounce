@@ -10,7 +10,7 @@ import net.ccbluex.liquidbounce.event.Render3DEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.ui.font.Fonts.fontSemibold40
+import net.ccbluex.liquidbounce.ui.font.Fonts.font40
 import net.ccbluex.liquidbounce.utils.block.block
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBorderedRect
@@ -102,12 +102,12 @@ object BlockOverlay : Module("BlockOverlay", Category.RENDER, gameDetecting = fa
         drawBorderedRect(
             width / 2 - 2F,
             height / 2 + 5F,
-            width / 2 + fontSemibold40.getStringWidth(info) + 2F,
+            width / 2 + font40.getStringWidth(info) + 2F,
             height / 2 + 16F,
             3F, Color.BLACK.rgb, Color.BLACK.rgb
         )
 
         resetColor()
-        fontSemibold40.drawString(info, width / 2f, height / 2f + 7f, Color.WHITE.rgb, false)
+        font40.drawString(info, width / 2f, height / 2f + 7f, Color.WHITE.rgb, false)
     }
 }

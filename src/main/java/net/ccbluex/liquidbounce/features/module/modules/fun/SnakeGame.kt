@@ -11,7 +11,7 @@ import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.ui.font.Fonts.fontSemibold35
+import net.ccbluex.liquidbounce.ui.font.Fonts.font35
 import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.nextInt
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBorder
@@ -194,22 +194,22 @@ object SnakeGame : Module("SnakeGame", Category.FUN, gameDetecting = false) {
         }
 
         // Draw score text
-        fontSemibold35.drawStringWithShadow("Score: §a$score", sx, sy - 14f, Color(220, 220, 220).rgb)
+        font35.drawStringWithShadow("Score: §a$score", sx, sy - 14f, Color(220, 220, 220).rgb)
 
         // Draw high score box
         val hsText = "High Score: §a$highScore"
-        val hsTextWidth = fontSemibold35.getStringWidth(hsText)
-        val hsTextHeight = fontSemibold35.FONT_HEIGHT
+        val hsTextWidth = font35.getStringWidth(hsText)
+        val hsTextHeight = font35.FONT_HEIGHT
         val hsX1 = sx.toInt()
         val hsY1 = (sy - 28).toInt()
         val hsX2 = hsX1 + hsTextWidth + 6
         val hsY2 = hsY1 + hsTextHeight + 4
         drawGradientRect(hsX1, hsY1, hsX2, hsY2, Color(0, 0, 0, 120).rgb, Color(0, 0, 0, 120).rgb, 0f)
         drawBorder(hsX1.toFloat(), hsY1.toFloat(), hsX2.toFloat(), hsY2.toFloat(), 1f, Color(6, 70, 255, 120).rgb)
-        fontSemibold35.drawStringWithShadow(hsText, (hsX1 + 3).toFloat(), (hsY1 + 2).toFloat(), Color(220, 220, 220).rgb)
+        font35.drawStringWithShadow(hsText, (hsX1 + 3).toFloat(), (hsY1 + 2).toFloat(), Color(220, 220, 220).rgb)
 
         // Draw current mode indicator
-        fontSemibold35.drawStringWithShadow(
+        font35.drawStringWithShadow(
             "mode: $mode",
             sx + FIELD_WIDTH - 50,
             sy - 14f,
