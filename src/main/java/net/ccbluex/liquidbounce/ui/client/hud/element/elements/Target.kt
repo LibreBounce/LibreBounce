@@ -44,7 +44,7 @@ class Target : Element("Target") {
     private val textColorMode by choices(
         "TextMode", arrayOf("Custom", "Random", "Rainbow"), "Custom"
     )
-    private val textColors = ColorSettingsInteger(this, "TextColor") { textColorMode == "Custom" }.with(blueRibbon)
+    private val textColor by color("TextColor", blueRibbon) { textColorMode == "Custom" }
 
     private val roundedBackgroundRadius by float("RoundedBackgroundRadius", 0f, 0f..5f) { backgroundColor.alpha > 0 }
 
@@ -53,7 +53,7 @@ class Target : Element("Target") {
     )
     private val backgroundColor by color("BackgroundColor", Color.BLACK.withAlpha(150)) { backgroundMode == "Custom" }
 
-    private fun isColorModeUsed(value: String) = value in listOf(textColorMode, backgroundMode, iconColorMode)
+    private fun isColorModeUsed(value: String) = value in listOf(textColorMode, backgroundMode)
 
     private val saturation by float("RandomSaturation", 0.9f, 0f..1f) { isColorModeUsed("Random") }
     private val brightness by float("RandomBrightness", 1f, 0f..1f) { isColorModeUsed("Random") }
@@ -204,7 +204,7 @@ class Target : Element("Target") {
                             borderStrength,
                             if (backgroundMode == "Rainbow") 0 else backgroundCustomColor,
                             borderCustomColor,
-                            roundedRectRadius
+                            roundedBackgroundRadius
                         )
                     }
 
@@ -250,7 +250,7 @@ class Target : Element("Target") {
 
                             // Draw head
                             val locationSkin = it.locationSkin
-                            drawHead(locationSkin, 4, 4, 8F, 8F, 8, 8, 30 - 2, 30 - 2, 64F, 64F)
+                            drawHead(locationSkin, 4, 4, 8F, 8F, 8, 8, 30 - 2, 30 - 2, 64F, 64F, Color.WHITE)
                         }
                     }
                 }
