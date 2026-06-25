@@ -73,7 +73,7 @@ object PacketDebugger : Module("PacketDebugger", Category.MISC, gameDetecting = 
 
         when (notify) {
             "Chat", "Both" -> chat(packetInfo)
-            "Notification", "Both" -> hud.addNotification(Notification.informative(this, packetInfo, (notificationStayTime * 1000).toLong()))
+            "Notification", "Both" -> hud.addNotification(Notification(packetInfo, (notificationStayTime * 1000).toLong()))
         }
     }
 }

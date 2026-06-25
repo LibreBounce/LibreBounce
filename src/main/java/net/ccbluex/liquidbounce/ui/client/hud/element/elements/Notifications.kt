@@ -42,7 +42,7 @@ class Notifications(
     val borderColor by color("BorderColor", Color.BLUE.withAlpha(255)) { renderBorder }
     val borderWidth by float("BorderWidth", 2f, 0.5F..5F) { renderBorder }
 
-    private val exampleNotification = Notification("Example Title", "Example Description")
+    private val exampleNotification = Notification("Example Description")
 
     private var index = 0
 

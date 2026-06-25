@@ -78,7 +78,7 @@ open class Module(
             LOGGER.error("Failed to reset all values", any)
             chat("Failed to reset all values: ${any.message}")
         } finally {
-            addNotification(Notification(this.spacedName, "Successfully reset settings"))
+            addNotification(Notification("Successfully reset ${this.spacedName}'s settings"))
             saveConfig(valuesConfig)
         }
         return@onChange false
@@ -102,25 +102,10 @@ open class Module(
 
             // Play sound and add notification
             if (!isStarting) {
-                try {
-                    val state = if (value) "Enabled" to Notifications.SeverityType.SUCCESS
-                        else "Disabled" to Notifications.SeverityType.RED_SUCCESS
-
-                    val texts = translation("notification.module${state.first}", getName()).split(" ")
-                    val (title, description) = texts[0] to texts[1]
-
-                    mc.playSound("random.click".asResourceLocation())
-                    HUD.notifications.find { it.title != title && it.description == description }.let {
-                        if (it == null || it.fadeState.ordinal > 1) {
-                            addNotification(Notification(title, description, severityType = state.second))
-                            return@let
-                        }
-
-                        it.replaceModuleNotification(title, description, state.second)
-                    }
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
+                mc.playSound("random.click".asResourceLocation())Add a comment on  lines L105 to L106Add diff commentMarkdown input:  edit mode selected.WritePreviewHeadingBoldItalicQuoteCodeLinkUnordered listNumbered listTask listMentionReferenceMore Formatting tools items 9Saved repliesAdd FilesPaste, drop, or click to add filesCancelCommentStart a review
+                addNotification(
+                    Notification(translation("notification.module" + if (value) "Enabled" else "Disabled", getName()))
+                )
             }
 
             // Call on enabled or disabled

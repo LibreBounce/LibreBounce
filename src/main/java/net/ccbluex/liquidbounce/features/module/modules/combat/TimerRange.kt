@@ -405,7 +405,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
 
                 when {
                     chatDebug -> chat(message)
-                    notificationDebug -> hud.addNotification(Notification.informative(this, message, 1000L))
+                    notificationDebug -> hud.addNotification(Notification(message, 1000L))
                     else -> null
                 }
 
@@ -422,7 +422,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
 
                 when {
                     chatDebug -> chat(message)
-                    notificationDebug -> hud.addNotification(Notification.informative(this, message, 1000L))
+                    notificationDebug -> hud.addNotification(Notification(message, 1000L))
                     else -> null
                 }
 

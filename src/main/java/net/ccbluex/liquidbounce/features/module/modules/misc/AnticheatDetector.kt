@@ -93,7 +93,7 @@ object AnticheatDetector : Module("AnticheatDetector", Category.MISC) {
     }
 
     private fun notify(message: String) = hud.addNotification(
-        Notification.informative(this, "Anticheat detected: $message", 3000L)
+        Notification("Anticheat detected: $message", 3000L)
     )
 
     private fun logNumbers() {

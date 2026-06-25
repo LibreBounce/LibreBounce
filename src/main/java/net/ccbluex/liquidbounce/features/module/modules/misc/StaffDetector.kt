@@ -183,7 +183,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
                     autoLeave()
 
                     if (warn == "Chat") chat("§3Staff is Watching")
-                    else hud.addNotification(Notification.warning(this, "§3Staff is Watching", 3000L))
+                    else hud.addNotification(Notification("§3Staff is Watching", 3000L))
                 }
             }
         }
@@ -198,12 +198,12 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
 
         if (isStaff && spectator) {
             if (warn == "Chat") chat("§c[STAFF] §d${player} §3is a spectator")
-            else hud.addNotification(Notification.warning(this, "§c[STAFF] §d${player} §3is a spectator", 3000L))
+            else hud.addNotification(Notification("§c[STAFF] §d${player} §3is a spectator", 3000L))
         }
 
         if (!isStaff && otherSpectator) {
             if (warn == "Chat") chat("§d${player} §3is a spectator")
-            else hud.addNotification(Notification.warning(this, "§d${player} §3is a spectator", 3000L))
+            else hud.addNotification(Notification("§d${player} §3is a spectator", 3000L))
         }
 
         attemptLeave = false
@@ -248,7 +248,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
 
             if (isStaff && player !in checkedStaff) {
                 if (warn == "Chat") chat(warnings)
-                else hud.addNotification(Notification.warning(this, warnings.removePrefix("§c[STAFF] "), 3000L))
+                else hud.addNotification(Notification(warnings.removePrefix("§c[STAFF] "), 3000L))
 
                 attemptLeave = false
                 checkedStaff.add(player)
@@ -290,7 +290,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
 
         if (isStaff && playerName !in checkedStaff) {
             if (warn == "Chat") chat(warnings)
-            else hud.addNotification(Notification.warning(this, warnings.removePrefix("§c[STAFF] "), 3000L))
+            else hud.addNotification(Notification(warnings.removePrefix("§c[STAFF] "), 3000L))
 
             attemptLeave = false
             checkedStaff.add(playerName)
@@ -327,7 +327,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
 
             if (entries.size != playerListSize) {
                 if (warn == "Chat") chat("§aA player might be vanished.")
-                else hud.addNotification(Notification.warning(this, "§aA player might be vanished.", 3000L))
+                else hud.addNotification(Notification("§aA player might be vanished.", 3000L))
 
                 alertClearVanish = false
             } else {
@@ -335,7 +335,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
                     return
 
                 if (warn == "Chat") chat("§cNo players are vanished")
-                else hud.addNotification(Notification.warning(this, "§cNo players are vanished", 3000L))
+                else hud.addNotification(Notification("§cNo players are vanished", 3000L))
 
                 alertClearVanish = true
             }
