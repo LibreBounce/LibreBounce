@@ -37,7 +37,7 @@ import kotlin.math.pow
 @ElementInfo(name = "Target")
 class Target : Element("Target") {
 
-    private val borderStrength by float("BorderStrength, 0f, 1f..5f)
+    private val borderStrength by float("BorderStrength", 0f, 1f..5f)
     private val borderMode by choices("BorderColorMode", arrayOf("Custom", "Rainbow"), "Custom")
     private val borderColor by color("BorderColor", Color.BLACK) { borderMode == "Custom" }
 

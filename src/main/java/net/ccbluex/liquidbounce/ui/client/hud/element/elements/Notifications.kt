@@ -57,11 +57,11 @@ class Notifications(
 }
 
 // Default delay set to 60F
-class Notification(private val message: String, private val delay: Float = 60L) {
+class Notification(private val message: String, private val delay: Long = 60L) {
     var x = 0F
     var textLength = 0
 
-    private var stay = 0F
+    private var stay = 0L
     private var fadeStep = 0F
     var fadeState = FadeState.IN
 
