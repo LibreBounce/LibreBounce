@@ -57,7 +57,7 @@ class Notifications(
 }
 
 // Default delay set to 60F
-class Notification(private val message: String, private val delay: Float = 60F) {
+class Notification(private val message: String, private val delay: Float = 60L) {
     var x = 0F
     var textLength = 0
 

@@ -102,7 +102,8 @@ open class Module(
 
             // Play sound and add notification
             if (!isStarting) {
-                mc.playSound("random.click".asResourceLocation())Add a comment on  lines L105 to L106Add diff commentMarkdown input:  edit mode selected.WritePreviewHeadingBoldItalicQuoteCodeLinkUnordered listNumbered listTask listMentionReferenceMore Formatting tools items 9Saved repliesAdd FilesPaste, drop, or click to add filesCancelCommentStart a review
+                mc.playSound("random.click".asResourceLocation())
+
                 addNotification(
                     Notification(translation("notification.module" + if (value) "Enabled" else "Disabled", getName()))
                 )

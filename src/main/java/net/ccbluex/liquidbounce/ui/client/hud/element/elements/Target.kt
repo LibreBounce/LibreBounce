@@ -20,7 +20,6 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawHead
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedBorderRect
 import net.ccbluex.liquidbounce.utils.render.animation.AnimationUtil
-import net.ccbluex.liquidbounce.utils.render.shader.shaders.FrostShader
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowShader
 import net.minecraft.client.gui.GuiChat
 import net.minecraft.entity.EntityLivingBase
@@ -206,8 +205,7 @@ class Target : Element("Target") {
                             if (backgroundMode == "Rainbow") 0 else backgroundCustomColor,
                             borderCustomColor,
                             roundedRectRadius
-                            )
-                        }
+                        )
                     }
 
                     // Health bar
