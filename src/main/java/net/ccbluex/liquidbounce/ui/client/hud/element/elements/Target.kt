@@ -38,24 +38,30 @@ import kotlin.math.pow
 @ElementInfo(name = "Target")
 class Target : Element("Target") {
 
-    private val roundedRectRadius by float("Rounded-Radius", 3F, 0F..5F)
+    private val borderStrength by float("BorderStrength, 0f, 1f..5f)
+    private val borderMode by choices("BorderColorMode", arrayOf("Custom", "Rainbow"), "Custom")
+    private val borderColor by color("BorderColor", Color.BLACK) { borderMode == "Custom" }
 
-    private val borderStrength by float("Border-Strength", 3F, 1F..5F)
+    private val textColorMode by choices(
+        "TextMode", arrayOf("Custom", "Random", "Rainbow"), "Custom"
+    )
+    private val textColors = ColorSettingsInteger(this, "TextColor") { textColorMode == "Custom" }.with(blueRibbon)
 
-    private val backgroundMode by choices("Background-ColorMode", arrayOf("Custom", "Rainbow", "Frost"), "Custom")
-    private val backgroundColor by color("Background-Color", Color.BLACK.withAlpha(150)) { backgroundMode == "Custom" }
+    private val roundedBackgroundRadius by float("RoundedBackgroundRadius", 0f, 0f..5f) { backgroundColor.alpha > 0 }
 
-    private val frostIntensity by float("Frost-Intensity", 0.3F, 0.1F..1F) { backgroundMode == "Frost" }
-    private val frostTintColor by color("Frost-TintColor", Color.WHITE.withAlpha(150)) { backgroundMode == "Frost" }
-    private val frostBlurRadius by float("Frost-BlurRadius", 2F, 0.5F..5F) { backgroundMode == "Frost" }
+    private val backgroundMode by choices(
+        "BackgroundMode", arrayOf("Custom", "Random", "Rainbow"), "Custom"
+    )
+    private val backgroundColor by color("BackgroundColor", Color.BLACK.withAlpha(150)) { backgroundMode == "Custom" }
 
-    private val borderMode by choices("Border-ColorMode", arrayOf("Custom", "Rainbow"), "Custom")
-    private val borderColor by color("Border-Color", Color.BLACK) { borderMode == "Custom" }
+    private fun isColorModeUsed(value: String) = value in listOf(textColorMode, backgroundMode, iconColorMode)
 
-    private val textColor by color("TextColor", Color.WHITE)
-
-    private val rainbowX by float("Rainbow-X", -1000F, -2000F..2000F) { backgroundMode == "Rainbow" }
-    private val rainbowY by float("Rainbow-Y", -1000F, -2000F..2000F) { backgroundMode == "Rainbow" }
+    private val saturation by float("RandomSaturation", 0.9f, 0f..1f) { isColorModeUsed("Random") }
+    private val brightness by float("RandomBrightness", 1f, 0f..1f) { isColorModeUsed("Random") }
+    private val rainbowX by float("RainbowX", -1000F, -2000F..2000F) { isColorModeUsed("Rainbow") }
+    private val rainbowY by float("RainbowY", -1000F, -2000F..2000F) { isColorModeUsed("Rainbow") }
+    private val gradientX by float("GradientX", -1000F, -2000F..2000F) { isColorModeUsed("Gradient") }
+    private val gradientY by float("GradientY", -1000F, -2000F..2000F) { isColorModeUsed("Gradient") }
 
     private val titleFont by font("TitleFont", Fonts.font40)
     private val bodyFont by font("BodyFont", Fonts.font35)
@@ -190,33 +196,17 @@ class Target : Element("Target") {
                     val width = width.coerceAtLeast(0F)
                     val height = height.coerceAtLeast(0F)
 
-                    when (backgroundMode) {
-                        "Frost" -> {
-                            FrostShader.begin(
-                                enable = true,
-                                intensity = frostIntensity,
-                                tintColor = frostTintColor,
-                                radius = frostBlurRadius,
-                            ).use {
-                                drawRoundedBorderRect(
-                                    0F, 0F, width, height, borderStrength, 0, borderCustomColor, roundedRectRadius
-                                )
-                            }
-                        }
-
-                        else -> {
-                            RainbowShader.begin(backgroundMode == "Rainbow", rainbowX, rainbowY, rainbowOffset).use {
-                                drawRoundedBorderRect(
-                                    0F,
-                                    0F,
-                                    width,
-                                    height,
-                                    borderStrength,
-                                    if (backgroundMode == "Rainbow") 0 else backgroundCustomColor,
-                                    borderCustomColor,
-                                    roundedRectRadius
-                                )
-                            }
+                    RainbowShader.begin(backgroundMode == "Rainbow", rainbowX, rainbowY, rainbowOffset).use {
+                        drawRoundedBorderRect(
+                            0F,
+                            0F,
+                            width,
+                            height,
+                            borderStrength,
+                            if (backgroundMode == "Rainbow") 0 else backgroundCustomColor,
+                            borderCustomColor,
+                            roundedRectRadius
+                            )
                         }
                     }
 

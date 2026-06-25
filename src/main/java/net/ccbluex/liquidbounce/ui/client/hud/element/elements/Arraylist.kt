@@ -93,7 +93,7 @@ class Arraylist(
         "BackgroundMode", arrayOf("Custom", "Fade", "Random", "Rainbow", "Gradient"), "Custom"
     )
     private val bgColors =
-        ColorSettingsInteger(this, "BackgroundColor") { backgroundMode == "Custom" }.with(Color.BLACK.withAlpha(150))
+        ColorSettingsInteger(this, "BackgroundColor") { backgroundMode == "Custom" }.with(Color.BLACK.withAlpha(0))
     private val bgFadeColors = ColorSettingsInteger(this, "BackgroundFade") { backgroundMode == "Fade" }
 
     private val bgFadeDistance by int("BackgroundFadeDistance", 50, 0..100) { backgroundMode == "Fade" }

@@ -67,7 +67,7 @@ class TabGUI(x: Double = 16.0, y: Double = 43.0) : Element("TabGUI", x = x, y = 
     private val yDistance by float("ShadowYDistance", 1.0F, -2F..2F) { iconShadows }
     private val shadowColor by color("ShadowColor", Color.BLACK.withAlpha(128)) { iconShadows }
 
-    private val arrows by boolean("Arrows", trueOK)
+    private val arrows by boolean("Arrows", true)
     private val font by font("Font", Fonts.font35)
     private val textShadow by boolean("TextShadow", false)
     private val textFade by boolean("TextFade", false)
