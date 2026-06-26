@@ -11,7 +11,7 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 - **Breaking:** Aimbot recode, now having more maintainable code, along with more features (thatonecoder)
 - **Breaking:** `TargetHurtTimeHandling`, `TargetHurtTime`, `OwnHurtTimeHandling`, and `OwnHurtTime` values to KillAura's Smart AutoBlock; replaces `MaxOwnHurtTime` (thatonecoder)
 - **Breaking:** ` ClientDistanceHandling`, `ClientDistance`, `ServerDistanceHandling`, and `ServerDistance` values to FakeLag; replaces `MinAllowedDistToEnemy`, `OnlyWhenNearEnemy`, and `DistanceToLag` (thatonecoder)
-- **Breaking:** ` DistanceHandling`, `Distance`, `PredictedDistanceHandling`, and `PredictedDistance` values to SmartHit; replaces `NotAboveRange` and  `NotAbovePredictedRange` (thatonecoder)
+- **Breaking:** `DistanceHandling`, `Distance`, `PredictedDistanceHandling`, and `PredictedDistance` values to SmartHit; replaces `NotAboveRange` and  `NotAbovePredictedRange` (thatonecoder)
 - CombatJump module; jumps at the right time to gain higher momentum in fights (thatonecoder)
 - CheatDetector module; attempts to detect cheats other players are using (thatonecoder)
 - `UsePredictedTargetHurtTime`, along with client-side target hurttime checking based on latency rounded upwards and a hit detection fail-safe to SmartHit (thatonecoder)
@@ -43,6 +43,8 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 - **Breaking:** Rename `NotBelowEnemyHealth` to `NotBelowTargetHealth`, in SmartHit (thatonecoder)
 - **Breaking:** Rename `VisualSwing` to `Swing`, in CivBreak and ChestAura (thatonecoder)
 - **Breaking:** Split `CPS` in two, `LeftCPS` and `RightCPS`, in AutoClicker (thatonecoder)
+- **Breaking:** Change the font from Outfit to Roboto (thatonecoder)
+- Revert the default HUD to LiquidBounce b72's style (thatonecoder)
 - Increase the maximum values in all of the delay settings to `10000`, in Backtrack and FakeLag (thatonecoder)
 - Improve Backtrack debugging (thatonecoder)
 
