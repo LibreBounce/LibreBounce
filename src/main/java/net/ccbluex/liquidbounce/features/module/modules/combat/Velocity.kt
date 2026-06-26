@@ -165,16 +165,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
     private var pauseTicks = 0
 
     override val tag
-        get() = when (mode) {
-            "Simple", "Legit" -> {
-                val horizontalPercent = (horizontal * 100).toInt()
-                val verticalPercent = (vertical * 100).toInt()
-
-                "$horizontalPercent% $verticalPercent%"
-            }
-
-            else -> mode
-        }
+        get() = mode
 
     override fun onDisable() {
         pauseTicks = 0

@@ -48,26 +48,14 @@ import kotlin.math.*
 
 object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
-    /**
-     * TOWER MODES & SETTINGS
-     */
-
-    // -->
-
+    // Tower
     private val towerMode by Tower.towerModeValues
 
     init {
         addValues(Tower.values)
     }
 
-    // <--
-
-    /**
-     * SCAFFOLD MODES & SETTINGS
-     */
-
-    // -->
-
+    // Scaffold
     val scaffoldMode by choices(
         "ScaffoldMode", arrayOf("Normal", "Rewinside", "Expand", "Telly", "GodBridge"), "Normal"
     )
@@ -1231,7 +1219,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
     }
 
     override val tag
-        get() = if (towerMode != "None") ("$scaffoldMode | $towerMode") else scaffoldMode
+        get() = if (towerMode != "None") ("${scaffoldMode}, $towerMode") else scaffoldMode
 
     data class ExtraClickInfo(val delay: Int, val lastClick: Long, var clicks: Int)
 }
