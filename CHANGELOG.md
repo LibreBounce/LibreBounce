@@ -6,6 +6,8 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 ## [Unreleased]
 
+## [0.7.0-beta.2] - 2026-06-26
+
 ### Added
 
 - **Breaking:** Aimbot recode, now having more maintainable code, along with more features (thatonecoder)
@@ -14,12 +16,14 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 - **Breaking:** `DistanceHandling`, `Distance`, `PredictedDistanceHandling`, and `PredictedDistance` values to SmartHit; replaces `NotAboveRange` and  `NotAbovePredictedRange` (thatonecoder)
 - CombatJump module; jumps at the right time to gain higher momentum in fights (thatonecoder)
 - CheatDetector module; attempts to detect cheats other players are using (thatonecoder)
+- Multi choice values (Zywl)
 - `UsePredictedTargetHurtTime`, along with client-side target hurttime checking based on latency rounded upwards and a hit detection fail-safe to SmartHit (thatonecoder)
 - `ExperimentalChecks`, `CheckForCriticalHits`, `ImproveCritHandling`, (all previously hardcoded), and `CheckForBlockedHits` to SmartHit (thatonecoder)
 - `SimulateKnockback`, `SimulatedHorizontalKnockback`, and `SimulatedVerticalKnockback` values to SmartHit (thatonecoder)
 - `TargetHurtTimeHandling`, `TargetHurtTime`, `OwnHurtTimeHandling`, and `OwnHurtTime` values to SmartHit & Backtrack (thatonecoder)
 - `OwnHurtTimeHandling` and `OwnHurtTime` values to KeepSprint & FakeLag (thatonecoder)
-- `Style`, `Smart`, `DistanceTresholdToCheck`, and `AdvantageTreshold` values to FakeLag (thatonecoder)
+- `Style` list value to FakeLag, with `Pulse` and `Smooth` options; previously only had the `Smooth` functionality (thatonecoder)
+- `Smart`, `DistanceTresholdToCheck`, and `AdvantageTreshold` values to FakeLag (thatonecoder)
 - `StopAvoidableHits` and `HittableRange` values to FakeLag (thatonecoder)
 - `BlinkOnActionDelay` and `TimeNecessaryToPause` values to FakeLag (thatonecoder)
 - `AdvantageTreshold` value to Backtrack (thatonecoder)
@@ -44,9 +48,10 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 - **Breaking:** Rename `VisualSwing` to `Swing`, in CivBreak and ChestAura (thatonecoder)
 - **Breaking:** Split `CPS` in two, `LeftCPS` and `RightCPS`, in AutoClicker (thatonecoder)
 - **Breaking:** Change the font from Outfit to Roboto (thatonecoder)
-- Revert the default HUD to LiquidBounce b72's style (thatonecoder)
-- Increase the maximum values in all of the delay settings to `10000`, in Backtrack and FakeLag (thatonecoder)
 - Improve Backtrack debugging (thatonecoder)
+- Increase the maximum values in all of the delay settings to `10000`, in Backtrack and FakeLag (thatonecoder)
+- Change the default HUD to LiquidBounce b72's style (thatonecoder)
+- Simplify the Velocity and Scaffold tags (thatonecoder)
 
 ### Removed
 
@@ -278,7 +283,8 @@ _Initial release, forked from LiquidBounce Legacy._
 
 - Warning to upgrade from `LiquidBounce` legacy to nextgen (thatonecoder)
 
-[Unreleased]: https://github.com/LibreBounce/LibreBounce/compare/v0.7.0-beta.1...HEAD
+[Unreleased]: https://github.com/LibreBounce/LibreBounce/compare/v0.7.0-beta.2...HEAD
+[0.7.0-beta.2]: https://github.com/LibreBounce/LibreBounce/compare/v0.7.0-beta.1...v0.7.0-beta.2
 [0.7.0-beta.1]: https://github.com/LibreBounce/LibreBounce/compare/v0.7.0-alpha.2...v0.7.0-beta.1
 [0.7.0-alpha.2]: https://github.com/LibreBounce/LibreBounce/compare/v0.7.0-alpha.1...v0.7.0-alpha.2
 [0.7.0-alpha.1]: https://github.com/LibreBounce/LibreBounce/compare/v0.6.0...v0.7.0-alpha.1

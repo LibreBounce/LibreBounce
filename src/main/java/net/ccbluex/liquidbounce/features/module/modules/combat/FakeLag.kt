@@ -48,9 +48,9 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
 
     // TODO: Fix this being buggy
     private val clientDistanceHandling by choices("ClientDistanceHandling", arrayOf("Allow", "Forbid", "Ignore"), "Forbid")
-    private val clientDistance by floatRange("ClientDistance", 1.5f..3.5f, 0f..6f, suffix = "blocks") { clientDistanceHandling != "Ignore" }
+    private val clientDistance by floatRange("ClientDistance", 1.5f..3.5f, 0f..12f, suffix = "blocks") { clientDistanceHandling != "Ignore" }
     private val serverDistanceHandling by choices("ServerDistanceHandling", arrayOf("Allow", "Forbid", "Ignore"), "Forbid")
-    private val serverDistance by floatRange("ServerDistance", 1.5f..3.5f, 0f..6f, suffix = "blocks") { serverDistanceHandling != "Ignore" }
+    private val serverDistance by floatRange("ServerDistance", 1.5f..3.5f, 0f..12f, suffix = "blocks") { serverDistanceHandling != "Ignore" }
     
     private val stopAvoidableHits by boolean("StopAvoidableHits", true)
     private val hittableRange by float("HittableRange", 3.04f, 0f..6f, suffix = "blocks") { stopAvoidableHits } 
