@@ -30,7 +30,7 @@ import java.awt.Color
 import kotlin.math.abs
 
 @ElementInfo(name = "TabGUI")
-class TabGUI(x: Double = 16.0, y: Double = 43.0) : Element("TabGUI", x = x, y = y) {
+class TabGUI(x: Double = 5.0, y: Double = 25.0) : Element("TabGUI", x = x, y = y) {
 
     private val rectColor = color("RectangleColor", Color(0, 148, 255, 140))
 
@@ -41,7 +41,7 @@ class TabGUI(x: Double = 16.0, y: Double = 43.0) : Element("TabGUI", x = x, y = 
 
     private val bgColor by color("BackgroundColor", Color.BLACK.withAlpha(150))
 
-    private val borderValue by boolean("Border", false)
+    private val borderValue by boolean("Border", true)
     private val borderStrength by float("BorderStrength", 2f, 1f..5f) { borderValue }
 
     private val borderColor = color("BorderColor", Color.BLACK.withAlpha(150)) { borderValue }
@@ -70,10 +70,10 @@ class TabGUI(x: Double = 16.0, y: Double = 43.0) : Element("TabGUI", x = x, y = 
     private val arrows by boolean("Arrows", true)
     private val font by font("Font", Fonts.font35)
     private val textShadow by boolean("TextShadow", false)
-    private val textFade by boolean("TextFade", false)
+    private val textFade by boolean("TextFade", true)
     private val textPositionY by float("TextPositionY", 2f, 0f..5f)
     private val width by float("Width", 60f, 55f..100f)
-    private val tabHeight by float("TabHeight", 13f, 10f..15f)
+    private val tabHeight by float("TabHeight", 12f, 10f..15f)
     private val categoryCase by choices("CategoryCase", arrayOf("Normal", "Uppercase", "Lowercase"), "Normal")
     private val moduleCase by choices("ModuleCase", arrayOf("Normal", "Uppercase", "Lowercase"), "Normal")
     private val spacedModules by boolean("SpacedModules", false)

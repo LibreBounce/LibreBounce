@@ -93,10 +93,10 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1f, side: Side = S
          * Default Block Counter
          */
         fun defaultBlockCount(): Text {
-            val text = Text(x = 520.0, y = 245.0, scale = 1f)
+            val text = Text(x = 0, y = 7.0, scale = 1f, Side(Horizontal.MIDDLE, Vertical.MIDDLE))
 
-            text.displayString = "Blocks: §f%blockamount%"
-            text.bgColors.with(Color.BLACK.withAlpha(100))
+            text.displayString = "Blocks: §7%blockamount%"
+            text.bgColors.with(Color.BLACK.withAlpha(255))
             text.onScaffold = true
             text.backgroundScale = 1F
 

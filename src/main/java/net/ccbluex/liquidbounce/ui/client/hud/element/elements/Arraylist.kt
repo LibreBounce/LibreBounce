@@ -44,7 +44,7 @@ import java.awt.Color
  */
 @ElementInfo(name = "Arraylist", single = true)
 class Arraylist(
-    x: Double = 0.0, y: Double = 0.0, scale: Float = 1F,
+    x: Double = 1.0, y: Double = 2.0, scale: Float = 1F,
     side: Side = Side(Horizontal.RIGHT, Vertical.UP),
 ) : Element("Arraylist", x, y, scale, side) {
 
@@ -110,7 +110,7 @@ class Arraylist(
     ) { backgroundMode == "Gradient" && it <= maxBackgroundGradientColors }
 
     // Icons
-    private val displayIcons by boolean("DisplayIcons", true)
+    private val displayIcons by boolean("DisplayIcons", false)
     private val iconShadows by boolean("IconShadows", true) { displayIcons }
     private val xDistance by float("ShadowXDistance", 0F, -2F..2F) { iconShadows }
     private val yDistance by float("ShadowYDistance", 0F, -2F..2F) { iconShadows }
