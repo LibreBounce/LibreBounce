@@ -17,6 +17,8 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
 import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
 import net.ccbluex.liquidbounce.ui.client.hud.element.Side
+import net.ccbluex.liquidbounce.ui.client.hud.element.Side.Horizontal
+import net.ccbluex.liquidbounce.ui.client.hud.element.Side.Vertical
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.ui.font.GameFontRenderer
@@ -80,26 +82,11 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1f, side: Side = S
          * Default Client Title
          */
         fun defaultClientTitle(): Text {
-            val text = Text(x = 2.0, y = 1.0, scale = 2f)
+            val text = Text(x = 2.0, y = 2.0, scale = 2f)
 
             text.displayString = "%clientName%"
             text.shadow = true
             text.color = text.blueRibbon
-            text.font.set(Fonts.fontRegular45)
-
-            return text
-        }
-
-        /**
-         * Default Client Version
-         */
-        fun defaultClientVersion(): Text {
-            val text = Text(x = 107.0, y = 25.0, scale = 1f)
-
-            text.displayString = "%clientversion%"
-            text.shadow = true
-            text.color = Color.WHITE
-            text.font.set(Fonts.fontExtraBold35)
 
             return text
         }
@@ -108,13 +95,11 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1f, side: Side = S
          * Default Block Counter
          */
         fun defaultBlockCount(): Text {
-            val text = Text(x = 520.0, y = 245.0, scale = 1f)
+            val text = Text(x = 0.0, y = 7.0, scale = 1f, side = Side(Horizontal.MIDDLE, Vertical.MIDDLE))
 
-            text.displayString = "%blockamount%"
-            text.shadow = true
-            text.bgColors.with(Color.BLACK.withAlpha(128))
+            text.displayString = "Blocks: §7%blockamount%"
+            text.bgColors.with(Color.BLACK.withAlpha(255))
             text.onScaffold = true
-            text.showBlock = true
             text.backgroundScale = 1F
 
             return text
@@ -168,7 +153,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1f, side: Side = S
     private val gradientY by float("GradientY", -1500f, -2000f..2000f) { isColorModeUsed("Gradient") }
 
     private var shadow by boolean("Shadow", true)
-    private val font = font("Font", Fonts.fontSemibold40)
+    private val font = font("Font", Fonts.font40)
 
     private var editMode = false
     private var editTicks = 0

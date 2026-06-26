@@ -63,13 +63,13 @@ class ModuleElement(
             3f
         )
 
-        Fonts.fontSemibold40.drawString(
+        Fonts.font40.drawString(
             if (spacedModules) module.name.addSpaces() else module.name,
             startX + margin + 10, startY + 10,
             if (module.state) accentColor else Color.WHITE.rgb
         )
 
-        Fonts.fontRegular30.drawString(module.description, startX + margin + 10, startY + Fonts.fontSemibold40.fontHeight + 15,
+        Fonts.font30.drawString(module.description, startX + margin + 10, startY + Fonts.font40.fontHeight + 15,
             referenceColor
         )
 
@@ -113,7 +113,7 @@ class ModuleElement(
         // TODO: Improve
         elements.forEach { element ->
             if (element.startY > startY - settingsHeight) return@forEach
-            element.startY += settingsHeight - Fonts.fontSemibold40.fontHeight - 30f
+            element.startY += settingsHeight - Fonts.font40.fontHeight - 30f
         }
     }
 
@@ -129,7 +129,7 @@ class ModuleElement(
     private fun updateValueElementsRendering() {
         if (valueElements.isEmpty()) return
 
-        valueElements.first().startY = startY + Fonts.fontRegular40.fontHeight + 30f
+        valueElements.first().startY = startY + Fonts.font40.fontHeight + 30f
         valueElements.forEach { element ->
             element.startX = startX + margin + 10f
         }

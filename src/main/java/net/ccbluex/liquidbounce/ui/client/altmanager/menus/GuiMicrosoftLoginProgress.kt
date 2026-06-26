@@ -85,7 +85,7 @@ class GuiMicrosoftLoginProgress(val updateStatus: (String) -> Unit, val done: ()
         assumeNonVolatile {
             drawDefaultBackground()
             drawLoadingCircle(width / 2f, height / 4f + 70)
-            Fonts.fontSemibold40.drawCenteredString(
+            Fonts.font40.drawCenteredString(
                 translationText(
                 "Loggingintoaccount"), width / 2f, height / 2 - 60f, 0xffffff)
 

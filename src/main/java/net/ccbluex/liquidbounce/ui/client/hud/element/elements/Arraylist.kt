@@ -44,7 +44,7 @@ import java.awt.Color
  */
 @ElementInfo(name = "Arraylist", single = true)
 class Arraylist(
-    x: Double = 0.0, y: Double = 0.0, scale: Float = 1F,
+    x: Double = 1.0, y: Double = 2.0, scale: Float = 1F,
     side: Side = Side(Horizontal.RIGHT, Vertical.UP),
 ) : Element("Arraylist", x, y, scale, side) {
 
@@ -67,7 +67,7 @@ class Arraylist(
     private val textGradColors =
         ColorSettingsFloat.create(this, "TextGradient") { textColorMode == "Gradient" && it <= maxTextGradientColors }
 
-    private val rectMode by choices("RectMode", arrayOf("None", "Left", "Right", "Outline"), "Right")
+    private val rectMode by choices("RectMode", arrayOf("None", "Left", "Right", "Outline"), "None")
     private val roundedRectRadius by float("RoundedRectRadius", 0F, 0F..2F) { rectMode !in setOf("None", "Outline") }
     private val rectColorMode by choices(
         "RectColorMode", arrayOf("Custom", "Fade", "Random", "Rainbow", "Gradient"), "Custom"
@@ -93,7 +93,7 @@ class Arraylist(
         "BackgroundMode", arrayOf("Custom", "Fade", "Random", "Rainbow", "Gradient"), "Custom"
     )
     private val bgColors =
-        ColorSettingsInteger(this, "BackgroundColor") { backgroundMode == "Custom" }.with(Color.BLACK.withAlpha(150))
+        ColorSettingsInteger(this, "BackgroundColor") { backgroundMode == "Custom" }.with(Color.BLACK.withAlpha(0))
     private val bgFadeColors = ColorSettingsInteger(this, "BackgroundFade") { backgroundMode == "Fade" }
 
     private val bgFadeDistance by int("BackgroundFadeDistance", 50, 0..100) { backgroundMode == "Fade" }
@@ -110,7 +110,7 @@ class Arraylist(
     ) { backgroundMode == "Gradient" && it <= maxBackgroundGradientColors }
 
     // Icons
-    private val displayIcons by boolean("DisplayIcons", true)
+    private val displayIcons by boolean("DisplayIcons", false)
     private val iconShadows by boolean("IconShadows", true) { displayIcons }
     private val xDistance by float("ShadowXDistance", 0F, -2F..2F) { iconShadows }
     private val yDistance by float("ShadowYDistance", 0F, -2F..2F) { iconShadows }
@@ -134,7 +134,7 @@ class Arraylist(
 
     private val tagCase by choices("TagCase", arrayOf("Normal", "Uppercase", "Lowercase"), "Normal")
 
-    private val font by font("Font", Fonts.fontSemibold35)
+    private val font by font("Font", Fonts.font40)
     private val textShadow by boolean("TextShadow", true)
     private val moduleCase by choices("ModuleCase", arrayOf("Normal", "Uppercase", "Lowercase"), "Normal")
     private val space by float("Space", 1F, 0F..5F)

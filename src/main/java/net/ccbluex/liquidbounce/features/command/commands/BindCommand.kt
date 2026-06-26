@@ -33,7 +33,7 @@ object BindCommand : Command("bind") {
 
             // Response to user
             chat("Bound module §a§l${module.getName()}§3 to key §a§l${keyName}§3.")
-            addNotification(Notification("Bind Command", "Bound ${module.getName()} to ${keyName}"))
+            addNotification(Notification("Bound ${module.getName()} to ${keyName}"))
             playEdit()
             return
         }

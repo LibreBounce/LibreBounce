@@ -63,7 +63,7 @@ object Fucker : Module("Fucker", Category.WORLD) {
     private val blockProgress by boolean("BlockProgress", true).subjective()
 
     private val scale by float("Scale", 2f, 1f..6f) { blockProgress }.subjective()
-    private val font by font("Font", Fonts.fontSemibold40) { blockProgress }.subjective()
+    private val font by font("Font", Fonts.font40) { blockProgress }.subjective()
     private val fontShadow by boolean("Shadow", true) { blockProgress }.subjective()
 
     private val color by color("Color", Color(200, 100, 0)) { blockProgress }.subjective()

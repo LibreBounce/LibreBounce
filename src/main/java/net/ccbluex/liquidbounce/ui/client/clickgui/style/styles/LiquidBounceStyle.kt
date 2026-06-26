@@ -15,7 +15,7 @@ import net.ccbluex.liquidbounce.ui.client.clickgui.elements.ButtonElement
 import net.ccbluex.liquidbounce.ui.client.clickgui.elements.ModuleElement
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.Style
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
-import net.ccbluex.liquidbounce.ui.font.Fonts.fontSemibold35
+import net.ccbluex.liquidbounce.ui.font.Fonts.font35
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlockName
 import net.ccbluex.liquidbounce.utils.extensions.component1
 import net.ccbluex.liquidbounce.utils.extensions.component2
@@ -52,8 +52,8 @@ object LiquidBounceStyle : Style() {
             Int.MIN_VALUE
         )
 
-        val xPos = panel.x - (fontSemibold35.getStringWidth(StringUtils.stripControlCodes(panel.name)) - 100) / 2
-        fontSemibold35.drawString(panel.name, xPos, panel.y + 6, Color.WHITE.rgb)
+        val xPos = panel.x - (font35.getStringWidth(StringUtils.stripControlCodes(panel.name)) - 100) / 2
+        font35.drawString(panel.name, xPos, panel.y + 6, Color.WHITE.rgb)
 
         if (panel.scrollbar && panel.fade > 0) {
             drawRect(panel.x - 2, panel.y + 21, panel.x, panel.y + 16 + panel.fade, Color.DARK_GRAY.rgb)
@@ -73,9 +73,9 @@ object LiquidBounceStyle : Style() {
     override fun drawHoverText(mouseX: Int, mouseY: Int, text: String) {
         val lines = text.lines()
 
-        val width = lines.maxOfOrNull { fontSemibold35.getStringWidth(it) + 14 }
+        val width = lines.maxOfOrNull { font35.getStringWidth(it) + 14 }
             ?: return // Makes no sense to render empty lines
-        val height = fontSemibold35.fontHeight * lines.size + 3
+        val height = font35.fontHeight * lines.size + 3
 
         // Don't draw hover text beyond window boundaries
         val (scaledWidth, scaledHeight) = ScaledResolution(mc)
@@ -84,20 +84,20 @@ object LiquidBounceStyle : Style() {
 
         drawBorderedRect(x + 9, y, x + width, y + height, 1, Color.GRAY.rgb, Int.MIN_VALUE)
         lines.forEachIndexed { index, text ->
-            fontSemibold35.drawString(text, x + 12, y + 3 + (fontSemibold35.fontHeight) * index, Int.MAX_VALUE)
+            font35.drawString(text, x + 12, y + 3 + (font35.fontHeight) * index, Int.MAX_VALUE)
         }
     }
 
     override fun drawButtonElement(mouseX: Int, mouseY: Int, buttonElement: ButtonElement) {
-        val xPos = buttonElement.x - (fontSemibold35.getStringWidth(buttonElement.displayName) - 100) / 2
-        fontSemibold35.drawString(buttonElement.displayName, xPos, buttonElement.y + 6, buttonElement.color)
+        val xPos = buttonElement.x - (font35.getStringWidth(buttonElement.displayName) - 100) / 2
+        font35.drawString(buttonElement.displayName, xPos, buttonElement.y + 6, buttonElement.color)
     }
 
     override fun drawModuleElementAndClick(
         mouseX: Int, mouseY: Int, moduleElement: ModuleElement, mouseButton: Int?
     ): Boolean {
-        val xPos = moduleElement.x - (fontSemibold35.getStringWidth(moduleElement.displayName) - 100) / 2
-        fontSemibold35.drawString(
+        val xPos = moduleElement.x - (font35.getStringWidth(moduleElement.displayName) - 100) / 2
+        font35.drawString(
             moduleElement.displayName, xPos, moduleElement.y + 6, if (moduleElement.module.state) {
                 if (moduleElement.module.isActive) guiColor
                 // Make inactive modules have alpha set to 100
@@ -108,7 +108,7 @@ object LiquidBounceStyle : Style() {
         val moduleValues = moduleElement.module.values.filter { it.shouldRender() }
 
         if (moduleValues.isNotEmpty()) {
-            fontSemibold35.drawString(
+            font35.drawString(
                 if (moduleElement.showSettings) "-" else "+",
                 moduleElement.x + moduleElement.width - 8,
                 moduleElement.y + moduleElement.height / 2,
@@ -133,7 +133,7 @@ object LiquidBounceStyle : Style() {
 
                     when (value) {
                         is BoolValue -> {
-                            moduleElement.settingsWidth = fontSemibold35.getStringWidth(text) + 8
+                            moduleElement.settingsWidth = font35.getStringWidth(text) + 8
 
                             if (mouseButton == 0 && mouseX in minX..maxX && mouseY in yPos + 2..yPos + 14) {
                                 value.toggle()
@@ -141,7 +141,7 @@ object LiquidBounceStyle : Style() {
                                 return true
                             }
 
-                            fontSemibold35.drawString(
+                            font35.drawString(
                                 text, minX + 2, yPos + 4, if (value.get()) guiColor else Int.MAX_VALUE
                             )
 
@@ -149,7 +149,7 @@ object LiquidBounceStyle : Style() {
                         }
 
                         is ListValue -> {
-                            moduleElement.settingsWidth = fontSemibold35.getStringWidth(text) + 16
+                            moduleElement.settingsWidth = font35.getStringWidth(text) + 16
 
                             if (mouseButton == 0 && mouseX in minX..maxX && mouseY in yPos + 2..yPos + 14) {
                                 value.openList = !value.openList
@@ -157,8 +157,8 @@ object LiquidBounceStyle : Style() {
                                 return true
                             }
 
-                            fontSemibold35.drawString("§c$text", minX + 2, yPos + 4, Color.WHITE.rgb)
-                            fontSemibold35.drawString(
+                            font35.drawString("§c$text", minX + 2, yPos + 4, Color.WHITE.rgb)
+                            font35.drawString(
                                 if (value.openList) "-" else "+",
                                 maxX - if (value.openList) 5 else 6,
                                 yPos + 4,
@@ -169,7 +169,7 @@ object LiquidBounceStyle : Style() {
 
                             for (valueOfList in value.values) {
                                 val valueName = if (spacedValues) valueOfList.addSpaces() else valueOfList
-                                moduleElement.settingsWidth = fontSemibold35.getStringWidth(valueName) + 16
+                                moduleElement.settingsWidth = font35.getStringWidth(valueName) + 16
 
                                 if (value.openList) {
                                     if (mouseButton == 0 && mouseX in minX..maxX && mouseY in yPos + 2..yPos + 14) {
@@ -178,13 +178,13 @@ object LiquidBounceStyle : Style() {
                                         return true
                                     }
 
-                                    fontSemibold35.drawString(
+                                    font35.drawString(
                                         ">",
                                         minX + 2,
                                         yPos + 4,
                                         if (value.get() == valueOfList) guiColor else Int.MAX_VALUE
                                     )
-                                    fontSemibold35.drawString(
+                                    font35.drawString(
                                         valueName,
                                         minX + 10,
                                         yPos + 4,
@@ -197,27 +197,27 @@ object LiquidBounceStyle : Style() {
                         }
 
                         is MultiSelectValue -> {
-                            moduleElement.settingsWidth = fontSemibold35.getStringWidth(text) + 16
+                            moduleElement.settingsWidth = font35.getStringWidth(text) + 16
 
-                            if (mouseButton == 0 && mouseX in minX..maxX && mouseY in yPos..yPos + fontSemibold35.fontHeight) {
+                            if (mouseButton == 0 && mouseX in minX..maxX && mouseY in yPos..yPos + font35.fontHeight) {
                                 value.openList = !value.openList
                                 clickSound()
                                 return true
                             }
 
-                            fontSemibold35.drawString("§c$text", minX + 2, yPos + 4, Color.WHITE.rgb)
-                            fontSemibold35.drawString(
+                            font35.drawString("§c$text", minX + 2, yPos + 4, Color.WHITE.rgb)
+                            font35.drawString(
                                 if (value.openList) "-" else "+",
                                 (maxX - if (value.openList) 5 else 6),
                                 yPos + 2,
                                 Color.WHITE.rgb
                             )
 
-                            yPos += fontSemibold35.fontHeight + 1
+                            yPos += font35.fontHeight + 1
 
                             value.choices.forEachIndexed { index, choice ->
                                 val valueName = if (spacedValues) choice.addSpaces() else choice
-                                moduleElement.settingsWidth = fontSemibold35.getStringWidth("> $valueName") + 12
+                                moduleElement.settingsWidth = font35.getStringWidth("> $valueName") + 12
 
                                 if (value.openList) {
                                     if (mouseButton == 0 && mouseX in minX..maxX && mouseY in yPos..yPos + 9) {
@@ -226,21 +226,21 @@ object LiquidBounceStyle : Style() {
                                         return true
                                     }
 
-                                    fontSemibold35.drawString(
+                                    font35.drawString(
                                         ">",
                                         minX + 2,
                                         yPos + 4,
                                         if (value.isSelected(choice)) guiColor else Int.MAX_VALUE
                                     )
 
-                                    fontSemibold35.drawString(
+                                    font35.drawString(
                                         "$valueName",
                                         minX + 10,
                                         yPos + 4,
                                         if (value.isSelected(choice)) guiColor else Int.MAX_VALUE
                                     )
 
-                                    yPos += fontSemibold35.fontHeight + 1
+                                    yPos += font35.fontHeight + 1
                                 }
                             }
                             if (!value.openList) {
@@ -250,7 +250,7 @@ object LiquidBounceStyle : Style() {
     
                         is FloatValue -> {
                             val floatText = text + "§f: §c" + round(value.get()) + " §8${suffix}§c"
-                            moduleElement.settingsWidth = fontSemibold35.getStringWidth(floatText) + 8
+                            moduleElement.settingsWidth = font35.getStringWidth(floatText) + 8
 
                             if (mouseButton == 0 && mouseX in minX..maxX && mouseY in yPos + 15..yPos + 21 || sliderValueHeld == value) {
                                 val percentage = (mouseX - minX - 4) / (maxX - minX - 8).toFloat()
@@ -274,7 +274,7 @@ object LiquidBounceStyle : Style() {
                                 (moduleElement.x + moduleElement.width + (moduleElement.settingsWidth - 12) * (displayValue - value.minimum) / (value.maximum - value.minimum)).roundToInt()
                             drawRect(8 + sliderValue, yPos + 15, sliderValue + 11, yPos + 21, guiColor)
 
-                            fontSemibold35.drawString(floatText, minX + 2, yPos + 4, Color.WHITE.rgb)
+                            font35.drawString(floatText, minX + 2, yPos + 4, Color.WHITE.rgb)
 
                             yPos += 22
                         }
@@ -283,7 +283,7 @@ object LiquidBounceStyle : Style() {
                             val blockText =
                                 text + "§f: §c" + getBlockName(value.get()) + " (" + value.get() + ")" + " §8$suffix"
 
-                            moduleElement.settingsWidth = fontSemibold35.getStringWidth(blockText) + 8
+                            moduleElement.settingsWidth = font35.getStringWidth(blockText) + 8
 
                             if (mouseButton == 0 && mouseX in minX..maxX && mouseY in yPos + 15..yPos + 21 || sliderValueHeld == value) {
                                 val percentage = (mouseX - minX - 4) / (maxX - minX - 8).toFloat()
@@ -306,7 +306,7 @@ object LiquidBounceStyle : Style() {
                                 moduleElement.x + moduleElement.width + (moduleElement.settingsWidth - 12) * (displayValue - value.minimum) / (value.maximum - value.minimum)
                             drawRect(8 + sliderValue, yPos + 15, sliderValue + 11, yPos + 21, guiColor)
 
-                            fontSemibold35.drawString(blockText, minX + 2, yPos + 4, Color.WHITE.rgb)
+                            font35.drawString(blockText, minX + 2, yPos + 4, Color.WHITE.rgb)
 
                             yPos += 22
                         }
@@ -314,7 +314,7 @@ object LiquidBounceStyle : Style() {
                         is IntValue -> {
                             val intText = text + "§f: §c" + value.get() + " §8$suffix"
 
-                            moduleElement.settingsWidth = fontSemibold35.getStringWidth(intText) + 8
+                            moduleElement.settingsWidth = font35.getStringWidth(intText) + 8
 
                             if (mouseButton == 0 && mouseX in minX..maxX && mouseY in yPos + 15..yPos + 21 || sliderValueHeld == value) {
                                 val percentage = (mouseX - minX - 4) / (maxX - minX - 8).toFloat()
@@ -337,7 +337,7 @@ object LiquidBounceStyle : Style() {
                                 moduleElement.x + moduleElement.width + (moduleElement.settingsWidth - 12) * (displayValue - value.minimum) / (value.maximum - value.minimum)
                             drawRect(8 + sliderValue, yPos + 15, sliderValue + 11, yPos + 21, guiColor)
 
-                            fontSemibold35.drawString(intText, minX + 2, yPos + 4, Color.WHITE.rgb)
+                            font35.drawString(intText, minX + 2, yPos + 4, Color.WHITE.rgb)
 
                             yPos += 22
                         }
@@ -347,7 +347,7 @@ object LiquidBounceStyle : Style() {
                             val slider2 = value.get().last
 
                             val intRangeText = "${text}§f: §c$slider1 §f- §c$slider2 §8${suffix}"
-                            moduleElement.settingsWidth = fontSemibold35.getStringWidth(intRangeText) + 8
+                            moduleElement.settingsWidth = font35.getStringWidth(intRangeText) + 8
 
                             val startX = minX + 4
                             val startY = yPos + 14
@@ -418,7 +418,7 @@ object LiquidBounceStyle : Style() {
                             drawRect(8 + sliderValue1, yPos + 15, sliderValue1 + 11, yPos + 21, guiColor)
                             drawRect(8 + sliderValue2, yPos + 15, sliderValue2 + 11, yPos + 21, guiColor)
 
-                            fontSemibold35.drawString(intRangeText, minX + 2, yPos + 4, Color.WHITE.rgb)
+                            font35.drawString(intRangeText, minX + 2, yPos + 4, Color.WHITE.rgb)
 
                             yPos += 22
                         }
@@ -428,7 +428,7 @@ object LiquidBounceStyle : Style() {
                             val slider2 = value.get().endInclusive
 
                             val floatRangeText = "${text}§f: §c${round(slider1)} §f- §c${round(slider2)} §8${suffix}"
-                            moduleElement.settingsWidth = fontSemibold35.getStringWidth(floatRangeText) + 8
+                            moduleElement.settingsWidth = font35.getStringWidth(floatRangeText) + 8
 
                             val startX = minX + 4
                             val startY = yPos + 14
@@ -499,14 +499,14 @@ object LiquidBounceStyle : Style() {
                             drawRect(8f + sliderValue1, yPos + 15f, sliderValue1 + 11f, yPos + 21f, guiColor)
                             drawRect(8f + sliderValue2, yPos + 15f, sliderValue2 + 11f, yPos + 21f, guiColor)
 
-                            fontSemibold35.drawString(floatRangeText, minX + 2, yPos + 4, Color.WHITE.rgb)
+                            font35.drawString(floatRangeText, minX + 2, yPos + 4, Color.WHITE.rgb)
 
                             yPos += 22
                         }
 
                         is FontValue -> {
                             val displayString = value.displayName
-                            moduleElement.settingsWidth = fontSemibold35.getStringWidth(displayString) + 8
+                            moduleElement.settingsWidth = font35.getStringWidth(displayString) + 8
 
                             if (mouseButton != null && mouseX in minX..maxX && mouseY in yPos + 4..yPos + 12) {
                                 // Cycle to next font when left-clicked, previous when right-clicked.
@@ -516,7 +516,7 @@ object LiquidBounceStyle : Style() {
                                 return true
                             }
 
-                            fontSemibold35.drawString(displayString, minX + 2, yPos + 4, Color.WHITE.rgb)
+                            font35.drawString(displayString, minX + 2, yPos + 4, Color.WHITE.rgb)
 
                             yPos += 11
                         }
@@ -551,7 +551,7 @@ object LiquidBounceStyle : Style() {
 
                             val spacingBetweenSliders = 5
 
-                            val rgbaOptionHeight = if (value.showOptions) fontSemibold35.height * 4 else 0
+                            val rgbaOptionHeight = if (value.showOptions) font35.height * 4 else 0
 
                             val colorPickerStartX = textX.toInt()
                             val colorPickerEndX = colorPickerStartX + colorPickerWidth
@@ -596,13 +596,13 @@ object LiquidBounceStyle : Style() {
                             val combinedText = startText + valueText
 
                             val combinedWidth = opacityEndX - colorPickerStartX
-                            val optimalWidth = maxOf(fontSemibold35.getStringWidth(combinedText), combinedWidth)
+                            val optimalWidth = maxOf(font35.getStringWidth(combinedText), combinedWidth)
                             moduleElement.settingsWidth = optimalWidth + spacing * 4
 
-                            val valueX = startX + fontSemibold35.getStringWidth(startText)
-                            val valueWidth = fontSemibold35.getStringWidth(valueText)
+                            val valueX = startX + font35.getStringWidth(startText)
+                            val valueWidth = font35.getStringWidth(valueText)
 
-                            if (mouseButton == 1 && mouseX in valueX..valueX + valueWidth && mouseY.toFloat() in textY - 2..textY + fontSemibold35.height - 3F) {
+                            if (mouseButton == 1 && mouseX in valueX..valueX + valueWidth && mouseY.toFloat() in textY - 2..textY + font35.height - 3F) {
                                 value.showOptions = !value.showOptions
 
                                 if (!value.showOptions) {
@@ -610,7 +610,7 @@ object LiquidBounceStyle : Style() {
                                 }
                             }
 
-                            val widestLabel = rgbaLabels.maxOf { fontSemibold35.getStringWidth(it) }
+                            val widestLabel = rgbaLabels.maxOf { font35.getStringWidth(it) }
 
                             var highlightCursor = {}
 
@@ -620,29 +620,29 @@ object LiquidBounceStyle : Style() {
                                 }
 
                                 val startValueX = textX + widestLabel + 3
-                                val cursorY = textY + value.rgbaIndex * fontSemibold35.height + 10
+                                val cursorY = textY + value.rgbaIndex * font35.height + 10
 
                                 if (it.selectionActive()) {
                                     val start =
-                                        startValueX + fontSemibold35.getStringWidth(it.string.take(it.selectionStart!!))
+                                        startValueX + font35.getStringWidth(it.string.take(it.selectionStart!!))
                                     val end =
-                                        startValueX + fontSemibold35.getStringWidth(it.string.take(it.selectionEnd!!))
+                                        startValueX + font35.getStringWidth(it.string.take(it.selectionEnd!!))
                                     drawRect(
                                         start,
                                         cursorY - 3f,
                                         end,
-                                        cursorY + fontSemibold35.fontHeight - 2,
+                                        cursorY + font35.fontHeight - 2,
                                         Color(7, 152, 252).rgb
                                     )
                                 }
 
                                 highlightCursor = {
-                                    val cursorX = startValueX + fontSemibold35.getStringWidth(it.cursorString)
+                                    val cursorX = startValueX + font35.getStringWidth(it.cursorString)
                                     drawRect(
                                         cursorX,
                                         cursorY - 3F,
                                         cursorX + 1F,
-                                        cursorY + fontSemibold35.fontHeight - 2,
+                                        cursorY + font35.fontHeight - 2,
                                         Color.WHITE.rgb
                                     )
                                 }
@@ -655,12 +655,12 @@ object LiquidBounceStyle : Style() {
 
                                 var noClickAmount = 0
 
-                                val maxWidth = fontSemibold35.getStringWidth("255")
+                                val maxWidth = font35.getStringWidth("255")
 
                                 rgbaLabels.forEachIndexed { index, label ->
                                     val rgbaValueText = "${rgbaValues[index]}"
                                     val colorX = textX + widestLabel + 4
-                                    val yPosition = rgbaYStart + index * fontSemibold35.height
+                                    val yPosition = rgbaYStart + index * font35.height
 
                                     val isEmpty =
                                         chosenText?.value == value && value.rgbaIndex == index && chosenText?.string.isNullOrEmpty()
@@ -671,8 +671,8 @@ object LiquidBounceStyle : Style() {
                                     val defaultColor = if (isEmpty) Color.LIGHT_GRAY else minecraftRed
                                     val defaultText = if (isEmpty) "($rgbaValueText)" else rgbaValueText
 
-                                    fontSemibold35.drawString(label, textX, yPosition, Color.WHITE.rgb)
-                                    fontSemibold35.drawString(defaultText, finalX, yPosition, defaultColor.rgb)
+                                    font35.drawString(label, textX, yPosition, Color.WHITE.rgb)
+                                    font35.drawString(defaultText, finalX, yPosition, defaultColor.rgb)
 
                                     if (mouseButton == 0) {
                                         if (mouseX.toFloat() in finalX..finalX + maxWidth && mouseY.toFloat() in yPosition - 2..yPosition + 6) {
@@ -689,7 +689,7 @@ object LiquidBounceStyle : Style() {
                                 }
                             }
 
-                            fontSemibold35.drawString(combinedText, textX, textY, Color.WHITE.rgb)
+                            font35.drawString(combinedText, textX, textY, Color.WHITE.rgb)
 
                             highlightCursor()
 
@@ -912,13 +912,13 @@ object LiquidBounceStyle : Style() {
                             val startText = value.name + "§f: "
                             var valueText = "${value.get()}"
 
-                            val combinedWidth = fontSemibold35.getStringWidth(startText + valueText)
+                            val combinedWidth = font35.getStringWidth(startText + valueText)
 
                             moduleElement.settingsWidth = combinedWidth + 8
 
                             val textY = yPos + 4
                             val startX = minX + 2
-                            var textX = startX + fontSemibold35.getStringWidth(startText)
+                            var textX = startX + font35.getStringWidth(startText)
 
                             if (mouseButton == 0) {
                                 chosenText =
@@ -943,30 +943,30 @@ object LiquidBounceStyle : Style() {
 
                                 if (it.selectionActive()) {
                                     val start =
-                                        textX - 1 + fontSemibold35.getStringWidth(input.take(it.selectionStart!!))
-                                    val end = textX - 1 + fontSemibold35.getStringWidth(input.take(it.selectionEnd!!))
+                                        textX - 1 + font35.getStringWidth(input.take(it.selectionStart!!))
+                                    val end = textX - 1 + font35.getStringWidth(input.take(it.selectionEnd!!))
                                     drawRect(
                                         start,
                                         textY - 3,
                                         end,
-                                        textY + fontSemibold35.fontHeight - 2,
+                                        textY + font35.fontHeight - 2,
                                         Color(7, 152, 252).rgb
                                     )
                                 }
 
                                 highlightCursor = { textX ->
-                                    val cursorX = textX + fontSemibold35.getStringWidth(input.take(it.cursorIndex))
+                                    val cursorX = textX + font35.getStringWidth(input.take(it.cursorIndex))
                                     drawRect(
                                         cursorX,
                                         textY - 3,
                                         cursorX + 1,
-                                        textY + fontSemibold35.fontHeight - 2,
+                                        textY + font35.fontHeight - 2,
                                         Color.WHITE.rgb
                                     )
                                 }
                             }
 
-                            fontSemibold35.drawString(startText, startX, textY, Color.WHITE.rgb)
+                            font35.drawString(startText, startX, textY, Color.WHITE.rgb)
 
                             val defaultColor = if (shouldPushToRight) Color.LIGHT_GRAY else minecraftRed
 
@@ -975,13 +975,13 @@ object LiquidBounceStyle : Style() {
                             // This usually happens when a value rejects a change and auto-sets it to a default value.
                             if (shouldPushToRight) {
                                 valueText = "($valueText)"
-                                val valueWidth = fontSemibold35.getStringWidth(valueText)
+                                val valueWidth = font35.getStringWidth(valueText)
                                 moduleElement.settingsWidth = combinedWidth + valueWidth + 12
-                                fontSemibold35.drawString(chosenText!!.string, textX, textY, minecraftRed.rgb)
+                                font35.drawString(chosenText!!.string, textX, textY, minecraftRed.rgb)
                                 textX += valueWidth + 4
                             }
 
-                            fontSemibold35.drawString(valueText, textX, textY, defaultColor.rgb)
+                            font35.drawString(valueText, textX, textY, defaultColor.rgb)
 
                             highlightCursor(originalX)
 

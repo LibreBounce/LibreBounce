@@ -28,7 +28,7 @@ class Effects(
 ) : Element("Effects", x, y, scale, side) {
 
     private val romanNumerals by boolean("RomanNumerals", true)
-    private val font by font("Font", Fonts.fontSemibold35)
+    private val font by font("Font", Fonts.font35)
     private val shadow by boolean("Shadow", true)
 
     /**

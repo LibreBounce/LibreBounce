@@ -72,7 +72,7 @@ object SettingsCommand : Command("autosettings", "autosetting", "settings", "set
             chat("Applying settings...")
             SettingsUtils.applyScript(settings)
             chat("§6Settings applied successfully")
-            addNotification(Notification("Settings Command", "Successfully updated settings!"))
+            addNotification(Notification("Successfully updated settings!"))
             playEdit()
         } catch (e: Exception) {
             LOGGER.error("Failed to load settings", e)

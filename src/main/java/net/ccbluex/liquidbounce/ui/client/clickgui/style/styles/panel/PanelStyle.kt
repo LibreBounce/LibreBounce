@@ -116,9 +116,9 @@ object PanelStyle : GuiScreen() {
         //Fonts.font60.drawString("LiquidBounce", panelStartX + marginLeft - 4, panelStartY + 9, Color.WHITE.rgb)
 
         Category.values().forEachIndexed { index, category ->
-            val categoryY = panelStartY + 40 + (Fonts.fontSemibold35.fontHeight + 10) * index
+            val categoryY = panelStartY + 40 + (Fonts.font35.fontHeight + 10) * index
             val categoryColor = if (category == selectedCategory) highlightColor else Color.WHITE.rgb
-            Fonts.fontSemibold35.drawString(category.displayName, panelStartX + marginLeft, categoryY, categoryColor)
+            Fonts.font35.drawString(category.displayName, panelStartX + marginLeft, categoryY, categoryColor)
         }
 
         if (Mouse.hasWheel() || isHoldingMidClick) {
@@ -135,7 +135,7 @@ object PanelStyle : GuiScreen() {
                     if (contentHeight <= heightBg + 20) return
 
                     // Define boundaries for scrolling
-                    val minY = (panelStartY + 20) - (contentHeight - (heightBg - 20 - Fonts.fontSemibold40.fontHeight))
+                    val minY = (panelStartY + 20) - (contentHeight - (heightBg - 20 - Fonts.font40.fontHeight))
                     val maxY = panelStartY + 20
 
                     // Apply scrolling, ensuring elements stay within bounds
@@ -188,9 +188,9 @@ object PanelStyle : GuiScreen() {
 
         // Handle category selection
         Category.values().forEachIndexed { index, category ->
-            val categoryY = panelStartY + 40 + (Fonts.fontSemibold35.fontHeight + 10) * index
+            val categoryY = panelStartY + 40 + (Fonts.font35.fontHeight + 10) * index
             if (mouseButton == 0 && x in (panelStartX + marginLeft).toInt()..((panelStartX + marginLeft + 80).roundToInt()) &&
-                y in categoryY.toInt()..((categoryY + Fonts.fontSemibold35.fontHeight).roundToInt())
+                y in categoryY.toInt()..((categoryY + Fonts.font35.fontHeight).roundToInt())
             ) {
                 selectedCategory = category // Change to the clicked category
                 initGui() // Refresh elements for the new category

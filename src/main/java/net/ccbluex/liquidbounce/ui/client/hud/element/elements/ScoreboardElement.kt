@@ -38,13 +38,13 @@ import kotlin.math.abs
  */
 @ElementInfo(name = "Scoreboard")
 class ScoreboardElement(
-    x: Double = 11.0, y: Double = 100.0, scale: Float = 1F, side: Side = Side(Side.Horizontal.LEFT, Side.Vertical.MIDDLE)
+    x: Double = 11.0, y: Double = 100.0, scale: Float = 1F, side: Side = Side(Side.Horizontal.RIGHT, Side.Vertical.MIDDLE)
 ) : Element("Scoreboard", x, y, scale, side) {
     private val textColor by color("TextColor", Color.WHITE)
-    private val backgroundColor by color("BackgroundColor", Color.BLACK.withAlpha(128))
+    private val backgroundColor by color("BackgroundColor", Color.BLACK.withAlpha(95))
     private val roundedRectRadius by float("RoundedRadius", 3F, 0F..5F)
 
-    private val rect by boolean("Rect", true)
+    private val rect by boolean("Rect", false)
     private val rectColor = color("RectangleColor", Color(0, 111, 255)) { rect }
 
     private val drawRectOnTitle by boolean("DrawRectOnTitle", true)
@@ -55,7 +55,7 @@ class ScoreboardElement(
     private val serverIp by choices("ServerIP", arrayOf("Normal", "None", "Client", "Website"), "Normal")
     private val number by boolean("Number", false)
     private val shadow by boolean("Shadow", false)
-    private val font by font("Font", Fonts.fontSemibold35)
+    private val font by font("Font", Fonts.minecraftFont)
 
     /**
      * Draw element

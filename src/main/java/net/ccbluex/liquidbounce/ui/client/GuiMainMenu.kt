@@ -221,10 +221,10 @@ class GuiMainMenu : AbstractScreen() {
         )
 
         Fonts.fontBold180.drawCenteredString(CLIENT_NAME, width / 2F, height / 8F, 4673984, true)
-        Fonts.fontSemibold35.drawCenteredString(
+        Fonts.font35.drawCenteredString(
             clientVersionText,
             width / 2F + 148,
-            height / 8F + Fonts.fontSemibold35.fontHeight,
+            height / 8F + Fonts.font35.fontHeight,
             0xffffff,
             true
         )

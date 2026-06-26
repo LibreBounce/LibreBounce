@@ -6,7 +6,7 @@
 package net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel.elements
 
 import net.ccbluex.liquidbounce.config.ListValue
-import net.ccbluex.liquidbounce.ui.font.Fonts.fontRegular35
+import net.ccbluex.liquidbounce.ui.font.Fonts.font35
 import java.awt.Color.WHITE
 
 class ListElement(
@@ -20,8 +20,8 @@ class ListElement(
     private val string = "${valueName}: ${value.get()}"
 
     override var margin: Float = 5f
-    override var height: Float = fontRegular35.fontHeight.toFloat() + margin
-    override var width: Float = fontRegular35.getStringWidth(string).toFloat()
+    override var height: Float = font35.fontHeight.toFloat() + margin
+    override var width: Float = font35.getStringWidth(string).toFloat()
 
     private var hitboxX = 0f..0f
     private var hitboxY = 0f..0f
@@ -38,7 +38,7 @@ class ListElement(
     override fun drawElement(mouseX: Float, mouseY: Float, partialTicks: Float) {
         updateElement()
 
-        fontRegular35.drawString(
+        font35.drawString(
             string,
             startX,
             startY,

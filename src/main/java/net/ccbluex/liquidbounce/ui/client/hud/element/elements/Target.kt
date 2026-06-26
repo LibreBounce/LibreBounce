@@ -12,27 +12,23 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.attack.EntityUtils.getHealth
-import net.ccbluex.liquidbounce.utils.extensions.lerpWith
-import net.ccbluex.liquidbounce.utils.extensions.safeDiv
+import net.ccbluex.liquidbounce.utils.extensions.getDistanceToEntityBox
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.withAlpha
-import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.deltaTime
-import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawGradientRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawHead
+import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedBorderRect
-import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedRect
-import net.ccbluex.liquidbounce.utils.render.RenderUtils.withClipping
 import net.ccbluex.liquidbounce.utils.render.animation.AnimationUtil
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowShader
 import net.minecraft.client.gui.GuiChat
-import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
-import net.minecraft.entity.player.EntityPlayer
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
+import java.text.DecimalFormat
+import java.text.DecimalFormatSymbols
+import java.util.*
 import kotlin.math.abs
-import kotlin.math.max
 import kotlin.math.pow
 
 /**
@@ -41,27 +37,33 @@ import kotlin.math.pow
 @ElementInfo(name = "Target")
 class Target : Element("Target") {
 
-    private val roundedRectRadius by float("RoundedRadius", 3f, 0f..5f)
+    private val borderStrength by float("BorderStrength", 0f, 1f..5f)
+    private val borderMode by choices("BorderColorMode", arrayOf("Custom", "Rainbow"), "Custom")
+    private val borderColor by color("BorderColor", Color.BLACK) { borderMode == "Custom" }
 
-    private val borderStrength by float("BorderStrength", 3f, 1f..5f)
+    private val textColorMode by choices(
+        "TextMode", arrayOf("Custom", "Random", "Rainbow"), "Custom"
+    )
+    private val textColor by color("TextColor", blueRibbon) { textColorMode == "Custom" }
 
-    private val backgroundMode by choices("BackgroundColorMode", arrayOf("Custom", "Rainbow"), "Custom")
+    private val roundedBackgroundRadius by float("RoundedBackgroundRadius", 0f, 0f..5f) { backgroundColor.alpha > 0 }
+
+    private val backgroundMode by choices(
+        "BackgroundMode", arrayOf("Custom", "Random", "Rainbow"), "Custom"
+    )
     private val backgroundColor by color("BackgroundColor", Color.BLACK.withAlpha(150)) { backgroundMode == "Custom" }
 
-    private val healthBarColor1 by color("HealthBarGradient1", Color(3, 65, 252))
-    private val healthBarColor2 by color("HealthBarGradient2", Color(3, 252, 236))
+    private fun isColorModeUsed(value: String) = value in listOf(textColorMode, backgroundMode)
 
-    private val roundHealthBarShape by boolean("RoundHealthBarShape", true)
+    private val saturation by float("RandomSaturation", 0.9f, 0f..1f) { isColorModeUsed("Random") }
+    private val brightness by float("RandomBrightness", 1f, 0f..1f) { isColorModeUsed("Random") }
+    private val rainbowX by float("RainbowX", -1000F, -2000F..2000F) { isColorModeUsed("Rainbow") }
+    private val rainbowY by float("RainbowY", -1000F, -2000F..2000F) { isColorModeUsed("Rainbow") }
+    private val gradientX by float("GradientX", -1000F, -2000F..2000F) { isColorModeUsed("Gradient") }
+    private val gradientY by float("GradientY", -1000F, -2000F..2000F) { isColorModeUsed("Gradient") }
 
-    private val borderColor by color("BorderColor", Color.BLACK)
-
-    private val textColor by color("TextColor", Color.WHITE)
-
-    private val rainbowX by float("RainbowX", -1000f, -2000f..2000f) { backgroundMode == "Rainbow" }
-    private val rainbowY by float("RainbowY", -1000f, -2000f..2000f) { backgroundMode == "Rainbow" }
-
-    private val titleFont by font("TitleFont", Fonts.fontSemibold40)
-    private val healthFont by font("HealthFont", Fonts.fontRegular30)
+    private val titleFont by font("TitleFont", Fonts.font40)
+    private val bodyFont by font("BodyFont", Fonts.font35)
     private val textShadow by boolean("TextShadow", false)
 
     private val fadeSpeed by float("FadeSpeed", 2F, 1F..9F)
@@ -72,6 +74,7 @@ class Target : Element("Target") {
     private val animationSpeed by float("AnimationSpeed", 0.2F, 0.05F..1F)
     private val vanishDelay by int("VanishDelay", 300, 0..500)
 
+    private val decimalFormat = DecimalFormat("##0.00", DecimalFormatSymbols(Locale.ENGLISH))
     private var easingHealth = 0F
     private var lastTarget: EntityLivingBase? = null
 
@@ -89,20 +92,13 @@ class Target : Element("Target") {
         get() = alphaBorder > 0 || alphaBackground > 0 || alphaText > 0
 
     private var delayCounter = 0
-    private var easingHurtTime = 0F
 
     override fun drawElement(): Border {
         val smoothMode = animation == "Smooth"
         val fadeMode = animation == "Fade"
 
-        val killAuraTarget = KillAura.target.takeIf { it is EntityPlayer }
-
-        val shouldRender = KillAura.handleEvents() && killAuraTarget != null || mc.currentScreen is GuiChat
-        val target = killAuraTarget ?: if (delayCounter >= vanishDelay && !isRendered) {
-            mc.thePlayer
-        } else {
-            lastTarget ?: mc.thePlayer
-        }
+        val shouldRender = KillAura.handleEvents() && KillAura.target != null || mc.currentScreen is GuiChat
+        val target = KillAura.target ?: if (delayCounter >= vanishDelay) mc.thePlayer else lastTarget ?: mc.thePlayer
 
         val stringWidth = (40f + (target.name?.let(titleFont::getStringWidth) ?: 0)).coerceAtLeast(118F)
 
@@ -117,12 +113,23 @@ class Target : Element("Target") {
                 val targetHealth = getHealth(target!!, healthFromScoreboard, absorption)
                 val maxHealth = target.maxHealth + if (absorption) target.absorptionAmount else 0F
 
-                easingHealth += (targetHealth - easingHealth) / 2f.pow(10f - fadeSpeed) * deltaTime
-                easingHealth = easingHealth.coerceIn(0f, maxHealth)
-                val targetHurtTime = if (target.isEntityAlive()) target.hurtTime.toFloat() else 0F
-                easingHurtTime = (easingHurtTime..targetHurtTime).lerpWith(RenderUtils.deltaTimeNormalized())
+                // Calculate health color based on entity's health
+                val healthColor = when {
+                    targetHealth <= 0 -> Color(255, 0, 0, if (fadeMode) alphaText else textColor.alpha)
+                    else -> {
+                        ColorUtils.interpolateHealthColor(
+                            target,
+                            255,
+                            255,
+                            0,
+                            if (fadeMode) alphaText else textColor.alpha,
+                            healthFromScoreboard,
+                            absorption
+                        )
+                    }
+                }
 
-                if (target != lastTarget || abs(easingHealth - targetHealth) < 0.01) {
+                if (target != lastTarget || easingHealth < 0 || easingHealth > maxHealth || abs(easingHealth - targetHealth) < 0.01) {
                     easingHealth = targetHealth
                 }
 
@@ -131,42 +138,38 @@ class Target : Element("Target") {
                     width = AnimationUtil.base(width.toDouble(), targetWidth.toDouble(), animationSpeed.toDouble())
                         .toFloat().coerceAtLeast(0f)
 
-                    val targetHeight = if (shouldRender) 36f else if (delayCounter >= vanishDelay) 0f else height
+                    val targetHeight = if (shouldRender) 40f else if (delayCounter >= vanishDelay) 0f else height
                     height = AnimationUtil.base(height.toDouble(), targetHeight.toDouble(), animationSpeed.toDouble())
                         .toFloat().coerceAtLeast(0f)
                 } else {
                     width = stringWidth
-                    height = 36f
+                    height = 40f
 
-                    val targetText = when {
-                        shouldRender -> textColor.alpha
-                        delayCounter >= vanishDelay -> 0f
-                        else -> alphaText
-                    }
+                    val targetText =
+                        if (shouldRender) textColor.alpha else if (delayCounter >= vanishDelay) 0f else alphaText
+                    alphaText =
+                        AnimationUtil.base(alphaText.toDouble(), targetText.toDouble(), animationSpeed.toDouble())
+                            .toInt()
 
-                    alphaText = AnimationUtil.base(
-                        alphaText.toDouble(), targetText.toDouble(), animationSpeed.toDouble()
-                    ).toInt()
-
-                    val targetBackground = when {
-                        shouldRender -> backgroundColor.alpha
-                        delayCounter >= vanishDelay -> 0f
-                        else -> alphaBackground
-                    }
+                    val targetBackground = if (shouldRender) {
+                        backgroundColor.alpha
+                    } else if (delayCounter >= vanishDelay) {
+                        0f
+                    } else alphaBackground
 
                     alphaBackground = AnimationUtil.base(
                         alphaBackground.toDouble(), targetBackground.toDouble(), animationSpeed.toDouble()
                     ).toInt()
 
-                    val targetBorder = when {
-                        shouldRender -> borderColor.alpha
-                        delayCounter >= vanishDelay -> 0f
-                        else -> alphaBorder
-                    }
+                    val targetBorder = if (shouldRender) {
+                        borderColor.alpha
+                    } else if (delayCounter >= vanishDelay) {
+                        0f
+                    } else alphaBorder
 
-                    alphaBorder = AnimationUtil.base(
-                        alphaBorder.toDouble(), targetBorder.toDouble(), animationSpeed.toDouble()
-                    ).toInt()
+                    alphaBorder =
+                        AnimationUtil.base(alphaBorder.toDouble(), targetBorder.toDouble(), animationSpeed.toDouble())
+                            .toInt()
                 }
 
                 val backgroundCustomColor = backgroundColor.withAlpha(
@@ -180,8 +183,8 @@ class Target : Element("Target") {
                 ).rgb
 
                 val rainbowOffset = System.currentTimeMillis() % 10000 / 10000F
-                val rainbowX = 1f safeDiv rainbowX
-                val rainbowY = 1f safeDiv rainbowY
+                val rainbowX = if (rainbowX == 0f) 0f else 1f / rainbowX
+                val rainbowY = if (rainbowY == 0f) 0f else 1f / rainbowY
 
                 glPushMatrix()
 
@@ -201,100 +204,53 @@ class Target : Element("Target") {
                             borderStrength,
                             if (backgroundMode == "Rainbow") 0 else backgroundCustomColor,
                             borderCustomColor,
-                            roundedRectRadius
+                            roundedBackgroundRadius
                         )
                     }
 
-                    val healthBarTop = 24F
-                    val healthBarHeight = 8F
-                    val healthBarStart = 36F
-                    val healthBarTotal = (width - 39F).coerceAtLeast(0F)
-                    val currentWidth = (easingHealth / maxHealth).coerceIn(0F, 1F) * healthBarTotal
+                    // Health bar
+                    val healthBarWidth = (targetHealth / maxHealth).coerceIn(0F, 1F) * (width - 6f).coerceAtLeast(0F)
+                    drawRect(3F, 34F, 3f + healthBarWidth, 36F, healthColor.rgb)
 
-                    // background bar
-                    val backgroundBar = {
-                        drawRoundedRect(
-                            healthBarStart,
-                            healthBarTop,
-                            healthBarStart + healthBarTotal,
-                            healthBarTop + healthBarHeight,
-                            Color.BLACK.rgb,
-                            6F,
-                        )
+                    // Easing health update
+                    easingHealth += ((targetHealth - easingHealth) / 2f.pow(10f - fadeSpeed)) * deltaTime
+                    val easingHealthWidth = (easingHealth / maxHealth) * (width - 6f)
+
+                    // Heal animation, only animate from the right side
+                    if (easingHealth < targetHealth) {
+                        drawRect(3f + easingHealthWidth, 34F, 3f + healthBarWidth, 36F, Color(44, 201, 144).rgb)
                     }
 
-                    if (roundHealthBarShape) {
-                        backgroundBar()
+                    // Damage animation, only animate from the right side
+                    if (easingHealth > targetHealth) {
+                        drawRect(3f + healthBarWidth, 34F, 3f + easingHealthWidth, 36F, Color(252, 185, 65).rgb)
                     }
-
-                    // main bar
-                    withClipping(main = {
-                        if (roundHealthBarShape) {
-                            drawRoundedRect(
-                                healthBarStart,
-                                healthBarTop,
-                                healthBarStart + currentWidth,
-                                healthBarTop + healthBarHeight,
-                                0,
-                                6F
-                            )
-                        } else {
-                            backgroundBar()
-                        }
-                    }, toClip = {
-                        drawGradientRect(
-                            healthBarStart.toInt(),
-                            healthBarTop.toInt(),
-                            healthBarStart.toInt() + currentWidth.toInt(),
-                            healthBarTop.toInt() + healthBarHeight.toInt(),
-                            healthBarColor1.rgb,
-                            healthBarColor2.rgb,
-                            0f
-                        )
-                    })
-
-                    val healthPercentage = (easingHealth / maxHealth * 100).toInt()
-                    val percentageText = "$healthPercentage%"
-                    val textWidth = healthFont.getStringWidth(percentageText)
-                    val calcX = healthBarStart + currentWidth - textWidth
-                    val textX = max(healthBarStart, calcX)
-                    val textY = healthBarTop - Fonts.fontRegular30.fontHeight / 2 - 2F
-                    healthFont.drawString(percentageText, textX, textY, textCustomColor, textShadow)
 
                     val shouldRenderBody =
                         (fadeMode && alphaText + alphaBackground + alphaBorder > 100) || (smoothMode && width + height > 100)
 
                     if (shouldRenderBody) {
-                        val renderer = mc.renderManager.getEntityRenderObject<Entity>(target)
+                        // Draw title text
+                        target.name?.let { titleFont.drawString(it, 36F, 5F, textCustomColor, textShadow) }
 
-                        if (renderer != null) {
-                            val entityTexture = renderer.getEntityTexture(target)
+                        // Draw body text
+                        bodyFont.drawString(
+                            "Distance: ${decimalFormat.format(mc.thePlayer.getDistanceToEntityBox(target))}",
+                            36F,
+                            15F,
+                            textCustomColor,
+                            textShadow
+                        )
 
-                            glPushMatrix()
-                            val scale = 1 - easingHurtTime / 10f
-                            val f1 = (0.7F..1F).lerpWith(scale) * this.scale
-                            val color = ColorUtils.interpolateColor(Color.RED, Color.WHITE, scale)
-                            val centerX1 = (4..32).lerpWith(0.5F)
-                            val midY = (4f..28f).lerpWith(0.5F)
+                        // Draw info
+                        mc.netHandler?.getPlayerInfo(target.uniqueID)?.let {
+                            bodyFont.drawString(
+                                "Ping: ${it.responseTime.coerceAtLeast(0)}", 36F, 24F, textCustomColor, textShadow
+                            )
 
-                            glTranslatef(centerX1, midY, 0f)
-                            glScalef(f1, f1, f1)
-                            glTranslatef(-centerX1, -midY, 0f)
-
-                            if (entityTexture != null) {
-                                withClipping(main = {
-                                    drawRoundedRect(4f, 4f, 32f, 32f, 0, roundedRectRadius)
-                                }, toClip = {
-                                    drawHead(
-                                        entityTexture, 4, 4, 8f, 8f, 8, 8, 28, 28, 64F, 64F, color
-                                    )
-                                })
-                            }
-                            glPopMatrix()
-                        }
-
-                        target.name?.let {
-                            titleFont.drawString(it, healthBarStart, 6F, textCustomColor, textShadow)
+                            // Draw head
+                            val locationSkin = it.locationSkin
+                            drawHead(locationSkin, 4, 4, 8F, 8F, 8, 8, 30 - 2, 30 - 2, 64F, 64F, Color.WHITE)
                         }
                     }
                 }
@@ -304,6 +260,7 @@ class Target : Element("Target") {
         }
 
         lastTarget = target
-        return Border(0F, 0F, stringWidth, 36F)
+        return Border(0F, 0F, stringWidth, 40F)
     }
+
 }
