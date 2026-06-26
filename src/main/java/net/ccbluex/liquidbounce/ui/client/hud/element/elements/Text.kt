@@ -17,6 +17,8 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
 import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
 import net.ccbluex.liquidbounce.ui.client.hud.element.Side
+import net.ccbluex.liquidbounce.ui.client.hud.element.Side.Horizontal
+import net.ccbluex.liquidbounce.ui.client.hud.element.Side.Vertical
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.ui.font.GameFontRenderer
@@ -93,7 +95,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1f, side: Side = S
          * Default Block Counter
          */
         fun defaultBlockCount(): Text {
-            val text = Text(x = 0, y = 7.0, scale = 1f, side = Side(Horizontal.MIDDLE, Vertical.MIDDLE))
+            val text = Text(x = 0.0, y = 7.0, scale = 1f, side = Side(Horizontal.MIDDLE, Vertical.MIDDLE))
 
             text.displayString = "Blocks: §7%blockamount%"
             text.bgColors.with(Color.BLACK.withAlpha(255))
