@@ -9,6 +9,14 @@ fun String.toLowerCamelCase() = String(toCharArray().apply {
     this[0] = this[0].lowercaseChar()
 })
 
+fun String.sentenceCase() =
+    split(" ").mapIndexed { index, word ->
+        when {
+            index == 0, word.all { it.isUpperCase() } -> word
+            else -> word.replaceFirstChar { it.lowercase() }
+        }
+    }.joinToString(" ")
+
 fun String.addSpaces(): String {
     val result = StringBuilder()
     var i = 0
@@ -16,22 +24,13 @@ fun String.addSpaces(): String {
     while (i < length) {
         val char = this[i]
         
-        // Add current character
         result.append(char)
         
-        // Special handling for lowercase to uppercase transition
-        if (i > 0 && this[i - 1].isLowerCase() && char.isUpperCase()) {
-            result.insert(result.length - 1, ' ')
-        }
-        
-        // Special handling for lowercase to number transition
-        if (i > 0 && this[i - 1].isLowerCase() && char.isDigit()) {
-            result.insert(result.length - 1, ' ')
-        }
-        
-        // Special handling for number to uppercase transition
-        if (i > 0 && this[i - 1].isDigit() && char.isUpperCase()) {
-            result.insert(result.length - 1, ' ')
+        if (i > 0) {
+        	when {
+            	this[i - 1].isLowerCase() && (char.isUpperCase() || char.isDigit()) -> result.insert(result.length - 1, ' ')
+                this[i - 1].isDigit() && char.isUpperCase() -> result.insert(result.length - 1, ' ')
+            }
         }
         
         // Special handling for uppercase sequences

@@ -34,7 +34,9 @@ object ClickGUI : Module("ClickGUI", Category.RENDER, Keyboard.KEY_RSHIFT, canBe
     val fadeSpeed by float("FadeSpeed", 1f, 0.5f..4f)
     val scrolls by boolean("Scrolling", true)
     val spacedModules by boolean("SpacedModules", false)
+    val moduleCase by choices("ModuleCase", arrayOf("Normal", "Uppercase", "Lowercase", "Sentence"), "Normal")
     val spacedValues by boolean("SpacedValues", false)
+    val valueCase by choices("ValueCase", arrayOf("Normal", "Uppercase", "Lowercase", "Sentence"), "Normal")
     val panelsForcedInBoundaries by boolean("PanelsForcedInBoundaries", false)
 
     private val color by color("Color", Color(0, 160, 255)) { style !in arrayOf("Slowly", "Black", "Panel") }
@@ -62,6 +64,11 @@ object ClickGUI : Module("ClickGUI", Category.RENDER, Keyboard.KEY_RSHIFT, canBe
             else -> return
         }
     }
+
+    // TODO
+    /*fun String.moduleName(): String {
+        var result 
+    }*/
 
     val onPacket = handler<PacketEvent>(always = true) { event ->
         if (event.packet is S2EPacketCloseWindow && mc.currentScreen is ClickGui)

@@ -129,10 +129,8 @@ object LiquidBounce {
             try {
                 LOGGER.info("Starting preload tasks of $CLIENT_NAME")
 
-                // Download and extract fonts
                 Fonts.downloadFonts()
 
-                // Load languages
                 loadLanguages()
 
                 // Load alt generators
@@ -161,7 +159,6 @@ object LiquidBounce {
         LOGGER.info("Starting $CLIENT_NAME $clientVersionText $clientCommit, by $CLIENT_AUTHOR")
 
         try {
-            // Load client fonts
             Fonts.loadFonts()
 
             // Register listeners

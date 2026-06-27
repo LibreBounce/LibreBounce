@@ -58,7 +58,8 @@ open class Module(
     // Module information
 
     // Get normal or spaced name
-    fun getName(spaced: Boolean = Arraylist.spacedModulesValue.get()) = if (spaced) spacedName else name
+    fun getName(spaced: Boolean = Arraylist.spacedModulesValue.get()) =
+        if (spaced) spacedName else name
 
     var keyBind = defaultKeyBind
         set(keyBind) {
