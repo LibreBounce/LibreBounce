@@ -68,10 +68,10 @@ object ClickGUI : Module("ClickGUI", Category.RENDER, Keyboard.KEY_RSHIFT, canBe
     }
 
     fun String.moduleName() =
-        return it.addSpaces(spacedModules).capitalize(moduleCase)
+        return this.addSpaces(spacedModules).capitalize(moduleCase)
 
     fun String.valueName() =
-        return it.addSpaces(spacedValues).capitalize(valueCase)
+        return this.addSpaces(spacedValues).capitalize(valueCase)
 
     val onPacket = handler<PacketEvent>(always = true) { event ->
         if (event.packet is S2EPacketCloseWindow && mc.currentScreen is ClickGui)

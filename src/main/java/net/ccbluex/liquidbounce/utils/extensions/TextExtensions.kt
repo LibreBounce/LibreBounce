@@ -12,21 +12,21 @@ fun String.toLowerCamelCase() = String(toCharArray().apply {
 fun String.sentenceCase() =
     split(" ").mapIndexed { index, word ->
         when {
-            index == 0, word.all { it.isUpperCase() } -> word
+            index == 0 || word.all { it.isUpperCase() } -> word
             else -> word.replaceFirstChar { it.lowercase() }
         }
     }.joinToString(" ")
 
 fun String.capitalize(mode: String) =
-    when (moduleCase) {
-        "Uppercase" -> it.uppercase()
-        "Lowercase" -> it.lowercase()
-        "Sentence" -> it.sentenceCase()
-        else -> it
+    when (mode) {
+        "Uppercase" -> this.uppercase()
+        "Lowercase" -> this.lowercase()
+        "Sentence" -> this.sentenceCase()
+        else -> this
     }
 
 fun String.addSpaces(addSpaces: Boolean = true): String {
-    if (!addSpaces) return it
+    if (!addSpaces) return this
 
     val result = StringBuilder()
     var i = 0

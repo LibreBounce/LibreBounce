@@ -144,12 +144,7 @@ class Arraylist(
     private val animation by choices("Animation", arrayOf("Slide", "Smooth"), "Smooth")
     private val animationSpeed by float("AnimationSpeed", 0.2F, 0.01F..1F) { animation == "Smooth" }
 
-    companion object : Configurable("StandaloneArraylist") {
-        val spacedModulesValue = boolean("SpacedModules", false)
-    }
-
-    private val spacedModules: Boolean by +spacedModulesValue
-
+    private val spacedModules by boolean("SpacedModules", false)
     private val spacedTags by boolean("SpacedTags", false)
 
     private val inactiveStyle by choices(
@@ -186,8 +181,8 @@ class Arraylist(
         }
 
     private fun getDisplayString(module: Module): String {
-        val moduleName = module.addSpaces(spacedModules).capitalize(moduleCase)
-        var moduleTag = module.tag.addSpaces(spacedValues).capitalize(valueCase) ?: ""
+        val moduleName = module.addSpaces(spacedModules).capitalize(moduleCase) ?: ""
+        var moduleTag = module.tag.addSpaces(spacedTags).capitalize(tagCase) ?: ""
 
         // Use the multiReplace for display text with module context
         return multiReplace(displayString, moduleName, moduleTag)
