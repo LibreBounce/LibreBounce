@@ -7,7 +7,7 @@ package net.ccbluex.liquidbounce.ui.client.clickgui.style.styles
 
 import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.features.module.modules.render.ClickGUI.scale
-import net.ccbluex.liquidbounce.features.module.modules.render.ClickGUI.spacedValues
+import net.ccbluex.liquidbounce.features.module.modules.render.ClickGUI.valueName
 import net.ccbluex.liquidbounce.ui.client.clickgui.ClickGui.clamp
 import net.ccbluex.liquidbounce.ui.client.clickgui.Panel
 import net.ccbluex.liquidbounce.ui.client.clickgui.elements.ButtonElement
@@ -19,6 +19,7 @@ import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlockName
 import net.ccbluex.liquidbounce.utils.extensions.component1
 import net.ccbluex.liquidbounce.utils.extensions.component2
 import net.ccbluex.liquidbounce.utils.extensions.lerpWith
+import net.ccbluex.liquidbounce.utils.extensions.capitalize
 import net.ccbluex.liquidbounce.utils.extensions.addSpaces
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.blendColors
@@ -135,6 +136,7 @@ object SlowlyStyle : Style() {
 
         // Draw settings
         val moduleValues = moduleElement.module.values.filter { it.shouldRender() }
+
         if (moduleValues.isNotEmpty()) {
             font35.drawString(
                 if (moduleElement.showSettings) "<" else ">",
@@ -163,7 +165,7 @@ object SlowlyStyle : Style() {
                     assumeNonVolatile = value.get() is Number
 
                     val suffix = value.suffix ?: ""
-                    val text = if (spacedValues) value.name.addSpaces() else value.name
+                    val text = value.name.valueName()
 
                     when (value) {
                         is BoolValue -> {
@@ -202,7 +204,8 @@ object SlowlyStyle : Style() {
                             yPos += font35.fontHeight + 1
 
                             for (valueOfList in value.values) {
-                                val valueName = if (spacedValues) valueOfList.addSpaces() else valueOfList
+                                val valueName = valueOfList.valueName()
+
                                 moduleElement.settingsWidth = font35.getStringWidth("> $valueName") + 12
 
                                 if (value.openList) {
@@ -247,7 +250,8 @@ object SlowlyStyle : Style() {
                             yPos += font35.fontHeight + 1
 
                             value.choices.forEachIndexed { index, choice ->
-                                val valueName = if (spacedValues) choice.addSpaces() else choice
+                                val valueName = choice.valueName()
+
                                 moduleElement.settingsWidth = font35.getStringWidth("> $valueName") + 12
 
                                 if (value.openList) {

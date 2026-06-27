@@ -7,7 +7,7 @@ package net.ccbluex.liquidbounce.ui.client.clickgui.elements
 
 import net.ccbluex.liquidbounce.LiquidBounce.clickGui
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.modules.render.ClickGUI.spacedModules
+import net.ccbluex.liquidbounce.features.module.modules.render.ClickGUI.moduleName
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
 
@@ -16,7 +16,7 @@ class ModuleElement(val module: Module) : ButtonElement(module.name, buttonActio
     // This module element handles the click action itself.
 }) {
     override val displayName
-        get() = module.getName(spacedModules)
+        get() = module.getName().moduleName()
 
     override var hoverText = ""
         get() = module.description

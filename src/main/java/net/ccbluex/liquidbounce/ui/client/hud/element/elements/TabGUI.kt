@@ -350,13 +350,7 @@ class TabGUI(x: Double = 5.0, y: Double = 25.0) : Element("TabGUI", x = x, y = y
     }
 
     fun getDisplayName(module: Module): String {
-        val moduleName =  module.getName(spacedModules)
-
-        return when (moduleCase) {
-            "Uppercase" -> moduleName.uppercase()
-            "Lowercase" -> moduleName.lowercase()
-            else -> moduleName
-        }
+        return module.getName().addSpaces(spacedModules).capitalize(moduleCase)
     }
 
     /**

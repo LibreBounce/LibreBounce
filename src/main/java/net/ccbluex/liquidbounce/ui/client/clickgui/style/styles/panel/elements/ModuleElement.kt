@@ -7,8 +7,8 @@ package net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel.elements
 
 import net.ccbluex.liquidbounce.config.*
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.modules.render.ClickGUI.spacedModules
-import net.ccbluex.liquidbounce.features.module.modules.render.ClickGUI.spacedValues
+import net.ccbluex.liquidbounce.features.module.modules.render.ClickGUI.moduleName
+import net.ccbluex.liquidbounce.features.module.modules.render.ClickGUI.valueName
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel.PanelStyle.accentColor
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel.PanelStyle.elements
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel.PanelStyle.mainColor
@@ -16,6 +16,7 @@ import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel.PanelStyle
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.BlackStyle.clickSound
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedRect
+import net.ccbluex.liquidbounce.utils.extensions.capitalize
 import net.ccbluex.liquidbounce.utils.extensions.addSpaces
 import java.awt.Color
 
@@ -64,7 +65,7 @@ class ModuleElement(
         )
 
         Fonts.font40.drawString(
-            if (spacedModules) module.name.addSpaces() else module.name,
+            module.name.moduleName(),
             startX + margin + 10, startY + 10,
             if (module.state) accentColor else Color.WHITE.rgb
         )
@@ -144,7 +145,7 @@ class ModuleElement(
         if (moduleValues.isNotEmpty()) {
             var previousElement: ValueElement? = null
             for (value in moduleValues) {
-                val valueName = if (spacedValues) value.name.addSpaces() else value.name
+                val valueName = value.name.valueName()
 
                 // TODO: Add color, text, and block values
                 val newElement = when (value) {

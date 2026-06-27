@@ -17,6 +17,8 @@ import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.LiquidBounceStyl
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.NullStyle
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.SlowlyStyle
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel.PanelStyle
+import net.ccbluex.liquidbounce.utils.extensions.capitalize
+import net.ccbluex.liquidbounce.utils.extensions.addSpaces
 import net.minecraft.network.play.server.S2EPacketCloseWindow
 import org.lwjgl.input.Keyboard
 import java.awt.Color
@@ -65,10 +67,11 @@ object ClickGUI : Module("ClickGUI", Category.RENDER, Keyboard.KEY_RSHIFT, canBe
         }
     }
 
-    // TODO
-    /*fun String.moduleName(): String {
-        var result 
-    }*/
+    fun String.moduleName() =
+        return it.addSpaces(spacedModules).capitalize(moduleCase)
+
+    fun String.valueName() =
+        return it.addSpaces(spacedValues).capitalize(valueCase)
 
     val onPacket = handler<PacketEvent>(always = true) { event ->
         if (event.packet is S2EPacketCloseWindow && mc.currentScreen is ClickGui)

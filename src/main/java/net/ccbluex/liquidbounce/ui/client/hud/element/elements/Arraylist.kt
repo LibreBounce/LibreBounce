@@ -20,6 +20,7 @@ import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolat
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.ui.font.GameFontRenderer
 import net.ccbluex.liquidbounce.utils.extensions.safeDiv
+import net.ccbluex.liquidbounce.utils.extensions.capitalize
 import net.ccbluex.liquidbounce.utils.extensions.addSpaces
 import net.ccbluex.liquidbounce.utils.render.*
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.fade
@@ -132,11 +133,10 @@ class Arraylist(
     private val gradientX by float("GradientX", -1000F, -2000F..2000F) { isColorModeUsed("Gradient") }
     private val gradientY by float("GradientY", -1000F, -2000F..2000F) { isColorModeUsed("Gradient") }
 
-    private val tagCase by choices("TagCase", arrayOf("Normal", "Uppercase", "Lowercase"), "Normal")
-
     private val font by font("Font", Fonts.font40)
     private val textShadow by boolean("TextShadow", true)
-    private val moduleCase by choices("ModuleCase", arrayOf("Normal", "Uppercase", "Lowercase"), "Normal")
+    private val moduleCase by choices("ModuleCase", arrayOf("Normal", "Uppercase", "Lowercase", "Sentence"), "Normal")
+    private val tagCase by choices("TagCase", arrayOf("Normal", "Uppercase", "Lowercase", "Sentence"), "Normal")
     private val space by float("Space", 1F, 0F..5F)
     private val textHeight by float("TextHeight", 11F, 1F..20F)
     private val textY by float("TextY", 3.25F, 0F..20F)
@@ -186,23 +186,8 @@ class Arraylist(
         }
 
     private fun getDisplayString(module: Module): String {
-        val moduleName = when (moduleCase) {
-            "Uppercase" -> module.getName().uppercase()
-            "Lowercase" -> module.getName().lowercase()
-            else -> module.getName()
-        }
-
-        var moduleTag = if (!module.tag.isNullOrEmpty()) {
-            if (spacedTags) module.tag?.addSpaces() ?: "" else module.tag ?: ""
-        } else {
-            ""
-        }
-
-        moduleTag = when (tagCase) {
-            "Uppercase" -> moduleTag.uppercase()
-            "Lowercase" -> moduleTag.lowercase()
-            else -> moduleTag
-        }
+        val moduleName = module.addSpaces(spacedModules).capitalize(moduleCase)
+        var moduleTag = module.tag.addSpaces(spacedValues).capitalize(valueCase) ?: ""
 
         // Use the multiReplace for display text with module context
         return multiReplace(displayString, moduleName, moduleTag)

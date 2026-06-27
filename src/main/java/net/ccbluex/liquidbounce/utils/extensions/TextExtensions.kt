@@ -17,7 +17,17 @@ fun String.sentenceCase() =
         }
     }.joinToString(" ")
 
-fun String.addSpaces(): String {
+fun String.capitalize(mode: String) =
+    when (moduleCase) {
+        "Uppercase" -> it.uppercase()
+        "Lowercase" -> it.lowercase()
+        "Sentence" -> it.sentenceCase()
+        else -> it
+    }
+
+fun String.addSpaces(addSpaces: Boolean = true): String {
+    if (!addSpaces) return it
+
     val result = StringBuilder()
     var i = 0
     
