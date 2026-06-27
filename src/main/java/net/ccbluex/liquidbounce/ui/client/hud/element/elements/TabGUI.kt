@@ -23,6 +23,8 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedBorder
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.withClipping
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowShader
+import net.ccbluex.liquidbounce.utils.extensions.addSpaces
+import net.ccbluex.liquidbounce.utils.extensions.capitalize
 import net.minecraft.client.gui.FontRenderer
 import org.lwjgl.input.Keyboard
 import org.lwjgl.opengl.GL11.glColor4f
@@ -349,7 +351,7 @@ class TabGUI(x: Double = 5.0, y: Double = 25.0) : Element("TabGUI", x = x, y = y
         }
     }
 
-    fun getDisplayName(module: Module): String {
+    fun Module.getDisplayName(): String {
         return module.getName().addSpaces(spacedModules).capitalize(moduleCase)
     }
 
@@ -379,7 +381,7 @@ class TabGUI(x: Double = 5.0, y: Double = 25.0) : Element("TabGUI", x = x, y = y
             var maxWidth = 0
 
             for (module in modules) {
-                val width = fontRenderer.getStringWidth(getDisplayName(module))
+                val width = fontRenderer.getStringWidth(module.getDisplayName())
                 if (width + 4 > maxWidth) maxWidth = width + 7
             }
 
@@ -414,7 +416,7 @@ class TabGUI(x: Double = 5.0, y: Double = 25.0) : Element("TabGUI", x = x, y = y
                 val moduleColor = if (module.state) 0xffffff else Color(205, 205, 205).rgb
 
                 fontRenderer.drawString(
-                    getDisplayName(module), x + 2F, y + tabHeight * index + textPositionY, moduleColor, textShadow
+                    module.getDisplayName(), x + 2F, y + tabHeight * index + textPositionY, moduleColor, textShadow
                 )
             }
 
