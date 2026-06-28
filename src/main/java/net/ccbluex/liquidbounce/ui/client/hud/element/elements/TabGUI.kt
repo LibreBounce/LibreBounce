@@ -350,7 +350,7 @@ class TabGUI(x: Double = 5.0, y: Double = 25.0) : Element("TabGUI", x = x, y = y
     }
 
     fun Module.getDisplayName(): String {
-        return this.getName().addSpaces(spacedModules).capitalize(moduleCase)
+        return this.name.addSpaces(spacedModules).capitalize(moduleCase)
     }
 
     /**

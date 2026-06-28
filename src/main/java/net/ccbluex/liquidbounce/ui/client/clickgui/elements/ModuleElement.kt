@@ -16,7 +16,7 @@ class ModuleElement(val module: Module) : ButtonElement(module.name, buttonActio
     // This module element handles the click action itself.
 }) {
     override val displayName
-        get() = module.getName().moduleName()
+        get() = module.name.moduleName()
 
     override var hoverText = ""
         get() = module.description

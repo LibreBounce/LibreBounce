@@ -127,14 +127,14 @@ object SettingsUtils {
     // Utility functions for setting toggles
     private fun setToggle(module: Module, value: String) {
         module.state = value.toBoolean()
-        chat("§7[§3§lAutoSettings§7] §a§l${module.getName()} §7was toggled §c§l${if (module.state) "on" else "off"}§7.")
+        chat("§7[§3§lAutoSettings§7] §a§l${module.name} §7was toggled §c§l${if (module.state) "on" else "off"}§7.")
     }
 
     // Utility functions for setting binds
     private fun setBind(module: Module, value: String) {
         module.keyBind = Keyboard.getKeyIndex(value)
         chat(
-            "§7[§3§lAutoSettings§7] §a§l${module.getName()} §7was bound to §c§l${
+            "§7[§3§lAutoSettings§7] §a§l${module.name} §7was bound to §c§l${
                 Keyboard.getKeyName(
                     module.keyBind
                 )
@@ -147,15 +147,15 @@ object SettingsUtils {
         val moduleValue = module[valueName]
 
         if (moduleValue == null) {
-            chat("§7[§3§lAutoSettings§7] §cValue §a§l$valueName§c wasn't found in module §a§l${module.getName()}§c.")
+            chat("§7[§3§lAutoSettings§7] §cValue §a§l$valueName§c wasn't found in module §a§l${module.name}§c.")
             return
         }
 
         try {
             moduleValue.fromText(value)
-            chat("§7[§3§lAutoSettings§7] §a§l${module.getName()}§7 value §8§l${moduleValue.name}§7 set to §c§l$value§7.")
+            chat("§7[§3§lAutoSettings§7] §a§l${module.name}§7 value §8§l${moduleValue.name}§7 set to §c§l$value§7.")
         } catch (e: Exception) {
-            chat("§7[§3§lAutoSettings§7] §a§l${e.javaClass.name}§7(${e.message}) §cAn Exception occurred while setting §a§l$value§c to §a§l${moduleValue.name}§c in §a§l${module.getName()}§c.")
+            chat("§7[§3§lAutoSettings§7] §a§l${e.javaClass.name}§7(${e.message}) §cAn Exception occurred while setting §a§l$value§c to §a§l${moduleValue.name}§c in §a§l${module.name}§c.")
         }
     }
 

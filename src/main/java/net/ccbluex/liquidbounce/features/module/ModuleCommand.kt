@@ -51,7 +51,7 @@ class ModuleCommand(val module: Module, val values: Collection<Value<*>> = modul
                 val newValue = !value.get()
                 value.set(newValue)
 
-                chat("§7${module.getName()} §8${args[1]}§7 was toggled ${if (newValue) "§8on§7" else "§8off§7" + "."}")
+                chat("§7${module.name} §8${args[1]}§7 was toggled ${if (newValue) "§8on§7" else "§8off§7" + "."}")
                 playEdit()
             }
 
@@ -101,11 +101,11 @@ class ModuleCommand(val module: Module, val values: Collection<Value<*>> = modul
 
                                     if (newRange.first in value.range && newRange.last in value.range) {
                                         if (value.set(newRange)) {
-                                            chat("§7${module.getName()} §8${args[1]}§7 was set to §8${newRange.first} - ${newRange.last}§7.")
+                                            chat("§7${module.name} §8${args[1]}§7 was set to §8${newRange.first} - ${newRange.last}§7.")
                                             playEdit()
                                         } else chatInvalid("$newRange", value)
                                     } else {
-                                        chat("§7${module.getName()} §8${args[1]}§7 range is out of bounds (${value.minimum} - ${value.maximum}).")
+                                        chat("§7${module.name} §8${args[1]}§7 range is out of bounds (${value.minimum} - ${value.maximum}).")
                                     }
                                 } else {
                                     chat("§7Invalid range format for ${args[1]}. Please use <start>-<end> with integer values.")
@@ -132,11 +132,11 @@ class ModuleCommand(val module: Module, val values: Collection<Value<*>> = modul
 
                                     if (newRange.start in value.range && newRange.endInclusive in value.range) {
                                         if (value.set(newRange)) {
-                                            chat("§7${module.getName()} §8${args[1]}§7 was set to §8${newRange.start} - ${newRange.endInclusive}§7.")
+                                            chat("§7${module.name} §8${args[1]}§7 was set to §8${newRange.start} - ${newRange.endInclusive}§7.")
                                             playEdit()
                                         } else chatInvalid("$newRange", value)
                                     } else {
-                                        chat("§7${module.getName()} §8${args[1]}§7 range is out of bounds (${value.minimum} - ${value.maximum}).")
+                                        chat("§7${module.name} §8${args[1]}§7 range is out of bounds (${value.minimum} - ${value.maximum}).")
                                     }
                                 } else {
                                     chat("§7Invalid range format for ${args[1]}. Please use <start>-<end> with float values.")
@@ -166,7 +166,7 @@ class ModuleCommand(val module: Module, val values: Collection<Value<*>> = modul
                                 return
                             }
 
-                            chat("§7${module.getName()} §8${args[1].lowercase()}§7 was set to §8${getBlockName(id)}§7.")
+                            chat("§7${module.name} §8${args[1].lowercase()}§7 was set to §8${getBlockName(id)}§7.")
                             playEdit()
 
                             return
@@ -202,7 +202,7 @@ class ModuleCommand(val module: Module, val values: Collection<Value<*>> = modul
                         return
                     }
 
-                    chat("§7${module.getName()} §8${args[1]}§7 was set to §8${value.get()}§7.")
+                    chat("§7${module.name} §8${args[1]}§7 was set to §8${value.get()}§7.")
                     playEdit()
                 } catch (e: NumberFormatException) {
                     chatInvalid(args[2], value, "cannot be converted to a number for")

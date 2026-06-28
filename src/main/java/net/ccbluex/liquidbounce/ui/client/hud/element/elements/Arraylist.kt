@@ -181,7 +181,7 @@ class Arraylist(
         }
 
     private fun getDisplayString(module: Module): String {
-        val moduleName = module.getName().addSpaces(spacedModules).capitalize(moduleCase) ?: ""
+        val moduleName = module.name.addSpaces(spacedModules).capitalize(moduleCase) ?: ""
         var moduleTag = module.tag!!.addSpaces(spacedTags).capitalize(tagCase) ?: ""
 
         // Use the multiReplace for display text with module context
