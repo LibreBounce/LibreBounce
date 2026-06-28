@@ -77,7 +77,7 @@ class ScriptModule(name: String, category: Category, description: String, privat
         try {
             events[eventName]?.call(moduleObject, payload)
         } catch (throwable: Throwable) {
-            LOGGER.error("[ScriptAPI] Exception in module '${getName()}'!", throwable)
+            LOGGER.error("[ScriptAPI] Exception in module '${name}'!", throwable)
         }
     }
 }
