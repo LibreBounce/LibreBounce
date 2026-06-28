@@ -312,7 +312,7 @@ object SlowlyStyle : Style() {
 
                         is BlockValue -> {
                             val blockText =
-                                text + "§f: " + getBlockName(value.get()) + " (" + value.get() + ")" + " §7${suffix}"
+                                text + "§f: " + getBlockName(value.get()) + " (" + value.get() + ")" + " §7$suffix"
 
                             moduleElement.settingsWidth = font35.getStringWidth(blockText) + 8
 

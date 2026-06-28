@@ -113,10 +113,8 @@ class TabGUI(x: Double = 5.0, y: Double = 25.0) : Element("TabGUI", x = x, y = y
 
         val borderColor = if (borderRainbow) Color.black else borderColor.selectedColor()
 
-        // Draw
         val guiHeight = tabs.size * tabHeight
 
-        // 4F = tab slide
         val arrowPadding = if (arrows) 4F else 0F
         val iconPadding = if (displayIcons) 17F else 0F
 
@@ -352,7 +350,7 @@ class TabGUI(x: Double = 5.0, y: Double = 25.0) : Element("TabGUI", x = x, y = y
     }
 
     fun Module.getDisplayName(): String {
-        return module.getName().addSpaces(spacedModules).capitalize(moduleCase)
+        return this.getName().addSpaces(spacedModules).capitalize(moduleCase)
     }
 
     /**
