@@ -39,37 +39,33 @@ fun String.addSpaces(addSpaces: Boolean = true): String {
         if (i > 0) {
         	when {
             	this[i - 1].isLowerCase() && (char.isUpperCase() || char.isDigit()) -> result.insert(result.length - 1, ' ')
-                this[i - 1].isDigit() && char.isUpperCase() -> result.insert(result.length - 1, ' ')
+                (this[i - 1].isDigit() && char.isLetter()) || (char.isDigit() && this[i - 1].isLetter()) -> result.insert(result.length - 1, ' ')
             }
         }
         
-        // Special handling for uppercase sequences
         if (char.isUpperCase()) {
-            // Check if entire string is uppercase
             var allUppercase = true
+
             for (j in 0 until length) {
-                if (!this[j].isUpperCase()) {
+                if (this[j].isLowerCase()) {
                     allUppercase = false
                     break
                 }
             }
-            
-            // If all uppercase, add space every 3 letters
-            if (allUppercase && (i + 1) % 3 == 0 && i < length - 1) {
+
+            var j = i + 1
+
+            if (allUppercase && j % 3 == 0 && i < length - 1) {
                 result.insert(result.length, ' ')
-            }
-            
-            // For mixed sequences with multiple uppercase letters
-            // Add space between second-last and last uppercase letter
-            else {
-                var j = i + 1
+            } else {
                 var uppercaseCount = 1
+
                 while (j < length && this[j].isUpperCase()) {
                     uppercaseCount++
                     j++
                 }
                 
-                if (uppercaseCount > 1 && !allUppercase && i == j - 2 && j < length) {
+                if (uppercaseCount > 1 && !allUppercase && this[j + 1].isLowerCase() && i == j - 2 && j < length) {
                     result.insert(result.length, ' ')
                 }
             }
