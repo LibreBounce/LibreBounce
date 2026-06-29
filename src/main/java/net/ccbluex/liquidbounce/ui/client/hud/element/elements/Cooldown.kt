@@ -20,7 +20,7 @@ import java.awt.Color
  */
 @ElementInfo(name = "Cooldown")
 class Cooldown(
-    x: Double = 0.0, y: Double = -14.0, scale: Float = 1F,
+    x: Double = 0.0, y: Double = -14.0, scale: Float = 1f,
     side: Side = Side(Side.Horizontal.MIDDLE, Side.Vertical.MIDDLE)
 ) : Element("Cooldown", x, y, scale, side) {
 

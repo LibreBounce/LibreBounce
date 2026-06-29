@@ -73,7 +73,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
 
     private val clickOnly by boolean("ClickOnly", false)
     private val clickDelay by int("ClickDelay", 1, 1..1000) { clickOnly }
-    private val notOnConsume by boolean("NotOnConsume", true)
+    private val notOnConsume by boolean("NotOnConsume", false)
     
     // Modes
     private val priority by choices(
@@ -481,7 +481,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
      * Check if run should be cancelled
      */
     private val cancelRun
-        inline get() = mc.thePlayer.isSpectator || !isAlive(mc.thePlayer) || notOnConsume && isConsumingItem()
+        inline get() = mc.thePlayer.isSpectator || !isAlive(mc.thePlayer) || (notOnConsume && isConsumingItem())
 
     /**
      * Check if [entity] is alive

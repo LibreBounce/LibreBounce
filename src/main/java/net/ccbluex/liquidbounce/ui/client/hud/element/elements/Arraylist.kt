@@ -173,16 +173,16 @@ class Arraylist(
     private val display: String
         get() {
             val textContent = if (displayString.isEmpty() && !editMode)
-                "Text Element"
-            else
-                displayString
+                "Arraylist Entry"
+            else displayString
+
             // For generic display, no module context
             return multiReplace(textContent, "", "")
         }
 
     private fun getDisplayString(module: Module): String {
         val moduleName = module.name.addSpaces(spacedModules).capitalize(moduleCase) ?: ""
-        var moduleTag = module.tag!!.addSpaces(spacedTags).capitalize(tagCase) ?: ""
+        val moduleTag = module.tag!!.addSpaces(spacedTags).capitalize(tagCase) ?: ""
 
         // Use the multiReplace for display text with module context
         return multiReplace(displayString, moduleName, moduleTag)

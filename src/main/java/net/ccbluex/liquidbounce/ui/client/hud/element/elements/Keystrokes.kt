@@ -21,7 +21,7 @@ import kotlin.math.nextDown
 
 @ElementInfo(name = "Keystrokes")
 class Keystrokes : Element("Keystrokes", 2.0, 34.0) {
-    private val radius by float("RoundedRadius", 3F, 0F..10F)
+    private val radius by float("RoundedRadius", 3f, 0f..10f)
     private val textColors = ColorSettingsInteger(this, "Text", applyMax = true)
     private val rectColors = ColorSettingsInteger(this, "Rectangle").with(a = 150)
     private val pressColors = ColorSettingsInteger(this, "Press").with(Color.BLUE)
