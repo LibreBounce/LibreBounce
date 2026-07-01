@@ -36,8 +36,6 @@ open class Module(
     private val canBeEnabled: Boolean = true,
     private val forcedDescription: String? = null,
 
-    // Adds spaces between lowercase and uppercase letters (KillAura -> Kill Aura)
-    val spacedName: String = name.addSpaces(),
     subjective: Boolean = category == Category.RENDER,
     val gameDetecting: Boolean = canBeEnabled,
     defaultState: Boolean = false,
@@ -54,11 +52,6 @@ open class Module(
     private val onlyInGameValue = boolean("OnlyInGame", true) {
         GameDetector.state
     }.subjective().excludeWhen(!gameDetecting)
-
-    // Module information
-
-    // Get normal or spaced name
-    // fun getName() = name
 
     var keyBind = defaultKeyBind
         set(keyBind) {
@@ -78,7 +71,7 @@ open class Module(
             LOGGER.error("Failed to reset all values", any)
             chat("Failed to reset all values: ${any.message}")
         } finally {
-            addNotification(Notification("Successfully reset ${this.spacedName}'s settings"))
+            addNotification(Notification("Successfully reset ${this.name}'s settings"))
             saveConfig(valuesConfig)
         }
         return@onChange false
@@ -116,6 +109,7 @@ open class Module(
                 if (canBeEnabled) field = true
             } else {
                 onDisable()
+
                 field = false
             }
 
