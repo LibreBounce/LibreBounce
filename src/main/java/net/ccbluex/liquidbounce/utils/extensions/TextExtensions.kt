@@ -65,7 +65,9 @@ fun String.addSpaces(addSpaces: Boolean = true): String {
                     j++
                 }
                 
-                if (uppercaseCount > 1 && !allUppercase && this[j + 1].isLowerCase() && i == j - 2 && j < length) {
+                if (uppercaseCount > 1 && !allUppercase &&
+                        i == j - 2 && j + 1 < length && this[j + 1].isLowerCase()
+                   ) {
                     result.insert(result.length, ' ')
                 }
             }
