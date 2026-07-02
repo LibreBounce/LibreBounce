@@ -19,8 +19,8 @@ import kotlin.math.abs
 
 object WTap : SuperKnockbackMode("WTap") {
 
-    private var blockInputTicks = ticksUntilBlock.random() ?: 3
-    private var allowInputTicks = reSprintTicks.random() ?: 3
+    private var blockInputTicks = 1
+    private var allowInputTicks = 1
     private var blockTicksElapsed = 0
     private var ticksElapsed = 0
     private var startWaiting = false

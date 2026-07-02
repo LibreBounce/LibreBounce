@@ -17,7 +17,7 @@ object STap : SuperKnockbackMode("STap") {
     private val sTapTimer = TickDelayTimer(sTapTicks.first, sTapTicks.last)
 
     override fun onAttack(event: AttackEvent) {
-        val player = mc.thePlayer
+        val player = mc.thePlayer ?: return
 
         if (player.isSprinting && player.serverSprintState) {
             mc.gameSettings.keyBindForward.pressed = false
@@ -26,7 +26,7 @@ object STap : SuperKnockbackMode("STap") {
     }
 
     override fun onUpdate(event: UpdateEvent) {
-        val player = mc.thePlayer
+        val player = mc.thePlayer ?: return
 
         if (mc.gameSettings.keyBindBack.pressed && !GameSettings.isKeyDown(mc.gameSettings.keyBindBack) &&
             sTapTimer.resetIfPassed()
