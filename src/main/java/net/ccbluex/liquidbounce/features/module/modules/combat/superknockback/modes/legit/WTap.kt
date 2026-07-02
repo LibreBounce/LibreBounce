@@ -19,12 +19,12 @@ import kotlin.math.abs
 
 object WTap : SuperKnockbackMode("WTap") {
 
-    private var blockInputTicks = ticksUntilBlock.random()
+    private var blockInputTicks = ticksUntilBlock.random() ?: 3
+    private var allowInputTicks = reSprintTicks.random() ?: 3
     private var blockTicksElapsed = 0
+    private var ticksElapsed = 0
     private var startWaiting = false
     var blockInput = false
-    private var allowInputTicks = reSprintTicks.random()
-    private var ticksElapsed = 0
 
     override fun onToggle(state: Boolean) {
         // Make sure the user won't have their input forever blocked
