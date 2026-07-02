@@ -8,11 +8,11 @@ package net.ccbluex.liquidbounce.features.module.modules.combat
 import net.ccbluex.liquidbounce.event.AttackEvent
 import net.ccbluex.liquidbounce.event.GameTickEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.features.module.Category
+import net.ccbluex.liquidbounce.features.module.Category.COMBAT
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.extensions.*
-import net.ccbluex.liquidbounce.utils.rotation.RotationUtils
+import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.modifiedInput
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.rotationDifference
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.toRotation
 import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
@@ -21,12 +21,13 @@ import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.potion.Potion.blindness
-import net.minecraft.util.MathHelper
+import net.minecraft.util.MathHelper.sin
+import net.minecraft.util.MathHelper.cos
 import kotlin.math.max
 import kotlin.math.sqrt
 import kotlin.math.PI
 
-object SmartHit : Module("SmartHit", Category.COMBAT) {
+object SmartHit : Module("SmartHit", COMBAT) {
 
     private val usePredictedTargetHurtTime by boolean("UsePredictedTargetHurtTime", true)
     private val attackDelay by int("AttackDelay", 10, 0..10, suffix = "ticks")
@@ -121,7 +122,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         val dist = player.getDistanceToEntityBox(target)
         val targetDistance = target.getDistanceToEntityBox(player)
     
-        val simPlayer = SimulatedPlayer.fromClientPlayer(RotationUtils.modifiedInput)
+        val simPlayer = SimulatedPlayer.fromClientPlayer(modifiedInput)
         simHurtTime = player.hurtTime
 
         repeat(predictClientMovement + 1) {
@@ -241,9 +242,9 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         val modifier = simulatedHorizontalKnockback.random()
         val fullModifier = (target.rotationYaw * (PI.toFloat() / 180.0f)) * modifier * 0.5f
 
-        val knockbackX = -MathHelper.sin(fullModifier)
+        val knockbackX = -sin(fullModifier)
         val knockbackY = simulatedVerticalKnockback.random()
-        val knockbackZ = MathHelper.cos(fullModifier)
+        val knockbackZ = cos(fullModifier)
 
         simPlayer.apply {
             motionX += knockbackX
