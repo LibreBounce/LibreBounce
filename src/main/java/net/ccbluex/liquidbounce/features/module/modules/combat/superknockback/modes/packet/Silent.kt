@@ -6,6 +6,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat.superknockback.modes.packet
 
 import net.ccbluex.liquidbounce.event.AttackEvent
+import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.features.module.modules.combat.superknockback.SuperKnockback.ticks
 import net.ccbluex.liquidbounce.features.module.modules.combat.superknockback.modes.SuperKnockbackMode

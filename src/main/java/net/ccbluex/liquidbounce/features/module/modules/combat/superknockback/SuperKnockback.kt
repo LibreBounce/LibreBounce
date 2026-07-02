@@ -39,14 +39,14 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
 
     val mode by choices("Mode", modes, "SprintTap")
 
-    private val ticksUntilBlock by intRange("TicksUntilBlock", 0..2, 0..5) { mode == "WTap" }
-    private val reSprintTicks by intRange("ReSprintTicks", 1..2, 1..5) { mode == "WTap" }
-    private val useDelayMultiplier by boolean("UseDelayMultiplier", true) { mode == "WTap" }
-    private val targetDistance by int("TargetDistance", 3, 1..5, suffix = "blocks") { mode == "WTap" && useDelayMultiplier }
+    val ticksUntilBlock by intRange("TicksUntilBlock", 0..2, 0..5) { mode == "WTap" }
+    val reSprintTicks by intRange("ReSprintTicks", 1..2, 1..5) { mode == "WTap" }
+    val useDelayMultiplier by boolean("UseDelayMultiplier", true) { mode == "WTap" }
+    val targetDistance by int("TargetDistance", 3, 1..5, suffix = "blocks") { mode == "WTap" && useDelayMultiplier }
 
-    private val sTapTicks by intRange("STapTicks", 1..2, 1..5) { mode == "STap" }
+    val sTapTicks by intRange("STapTicks", 1..2, 1..5) { mode == "STap" }
 
-    private val sneakTicks by intRange("SneakTicks", 1..2, 1..5) { mode == "Sneak" }
+    val sneakTicks by intRange("SneakTicks", 1..2, 1..5) { mode == "Sneak" }
 
     private val minEnemyRotDiffToIgnore by float("MinRotationDiffFromEnemyToIgnore", 180f, 0f..180f, suffix = "º")
 
@@ -58,8 +58,8 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
     private val onWeb by boolean("OnWeb", false)
     private val onLiquid by boolean("OnLiquid", false)
 
-    private var ticks = 0
     private val timer = MSTimer()
+    var ticks = 0
 
     override fun onToggle(state: Boolean) {
         modeModule.onToggle(state)
@@ -96,11 +96,11 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
         timer.reset()
     }
 
-    val onUpdate = handler<UpdateEvent> {
+    val onUpdate = handler<UpdateEvent> { event ->
         modeModule.onUpdate(event)
     }
 
-    val onPostSprintUpdate = handler<PostSprintUpdateEvent> {
+    val onPostSprintUpdate = handler<PostSprintUpdateEvent> { event ->
         modeModule.onPostSprintUpdate(event)
     }
 
