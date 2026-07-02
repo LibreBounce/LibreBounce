@@ -14,7 +14,7 @@ import net.minecraft.client.settings.GameSettings
 
 object STap : SuperKnockbackMode("STap") {
 
-    private val sTapTimer = TickDelayTimer(sTapTicks.first, sTapTicks.last)
+    private val sTapTimer by lazy { TickDelayTimer(sTapTicks.first, sTapTicks.last) }
 
     override fun onAttack(event: AttackEvent) {
         val player = mc.thePlayer ?: return

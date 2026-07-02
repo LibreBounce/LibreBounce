@@ -14,7 +14,7 @@ import net.minecraft.client.settings.GameSettings
 
 object Sneak : SuperKnockbackMode("Sneak") {
 
-    private val sneakTimer = TickDelayTimer(sneakTicks.first, sneakTicks.last)
+    private val sneakTimer by lazy { TickDelayTimer(sneakTicks.first, sneakTicks.last) }
 
     override fun onAttack(event: AttackEvent) {
         val player = mc.thePlayer
