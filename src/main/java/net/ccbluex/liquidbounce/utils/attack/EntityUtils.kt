@@ -62,7 +62,7 @@ object EntityUtils : MinecraftInstance {
         return false
     }
 
-    fun isLookingOnEntities(entity: Any, maxAngleDifference: Double): Boolean {
+    fun isLookingOnEntities(entity: Any, maxAngleDifference: Double, useVisualYaw: Boolean = false): Boolean {
         val player = mc.thePlayer ?: return false
 
         if (entity == player) return true

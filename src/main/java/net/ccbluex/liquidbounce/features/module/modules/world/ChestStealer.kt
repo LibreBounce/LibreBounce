@@ -54,7 +54,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
     // TODO: Make SmartOrder prioritize slightly farther but more essential items, e.g, armor
     // instead of arrows
-    private val sorting by choices("Sorting", arrayOf("Normal", "Random", "Smart"), "Normal")
+    private val sorting by choices("Sorting", arrayOf("Normal", "Distance", "Random"), "Normal")
 
     private val delay by intRange("Delay", 50..50, 0..500, suffix = "ms")
     private val startDelay by intRange("StartDelay", 50..100, 0..500, suffix = "ms")
@@ -92,6 +92,8 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
     val highlightSlot by boolean("HighlightSlot", false) { !silentGUI }.subjective()
     val backgroundColor =
         color("BackgroundColor", Color(128, 128, 128)) { highlightSlot && !silentGUI }.subjective()
+    val missClickBackgroundColor =
+        color("MissClickBackgroundColor", Color(255, 0, 0)) { highlightSlot && !silentGUI }.subjective()
 
     val borderStrength by int("BorderStrength", 3, 1..5) { highlightSlot && !silentGUI }.subjective()
     val borderColor = color("BorderColor", Color(128, 128, 128)) { highlightSlot && !silentGUI }.subjective()
@@ -112,8 +114,6 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
     private var receivedId: Int? = null
 
     private var stacks = emptyList<ItemStack?>()
-
-    private var pauseAfterMissClickLength = pauseAfterMissClick.random()
 
     var isCustomGUI = false
 
@@ -208,7 +208,6 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
                     if (missClick && withinChance(missClickingChance)) {
                         performMissClick(screen, screen.inventorySlots.inventorySlots[slot])
-                        delay(pauseAfterMissClickLength.toLong())
                     }
 
                     // Set current slot being stolen for highlighting
@@ -378,7 +377,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
                     }
 
                     "Random" -> it.shuffle()
-                    "Smart" -> sortBasedOnOptimumPath(it)
+                    "Distance" -> sortBasedOnOptimumPath(it)
                 }
             }
 
@@ -394,9 +393,14 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
         val slotId = closestEmptySlot.slotNumber
         clickNextTick(slotId, 0, 1)
-        pauseAfterMissClickLength = pauseAfterMissClick.random()
-        if (itemStolenDebug) debug("Miss-clicked on slot $slotId. Delay until next click: ${pauseAfterMissClickLength}ms")
+        val pauseAfterMissClickLength = pauseAfterMissClick.random()
+
+        if (itemStolenDebug)
+            debug("Miss-clicked on slot $slotId. Delay until next click: ${pauseAfterMissClickLength}ms")
+
         chestStealerCurrentSlot = slotId
+
+        delay(pauseAfterMissClickLength=
     }
 
     private fun sortBasedOnOptimumPath(itemsToSteal: MutableList<ItemTakeRecord>) {
@@ -404,14 +408,17 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
             var nextIndex = i
             var minDistance = Int.MAX_VALUE
             var next: ItemTakeRecord? = null
+
             for (j in i + 1 until itemsToSteal.size) {
                 val distance = squaredDistanceOfSlots(itemsToSteal[i].index, itemsToSteal[j].index)
+
                 if (distance < minDistance) {
                     minDistance = distance
                     next = itemsToSteal[j]
                     nextIndex = j
                 }
             }
+
             if (next != null) {
                 itemsToSteal[nextIndex] = itemsToSteal[i + 1]
                 itemsToSteal[i + 1] = next
@@ -471,12 +478,9 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
         }
     }
 
-    private fun debug(message: String) {
-        if (chestDebug == "Off") return
-
-        when (chestDebug) {
-            "Text" -> chat(message)
-            "Notification" -> hud.addNotification(Notification(message, 500L))
-        }
+    private fun debug(message: String) = when (chestDebug) {
+        "Text" -> chat(message)
+        "Notification" -> hud.addNotification(Notification(message, 500L))
+        else -> return
     }
 }

@@ -123,11 +123,8 @@ object SNCPBHop : SpeedMode("SNCPBHop") {
                 yaw += (if (forward > 0f) 45 else -45).toFloat()
                 strafe = 0f
             }
-            if (forward > 0f) {
-                forward = 1f
-            } else if (forward < 0f) {
-                forward = -1f
-            }
+
+            forward = sign(forward)
         }
 
         val mx2 = cos((yaw + 90f).toRadiansD())

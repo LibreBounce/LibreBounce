@@ -38,6 +38,7 @@ object Sneak : Module("Sneak", Category.MOVEMENT) {
 
         when (mode) {
             "Legit" -> mc.gameSettings.keyBindSneak.pressed = true
+
             "Vanilla" -> {
                 if (sneaking)
                     return@handler

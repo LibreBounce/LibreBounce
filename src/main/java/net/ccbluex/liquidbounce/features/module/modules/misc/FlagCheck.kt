@@ -204,6 +204,7 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true) {
 
         // Invalid Health/Hunger bar Checks (This is a known lagback by Intave AC)
         val invalidReason = mutableListOf<String>()
+
         if (player.health <= 0.0f) invalidReason.add("Health")
         if (player.foodStats.foodLevel <= 0) invalidReason.add("Hunger")
 

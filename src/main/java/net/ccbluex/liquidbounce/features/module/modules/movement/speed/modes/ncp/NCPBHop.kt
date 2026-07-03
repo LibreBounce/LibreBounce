@@ -111,11 +111,7 @@ object NCPBHop : SpeedMode("NCPBHop") {
                 strafe = 0f
             }
 
-            if (forward > 0f) {
-                forward = 1f
-            } else if (forward < 0f) {
-                forward = -1f
-            }
+            forward = sign(forward)
         }
 
         val mx2 = cos((yaw + 90.0).toRadians())

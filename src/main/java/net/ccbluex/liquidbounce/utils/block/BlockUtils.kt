@@ -83,6 +83,7 @@ object BlockUtils : MinecraftInstance {
         val blocks = mutableMapOf<BlockPos, Block>()
 
         val mutable = BlockPos.MutableBlockPos(0, 0, 0)
+
         for (x in radius downTo -radius + 1) {
             for (y in radius downTo -radius + 1) {
                 for (z in radius downTo -radius + 1) {

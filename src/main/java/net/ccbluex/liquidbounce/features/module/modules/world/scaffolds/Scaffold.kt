@@ -1219,7 +1219,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
     }
 
     override val tag
-        get() = if (towerMode != "None") ("${scaffoldMode}, $towerMode") else scaffoldMode
+        get() = if (towerMode != "None") "${scaffoldMode}, $towerMode" else scaffoldMode
 
     data class ExtraClickInfo(val delay: Int, val lastClick: Long, var clicks: Int)
 }
