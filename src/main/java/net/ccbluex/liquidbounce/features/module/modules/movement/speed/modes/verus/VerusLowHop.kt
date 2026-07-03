@@ -28,7 +28,7 @@ object VerusLowHop : SpeedMode("VerusLowHop") {
 
                     tryJump()
                 } else {
-                    if (airTicks <= 1) 
+                    if (airTicks < 2) 
                         motionY = -0.09800000190734863
 
                     speed *= 0.98f

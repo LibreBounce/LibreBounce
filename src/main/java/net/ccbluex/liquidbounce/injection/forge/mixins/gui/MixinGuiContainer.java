@@ -70,7 +70,12 @@ public abstract class MixinGuiContainer extends MixinGuiScreen {
         int y = slot.yDisplayPosition;
 
         // ChestStealer Highlight Values
-        int chestStealerBackgroundColor = ((ColorValue) chestStealer.getBackgroundColor()).selectedColor().getRGB();
+        int chestStealerBackgroundColor = if (chestStealer.getLastClickIsMissClick()) {
+            ((ColorValue) chestStealer.getMissClickBackgroundColor()).selectedColor().getRGB();
+        } else {
+            ((ColorValue) chestStealer.getBackgroundColor()).selectedColor().getRGB();
+        }
+
         int chestStealerBorderColor = ((ColorValue) chestStealer.getBorderColor()).selectedColor().getRGB();
 
         // InvCleaner & AutoArmor Highlight Values

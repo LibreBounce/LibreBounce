@@ -319,8 +319,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1f, side: Side = S
                         drawRoundedRect(
                             rectPos[0], rectPos[1], rectPos[2], rectPos[3],
                             when (backgroundMode) {
-                                "Gradient" -> 0
-                                "Rainbow" -> 0
+                                "Gradient", "Rainbow" -> 0
                                 else -> bgColors.color().rgb
                             },
                             roundedBackgroundRadius

@@ -225,9 +225,9 @@ object Tower : Configurable("Tower"), MinecraftInstance, Listenable {
                     }
 
                     if (posY > jumpGround + constantMotionJumpGroundValues.get()) {
-                        if (constantMotionJumpPacketValues.get()) {
+                        if (constantMotionJumpPacketValues.get())
                             fakeJump()
-                        }
+
                         setPosition(
                             posX, truncate(posY), posZ
                         ) // TODO: toInt() required?

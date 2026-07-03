@@ -306,9 +306,8 @@ object RenderUtils : MinecraftInstance {
         val tessellator = Tessellator.getInstance()
         val buffer = tessellator.worldRenderer
 
-        if (filled) {
+        if (filled)
             buffer.begin(GL_TRIANGLE_FAN, DefaultVertexFormats.POSITION_COLOR)
-        }
 
         entity.interpolatedPosition(entity.prevPos).let { pos ->
             circlePoints.forEachIndexed { index, it ->
@@ -322,9 +321,7 @@ object RenderUtils : MinecraftInstance {
             }
         }
 
-        if (filled) {
-            tessellator.draw()
-        }
+        if (filled) tessellator.draw()
 
         if (withHeight) {
             buffer.begin(GL_QUADS, DefaultVertexFormats.POSITION_COLOR)
@@ -374,6 +371,7 @@ object RenderUtils : MinecraftInstance {
         mc.entityRenderer.disableLightmap()
 
         glBegin(GL_TRIANGLE_FAN)
+
         circlePoints.forEachIndexed { index, pos ->
             val innerX = pos.x * radius
             val innerZ = pos.z * radius
@@ -384,6 +382,7 @@ object RenderUtils : MinecraftInstance {
                 position.xCoord - renderX + innerX, position.yCoord - renderY, position.zCoord - renderZ + innerZ
             )
         }
+
         glEnd()
 
         glBegin(GL_LINE_LOOP)

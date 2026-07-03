@@ -1315,11 +1315,11 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         get() = max(range + randomizedScanRange, throughWallsRange)
 
     private fun getRange(entity: Entity) =
-        (if (mc.thePlayer.getDistanceToEntityBox(entity) >= throughWallsRange) range + randomizedScanRange else throughWallsRange) - if (mc.thePlayer.isSprinting) rangeSprintReduction else 0F
+        (if (mc.thePlayer.getDistanceToEntityBox(entity) >= throughWallsRange)
+        range + randomizedScanRange else throughWallsRange) - if (mc.thePlayer.isSprinting) rangeSprintReduction else 0F
 
     val isBlockingChestAura
         get() = handleEvents() && target != null
-
 
     override val tag
         get() = targetMode

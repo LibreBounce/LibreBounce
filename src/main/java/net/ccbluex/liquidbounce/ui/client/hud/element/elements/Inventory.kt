@@ -58,26 +58,20 @@ class Inventory : Element("Inventory", 300.0, 50.0) {
 
         val invDisplayName = mc.thePlayer.inventory.displayName.formattedText
 
-        when (title) {
-            "Center" -> font.drawString(
-                invDisplayName,
-                width / 2 - font.getStringWidth(invDisplayName) / 2F,
-                -(font.FONT_HEIGHT).toFloat(),
-                titleColor.rgb,
-                false
-            )
-
-            "Left" -> font.drawString(invDisplayName, padding, -(font.FONT_HEIGHT).toFloat(), titleColor.rgb, false)
-            "Right" -> font.drawString(
-                invDisplayName,
-                width - padding - font.getStringWidth(invDisplayName),
-                -(font.FONT_HEIGHT).toFloat(),
-                titleColor.rgb,
-                false
-            )
+        val textLocation = when (title) {
+            "Left" -> padding
+            "Right" -> width - padding - font.getStringWidth(invDisplayName)
+            else -> width / 2 - font.getStringWidth(invDisplayName) / 2F
         }
 
-        // render items
+        font.drawString(
+            invDisplayName,
+            textLocation,
+            -(font.FONT_HEIGHT).toFloat(),
+            titleColor.rgb,
+            false
+        )
+
         enableGUIStandardItemLighting()
         renderInv(9, 17, 6, 6, font)
         renderInv(18, 26, 6, 24, font)
@@ -99,6 +93,7 @@ class Inventory : Element("Inventory", 300.0, 50.0) {
 
         for (i in slot..endSlot) {
             xOffset += 18
+
             val stack = mc.thePlayer.inventorySlot(i).stack ?: continue
 
             // Prevent overlapping while editing

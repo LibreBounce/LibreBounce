@@ -239,6 +239,7 @@ object Fly : Module("Fly", Category.MOVEMENT, Keyboard.KEY_F) {
             return@handler
 
         val y = startY + 2.0 + (if (mode == "BoostHypixel") 0.42 else 0.0)
+
         drawPlatform(
             y,
             if (mc.thePlayer.entityBoundingBox.maxY < y) Color(0, 255, 0, 90) else Color(255, 0, 0, 90),

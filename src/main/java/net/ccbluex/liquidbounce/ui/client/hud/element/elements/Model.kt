@@ -72,7 +72,7 @@ class Model(x: Double = 40.0, y: Double = 100.0) : Element("Model", x, y) {
             else -> 0F
         }
 
-        pitch = if (pitch > 0) -pitch else abs(pitch)
+        pitch = -pitch
 
         drawEntityOnScreen(yaw, pitch, mc.thePlayer)
 

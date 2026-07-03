@@ -20,11 +20,14 @@ object SpartanYPort : SpeedMode("SpartanYPort") {
                     airMoves = 0
                 } else {
                     mc.timer.timerSpeed = 1.08f
+
                     if (airMoves >= 3) jumpMovementFactor = 0.0275f
+
                     if (airMoves >= 4 && airMoves % 2 == 0) {
                         motionY = -0.32 - nextDouble(endInclusive = 0.009)
                         jumpMovementFactor = 0.0238f
                     }
+
                     airMoves++
                 }
             }

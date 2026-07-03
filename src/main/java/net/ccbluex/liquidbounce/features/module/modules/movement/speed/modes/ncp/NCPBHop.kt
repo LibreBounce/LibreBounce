@@ -15,6 +15,7 @@ import java.math.RoundingMode
 import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.sin
+import kotlin.math.sign
 import kotlin.math.sqrt
 
 object NCPBHop : SpeedMode("NCPBHop") {
@@ -49,9 +50,7 @@ object NCPBHop : SpeedMode("NCPBHop") {
     override fun onMove(event: MoveEvent) {
         val player = mc.thePlayer
 
-        ++timerDelay
-
-        timerDelay %= 5
+        ++timerDelay %= 5
 
         if (timerDelay != 0) {
             mc.timer.timerSpeed = 1f
@@ -73,15 +72,15 @@ object NCPBHop : SpeedMode("NCPBHop") {
         }
 
         if (level == 1 && player.isMoving) {
-            level = 2
+            level++
             moveSpeed = 1.35 * baseMoveSpeed - 0.01
         } else if (level == 2) {
-            level = 3
+            level++
             player.motionY = 0.399399995803833
             event.y = 0.399399995803833
             moveSpeed *= 2.149
         } else if (level == 3) {
-            level = 4
+            level++
             val difference = 0.66 * (lastDist - baseMoveSpeed)
             moveSpeed = lastDist - difference
         } else {
@@ -103,11 +102,9 @@ object NCPBHop : SpeedMode("NCPBHop") {
         if (forward == 0f && strafe == 0f) {
             event.zeroXZ()
         } else if (forward != 0f) {
-            if (strafe >= 1f) {
-                yaw += (if (forward > 0f) -45 else 45).toFloat()
-                strafe = 0f
-            } else if (strafe <= -1f) {
-                yaw += (if (forward > 0f) 45 else -45).toFloat()
+            if (strafe.absoluteValue >= 1f) {
+                val multiplier = -forward.sign * 45f
+                yaw += strafe.sign * multiplier
                 strafe = 0f
             }
 

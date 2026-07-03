@@ -45,12 +45,13 @@ class SpeedGraph(
 
             if (lastTick != player.ticksExisted) {
                 lastTick = player.ticksExisted
-                val zDelta = player.posZ - player.prevPosZ
+
                 val xDelta = player.posX - player.prevPosX
+                val zDelta = player.posZ - player.prevPosZ
 
-                var speed = abs(sqrt(zDelta * zDelta + xDelta * xDelta))
+                var speed = sqrt(xDelta * xDelta + zDelta * zDelta)
 
-                speedList += speed
+                speedList += speed.absoluteValue
 
                 while (speedList.size > width) {
                     speedList.removeAt(0)
@@ -69,7 +70,7 @@ class SpeedGraph(
 
             val size = speedList.size
 
-            val start = (if (size > width) size - width else 0)
+            val start = (size - width).coerceAtLeast(0)
 
             for (i in start until size - 1) {
                 val y = speedList[i] * 10 * yMultiplier

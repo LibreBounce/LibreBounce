@@ -42,8 +42,7 @@ object UNCPHopNew : SpeedMode("UNCPHopNew") {
                 return
             } else {
                 if (hurtTime <= 1) {
-                    airTick++
-                    if (airTick == Speed.onTick) {
+                    if (++airTick == Speed.onTick) {
                         strafe()
                         motionY = -0.1523351824467155
                     }
@@ -56,10 +55,8 @@ object UNCPHopNew : SpeedMode("UNCPHopNew") {
 
             if (onGround) {
                 strafe(speed = MovementUtils.speed.coerceAtLeast(calculateSpeed(0.281).toFloat()))
-            } else {
-                if (Speed.airStrafe) {
-                    strafe(speed = MovementUtils.speed.coerceAtLeast(calculateSpeed(0.2).toFloat()), strength = 0.7)
-                }
+            } else if (Speed.airStrafe) {
+                strafe(speed = MovementUtils.speed.coerceAtLeast(calculateSpeed(0.2).toFloat()), strength = 0.7)
             }
 
             if (Speed.timerBoost) {

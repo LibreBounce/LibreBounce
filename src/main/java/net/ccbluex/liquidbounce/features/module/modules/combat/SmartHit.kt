@@ -16,13 +16,10 @@ import net.ccbluex.liquidbounce.utils.rotation.RotationUtils
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.rotationDifference
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.toRotation
 import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
-import net.minecraft.enchantment.EnchantmentHelper.getKnockbackModifier
 import net.minecraft.entity.Entity
-import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.potion.Potion.blindness
 import net.minecraft.util.MathHelper
-import kotlin.math.max
 import kotlin.math.sqrt
 import kotlin.math.PI
 

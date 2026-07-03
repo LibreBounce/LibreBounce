@@ -70,9 +70,8 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT) {
 
     val onAttack = handler<AttackEvent> { event ->
         if (!left) return@handler
-        val targetEntity = event.targetEntity as EntityLivingBase
 
-        target = targetEntity
+        target = event.targetEntity as EntityLivingBase
     }
 
     val onRender3D = handler<Render3DEvent> {

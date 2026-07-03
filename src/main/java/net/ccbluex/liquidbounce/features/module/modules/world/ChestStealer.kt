@@ -115,6 +115,8 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
     private var stacks = emptyList<ItemStack?>()
 
+    var lastClickIsMissClick = false
+
     var isCustomGUI = false
 
     private suspend fun shouldOperate(): Boolean {
@@ -220,6 +222,8 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
                     }
 
                     if (itemStolenDebug) debug("Stole ${stack.displayName.lowercase()} on slot ${slot}. Delay: ${stealingDelay}ms")
+
+                    lastClickIsMissClick = false
 
                     // If target is sortable to a hotbar slot, steal and sort it at the same time, else shift + left-click
                     clickNextTick(slot, sortableTo ?: 0, if (sortableTo != null) 2 else 1) {
@@ -400,7 +404,9 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
         chestStealerCurrentSlot = slotId
 
-        delay(pauseAfterMissClickLength=
+        lastClickIsMissClick = true
+
+        delay(pauseAfterMissClickLength.toLong())
     }
 
     private fun sortBasedOnOptimumPath(itemsToSteal: MutableList<ItemTakeRecord>) {

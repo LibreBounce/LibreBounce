@@ -242,19 +242,14 @@ class Radar(x: Double = 5.0, y: Double = 130.0) : Element("Radar", x, y) {
                         ).endVertex()
                 }
 
-                if (transform) {
-                    glPopMatrix()
-                }
+                if (transform) glPopMatrix()
 
             }
         }
 
-        if (!triangleMode)
-            tessellator.draw()
+        if (!triangleMode) tessellator.draw()
 
-        if (circleMode) {
-            glDisable(GL_POINT_SMOOTH)
-        }
+        if (circleMode) glDisable(GL_POINT_SMOOTH)
 
         glDisable(GL_POLYGON_SMOOTH)
 

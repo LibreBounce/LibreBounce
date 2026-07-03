@@ -14,6 +14,7 @@ import java.math.BigDecimal
 import java.math.RoundingMode
 import kotlin.math.cos
 import kotlin.math.sin
+import kotlin.math.sign
 import kotlin.math.sqrt
 
 object SNCPBHop : SpeedMode("SNCPBHop") {
@@ -21,6 +22,7 @@ object SNCPBHop : SpeedMode("SNCPBHop") {
     private var moveSpeed = 0.2873
     private var lastDist = 0.0
     private var timerDelay = 0
+
     override fun onEnable() {
         mc.timer.timerSpeed = 1f
         lastDist = 0.0
@@ -45,9 +47,7 @@ object SNCPBHop : SpeedMode("SNCPBHop") {
     override fun onMove(event: MoveEvent) {
         val player = mc.thePlayer ?: return
 
-        ++timerDelay
-
-        timerDelay %= 5
+        ++timerDelay %= 5
 
         if (timerDelay != 0) {
             mc.timer.timerSpeed = 1f
@@ -80,9 +80,9 @@ object SNCPBHop : SpeedMode("SNCPBHop") {
             val difference = 0.66 * (lastDist - baseMoveSpeed)
             moveSpeed = lastDist - difference
         } else if (level == 88) {
+            level++
             moveSpeed = baseMoveSpeed
             lastDist = 0.0
-            level = 89
         } else if (level == 89) {
             if (mc.theWorld.getCollidingBoundingBoxes(
                     player,
@@ -116,13 +116,12 @@ object SNCPBHop : SpeedMode("SNCPBHop") {
             event.x = 0.0
             event.z = 0.0
         } else if (forward != 0f) {
-            if (strafe >= 1f) {
-                yaw += (if (forward > 0f) -45 else 45).toFloat()
-                strafe = 0f
-            } else if (strafe <= -1f) {
-                yaw += (if (forward > 0f) 45 else -45).toFloat()
+            if (strafe.absoluteValue >= 1f) {
+                val multiplier = -forward.sign * 45f
+                yaw += strafe.sign * multiplier
                 strafe = 0f
             }
+
 
             forward = sign(forward)
         }
