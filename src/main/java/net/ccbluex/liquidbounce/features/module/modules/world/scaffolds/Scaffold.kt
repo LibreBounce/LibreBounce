@@ -419,7 +419,6 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
         if (scaffoldMode == "Telly" && player.onGround && player.isMoving && player.isNearEdge(2.5f) && currRotation == player.rotation && ticksUntilJump >= jumpTicks) {
             player.tryJump()
 
-            tellyTicks = 0
             ticksUntilJump = 0
             jumpTicks = jumpTicksRange.random()
         }
@@ -771,6 +770,8 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
                 (if (!isLookingDiagonally) jumpStraightStrafe else jumpDiagonalStrafe).random()
             )
         }
+
+        tellyTicks.reset()
     }
 
     // Visuals
