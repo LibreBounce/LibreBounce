@@ -110,10 +110,10 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
         }
 
     private var easingProgress = 0f
-
     private var receivedId: Int? = null
-
     private var stacks = emptyList<ItemStack?>()
+
+    var pauseAfterMissClickLength = pauseAfterMissClick.random().toLong()
 
     var lastClickIsMissClick = false
 
@@ -148,7 +148,6 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
             return
 
         val player = mc.thePlayer ?: return
-
         val screen = mc.currentScreen ?: return
 
         if (screen !is GuiChest)
@@ -202,8 +201,10 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
                     val missClickingChance = missClickChance * if (missClickChanceDistMult) dist else 1
 
-                    if (missClick && withinChance(missClickingChance))
-                        delay(performMissClick(screen, screen.inventorySlots.inventorySlots[slot]))
+                    if (missClick && withinChance(missClickingChance)) {
+                        performMissClick(screen, screen.inventorySlots.inventorySlots[slot])
+                        delay(pauseAfterMissClickLength)
+                    }
 
                     // Set current slot being stolen for highlighting
                     chestStealerCurrentSlot = slot
@@ -379,7 +380,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
         return itemsToSteal
     }
  
-    private fun performMissClick(screen: GuiChest, targetSlot: Slot): Long {
+    private fun performMissClick(screen: GuiChest, targetSlot: Slot) {
         val closestEmptySlot = screen.inventorySlots.inventorySlots
             .filter { it.stack == null || it.stack.stackSize == 0 }
             .minByOrNull { otherSlot ->
@@ -387,7 +388,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
             } ?: return
 
         val slotId = closestEmptySlot.slotNumber
-        val pauseAfterMissClickLength = pauseAfterMissClick.random().toLong()
+        pauseAfterMissClickLength = pauseAfterMissClick.random().toLong()
 
         clickNextTick(slotId, 0, 1)
 
@@ -397,8 +398,6 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
         chestStealerCurrentSlot = slotId
 
         lastClickIsMissClick = true
-
-        return pauseAfterMissClickLength
     }
 
     private fun sortBasedOnOptimumPath(itemsToSteal: MutableList<ItemTakeRecord>) {
