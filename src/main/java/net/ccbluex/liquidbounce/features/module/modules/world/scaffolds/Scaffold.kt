@@ -771,6 +771,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
             )
         }
 
+        yawVariance = tellyYawVariance.random()
         tellyTicks.reset()
     }
 
@@ -1237,7 +1238,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
         val movingYaw = steps45.minBy { direction - it } + yawVariance    
         val pitch = (72f + (tellyTicks * 0.8f)).coerceAtMost(90f)
 
-        tellyTargetRotation = Rotation(yaw, pitch).fixedSensitivity()
+        tellyTargetRotation = Rotation(movingYaw, pitch).fixedSensitivity()
 
         setRotation(tellyTargetRotation, ticks)
     }

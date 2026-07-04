@@ -846,7 +846,7 @@ object RenderUtils : MinecraftInstance {
 
             for ((cx, cy, startAngle) in corners) {
                 for (i in 0..90 step 10) {
-                    val angle = Math.toRadians(startAngle + i)
+                    val angle = (startAngle + i).toRadians()
                     val x = cx + radiusD * sin(angle)
                     val y = cy + radiusD * cos(angle)
                     pos(x, y, 0.0).endVertex()
@@ -1151,7 +1151,7 @@ object RenderUtils : MinecraftInstance {
 
                 if (corner in cornersToRound.corners) {
                     for (i in 0..90 step 10) {
-                        val angle = Math.toRadians(startAngle + i)
+                        val angle = (startAngle + i).toRadians()
                         val x = cx + radiusD * sin(angle)
                         val y = cy + radiusD * cos(angle)
                         pos(x, y, 0.0).endVertex()
@@ -1283,7 +1283,7 @@ object RenderUtils : MinecraftInstance {
                 for (corner in corners) {
                     val (cx, cy, startAngle) = corner
                     for (i in 0..90 step 10) {
-                        val angle = Math.toRadians(startAngle + i)
+                        val angle = (startAngle + i).toRadians()
                         val px = cx + radiusD * sin(angle)
                         val py = cy + radiusD * cos(angle)
                         val texX = (px - x1) / width

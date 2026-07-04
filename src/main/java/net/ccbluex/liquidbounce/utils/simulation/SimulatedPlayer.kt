@@ -10,6 +10,7 @@ import com.google.common.collect.Lists
 import net.ccbluex.liquidbounce.features.module.modules.movement.NoJumpDelay
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance.Companion.mc
+import net.ccbluex.liquidbounce.utils.extensions.toRadians
 import net.minecraft.block.*
 import net.minecraft.block.material.Material
 import net.minecraft.block.state.IBlockState
@@ -1009,7 +1010,7 @@ class SimulatedPlayer(
             motionY += ((getActivePotionEffect(Potion.jump).amplifier + 1).toFloat() * 0.1f).toDouble()
 
         if (isSprinting()) {
-            val f = rotationYaw * 0.017453292f
+            val f = rotationYaw.toRadians()
 
             motionX -= (MathHelper.sin(f) * 0.2f).toDouble()
             motionZ += (MathHelper.cos(f) * 0.2f).toDouble()

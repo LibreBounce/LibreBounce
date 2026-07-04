@@ -77,7 +77,7 @@ object MovementUtils : MinecraftInstance, Listenable {
         val prevZ = zCoord * (1.0 - strength)
         val useSpeed = speed * strength
 
-        val angle = Math.toRadians(yaw.toDouble())
+        val angle = yaw.toRadiansD()
         xCoord = (-sin(angle) * useSpeed) + prevX
         zCoord = (cos(angle) * useSpeed) + prevZ
         return this

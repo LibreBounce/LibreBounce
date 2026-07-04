@@ -95,7 +95,7 @@ object AntiFireball : Module("AntiFireball", Category.PLAYER) {
                 val pz = player.posZ
                 val pYaw = player.rotationYaw
                 val radiusFactor = radius
-                val yaw = Math.toRadians(getRotations(entX, entZ, px, pz) - pYaw)
+                val yaw = (getRotations(entX, entZ, px, pz) - pYaw).toRadians()
                 val arrowX = t.scaledWidth / 2 + radiusFactor * sin(yaw)
                 val arrowY = t.scaledHeight / 2 - radiusFactor * cos(yaw)
                 val textX = t.scaledWidth / 2 + (radiusFactor - 13) * sin(yaw)
@@ -137,8 +137,8 @@ object AntiFireball : Module("AntiFireball", Category.PLAYER) {
             val arrowSize = size * 2
             val arrowX = x - arrowSize * cos(angle)
             val arrowY = y - arrowSize * sin(angle)
-            val arrowAngle1 = angle + Math.toRadians(degrees)
-            val arrowAngle2 = angle - Math.toRadians(degrees)
+            val arrowAngle1 = angle + degrees.toRadians()
+            val arrowAngle2 = angle - degrees.toRadians()
             RenderUtils.drawLine(
                 x,
                 y,

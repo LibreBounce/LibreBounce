@@ -18,6 +18,7 @@ import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPackets
 import net.ccbluex.liquidbounce.utils.extensions.isInLiquid
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.utils.extensions.tryJump
+import net.ccbluex.liquidbounce.utils.extensions.toRadians
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils.direction
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
@@ -302,7 +303,7 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
         val heightOffset = 1.001335979112147
 
         for (i in -10..10) {
-            val adjustedYaw = yaw + (i * Math.toRadians(8.0))
+            val adjustedYaw = yaw + (i * 8.0.toRadians())
             val x = -sin(adjustedYaw) * 0.2
             val z = cos(adjustedYaw) * 0.2
 

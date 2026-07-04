@@ -14,6 +14,7 @@ import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.extensions.isAnimal
 import net.ccbluex.liquidbounce.utils.extensions.isClientFriend
 import net.ccbluex.liquidbounce.utils.extensions.isMob
+import net.ccbluex.liquidbounce.utils.extensions.toRadians
 import net.ccbluex.liquidbounce.utils.extensions.toRadiansD
 import net.ccbluex.liquidbounce.utils.kotlin.StringUtils.contains
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
@@ -70,7 +71,7 @@ object EntityUtils : MinecraftInstance {
         val playerYaw = player.rotationYawHead
         val playerPitch = player.rotationPitch
 
-        val maxAngleDifferenceRadians = Math.toRadians(maxAngleDifference)
+        val maxAngleDifferenceRadians = maxAngleDifference.toRadians()
 
         val lookVec = Vec3(
             -sin(playerYaw.toRadiansD()),
