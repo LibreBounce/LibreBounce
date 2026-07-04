@@ -106,7 +106,7 @@ object SNCPBHop : SpeedMode("SNCPBHop") {
             moveSpeed = lastDist - lastDist / 159.0
         }
 
-        moveSpeed = moveSpeed.coerceAtLeast(baseMoveSpeed)
+        moveSpeed.coerceAtLeast(baseMoveSpeed)
 
         var forward = player.movementInput.moveForward
         var strafe = player.movementInput.moveStrafe
@@ -116,7 +116,7 @@ object SNCPBHop : SpeedMode("SNCPBHop") {
             event.x = 0.0
             event.z = 0.0
         } else if (forward != 0f) {
-            if (strafe.absoluteValue >= 1f) {
+            if (abs(strafe) >= 1f) {
                 val multiplier = -forward.sign * 45f
                 yaw += strafe.sign * multiplier
                 strafe = 0f

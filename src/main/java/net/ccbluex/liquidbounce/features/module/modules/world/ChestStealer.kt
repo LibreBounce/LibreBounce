@@ -198,32 +198,21 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
                     val dist = if (index + 1 < itemsToSteal.size) {
                         squaredDistanceOfSlots(slot, itemsToSteal[index + 1].index)
-                    } else {
-                        1
-                    }
+                    else 1
 
-                    val missClickingChance = if (missClickChanceDistMult) {
-                        missClickChance * dist
-                    } else {
-                        missClickChance
-                    }
+                    val missClickingChance = missClickChance * if (missClickChanceDistMult) dist else 1
 
-                    if (missClick && withinChance(missClickingChance)) {
-                        performMissClick(screen, screen.inventorySlots.inventorySlots[slot])
-                    }
+                    if (missClick && withinChance(missClickingChance))
+                        delay(performMissClick(screen, screen.inventorySlots.inventorySlots[slot]))
 
                     // Set current slot being stolen for highlighting
                     chestStealerCurrentSlot = slot
 
-                    val stealingDelay = if (smartDelay && index + 1 < itemsToSteal.size) {
-                        delay.random() + (sqrt(dist.toDouble()) * multiplier.random())
-                    } else {
-                        delay.random()
-                    }
+                    val stealingDelay = delay.random() + if (smartDelay && index + 1 < itemsToSteal.size)
+                        sqrt(dist.toDouble()) * multiplier.random()
+                    else 0
 
                     if (itemStolenDebug) debug("Stole ${stack.displayName.lowercase()} on slot ${slot}. Delay: ${stealingDelay}ms")
-
-                    lastClickIsMissClick = false
 
                     // If target is sortable to a hotbar slot, steal and sort it at the same time, else shift + left-click
                     clickNextTick(slot, sortableTo ?: 0, if (sortableTo != null) 2 else 1) {
@@ -250,6 +239,8 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
                         }
                     }
 
+                    lastClickIsMissClick = false
+
                     delay(stealingDelay.toLong())
 
                     if (simulateShortStop && withinChance(shortStopChance)) 
@@ -273,7 +264,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
             stacks = player.openContainer.inventory
         }
 
-        // Wait before the chest gets closed (if it gets closed out of tick loop it could throw npe)
+        // Wait before the chest gets closed (if it gets closed out of tick loop it could throw an NPE)
         nextTick {
             chestStealerCurrentSlot = -1
             chestStealerLastSlot = -1
@@ -388,7 +379,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
         return itemsToSteal
     }
  
-    private fun performMissClick(screen: GuiChest, targetSlot: Slot) {
+    private fun performMissClick(screen: GuiChest, targetSlot: Slot): Long {
         val closestEmptySlot = screen.inventorySlots.inventorySlots
             .filter { it.stack == null || it.stack.stackSize == 0 }
             .minByOrNull { otherSlot ->
@@ -396,8 +387,9 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
             } ?: return
 
         val slotId = closestEmptySlot.slotNumber
+        val pauseAfterMissClickLength = pauseAfterMissClick.random().toLong()
+
         clickNextTick(slotId, 0, 1)
-        val pauseAfterMissClickLength = pauseAfterMissClick.random()
 
         if (itemStolenDebug)
             debug("Miss-clicked on slot $slotId. Delay until next click: ${pauseAfterMissClickLength}ms")
@@ -406,7 +398,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
         lastClickIsMissClick = true
 
-        delay(pauseAfterMissClickLength.toLong())
+        return pauseAfterMissClickLength
     }
 
     private fun sortBasedOnOptimumPath(itemsToSteal: MutableList<ItemTakeRecord>) {

@@ -12,11 +12,7 @@ import net.ccbluex.liquidbounce.utils.extensions.toRadians
 import net.minecraft.potion.Potion
 import java.math.BigDecimal
 import java.math.RoundingMode
-import kotlin.math.cos
-import kotlin.math.max
-import kotlin.math.sin
-import kotlin.math.sign
-import kotlin.math.sqrt
+import kotlin.math.*
 
 object NCPBHop : SpeedMode("NCPBHop") {
     private var level = 1
@@ -26,6 +22,7 @@ object NCPBHop : SpeedMode("NCPBHop") {
 
     override fun onEnable() {
         mc.timer.timerSpeed = 1f
+
         level = if (mc.theWorld.getCollidingBoundingBoxes(
                 mc.thePlayer,
                 mc.thePlayer.entityBoundingBox.offset(0.0, mc.thePlayer.motionY, 0.0)
@@ -35,6 +32,7 @@ object NCPBHop : SpeedMode("NCPBHop") {
 
     override fun onDisable() {
         mc.timer.timerSpeed = 1f
+
         moveSpeed = baseMoveSpeed
         level = 0
     }
@@ -44,7 +42,6 @@ object NCPBHop : SpeedMode("NCPBHop") {
         val zDist = mc.thePlayer.posZ - mc.thePlayer.prevPosZ
         lastDist = sqrt(xDist * xDist + zDist * zDist)
     }
-
 
     // TODO: Recode this mess
     override fun onMove(event: MoveEvent) {
@@ -92,7 +89,7 @@ object NCPBHop : SpeedMode("NCPBHop") {
             moveSpeed = lastDist - lastDist / 159.0
         }
 
-        moveSpeed = max(moveSpeed, baseMoveSpeed)
+        moveSpeed.coerceAtLeast(baseMoveSpeed)
 
         // TODO: Use a proper strafe system
         var forward = player.movementInput.moveForward
@@ -102,7 +99,7 @@ object NCPBHop : SpeedMode("NCPBHop") {
         if (forward == 0f && strafe == 0f) {
             event.zeroXZ()
         } else if (forward != 0f) {
-            if (strafe.absoluteValue >= 1f) {
+            if (abs(strafe) >= 1f) {
                 val multiplier = -forward.sign * 45f
                 yaw += strafe.sign * multiplier
                 strafe = 0f

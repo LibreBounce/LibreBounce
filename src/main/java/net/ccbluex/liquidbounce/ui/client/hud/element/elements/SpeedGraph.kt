@@ -51,7 +51,7 @@ class SpeedGraph(
 
                 var speed = sqrt(xDelta * xDelta + zDelta * zDelta)
 
-                speedList += speed.absoluteValue
+                speedList += abs(speed)
 
                 while (speedList.size > width) {
                     speedList.removeAt(0)
