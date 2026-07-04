@@ -146,12 +146,14 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
     // Rotation Options
     private val modeList =
-        choices("Rotations", arrayOf("Off", "Normal", "Stabilized", "ReverseYaw", "GodBridge"), "Normal")
+        choices("Rotations", arrayOf("Off", "Normal", "Stabilized", "ReverseYaw", "GodBridge", "Telly"), "Normal")
 
     private val options = RotationSettingsWithRotationModes(this, modeList).apply {
         strictValue.excludeWithState()
         resetTicksValue.setSupport { it && scaffoldMode != "Telly" }
     }
+
+    private val tellyYawVariance by floatRange("TellyYawVariance", -0.4f..0.4f, -5f..5f) { options.rotationMode == "Telly" }
 
     // Search options
     val searchMode by choices("SearchMode", arrayOf("Area", "Center"), "Area") { scaffoldMode != "GodBridge" }
@@ -204,17 +206,19 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
     // Zitter
     private var zitterDirection = false
+    private val zitterTimer = TickDelayTimer(zitterTicks.first, zitterTicks.last)
 
     // Delay
     private val delayTimer = DelayTimer(delay.first, delay.last, MSTimer())
 
-    private val zitterTimer = TickDelayTimer(zitterTicks.first, zitterTicks.last)
+    // Telly Rotations
+    private var tellyTicks = TickTimer()
+    private var yawVariance = tellyYawVariance.random()
+    private var tellyTargetRotation: Rotation? = null
 
     // Eagle
     private var placedBlocksWithoutEagle = 0
-
     var eagleSneaking = false
-
     private var requestedStopSneak = false
 
     private val isEagleEnabled
@@ -415,6 +419,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
         if (scaffoldMode == "Telly" && player.onGround && player.isMoving && player.isNearEdge(2.5f) && currRotation == player.rotation && ticksUntilJump >= jumpTicks) {
             player.tryJump()
 
+            tellyTicks = 0
             ticksUntilJump = 0
             jumpTicks = jumpTicksRange.random()
         }
@@ -439,6 +444,12 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
         if (!Tower.isTowering && isGodBridgeEnabled && options.rotationsActive) {
             generateGodBridgeRotations(ticks)
+
+            return@handler
+        }
+
+        if (!Tower.isTowering && options.rotationMode == "Telly" && options.rotationsActive) {
+            generateTellyRotations(ticks)
 
             return@handler
         }
@@ -604,9 +615,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
             5 to 3
         } else if (allowClutching) {
             horizontalClutchBlocks to verticalClutchBlocks
-        } else {
-            1 to 1
-        }
+        } else 1 to 1
 
         BlockPos.getAllInBox(
             blockPosition.add(-horizontal, 0, -horizontal), blockPosition.add(horizontal, -vertical, horizontal)
@@ -787,9 +796,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
             }
         }
 
-        if (!mark) {
-            return@handler
-        }
+        if (!mark) return@handler
 
         repeat(if (scaffoldMode == "Expand") expandLength + 1 else 2) {
             val yaw = player.rotationYaw.toRadiansD()
@@ -1216,6 +1223,22 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
         godBridgeTargetRotation = rotation
 
         setRotation(rotation, ticks)
+    }
+
+    private fun generateTellyRotations(ticks: Int) {
+        val player = mc.thePlayer ?: return
+
+        val direction = if (options.applyServerSide) {
+            MovementUtils.direction.toDegreesF() + 180f
+        } else MathHelper.wrapAngleTo180_float(player.rotationYaw)
+
+        val steps45 = arrayListOf(-135f, -45f, 45f, 135f)
+        val movingYaw = steps45.minBy { direction - it } + yawVariance    
+        val pitch = (72f + (tellyTicks * 0.8f)).coerceAtMost(90f)
+
+        tellyTargetRotation = Rotation(yaw, pitch).fixedSensitivity()
+
+        setRotation(tellyTargetRotation, ticks)
     }
 
     override val tag
