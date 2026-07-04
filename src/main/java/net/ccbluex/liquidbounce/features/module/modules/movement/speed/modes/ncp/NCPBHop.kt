@@ -47,7 +47,9 @@ object NCPBHop : SpeedMode("NCPBHop") {
     override fun onMove(event: MoveEvent) {
         val player = mc.thePlayer
 
-        ++timerDelay %= 5
+        ++timerDelay
+
+        timerDelay %= 5
 
         if (timerDelay != 0) {
             mc.timer.timerSpeed = 1f

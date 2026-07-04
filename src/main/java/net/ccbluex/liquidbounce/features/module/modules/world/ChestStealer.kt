@@ -195,7 +195,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
                     hasTaken = true
 
-                    val dist = if (index + 1 < itemsToSteal.size) {
+                    val dist = if (index + 1 < itemsToSteal.size)
                         squaredDistanceOfSlots(slot, itemsToSteal[index + 1].index)
                     else 1
 

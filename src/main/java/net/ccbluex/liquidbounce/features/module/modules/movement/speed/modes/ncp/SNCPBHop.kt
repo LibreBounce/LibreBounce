@@ -12,10 +12,7 @@ import net.ccbluex.liquidbounce.utils.extensions.toRadiansD
 import net.minecraft.potion.Potion
 import java.math.BigDecimal
 import java.math.RoundingMode
-import kotlin.math.cos
-import kotlin.math.sin
-import kotlin.math.sign
-import kotlin.math.sqrt
+import kotlin.math.*
 
 object SNCPBHop : SpeedMode("SNCPBHop") {
     private var level = 1
@@ -47,7 +44,9 @@ object SNCPBHop : SpeedMode("SNCPBHop") {
     override fun onMove(event: MoveEvent) {
         val player = mc.thePlayer ?: return
 
-        ++timerDelay %= 5
+        ++timerDelay
+
+        timerDelay %= 5
 
         if (timerDelay != 0) {
             mc.timer.timerSpeed = 1f

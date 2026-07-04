@@ -1236,9 +1236,9 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
         val steps45 = arrayListOf(-135f, -45f, 45f, 135f)
         val movingYaw = steps45.minBy { direction - it } + yawVariance    
-        val pitch = (72f + (tellyTicks * 0.8f)).coerceAtMost(90f)
+        val movingPitch = (72f + (tellyTicks.toFloat() * 0.8f)).coerceAtMost(90f)
 
-        tellyTargetRotation = Rotation(movingYaw, pitch).fixedSensitivity()
+        tellyTargetRotation = Rotation(movingYaw, movingPitch).fixedSensitivity()
 
         setRotation(tellyTargetRotation, ticks)
     }
