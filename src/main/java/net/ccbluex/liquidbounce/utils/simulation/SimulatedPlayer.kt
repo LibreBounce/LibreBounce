@@ -295,7 +295,7 @@ class SimulatedPlayer(
 
         if (capabilities.isFlying) {
             if (movementInput.sneak)
-                motionY -= capabilities.flySpeed * 3.0f).toDouble()
+                motionY -= (capabilities.flySpeed * 3.0f).toDouble()
 
             if (movementInput.jump)
                 motionY += (capabilities.flySpeed * 3.0f).toDouble()

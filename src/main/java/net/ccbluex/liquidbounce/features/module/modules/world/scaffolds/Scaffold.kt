@@ -214,7 +214,6 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
     // Telly Rotations
     private var tellyTicks = TickTimer()
     private var yawVariance = tellyYawVariance.random()
-    private var tellyTargetRotation: Rotation? = null
 
     // Eagle
     private var placedBlocksWithoutEagle = 0
@@ -292,9 +291,8 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
         // Telly
         if (player.onGround) ticksUntilJump++
 
-        if (shouldGoDown) {
+        if (shouldGoDown)
             mc.gameSettings.keyBindSneak.pressed = false
-        }
 
         if (slow) {
             if (!slowGround || slowGround && player.onGround) {
@@ -355,9 +353,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
                 if (requestedStopSneak) {
                     requestedStopSneak = false
 
-                    if (!player.onGround) {
-                        shouldEagle = pressedOnKeyboard
-                    }
+                    if (!player.onGround) shouldEagle = pressedOnKeyboard
                 } else if (blockSneaking || alreadySneaking) {
                     return@run
                 }
@@ -427,9 +423,8 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
     val onRotationUpdate = handler<RotationUpdateEvent> {
         val player = mc.thePlayer ?: return@handler
 
-        if (player.ticksExisted == 1) {
+        if (player.ticksExisted == 1)
             launchY = player.posY.roundToInt()
-        }
 
         val rotation = RotationUtils.currentRotation
 
@@ -607,14 +602,15 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
             repeat(expandLength) {
                 if (search(blockPosition.add(x * it, 0, z * it), false, area)) return
             }
+
             return
         }
 
-        val (horizontal, vertical) = if (scaffoldMode == "Telly") {
+        val (horizontal, vertical) = if (scaffoldMode == "Telly")
             5 to 3
-        } else if (allowClutching) {
+        else if (allowClutching)
             horizontalClutchBlocks to verticalClutchBlocks
-        } else 1 to 1
+        else 1 to 1
 
         BlockPos.getAllInBox(
             blockPosition.add(-horizontal, 0, -horizontal), blockPosition.add(horizontal, -vertical, horizontal)
@@ -1236,9 +1232,9 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
         val steps45 = arrayListOf(-135f, -45f, 45f, 135f)
         val movingYaw = steps45.minBy { direction - it } + yawVariance    
-        val movingPitch = (72f + (tellyTicks.toFloat() * 0.8f)).coerceAtMost(90f)
+        val movingPitch = (72f + (tellyTicks * 0.8f)).coerceAtMost(90f)
 
-        tellyTargetRotation = Rotation(movingYaw, movingPitch).fixedSensitivity()
+        val tellyTargetRotation = Rotation(movingYaw, movingPitch).fixedSensitivity()
 
         setRotation(tellyTargetRotation, ticks)
     }

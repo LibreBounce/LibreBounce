@@ -209,9 +209,9 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
                     // Set current slot being stolen for highlighting
                     chestStealerCurrentSlot = slot
 
-                    val stealingDelay = delay.random() + if (smartDelay && index + 1 < itemsToSteal.size)
+                    val stealingDelay = delay.random() + if (smartDelay && index + 1 < itemsToSteal.size) {
                         sqrt(dist.toDouble()) * multiplier.random()
-                    else 0
+                    } else 0
 
                     if (itemStolenDebug) debug("Stole ${stack.displayName.lowercase()} on slot ${slot}. Delay: ${stealingDelay}ms")
 
