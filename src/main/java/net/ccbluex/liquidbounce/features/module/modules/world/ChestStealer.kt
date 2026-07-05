@@ -478,6 +478,6 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
     private fun debug(message: String) = when (chestDebug) {
         "Text" -> chat(message)
         "Notification" -> hud.addNotification(Notification(message, 500L))
-        else -> return
+        else -> null
     }
 }
