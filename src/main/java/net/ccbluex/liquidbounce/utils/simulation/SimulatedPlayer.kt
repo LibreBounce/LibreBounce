@@ -290,17 +290,15 @@ class SimulatedPlayer(
             setSprinting(false)
         }
 
-        if (capabilities.allowFlying && mc.playerController.isSpectatorMode) {
+        if (capabilities.allowFlying && mc.playerController.isSpectatorMode)
             capabilities.isFlying = true
-        }
 
         if (capabilities.isFlying) {
-            if (movementInput.sneak) {
-                motionY -= (capabilities.flySpeed * 3.0f).toDouble()
-            }
-            if (movementInput.jump) {
+            if (movementInput.sneak)
+                motionY -= capabilities.flySpeed * 3.0f).toDouble()
+
+            if (movementInput.jump)
                 motionY += (capabilities.flySpeed * 3.0f).toDouble()
-            }
         }
 
         livingEntityUpdate()
@@ -516,15 +514,13 @@ class SimulatedPlayer(
                         f4 = worldObj.getBlockState(BlockPos(MathHelper.floor_double(posX),
                             MathHelper.floor_double(this.getEntityBoundingBox().minY) - 1,
                             MathHelper.floor_double(posZ)
-                        )
-                        ).block.slipperiness * 0.91f
+                        )).block.slipperiness * 0.91f
                     }
 
                     val f = 0.16277136f / (f4 * f4 * f4)
 
-                    f5 = if (onGround) {
-                        getAIMoveSpeed() * f
-                    } else jumpMovementFactor
+                    f5 = if (onGround) getAIMoveSpeed() * f
+                    else jumpMovementFactor
 
                     moveFlying(strafing, forwards, f5)
                     f4 = 0.91f
