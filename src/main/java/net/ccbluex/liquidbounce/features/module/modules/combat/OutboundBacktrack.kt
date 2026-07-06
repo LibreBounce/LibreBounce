@@ -9,25 +9,25 @@ import com.google.common.collect.Queues
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.modules.combat.Backtrack.runWithModifiedRotation
 import net.ccbluex.liquidbounce.features.module.modules.player.Blink
-import net.ccbluex.liquidbounce.features.module.modules.world.scaffolds.Scaffold
 import net.ccbluex.liquidbounce.injection.implementations.IMixinEntity
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.client.pos
+import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.kotlin.removeEach
-import net.ccbluex.liquidbounce.utils.render.RenderUtils
-import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
-import net.ccbluex.liquidbounce.utils.rotation.Rotation
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
+import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
 import net.minecraft.client.entity.EntityPlayerSP
+import net.minecraft.client.entity.Entity
 import net.minecraft.client.gui.inventory.GuiContainer
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.network.handshake.client.C00Handshake
 import net.minecraft.network.play.client.*
+import net.minecraft.network.play.client.C02PacketUseEntity
+import net.minecraft.network.play.client.C02PacketUseEntity.Action.ATTACK
 import net.minecraft.network.play.server.S08PacketPlayerPosLook
 import net.minecraft.network.play.server.S12PacketEntityVelocity
 import net.minecraft.network.play.server.S27PacketExplosion
@@ -42,6 +42,7 @@ import kotlin.math.min
 
 object OutboundBacktrack : Module("OutboundBacktrack", Category.COMBAT, gameDetecting = false) {
 
+    private val attackDelay by int("AttackDelay", 500, 0..1000, suffix = "ms")
     private val maxDelay by int("MaxDelay", 550, 0..10000, suffix = "ms")
     private val recoilTime by int("RecoilTime", 750, 0..10000, suffix = "ms")
     
@@ -92,7 +93,7 @@ object OutboundBacktrack : Module("OutboundBacktrack", Category.COMBAT, gameDete
 
         val (currPos, prevPos) = player.currPos to player.prevPos
 
-        val simDist = player.getDistanceToBox(targetBox)
+        var simDist = player.getDistanceToBox(targetBox)
         var ticksUntilOutOfRange = 0
         var idx = 0
 
@@ -115,9 +116,9 @@ object OutboundBacktrack : Module("OutboundBacktrack", Category.COMBAT, gameDete
 
         chat("(OutboundBacktrack) Lag compensated hurt time: ${lagCompensatedHurtTime}, time required to hit: ${timeRequired}")
 
-        if (lagCompensatedHurtTime / 50 <= attackDelay ||
+        if (lagCompensatedHurtTime <= attackDelay ||
             ticksUntilOutOfRange * 50 > timeRequired ||
-            delayRequired > maxDelay / 50
+            timeRequired > maxDelay / 50
         ) {
             chat("(OutboundBacktrack) Stopped because one of the variables was false")
             blink()
@@ -198,3 +199,4 @@ object OutboundBacktrack : Module("OutboundBacktrack", Category.COMBAT, gameDete
             }
         }
     }
+}
