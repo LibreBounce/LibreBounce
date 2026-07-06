@@ -20,7 +20,7 @@ import net.ccbluex.liquidbounce.utils.rotation.RotationUtils
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
 import net.minecraft.client.entity.EntityPlayerSP
-import net.minecraft.client.entity.Entity
+import net.minecraft.entity.Entity
 import net.minecraft.client.gui.inventory.GuiContainer
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
@@ -77,10 +77,10 @@ object OutboundBacktrack : Module("OutboundBacktrack", Category.COMBAT, gameDete
             return@handler
         }
 
-        if (!packet is C02PacketUseEntity || !packet.action == ATTACK)
+        if (packet !is C02PacketUseEntity || packet.action != ATTACK)
             return@handler
 
-        if (!packet.entity == target || target == null) return@handler
+        if (!packet.entityID == target || target == null) return@handler
 
         val modifiedInput = RotationUtils.modifiedInput
         val simPlayer = SimulatedPlayer.fromClientPlayer(modifiedInput)
@@ -111,7 +111,7 @@ object OutboundBacktrack : Module("OutboundBacktrack", Category.COMBAT, gameDete
             }
         }
 
-        val lagCompensatedHurtTime = (packet.entity.hurtTime * 50) - player.getPing()
+        val lagCompensatedHurtTime = (target.hurtTime * 50) - player.getPing()
         timeRequired = (attackDelay * 50) - lagCompensatedHurtTime
 
         chat("(OutboundBacktrack) Lag compensated hurt time: ${lagCompensatedHurtTime}, time required to hit: ${timeRequired}")
