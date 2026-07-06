@@ -1231,7 +1231,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
         } else MathHelper.wrapAngleTo180_float(player.rotationYaw)
 
         val steps45 = arrayListOf(-135f, -45f, 45f, 135f)
-        val movingYaw = steps45.minBy { direction - it } + yawVariance
+        val movingYaw = (steps45.minByOrNull { direction - it } ?: 0f) + yawVariance
         val pitchMult = tellyTicks * 0.8f
         val movingPitch = (72f + pitchMult).coerceAtMost(90f)
 
