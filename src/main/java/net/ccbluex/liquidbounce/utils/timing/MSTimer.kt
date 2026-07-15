@@ -12,7 +12,11 @@ class MSTimer {
 
     fun hasTimeLeft(ms: Number) = ms.toLong() + time - System.currentTimeMillis()
 
-    fun reset() = time = System.currentTimeMillis()
+    fun reset() {
+        time = System.currentTimeMillis()
+    }
 
-    fun zero() = time = -1L
+    fun zero() = {
+        time = -1L
+    }
 }

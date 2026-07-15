@@ -8,11 +8,15 @@ package net.ccbluex.liquidbounce.utils.timing
 class TickTimer {
     private var tick = 0
 
-    fun update() = tick++
+    fun update() {
+        tick++
+    }
 
-    fun get(): Long = tick
+    fun reset() {
+        tick = 0
+    }
 
-    fun reset() = tick = 0
+    fun get(): Int = tick
 
     fun hasTimePassed(ticks: Int) = tick >= ticks
 }

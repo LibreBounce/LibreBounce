@@ -22,8 +22,7 @@ object MineSecure : FlyMode("MineSecure") {
         mc.thePlayer?.run {
             capabilities.isFlying = false
 
-            motionY =
-                if (mc.gameSettings.keyBindSneak.isKeyDown) 0.0
+            motionY = if (mc.gameSettings.keyBindSneak.isKeyDown) 0.0
                 else -0.01
 
             strafe(vanillaSpeed, true)
@@ -38,7 +37,12 @@ object MineSecure : FlyMode("MineSecure") {
 
             val yaw = rotationYaw.toRadiansD()
 
-            setPosition(posX - sin(yaw) * 0.4, posY, posZ + cos(yaw) * 0.4)
+            setPosition(
+                posX - sin(yaw) * 0.4,
+                posY,
+                posZ + cos(yaw) * 0.4
+            )
+
             timer.reset()
         }
     }
