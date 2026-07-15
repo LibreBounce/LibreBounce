@@ -1,4 +1,4 @@
- /*
+/*
  * LiquidBounce Hacked Client
  * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
  * https://github.com/CCBlueX/LiquidBounce/
@@ -1200,9 +1200,8 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
                 val isLeaningOffBlock = player.position.down().block == air
                 val nextBlockIsAir = posInDirection.down().block == air
 
-                if (isLeaningOffBlock && nextBlockIsAir) {
+                if (isLeaningOffBlock && nextBlockIsAir)
                     isOnRightSide = !isOnRightSide
-                }
             }
 
             val side = if (options.applyServerSide) {
@@ -1228,8 +1227,8 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
         val steps45 = arrayListOf(-135f, -45f, 45f, 135f)
         val movingYaw = (steps45.minByOrNull { direction - it } ?: 0f) + yawVariance
-        val pitchMult = tellyTicks.get() * 0.8f
-        val movingPitch = (72f + pitchMult).coerceAtMost(90f)
+        val pitchMult = tellyTicks.get() * 4f
+        val movingPitch = (58f + pitchMult).coerceAtMost(90f)
 
         val tellyTargetRotation = Rotation(movingYaw, movingPitch).fixedSensitivity()
 

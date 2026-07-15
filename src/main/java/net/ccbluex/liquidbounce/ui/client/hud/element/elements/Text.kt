@@ -26,6 +26,7 @@ import net.ccbluex.liquidbounce.utils.attack.CPSCounter
 import net.ccbluex.liquidbounce.utils.client.PPSCounter
 import net.ccbluex.liquidbounce.utils.client.ServerUtils
 import net.ccbluex.liquidbounce.utils.extensions.getPing
+import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils
 import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar
 import net.ccbluex.liquidbounce.utils.movement.BPSUtils
@@ -201,8 +202,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1f, side: Side = S
                 "pitchint" -> return DECIMAL_FORMAT.format(rotationPitch).toInt()
                 "food" -> return foodStats.foodLevel
                 "onground" -> return onGround
-                "tbalance", "timerbalance" -> return TimerBalanceUtils.balance
-                "flags", "flagamount", "flagcount" -> return flagCount
+                "moving" -> return isMoving
                 "block", "blocking" -> return (heldItem?.item is ItemSword && (blockStatus || isUsingItem || isBlocking))
                 "sneak", "sneaking" -> return (isSneaking || mc.gameSettings.keyBindSneak.isKeyDown)
                 "sprint", "sprinting" -> return (serverSprintState || isSprinting || mc.gameSettings.keyBindSprint.isKeyDown)
@@ -211,6 +211,8 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1f, side: Side = S
                 "clientslot" -> return inventory?.currentItem
                 "bps", "blockpersecond" -> return DECIMAL_FORMAT.format(BPSUtils.getBPS())
                 "blockamount", "blockcount", "blocks", -> return InventoryUtils.blocksAmount()
+                "tbalance", "timerbalance" -> return TimerBalanceUtils.balance
+                "flags", "flagamount", "flagcount" -> return flagCount
             }
         }
 

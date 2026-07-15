@@ -1292,7 +1292,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
                     }
 
                     when {
-                        player.isMoving && forceBlock -> return false
+                        !player.isMoving && forceBlock -> return true
                         checkWeapon && target!!.heldItem?.item !is ItemSword && target!!.heldItem?.item !is ItemAxe -> return false
                         checkSprinting && !target!!.isSprinting && distance > 2.8f && rotationDifference > 60f / distance -> return false
                         !playerAllowed || !targetAllowed -> return false

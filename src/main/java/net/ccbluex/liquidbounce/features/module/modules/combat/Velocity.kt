@@ -489,10 +489,12 @@ object Velocity : Module("Velocity", Category.COMBAT) {
                     val degreePacket = Math.floorMod(packetDirection.toDegrees().toInt(), 360).toDouble()
                     var angle = abs(degreePacket + degreePlayer)
                     val threshold = 120.0
+
                     angle = Math.floorMod(angle.toInt(), 360).toDouble()
+
                     val inRange = angle in 180 - threshold / 2..180 + threshold / 2
-                    if (inRange)
-                        hasReceivedVelocity = true
+
+                    if (inRange) hasReceivedVelocity = true
                 }
 
                 "Glitch" -> {
