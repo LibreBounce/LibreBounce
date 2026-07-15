@@ -6,6 +6,24 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 ## [Unreleased]
 
+### Added
+
+- `ModuleCase` and `ValueCase` options to the ClickGUI and Arraylist (thatonecoder)
+- `Sentence` case option to many HUD-related elements (thatonecoder)
+- `PreferCriticalHits` option to TickBase; previously hard-coded (thatonecoder)
+- `MissClickBackgroundColor` value to ChestStealer; previously the same as `BackgroundColor` (thatonecoder)
+- Highly experimental `Telly` rotation mode to Scaffold; meant to be used with the `Telly` mode (thatonecoder)
+- `moving` tag to the Text element (thatonecoder)
+
+### Fixed
+
+- SmartHit's hit timing resetting the timer when it shouldn't (thatonecoder)
+- `ForceBlockWhenStill` not working as intended (thatonecoder)
+
+### Changed
+
+- **Breaking:** Rename the `Smart` mode in the `Sorting` value to `Distance`, in ChestStealer (thatonecoder)
+
 ## [0.7.0-beta.2] - 2026-06-26
 
 ### Added
