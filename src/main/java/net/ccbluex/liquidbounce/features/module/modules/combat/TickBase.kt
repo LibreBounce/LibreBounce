@@ -37,6 +37,7 @@ object TickBase : Module("TickBase", Category.COMBAT) {
     private val rangeToAttack by floatRange("RangeToAttack", 3f..5f, 0f..10f, suffix = "blocks")
 
     private val onlyGround by boolean("OnlyGround", false)
+    private val preferCriticalTicks by boolean("PreferCriticalTicks", true)
     private val pauseAfterTick by int("PauseAfterTick", 0, 0..100)
     private val pauseOnFlag by boolean("PauseOnFlag", true)
 
@@ -101,7 +102,7 @@ object TickBase : Module("TickBase", Category.COMBAT) {
             val criticalTick =
                 possibleTicks.filter { (_, tick) -> tick.fallDistance > 0.0f }.minByOrNull { (index, _) -> index }
 
-            val (bestTick, _) = criticalTick ?: possibleTicks.minByOrNull { (index, _) -> index } ?: return@handler
+            val (bestTick, _) = if (preferCriticalTicks && criticalTick != null) criticalTick else possibleTicks.minByOrNull { (index, _) -> index } ?: return@handler
 
             if (bestTick == 0) return@handler
 

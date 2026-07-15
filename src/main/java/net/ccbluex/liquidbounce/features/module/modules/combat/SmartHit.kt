@@ -88,12 +88,12 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         simTargetHurtTime = if (usePredictedTargetHurtTime)
             if (hittable)
             10 + latency else simTargetHurtTime
-            else targetPlayer.hurtTime
+        else targetPlayer.hurtTime
 
-        if (hittable)
+        if (hittable) {
             hitOnTheWay = true
-
-        ticksSinceHit = 0
+            ticksSinceHit = 0
+        }
 
         lastHitCrit = canCritHit(player)
         lastHitBlocked = targetPlayer.isBlocking

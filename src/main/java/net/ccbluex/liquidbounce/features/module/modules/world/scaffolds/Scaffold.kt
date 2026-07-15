@@ -1095,9 +1095,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
         }
 
         when (zitterMode) {
-            "Off" -> {
-                return
-            }
+            "Off" -> return
 
             "Smooth" -> {
                 val notOnGround = !player.onGround || !player.isCollidedVertically
@@ -1130,6 +1128,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
                     if (mc.gameSettings.keyBindRight.isKeyDown) {
                         input.moveStrafe--
                     }
+
                     return
                 }
 
@@ -1137,11 +1136,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
                     zitterDirection = !zitterDirection
                 }
 
-                if (zitterDirection) {
-                    input.moveStrafe = -1f
-                } else {
-                    input.moveStrafe = 1f
-                }
+                input.moveStrafe = if (zitterDirection) -1f else 1f
             }
 
             "Teleport" -> {
@@ -1149,6 +1144,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
                 val yaw = (player.rotationYaw + if (zitterDirection) 90.0 else -90.0).toRadians()
                 player.motionX -= sin(yaw) * zitterStrength
                 player.motionZ += cos(yaw) * zitterStrength
+
                 zitterDirection = !zitterDirection
             }
         }
@@ -1232,7 +1228,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
         val steps45 = arrayListOf(-135f, -45f, 45f, 135f)
         val movingYaw = (steps45.minByOrNull { direction - it } ?: 0f) + yawVariance
-        val pitchMult = tellyTicks * 0.8f
+        val pitchMult = tellyTicks.get() * 0.8f
         val movingPitch = (72f + pitchMult).coerceAtMost(90f)
 
         val tellyTargetRotation = Rotation(movingYaw, movingPitch).fixedSensitivity()
