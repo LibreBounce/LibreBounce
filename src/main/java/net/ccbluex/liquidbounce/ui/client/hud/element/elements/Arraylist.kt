@@ -203,7 +203,6 @@ class Arraylist(
             "tag_right_brace" -> if (moduleTag.isEmpty()) "" else "}"
             "tag_left_chevron" -> if (moduleTag.isEmpty()) "" else "<"
             "tag_right_chevron" -> if (moduleTag.isEmpty()) "" else "<"
-            "tag_right_chevron" -> if (moduleTag.isEmpty()) "" else "<"
             else -> null // Null = don't replace
         }
     }
