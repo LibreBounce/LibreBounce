@@ -9,15 +9,15 @@ import net.minecraft.client.gui.widget.ButtonWidget
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.gui.screen.Screen.getClipboardString
 import net.minecraft.client.gui.screen.Screen.setClipboardString
-import net.minecraft.client.gui.GuiElementTextField
+import net.minecraft.client.gui.widget.TextFieldWidget
 import org.lwjgl.input.Keyboard
 import java.awt.Color
 
 abstract class AbstractScreen : Screen() {
 
-    protected val textFields = arrayListOf<GuiTextField>()
+    protected val textFields = arrayListOf<TextFieldWidget>()
 
-    protected operator fun <T : GuiTextField> T.unaryPlus(): T {
+    protected operator fun <T : TextFieldWidget> T.unaryPlus(): T {
         textFields.add(this)
         return this
     }
@@ -42,8 +42,8 @@ abstract class AbstractScreen : Screen() {
         y: Int,
         width: Int,
         height: Int,
-        block: GuiTextField.() -> Unit = {}
-    ) = +GuiTextField(id, fontRenderer, x, y, width, height).apply(block)
+        block: TextFieldWidget.() -> Unit = {}
+    ) = +TextFieldWidget(id, fontRenderer, x, y, width, height).apply(block)
 
 }
 

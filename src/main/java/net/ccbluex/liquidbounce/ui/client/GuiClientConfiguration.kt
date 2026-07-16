@@ -30,8 +30,8 @@ import net.ccbluex.liquidbounce.utils.render.shader.Background
 import net.ccbluex.liquidbounce.utils.ui.AbstractScreen
 import net.minecraft.client.gui.widget.ButtonWidget
 import net.minecraft.client.gui.screen.Screen
-import net.minecraft.client.gui.GuiElementTextField
-import net.minecraftforge.fml.client.config.GuiSlider
+import net.minecraft.client.gui.widget.TextFieldWidget
+import net.minecraftforge.fml.client.config.GeneratorOptionSlider
 import org.lwjgl.input.Keyboard
 
 class GuiClientConfiguration(val prevGui: Screen) : AbstractScreen() {
@@ -42,11 +42,11 @@ class GuiClientConfiguration(val prevGui: Screen) : AbstractScreen() {
     private lateinit var particlesButton: ButtonWidget
     private lateinit var altsModeButton: ButtonWidget
     private lateinit var unformattedAltsButton: ButtonWidget
-    private lateinit var altsSlider: GuiSlider
+    private lateinit var altsSlider: GeneratorOptionSlider
 
     private lateinit var titleButton: ButtonWidget
 
-    private lateinit var altPrefixField: GuiTextField
+    private lateinit var altPrefixField: TextFieldWidget
 
     override fun initGui() {
         // Title button
@@ -88,7 +88,7 @@ class GuiClientConfiguration(val prevGui: Screen) : AbstractScreen() {
             "Random alts mode (${if (stylisedAlts) "Stylised" else "Legacy"})"
         )
 
-        altsSlider = +GuiSlider(
+        altsSlider = +GeneratorOptionSlider(
             -1,
             width / 2 - 100,
             height / 4 + 210 + 25,
@@ -114,7 +114,7 @@ class GuiClientConfiguration(val prevGui: Screen) : AbstractScreen() {
             it.enabled = stylisedAlts
         }
 
-        altPrefixField = GuiTextField(2, Fonts.font35, width / 2 - 100, height / 4 + 260 + 25, 200, 20)
+        altPrefixField = TextFieldWidget(2, Fonts.font35, width / 2 - 100, height / 4 + 260 + 25, 200, 20)
         altPrefixField.maxStringLength = 16
 
         // Back button

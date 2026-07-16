@@ -77,8 +77,8 @@ public abstract class MixinButtonWidget extends Gui {
 
             float supposedWidth = width;
 
-            if ((Object) this instanceof GuiOptionSlider) {
-                supposedWidth *= ((GuiOptionSlider) (Object) this).sliderValue;
+            if ((Object) this instanceof OptionSliderWidget) {
+                supposedWidth *= ((OptionSliderWidget) (Object) this).sliderValue;
                 hovered = true;
             }
 

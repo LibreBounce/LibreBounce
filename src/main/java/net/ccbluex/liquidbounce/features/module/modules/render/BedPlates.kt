@@ -39,7 +39,7 @@ import net.minecraft.client.render.platform.GlStateManager.resetColor
 import net.minecraft.init.Blocks.bed
 import net.minecraft.item.ItemStack
 import net.minecraft.util.BlockPos
-import net.minecraft.util.Vec3
+import net.minecraft.util.math.Vec3d
 import org.lwjgl.opengl.GL11.*
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
@@ -108,7 +108,7 @@ object BedPlates : Module("BedPlates", Category.RENDER) {
     }
 
     private data class BedState(
-        val pos: Vec3,
+        val pos: Vec3d,
         val surrounding: Collection<SurroundingBlock>,
     )
 

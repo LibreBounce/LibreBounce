@@ -24,7 +24,7 @@ import net.ccbluex.liquidbounce.utils.rotation.RotationUtils
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.setTargetRotation
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.utils.timing.TickedActions.nextTick
-import net.minecraft.client.gui.inventory.GuiInventory
+import net.minecraft.client.gui.screen.inventory.menu.SurvivalInventoryScreen
 import net.minecraft.item.ItemPotion
 import net.minecraft.potion.Potion
 import net.minecraft.potion.Potion.*
@@ -112,7 +112,7 @@ object AutoPot : Module("AutoPot", Category.COMBAT) {
         val potionInInventory = findPotion(9, 36) ?: return@handler
 
         if (hasSpaceInHotbar()) {
-            if (openInventory && mc.currentScreen !is GuiInventory)
+            if (openInventory && mc.currentScreen !is SurvivalInventoryScreen)
                 return@handler
 
             nextTick {
@@ -121,7 +121,7 @@ object AutoPot : Module("AutoPot", Category.COMBAT) {
 
                 mc.playerController.windowClick(0, potionInInventory, 0, 1, player)
 
-                if (simulateInventory && mc.currentScreen !is GuiInventory)
+                if (simulateInventory && mc.currentScreen !is SurvivalInventoryScreen)
                     serverOpenInventory = false
 
                 msTimer.reset()

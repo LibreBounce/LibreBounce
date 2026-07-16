@@ -7,7 +7,7 @@
 package net.ccbluex.liquidbounce.ui.elements
 
 import net.minecraft.client.gui.FontRenderer
-import net.minecraft.client.gui.GuiElementTextField
+import net.minecraft.client.gui.widget.TextFieldWidget
 
 class GuiPasswordField(
     componentId: Int,
@@ -16,7 +16,7 @@ class GuiPasswordField(
     y: Int,
     width: Int,
     height: Int
-) : GuiTextField(componentId, fontrendererObj, x, y, width, height) {
+) : TextFieldWidget(componentId, fontrendererObj, x, y, width, height) {
 
     /**
      * Draw text box

@@ -36,9 +36,9 @@ operator fun Vec3i.component3() = z
  * ```
  * val (x, y, z) = vec
  */
-operator fun Vec3.component1() = xCoord
-operator fun Vec3.component2() = yCoord
-operator fun Vec3.component3() = zCoord
+operator fun Vec3d.component1() = xCoord
+operator fun Vec3d.component2() = yCoord
+operator fun Vec3d.component3() = zCoord
 
 /**
  * Provides:
@@ -69,11 +69,11 @@ operator fun Window.component2() = this.scaledHeight
  * Provides:
  * `vec + othervec`, `vec - othervec`, `vec * number`, `vec / number`, `-vec`
  * */
-operator fun Vec3.plus(vec: Vec3): Vec3 = add(vec)
-operator fun Vec3.minus(vec: Vec3): Vec3 = subtract(vec)
-operator fun Vec3.times(number: Double) = Vec3(xCoord * number, yCoord * number, zCoord * number)
-operator fun Vec3.div(number: Double) = times(1 / number)
-operator fun Vec3.unaryMinus(): Vec3 = times(-1.0)
+operator fun Vec3d.plus(vec:Vec3d3)Vec3dc3 = add(vec)
+operator fun Vec3d.minus(vec:Vec3d3)Vec3dc3 = subtract(vec)
+operator fun Vec3d.times(number: Double) =Vec3d3(xCoord * number, yCoord * number, zCoord * number)
+operator fun Vec3d.div(number: Double) = times(1 / number)
+operator fun Vec3d.unaryMinus():Vec3d3 = times(-1.0)
 
 fun Vec3i.manhattanDistance(another: Vec3i): Int {
     return abs(x - another.x) + abs(y - another.y) + abs(z - another.z)
@@ -82,33 +82,33 @@ fun Vec3i.manhattanDistance(another: Vec3i): Int {
 fun Vec3i.copy(x: Int = this.x, y: Int = this.y, z: Int = this.z) = Vec3i(x, y, z)
 fun BlockPos.copy(x: Int = this.x, y: Int = this.y, z: Int = this.z) = BlockPos(x, y, z)
 fun BlockPos.MutableBlockPos.copy(x: Int = this.x, y: Int = this.y, z: Int = this.z) = BlockPos.MutableBlockPos(x, y, z)
-fun Vec3.copy(x: Double = this.xCoord, y: Double = this.yCoord, z: Double = this.zCoord) = Vec3(x, y, z)
+fun Vec3d.copy(x: Double = this.xCoord, y: Double = this.yCoord, z: Double = this.zCoord) = Vec3d(x, y, z)
 
 fun BlockPos.immutableCopy() = BlockPos(x, y, z)
 fun BlockPos.mutableCopy() = BlockPos.MutableBlockPos(x, y, z)
 
-fun Vec3.offset(direction: EnumFacing, value: Double): Vec3 {
+fun Vec3d.offset(direction: EnumFacing, value: Double): Vec3d {
     val vec3i = direction.directionVec
 
-    return Vec3(
+    return Vec3d(
         this.xCoord + value * vec3i.x.toDouble(),
         this.yCoord + value * vec3i.y.toDouble(),
         this.zCoord + value * vec3i.z.toDouble()
     )
 }
 
-fun Vec3.withY(value: Double, useCurrentY: Boolean = false): Vec3 {
-    return Vec3(xCoord, (if (useCurrentY) yCoord else 0.0) + value, zCoord)
+fun Vec3d.withY(value: Double, useCurrentY: Boolean = false): Vec3d {
+    return Vec3d(xCoord, (if (useCurrentY) yCoord else 0.0) + value, zCoord)
 }
 
-val Vec3_ZERO: Vec3
-    get() = Vec3(0.0, 0.0, 0.0)
+val Vec3d_ZERO: Vec3d
+    get() = Vec3d(0.0, 0.0, 0.0)
 
 val RenderManager.renderPos
-    get() = Vec3(renderPosX, renderPosY, renderPosZ)
+    get() = Vec3d(renderPosX, renderPosY, renderPosZ)
 
-fun Vec3.toFloatArray() = floatArrayOf(xCoord.toFloat(), yCoord.toFloat(), zCoord.toFloat())
-fun Vec3.toDoubleArray() = doubleArrayOf(xCoord, yCoord, zCoord)
+fun Vec3d.toFloatArray() = floatArrayOf(xCoord.toFloat(), yCoord.toFloat(), zCoord.toFloat())
+fun Vec3d.toDoubleArray() = doubleArrayOf(xCoord, yCoord, zCoord)
 
 fun Float.ceilInt() = MathHelper.ceiling_float_int(this)
 fun Float.floorInt() = MathHelper.floor_float(this)
@@ -175,17 +175,17 @@ fun ClosedFloatingPointRange<Float>.random(): Float {
 fun <T> Iterable<T>.shuffled(shuffle: Boolean) = toMutableList().apply { if (shuffle) shuffle() }
 
 fun AxisAlignedBB.lerpWith(x: Double, y: Double, z: Double) =
-    Vec3(minX + (maxX - minX) * x, minY + (maxY - minY) * y, minZ + (maxZ - minZ) * z)
+    Vec3d(minX + (maxX - minX) * x, minY + (maxY - minY) * y, minZ + (maxZ - minZ) * z)
 
-fun AxisAlignedBB.lerpWith(point: Vec3) = lerpWith(point.xCoord, point.yCoord, point.zCoord)
+fun AxisAlignedBB.lerpWith(point: Vec3d) = lerpWith(point.xCoord, point.yCoord, point.zCoord)
 fun AxisAlignedBB.lerpWith(value: Double) = lerpWith(value, value, value)
-fun AxisAlignedBB.offset(other: Vec3) = offset(other.xCoord, other.yCoord, other.zCoord)
+fun AxisAlignedBB.offset(other: Vec3d) = offset(other.xCoord, other.yCoord, other.zCoord)
 fun AxisAlignedBB.offset(other: BlockPos) = offset(other.toVec())
 
 val AxisAlignedBB.center
     get() = lerpWith(0.5)
 
-fun AxisAlignedBB.getPointSequence(step: Double): Sequence<Vec3> {
+fun AxisAlignedBB.getPointSequence(step: Double): Sequence<Vec3d> {
     require(step in 0.0..1.0)
 
     return sequence {
@@ -205,13 +205,13 @@ fun AxisAlignedBB.getPointSequence(step: Double): Sequence<Vec3> {
     }
 }
 
-fun Block.lerpWith(x: Double, y: Double, z: Double) = Vec3(
+fun Block.lerpWith(x: Double, y: Double, z: Double) = Vec3d(
     blockBoundsMinX + (blockBoundsMaxX - blockBoundsMinX) * x,
     blockBoundsMinY + (blockBoundsMaxY - blockBoundsMinY) * y,
     blockBoundsMinZ + (blockBoundsMaxZ - blockBoundsMinZ) * z
 )
 
-fun Vec3.lerpWith(other: Vec3, tickDelta: Double) = Vec3(
+fun Vec3d.lerpWith(other:Vec3d3, tickDelta: Double) = Vec3d(
     xCoord + (other.xCoord - xCoord) * tickDelta,
     yCoord + (other.yCoord - yCoord) * tickDelta,
     zCoord + (other.zCoord - zCoord) * tickDelta
@@ -220,7 +220,7 @@ fun Vec3.lerpWith(other: Vec3, tickDelta: Double) = Vec3(
 fun Rotation.lerpWith(other: Rotation, tickDelta: Number) =
     Rotation((yaw..other.yaw).lerpWith(tickDelta), (pitch..other.pitch).lerpWith(tickDelta))
 
-fun Vec3.lerpWith(other: Vec3, tickDelta: Float) = lerpWith(other, tickDelta.toDouble())
+fun Vec3d.lerpWith(other:Vec3d3, tickDelta: Float) = lerpWith(other, tickDelta.toDouble())
 
 fun ClosedFloatingPointRange<Double>.lerpWith(t: Number) = start + (endInclusive - start) * t.toDouble()
 

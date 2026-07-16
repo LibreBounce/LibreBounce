@@ -860,7 +860,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
             if (!area || isGodBridgeEnabled) {
                 currPlaceRotation =
-                    findTargetPlace(blockPosition, neighbor, Vec3(0.5, 0.5, 0.5), side, eyes, maxReach, raycast)
+                    findTargetPlace(blockPosition, neighbor, Vec3d(0.5, 0.5, 0.5), side, eyes, maxReach, raycast)
                         ?: continue
 
                 placeRotation = compareDifferences(currPlaceRotation, placeRotation)
@@ -869,7 +869,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
                     for (y in 0.1..0.9) {
                         for (z in 0.1..0.9) {
                             currPlaceRotation =
-                                findTargetPlace(blockPosition, neighbor, Vec3(x, y, z), side, eyes, maxReach, raycast)
+                                findTargetPlace(blockPosition, neighbor, Vec3d(x, y, z), side, eyes, maxReach, raycast)
                                     ?: continue
 
                             placeRotation = compareDifferences(currPlaceRotation, placeRotation)
@@ -903,7 +903,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
     /**
      * For expand scaffold, fixes vector values that should match according to direction vector
      */
-    private fun modifyVec(original: Vec3, direction: EnumFacing, pos: Vec3, shouldModify: Boolean): Vec3 {
+    private fun modifyVec(original: Vec3d, direction: EnumFacing, pos:Vec3d3, shouldModify: Boolean)Vec3dc3 {
         if (!shouldModify) {
             return original
         }
@@ -915,19 +915,19 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
         val side = direction.opposite
 
         return when (side.axis ?: return original) {
-            EnumFacing.Axis.Y -> Vec3(x, pos.yCoord + side.directionVec.y.coerceAtLeast(0), z)
-            EnumFacing.Axis.X -> Vec3(pos.xCoord + side.directionVec.x.coerceAtLeast(0), y, z)
-            EnumFacing.Axis.Z -> Vec3(x, y, pos.zCoord + side.directionVec.z.coerceAtLeast(0))
+            EnumFacing.Axis.Y -> Vec3d(x, pos.yCoord + side.directionVec.y.coerceAtLeast(0), z)
+            EnumFacing.Axis.X -> Vec3d(pos.xCoord + side.directionVec.x.coerceAtLeast(0), y, z)
+            EnumFacing.Axis.Z -> Vec3d(x, y, pos.zCoord + side.directionVec.z.coerceAtLeast(0))
         }
 
     }
 
     private fun findTargetPlace(
-        pos: BlockPos, offsetPos: BlockPos, vec3: Vec3, side: EnumFacing, eyes: Vec3, maxReach: Float, raycast: Boolean,
+        pos: BlockPos, offsetPos: BlockPos, vec3: Vec3d, side: EnumFacing, eyes:Vec3d3, maxReach: Float, raycast: Boolean,
     ): PlaceRotation? {
         val world = mc.theWorld ?: return null
 
-        val vec = (Vec3(pos) + vec3).addVector(
+        val vec = (Vec3d(pos) + vec3).addVector(
             side.directionVec.x * vec3.xCoord, side.directionVec.y * vec3.yCoord, side.directionVec.z * vec3.zCoord
         )
 
@@ -963,7 +963,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
             if (raytrace.blockPos == offsetPos && (!raycast || raytrace.sideHit == side.opposite)) {
                 return PlaceRotation(
                     PlaceInfo(
-                        raytrace.blockPos, side.opposite, modifyVec(raytrace.hitVec, side, Vec3(offsetPos), !raycast)
+                        raytrace.blockPos, side.opposite, modifyVec(raytrace.hitVec, side, Vec3d(offsetPos), !raycast)
                     ), currRotation
                 )
             }
@@ -979,7 +979,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
         ) {
             return PlaceRotation(
                 PlaceInfo(
-                    raytrace.blockPos, side.opposite, modifyVec(raytrace.hitVec, side, Vec3(offsetPos), !raycast)
+                    raytrace.blockPos, side.opposite, modifyVec(raytrace.hitVec, side, Vec3d(offsetPos), !raycast)
                 ), rotation
             )
         }
@@ -1039,7 +1039,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
     }
 
     private fun tryToPlaceBlock(
-        stack: ItemStack, clickPos: BlockPos, side: EnumFacing, hitVec: Vec3, attempt: Boolean = false,
+        stack: ItemStack, clickPos: BlockPos, side: EnumFacing, hitVec: Vec3d, attempt: Boolean = false,
         onSuccess: () -> Unit = { }
     ): Boolean {
         val player = mc.thePlayer ?: return false

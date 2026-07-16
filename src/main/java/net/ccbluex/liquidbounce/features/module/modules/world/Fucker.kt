@@ -36,7 +36,7 @@ import net.minecraft.network.play.client.C07PacketPlayerDigging.Action.*
 import net.minecraft.network.play.server.S08PacketPlayerPosLook
 import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing
-import net.minecraft.util.Vec3
+import net.minecraft.util.math.Vec3d
 import java.awt.Color
 
 object Fucker : Module("Fucker", Category.WORLD) {
@@ -77,7 +77,7 @@ object Fucker : Module("Fucker", Category.WORLD) {
     var pos: BlockPos? = null
         private set
     private var obstructingPos: BlockPos? = null
-    private var spawnLocation: Vec3? = null
+    private var spawnLocation: Vec3d? = null
     private var oldPos: BlockPos? = null
     private var blockHitDelay = 0
     private val switchTimer = MSTimer()
@@ -104,7 +104,7 @@ object Fucker : Module("Fucker", Category.WORLD) {
 
         val packet = event.packet
         if (packet is S08PacketPlayerPosLook) {
-            spawnLocation = Vec3(packet.x, packet.y, packet.z)
+            spawnLocation = Vec3d(packet.x, packet.y, packet.z)
         }
     }
 

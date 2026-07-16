@@ -13,7 +13,7 @@ import net.ccbluex.liquidbounce.ui.client.GuiClientFixes;
 import net.ccbluex.liquidbounce.ui.client.altmanager.GuiAltManager;
 import net.ccbluex.liquidbounce.ui.client.tools.GuiTools;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.GuiElementMultiplayer;
+import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
 import net.minecraft.client.gui.screen.Screen;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -22,8 +22,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.io.IOException;
 
-@Mixin(value = GuiMultiplayer.class, priority = 1001)
-public abstract class MixinGuiMultiplayer extends MixinScreen {
+@Mixin(value = MultiplayerScreen.class, priority = 1001)
+public abstract class MixinMultiplayerScreen extends MixinScreen {
 
     private ButtonWidget bungeeCordSpoofButton;
 

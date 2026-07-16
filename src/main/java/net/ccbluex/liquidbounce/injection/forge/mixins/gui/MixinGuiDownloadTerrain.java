@@ -7,9 +7,9 @@
 package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.GuiElementDownloadTerrain;
-import net.minecraft.client.gui.GuiElementMainMenu;
-import net.minecraft.client.gui.GuiElementMultiplayer;
+import net.minecraft.client.gui.screen.DownloadingTerrainScreen;
+import net.minecraft.client.gui.screen.TitleScreen;
+import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.realms.RealmsBridge;
 import org.spongepowered.asm.mixin.Mixin;
@@ -17,8 +17,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(GuiDownloadTerrain.class)
-public abstract class MixinGuiDownloadTerrain extends MixinScreen {
+@Mixin(DownloadingTerrainScreen.class)
+public abstract class MixinDownloadingTerrainScreen extends MixinScreen {
 
     @Inject(method = "initGui", at = @At(value = "RETURN"))
     private void injectDisconnectButton(CallbackInfo ci) {
@@ -35,12 +35,12 @@ public abstract class MixinGuiDownloadTerrain extends MixinScreen {
             mc.loadWorld(null);
 
             if (flag) {
-                mc.displayScreen(new GuiMainMenu());
+                mc.displayScreen(new TitleScreen());
             } else if (flag1) {
                 RealmsBridge realmsbridge = new RealmsBridge();
-                realmsbridge.switchToRealms(new GuiMainMenu());
+                realmsbridge.switchToRealms(new TitleScreen());
             } else {
-                mc.displayScreen(new GuiMultiplayer(new GuiMainMenu()));
+                mc.displayScreen(new MultiplayerScreen(new TitleScreen()));
             }
         }
 

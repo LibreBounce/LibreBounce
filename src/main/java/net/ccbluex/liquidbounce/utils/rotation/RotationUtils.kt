@@ -91,7 +91,7 @@ object RotationUtils : MinecraftInstance, Listenable {
         val block = blockPos.block ?: return null
 
         val eyesPos = player.eyes
-        val startPos = Vec3(blockPos)
+        val startPos = Vec3d(blockPos)
 
         var visibleVec: VecRotation? = null
         var invisibleVec: VecRotation? = null
@@ -201,7 +201,7 @@ object RotationUtils : MinecraftInstance, Listenable {
      * @param predict predict new location of your body
      * @return rotation
      */
-    fun toRotation(vec: Vec3, predict: Boolean = false, fromEntity: Entity = mc.thePlayer): Rotation {
+    fun toRotation(vec: Vec3d, predict: Boolean = false, fromEntity: Entity = mc.thePlayer): Rotation {
         val eyesPos = fromEntity.eyes
         if (predict) eyesPos.addVector(fromEntity.motionX, fromEntity.motionY, fromEntity.motionZ)
 
@@ -485,7 +485,7 @@ object RotationUtils : MinecraftInstance, Listenable {
      * @param [yaw] [pitch] your rotation
      * @return target vector
      */
-    fun getVectorForRotation(yaw: Float, pitch: Float): Vec3 {
+    fun getVectorForRotation(yaw: Float, pitch: Float): Vec3d {
         val yawRad = yaw.toRadians()
         val pitchRad = pitch.toRadians()
 
@@ -494,7 +494,7 @@ object RotationUtils : MinecraftInstance, Listenable {
         val f2 = -MathHelper.cos(-pitchRad)
         val f3 = MathHelper.sin(-pitchRad)
 
-        return Vec3((f1 * f2).toDouble(), f3.toDouble(), (f * f2).toDouble())
+        return Vec3d((f1 * f2).toDouble(), f3.toDouble(), (f * f2).toDouble())
     }
 
     fun getVectorForRotation(rotation: Rotation) = getVectorForRotation(rotation.yaw, rotation.pitch)
@@ -533,7 +533,7 @@ object RotationUtils : MinecraftInstance, Listenable {
     /**
      * Allows you to check if your enemy is behind a wall
      */
-    fun isVisible(vec3: Vec3) = mc.theWorld.rayTraceBlocks(mc.thePlayer.eyes, vec3) == null
+    fun isVisible(vec3: Vec3d) = mc.theWorld.rayTraceBlocks(mc.thePlayer.eyes, vec3) == null
 
     fun isEntityHeightVisible(entity: Entity) = arrayOf(
         entity.hitBox.center.withY(entity.hitBox.maxY), entity.hitBox.center.withY(entity.hitBox.minY)
@@ -621,7 +621,7 @@ object RotationUtils : MinecraftInstance, Listenable {
         )
     }
 
-    fun performRayTrace(blockPos: BlockPos, vec: Vec3, eyes: Vec3 = mc.thePlayer.eyes) =
+    fun performRayTrace(blockPos: BlockPos, vec: Vec3d, eyes:Vec3d3 = mc.thePlayer.eyes) =
         mc.theWorld?.let { blockPos.block?.collisionRayTrace(it, blockPos, eyes, vec) }
 
     fun syncRotations() {

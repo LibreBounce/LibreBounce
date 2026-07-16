@@ -19,7 +19,7 @@ import net.ccbluex.liquidbounce.utils.rotation.AlwaysRotationSettings
 import net.minecraft.block.BlockLiquid
 import net.minecraft.util.AxisAlignedBB.fromBounds
 import net.minecraft.util.BlockPos
-import net.minecraft.util.Vec3
+import net.minecraft.util.math.Vec3d
 import kotlin.math.max
 
 object NoFall : Module("NoFall", Category.PLAYER) {
@@ -86,7 +86,7 @@ object NoFall : Module("NoFall", Category.PLAYER) {
     val fakePlayer by boolean("FakePlayer", true) { mode == "Blink" }.subjective()
 
     var currentMlgBlock: BlockPos? = null
-    var retrievingPos: Vec3? = null
+    var retrievingPos: Vec3d? = null
 
     override fun onEnable() {
         modeModule.onEnable()

@@ -7,7 +7,7 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 
 import net.ccbluex.liquidbounce.utils.render.RenderUtils;
 import net.ccbluex.liquidbounce.utils.render.animation.AnimationUtil;
-import net.minecraft.client.gui.GuiElementTextField;
+import net.minecraft.client.gui.widget.TextFieldWidget;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -15,8 +15,8 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 
 import java.awt.*;
 
-@Mixin(GuiTextField.class)
-public class MixinGuiTextField {
+@Mixin(TextFieldWidget.class)
+public class MixinTextFieldWidget {
 
     @Shadow
     public int xPosition;
@@ -30,8 +30,8 @@ public class MixinGuiTextField {
     @Shadow
     public int height;
 
-    @Redirect(method = "drawTextBox", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiTextField;getEnableBackgroundDrawing()Z"))
-    private boolean injectClientDraw(GuiTextField instance) {
+    @Redirect(method = "drawTextBox", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/TextFieldWidget;getEnableBackgroundDrawing()Z"))
+    private boolean injectClientDraw(TextFieldWidget instance) {
         if (instance.getEnableBackgroundDrawing()) {
             float radius = 1F;
             float width = 2.5F;

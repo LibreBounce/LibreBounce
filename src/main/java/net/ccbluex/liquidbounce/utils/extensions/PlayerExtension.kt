@@ -38,7 +38,7 @@ import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
 import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing
-import net.minecraft.util.Vec3
+import net.minecraft.util.math.Vec3d
 import net.minecraftforge.event.ForgeEventFactory
 
 /**
@@ -49,7 +49,7 @@ fun Entity.getDistanceToEntityBox(entity: Entity) = eyes.distanceTo(getNearestPo
 fun Entity.getDistanceToBox(box: AxisAlignedBB) = eyes.distanceTo(getNearestPointBB(eyes, box))
 
 fun EntityPlayerSP.isNearEdge(threshold: Float): Boolean {
-    val playerPos = Vec3(posX, posY, posZ)
+    val playerPos = Vec3d(posX, posY, posZ)
     val blockPos = BlockPos(playerPos)
 
     val mutable = BlockPos.MutableBlockPos()
@@ -57,7 +57,7 @@ fun EntityPlayerSP.isNearEdge(threshold: Float): Boolean {
         for (z in -3..3) {
             val checkPos = mutable.set(blockPos, x, -1, z)
             if (worldObj.isAirBlock(checkPos)) {
-                val checkPosCenter = Vec3(checkPos.x + 0.5, checkPos.y.toDouble(), checkPos.z + 0.5)
+                val checkPosCenter = Vec3d(checkPos.x + 0.5, checkPos.y.toDouble(), checkPos.z + 0.5)
                 val distance = playerPos.distanceTo(checkPosCenter)
                 if (distance <= threshold) {
                     return true
@@ -68,14 +68,14 @@ fun EntityPlayerSP.isNearEdge(threshold: Float): Boolean {
     return false
 }
 
-fun getNearestPointBB(eye: Vec3, box: AxisAlignedBB): Vec3 {
+fun getNearestPointBB(eye: Vec3d, box: AxisAlignedBB):Vec3d3 {
     val origin = doubleArrayOf(eye.xCoord, eye.yCoord, eye.zCoord)
     val destMins = doubleArrayOf(box.minX, box.minY, box.minZ)
     val destMaxs = doubleArrayOf(box.maxX, box.maxY, box.maxZ)
     for (i in 0..2) {
         if (origin[i] > destMaxs[i]) origin[i] = destMaxs[i] else if (origin[i] < destMins[i]) origin[i] = destMins[i]
     }
-    return Vec3(origin[0], origin[1], origin[2])
+    return Vec3d(origin[0], origin[1], origin[2])
 }
 
 fun EntityPlayer.getPing() = mc.netHandler.getPlayerInfo(uniqueID)?.responseTime ?: 0
@@ -122,17 +122,17 @@ val Entity.hitBox: AxisAlignedBB
         return entityBoundingBox.expand(borderSize, borderSize, borderSize)
     }
 
-val Entity.eyes: Vec3
+val Entity.eyes: Vec3d
     get() = getPositionEyes(1f)
 
-val Entity.prevPos: Vec3
-    get() = Vec3(prevPosX, prevPosY, prevPosZ)
+val Entity.prevPos: Vec3d
+    get() = Vec3d(prevPosX, prevPosY, prevPosZ)
 
-val Entity.currPos: Vec3
+val Entity.currPos: Vec3d
     get() = this.positionVector
 
-val Entity.lastTickPos: Vec3
-    get() = Vec3(lastTickPosX, lastTickPosY, lastTickPosZ)
+val Entity.lastTickPos: Vec3d
+    get() = Vec3d(lastTickPosX, lastTickPosY, lastTickPosZ)
 
 val EntityLivingBase?.isMoving: Boolean
     get() = this?.run { moveForward != 0F || moveStrafing != 0F } == true
@@ -146,7 +146,7 @@ val EntityPlayerSP.groundTicks
 val Entity.isInLiquid: Boolean
     get() = isInWater || isInLava
 
-fun Entity.setPosAndPrevPos(currPos: Vec3, prevPos: Vec3 = currPos, lastTickPos: Vec3? = null) {
+fun Entity.setPosAndPrevPos(currPos: Vec3d, prevPos:Vec3d3 = currPos, lastTickPosVec3dc3? = null) {
     setPosition(currPos.xCoord, currPos.yCoord, currPos.zCoord)
     prevPosX = prevPos.xCoord
     prevPosY = prevPos.yCoord
@@ -178,7 +178,7 @@ var EntityPlayerSP.fixedSensitivityPitch
     }
 
 val IMixinEntity.interpolatedPosition
-    get() = Vec3(lerpX, lerpY, lerpZ)
+    get() = Vec3d(lerpX, lerpY, lerpZ)
 
 // Makes fixedSensitivityYaw, ... += work
 operator fun EntityPlayerSP.plusAssign(value: Float) {
@@ -186,7 +186,7 @@ operator fun EntityPlayerSP.plusAssign(value: Float) {
     fixedSensitivityPitch += value
 }
 
-fun Entity.interpolatedPosition(start: Vec3, extraHeight: Float? = null) = Vec3(
+fun Entity.interpolatedPosition(start: Vec3d, extraHeight: Float? = null) =Vec3d3(
     start.xCoord + (posX - start.xCoord) * mc.timer.renderPartialTicks,
     start.yCoord + (posY - start.yCoord) * mc.timer.renderPartialTicks + (extraHeight ?: 0f),
     start.zCoord + (posZ - start.zCoord) * mc.timer.renderPartialTicks
@@ -219,7 +219,7 @@ infix fun EntityLivingBase.setSprintSafely(new: Boolean) {
 
 // Modified mc.playerController.onPlayerRightClick() that sends correct stack in its C08
 fun EntityPlayerSP.onPlayerRightClick(
-    clickPos: BlockPos, side: EnumFacing, clickVec: Vec3,
+    clickPos: BlockPos, side: EnumFacing, clickVec: Vec3d,
     stack: ItemStack? = inventory.mainInventory[SilentHotbar.currentSlot],
 ): Boolean {
     val controller = mc.playerController ?: return false

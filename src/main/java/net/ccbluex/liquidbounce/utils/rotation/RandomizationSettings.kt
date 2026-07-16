@@ -14,7 +14,7 @@ import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.angleDifference
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.getVectorForRotation
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.lastRotations
 import net.minecraft.util.AxisAlignedBB
-import net.minecraft.util.Vec3
+import net.minecraft.util.math.Vec3d
 import kotlin.math.sign
 
 class RandomizationSettings(owner: Module, val generalApply: () -> Boolean = { true }) : Configurable("Randomization") {
@@ -64,7 +64,7 @@ class RandomizationSettings(owner: Module, val generalApply: () -> Boolean = { t
     val randomizationChosen
         get() = randomizationPattern != "None" && generalApply()
 
-    fun processNextSpot(box: AxisAlignedBB, rotation: Rotation, eyes: Vec3, range: Double) {
+    fun processNextSpot(box: AxisAlignedBB, rotation: Rotation, eyes: Vec3d, range: Double) {
         val intercept = box.calculateIntercept(eyes, eyes + getVectorForRotation(lastRotations.random()) * range)
 
         // Smooth out randomized rotation pattern using previous rotation to simulate natural movement

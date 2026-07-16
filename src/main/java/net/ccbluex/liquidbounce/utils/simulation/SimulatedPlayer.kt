@@ -96,8 +96,8 @@ class SimulatedPlayer(
     private var isSprinting: Boolean,
     private val foodStats: FoodStats,
 ) : MinecraftInstance {
-    val pos: Vec3
-        get() = Vec3(posX, posY, posZ)
+    val pos: Vec3d
+        get() = Vec3d(posX, posY, posZ)
 
     private var moveForward = 0f
     private var moveStrafing = 0f
@@ -892,7 +892,7 @@ class SimulatedPlayer(
             false
         } else {
             var flag = false
-            var vec3 = Vec3(0.0, 0.0, 0.0)
+            var vec3 = Vec3d(0.0, 0.0, 0.0)
             val blockPos = MutableBlockPos()
             for (k1 in i until j) {
                 for (l1 in k until l) {

@@ -20,7 +20,7 @@ import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.isEntityHeightVisib
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.util.Vec3
+import net.minecraft.util.math.Vec3d
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 import kotlin.math.pow
@@ -111,7 +111,7 @@ object Tracers : Module("Tracers", Category.RENDER) {
         val yaw = (player.prevRotationYaw..player.rotationYaw).lerpWith(mc.timer.renderPartialTicks)
         val pitch = (player.prevRotationPitch..player.rotationPitch).lerpWith(mc.timer.renderPartialTicks)
 
-        val eyeVector = Vec3(0.0, 0.0, 1.0).rotatePitch(-pitch.toRadians()).rotateYaw(-yaw.toRadians())
+        val eyeVector = Vec3d(0.0, 0.0, 1.0).rotatePitch(-pitch.toRadians()).rotateYaw(-yaw.toRadians())
 
         glColor(color)
 

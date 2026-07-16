@@ -16,7 +16,7 @@ import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.CLICK_TIMER
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverOpenInventory
 import net.ccbluex.liquidbounce.utils.inventory.hasItemAgePassed
 import net.ccbluex.liquidbounce.utils.inventory.inventorySlot
-import net.minecraft.client.gui.inventory.GuiInventory
+import net.minecraft.client.gui.screen.inventory.menu.SurvivalInventoryScreen
 import net.minecraft.item.ItemStack
 import net.minecraft.network.play.client.C0EPacketClickWindow
 
@@ -38,7 +38,7 @@ object Refill : Module("Refill", Category.PLAYER) {
         if (!CLICK_TIMER.hasTimePassed(delay))
             return@handler
 
-        if (invOpen && mc.currentScreen !is GuiInventory)
+        if (invOpen && mc.currentScreen !is SurvivalInventoryScreen)
             return@handler
 
         if (!canClickInventory())
@@ -88,7 +88,7 @@ object Refill : Module("Refill", Category.PLAYER) {
             }
         }
 
-        if (simulateInventory && serverOpenInventory && mc.currentScreen !is GuiInventory)
+        if (simulateInventory && serverOpenInventory && mc.currentScreen !is SurvivalInventoryScreen)
             serverOpenInventory = false
     }
 

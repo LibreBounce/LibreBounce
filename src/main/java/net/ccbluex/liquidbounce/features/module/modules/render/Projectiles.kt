@@ -165,8 +165,8 @@ object Projectiles : Module("Projectiles", Category.RENDER, gameDetecting = fals
 
             while (!hasLanded && posY > 0.0) {
                 // Set pos before and after
-                var posBefore = Vec3(posX, posY, posZ)
-                var posAfter = Vec3(posX + motionX, posY + motionY, posZ + motionZ)
+                var posBefore = Vec3d(posX, posY, posZ)
+                var posAfter = Vec3d(posX + motionX, posY + motionY, posZ + motionZ)
 
                 // Get landing position
                 landingPosition = world.rayTraceBlocks(
@@ -175,8 +175,8 @@ object Projectiles : Module("Projectiles", Category.RENDER, gameDetecting = fals
                 )
 
                 // Set pos before and after
-                posBefore = Vec3(posX, posY, posZ)
-                posAfter = Vec3(posX + motionX, posY + motionY, posZ + motionZ)
+                posBefore = Vec3d(posX, posY, posZ)
+                posAfter = Vec3d(posX + motionX, posY + motionY, posZ + motionZ)
 
                 // Check if arrow is landing
                 if (landingPosition != null) {
@@ -369,7 +369,7 @@ object Projectiles : Module("Projectiles", Category.RENDER, gameDetecting = fals
                         positions.removeAt(0)
                     }
 
-                    positions.add(ProjectilePos(currentTime, Vec3(entity.posX, entity.posY, entity.posZ), 1.0f))
+                    positions.add(ProjectilePos(currentTime, Vec3d(entity.posX, entity.posY, entity.posZ), 1.0f))
                 }
             }
         }
@@ -387,5 +387,5 @@ object Projectiles : Module("Projectiles", Category.RENDER, gameDetecting = fals
         trailPositions.keys.removeIf { it !in worldEntities && trailPositions[it]?.all { (_, _, alpha) -> alpha <= 0 } == true }
     }
 
-    private data class ProjectilePos(val timestamp: Long, val pos: Vec3, val alpha: Float)
+    private data class ProjectilePos(val timestamp: Long, val pos: Vec3d, val alpha: Float)
 }

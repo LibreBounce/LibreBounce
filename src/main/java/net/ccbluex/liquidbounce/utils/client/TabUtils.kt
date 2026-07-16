@@ -5,11 +5,11 @@
  */
 package net.ccbluex.liquidbounce.utils.client
 
-import net.minecraft.client.gui.GuiElementTextField
+import net.minecraft.client.gui.widget.TextFieldWidget
 import org.lwjgl.input.Keyboard
 
 object TabUtils {
-    fun tab(vararg textFields: GuiTextField) {
+    fun tab(vararg textFields: TextFieldWidget) {
         textFields.forEachIndexed { i, textField ->
             if (textField.isFocused) {
                 textField.isFocused = false

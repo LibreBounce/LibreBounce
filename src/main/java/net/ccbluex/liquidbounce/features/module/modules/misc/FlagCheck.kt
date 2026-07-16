@@ -17,14 +17,14 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.disableGlCap
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawPosBox
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.enableGlCap
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.resetCaps
-import net.minecraft.client.gui.GuiElementGameOver
+import net.minecraft.client.gui.screen.DeathScreen
 import net.minecraft.init.Blocks.air
 import net.minecraft.network.login.server.S00PacketDisconnect
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
 import net.minecraft.network.play.server.S01PacketJoinGame
 import net.minecraft.network.play.server.S08PacketPlayerPosLook
 import net.minecraft.util.BlockPos
-import net.minecraft.util.Vec3
+import net.minecraft.util.math.Vec3d
 import org.lwjgl.opengl.GL11.*
 import kotlin.math.abs
 import kotlin.math.roundToLong
@@ -84,7 +84,7 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true) {
     private var lagbackDetected = false
     private var forceRotateDetected = false
 
-    private var lastServerPos: Vec3? = null
+    private var lastServerPos: Vec3d? = null
     private var serverPosTime = 0L
 
     private var lastMotionX = 0.0
@@ -120,7 +120,7 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true) {
                 val deltaYaw = calculateAngleDelta(packet.yaw, lastYaw)
                 val deltaPitch = calculateAngleDelta(packet.pitch, lastPitch)
 
-                lastServerPos = Vec3(packet.x, packet.y, packet.z)
+                lastServerPos = Vec3d(packet.x, packet.y, packet.z)
                 serverPosTime = System.currentTimeMillis()
 
                 if (deltaYaw > 90 || deltaPitch > 90) {
@@ -168,7 +168,7 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true) {
         val player = mc.thePlayer ?: return@handler
         val world = mc.theWorld ?: return@handler
 
-        if (player.isDead || mc.currentScreen is GuiGameOver || player.ticksExisted <= 100) {
+        if (player.isDead || mc.currentScreen is DeathScreen || player.ticksExisted <= 100) {
             return@handler
         }
 

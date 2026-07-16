@@ -19,7 +19,7 @@ import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.network.play.client.C02PacketUseEntity
 import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
-import net.minecraft.util.Vec3
+import net.minecraft.util.math.Vec3d
 
 object TeleportHit : Module("TeleportHit", Category.COMBAT) {
     private var targetEntity: EntityLivingBase? = null
@@ -44,7 +44,7 @@ object TeleportHit : Module("TeleportHit", Category.COMBAT) {
             }
 
             if (player.fallDistance > 0F) {
-                val rotationVector: Vec3 = getVectorForRotation(player.rotationYaw, 0f)
+                val rotationVector: Vec3d = getVectorForRotation(player.rotationYaw, 0f)
                 val x = player.posX + rotationVector.xCoord * (player.getDistanceToEntity(it) - 1f)
                 val z = player.posZ + rotationVector.zCoord * (player.getDistanceToEntity(it) - 1f)
                 val y = it.posY + 0.25

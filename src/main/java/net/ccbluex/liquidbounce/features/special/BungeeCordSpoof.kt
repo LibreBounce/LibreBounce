@@ -10,7 +10,7 @@ import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.nextInt
-import net.minecraft.network.EnumConnectionState
+import net.minecraft.network.NetworkProtocol
 import net.minecraft.network.handshake.client.C00Handshake
 
 object BungeeCordSpoof : MinecraftInstance, Listenable {
@@ -19,7 +19,7 @@ object BungeeCordSpoof : MinecraftInstance, Listenable {
     val onPacket = handler<PacketEvent> { event ->
         val packet = event.packet
 
-        if (packet is C00Handshake && packet.requestedState == EnumConnectionState.LOGIN) {
+        if (packet is C00Handshake && packet.requestedState == NetworkProtocol.LOGIN) {
             packet.ip = packet.ip + "\u0000" + String.format(
                 "{0}.{1}.{2}.{3}", getRandomIpPart(), getRandomIpPart(), getRandomIpPart(), getRandomIpPart()
             ) + "\u0000" + mc.session.playerID.replace("-", "")

@@ -10,8 +10,8 @@ import net.ccbluex.liquidbounce.utils.client.ServerUtils;
 import net.ccbluex.liquidbounce.utils.render.RenderUtils;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.render.Window;
-import net.minecraft.client.multiplayer.GuiConnecting;
-import net.minecraft.client.multiplayer.ServerData;
+import net.minecraft.client.gui.screen.ConnectScreen;
+import net.minecraft.client.options.ServerListEntry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.spongepowered.asm.mixin.Mixin;
@@ -20,9 +20,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(GuiConnecting.class)
+@Mixin(ConnectScreen.class)
 @SideOnly(Side.CLIENT)
-public abstract class MixinGuiConnecting extends Screen {
+public abstract class MixinConnectScreen extends Screen {
 
     @Inject(method = "connect", at = @At("HEAD"))
     private void headConnect(final String ip, final int port, CallbackInfo callbackInfo) {
@@ -42,7 +42,7 @@ public abstract class MixinGuiConnecting extends Screen {
 
         String ip = "Unknown";
 
-        final ServerData serverData = mc.getCurrentServerData();
+        final ServerListEntry serverData = mc.getCurrentServerData();
         if (serverData != null) {
             ip = ServerUtils.INSTANCE.hideSensitiveInformation(serverData.serverIP);
         }

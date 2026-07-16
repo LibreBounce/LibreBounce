@@ -23,7 +23,7 @@ import net.ccbluex.liquidbounce.utils.rotation.Rotation
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.minecraft.client.entity.EntityPlayerSP
-import net.minecraft.client.gui.inventory.GuiContainer
+import net.minecraft.client.gui.screen.inventory.menu.InventoryMenuScreen
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.network.handshake.client.C00Handshake
@@ -34,7 +34,7 @@ import net.minecraft.network.play.server.S27PacketExplosion
 import net.minecraft.network.status.client.C00PacketServerQuery
 import net.minecraft.network.status.client.C01PacketPing
 import net.minecraft.network.status.server.S01PacketPong
-import net.minecraft.util.Vec3
+import net.minecraft.util.math.Vec3d
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 import java.util.*
@@ -85,7 +85,7 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
     private val resetTimer = MSTimer()
     private var ignoreWholeTick = false
 
-    private var renderData = ModelRenderData(Vec3_ZERO, Rotation.ZERO)
+    private var renderData = ModelRenderData(Vec3d_ZERO, Rotation.ZERO)
 
     override fun onDisable() {
         if (mc.thePlayer == null) return
@@ -129,7 +129,7 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
             return@handler
         }
 
-        if (pauseOnChest && mc.currentScreen is GuiContainer) {
+        if (pauseOnChest && mc.currentScreen is InventoryMenuScreen) {
             blink()
             return@handler
         }
@@ -204,10 +204,10 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
         if (event.worldClient == null) blink(false)
     }
 
-    private fun getTruePositionEyes(player: EntityPlayer): Vec3 {
+    private fun getTruePositionEyes(player: EntityPlayer): Vec3d {
         val mixinPlayer = player as? IMixinEntity
 
-        return Vec3(mixinPlayer!!.trueX, mixinPlayer.trueY + player.getEyeHeight().toDouble(), mixinPlayer.trueZ)
+        return Vec3d(mixinPlayer!!.trueX, mixinPlayer.trueY + player.getEyeHeight().toDouble(), mixinPlayer.trueZ)
     }
 
     val onGameLoop = handler<GameLoopEvent> {
@@ -392,7 +392,7 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
     }
 }
 
-data class ModelRenderData(var pos: Vec3, var rotation: Rotation) {
+data class ModelRenderData(var pos: Vec3d, var rotation: Rotation) {
     fun reset(player: EntityPlayerSP) {
         pos = player.currPos
         rotation = RotationUtils.serverRotation
@@ -406,4 +406,4 @@ data class ModelRenderData(var pos: Vec3, var rotation: Rotation) {
     }
 }
 
-data class PositionData(val pos: Vec3, val time: Long, val body: Float, val rotation: Rotation)
+data class PositionData(val pos: Vec3d, val time: Long, val body: Float, val rotation: Rotation)

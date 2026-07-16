@@ -36,7 +36,7 @@ import net.ccbluex.liquidbounce.utils.ui.AbstractScreen
 import net.minecraft.client.gui.widget.ButtonWidget
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.gui.widget.ListWidget
-import net.minecraft.client.gui.GuiElementTextField
+import net.minecraft.client.gui.widget.TextFieldWidget
 import net.minecraft.util.Session
 import org.lwjgl.input.Keyboard
 import java.awt.Color
@@ -53,11 +53,11 @@ class GuiAltManager(private val prevGui: Screen) : AbstractScreen() {
     private lateinit var removeButton: ButtonWidget
     private lateinit var copyButton: ButtonWidget
     private lateinit var altsList: GuiList
-    private lateinit var searchField: GuiTextField
+    private lateinit var searchField: TextFieldWidget
 
     override fun initGui() {
         val textFieldWidth = (width / 8).coerceAtLeast(70)
-        searchField = GuiTextField(2, Fonts.font40, width - textFieldWidth - 10, 10, textFieldWidth, 20)
+        searchField = TextFieldWidget(2, Fonts.font40, width - textFieldWidth - 10, 10, textFieldWidth, 20)
         searchField.maxStringLength = Int.MAX_VALUE
 
         altsList = GuiList(this).apply {

@@ -21,7 +21,7 @@ import net.minecraft.entity.projectile.EntityLargeFireball
 import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.BlockPos
 import net.minecraft.util.MovingObjectPosition
-import net.minecraft.util.Vec3
+import net.minecraft.util.math.Vec3d
 import java.util.*
 
 object RaycastUtils : MinecraftInstance {
@@ -124,7 +124,7 @@ object RaycastUtils : MinecraftInstance {
             }
 
             var pointedEntity: Entity? = null
-            var vec33: Vec3? = null
+            var vec33: Vec3d? = null
 
             val list = mc.theWorld.getEntities(EntityLivingBase::class.java) {
                 it != null && (it !is EntityPlayer || !it.isSpectator) && it.canBeCollidedWith() && it != entity

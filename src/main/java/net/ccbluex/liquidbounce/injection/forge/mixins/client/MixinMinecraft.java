@@ -14,7 +14,7 @@ import net.ccbluex.liquidbounce.features.module.modules.exploit.MultiActions;
 import net.ccbluex.liquidbounce.features.module.modules.world.FastPlace;
 import net.ccbluex.liquidbounce.file.configs.models.ClientConfiguration;
 import net.ccbluex.liquidbounce.injection.forge.SplashProgressLock;
-import net.ccbluex.liquidbounce.ui.client.GuiMainMenu;
+import net.ccbluex.liquidbounce.ui.client.TitleScreen;
 import net.ccbluex.liquidbounce.utils.attack.CPSCounter;
 import net.ccbluex.liquidbounce.utils.client.ClientUtils;
 import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar;
@@ -143,8 +143,8 @@ public abstract class MixinMinecraft {
 
     @Inject(method = "displayScreen", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;currentScreen:Lnet/minecraft/client/gui/Screen;", shift = At.Shift.AFTER))
     private void handleDisplayScreen(CallbackInfo callbackInfo) {
-        if (currentScreen instanceof net.minecraft.client.gui.GuiElementMainMenu || (currentScreen != null && currentScreen.getClass().getName().startsWith("net.labymod") && currentScreen.getClass().getSimpleName().equals("ModGuiMainMenu"))) {
-            currentScreen = new GuiMainMenu();
+        if (currentScreen instanceof net.minecraft.client.gui.screen.TitleScreen || (currentScreen != null && currentScreen.getClass().getName().startsWith("net.labymod") && currentScreen.getClass().getSimpleName().equals("ModTitleScreen"))) {
+            currentScreen = new TitleScreen();
 
             Window scaledResolution = new Window(mc);
             currentScreen.setWorldAndResolution(mc, scaledResolution.getScaledWidth(), scaledResolution.getScaledHeight());

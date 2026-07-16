@@ -14,8 +14,8 @@ import net.minecraft.block.material.Material
 import net.minecraft.block.state.IBlockState
 import net.minecraft.entity.item.EntityFallingBlock
 import net.minecraft.util.BlockPos
-import net.minecraft.util.Vec3
-import net.minecraft.util.Vec3i
+import net.minecraft.util.math.Vec3d
+import net.minecraft.util.math.Vec3di
 
 val BlockPos.state: IBlockState?
     get() = mc.theWorld?.getBlockState(this)
@@ -29,10 +29,10 @@ val BlockPos.material: Material?
 val BlockPos.isReplaceable: Boolean
     get() = this.material?.isReplaceable ?: false
 
-val BlockPos.center: Vec3
-    get() = Vec3(x + 0.5, y + 0.5, z + 0.5)
+val BlockPos.center: Vec3d
+    get() = Vec3d(x + 0.5, y + 0.5, z + 0.5)
 
-fun BlockPos.toVec() = Vec3(this)
+fun BlockPos.toVec() = Vec3d(this)
 
 fun BlockPos.canBeClicked(): Boolean {
     val world = mc.theWorld ?: return false
@@ -71,7 +71,7 @@ fun BlockPos.getAllInBox(radius: Int): Iterable<BlockPos> {
     return BlockPos.getAllInBox(add(-radius, -radius, -radius), add(radius, radius, radius))
 }
 
-fun Vec3.getAllInBoxMutable(radius: Double): Iterable<BlockPos> {
+fun Vec3d.getAllInBoxMutable(radius: Double): Iterable<BlockPos> {
     val from = BlockPos(
         (xCoord - radius).floorInt(),
         (yCoord - radius).floorInt(),
@@ -85,7 +85,7 @@ fun Vec3.getAllInBoxMutable(radius: Double): Iterable<BlockPos> {
     return BlockPos.getAllInBoxMutable(from, to)
 }
 
-fun Vec3.getAllInBox(radius: Double): Iterable<BlockPos> {
+fun Vec3d.getAllInBox(radius: Double): Iterable<BlockPos> {
     val from = BlockPos(
         (xCoord - radius).floorInt(),
         (yCoord - radius).floorInt(),

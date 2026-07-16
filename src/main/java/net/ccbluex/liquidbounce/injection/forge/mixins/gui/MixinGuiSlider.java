@@ -5,16 +5,16 @@
  */
 package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 
-import net.minecraft.client.gui.GuiElementSlider;
+import net.minecraft.client.gui.screen.world.GeneratorOptionSlider;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-@Mixin(GuiSlider.class)
-public class MixinGuiSlider {
+@Mixin(GeneratorOptionSlider.class)
+public class MixinGeneratorOptionSlider {
 
-    @Redirect(method = "mouseDragged", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiSlider;drawTexturedModalRect(IIIIII)V"), require = 2)
-    public void cancelRectangleDrawing(GuiSlider guiSlider, int x, int y, int textureX, int textureY, int width, int height) {
+    @Redirect(method = "mouseDragged", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GeneratorOptionSlider;drawTexturedModalRect(IIIIII)V"), require = 2)
+    public void cancelRectangleDrawing(GeneratorOptionSlider guiSlider, int x, int y, int textureX, int textureY, int width, int height) {
     }
 
 }

@@ -10,7 +10,7 @@ import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
 import net.minecraft.util.MovingObjectPosition.MovingObjectType.BLOCK
-import net.minecraft.util.Vec3
+import net.minecraft.util.math.Vec3d
 import kotlin.math.ceil
 
 object TeleportCommand : Command("tp", "teleport") {
@@ -40,7 +40,7 @@ object TeleportCommand : Command("tp", "teleport") {
             return
         }
 
-        val moveVec = Vec3(x, y, z) - mc.thePlayer.positionVector
+        val moveVec = Vec3d(x, y, z) - mc.thePlayer.positionVector
 
         val packetsNeeded = ceil(moveVec.lengthVector() / maxDistancePerPacket).toInt()
 

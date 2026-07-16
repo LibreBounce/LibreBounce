@@ -15,13 +15,13 @@ import net.ccbluex.liquidbounce.utils.kotlin.removeEach
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.rotation.Rotation
 import net.minecraft.entity.EntityLivingBase
-import net.minecraft.network.NetworkManager
+import net.minecraft.network.Connection
 import net.minecraft.network.Packet
 import net.minecraft.network.play.INetHandlerPlayClient
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.server.*
 import net.minecraft.util.BlockPos
-import net.minecraft.util.Vec3
+import net.minecraft.util.math.Vec3d
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 import kotlin.concurrent.write
@@ -61,11 +61,11 @@ object PacketUtils : MinecraftInstance, Listenable {
 
         when (val packet = event.packet) {
             is S0CPacketSpawnPlayer -> (world.getEntityByID(packet.entityID) as? IMixinEntity)?.apply {
-                updateSpawnPosition(Vec3(packet.realX, packet.realY, packet.realZ))
+                updateSpawnPosition(Vec3d(packet.realX, packet.realY, packet.realZ))
             }
 
             is S0FPacketSpawnMob -> (world.getEntityByID(packet.entityID) as? IMixinEntity)?.apply {
-                updateSpawnPosition(Vec3(packet.realX, packet.realY, packet.realZ))
+                updateSpawnPosition(Vec3d(packet.realX, packet.realY, packet.realZ))
             }
 
             is S14PacketEntity -> {
@@ -84,7 +84,7 @@ object PacketUtils : MinecraftInstance, Listenable {
             }
 
             is S18PacketEntityTeleport -> (world.getEntityByID(packet.entityId) as? IMixinEntity)?.apply {
-                updateSpawnPosition(Vec3(packet.realX, packet.realY, packet.realZ), true)
+                updateSpawnPosition(Vec3d(packet.realX, packet.realY, packet.realZ), true)
             }
         }
     }
@@ -129,7 +129,7 @@ object PacketUtils : MinecraftInstance, Listenable {
             netManager.dispatchPacket(packet, null)
         } else {
             netManager.readWriteLock.write {
-                netManager.outboundPacketsQueue += NetworkManager.InboundHandlerTuplePacketListener(packet, null)
+                netManager.outboundPacketsQueue += Connection.InboundHandlerTuplePacketListener(packet, null)
             }
         }
     }
@@ -150,7 +150,7 @@ object PacketUtils : MinecraftInstance, Listenable {
     }
 }
 
-fun IMixinEntity.updateSpawnPosition(target: Vec3, ignoreInterpolation: Boolean = false) {
+fun IMixinEntity.updateSpawnPosition(target: Vec3d, ignoreInterpolation: Boolean = false) {
     trueX = target.xCoord
     trueY = target.yCoord
     trueZ = target.zCoord
@@ -241,7 +241,7 @@ var C03PacketPlayer.rotation
     }
 
 var C03PacketPlayer.pos
-    get() = Vec3(x, y, z)
+    get() = Vec3d(x, y, z)
     set(value) {
         x = value.xCoord
         y = value.yCoord

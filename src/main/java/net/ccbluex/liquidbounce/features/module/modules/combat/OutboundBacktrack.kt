@@ -22,7 +22,7 @@ import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
 import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.entity.Entity
-import net.minecraft.client.gui.inventory.GuiContainer
+import net.minecraft.client.gui.screen.inventory.menu.InventoryMenuScreen
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.network.handshake.client.C00Handshake
@@ -35,7 +35,7 @@ import net.minecraft.network.play.server.S27PacketExplosion
 import net.minecraft.network.status.client.C00PacketServerQuery
 import net.minecraft.network.status.client.C01PacketPing
 import net.minecraft.network.status.server.S01PacketPong
-import net.minecraft.util.Vec3
+import net.minecraft.util.math.Vec3d
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 import java.util.*
@@ -147,10 +147,10 @@ object OutboundBacktrack : Module("OutboundBacktrack", Category.COMBAT, gameDete
         if (event.worldClient == null) blink(false)
     }
 
-    private fun getTruePositionEyes(player: EntityPlayer): Vec3 {
+    private fun getTruePositionEyes(player: EntityPlayer): Vec3d {
         val mixinPlayer = player as? IMixinEntity
 
-        return Vec3(mixinPlayer!!.trueX, mixinPlayer.trueY + player.getEyeHeight().toDouble(), mixinPlayer.trueZ)
+        return Vec3d(mixinPlayer!!.trueX, mixinPlayer.trueY + player.getEyeHeight().toDouble(), mixinPlayer.trueZ)
     }
 
     val onGameLoop = handler<GameLoopEvent> {

@@ -19,7 +19,7 @@ import net.ccbluex.liquidbounce.utils.rotation.RotationUtils
 import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.network.play.server.S08PacketPlayerPosLook
-import net.minecraft.util.Vec3
+import net.minecraft.util.math.Vec3d
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 
@@ -230,7 +230,7 @@ object TickBase : Module("TickBase", Category.COMBAT) {
     }
 
     private data class TickData(
-        val position: Vec3,
+        val position: Vec3d,
         val fallDistance: Float,
         val motionX: Double,
         val motionY: Double,

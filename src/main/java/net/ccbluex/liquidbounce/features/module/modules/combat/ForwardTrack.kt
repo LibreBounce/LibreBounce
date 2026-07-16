@@ -18,7 +18,7 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
 import net.minecraft.client.render.platform.GlStateManager.color
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
-import net.minecraft.util.Vec3
+import net.minecraft.util.math.Vec3d
 import org.lwjgl.opengl.GL11.*
 
 object ForwardTrack : Module("ForwardTrack", Category.COMBAT) {
@@ -45,7 +45,7 @@ object ForwardTrack : Module("ForwardTrack", Category.COMBAT) {
         }
     }
 
-    private fun usePosition(entity: Entity): Vec3 {
+    private fun usePosition(entity: Entity): Vec3d {
         entity.run {
             return when {
                 !mc.isSingleplayer -> {
@@ -55,7 +55,7 @@ object ForwardTrack : Module("ForwardTrack", Category.COMBAT) {
                 }
 
                 this is EntityLivingBase -> {
-                    Vec3(newPosX, newPosY, newPosZ)
+                    Vec3d(newPosX, newPosY, newPosZ)
                 }
 
                 else -> positionVector
@@ -78,7 +78,7 @@ object ForwardTrack : Module("ForwardTrack", Category.COMBAT) {
 
             when (espMode) {
                 "Box" -> {
-                    val axisAlignedBB = target.entityBoundingBox.offset(Vec3(x, y, z) - target.currPos)
+                    val axisAlignedBB = target.entityBoundingBox.offset(Vec3d(x, y, z) - target.currPos)
 
                     drawBacktrackBox(axisAlignedBB, color)
                 }

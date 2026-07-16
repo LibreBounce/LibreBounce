@@ -18,10 +18,10 @@ import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.hasScheduledInL
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverOpenContainer
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverOpenInventory
 import net.minecraft.client.gui.screen.ChatScreen
-import net.minecraft.client.gui.GuiElementIngameMenu
+import net.minecraft.client.gui.screen.GameMenuScreen
 import net.minecraft.client.gui.screen.Screen
-import net.minecraft.client.gui.inventory.GuiChest
-import net.minecraft.client.gui.inventory.GuiInventory
+import net.minecraft.client.gui.screen.inventory.menu.ChestScreen
+import net.minecraft.client.gui.screen.inventory.menu.SurvivalInventoryScreen
 import net.minecraft.client.settings.GameSettings
 import net.minecraft.client.settings.KeyBinding
 import net.minecraft.network.play.client.C0DPacketCloseWindow
@@ -37,7 +37,7 @@ object InventoryMove : Module("InventoryMove", Category.MOVEMENT, gameDetecting 
     private val saveC0E by boolean("SaveC0E", false)
     private val noSprintWhenClosed by boolean("NoSprintWhenClosed", false) { saveC0E }
 
-    private val isIntave = (mc.currentScreen is GuiInventory || mc.currentScreen is GuiChest) && intave
+    private val isIntave = (mc.currentScreen is SurvivalInventoryScreen || mc.currentScreen is ChestScreen) && intave
     private val clickWindowList = ArrayDeque<C0EPacketClickWindow>()
 
     private val noMove by +InventoryManager.noMoveValue
@@ -77,12 +77,12 @@ object InventoryMove : Module("InventoryMove", Category.MOVEMENT, gameDetecting 
             return@handler
         }
 
-        if (screen is GuiInventory || screen is GuiChest) {
+        if (screen is SurvivalInventoryScreen || screen is ChestScreen) {
             player.motionX *= inventoryMotion
             player.motionZ *= inventoryMotion
         }
 
-        if (silentlyCloseAndReopen && screen is GuiInventory) {
+        if (silentlyCloseAndReopen && screen is SurvivalInventoryScreen) {
             if (canClickInventory(closeWhenViolating = true) && !reopenOnClick) serverOpenInventory = true
         }
 
@@ -93,11 +93,11 @@ object InventoryMove : Module("InventoryMove", Category.MOVEMENT, gameDetecting 
 
     private fun shouldFreezeInputs(screen: Screen?): Boolean {
         // Don't make player move when chat or ESC menu are open
-        if (screen is ChatScreen || screen is GuiIngameMenu) return true
+        if (screen is ChatScreen || screen is GameMenuScreen) return true
 
         if (undetectable && (screen != null && screen !is GuiHudDesigner && screen !is ClickGui && screen !is PanelStyle)) return true
 
-        if (notInChests && screen is GuiChest) return true
+        if (notInChests && screen is ChestScreen) return true
 
         return false
     }

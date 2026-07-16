@@ -29,7 +29,7 @@ import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
@@ -131,7 +131,7 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
     }
 
     @Inject(method = "getLook", at = @At("HEAD"), cancellable = true)
-    private void getLook(CallbackInfoReturnable<Vec3> callbackInfoReturnable) {
+    private void getLook(CallbackInfoReturnable<Vec3d> callbackInfoReturnable) {
         //noinspection ConstantConditions
         if (((EntityLivingBase) (Object) this) instanceof EntityPlayerSP)
             callbackInfoReturnable.setReturnValue(getVectorForRotation(rotationPitch, rotationYaw));

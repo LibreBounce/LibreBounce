@@ -20,9 +20,9 @@ import net.ccbluex.liquidbounce.utils.io.MiscUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedBorderRect
 import net.ccbluex.liquidbounce.utils.ui.AbstractScreen
 import net.minecraft.client.gui.widget.ButtonWidget
-import net.minecraft.client.gui.GuiElementMultiplayer
-import net.minecraft.client.gui.GuiElementOptions
-import net.minecraft.client.gui.GuiElementSelectWorld
+import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen
+import net.minecraft.client.gui.screen.options.OptionsScreen
+import net.minecraft.client.gui.screen.world.SelectWorldScreen
 import net.minecraft.client.resources.I18n
 import org.lwjgl.input.Mouse
 import org.semver4j.Semver
@@ -42,7 +42,7 @@ data class GitHubRelease(
     val preRelease: Boolean
 )
 
-class GuiMainMenu : AbstractScreen() {
+class TitleScreen : AbstractScreen() {
 
     private var popup: PopupScreen? = null
 
@@ -251,9 +251,9 @@ class GuiMainMenu : AbstractScreen() {
         }
 
         when (button.id) {
-            0 -> mc.displayScreen(GuiOptions(this, mc.gameSettings))
-            1 -> mc.displayScreen(GuiSelectWorld(this))
-            2 -> mc.displayScreen(GuiMultiplayer(this))
+            0 -> mc.displayScreen(OptionsScreen(this, mc.gameSettings))
+            1 -> mc.displayScreen(SelectWorldScreen(this))
+            2 -> mc.displayScreen(MultiplayerScreen(this))
             4 -> mc.shutdown()
             100 -> mc.displayScreen(GuiAltManager(this))
             101 -> mc.displayScreen(GuiServerStatus(this))

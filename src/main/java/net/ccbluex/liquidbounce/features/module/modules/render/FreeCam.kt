@@ -12,7 +12,7 @@ import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
-import net.minecraft.util.Vec3
+import net.minecraft.util.math.Vec3d
 
 object FreeCam : Module("FreeCam", Category.RENDER, gameDetecting = false) {
 
@@ -21,14 +21,14 @@ object FreeCam : Module("FreeCam", Category.RENDER, gameDetecting = false) {
     private val allowCameraInteract by boolean("AllowCameraInteract", true)
     private val allowRotationChange by boolean("AllowRotationChange", true)
 
-    data class PositionPair(var pos: Vec3, var lastPos: Vec3, var extraPos: Vec3 = lastPos) {
-        operator fun plusAssign(velocity: Vec3) {
+    data class PositionPair(var pos: Vec3d, var lastPos:Vec3d3, var extraPos:Vec3d3 = lastPos) {
+        operator fun plusAssign(velocity: Vec3d) {
             extraPos = pos
             lastPos = pos
             pos += velocity
         }
 
-        fun interpolate(tickDelta: Float) = Vec3(
+        fun interpolate(tickDelta: Float) = Vec3d(
             lastPos.xCoord + (pos.xCoord - lastPos.xCoord) * tickDelta,
             lastPos.yCoord + (pos.yCoord - lastPos.yCoord) * tickDelta,
             lastPos.zCoord + (pos.zCoord - lastPos.zCoord) * tickDelta
@@ -37,7 +37,7 @@ object FreeCam : Module("FreeCam", Category.RENDER, gameDetecting = false) {
     }
 
     override fun onEnable() {
-        updatePosition(Vec3_ZERO)
+        updatePosition(Vec3d_ZERO)
     }
 
     override fun onDisable() {
@@ -54,7 +54,7 @@ object FreeCam : Module("FreeCam", Category.RENDER, gameDetecting = false) {
             else -> 0.0f
         }
 
-        val velocity = Vec3_ZERO.apply {
+        val velocity = Vec3d_ZERO.apply {
             strafe(speed = speed, moveCheck = !event.originalInput.isMoving)
 
             this.yCoord = yAxisMovement * speed
@@ -68,7 +68,7 @@ object FreeCam : Module("FreeCam", Category.RENDER, gameDetecting = false) {
     private var originalPos: PositionPair? = null
     private var pos: PositionPair? = null
 
-    private fun updatePosition(velocity: Vec3) {
+    private fun updatePosition(velocity: Vec3d) {
         val player = mc.thePlayer ?: return
 
         pos = (pos ?: PositionPair(player.currPos, player.currPos)).apply { this += velocity }
@@ -101,7 +101,7 @@ object FreeCam : Module("FreeCam", Category.RENDER, gameDetecting = false) {
     fun renderPlayerFromAllPerspectives(entity: EntityLivingBase) =
         handleEvents() && entity == mc.thePlayer || entity.isPlayerSleeping
 
-    fun modifyRaycast(original: Vec3, entity: Entity, tickDelta: Float): Vec3 {
+    fun modifyRaycast(original: Vec3d, entity: Entity, tickDelta: Float):Vec3d3 {
         if (!handleEvents() || entity != mc.thePlayer || !allowCameraInteract) {
             return original
         }

@@ -37,7 +37,7 @@ import net.ccbluex.liquidbounce.utils.timing.TickedActions.isTicked
 import net.ccbluex.liquidbounce.utils.timing.TickedActions.nextTick
 import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomDelay
 import net.minecraft.client.render.Window
-import net.minecraft.client.gui.inventory.GuiChest
+import net.minecraft.client.gui.screen.inventory.menu.ChestScreen
 import net.minecraft.inventory.Slot
 import net.minecraft.entity.EntityLiving.getArmorPosition
 import net.minecraft.init.Blocks.chest
@@ -127,7 +127,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
             if (mc.playerController?.currentGameType?.isSurvivalOrAdventure != true)
                 return false
 
-            if (mc.currentScreen !is GuiChest)
+            if (mc.currentScreen !is ChestScreen)
                 return false
 
             if (mc.thePlayer?.openContainer?.windowId != receivedId)
@@ -150,7 +150,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
         val player = mc.thePlayer ?: return
         val screen = mc.currentScreen ?: return
 
-        if (screen !is GuiChest)
+        if (screen !is ChestScreen)
             return
 
         isCustomGUI = chestTitle && chest.localizedName !in (screen.lowerChestInventory ?: return).name
@@ -380,7 +380,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
         return itemsToSteal
     }
  
-    private fun performMissClick(screen: GuiChest, targetSlot: Slot) {
+    private fun performMissClick(screen: ChestScreen, targetSlot: Slot) {
         val closestEmptySlot = screen.inventorySlots.inventorySlots
             .filter { it.stack == null || it.stack.stackSize == 0 }
             .minByOrNull { otherSlot ->
@@ -425,7 +425,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
     // Progress bar
     val onRender2D = handler<Render2DEvent> { event ->
-        if (!progressBar || mc.currentScreen !is GuiChest)
+        if (!progressBar || mc.currentScreen !is ChestScreen)
             return@handler
 
         val progress = progress ?: return@handler

@@ -30,7 +30,7 @@ import net.minecraft.item.ItemBucket
 import net.minecraft.network.play.client.C03PacketPlayer.C05PacketPlayerLook
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.math.MathHelper
-import net.minecraft.util.Vec3
+import net.minecraft.util.math.Vec3d
 import kotlin.math.atan2
 import kotlin.math.sqrt
 
@@ -110,7 +110,7 @@ object Ignite : Module("Ignite", Category.COMBAT) {
                             )
                         )
 
-                        if (player.onPlayerRightClick(neighbor, side.opposite, Vec3(side.directionVec), itemStack)) {
+                        if (player.onPlayerRightClick(neighbor, side.opposite, Vec3d(side.directionVec), itemStack)) {
                             player.swingItem()
                             break
                         }

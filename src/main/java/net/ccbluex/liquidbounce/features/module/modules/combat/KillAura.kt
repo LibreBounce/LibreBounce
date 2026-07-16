@@ -55,7 +55,7 @@ import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.utils.timing.TickTimer
 import net.ccbluex.liquidbounce.utils.timing.TickedActions.nextTick
 import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomClickDelay
-import net.minecraft.client.gui.inventory.GuiContainer
+import net.minecraft.client.gui.screen.inventory.menu.InventoryMenuScreen
 import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
@@ -378,7 +378,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     }
 
     fun update() {
-        if (cancelRun || (noInventoryAttack && (mc.currentScreen is GuiContainer || System.currentTimeMillis() - containerOpen < noInventoryDelay))) return
+        if (cancelRun || (noInventoryAttack && (mc.currentScreen is InventoryMenuScreen || System.currentTimeMillis() - containerOpen < noInventoryDelay))) return
 
         // Update target
         updateTarget()
@@ -436,10 +436,10 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             return@handler
         }
 
-        if (noInventoryAttack && (mc.currentScreen is GuiContainer || System.currentTimeMillis() - containerOpen < noInventoryDelay)) {
+        if (noInventoryAttack && (mc.currentScreen is InventoryMenuScreen || System.currentTimeMillis() - containerOpen < noInventoryDelay)) {
             target = null
             hittable = false
-            if (mc.currentScreen is GuiContainer) containerOpen = System.currentTimeMillis()
+            if (mc.currentScreen is InventoryMenuScreen) containerOpen = System.currentTimeMillis()
             return@handler
         }
 
@@ -538,10 +538,10 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             return@handler
         }
 
-        if (noInventoryAttack && (mc.currentScreen is GuiContainer || System.currentTimeMillis() - containerOpen < noInventoryDelay)) {
+        if (noInventoryAttack && (mc.currentScreen is InventoryMenuScreen || System.currentTimeMillis() - containerOpen < noInventoryDelay)) {
             target = null
             hittable = false
-            if (mc.currentScreen is GuiContainer) containerOpen = System.currentTimeMillis()
+            if (mc.currentScreen is InventoryMenuScreen) containerOpen = System.currentTimeMillis()
             return@handler
         }
 
@@ -1154,7 +1154,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     }
 
     private fun checkIfAimingAtBox(
-        targetToCheck: Entity, currentRotation: Rotation, eyes: Vec3, onSuccess: () -> Unit,
+        targetToCheck: Entity, currentRotation: Rotation, eyes: Vec3d, onSuccess: () -> Unit,
         onFail: () -> Unit = { },
     ) {
         if (targetToCheck.hitBox.isVecInside(eyes)) {
@@ -1325,4 +1325,4 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         get() = targetMode
 }
 
-data class SwingFailData(val vec3: Vec3, val startTime: Long)
+data class SwingFailData(val vec3: Vec3d, val startTime: Long)

@@ -15,7 +15,7 @@ import net.ccbluex.liquidbounce.utils.io.MiscUtils
 import net.ccbluex.liquidbounce.utils.ui.AbstractScreen
 import net.minecraft.client.gui.widget.ButtonWidget
 import net.minecraft.client.gui.screen.Screen
-import net.minecraft.client.gui.GuiElementTextField
+import net.minecraft.client.gui.widget.TextFieldWidget
 import org.lwjgl.input.Keyboard
 import java.awt.Color
 import java.net.InetSocketAddress
@@ -27,10 +27,10 @@ class GuiPortScanner(private val prevGui: Screen) : AbstractScreen() {
 
     private val ports = LinkedHashSet<Int>()
 
-    private lateinit var hostField: GuiTextField
-    private lateinit var minPortField: GuiTextField
-    private lateinit var maxPortField: GuiTextField
-    private lateinit var parallelismField: GuiTextField
+    private lateinit var hostField: TextFieldWidget
+    private lateinit var minPortField: TextFieldWidget
+    private lateinit var maxPortField: TextFieldWidget
+    private lateinit var parallelismField: TextFieldWidget
     private lateinit var buttonToggle: ButtonWidget
     private var status = "§7Waiting..."
     private var host: String = ""
@@ -46,13 +46,13 @@ class GuiPortScanner(private val prevGui: Screen) : AbstractScreen() {
     override fun initGui() {
         Keyboard.enableRepeatEvents(true)
 
-        hostField = GuiTextField(0, Fonts.minecraftFont, width / 2 - 100, 60, 200, 20).apply {
+        hostField = TextFieldWidget(0, Fonts.minecraftFont, width / 2 - 100, 60, 200, 20).apply {
             isFocused = true
             maxStringLength = Int.MAX_VALUE
             text = "localhost"
         }
 
-        minPortField = GuiTextField(1, Fonts.minecraftFont, width / 2 - 100, 90, 90, 20).apply {
+        minPortField = TextFieldWidget(1, Fonts.minecraftFont, width / 2 - 100, 90, 90, 20).apply {
             maxStringLength = 5
             text = "1"
             setValidator {
@@ -61,7 +61,7 @@ class GuiPortScanner(private val prevGui: Screen) : AbstractScreen() {
             }
         }
 
-        maxPortField = GuiTextField(2, Fonts.minecraftFont, width / 2 + 10, 90, 90, 20).apply {
+        maxPortField = TextFieldWidget(2, Fonts.minecraftFont, width / 2 + 10, 90, 90, 20).apply {
             maxStringLength = 5
             text = "65535"
             setValidator {
@@ -70,7 +70,7 @@ class GuiPortScanner(private val prevGui: Screen) : AbstractScreen() {
             }
         }
 
-        parallelismField = GuiTextField(3, Fonts.minecraftFont, width / 2 - 100, 120, 200, 20).apply {
+        parallelismField = TextFieldWidget(3, Fonts.minecraftFont, width / 2 - 100, 120, 200, 20).apply {
             maxStringLength = Int.MAX_VALUE
             text = "64"
             setValidator {

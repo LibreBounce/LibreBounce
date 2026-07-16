@@ -6,14 +6,14 @@
 package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 
 import net.ccbluex.liquidbounce.features.module.modules.render.AntiBlind;
-import net.minecraft.client.gui.achievement.GuiAchievement;
+import net.minecraft.client.gui.ToastGui;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(GuiAchievement.class)
-public class MixinGuiAchievement {
+@Mixin(ToastGui.class)
+public class MixinToastGui {
 
     @Inject(method = "displayAchievement", at = @At("HEAD"), cancellable = true)
     private void injectAchievements(CallbackInfo ci) {

@@ -36,7 +36,7 @@ import net.minecraft.network.play.client.C0BPacketEntityAction
 import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.MovingObjectPosition
-import net.minecraft.util.Vec3
+import net.minecraft.util.math.Vec3d
 import net.minecraftforge.event.ForgeEventFactory
 import java.awt.Color
 
@@ -178,7 +178,7 @@ object BedDefender : Module("BedDefender", Category.WORLD) {
         }
     }
 
-    private fun placeBlock(blockPos: BlockPos, side: EnumFacing, hitVec: Vec3) {
+    private fun placeBlock(blockPos: BlockPos, side: EnumFacing, hitVec: Vec3d) {
         val player = mc.thePlayer ?: return
 
         var stack = player.inventorySlot(SilentHotbar.currentSlot + 36).stack ?: return
@@ -218,7 +218,7 @@ object BedDefender : Module("BedDefender", Category.WORLD) {
         stack: ItemStack,
         clickPos: BlockPos,
         side: EnumFacing,
-        hitVec: Vec3,
+        hitVec: Vec3d,
     ): Boolean {
         val player = mc.thePlayer ?: return false
 

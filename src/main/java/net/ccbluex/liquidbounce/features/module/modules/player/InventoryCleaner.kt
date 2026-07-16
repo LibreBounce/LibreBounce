@@ -29,7 +29,7 @@ import net.ccbluex.liquidbounce.utils.timing.TickedActions.isTicked
 import net.minecraft.block.BlockContainer
 import net.minecraft.block.BlockFalling
 import net.minecraft.block.BlockWorkbench
-import net.minecraft.client.gui.inventory.GuiInventory
+import net.minecraft.client.gui.screen.inventory.menu.SurvivalInventoryScreen
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.entity.item.EntityItem
 import net.minecraft.init.Blocks.*
@@ -116,7 +116,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
             if (mc.thePlayer?.openContainer?.windowId != 0)
                 return false
 
-            if (invOpen && mc.currentScreen !is GuiInventory)
+            if (invOpen && mc.currentScreen !is SurvivalInventoryScreen)
                 return false
 
             // Wait till NoMove check isn't violated

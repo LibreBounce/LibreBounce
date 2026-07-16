@@ -188,7 +188,7 @@ object RotationUpdateEvent : Event()
 class RotationSetEvent(var yawDiff: Float, var pitchDiff: Float) : CancellableEvent()
 
 class CameraPositionEvent(
-    private val currPos: Vec3, private val prevPos: Vec3, private val lastTickPos: Vec3,
+    private val currPos: Vec3d, private val prevPos: Vec3d, private val lastTickPos: Vec3d,
     var result: FreeCam.PositionPair? = null,
 ) : Event() {
     fun withY(value: Double) {

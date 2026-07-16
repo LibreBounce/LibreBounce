@@ -13,7 +13,7 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.client.config.ButtonWidgetExt;
-import net.minecraftforge.fml.client.config.GuiSlider;
+import net.minecraftforge.fml.client.config.GeneratorOptionSlider;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.spongepowered.asm.mixin.Mixin;
@@ -55,8 +55,8 @@ public abstract class MixinButtonWidgetExt extends ButtonWidget {
 
         float supposedWidth = width;
 
-        if ((Object) this instanceof GuiSlider) {
-            supposedWidth *= (float) ((GuiSlider) (Object) this).sliderValue;
+        if ((Object) this instanceof GeneratorOptionSlider) {
+            supposedWidth *= (float) ((GeneratorOptionSlider) (Object) this).sliderValue;
             hovered = true;
         }
 

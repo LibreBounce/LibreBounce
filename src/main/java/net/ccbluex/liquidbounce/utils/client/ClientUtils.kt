@@ -7,7 +7,7 @@ package net.ccbluex.liquidbounce.utils.client
 
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME
 import net.minecraft.client.settings.GameSettings
-import net.minecraft.network.NetworkManager
+import net.minecraft.network.Connection
 import net.minecraft.network.login.client.C01PacketEncryptionResponse
 import net.minecraft.network.login.server.S01PacketEncryptionRequest
 import net.minecraft.util.ChatComponentText
@@ -41,7 +41,7 @@ object ClientUtils : MinecraftInstance {
     }
 
     fun sendEncryption(
-        networkManager: NetworkManager,
+        networkManager: Connection,
         secretKey: SecretKey?,
         publicKey: PublicKey?,
         encryptionRequest: S01PacketEncryptionRequest

@@ -17,7 +17,7 @@ import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverOpenInvento
 import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.utils.timing.TickedActions.nextTick
-import net.minecraft.client.gui.inventory.GuiInventory
+import net.minecraft.client.gui.screen.inventory.menu.SurvivalInventoryScreen
 import net.minecraft.init.Items
 import net.minecraft.network.play.client.C07PacketPlayerDigging
 import net.minecraft.network.play.client.C07PacketPlayerDigging.Action.DROP_ITEM
@@ -88,7 +88,7 @@ object AutoSoup : Module("AutoSoup", Category.COMBAT) {
         val bowlInHotbar = InventoryUtils.findItem(36, 44, Items.bowl)
 
         if (bowl == "Move" && bowlInHotbar != null) {
-            if (openInventory && mc.currentScreen !is GuiInventory)
+            if (openInventory && mc.currentScreen !is SurvivalInventoryScreen)
                 return@handler
 
             var bowlMovable = false
@@ -114,19 +114,19 @@ object AutoSoup : Module("AutoSoup", Category.COMBAT) {
 
         if (soupInInventory != null && InventoryUtils.hasSpaceInHotbar()) {
             if (isFirstInventoryClick && !startTimer.hasTimePassed(randomizedStartDelay)) {
-                // GuiInventory checks have to be put separately due to problems with resetting timer.
-                if (mc.currentScreen is GuiInventory)
+                // SurvivalInventoryScreen checks have to be put separately due to problems with resetting timer.
+                if (mc.currentScreen is SurvivalInventoryScreen)
                     return@handler
             } else {
-                // GuiInventory checks have to be put separately due to problems with resetting timer.
-                if (mc.currentScreen is GuiInventory)
+                // SurvivalInventoryScreen checks have to be put separately due to problems with resetting timer.
+                if (mc.currentScreen is SurvivalInventoryScreen)
                     isFirstInventoryClick = false
 
                 startTimer.reset()
                 randomizedStartDelay = startDelay.random()
             }
 
-            if (openInventory && mc.currentScreen !is GuiInventory)
+            if (openInventory && mc.currentScreen !is SurvivalInventoryScreen)
                 return@handler
 
             canCloseInventory = false
@@ -136,7 +136,7 @@ object AutoSoup : Module("AutoSoup", Category.COMBAT) {
 
             mc.playerController.windowClick(0, soupInInventory, 0, 1, player)
 
-            if (simulateInventory && mc.currentScreen !is GuiInventory)
+            if (simulateInventory && mc.currentScreen !is SurvivalInventoryScreen)
                 serverOpenInventory = false
 
             timer.reset()
@@ -148,7 +148,7 @@ object AutoSoup : Module("AutoSoup", Category.COMBAT) {
         if (autoClose && canCloseInventory && closeTimer.hasTimePassed(randomizedCloseDelay)) {
             if (!autoCloseNoSoup && soupInInventory == null) return@handler
 
-            if (mc.currentScreen is GuiInventory) {
+            if (mc.currentScreen is SurvivalInventoryScreen) {
                 player?.closeScreen()
             }
 

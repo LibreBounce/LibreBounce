@@ -311,7 +311,7 @@ object RenderUtils : MinecraftInstance {
 
         entity.interpolatedPosition(entity.prevPos).let { pos ->
             circlePoints.forEachIndexed { index, it ->
-                val p = pos + Vec3(it.x * width, it.y + animatedCircleY, it.z * width)
+                val p = pos + Vec3d(it.x * width, it.y + animatedCircleY, it.z * width)
                 positions += doubleArrayOf(p.xCoord, p.yCoord, p.zCoord)
 
                 if (filled) {
@@ -350,7 +350,7 @@ object RenderUtils : MinecraftInstance {
         glPopAttrib()
     }
 
-    fun drawHueCircle(position: Vec3, radius: Float, innerColor: Color, outerColor: Color) {
+    fun drawHueCircle(position: Vec3d, radius: Float, innerColor: Color, outerColor: Color) {
         val manager = mc.renderManager
 
         val renderX = manager.viewerPosX
@@ -413,7 +413,7 @@ object RenderUtils : MinecraftInstance {
      *
      * Only [GL_LINES], [GL_TRIANGLES] and [GL_QUADS] are allowed.
      */
-    fun drawDome(pos: Vec3, hRadius: Double, vRadius: Double, lineWidth: Float? = null, color: Color, renderMode: Int) {
+    fun drawDome(pos: Vec3d, hRadius: Double, vRadius: Double, lineWidth: Float? = null, color: Color, renderMode: Int) {
         require(renderMode in arrayOf(GL_LINES, GL_TRIANGLES, GL_QUADS))
 
         val manager = mc.renderManager ?: return
@@ -600,7 +600,7 @@ object RenderUtils : MinecraftInstance {
     }
 
     fun drawPosBox(x: Double, y: Double, z: Double, width: Float, height: Float, color: Color, outline: Boolean) {
-        val (adjustedX, adjustedY, adjustedZ) = Vec3(x, y, z) - mc.renderManager.renderPos
+        val (adjustedX, adjustedY, adjustedZ) = Vec3d(x, y, z) - mc.renderManager.renderPos
 
         val axisAlignedBB = AxisAlignedBB.fromBounds(
             adjustedX - width / 2,
@@ -1437,7 +1437,7 @@ object RenderUtils : MinecraftInstance {
 
     fun renderNameTag(string: String, x: Double, y: Double, z: Double) {
         val renderManager = mc.renderManager
-        val (x1, y1, z1) = Vec3(x, y, z) - renderManager.renderPos
+        val (x1, y1, z1) = Vec3d(x, y, z) - renderManager.renderPos
 
         glPushMatrix()
         glTranslated(x1, y1, z1)

@@ -146,11 +146,11 @@ public abstract class MixinEntityRenderer {
             final Reach reach = Reach.INSTANCE;
 
             double d0 = reach.handleEvents() ? reach.getMaxRange() : mc.playerController.getBlockReachDistance();
-            Vec3 vec3 = entity.getPositionEyes(p_getMouseOver_1_);
+            Vec3d vec3 = entity.getPositionEyes(p_getMouseOver_1_);
             Rotation rotation = new Rotation(mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch);
-            Vec3 vec31 = RotationUtils.INSTANCE.getVectorForRotation(RotationUtils.INSTANCE.getCurrentRotation() != null && OverrideRaycast.INSTANCE.shouldOverride() ? RotationUtils.INSTANCE.getCurrentRotation() : rotation);
+            Vec3d vec31 = RotationUtils.INSTANCE.getVectorForRotation(RotationUtils.INSTANCE.getCurrentRotation() != null && OverrideRaycast.INSTANCE.shouldOverride() ? RotationUtils.INSTANCE.getCurrentRotation() : rotation);
             double p_rayTrace_1_ = (reach.handleEvents() ? reach.getBuildReach() : d0);
-            Vec3 vec32 = vec3.addVector(vec31.xCoord * p_rayTrace_1_, vec31.yCoord * p_rayTrace_1_, vec31.zCoord * p_rayTrace_1_);
+            Vec3d vec32 = vec3.addVector(vec31.xCoord * p_rayTrace_1_, vec31.yCoord * p_rayTrace_1_, vec31.zCoord * p_rayTrace_1_);
             mc.objectMouseOver = entity.worldObj.rayTraceBlocks(vec3, vec32, false, false, true);
             double d1 = d0;
             boolean flag = false;
@@ -167,14 +167,14 @@ public abstract class MixinEntityRenderer {
 
             if (reach.handleEvents()) {
                 double p_rayTrace_1_2 = reach.getBuildReach();
-                Vec3 vec322 = vec3.addVector(vec31.xCoord * p_rayTrace_1_2, vec31.yCoord * p_rayTrace_1_2, vec31.zCoord * p_rayTrace_1_2);
+                Vec3d vec322 = vec3.addVector(vec31.xCoord * p_rayTrace_1_2, vec31.yCoord * p_rayTrace_1_2, vec31.zCoord * p_rayTrace_1_2);
                 final MovingObjectPosition movingObjectPosition = entity.worldObj.rayTraceBlocks(vec3, vec322, false, false, true);
 
                 if (movingObjectPosition != null) d1 = movingObjectPosition.hitVec.distanceTo(vec3);
             }
 
             pointedEntity = null;
-            Vec3 vec33 = null;
+            Vec3d vec33 = null;
             List<Entity> list = mc.theWorld.getEntities(Entity.class, Predicates.and(EntitySelectors.NOT_SPECTATING, p_apply_1_ -> p_apply_1_ != null && p_apply_1_.canBeCollidedWith() && p_apply_1_ != entity));
             double d2 = d1;
 

@@ -20,7 +20,7 @@ import net.ccbluex.liquidbounce.utils.render.shader.shaders.GradientShader;
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowShader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiElement;
-import net.minecraft.client.gui.GuiElementIngame;
+import net.minecraft.client.gui.GameGui;
 import net.minecraft.client.render.Window;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.entity.player.EntityPlayer;
@@ -43,7 +43,7 @@ import java.util.List;
 import static net.minecraft.client.render.platform.GlStateManager.*;
 import static org.lwjgl.opengl.GL11.*;
 
-@Mixin(GuiIngame.class)
+@Mixin(GameGui.class)
 @SideOnly(Side.CLIENT)
 public abstract class MixinGuiInGame extends Gui {
 

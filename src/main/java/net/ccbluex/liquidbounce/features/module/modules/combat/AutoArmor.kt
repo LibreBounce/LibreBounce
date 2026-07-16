@@ -28,7 +28,7 @@ import net.ccbluex.liquidbounce.utils.timing.TickedActions.awaitTicked
 import net.ccbluex.liquidbounce.utils.timing.TickedActions.clickNextTick
 import net.ccbluex.liquidbounce.utils.timing.TickedActions.isTicked
 import net.ccbluex.liquidbounce.utils.timing.TickedActions.nextTick
-import net.minecraft.client.gui.inventory.GuiInventory
+import net.minecraft.client.gui.screen.inventory.menu.SurvivalInventoryScreen
 import net.minecraft.entity.EntityLiving.getArmorPosition
 import net.minecraft.item.ItemStack
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
@@ -261,7 +261,7 @@ object AutoArmor : Module("AutoArmor", Category.COMBAT) {
             if (onlyHotbar)
                 return hotbar
 
-            if (invOpen && mc.currentScreen !is GuiInventory)
+            if (invOpen && mc.currentScreen !is SurvivalInventoryScreen)
                 return false
 
             // Wait till NoMove check isn't violated

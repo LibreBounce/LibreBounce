@@ -13,7 +13,7 @@ object Chat : Module("Chat", Category.RENDER, gameDetecting = false, subjective 
 
     /*
      * For the actual code, see
-     * net/ccbluex/liquidbounce/injection/forge/mixins/gui/MixinGuiNewChat.java
+     * net/ccbluex/liquidbounce/injection/forge/mixins/gui/MixinChatGui.java
      */
 
     init {

@@ -16,7 +16,7 @@ import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.randomUsername
 import net.ccbluex.liquidbounce.utils.ui.AbstractScreen
 import net.minecraft.client.gui.widget.ButtonWidget
-import net.minecraft.client.gui.GuiElementTextField
+import net.minecraft.client.gui.widget.TextFieldWidget
 import net.minecraft.util.Session
 import org.lwjgl.input.Keyboard
 import java.io.IOException
@@ -24,7 +24,7 @@ import java.io.IOException
 class GuiLoginIntoAccount(private val prevGui: GuiAltManager, val directLogin: Boolean = false) : AbstractScreen() {
 
     private lateinit var addButton: ButtonWidget
-    private lateinit var username: GuiTextField
+    private lateinit var username: TextFieldWidget
 
     private var status = ""
 
@@ -43,7 +43,7 @@ class GuiLoginIntoAccount(private val prevGui: GuiAltManager, val directLogin: B
         // Back button
         +ButtonWidget(0, width / 2 - 100, height / 2 + 30, "Back")
 
-        username = GuiTextField(2, Fonts.font40, width / 2 - 100, height / 2 - 90, 200, 20)
+        username = TextFieldWidget(2, Fonts.font40, width / 2 - 100, height / 2 - 90, 200, 20)
         username.isFocused = false
         username.maxStringLength = 16
     }

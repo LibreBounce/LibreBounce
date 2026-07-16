@@ -17,7 +17,7 @@ import net.ccbluex.liquidbounce.utils.extensions.lerpWith
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.shiftHue
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.withAlpha
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawHueCircle
-import net.minecraft.util.Vec3
+import net.minecraft.util.math.Vec3d
 import java.awt.Color
 
 /**
@@ -72,5 +72,5 @@ object JumpCircle : Module("JumpCircle", Category.RENDER) {
         return shiftHue(color, (hueOffsetAnim * progress).toInt())
     }
 
-    data class JumpData(val pos: Vec3, val endTime: Int)
+    data class JumpData(val pos: Vec3d, val endTime: Int)
 }

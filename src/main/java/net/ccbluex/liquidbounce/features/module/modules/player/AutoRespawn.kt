@@ -10,7 +10,7 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.exploit.Ghost
-import net.minecraft.client.gui.GuiElementGameOver
+import net.minecraft.client.gui.screen.DeathScreen
 
 object AutoRespawn : Module("AutoRespawn", Category.PLAYER, gameDetecting = false) {
 
@@ -21,7 +21,7 @@ object AutoRespawn : Module("AutoRespawn", Category.PLAYER, gameDetecting = fals
             if (Ghost.handleEvents())
                 return@handler
 
-            if (if (instant) health == 0F || isDead else mc.currentScreen is GuiGameOver && (mc.currentScreen as GuiGameOver).enableButtonsTimer >= 20) {
+            if (if (instant) health == 0F || isDead else mc.currentScreen is DeathScreen && (mc.currentScreen as DeathScreen).enableButtonsTimer >= 20) {
                 respawnPlayer()
                 mc.displayScreen(null)
             }

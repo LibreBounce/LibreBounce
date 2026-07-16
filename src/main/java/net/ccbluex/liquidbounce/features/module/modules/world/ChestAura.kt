@@ -39,7 +39,7 @@ import net.minecraft.tileentity.TileEntity
 import net.minecraft.tileentity.TileEntityChest
 import net.minecraft.tileentity.TileEntityEnderChest
 import net.minecraft.util.BlockPos
-import net.minecraft.util.Vec3
+import net.minecraft.util.math.Vec3d
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.util.*
@@ -96,7 +96,7 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
     private val decimalFormat = DecimalFormat("##0.00", DecimalFormatSymbols(Locale.ENGLISH))
 
     data class TileTarget(
-        val clickPoint: Vec3,
+        val clickPoint: Vec3d,
         val entity: TileEntity,
         val distanceSq: Double
     )

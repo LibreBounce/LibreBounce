@@ -23,12 +23,12 @@ import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils;
 import net.minecraft.client.ClientBrandRetriever;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.client.gui.GuiElementDownloadTerrain;
+import net.minecraft.client.gui.screen.DownloadingTerrainScreen;
 import net.minecraft.client.multiplayer.PlayerControllerMP;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.entity.Entity;
-import net.minecraft.network.NetworkManager;
+import net.minecraft.network.Connection;
 import net.minecraft.network.Packet;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.PacketThreadUtil;
@@ -59,7 +59,7 @@ public abstract class MixinNetHandlerPlayClient {
     public int currentServerMaxPlayers;
     @Shadow
     @Final
-    private NetworkManager netManager;
+    private Connection netManager;
     @Shadow
     private Minecraft gameController;
     @Shadow
@@ -239,7 +239,7 @@ public abstract class MixinNetHandlerPlayClient {
         gameController.gameSettings.difficulty = packetIn.getDifficulty();
         gameController.loadWorld(clientWorldController);
         gameController.thePlayer.dimension = packetIn.getDimension();
-        gameController.displayScreen(new GuiDownloadTerrain((NetHandlerPlayClient) (Object) this));
+        gameController.displayScreen(new DownloadingTerrainScreen((NetHandlerPlayClient) (Object) this));
         gameController.thePlayer.setEntityId(packetIn.getEntityId());
         currentServerMaxPlayers = packetIn.getMaxPlayers();
         gameController.thePlayer.setReducedDebug(packetIn.isReducedDebugInfo());
@@ -265,8 +265,8 @@ public abstract class MixinNetHandlerPlayClient {
         module.setSavedRotation(PlayerExtensionKt.getRotation(Minecraft.getMinecraft().thePlayer));
     }
 
-    @Redirect(method = "handlePlayerPosLook", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/NetworkManager;sendPacket(Lnet/minecraft/network/Packet;)V"))
-    private void injectNoRotateSetAndAntiServerRotationOverride(NetworkManager instance, Packet p_sendPacket_1_) {
+    @Redirect(method = "handlePlayerPosLook", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/Connection;sendPacket(Lnet/minecraft/network/Packet;)V"))
+    private void injectNoRotateSetAndAntiServerRotationOverride(Connection instance, Packet p_sendPacket_1_) {
         Blink module2 = Blink.INSTANCE;
         boolean shouldTrigger = module2.blinkingSend();
         PacketUtils.sendPacket(p_sendPacket_1_, shouldTrigger);

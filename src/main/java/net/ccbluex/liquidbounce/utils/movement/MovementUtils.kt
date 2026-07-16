@@ -9,7 +9,7 @@ import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.minecraft.network.play.client.C03PacketPlayer
-import net.minecraft.util.Vec3
+import net.minecraft.util.math.Vec3d
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
@@ -62,11 +62,11 @@ object MovementUtils : MinecraftInstance, Listenable {
             motionZ = z
         }
 
-    fun Vec3.strafe(
+    fun Vec3d.strafe(
         yaw: Float = direction.toDegreesF(), speed: Double = sqrt(xCoord * xCoord + zCoord * zCoord),
         strength: Double = 1.0,
         moveCheck: Boolean = false,
-    ): Vec3 {
+    ): Vec3d {
         if (moveCheck) {
             xCoord = 0.0
             zCoord = 0.0
@@ -110,7 +110,7 @@ object MovementUtils : MinecraftInstance, Listenable {
     fun isOnGround(height: Double) =
         mc.theWorld != null && mc.thePlayer != null &&
             mc.theWorld.getCollidingBoundingBoxes(mc.thePlayer,
-                mc.thePlayer.entityBoundingBox.offset(Vec3_ZERO.withY(-height))
+                mc.thePlayer.entityBoundingBox.offset(Vec3d_ZERO.withY(-height))
             ).isNotEmpty()
 
     var serverOnGround = false

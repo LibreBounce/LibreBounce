@@ -7,7 +7,7 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.GuiElementTextField;
+import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.inventory.GuiEditSign;
 import net.minecraft.event.ClickEvent;
 import net.minecraft.tileentity.TileEntitySign;
@@ -38,19 +38,19 @@ public class MixinGuiEditSign extends Screen {
     private boolean enabled;
     private ButtonWidget toggleButton;
 
-    private GuiTextField signCommand1;
-    private GuiTextField signCommand2;
-    private GuiTextField signCommand3;
-    private GuiTextField signCommand4;
+    private TextFieldWidget signCommand1;
+    private TextFieldWidget signCommand2;
+    private TextFieldWidget signCommand3;
+    private TextFieldWidget signCommand4;
 
     @Inject(method = "initGui", at = @At("RETURN"))
     private void initGui(final CallbackInfo callbackInfo) {
         buttonList.add(toggleButton = new ButtonWidget(1, width / 2 - 100, height / 4 + 145, enabled ? "Disable Formatting codes" : "Enable Formatting codes"));
 
-        signCommand1 = new GuiTextField(0, fontRendererObj, width / 2 - 100, height - 15, 200, 10);
-        signCommand2 = new GuiTextField(1, fontRendererObj, width / 2 - 100, height - 15 * 2, 200, 10);
-        signCommand3 = new GuiTextField(2, fontRendererObj, width / 2 - 100, height - 15 * 3, 200, 10);
-        signCommand4 = new GuiTextField(3, fontRendererObj, width / 2 - 100, height - 15 * 4, 200, 10);
+        signCommand1 = new TextFieldWidget(0, fontRendererObj, width / 2 - 100, height - 15, 200, 10);
+        signCommand2 = new TextFieldWidget(1, fontRendererObj, width / 2 - 100, height - 15 * 2, 200, 10);
+        signCommand3 = new TextFieldWidget(2, fontRendererObj, width / 2 - 100, height - 15 * 3, 200, 10);
+        signCommand4 = new TextFieldWidget(3, fontRendererObj, width / 2 - 100, height - 15 * 4, 200, 10);
 
         signCommand1.setText("");
         signCommand2.setText("");

@@ -38,9 +38,9 @@ class GuiFontManager(private val prevGui: Screen) : AbstractScreen() {
     private lateinit var fontListView: GuiList
     private lateinit var addButton: ButtonWidget
     private lateinit var removeButton: ButtonWidget
-    private lateinit var textField: GuiTextField
-    private lateinit var nameField: GuiTextField
-    private lateinit var sizeField: GuiTextField
+    private lateinit var textField: TextFieldWidget
+    private lateinit var nameField: TextFieldWidget
+    private lateinit var sizeField: TextFieldWidget
 
     override fun initGui() {
         buttonList.clear()

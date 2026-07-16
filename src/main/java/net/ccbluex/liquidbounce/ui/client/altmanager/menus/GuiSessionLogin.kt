@@ -17,7 +17,7 @@ import net.ccbluex.liquidbounce.utils.login.LoginUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
 import net.ccbluex.liquidbounce.utils.ui.AbstractScreen
 import net.minecraft.client.gui.widget.ButtonWidget
-import net.minecraft.client.gui.GuiElementTextField
+import net.minecraft.client.gui.widget.TextFieldWidget
 import org.lwjgl.input.Keyboard
 
 class GuiSessionLogin(private val prevGui: GuiAltManager) : AbstractScreen() {
@@ -26,7 +26,7 @@ class GuiSessionLogin(private val prevGui: GuiAltManager) : AbstractScreen() {
     private lateinit var loginButton: ButtonWidget
 
     // User Input Fields
-    private lateinit var sessionTokenField: GuiTextField
+    private lateinit var sessionTokenField: TextFieldWidget
 
     // Status
     private var status = ""
@@ -44,7 +44,7 @@ class GuiSessionLogin(private val prevGui: GuiAltManager) : AbstractScreen() {
         +ButtonWidget(0, width / 2 - 100, height / 2 - 30, translationButton("back"))
 
         // Add fields to screen
-        sessionTokenField = GuiTextField(666, Fonts.font40, width / 2 - 100, height / 2 - 90, 200, 20)
+        sessionTokenField = TextFieldWidget(666, Fonts.font40, width / 2 - 100, height / 2 - 90, 200, 20)
         sessionTokenField.isFocused = false
         sessionTokenField.maxStringLength = 1000
 

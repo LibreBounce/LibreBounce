@@ -24,12 +24,12 @@ import net.ccbluex.liquidbounce.utils.client.ClientUtils;
 import net.ccbluex.liquidbounce.utils.client.ServerUtils;
 import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.GuiElementDisconnected;
-import net.minecraft.client.gui.GuiElementMainMenu;
-import net.minecraft.client.gui.GuiElementMultiplayer;
+import net.minecraft.client.gui.screen.DisconnectedScreen;
+import net.minecraft.client.gui.screen.TitleScreen;
+import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.Session;
-import net.minecraftforge.fml.client.config.GuiSlider;
+import net.minecraftforge.fml.client.config.GeneratorOptionSlider;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -44,13 +44,13 @@ import java.util.Random;
 
 import static net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME;
 
-@Mixin(GuiDisconnected.class)
-public abstract class MixinGuiDisconnected extends MixinScreen {
+@Mixin(DisconnectedScreen.class)
+public abstract class MixinDisconnectedScreen extends MixinScreen {
     @Shadow
     private int field_175353_i;
 
     private ButtonWidget reconnectButton;
-    private GuiSlider autoReconnectDelaySlider;
+    private GeneratorOptionSlider autoReconnectDelaySlider;
     private ButtonWidget forgeBypassButton;
     private int reconnectTimer;
 
@@ -110,7 +110,7 @@ public abstract class MixinGuiDisconnected extends MixinScreen {
                     return null;
                 }, e -> {
                     mc.addScheduledTask(() -> {
-                        mc.displayScreen(new GuiDisconnected(new GuiMultiplayer(new GuiMainMenu()), e.getMessage(), new ChatComponentText(e.getMessage())));
+                        mc.displayScreen(new DisconnectedScreen(new MultiplayerScreen(new TitleScreen()), e.getMessage(), new ChatComponentText(e.getMessage())));
                     });
                     return null;
                 }, () -> null));
@@ -146,7 +146,7 @@ public abstract class MixinGuiDisconnected extends MixinScreen {
 
     private void drawReconnectDelaySlider() {
         buttonList.add(autoReconnectDelaySlider =
-                new GuiSlider(2, width / 2 + 2, height / 2 + field_175353_i / 2
+                new GeneratorOptionSlider(2, width / 2 + 2, height / 2 + field_175353_i / 2
                         + fontRendererObj.FONT_HEIGHT + 22, 98, 20, "AutoReconnect: ",
                         "ms", AutoReconnect.MIN, AutoReconnect.MAX, AutoReconnect.INSTANCE.getDelay(), false, true,
                         guiSlider -> {

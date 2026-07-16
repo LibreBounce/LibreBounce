@@ -27,7 +27,7 @@ import net.ccbluex.liquidbounce.utils.kotlin.SharedScopes
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
 import net.ccbluex.liquidbounce.utils.ui.AbstractScreen
 import net.minecraft.client.gui.widget.ButtonWidget
-import net.minecraft.client.gui.GuiElementTextField
+import net.minecraft.client.gui.widget.TextFieldWidget
 import net.minecraft.util.Session
 import org.lwjgl.input.Keyboard
 import java.net.Proxy.NO_PROXY
@@ -44,8 +44,8 @@ class GuiTheAltening(private val prevGui: GuiAltManager) : AbstractScreen() {
     private lateinit var generateButton: ButtonWidget
 
     // User Input Fields
-    private lateinit var apiKeyField: GuiTextField
-    private lateinit var tokenField: GuiTextField
+    private lateinit var apiKeyField: TextFieldWidget
+    private lateinit var tokenField: TextFieldWidget
 
     // Status
     private var status = ""
@@ -68,7 +68,7 @@ class GuiTheAltening(private val prevGui: GuiAltManager) : AbstractScreen() {
         +ButtonWidget(0, width / 2 + 2, height / 2 + 70, 98, 20, translationButton("back"))
 
         // Token text field
-        tokenField = GuiTextField(666, Fonts.font40, width / 2 - 100, height / 2 - 120, 200, 20)
+        tokenField = TextFieldWidget(666, Fonts.font40, width / 2 - 100, height / 2 - 120, 200, 20)
         tokenField.isFocused = false
         tokenField.maxStringLength = 64
 

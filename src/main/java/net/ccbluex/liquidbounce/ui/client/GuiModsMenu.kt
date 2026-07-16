@@ -16,13 +16,13 @@ import net.ccbluex.liquidbounce.utils.kotlin.SharedScopes
 import net.ccbluex.liquidbounce.utils.ui.AbstractScreen
 import net.minecraft.client.gui.widget.ButtonWidget
 import net.minecraft.client.gui.screen.Screen
-import net.minecraft.client.gui.GuiElementTextField
+import net.minecraft.client.gui.widget.TextFieldWidget
 import net.minecraftforge.fml.client.GuiModList
 import org.lwjgl.input.Keyboard
 
 class GuiModsMenu(private val prevGui: Screen) : AbstractScreen() {
 
-    private lateinit var customTextField: GuiTextField
+    private lateinit var customTextField: TextFieldWidget
 
     override fun initGui() {
         +ButtonWidget(0, width / 2 - 100, height / 4 + 48, "Forge Mods")
@@ -47,7 +47,7 @@ class GuiModsMenu(private val prevGui: Screen) : AbstractScreen() {
         )
         +ButtonWidget(5, width / 2 - 100, height / 4 + 48 + 255, "Back")
 
-        customTextField = GuiTextField(2, Fonts.font35, width / 2 - 100, height / 4 + 48 + 190, 200, 20)
+        customTextField = TextFieldWidget(2, Fonts.font35, width / 2 - 100, height / 4 + 48 + 190, 200, 20)
         customTextField.maxStringLength = Int.MAX_VALUE
     }
 

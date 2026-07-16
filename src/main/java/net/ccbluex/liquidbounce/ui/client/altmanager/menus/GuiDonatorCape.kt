@@ -16,7 +16,7 @@ import net.ccbluex.liquidbounce.utils.io.MiscUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
 import net.ccbluex.liquidbounce.utils.ui.AbstractScreen
 import net.minecraft.client.gui.widget.ButtonWidget
-import net.minecraft.client.gui.GuiElementTextField
+import net.minecraft.client.gui.widget.TextFieldWidget
 import org.lwjgl.input.Keyboard
 
 class GuiDonatorCape(private val prevGui: GuiAltManager) : AbstractScreen() {
@@ -26,7 +26,7 @@ class GuiDonatorCape(private val prevGui: GuiAltManager) : AbstractScreen() {
     private lateinit var lowerButton: ButtonWidget
 
     // User Input Fields
-    private lateinit var transferCodeField: GuiTextField
+    private lateinit var transferCodeField: TextFieldWidget
 
     // Status
     private var status = ""

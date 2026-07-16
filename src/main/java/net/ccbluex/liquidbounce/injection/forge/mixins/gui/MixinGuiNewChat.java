@@ -9,15 +9,15 @@ import net.ccbluex.liquidbounce.features.module.modules.render.Chat;
 import net.ccbluex.liquidbounce.ui.font.Fonts;
 import net.ccbluex.liquidbounce.utils.render.RenderUtils;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.GuiElementNewChat;
+import net.minecraft.client.gui.chat.ChatGui;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
 
-@Mixin(GuiNewChat.class)
-public abstract class MixinGuiNewChat {
+@Mixin(ChatGui.class)
+public abstract class MixinChatGui {
 
     @Redirect(method = {"getChatComponent", "drawChat"}, at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/FontRenderer;FONT_HEIGHT:I"))
     private int injectFontChat(FontRenderer instance) {

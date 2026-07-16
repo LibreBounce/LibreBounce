@@ -34,7 +34,7 @@ import net.minecraft.network.handshake.client.C00Handshake
 import net.minecraft.network.play.server.*
 import net.minecraft.network.status.client.C00PacketServerQuery
 import net.minecraft.network.status.server.S01PacketPong
-import net.minecraft.util.Vec3
+import net.minecraft.util.math.Vec3d
 import net.minecraft.world.WorldSettings
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
@@ -76,7 +76,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
     private val targetHurtTimeToDebug by intRange("TargetHurtTimeToDebug", 0..1, 0..10) { debug }
 
     private val packetQueue = ConcurrentLinkedQueue<QueueData>()
-    private val positions = ConcurrentLinkedQueue<Pair<Vec3, Long>>()
+    private val positions = ConcurrentLinkedQueue<Pair<Vec3d, Long>>()
 
     var target: EntityLivingBase? = null
 
@@ -166,13 +166,13 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
             when (packet) {
                 is S14PacketEntity -> if (packet.entityId == target?.entityId) {
                     (target as? IMixinEntity)?.run {
-                        positions += Pair(Vec3(trueX, trueY, trueZ), System.currentTimeMillis())
+                        positions += Pair(Vec3d(trueX, trueY, trueZ), System.currentTimeMillis())
                     }
                 }
 
                 is S18PacketEntityTeleport -> if (packet.entityId == target?.entityId) {
                     (target as? IMixinEntity)?.run {
-                        positions += Pair(Vec3(trueX, trueY, trueZ), System.currentTimeMillis())
+                        positions += Pair(Vec3d(trueX, trueY, trueZ), System.currentTimeMillis())
                     }
                 }
             }
@@ -254,7 +254,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
             if (targetEntity.truePos) {
                 when (espMode) {
                     "Box" -> {
-                        val axisAlignedBB = entityBoundingBox.offset(-currPos + Vec3(x, y, z))
+                        val axisAlignedBB = entityBoundingBox.offset(-currPos + Vec3d(x, y, z))
 
                         drawBacktrackBox(axisAlignedBB, color)
                     }
@@ -407,7 +407,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
         return f()
     }
 
-    fun <T> runWithSimulatedPosition(entity: Entity, vec3: Vec3, f: () -> T?): T? {
+    fun <T> runWithSimulatedPosition(entity: Entity, vec3: Vec3d, f: () -> T?): T? {
         val currPos = entity.currPos
         val prevPos = entity.prevPos
 

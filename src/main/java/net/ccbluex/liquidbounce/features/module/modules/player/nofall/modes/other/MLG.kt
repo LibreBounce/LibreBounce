@@ -248,7 +248,7 @@ object MLG : NoFallMode("MLG") {
     private inline fun placeBlock(
         blockPos: BlockPos,
         side: EnumFacing,
-        hitVec: Vec3,
+        hitVec: Vec3d,
         stack: ItemStack,
         finalStage: Boolean = true,
         onSuccess: () -> Unit = { }
@@ -261,7 +261,7 @@ object MLG : NoFallMode("MLG") {
     }
 
     private inline fun tryToPlaceBlock(
-        stack: ItemStack, clickPos: BlockPos, side: EnumFacing, hitVec: Vec3, onSuccess: () -> Unit
+        stack: ItemStack, clickPos: BlockPos, side: EnumFacing, hitVec: Vec3d, onSuccess: () -> Unit
     ): Boolean {
         val player = mc.thePlayer ?: return false
 

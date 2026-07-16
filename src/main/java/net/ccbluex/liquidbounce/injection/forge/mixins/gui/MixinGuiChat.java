@@ -12,7 +12,7 @@ import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer;
 import net.ccbluex.liquidbounce.utils.render.RenderUtils;
 import net.minecraft.client.gui.GuiElement;
 import net.minecraft.client.gui.screen.ChatScreen;
-import net.minecraft.client.gui.GuiElementTextField;
+import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.util.IChatComponent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -33,7 +33,7 @@ import java.util.List;
 @SideOnly(Side.CLIENT)
 public abstract class MixinChatScreen extends MixinScreen {
     @Shadow
-    protected GuiTextField inputField;
+    protected TextFieldWidget inputField;
 
     @Shadow
     private List<String> foundPlayerNames;
