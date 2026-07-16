@@ -14,7 +14,7 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPackets
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
-import net.minecraft.client.settings.GameSettings
+import net.minecraft.client.options.GameOptions
 import net.minecraft.network.packet.c2s.play.PlayerMovementActionC2SPacket
 import net.minecraft.network.packet.c2s.play.PlayerMovementActionC2SPacket.Action.START_SNEAKING
 import net.minecraft.network.packet.c2s.play.PlayerMovementActionC2SPacket.Action.STOP_SNEAKING
@@ -83,7 +83,7 @@ object Sneak : Module("Sneak", Category.MOVEMENT) {
         val player = mc.thePlayer ?: return
 
         if (mode == "Legit") {
-            if (!GameSettings.isKeyDown(mc.gameSettings.keyBindSneak)) {
+            if (!GameOptions.isKeyDown(mc.gameSettings.keyBindSneak)) {
                 mc.gameSettings.keyBindSneak.pressed = false
             }
         } else {

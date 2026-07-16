@@ -10,7 +10,7 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.block.block
-import net.minecraft.client.settings.GameSettings
+import net.minecraft.client.options.GameOptions
 import net.minecraft.init.Blocks.air
 
 object AutoBreak : Module("AutoBreak", Category.WORLD, subjective = true, gameDetecting = false) {
@@ -24,7 +24,7 @@ object AutoBreak : Module("AutoBreak", Category.WORLD, subjective = true, gameDe
     }
 
     override fun onDisable() {
-        if (!GameSettings.isKeyDown(mc.gameSettings.keyBindAttack))
+        if (!GameOptions.isKeyDown(mc.gameSettings.keyBindAttack))
             mc.gameSettings.keyBindAttack.pressed = false
     }
 }

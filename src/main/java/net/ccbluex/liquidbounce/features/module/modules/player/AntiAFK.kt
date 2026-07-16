@@ -15,7 +15,7 @@ import net.ccbluex.liquidbounce.utils.extensions.tryJump
 import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.nextFloat
 import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.nextInt
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
-import net.minecraft.client.settings.GameSettings
+import net.minecraft.client.options.GameOptions
 
 object AntiAFK : Module("AntiAFK", Category.PLAYER, gameDetecting = false) {
 
@@ -126,6 +126,6 @@ object AntiAFK : Module("AntiAFK", Category.PLAYER, gameDetecting = false) {
     private fun getRandomMoveKeyBind() = moveKeyBindings.random()
 
     override fun onDisable() {
-        mc.gameSettings.keyBindForward.pressed = GameSettings.isKeyDown(mc.gameSettings.keyBindForward)
+        mc.gameSettings.keyBindForward.pressed = GameOptions.isKeyDown(mc.gameSettings.keyBindForward)
     }
 }

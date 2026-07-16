@@ -9,7 +9,7 @@ import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.minecraft.client.settings.GameSettings
+import net.minecraft.client.options.GameOptions
 
 object KeepTabList : Module("KeepTabList", Category.RENDER, gameDetecting = false) {
 
@@ -20,6 +20,6 @@ object KeepTabList : Module("KeepTabList", Category.RENDER, gameDetecting = fals
     }
 
     override fun onDisable() {
-        mc.gameSettings.keyBindPlayerList.pressed = GameSettings.isKeyDown(mc.gameSettings.keyBindPlayerList)
+        mc.gameSettings.keyBindPlayerList.pressed = GameOptions.isKeyDown(mc.gameSettings.keyBindPlayerList)
     }
 }

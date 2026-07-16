@@ -27,7 +27,7 @@ import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.setTargetRotation
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.utils.timing.TickedActions.nextTick
 import net.minecraft.block.BlockBush
-import net.minecraft.client.settings.GameSettings
+import net.minecraft.client.options.GameOptions
 import net.minecraft.init.Blocks.bed
 import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemStack
@@ -69,7 +69,7 @@ object BedDefender : Module("BedDefender", Category.WORLD) {
     override fun onDisable() {
         val player = mc.thePlayer ?: return
 
-        if (!GameSettings.isKeyDown(mc.gameSettings.keyBindSneak)) {
+        if (!GameOptions.isKeyDown(mc.gameSettings.keyBindSneak)) {
             mc.gameSettings.keyBindSneak.pressed = false
             if (player.isSneaking) player.isSneaking = false
         }

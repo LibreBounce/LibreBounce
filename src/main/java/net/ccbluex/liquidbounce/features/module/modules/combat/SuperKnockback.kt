@@ -21,7 +21,7 @@ import net.minecraft.entity.living.LivingEntity
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 import net.minecraft.network.packet.c2s.play.PlayerMovementActionC2SPacket
 import net.minecraft.network.packet.c2s.play.PlayerMovementActionC2SPacket.Action.*
-import net.minecraft.client.settings.GameSettings
+import net.minecraft.client.options.GameOptions
 import kotlin.math.abs
 
 object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
@@ -173,7 +173,7 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
             }
 
             "Sneak" -> {
-                if (player.isSprinting && player.serverSprintState && !GameSettings.isKeyDown(mc.gameSettings.keyBindSneak) && !mc.gameSettings.keyBindSneak.pressed) {
+                if (player.isSprinting && player.serverSprintState && !GameOptions.isKeyDown(mc.gameSettings.keyBindSneak) && !mc.gameSettings.keyBindSneak.pressed) {
                     mc.gameSettings.keyBindSneak.pressed = true
                 }
             }
@@ -229,7 +229,7 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
             }
 
             "STap" -> {
-                if (mc.gameSettings.keyBindBack.pressed && !GameSettings.isKeyDown(mc.gameSettings.keyBindBack) &&
+                if (mc.gameSettings.keyBindBack.pressed && !GameOptions.isKeyDown(mc.gameSettings.keyBindBack) &&
                     sTapTimer.resetIfPassed()
                 )
                     mc.gameSettings.keyBindBack.pressed = false
@@ -237,7 +237,7 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
             }
 
             "Sneak" -> {
-                if (mc.gameSettings.keyBindSneak.pressed && !GameSettings.isKeyDown(mc.gameSettings.keyBindSneak) && sneakTimer.resetIfPassed())
+                if (mc.gameSettings.keyBindSneak.pressed && !GameOptions.isKeyDown(mc.gameSettings.keyBindSneak) && sneakTimer.resetIfPassed())
                     mc.gameSettings.keyBindSneak.pressed = false
             }
         }

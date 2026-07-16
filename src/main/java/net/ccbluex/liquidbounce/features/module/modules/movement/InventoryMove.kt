@@ -22,7 +22,7 @@ import net.minecraft.client.gui.screen.GameMenuScreen
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.gui.screen.inventory.menu.ChestScreen
 import net.minecraft.client.gui.screen.inventory.menu.SurvivalInventoryScreen
-import net.minecraft.client.settings.GameSettings
+import net.minecraft.client.options.GameOptions
 import net.minecraft.client.settings.KeyBinding
 import net.minecraft.network.packet.c2s.play.CloseInventoryMenuC2SPacket
 import net.minecraft.network.packet.c2s.play.InventoryMenuClickSlotC2SPacket
@@ -158,7 +158,7 @@ object InventoryMove : Module("InventoryMove", Category.MOVEMENT, gameDetecting 
         return if (keyBinding.keyCode < 0) {
             Mouse.isButtonDown(keyBinding.keyCode + 100)
         } else {
-            GameSettings.isKeyDown(keyBinding)
+            GameOptions.isKeyDown(keyBinding)
         }
     }
 

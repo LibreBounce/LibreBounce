@@ -30,7 +30,7 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.render.Window;
 import net.minecraft.client.multiplayer.PlayerControllerMP;
 import net.minecraft.client.multiplayer.WorldClient;
-import net.minecraft.client.settings.GameSettings;
+import net.minecraft.client.options.GameOptions;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemBlock;
@@ -90,7 +90,7 @@ public abstract class MixinMinecraft {
     public int rightClickDelayTimer;
 
     @Shadow
-    public GameSettings gameSettings;
+    public GameOptions gameSettings;
 
     @Shadow
     public abstract void displayScreen(Screen guiScreenIn);

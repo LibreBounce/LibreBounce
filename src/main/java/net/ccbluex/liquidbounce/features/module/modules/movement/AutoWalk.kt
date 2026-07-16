@@ -9,7 +9,7 @@ import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.minecraft.client.settings.GameSettings
+import net.minecraft.client.options.GameOptions
 
 object AutoWalk : Module("AutoWalk", Category.MOVEMENT, subjective = true, gameDetecting = false) {
     val onUpdate = handler<UpdateEvent> {
@@ -17,6 +17,6 @@ object AutoWalk : Module("AutoWalk", Category.MOVEMENT, subjective = true, gameD
     }
 
     override fun onDisable() {
-        mc.gameSettings.keyBindForward.pressed = GameSettings.isKeyDown(mc.gameSettings.keyBindForward)
+        mc.gameSettings.keyBindForward.pressed = GameOptions.isKeyDown(mc.gameSettings.keyBindForward)
     }
 }

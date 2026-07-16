@@ -1,14 +1,14 @@
 package net.ccbluex.liquidbounce.injection.forge.mixins.client;
 
-import net.minecraft.client.settings.GameSettings;
+import net.minecraft.client.options.GameOptions;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(GameSettings.class)
-public class MixinGameSettings {
+@Mixin(GameOptions.class)
+public class MixinGameOptions {
 
     @Shadow public int guiScale;
 

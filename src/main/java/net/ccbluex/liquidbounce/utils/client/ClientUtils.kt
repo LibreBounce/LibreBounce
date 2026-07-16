@@ -6,7 +6,7 @@
 package net.ccbluex.liquidbounce.utils.client
 
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME
-import net.minecraft.client.settings.GameSettings
+import net.minecraft.client.options.GameOptions
 import net.minecraft.network.Connection
 import net.minecraft.network.packet.c2s.login.KeyC2SPacket
 import net.minecraft.network.login.server.S01PacketEncryptionRequest
@@ -22,7 +22,7 @@ import javax.crypto.SecretKey
 @SideOnly(Side.CLIENT)
 object ClientUtils : MinecraftInstance {
     private var fastRenderField: Field? = runCatching {
-        GameSettings::class.java.getDeclaredField("ofFastRender")
+        GameOptions::class.java.getDeclaredField("ofFastRender")
     }.getOrNull()
 
     var runTimeTicks = 0

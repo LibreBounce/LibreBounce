@@ -34,7 +34,7 @@ import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
 import net.ccbluex.liquidbounce.utils.timing.*
 import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomClickDelay
 import net.minecraft.block.BlockBush
-import net.minecraft.client.settings.GameSettings
+import net.minecraft.client.options.GameOptions
 import net.minecraft.init.Blocks.air
 import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemStack
@@ -224,7 +224,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
         get() = eagle != "Off" && !shouldGoDown && scaffoldMode != "GodBridge"
 
     val shouldGoDown
-        get() = down && !sameY && GameSettings.isKeyDown(mc.gameSettings.keyBindSneak) && scaffoldMode !in arrayOf(
+        get() = down && !sameY && GameOptions.isKeyDown(mc.gameSettings.keyBindSneak) && scaffoldMode !in arrayOf(
             "GodBridge", "Telly"
         ) && blocksAmount() > 1
 
@@ -721,7 +721,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
     override fun onDisable() {
         val player = mc.thePlayer ?: return
 
-        if (!GameSettings.isKeyDown(mc.gameSettings.keyBindSneak)) {
+        if (!GameOptions.isKeyDown(mc.gameSettings.keyBindSneak)) {
             mc.gameSettings.keyBindSneak.pressed = false
             if (eagleSneaking && player.isSneaking) {
                 //sendPacket(PlayerMovementActionC2SPacket(player, PlayerMovementActionC2SPacket.Action.STOP_SNEAKING))
@@ -733,10 +733,10 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
             }
         }
 
-        if (!GameSettings.isKeyDown(mc.gameSettings.keyBindRight)) {
+        if (!GameOptions.isKeyDown(mc.gameSettings.keyBindRight)) {
             mc.gameSettings.keyBindRight.pressed = false
         }
-        if (!GameSettings.isKeyDown(mc.gameSettings.keyBindLeft)) {
+        if (!GameOptions.isKeyDown(mc.gameSettings.keyBindLeft)) {
             mc.gameSettings.keyBindLeft.pressed = false
         }
 
@@ -1101,7 +1101,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
                 val notOnGround = !player.onGround || !player.isCollidedVertically
 
                 if (player.onGround) {
-                    input.sneak = eagleSneaking || GameSettings.isKeyDown(mc.gameSettings.keyBindSneak)
+                    input.sneak = eagleSneaking || GameOptions.isKeyDown(mc.gameSettings.keyBindSneak)
                 }
 
                 if (input.jump || mc.gameSettings.keyBindJump.isKeyDown || notOnGround) {
