@@ -25,7 +25,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.awt.Color;
 
 import static net.ccbluex.liquidbounce.utils.client.MinecraftInstance.mc;
-import static net.minecraft.client.renderer.GlStateManager.*;
+import static net.minecraft.client.render.platform.GlStateManager.*;
 import static org.lwjgl.opengl.GL11.*;
 
 @Mixin(RendererLivingEntity.class)

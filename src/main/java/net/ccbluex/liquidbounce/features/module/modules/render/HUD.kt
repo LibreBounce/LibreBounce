@@ -14,7 +14,7 @@ import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element.Companion.MAX_GRADIENT_COLORS
 import net.ccbluex.liquidbounce.utils.render.ColorSettingsFloat
 import net.ccbluex.liquidbounce.utils.render.ColorSettingsInteger
-import net.minecraft.client.gui.GuiChat
+import net.minecraft.client.gui.screen.ChatScreen
 import net.minecraft.util.ResourceLocation
 
 object HUD : Module("HUD", Category.RENDER, gameDetecting = false, defaultState = true, defaultHidden = true) {
@@ -69,7 +69,7 @@ object HUD : Module("HUD", Category.RENDER, gameDetecting = false, defaultState 
     val onScreen = handler<ScreenEvent>(always = true) { event ->
         if (mc.theWorld == null || mc.thePlayer == null) return@handler
         if (state && blur && !mc.entityRenderer.isShaderActive && event.guiScreen != null &&
-            !(event.guiScreen is GuiChat || event.guiScreen is GuiHudDesigner)
+            !(event.guiScreen is ChatScreen || event.guiScreen is GuiHudDesigner)
         ) mc.entityRenderer.loadShader(
             ResourceLocation(CLIENT_NAME.lowercase() + "/blur.json")
         ) else if (mc.entityRenderer.shaderGroup != null &&

@@ -8,21 +8,21 @@ package net.ccbluex.liquidbounce.ui.client.tools
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.ui.AbstractScreen
-import net.minecraft.client.gui.GuiButton
-import net.minecraft.client.gui.GuiScreen
+import net.minecraft.client.gui.widget.ButtonWidget
+import net.minecraft.client.gui.screen.Screen
 import org.lwjgl.input.Keyboard
 
-class GuiTools(private val prevGui: GuiScreen) : AbstractScreen() {
+class GuiTools(private val prevGui: Screen) : AbstractScreen() {
 
     override fun initGui() {
-        +GuiButton(1, width / 2 - 100, height / 4 + 48 + 25, "Port Scanner")
-        +GuiButton(0, width / 2 - 100, height / 4 + 48 + 25 * 2 + 5, "Back")
+        +ButtonWidget(1, width / 2 - 100, height / 4 + 48 + 25, "Port Scanner")
+        +ButtonWidget(0, width / 2 - 100, height / 4 + 48 + 25 * 2 + 5, "Back")
     }
 
-    override fun actionPerformed(button: GuiButton) {
+    override fun actionPerformed(button: ButtonWidget) {
         when (button.id) {
-            1 -> mc.displayGuiScreen(GuiPortScanner(prevGui))
-            0 -> mc.displayGuiScreen(prevGui)
+            1 -> mc.displayScreen(GuiPortScanner(prevGui))
+            0 -> mc.displayScreen(prevGui)
         }
     }
 
@@ -37,7 +37,7 @@ class GuiTools(private val prevGui: GuiScreen) : AbstractScreen() {
 
     override fun keyTyped(typedChar: Char, keyCode: Int) {
         if (Keyboard.KEY_ESCAPE == keyCode) {
-            mc.displayGuiScreen(prevGui)
+            mc.displayScreen(prevGui)
             return
         }
 

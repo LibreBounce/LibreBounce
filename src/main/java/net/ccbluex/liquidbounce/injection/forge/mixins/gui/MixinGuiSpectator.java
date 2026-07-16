@@ -7,8 +7,8 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.Render2DEvent;
-import net.minecraft.client.gui.GuiSpectator;
-import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.gui.GuiElementSpectator;
+import net.minecraft.client.render.Window;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -18,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class MixinGuiSpectator {
 
     @Inject(method = "renderTooltip", at = @At("RETURN"))
-    private void renderTooltipPost(ScaledResolution p_175264_1_, float p_175264_2_, CallbackInfo callbackInfo) {
+    private void renderTooltipPost(Window p_175264_1_, float p_175264_2_, CallbackInfo callbackInfo) {
         EventManager.INSTANCE.call(new Render2DEvent(p_175264_2_));
     }
 }

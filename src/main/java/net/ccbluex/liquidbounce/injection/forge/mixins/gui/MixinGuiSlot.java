@@ -5,18 +5,18 @@
  */
 package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 
-import net.ccbluex.liquidbounce.injection.implementations.IMixinGuiSlot;
+import net.ccbluex.liquidbounce.injection.implementations.IMixinListWidget;
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer;
 import net.ccbluex.liquidbounce.utils.render.RenderUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiSlot;
-import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.WorldRenderer;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.util.MathHelper;
+import net.minecraft.client.gui.GuiElement;
+import net.minecraft.client.gui.widget.ListWidget;
+import net.minecraft.client.render.Window;
+import net.minecraft.client.render.platform.GlStateManager;
+import net.minecraft.client.render.vertex.Tesselator;
+import net.minecraft.client.render.vertex.BufferBuilder;
+import net.minecraft.client.render.vertex.DefaultVertexFormat;
+import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.spongepowered.asm.mixin.Final;
@@ -30,12 +30,12 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import java.awt.Color;
 
-import static net.minecraft.client.renderer.GlStateManager.*;
+import static net.minecraft.client.render.platform.GlStateManager.*;
 import static org.lwjgl.opengl.GL11.*;
 
-@Mixin(GuiSlot.class)
+@Mixin(ListWidget.class)
 @SideOnly(Side.CLIENT)
-public abstract class MixinGuiSlot implements IMixinGuiSlot {
+public abstract class MixinListWidget implements IMixinListWidget {
     private int listWidth = 220;
     private boolean enableScissor = false;
 
@@ -70,7 +70,7 @@ public abstract class MixinGuiSlot implements IMixinGuiSlot {
     protected boolean hasListHeader;
 
     @Shadow
-    protected abstract void drawListHeader(int p_148129_1_, int p_148129_2_, Tessellator p_148129_3_);
+    protected abstract void drawListHeader(int p_148129_1_, int p_148129_2_, Tesselator p_148129_3_);
 
     @Shadow
     protected abstract void drawSelectionBox(int p_148120_1_, int p_148120_2_, int mouseXIn, int mouseYIn);
@@ -132,8 +132,8 @@ public abstract class MixinGuiSlot implements IMixinGuiSlot {
             bindAmountScrolled();
             GlStateManager.disableLighting();
             disableFog();
-            Tessellator tessellator = Tessellator.getInstance();
-            WorldRenderer worldrenderer = tessellator.getWorldRenderer();
+            Tesselator tessellator = Tesselator.getInstance();
+            BufferBuilder worldrenderer = tessellator.getWorldRenderer();
             int k = left + width / 2 - getListWidth() / 2 + 2;
             int l = top + 4 - (int) amountScrolled;
             if (hasListHeader) {
@@ -152,7 +152,7 @@ public abstract class MixinGuiSlot implements IMixinGuiSlot {
             int i1 = 4;
 
             // ClientCode
-            ScaledResolution scaledResolution = new ScaledResolution(mc);
+            Window scaledResolution = new Window(mc);
             Gui.drawRect(0, 0, scaledResolution.getScaledWidth(), top, Integer.MIN_VALUE);
             Gui.drawRect(0, bottom, scaledResolution.getScaledWidth(), height, Integer.MIN_VALUE);
 
@@ -161,13 +161,13 @@ public abstract class MixinGuiSlot implements IMixinGuiSlot {
             disableAlpha();
             shadeModel(7425);
             disableTexture2D();
-            worldrenderer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
+            worldrenderer.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
             worldrenderer.pos(left, top + i1, 0).tex(0, 1).color(0, 0, 0, 0).endVertex();
             worldrenderer.pos(right, top + i1, 0).tex(1, 1).color(0, 0, 0, 0).endVertex();
             worldrenderer.pos(right, top, 0).tex(1, 0).color(0, 0, 0, 255).endVertex();
             worldrenderer.pos(left, top, 0).tex(0, 0).color(0, 0, 0, 255).endVertex();
             tessellator.draw();
-            worldrenderer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
+            worldrenderer.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
             worldrenderer.pos(left, bottom, 0).tex(0, 1).color(0, 0, 0, 255).endVertex();
             worldrenderer.pos(right, bottom, 0).tex(1, 1).color(0, 0, 0, 255).endVertex();
             worldrenderer.pos(right, bottom - i1, 0).tex(1, 0).color(0, 0, 0, 0).endVertex();
@@ -182,19 +182,19 @@ public abstract class MixinGuiSlot implements IMixinGuiSlot {
                     l1 = top;
                 }
 
-                worldrenderer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
+                worldrenderer.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
                 worldrenderer.pos(i, bottom, 0).tex(0, 1).color(0, 0, 0, 255).endVertex();
                 worldrenderer.pos(j, bottom, 0).tex(1, 1).color(0, 0, 0, 255).endVertex();
                 worldrenderer.pos(j, top, 0).tex(1, 0).color(0, 0, 0, 255).endVertex();
                 worldrenderer.pos(i, top, 0).tex(0, 0).color(0, 0, 0, 255).endVertex();
                 tessellator.draw();
-                worldrenderer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
+                worldrenderer.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
                 worldrenderer.pos(i, l1 + k1, 0).tex(0, 1).color(128, 128, 128, 255).endVertex();
                 worldrenderer.pos(j, l1 + k1, 0).tex(1, 1).color(128, 128, 128, 255).endVertex();
                 worldrenderer.pos(j, l1, 0).tex(1, 0).color(128, 128, 128, 255).endVertex();
                 worldrenderer.pos(i, l1, 0).tex(0, 0).color(128, 128, 128, 255).endVertex();
                 tessellator.draw();
-                worldrenderer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
+                worldrenderer.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
                 worldrenderer.pos(i, l1 + k1 - 1, 0).tex(0, 1).color(192, 192, 192, 255).endVertex();
                 worldrenderer.pos(j - 1, l1 + k1 - 1, 0).tex(1, 1).color(192, 192, 192, 255).endVertex();
                 worldrenderer.pos(j - 1, l1, 0).tex(1, 0).color(192, 192, 192, 255).endVertex();
@@ -243,8 +243,8 @@ public abstract class MixinGuiSlot implements IMixinGuiSlot {
         this.listWidth = listWidth;
     }
 
-    @Inject(method = "drawSelectionBox", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/Tessellator;getWorldRenderer()Lnet/minecraft/client/renderer/WorldRenderer;"), locals = LocalCapture.CAPTURE_FAILSOFT, cancellable = true)
-    private void injectClientDraw(int p_drawSelectionBox_1_, int p_drawSelectionBox_2_, int p_drawSelectionBox_3_, int p_drawSelectionBox_4_, CallbackInfo ci, int i, Tessellator tessellator) {
+    @Inject(method = "drawSelectionBox", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/Tesselator;getWorldRenderer()Lnet/minecraft/client/renderer/WorldRenderer;"), locals = LocalCapture.CAPTURE_FAILSOFT, cancellable = true)
+    private void injectClientDraw(int p_drawSelectionBox_1_, int p_drawSelectionBox_2_, int p_drawSelectionBox_3_, int p_drawSelectionBox_4_, CallbackInfo ci, int i, Tesselator tessellator) {
         for (int j = 0; j < i; ++j) {
             int k = p_drawSelectionBox_2_ + j * this.slotHeight + this.headerPadding;
             int l = this.slotHeight - 4;

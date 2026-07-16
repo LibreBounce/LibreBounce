@@ -5,11 +5,11 @@
  */
 package net.ccbluex.liquidbounce.utils.render.shader
 
-import net.minecraft.client.gui.ScaledResolution
-import net.minecraft.client.renderer.GlStateManager.*
+import net.minecraft.client.render.Window
+import net.minecraft.client.render.platform.GlStateManager.*
 import net.minecraft.client.renderer.RenderHelper
-import net.minecraft.client.renderer.Tessellator
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats
+import net.minecraft.client.render.vertex.Tesselator
+import net.minecraft.client.render.vertex.DefaultVertexFormat
 import net.minecraft.client.shader.Framebuffer
 import org.lwjgl.opengl.GL11.*
 import org.lwjgl.opengl.GL20.glUseProgram
@@ -92,15 +92,15 @@ abstract class FramebufferShader(fragmentShader: String) : Shader(fragmentShader
      * @author Navex
      */
     fun drawFramebuffer(framebuffer: Framebuffer) {
-        val scaledResolution = ScaledResolution(mc)
+        val scaledResolution = Window(mc)
         val scaledWidth = scaledResolution.scaledWidth_double
         val scaledHeight = scaledResolution.scaledHeight_double
         
-        val tessellator = Tessellator.getInstance()
+        val tessellator = Tesselator.getInstance()
         val buffer = tessellator.worldRenderer
         
         glBindTexture(GL_TEXTURE_2D, framebuffer.framebufferTexture)
-        buffer.begin(GL_QUADS, DefaultVertexFormats.POSITION_TEX)
+        buffer.begin(GL_QUADS, DefaultVertexFormat.POSITION_TEX)
         buffer.pos(0.0, 0.0, 1.0).tex(0.0, 1.0).endVertex()
         buffer.pos(0.0, scaledHeight, 1.0).tex(0.0, 0.0).endVertex()
         buffer.pos(scaledWidth, scaledHeight, 1.0).tex(1.0, 0.0).endVertex()

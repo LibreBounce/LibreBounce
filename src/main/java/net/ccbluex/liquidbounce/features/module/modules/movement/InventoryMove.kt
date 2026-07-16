@@ -17,9 +17,9 @@ import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.canClickInvento
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.hasScheduledInLastLoop
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverOpenContainer
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverOpenInventory
-import net.minecraft.client.gui.GuiChat
-import net.minecraft.client.gui.GuiIngameMenu
-import net.minecraft.client.gui.GuiScreen
+import net.minecraft.client.gui.screen.ChatScreen
+import net.minecraft.client.gui.GuiElementIngameMenu
+import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.gui.inventory.GuiChest
 import net.minecraft.client.gui.inventory.GuiInventory
 import net.minecraft.client.settings.GameSettings
@@ -91,9 +91,9 @@ object InventoryMove : Module("InventoryMove", Category.MOVEMENT, gameDetecting 
                 isButtonPressed(affectedBinding) || affectedBinding == mc.gameSettings.keyBindSprint && Sprint.handleEvents() && Sprint.mode == "Legit" && (!Sprint.onlyOnSprintPress || player.isSprinting) || affectedBinding == mc.gameSettings.keyBindForward && AutoWalk.handleEvents()
     }
 
-    private fun shouldFreezeInputs(screen: GuiScreen?): Boolean {
+    private fun shouldFreezeInputs(screen: Screen?): Boolean {
         // Don't make player move when chat or ESC menu are open
-        if (screen is GuiChat || screen is GuiIngameMenu) return true
+        if (screen is ChatScreen || screen is GuiIngameMenu) return true
 
         if (undetectable && (screen != null && screen !is GuiHudDesigner && screen !is ClickGui && screen !is PanelStyle)) return true
 

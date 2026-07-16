@@ -28,34 +28,34 @@ import net.ccbluex.liquidbounce.utils.io.MiscUtils.showErrorPopup
 import net.ccbluex.liquidbounce.utils.io.MiscUtils.showMessageDialog
 import net.ccbluex.liquidbounce.utils.render.shader.Background
 import net.ccbluex.liquidbounce.utils.ui.AbstractScreen
-import net.minecraft.client.gui.GuiButton
-import net.minecraft.client.gui.GuiScreen
-import net.minecraft.client.gui.GuiTextField
+import net.minecraft.client.gui.widget.ButtonWidget
+import net.minecraft.client.gui.screen.Screen
+import net.minecraft.client.gui.GuiElementTextField
 import net.minecraftforge.fml.client.config.GuiSlider
 import org.lwjgl.input.Keyboard
 
-class GuiClientConfiguration(val prevGui: GuiScreen) : AbstractScreen() {
+class GuiClientConfiguration(val prevGui: Screen) : AbstractScreen() {
 
-    private lateinit var languageButton: GuiButton
+    private lateinit var languageButton: ButtonWidget
 
-    private lateinit var backgroundButton: GuiButton
-    private lateinit var particlesButton: GuiButton
-    private lateinit var altsModeButton: GuiButton
-    private lateinit var unformattedAltsButton: GuiButton
+    private lateinit var backgroundButton: ButtonWidget
+    private lateinit var particlesButton: ButtonWidget
+    private lateinit var altsModeButton: ButtonWidget
+    private lateinit var unformattedAltsButton: ButtonWidget
     private lateinit var altsSlider: GuiSlider
 
-    private lateinit var titleButton: GuiButton
+    private lateinit var titleButton: ButtonWidget
 
     private lateinit var altPrefixField: GuiTextField
 
     override fun initGui() {
         // Title button
         // Location > 1st row
-        titleButton = +GuiButton(
+        titleButton = +ButtonWidget(
             4, width / 2 - 100, height / 4 + 25, "Client title (${if (clientTitle) "On" else "Off"})"
         )
 
-        languageButton = +GuiButton(
+        languageButton = +ButtonWidget(
             7,
             width / 2 - 100,
             height / 4 + 50,
@@ -64,24 +64,24 @@ class GuiClientConfiguration(val prevGui: GuiScreen) : AbstractScreen() {
 
         // Background configuration buttons
         // Button location > 2nd row
-        backgroundButton = +GuiButton(
+        backgroundButton = +ButtonWidget(
             0,
             width / 2 - 100,
             height / 4 + 25 + 75,
             "Enabled (${if (customBackground) "On" else "Off"})"
         )
 
-        particlesButton = +GuiButton(
+        particlesButton = +ButtonWidget(
             1, width / 2 - 100, height / 4 + 25 + 75 + 25, "Particles (${if (particles) "On" else "Off"})"
         )
 
-        +GuiButton(2, width / 2 - 100, height / 4 + 25 + 75 + 25 * 2, 98, 20, "Change wallpaper")
+        +ButtonWidget(2, width / 2 - 100, height / 4 + 25 + 75 + 25 * 2, 98, 20, "Change wallpaper")
 
-        +GuiButton(3, width / 2 + 2, height / 4 + 25 + 75 + 25 * 2, 98, 20, "Reset wallpaper")
+        +ButtonWidget(3, width / 2 + 2, height / 4 + 25 + 75 + 25 * 2, 98, 20, "Reset wallpaper")
 
         // AltManager configuration buttons
         // Location > 3rd row
-        altsModeButton = +GuiButton(
+        altsModeButton = +ButtonWidget(
             6,
             width / 2 - 100,
             height / 4 + 25 + 185,
@@ -105,7 +105,7 @@ class GuiClientConfiguration(val prevGui: GuiScreen) : AbstractScreen() {
             altsLength = it.valueInt
         }
 
-        unformattedAltsButton = +GuiButton(
+        unformattedAltsButton = +ButtonWidget(
             5,
             width / 2 - 100,
             height / 4 + 235 + 25,
@@ -118,10 +118,10 @@ class GuiClientConfiguration(val prevGui: GuiScreen) : AbstractScreen() {
         altPrefixField.maxStringLength = 16
 
         // Back button
-        +GuiButton(8, width / 2 - 100, height / 4 + 25 + 25 + 25 * 11, "Back")
+        +ButtonWidget(8, width / 2 - 100, height / 4 + 25 + 25 + 25 * 11, "Back")
     }
 
-    override fun actionPerformed(button: GuiButton) {
+    override fun actionPerformed(button: ButtonWidget) {
         when (button.id) {
             0 -> {
                 customBackground = !customBackground
@@ -215,7 +215,7 @@ class GuiClientConfiguration(val prevGui: GuiScreen) : AbstractScreen() {
                 languageButton.displayString = "Language (${overrideLanguage.ifBlank { "Game" }})"
             }
 
-            8 -> mc.displayGuiScreen(prevGui)
+            8 -> mc.displayScreen(prevGui)
         }
     }
 
@@ -259,7 +259,7 @@ class GuiClientConfiguration(val prevGui: GuiScreen) : AbstractScreen() {
 
     override fun keyTyped(typedChar: Char, keyCode: Int) {
         if (Keyboard.KEY_ESCAPE == keyCode) {
-            mc.displayGuiScreen(prevGui)
+            mc.displayScreen(prevGui)
             return
         }
 

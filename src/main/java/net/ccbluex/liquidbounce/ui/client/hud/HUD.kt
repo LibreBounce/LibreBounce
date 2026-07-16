@@ -14,7 +14,7 @@ import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.extensions.component1
 import net.ccbluex.liquidbounce.utils.extensions.component2
-import net.minecraft.client.gui.ScaledResolution
+import net.minecraft.client.render.Window
 import org.lwjgl.opengl.GL11.*
 import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
@@ -122,7 +122,7 @@ object HUD : MinecraftInstance {
     fun handleMouseMove(mouseX: Int, mouseY: Int) {
         if (mc.currentScreen !is GuiHudDesigner) return
 
-        val (scaledWidth, scaledHeight) = ScaledResolution(mc)
+        val (scaledWidth, scaledHeight) = Window(mc)
 
         for (element in elements) {
             val scaledX = mouseX / element.scale

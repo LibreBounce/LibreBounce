@@ -17,7 +17,7 @@ import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.io.MiscUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawLoadingCircle
 import net.ccbluex.liquidbounce.utils.ui.AbstractScreen
-import net.minecraft.client.gui.GuiButton
+import net.minecraft.client.gui.widget.ButtonWidget
 import java.net.BindException
 
 class GuiMicrosoftLoginProgress(val updateStatus: (String) -> Unit, val done: () -> Unit) : AbstractScreen() {
@@ -75,8 +75,8 @@ class GuiMicrosoftLoginProgress(val updateStatus: (String) -> Unit, val done: ()
             LOGGER.error("Failed to start login server.", e)
         }
 
-        +GuiButton(0, width / 2 - 100, height / 2 + 60, translationButton("openURL"))
-        +GuiButton(1, width / 2 - 100, height / 2 + 90, translationButton("cancel"))
+        +ButtonWidget(0, width / 2 - 100, height / 2 + 60, translationButton("openURL"))
+        +ButtonWidget(1, width / 2 - 100, height / 2 + 90, translationButton("cancel"))
 
         super.initGui()
     }
@@ -94,7 +94,7 @@ class GuiMicrosoftLoginProgress(val updateStatus: (String) -> Unit, val done: ()
         super.drawScreen(mouseX, mouseY, partialTicks)
     }
 
-    override fun actionPerformed(button: GuiButton) {
+    override fun actionPerformed(button: ButtonWidget) {
         // Not enabled buttons should be ignored
         if (!button.enabled) {
             return

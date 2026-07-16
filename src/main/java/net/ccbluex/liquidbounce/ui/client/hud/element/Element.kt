@@ -8,7 +8,7 @@ package net.ccbluex.liquidbounce.ui.client.hud.element
 import net.ccbluex.liquidbounce.config.Configurable
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBorderedRect
-import net.minecraft.client.gui.ScaledResolution
+import net.minecraft.client.render.Window
 import java.awt.Color
 import kotlin.math.max
 import kotlin.math.min
@@ -48,8 +48,8 @@ abstract class Element(
     var renderX
         get() = when (side.horizontal) {
             Side.Horizontal.LEFT -> x
-            Side.Horizontal.MIDDLE -> (ScaledResolution(mc).scaledWidth / 2) - x
-            Side.Horizontal.RIGHT -> ScaledResolution(mc).scaledWidth - x
+            Side.Horizontal.MIDDLE -> (Window(mc).scaledWidth / 2) - x
+            Side.Horizontal.RIGHT -> Window(mc).scaledWidth - x
         }
         set(value) = when (side.horizontal) {
             Side.Horizontal.LEFT -> {
@@ -64,8 +64,8 @@ abstract class Element(
     var renderY
         get() = when (side.vertical) {
             Side.Vertical.UP -> y
-            Side.Vertical.MIDDLE -> (ScaledResolution(mc).scaledHeight / 2) - y
-            Side.Vertical.DOWN -> ScaledResolution(mc).scaledHeight - y
+            Side.Vertical.MIDDLE -> (Window(mc).scaledHeight / 2) - y
+            Side.Vertical.DOWN -> Window(mc).scaledHeight - y
         }
         set(value) = when (side.vertical) {
             Side.Vertical.UP -> {

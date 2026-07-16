@@ -11,8 +11,8 @@ import net.ccbluex.liquidbounce.features.module.modules.render.Animations.animat
 import net.ccbluex.liquidbounce.features.module.modules.render.Animations.defaultAnimation
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.minecraft.client.entity.AbstractClientPlayer
-import net.minecraft.client.renderer.GlStateManager.*
-import net.minecraft.util.MathHelper
+import net.minecraft.client.render.platform.GlStateManager.*
+import net.minecraft.util.math.MathHelper
 import org.lwjgl.opengl.GL11.glTranslated
 import org.lwjgl.opengl.GL11.glTranslatef
 

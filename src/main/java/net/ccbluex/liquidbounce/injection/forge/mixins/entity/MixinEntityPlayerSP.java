@@ -304,7 +304,7 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
 
         if (inPortal) {
             if (mc.currentScreen != null && !mc.currentScreen.doesGuiPauseGame() && !PortalMenu.INSTANCE.handleEvents()) {
-                mc.displayGuiScreen(null);
+                mc.displayScreen(null);
             }
 
             if (timeInPortal == 0f) {

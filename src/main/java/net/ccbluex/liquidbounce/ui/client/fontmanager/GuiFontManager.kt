@@ -25,7 +25,7 @@ private const val EDIT_BTN_ID = 12
 /**
  * @author MukjepScarlet
  */
-class GuiFontManager(private val prevGui: GuiScreen) : AbstractScreen() {
+class GuiFontManager(private val prevGui: Screen) : AbstractScreen() {
 
     private enum class Status(val text: String) {
         IDLE("§7Idle..."),
@@ -36,8 +36,8 @@ class GuiFontManager(private val prevGui: GuiScreen) : AbstractScreen() {
     private var status = Status.IDLE
 
     private lateinit var fontListView: GuiList
-    private lateinit var addButton: GuiButton
-    private lateinit var removeButton: GuiButton
+    private lateinit var addButton: ButtonWidget
+    private lateinit var removeButton: ButtonWidget
     private lateinit var textField: GuiTextField
     private lateinit var nameField: GuiTextField
     private lateinit var sizeField: GuiTextField
@@ -63,12 +63,12 @@ class GuiFontManager(private val prevGui: GuiScreen) : AbstractScreen() {
             }
             maxStringLength = 3
         }
-        +GuiButton(EDIT_BTN_ID, leftStartX, startPositionY + 24 * 3, 70, 20, translationButton("fontManager.edit"))
+        +ButtonWidget(EDIT_BTN_ID, leftStartX, startPositionY + 24 * 3, 70, 20, translationButton("fontManager.edit"))
 
-        addButton = +GuiButton(ADD_BTN_ID, rightStartX, startPositionY + 24 * 1, 70, 20, translationButton("add"))
-        removeButton = +GuiButton(REMOVE_BTN_ID, rightStartX, startPositionY + 24 * 2, 70, 20, translationButton("remove"))
+        addButton = +ButtonWidget(ADD_BTN_ID, rightStartX, startPositionY + 24 * 1, 70, 20, translationButton("add"))
+        removeButton = +ButtonWidget(REMOVE_BTN_ID, rightStartX, startPositionY + 24 * 2, 70, 20, translationButton("remove"))
 
-        +GuiButton(BACK_BTN_ID, rightStartX, height - 65, 70, 20, translationButton("back"))
+        +ButtonWidget(BACK_BTN_ID, rightStartX, height - 65, 70, 20, translationButton("back"))
 
         fontListView = GuiList(this).apply {
             registerScrollButtons(7, 8)
@@ -89,7 +89,7 @@ class GuiFontManager(private val prevGui: GuiScreen) : AbstractScreen() {
 
         when (keyCode) {
             // Go back
-            Keyboard.KEY_ESCAPE -> mc.displayGuiScreen(prevGui)
+            Keyboard.KEY_ESCAPE -> mc.displayScreen(prevGui)
 
             // Go one up in account list
             Keyboard.KEY_UP -> fontListView.selectedSlot--
@@ -189,12 +189,12 @@ class GuiFontManager(private val prevGui: GuiScreen) : AbstractScreen() {
         edited.save()
     }
 
-    public override fun actionPerformed(button: GuiButton) {
+    public override fun actionPerformed(button: ButtonWidget) {
         // Not enabled buttons should be ignored
         if (!button.enabled) return
 
         when (button.id) {
-            BACK_BTN_ID -> mc.displayGuiScreen(prevGui)
+            BACK_BTN_ID -> mc.displayScreen(prevGui)
             ADD_BTN_ID -> {
                 val file = MiscUtils.openFileChooser(FileFilters.FONT, acceptAll = false)?.takeIf { it.isFile } ?: run {
                     status = Status.FAILED_TO_LOAD
@@ -224,8 +224,8 @@ class GuiFontManager(private val prevGui: GuiScreen) : AbstractScreen() {
         }
     }
 
-    private inner class GuiList(prevGui: GuiScreen) :
-        GuiSlot(mc, prevGui.width, prevGui.height, 40, prevGui.height - 40, 30) {
+    private inner class GuiList(prevGui: Screen) :
+        ListWidget(mc, prevGui.width, prevGui.height, 40, prevGui.height - 40, 30) {
 
         override fun getSize(): Int = Fonts.customFonts.size
 

@@ -46,7 +46,7 @@ import net.ccbluex.liquidbounce.utils.render.toColorArray
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.inventory.GuiContainer
 import net.minecraft.client.gui.inventory.GuiInventory
-import net.minecraft.client.renderer.GlStateManager.*
+import net.minecraft.client.render.platform.GlStateManager.*
 import net.minecraft.client.renderer.RenderHelper.disableStandardItemLighting
 import net.minecraft.client.renderer.RenderHelper.enableGUIStandardItemLighting
 import net.minecraft.item.ItemBlock

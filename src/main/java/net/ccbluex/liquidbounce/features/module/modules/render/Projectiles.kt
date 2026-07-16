@@ -19,11 +19,11 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.disableGlCap
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.enableGlCap
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.resetCaps
-import net.ccbluex.liquidbounce.utils.render.drawWithTessellatorWorldRenderer
+import net.ccbluex.liquidbounce.utils.render.drawWithTesselatorWorldRenderer
 import net.minecraft.block.material.Material
-import net.minecraft.client.renderer.GlStateManager.resetColor
-import net.minecraft.client.renderer.Tessellator
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats
+import net.minecraft.client.render.platform.GlStateManager.resetColor
+import net.minecraft.client.render.vertex.Tesselator
+import net.minecraft.client.render.vertex.DefaultVertexFormat
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.item.EntityEnderPearl
@@ -142,7 +142,7 @@ object Projectiles : Module("Projectiles", Category.RENDER, gameDetecting = fals
             var hasLanded = false
             var hitEntity = false
 
-            val tessellator = Tessellator.getInstance()
+            val tessellator = Tesselator.getInstance()
             val worldRenderer = tessellator.worldRenderer
 
             glPushMatrix()
@@ -161,7 +161,7 @@ object Projectiles : Module("Projectiles", Category.RENDER, gameDetecting = fals
             )
             glLineWidth(2f)
 
-            worldRenderer.begin(GL_LINE_STRIP, DefaultVertexFormats.POSITION)
+            worldRenderer.begin(GL_LINE_STRIP, DefaultVertexFormat.POSITION)
 
             while (!hasLanded && posY > 0.0) {
                 // Set pos before and after
@@ -313,8 +313,8 @@ object Projectiles : Module("Projectiles", Category.RENDER, gameDetecting = fals
         for ((entity, positions) in trailPositions) {
             if (positions.isEmpty()) continue
 
-            drawWithTessellatorWorldRenderer {
-                begin(GL_LINE_STRIP, DefaultVertexFormats.POSITION)
+            drawWithTesselatorWorldRenderer {
+                begin(GL_LINE_STRIP, DefaultVertexFormat.POSITION)
 
                 for ((_, pos, alpha) in positions) {
                     val interpolatePos = pos - renderManager.renderPos

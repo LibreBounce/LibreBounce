@@ -10,7 +10,7 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.Element
 import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
 import net.ccbluex.liquidbounce.ui.client.hud.element.Side
 import net.minecraft.block.material.Material
-import net.minecraft.client.renderer.GlStateManager.*
+import net.minecraft.client.render.platform.GlStateManager.*
 import net.minecraft.client.renderer.RenderHelper.disableStandardItemLighting
 import net.minecraft.client.renderer.RenderHelper.enableGUIStandardItemLighting
 import org.lwjgl.opengl.GL11.*

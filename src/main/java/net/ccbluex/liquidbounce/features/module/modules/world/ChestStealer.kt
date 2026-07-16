@@ -36,7 +36,7 @@ import net.ccbluex.liquidbounce.utils.timing.TickedActions.clickNextTick
 import net.ccbluex.liquidbounce.utils.timing.TickedActions.isTicked
 import net.ccbluex.liquidbounce.utils.timing.TickedActions.nextTick
 import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomDelay
-import net.minecraft.client.gui.ScaledResolution
+import net.minecraft.client.render.Window
 import net.minecraft.client.gui.inventory.GuiChest
 import net.minecraft.inventory.Slot
 import net.minecraft.entity.EntityLiving.getArmorPosition
@@ -430,7 +430,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
         val progress = progress ?: return@handler
 
-        val (scaledWidth, scaledHeight) = ScaledResolution(mc)
+        val (scaledWidth, scaledHeight) = Window(mc)
 
         val minX = scaledWidth * 0.3f
         val maxX = scaledWidth * 0.7f

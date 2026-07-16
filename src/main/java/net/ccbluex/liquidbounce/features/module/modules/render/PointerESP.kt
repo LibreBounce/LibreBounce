@@ -19,7 +19,7 @@ import net.ccbluex.liquidbounce.utils.client.EntityLookup
 import net.ccbluex.liquidbounce.utils.render.ColorSettingsInteger
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
-import net.minecraft.client.gui.ScaledResolution
+import net.minecraft.client.render.Window
 import net.minecraft.entity.EntityLivingBase
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
@@ -67,7 +67,7 @@ object PointerESP : Module("PointerESP", Category.RENDER) {
     val onRender2D = handler<Render2DEvent> { event ->
         if (dimension != "2D") return@handler
 
-        val scaledResolution = ScaledResolution(mc)
+        val scaledResolution = Window(mc)
 
         glPushAttrib(GL_ALL_ATTRIB_BITS)
         glPushMatrix()

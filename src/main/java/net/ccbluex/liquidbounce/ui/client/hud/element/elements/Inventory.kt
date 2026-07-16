@@ -16,7 +16,7 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBorder
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedRect2
 import net.minecraft.client.gui.FontRenderer
-import net.minecraft.client.renderer.GlStateManager.*
+import net.minecraft.client.render.platform.GlStateManager.*
 import net.minecraft.client.renderer.RenderHelper.disableStandardItemLighting
 import net.minecraft.client.renderer.RenderHelper.enableGUIStandardItemLighting
 import org.lwjgl.opengl.GL11.*

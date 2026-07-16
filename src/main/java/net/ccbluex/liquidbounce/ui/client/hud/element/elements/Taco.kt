@@ -12,7 +12,7 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.Element
 import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.deltaTime
-import net.minecraft.client.gui.ScaledResolution
+import net.minecraft.client.render.Window
 import net.minecraft.util.ResourceLocation
 
 /**
@@ -44,7 +44,7 @@ class Taco(x: Double = 2.0, y: Double = 441.0) : Element("Taco", x = x, y = y) {
             lastFrameTime = currentTime
         }
 
-        val scaledScreen = ScaledResolution(mc)
+        val scaledScreen = Window(mc)
 
         running += animationSpeed * deltaTime
         RenderUtils.drawImage(tacoTextures[image], running.toInt(), 0, 64, 32)

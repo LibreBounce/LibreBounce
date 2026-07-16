@@ -19,7 +19,7 @@ import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
 import net.minecraft.entity.Entity
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.potion.Potion.blindness
-import net.minecraft.util.MathHelper
+import net.minecraft.util.math.MathHelper
 import kotlin.math.sqrt
 import kotlin.math.PI
 

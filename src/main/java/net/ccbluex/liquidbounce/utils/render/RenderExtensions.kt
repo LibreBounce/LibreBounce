@@ -1,11 +1,11 @@
 package net.ccbluex.liquidbounce.utils.render
 
-import net.minecraft.client.renderer.GlStateManager
-import net.minecraft.client.renderer.Tessellator
-import net.minecraft.client.renderer.WorldRenderer
+import net.minecraft.client.render.platform.GlStateManager
+import net.minecraft.client.render.vertex.Tesselator
+import net.minecraft.client.render.vertex.BufferBuilder
 
-inline fun drawWithTessellatorWorldRenderer(drawAction: WorldRenderer.() -> Unit) {
-    val instance = Tessellator.getInstance()
+inline fun drawWithTesselatorWorldRenderer(drawAction: BufferBuilder.() -> Unit) {
+    val instance = Tesselator.getInstance()
     try {
         instance.worldRenderer.drawAction()
     } finally {

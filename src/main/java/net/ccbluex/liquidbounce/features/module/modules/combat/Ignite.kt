@@ -29,7 +29,7 @@ import net.minecraft.init.Items.flint_and_steel
 import net.minecraft.item.ItemBucket
 import net.minecraft.network.play.client.C03PacketPlayer.C05PacketPlayerLook
 import net.minecraft.util.EnumFacing
-import net.minecraft.util.MathHelper
+import net.minecraft.util.math.MathHelper
 import net.minecraft.util.Vec3
 import kotlin.math.atan2
 import kotlin.math.sqrt

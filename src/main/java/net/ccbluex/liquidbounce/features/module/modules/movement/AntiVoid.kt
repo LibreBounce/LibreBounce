@@ -25,7 +25,7 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.renderNameTag
 import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
 import net.ccbluex.liquidbounce.utils.timing.WaitTickUtils
 import net.minecraft.block.BlockAir
-import net.minecraft.client.renderer.GlStateManager.resetColor
+import net.minecraft.client.render.platform.GlStateManager.resetColor
 import net.minecraft.item.ItemBlock
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition

@@ -8,7 +8,7 @@ package net.ccbluex.liquidbounce.event
 import net.ccbluex.liquidbounce.features.module.modules.render.FreeCam
 import net.ccbluex.liquidbounce.utils.extensions.withY
 import net.minecraft.block.Block
-import net.minecraft.client.gui.GuiScreen
+import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.multiplayer.WorldClient
 import net.minecraft.entity.Entity
 import net.minecraft.network.Packet
@@ -154,7 +154,7 @@ class Render3DEvent(val partialTicks: Float) : Event()
 /**
  * Called when the screen changes
  */
-class ScreenEvent(val guiScreen: GuiScreen?) : Event()
+class ScreenEvent(val guiScreen: Screen?) : Event()
 
 /**
  * Called when the session changes

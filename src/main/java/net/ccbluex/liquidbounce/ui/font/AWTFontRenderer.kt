@@ -11,8 +11,8 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.kotlin.LruCache
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
-import net.minecraft.client.renderer.GlStateManager
-import net.minecraft.client.renderer.GlStateManager.bindTexture
+import net.minecraft.client.render.platform.GlStateManager
+import net.minecraft.client.render.platform.GlStateManager.bindTexture
 import net.minecraft.client.renderer.texture.TextureUtil
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly

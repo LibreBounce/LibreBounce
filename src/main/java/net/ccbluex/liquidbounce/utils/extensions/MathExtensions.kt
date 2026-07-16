@@ -13,7 +13,7 @@ import net.ccbluex.liquidbounce.utils.block.toVec
 import net.ccbluex.liquidbounce.utils.rotation.Rotation
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.getFixedAngleDelta
 import net.minecraft.block.Block
-import net.minecraft.client.gui.ScaledResolution
+import net.minecraft.client.render.Window
 import net.minecraft.client.renderer.entity.RenderManager
 import net.minecraft.entity.Entity
 import net.minecraft.util.*
@@ -60,10 +60,10 @@ operator fun Entity.component3() = posZ
 /**
  * Provides:
  * ```
- * val (width, height) = ScaledResolution(mc)
+ * val (width, height) = Window(mc)
  */
-operator fun ScaledResolution.component1() = this.scaledWidth
-operator fun ScaledResolution.component2() = this.scaledHeight
+operator fun Window.component1() = this.scaledWidth
+operator fun Window.component2() = this.scaledHeight
 
 /**
  * Provides:

@@ -26,8 +26,8 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.render.Window;
 import net.minecraft.client.multiplayer.PlayerControllerMP;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.settings.GameSettings;
@@ -60,7 +60,7 @@ import static net.ccbluex.liquidbounce.utils.client.MinecraftInstance.mc;
 public abstract class MixinMinecraft {
 
     @Shadow
-    public GuiScreen currentScreen;
+    public Screen currentScreen;
 
     @Shadow
     public boolean skipRenderWorld;
@@ -93,7 +93,7 @@ public abstract class MixinMinecraft {
     public GameSettings gameSettings;
 
     @Shadow
-    public abstract void displayGuiScreen(GuiScreen guiScreenIn);
+    public abstract void displayScreen(Screen guiScreenIn);
 
     @Unique
     private Future<?> liquidBounce$preloadFuture;
@@ -141,12 +141,12 @@ public abstract class MixinMinecraft {
         }
     }
 
-    @Inject(method = "displayGuiScreen", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;currentScreen:Lnet/minecraft/client/gui/GuiScreen;", shift = At.Shift.AFTER))
-    private void handleDisplayGuiScreen(CallbackInfo callbackInfo) {
-        if (currentScreen instanceof net.minecraft.client.gui.GuiMainMenu || (currentScreen != null && currentScreen.getClass().getName().startsWith("net.labymod") && currentScreen.getClass().getSimpleName().equals("ModGuiMainMenu"))) {
+    @Inject(method = "displayScreen", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;currentScreen:Lnet/minecraft/client/gui/Screen;", shift = At.Shift.AFTER))
+    private void handleDisplayScreen(CallbackInfo callbackInfo) {
+        if (currentScreen instanceof net.minecraft.client.gui.GuiElementMainMenu || (currentScreen != null && currentScreen.getClass().getName().startsWith("net.labymod") && currentScreen.getClass().getSimpleName().equals("ModGuiMainMenu"))) {
             currentScreen = new GuiMainMenu();
 
-            ScaledResolution scaledResolution = new ScaledResolution(mc);
+            Window scaledResolution = new Window(mc);
             currentScreen.setWorldAndResolution(mc, scaledResolution.getScaledWidth(), scaledResolution.getScaledHeight());
             skipRenderWorld = false;
         }

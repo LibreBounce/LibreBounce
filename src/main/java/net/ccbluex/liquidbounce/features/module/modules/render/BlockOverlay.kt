@@ -18,8 +18,8 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawFilledBox
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawSelectionBoundingBox
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
 import net.minecraft.block.Block.getIdFromBlock
-import net.minecraft.client.gui.ScaledResolution
-import net.minecraft.client.renderer.GlStateManager.resetColor
+import net.minecraft.client.render.Window
+import net.minecraft.client.render.platform.GlStateManager.resetColor
 import net.minecraft.init.Blocks.air
 import net.minecraft.init.Blocks.lava
 import net.minecraft.init.Blocks.water
@@ -96,7 +96,7 @@ object BlockOverlay : Module("BlockOverlay", Category.RENDER, gameDetecting = fa
         val block = currentBlock?.block ?: return@handler
 
         val info = "${block.localizedName} §7ID: ${getIdFromBlock(block)}"
-        val (width, height) = ScaledResolution(mc)
+        val (width, height) = Window(mc)
 
         // TODO: Customizable font
         drawBorderedRect(

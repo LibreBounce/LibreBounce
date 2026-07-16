@@ -7,7 +7,7 @@ package net.ccbluex.liquidbounce.ui.client
 
 import com.google.gson.annotations.SerializedName
 import kotlinx.coroutines.launch
-import net.ccbluex.liquidbounce.injection.implementations.IMixinGuiSlot
+import net.ccbluex.liquidbounce.injection.implementations.IMixinListWidget
 import net.ccbluex.liquidbounce.lang.translationMenu
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts
@@ -20,10 +20,10 @@ import net.ccbluex.liquidbounce.utils.render.CustomTexture
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawLoadingCircle
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
 import net.ccbluex.liquidbounce.utils.ui.AbstractScreen
-import net.minecraft.client.gui.GuiButton
-import net.minecraft.client.gui.GuiScreen
-import net.minecraft.client.gui.GuiSlot
-import net.minecraft.client.renderer.GlStateManager.*
+import net.minecraft.client.gui.widget.ButtonWidget
+import net.minecraft.client.gui.screen.Screen
+import net.minecraft.client.gui.widget.ListWidget
+import net.minecraft.client.render.platform.GlStateManager.*
 import org.lwjgl.input.Keyboard
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
@@ -36,7 +36,7 @@ import kotlin.math.sin
 
 private val DECIMAL_FORMAT = NumberFormat.getInstance(Locale.US) as DecimalFormat
 
-class GuiContributors(private val prevGui: GuiScreen) : AbstractScreen() {
+class GuiContributors(private val prevGui: Screen) : AbstractScreen() {
     private lateinit var list: GuiList
 
     private var credits = emptyList<Credit>()
@@ -46,7 +46,7 @@ class GuiContributors(private val prevGui: GuiScreen) : AbstractScreen() {
         list = GuiList(this)
         list.registerScrollButtons(7, 8)
 
-        +GuiButton(1, width / 2 - 100, height - 30, "Back")
+        +ButtonWidget(1, width / 2 - 100, height - 30, "Back")
 
         failed = false
 
@@ -150,15 +150,15 @@ class GuiContributors(private val prevGui: GuiScreen) : AbstractScreen() {
         super.drawScreen(mouseX, mouseY, partialTicks)
     }
 
-    override fun actionPerformed(button: GuiButton) {
+    override fun actionPerformed(button: ButtonWidget) {
         if (button.id == 1) {
-            mc.displayGuiScreen(prevGui)
+            mc.displayScreen(prevGui)
         }
     }
 
     override fun keyTyped(typedChar: Char, keyCode: Int) {
         when (keyCode) {
-            Keyboard.KEY_ESCAPE -> mc.displayGuiScreen(prevGui)
+            Keyboard.KEY_ESCAPE -> mc.displayScreen(prevGui)
             Keyboard.KEY_UP -> list.selectedSlot--
             Keyboard.KEY_DOWN -> list.selectedSlot++
             Keyboard.KEY_TAB ->
@@ -231,10 +231,10 @@ class GuiContributors(private val prevGui: GuiScreen) : AbstractScreen() {
         }
     }
 
-    private inner class GuiList(gui: GuiScreen) : GuiSlot(mc, gui.width / 4, gui.height, 40, gui.height - 40, 15) {
+    private inner class GuiList(gui: Screen) : ListWidget(mc, gui.width / 4, gui.height, 40, gui.height - 40, 15) {
 
         init {
-            val mixin = this as IMixinGuiSlot
+            val mixin = this as IMixinListWidget
 
             mixin.listWidth = gui.width * 3 / 13
             mixin.enableScissor = true

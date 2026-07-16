@@ -17,10 +17,10 @@ import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.io.flipSafely
 import net.ccbluex.liquidbounce.utils.render.animation.AnimationUtil
 import net.minecraft.client.gui.FontRenderer
-import net.minecraft.client.gui.ScaledResolution
-import net.minecraft.client.renderer.GlStateManager.*
-import net.minecraft.client.renderer.Tessellator
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats
+import net.minecraft.client.render.Window
+import net.minecraft.client.render.platform.GlStateManager.*
+import net.minecraft.client.render.vertex.Tesselator
+import net.minecraft.client.render.vertex.DefaultVertexFormat
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.util.*
@@ -229,8 +229,8 @@ object RenderUtils : MinecraftInstance {
         resetCaps()
     }
 
-    fun drawSelectionBoundingBox(boundingBox: AxisAlignedBB) = drawWithTessellatorWorldRenderer {
-        begin(GL_LINE_STRIP, DefaultVertexFormats.POSITION)
+    fun drawSelectionBoundingBox(boundingBox: AxisAlignedBB) = drawWithTesselatorWorldRenderer {
+        begin(GL_LINE_STRIP, DefaultVertexFormat.POSITION)
 
         // Lower Rectangle
         pos(boundingBox.minX, boundingBox.minY, boundingBox.minZ).endVertex()
@@ -303,11 +303,11 @@ object RenderUtils : MinecraftInstance {
         val animatedHeight = (0F..entityHeight).lerpWith((height.endInclusive..height.start).lerpWith(breathingT))
         val animatedCircleY = (0F..entityHeight).lerpWith(circleY?.lerpWith(breathingT) ?: 0F)
 
-        val tessellator = Tessellator.getInstance()
+        val tessellator = Tesselator.getInstance()
         val buffer = tessellator.worldRenderer
 
         if (filled)
-            buffer.begin(GL_TRIANGLE_FAN, DefaultVertexFormats.POSITION_COLOR)
+            buffer.begin(GL_TRIANGLE_FAN, DefaultVertexFormat.POSITION_COLOR)
 
         entity.interpolatedPosition(entity.prevPos).let { pos ->
             circlePoints.forEachIndexed { index, it ->
@@ -324,7 +324,7 @@ object RenderUtils : MinecraftInstance {
         if (filled) tessellator.draw()
 
         if (withHeight) {
-            buffer.begin(GL_QUADS, DefaultVertexFormats.POSITION_COLOR)
+            buffer.begin(GL_QUADS, DefaultVertexFormat.POSITION_COLOR)
 
             positions.forEachIndexed { index, pos ->
                 val endPos = positions.getOrNull(index + 1) ?: return@forEachIndexed
@@ -441,8 +441,8 @@ object RenderUtils : MinecraftInstance {
         glTranslated(-renderX, -renderY, -renderZ)
         glColor(color)
 
-        drawWithTessellatorWorldRenderer {
-            begin(renderMode, DefaultVertexFormats.POSITION)
+        drawWithTesselatorWorldRenderer {
+            begin(renderMode, DefaultVertexFormat.POSITION)
 
             val min = if (renderMode != GL_TRIANGLES) 0 to 0 else -1 to 1
 
@@ -546,8 +546,8 @@ object RenderUtils : MinecraftInstance {
             depthMask(true)
         }
 
-        drawWithTessellatorWorldRenderer {
-            begin(GL_TRIANGLE_FAN, if (useTexture) DefaultVertexFormats.POSITION_TEX else DefaultVertexFormats.POSITION)
+        drawWithTesselatorWorldRenderer {
+            begin(GL_TRIANGLE_FAN, if (useTexture) DefaultVertexFormat.POSITION_TEX else DefaultVertexFormat.POSITION)
 
             if (useTexture) {
                 pos(0.0, height.toDouble(), 0.0).tex(0.5, 0.5).endVertex()
@@ -685,8 +685,8 @@ object RenderUtils : MinecraftInstance {
         )
     }
 
-    fun drawFilledBox(axisAlignedBB: AxisAlignedBB) = drawWithTessellatorWorldRenderer {
-        begin(7, DefaultVertexFormats.POSITION)
+    fun drawFilledBox(axisAlignedBB: AxisAlignedBB) = drawWithTesselatorWorldRenderer {
+        begin(7, DefaultVertexFormat.POSITION)
         pos(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.minZ).endVertex()
         pos(axisAlignedBB.minX, axisAlignedBB.maxY, axisAlignedBB.minZ).endVertex()
         pos(axisAlignedBB.maxX, axisAlignedBB.minY, axisAlignedBB.minZ).endVertex()
@@ -771,8 +771,8 @@ object RenderUtils : MinecraftInstance {
         glColor(color)
         glLineWidth(width)
 
-        drawWithTessellatorWorldRenderer {
-            begin(GL_LINE_LOOP, DefaultVertexFormats.POSITION)
+        drawWithTesselatorWorldRenderer {
+            begin(GL_LINE_LOOP, DefaultVertexFormat.POSITION)
             pos(x2.toDouble(), y.toDouble(), 0.0).endVertex()
             pos(x.toDouble(), y.toDouble(), 0.0).endVertex()
             pos(x.toDouble(), y2.toDouble(), 0.0).endVertex()
@@ -794,8 +794,8 @@ object RenderUtils : MinecraftInstance {
         glColor(color)
         glLineWidth(width.toFloat())
 
-        drawWithTessellatorWorldRenderer {
-            begin(GL_LINE_LOOP, DefaultVertexFormats.POSITION)
+        drawWithTesselatorWorldRenderer {
+            begin(GL_LINE_LOOP, DefaultVertexFormat.POSITION)
             pos(x2.toDouble(), y.toDouble(), 0.0).endVertex()
             pos(x.toDouble(), y.toDouble(), 0.0).endVertex()
             pos(x.toDouble(), y2.toDouble(), 0.0).endVertex()
@@ -841,8 +841,8 @@ object RenderUtils : MinecraftInstance {
             doubleArrayOf(newX1 + radiusD, newY2 - radiusD, 270.0)
         )
 
-        drawWithTessellatorWorldRenderer {
-            begin(if (bottom) GL_LINE_LOOP else GL_LINE_STRIP, DefaultVertexFormats.POSITION)
+        drawWithTesselatorWorldRenderer {
+            begin(if (bottom) GL_LINE_LOOP else GL_LINE_STRIP, DefaultVertexFormat.POSITION)
 
             for ((cx, cy, startAngle) in corners) {
                 for (i in 0..90 step 10) {
@@ -866,8 +866,8 @@ object RenderUtils : MinecraftInstance {
     ) = renderRoundedBorder(x1, y1, x2, y2, color, width, radius, false)
 
     fun quickDrawRect(x: Float, y: Float, x2: Float, y2: Float) {
-        drawWithTessellatorWorldRenderer {
-            begin(GL_QUADS, DefaultVertexFormats.POSITION)
+        drawWithTesselatorWorldRenderer {
+            begin(GL_QUADS, DefaultVertexFormat.POSITION)
             pos(x2.toDouble(), y.toDouble(), 0.0).endVertex()
             pos(x.toDouble(), y.toDouble(), 0.0).endVertex()
             pos(x.toDouble(), y2.toDouble(), 0.0).endVertex()
@@ -882,8 +882,8 @@ object RenderUtils : MinecraftInstance {
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         glEnable(GL_LINE_SMOOTH)
         glColor(color)
-        drawWithTessellatorWorldRenderer {
-            begin(GL_QUADS, DefaultVertexFormats.POSITION)
+        drawWithTesselatorWorldRenderer {
+            begin(GL_QUADS, DefaultVertexFormat.POSITION)
             pos(x2.toDouble(), y.toDouble(), 0.0).endVertex()
             pos(x.toDouble(), y.toDouble(), 0.0).endVertex()
             pos(x.toDouble(), y2.toDouble(), 0.0).endVertex()
@@ -905,8 +905,8 @@ object RenderUtils : MinecraftInstance {
         glEnable(GL_LINE_SMOOTH)
         glColor(color)
 
-        drawWithTessellatorWorldRenderer {
-            begin(GL_QUADS, DefaultVertexFormats.POSITION)
+        drawWithTesselatorWorldRenderer {
+            begin(GL_QUADS, DefaultVertexFormat.POSITION)
             pos(x2.toDouble(), y.toDouble(), 0.0).endVertex()
             pos(x.toDouble(), y.toDouble(), 0.0).endVertex()
             pos(x.toDouble(), y2.toDouble(), 0.0).endVertex()
@@ -924,8 +924,8 @@ object RenderUtils : MinecraftInstance {
         glPushMatrix()
         glColor(color)
 
-        drawWithTessellatorWorldRenderer {
-            begin(GL_QUADS, DefaultVertexFormats.POSITION)
+        drawWithTesselatorWorldRenderer {
+            begin(GL_QUADS, DefaultVertexFormat.POSITION)
             pos(x2.toDouble(), y.toDouble(), 0.0).endVertex()
             pos(x.toDouble(), y.toDouble(), 0.0).endVertex()
             pos(x.toDouble(), y2.toDouble(), 0.0).endVertex()
@@ -940,8 +940,8 @@ object RenderUtils : MinecraftInstance {
         glColor(color1)
         glLineWidth(width)
 
-        drawWithTessellatorWorldRenderer {
-            begin(GL_LINE_LOOP, DefaultVertexFormats.POSITION)
+        drawWithTesselatorWorldRenderer {
+            begin(GL_LINE_LOOP, DefaultVertexFormat.POSITION)
             pos(x2.toDouble(), y.toDouble(), 0.0).endVertex()
             pos(x.toDouble(), y.toDouble(), 0.0).endVertex()
             pos(x.toDouble(), y2.toDouble(), 0.0).endVertex()
@@ -978,10 +978,10 @@ object RenderUtils : MinecraftInstance {
         tryBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, 1, 0)
         shadeModel(GL_SMOOTH)
 
-        val tessellator = Tessellator.getInstance()
+        val tessellator = Tesselator.getInstance()
         val buffer = tessellator.worldRenderer
 
-        buffer.begin(GL_QUADS, DefaultVertexFormats.POSITION_COLOR)
+        buffer.begin(GL_QUADS, DefaultVertexFormat.POSITION_COLOR)
         buffer.pos(right.toDouble(), top.toDouble(), zLevel.toDouble()).color(r2, g2, b2, a2).endVertex()
         buffer.pos(left.toDouble(), top.toDouble(), zLevel.toDouble()).color(r1, g1, b1, a1).endVertex()
         buffer.pos(left.toDouble(), bottom.toDouble(), zLevel.toDouble()).color(r1, g1, b1, a1).endVertex()
@@ -1143,8 +1143,8 @@ object RenderUtils : MinecraftInstance {
             )
         )
 
-        drawWithTessellatorWorldRenderer {
-            begin(GL_TRIANGLE_FAN, DefaultVertexFormats.POSITION)
+        drawWithTesselatorWorldRenderer {
+            begin(GL_TRIANGLE_FAN, DefaultVertexFormat.POSITION)
 
             for ((corner, directionData) in corners) {
                 val (cx, cy, startAngle, ox, oy) = directionData
@@ -1270,8 +1270,8 @@ object RenderUtils : MinecraftInstance {
             val y2 = y1 + height
             val radiusD = min(radius.toDouble(), min(width, height) / 2.0)
 
-            drawWithTessellatorWorldRenderer {
-                begin(GL_TRIANGLE_FAN, DefaultVertexFormats.POSITION_TEX)
+            drawWithTesselatorWorldRenderer {
+                begin(GL_TRIANGLE_FAN, DefaultVertexFormat.POSITION_TEX)
 
                 val corners = arrayOf(
                     doubleArrayOf(x2 - radiusD, y2 - radiusD, 0.0),
@@ -1309,10 +1309,10 @@ object RenderUtils : MinecraftInstance {
      */
     fun drawModalRectWithCustomSizedTexture(
         x: Float, y: Float, u: Float, v: Float, width: Float, height: Float, textureWidth: Float, textureHeight: Float
-    ) = drawWithTessellatorWorldRenderer {
+    ) = drawWithTesselatorWorldRenderer {
         val f = 1f / textureWidth
         val f1 = 1f / textureHeight
-        begin(7, DefaultVertexFormats.POSITION_TEX)
+        begin(7, DefaultVertexFormat.POSITION_TEX)
         pos(x.toDouble(), (y + height).toDouble(), 0.0).tex((u * f).toDouble(), ((v + height) * f1).toDouble())
             .endVertex()
         pos((x + width).toDouble(), (y + height).toDouble(), 0.0).tex(
@@ -1328,10 +1328,10 @@ object RenderUtils : MinecraftInstance {
      */
     fun drawTexturedModalRect(
         x: Int, y: Int, textureX: Int, textureY: Int, width: Int, height: Int, zLevel: Float
-    ) = drawWithTessellatorWorldRenderer {
+    ) = drawWithTesselatorWorldRenderer {
         val f = 0.00390625f
         val f1 = 0.00390625f
-        begin(7, DefaultVertexFormats.POSITION_TEX)
+        begin(7, DefaultVertexFormat.POSITION_TEX)
         pos(x.toDouble(), (y + height).toDouble(), zLevel.toDouble()).tex(
             (textureX.toFloat() * f).toDouble(), ((textureY + height).toFloat() * f1).toDouble()
         ).endVertex()
@@ -1468,7 +1468,7 @@ object RenderUtils : MinecraftInstance {
     }
 
     fun makeScissorBox(x: Float, y: Float, x2: Float, y2: Float) {
-        val scaledResolution = ScaledResolution(mc)
+        val scaledResolution = Window(mc)
         val factor = scaledResolution.scaleFactor
         glScissor(
             (x * factor).toInt(),
@@ -1517,10 +1517,10 @@ object RenderUtils : MinecraftInstance {
         height: Int,
         tileWidth: Float,
         tileHeight: Float
-    ) = drawWithTessellatorWorldRenderer {
+    ) = drawWithTesselatorWorldRenderer {
         val f = 1f / tileWidth
         val f1 = 1f / tileHeight
-        begin(7, DefaultVertexFormats.POSITION_TEX)
+        begin(7, DefaultVertexFormat.POSITION_TEX)
         pos(x.toDouble(), (y + height).toDouble(), 0.0).tex(
             (u * f).toDouble(), ((v + vHeight.toFloat()) * f1).toDouble()
         ).endVertex()

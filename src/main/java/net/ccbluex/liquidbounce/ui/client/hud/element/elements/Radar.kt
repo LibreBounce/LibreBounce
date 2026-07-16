@@ -20,9 +20,9 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.makeScissorBox
 import net.ccbluex.liquidbounce.utils.render.SafeVertexBuffer
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowShader
-import net.minecraft.client.renderer.GlStateManager.bindTexture
-import net.minecraft.client.renderer.Tessellator
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats
+import net.minecraft.client.render.platform.GlStateManager.bindTexture
+import net.minecraft.client.render.vertex.Tesselator
+import net.minecraft.client.render.vertex.DefaultVertexFormat
 import net.minecraft.client.renderer.vertex.VertexBuffer
 import org.lwjgl.opengl.GL11.*
 import org.lwjgl.util.vector.Vector2f
@@ -149,7 +149,7 @@ class Radar(x: Double = 5.0, y: Double = 130.0) : Element("Radar", x, y) {
         val triangleMode = playerShape == "Triangle"
         val circleMode = playerShape == "Circle"
 
-        val tessellator = Tessellator.getInstance()
+        val tessellator = Tesselator.getInstance()
         val worldRenderer = tessellator.worldRenderer
 
         if (circleMode) {
@@ -163,7 +163,7 @@ class Radar(x: Double = 5.0, y: Double = 130.0) : Element("Radar", x, y) {
         if (triangleMode) {
             playerSize *= 2
         } else {
-            worldRenderer.begin(GL_POINTS, DefaultVertexFormats.POSITION)
+            worldRenderer.begin(GL_POINTS, DefaultVertexFormat.POSITION)
             glPointSize(playerSize)
         }
 
@@ -299,9 +299,9 @@ class Radar(x: Double = 5.0, y: Double = 130.0) : Element("Radar", x, y) {
 
     private fun createFovIndicator(angle: Float): VertexBuffer {
         // Rendering
-        val worldRenderer = Tessellator.getInstance().worldRenderer
+        val worldRenderer = Tesselator.getInstance().worldRenderer
 
-        worldRenderer.begin(GL_TRIANGLE_FAN, DefaultVertexFormats.POSITION)
+        worldRenderer.begin(GL_TRIANGLE_FAN, DefaultVertexFormat.POSITION)
 
         val start = (90f - (angle * 0.5f)).toRadians()
         val end = (90f + (angle * 0.5f)).toRadians()

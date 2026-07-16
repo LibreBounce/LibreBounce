@@ -19,9 +19,9 @@ import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolat
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.makeScissorBox
-import net.minecraft.client.gui.GuiScreen
-import net.minecraft.client.gui.ScaledResolution
-import net.minecraft.client.renderer.GlStateManager.disableLighting
+import net.minecraft.client.gui.screen.Screen
+import net.minecraft.client.render.Window
+import net.minecraft.client.render.platform.GlStateManager.disableLighting
 import net.minecraft.client.renderer.RenderHelper.disableStandardItemLighting
 import net.minecraft.util.ResourceLocation
 import org.lwjgl.input.Mouse
@@ -29,7 +29,7 @@ import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 import kotlin.math.roundToInt
 
-object PanelStyle : GuiScreen() {
+object PanelStyle : Screen() {
     val mainColor = Color(21, 20, 29).rgb
     val mainColor2 = Color(28, 27, 34).rgb
     val highlightColor = Color(238, 150, 208).rgb
@@ -90,7 +90,7 @@ object PanelStyle : GuiScreen() {
         // Enable DisplayList optimization
         assumeNonVolatile = true
 
-        val resolution = ScaledResolution(mc)
+        val resolution = Window(mc)
         val screenWidth = resolution.scaledWidth
         val screenHeight = resolution.scaledHeight
 
@@ -200,7 +200,7 @@ object PanelStyle : GuiScreen() {
 
         elements.toList().forEach { element -> element.handleClick(mouseX.toFloat(), mouseY.toFloat(), mouseButton) }
         if (mouseButton == 0 && x in 5..50 && y in height - 50..height - 5) {
-            mc.displayGuiScreen(GuiHudDesigner())
+            mc.displayScreen(GuiHudDesigner())
             return
         }
 
@@ -225,7 +225,7 @@ object PanelStyle : GuiScreen() {
         // Close ClickGUI by using its keybind
         if (keyCode == ClickGUI.keyBind) {
             if (ignoreClosing) ignoreClosing = false
-            else mc.displayGuiScreen(null)
+            else mc.displayScreen(null)
 
             return
         }

@@ -23,8 +23,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import static net.minecraft.client.renderer.GlStateManager.*;
-import static net.minecraft.util.MathHelper.sin;
+import static net.minecraft.client.render.platform.GlStateManager.*;
+import static net.minecraft.util.math.MathHelper.sin;
 import static org.lwjgl.opengl.GL11.*;
 
 @Mixin(RenderEntityItem.class)

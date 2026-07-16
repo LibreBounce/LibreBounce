@@ -34,8 +34,8 @@ import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowShader
 import net.ccbluex.liquidbounce.utils.render.toColorArray
 import net.minecraft.block.Block
 import net.minecraft.block.BlockBed
-import net.minecraft.client.gui.Gui
-import net.minecraft.client.renderer.GlStateManager.resetColor
+import net.minecraft.client.gui.GuiElement
+import net.minecraft.client.render.platform.GlStateManager.resetColor
 import net.minecraft.init.Blocks.bed
 import net.minecraft.item.ItemStack
 import net.minecraft.util.BlockPos

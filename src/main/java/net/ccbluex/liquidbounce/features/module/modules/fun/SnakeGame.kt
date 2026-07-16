@@ -17,7 +17,7 @@ import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBorder
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawGradientRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
-import net.minecraft.client.gui.ScaledResolution
+import net.minecraft.client.render.Window
 import org.lwjgl.input.Keyboard.*
 import java.awt.Color
 import javax.vecmath.Point2i
@@ -130,7 +130,7 @@ object SnakeGame : Module("SnakeGame", Category.FUN, gameDetecting = false) {
     }
 
     val onRender2D = handler<Render2DEvent> {
-        val sr = ScaledResolution(mc)
+        val sr = Window(mc)
         val w = sr.scaledWidth
         val h = sr.scaledHeight
         val sx = (w / 2 - FIELD_WIDTH / 2).toFloat()

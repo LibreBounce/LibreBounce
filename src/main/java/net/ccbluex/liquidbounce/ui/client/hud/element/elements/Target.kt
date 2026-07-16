@@ -21,7 +21,7 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedBorderRect
 import net.ccbluex.liquidbounce.utils.render.animation.AnimationUtil
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowShader
-import net.minecraft.client.gui.GuiChat
+import net.minecraft.client.gui.screen.ChatScreen
 import net.minecraft.entity.EntityLivingBase
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
@@ -97,7 +97,7 @@ class Target : Element("Target") {
         val smoothMode = animation == "Smooth"
         val fadeMode = animation == "Fade"
 
-        val shouldRender = KillAura.handleEvents() && KillAura.target != null || mc.currentScreen is GuiChat
+        val shouldRender = KillAura.handleEvents() && KillAura.target != null || mc.currentScreen is ChatScreen
         val target = KillAura.target ?: if (delayCounter >= vanishDelay) mc.thePlayer else lastTarget ?: mc.thePlayer
 
         val stringWidth = (40f + (target.name?.let(titleFont::getStringWidth) ?: 0)).coerceAtLeast(118F)

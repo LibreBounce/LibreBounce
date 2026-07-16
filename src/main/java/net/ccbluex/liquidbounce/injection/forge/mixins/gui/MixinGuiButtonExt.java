@@ -10,9 +10,9 @@ import net.ccbluex.liquidbounce.ui.font.Fonts;
 import net.ccbluex.liquidbounce.utils.render.RenderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.util.MathHelper;
-import net.minecraftforge.fml.client.config.GuiButtonExt;
+import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.util.math.MathHelper;
+import net.minecraftforge.fml.client.config.ButtonWidgetExt;
 import net.minecraftforge.fml.client.config.GuiSlider;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -22,11 +22,11 @@ import org.spongepowered.asm.mixin.Unique;
 
 import java.awt.*;
 
-import static net.minecraft.client.renderer.GlStateManager.resetColor;
+import static net.minecraft.client.render.platform.GlStateManager.resetColor;
 
-@Mixin(GuiButtonExt.class)
+@Mixin(ButtonWidgetExt.class)
 @SideOnly(Side.CLIENT)
-public abstract class MixinGuiButtonExt extends GuiButton {
+public abstract class MixinButtonWidgetExt extends ButtonWidget {
     @Unique
     private long startTime = -1L;
 
@@ -36,11 +36,11 @@ public abstract class MixinGuiButtonExt extends GuiButton {
     @Unique
     private float progress = xPosition;
 
-    public MixinGuiButtonExt(int p_i1020_1_, int p_i1020_2_, int p_i1020_3_, String p_i1020_4_) {
+    public MixinButtonWidgetExt(int p_i1020_1_, int p_i1020_2_, int p_i1020_3_, String p_i1020_4_) {
         super(p_i1020_1_, p_i1020_2_, p_i1020_3_, p_i1020_4_);
     }
 
-    public MixinGuiButtonExt(int p_i46323_1_, int p_i46323_2_, int p_i46323_3_, int p_i46323_4_, int p_i46323_5_, String p_i46323_6_) {
+    public MixinButtonWidgetExt(int p_i46323_1_, int p_i46323_2_, int p_i46323_3_, int p_i46323_4_, int p_i46323_5_, String p_i46323_6_) {
         super(p_i46323_1_, p_i46323_2_, p_i46323_3_, p_i46323_4_, p_i46323_5_, p_i46323_6_);
     }
 

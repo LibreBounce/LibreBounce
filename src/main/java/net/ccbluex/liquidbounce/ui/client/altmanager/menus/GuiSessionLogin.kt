@@ -16,14 +16,14 @@ import net.ccbluex.liquidbounce.utils.kotlin.SharedScopes
 import net.ccbluex.liquidbounce.utils.login.LoginUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
 import net.ccbluex.liquidbounce.utils.ui.AbstractScreen
-import net.minecraft.client.gui.GuiButton
-import net.minecraft.client.gui.GuiTextField
+import net.minecraft.client.gui.widget.ButtonWidget
+import net.minecraft.client.gui.GuiElementTextField
 import org.lwjgl.input.Keyboard
 
 class GuiSessionLogin(private val prevGui: GuiAltManager) : AbstractScreen() {
 
     // Buttons
-    private lateinit var loginButton: GuiButton
+    private lateinit var loginButton: ButtonWidget
 
     // User Input Fields
     private lateinit var sessionTokenField: GuiTextField
@@ -39,9 +39,9 @@ class GuiSessionLogin(private val prevGui: GuiAltManager) : AbstractScreen() {
         Keyboard.enableRepeatEvents(true)
 
         // Add buttons to screen
-        loginButton = +GuiButton(1, width / 2 - 100, height / 2 - 60, translationButton("altManager.login"))
+        loginButton = +ButtonWidget(1, width / 2 - 100, height / 2 - 60, translationButton("altManager.login"))
 
-        +GuiButton(0, width / 2 - 100, height / 2 - 30, translationButton("back"))
+        +ButtonWidget(0, width / 2 - 100, height / 2 - 30, translationButton("back"))
 
         // Add fields to screen
         sessionTokenField = GuiTextField(666, Fonts.font40, width / 2 - 100, height / 2 - 90, 200, 20)
@@ -79,11 +79,11 @@ class GuiSessionLogin(private val prevGui: GuiAltManager) : AbstractScreen() {
     /**
      * Handle button actions
      */
-    override fun actionPerformed(button: GuiButton) {
+    override fun actionPerformed(button: ButtonWidget) {
         if (!button.enabled) return
 
         when (button.id) {
-            0 -> mc.displayGuiScreen(prevGui)
+            0 -> mc.displayScreen(prevGui)
             1 -> {
                 loginButton.enabled = false
                 status = "§aLogging in..."
@@ -124,7 +124,7 @@ class GuiSessionLogin(private val prevGui: GuiAltManager) : AbstractScreen() {
             // Check if user want to escape from screen
             Keyboard.KEY_ESCAPE -> {
                 // Send back to prev screen
-                mc.displayGuiScreen(prevGui)
+                mc.displayScreen(prevGui)
                 return
             }
 

@@ -33,25 +33,25 @@ import net.ccbluex.liquidbounce.utils.kotlin.SharedScopes
 import net.ccbluex.liquidbounce.utils.kotlin.swap
 import net.ccbluex.liquidbounce.utils.login.UserUtils.isValidTokenOffline
 import net.ccbluex.liquidbounce.utils.ui.AbstractScreen
-import net.minecraft.client.gui.GuiButton
-import net.minecraft.client.gui.GuiScreen
-import net.minecraft.client.gui.GuiSlot
-import net.minecraft.client.gui.GuiTextField
+import net.minecraft.client.gui.widget.ButtonWidget
+import net.minecraft.client.gui.screen.Screen
+import net.minecraft.client.gui.widget.ListWidget
+import net.minecraft.client.gui.GuiElementTextField
 import net.minecraft.util.Session
 import org.lwjgl.input.Keyboard
 import java.awt.Color
 import java.util.*
 
-class GuiAltManager(private val prevGui: GuiScreen) : AbstractScreen() {
+class GuiAltManager(private val prevGui: Screen) : AbstractScreen() {
 
     var status = "§7Idle..."
 
-    private lateinit var loginButton: GuiButton
-    private lateinit var randomAltButton: GuiButton
-    private lateinit var randomNameButton: GuiButton
-    private lateinit var addButton: GuiButton
-    private lateinit var removeButton: GuiButton
-    private lateinit var copyButton: GuiButton
+    private lateinit var loginButton: ButtonWidget
+    private lateinit var randomAltButton: ButtonWidget
+    private lateinit var randomNameButton: ButtonWidget
+    private lateinit var addButton: ButtonWidget
+    private lateinit var removeButton: ButtonWidget
+    private lateinit var copyButton: ButtonWidget
     private lateinit var altsList: GuiList
     private lateinit var searchField: GuiTextField
 
@@ -72,26 +72,26 @@ class GuiAltManager(private val prevGui: GuiScreen) : AbstractScreen() {
         // Setup buttons
 
         val startPositionY = 22
-        addButton = +GuiButton(1, width - 80, startPositionY + 24, 70, 20, translationButton("add"))
-        removeButton = +GuiButton(2, width - 80, startPositionY + 24 * 2, 70, 20, translationButton("remove"))
-        +GuiButton(13, width - 80, startPositionY + 24 * 3, 70, 20, translationButton("moveUp"))
-        +GuiButton(14, width - 80, startPositionY + 24 * 4, 70, 20, translationButton("moveDown"))
-        +GuiButton(7, width - 80, startPositionY + 24 * 5, 70, 20, translationButton("import"))
-        +GuiButton(12, width - 80, startPositionY + 24 * 6, 70, 20, translationButton("export"))
-        copyButton = +GuiButton(8, width - 80, startPositionY + 24 * 7, 70, 20, translationButton("altManager.copy"))
+        addButton = +ButtonWidget(1, width - 80, startPositionY + 24, 70, 20, translationButton("add"))
+        removeButton = +ButtonWidget(2, width - 80, startPositionY + 24 * 2, 70, 20, translationButton("remove"))
+        +ButtonWidget(13, width - 80, startPositionY + 24 * 3, 70, 20, translationButton("moveUp"))
+        +ButtonWidget(14, width - 80, startPositionY + 24 * 4, 70, 20, translationButton("moveDown"))
+        +ButtonWidget(7, width - 80, startPositionY + 24 * 5, 70, 20, translationButton("import"))
+        +ButtonWidget(12, width - 80, startPositionY + 24 * 6, 70, 20, translationButton("export"))
+        copyButton = +ButtonWidget(8, width - 80, startPositionY + 24 * 7, 70, 20, translationButton("altManager.copy"))
 
-        +GuiButton(0, width - 80, height - 65, 70, 20, translationButton("back"))
-        loginButton = +GuiButton(3, 5, startPositionY + 24, 90, 20, translationButton("altManager.login"))
-        randomAltButton = +GuiButton(4, 5, startPositionY + 24 * 2, 90, 20, translationButton("altManager.randomAlt"))
-        randomNameButton = +GuiButton(5, 5, startPositionY + 24 * 3, 90, 20, translationButton("altManager.randomName"))
-        +GuiButton(6, 5, startPositionY + 24 * 4, 90, 20, translationButton("altManager.directLogin"))
-        +GuiButton(10, 5, startPositionY + 24 * 5, 90, 20, translationButton("altManager.sessionLogin"))
+        +ButtonWidget(0, width - 80, height - 65, 70, 20, translationButton("back"))
+        loginButton = +ButtonWidget(3, 5, startPositionY + 24, 90, 20, translationButton("altManager.login"))
+        randomAltButton = +ButtonWidget(4, 5, startPositionY + 24 * 2, 90, 20, translationButton("altManager.randomAlt"))
+        randomNameButton = +ButtonWidget(5, 5, startPositionY + 24 * 3, 90, 20, translationButton("altManager.randomName"))
+        +ButtonWidget(6, 5, startPositionY + 24 * 4, 90, 20, translationButton("altManager.directLogin"))
+        +ButtonWidget(10, 5, startPositionY + 24 * 5, 90, 20, translationButton("altManager.sessionLogin"))
 
         if (activeGenerators.getOrDefault("thealtening", true)) {
-            +GuiButton(9, 5, startPositionY + 24 * 6, 90, 20, translationButton("altManager.theAltening"))
+            +ButtonWidget(9, 5, startPositionY + 24 * 6, 90, 20, translationButton("altManager.theAltening"))
         }
 
-        +GuiButton(11, 5, startPositionY + 24 * 7, 90, 20, translationButton("altManager.cape"))
+        +ButtonWidget(11, 5, startPositionY + 24 * 7, 90, 20, translationButton("altManager.cape"))
     }
 
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
@@ -126,13 +126,13 @@ class GuiAltManager(private val prevGui: GuiScreen) : AbstractScreen() {
         super.drawScreen(mouseX, mouseY, partialTicks)
     }
 
-    public override fun actionPerformed(button: GuiButton) {
+    public override fun actionPerformed(button: ButtonWidget) {
         // Not enabled buttons should be ignored
         if (!button.enabled) return
 
         when (button.id) {
-            0 -> mc.displayGuiScreen(prevGui)
-            1 -> mc.displayGuiScreen(GuiLoginIntoAccount(this))
+            0 -> mc.displayScreen(prevGui)
+            1 -> mc.displayScreen(GuiLoginIntoAccount(this))
             2 -> { // Delete button
                 status = if (altsList.selectedSlot != -1 && altsList.selectedSlot < altsList.size) {
                     accountsConfig.removeAccount(altsList.accounts[altsList.selectedSlot])
@@ -189,7 +189,7 @@ class GuiAltManager(private val prevGui: GuiScreen) : AbstractScreen() {
             }
 
             6 -> { // Direct login button
-                mc.displayGuiScreen(GuiLoginIntoAccount(this, directLogin = true))
+                mc.displayScreen(GuiLoginIntoAccount(this, directLogin = true))
             }
 
             7 -> { // Import button
@@ -266,15 +266,15 @@ class GuiAltManager(private val prevGui: GuiScreen) : AbstractScreen() {
             }
 
             9 -> { // Altening Button
-                mc.displayGuiScreen(GuiTheAltening(this))
+                mc.displayScreen(GuiTheAltening(this))
             }
 
             10 -> { // Session Login Button
-                mc.displayGuiScreen(GuiSessionLogin(this))
+                mc.displayScreen(GuiSessionLogin(this))
             }
 
             11 -> { // Donator Cape Button
-                mc.displayGuiScreen(GuiDonatorCape(this))
+                mc.displayScreen(GuiDonatorCape(this))
             }
 
             13 -> { // Move Up Button
@@ -330,7 +330,7 @@ class GuiAltManager(private val prevGui: GuiScreen) : AbstractScreen() {
 
         when (keyCode) {
             // Go back
-            Keyboard.KEY_ESCAPE -> mc.displayGuiScreen(prevGui)
+            Keyboard.KEY_ESCAPE -> mc.displayScreen(prevGui)
 
             // Go one up in account list
             Keyboard.KEY_UP -> altsList.selectedSlot--
@@ -378,8 +378,8 @@ class GuiAltManager(private val prevGui: GuiScreen) : AbstractScreen() {
 
     override fun updateScreen() = searchField.updateCursorCounter()
 
-    private inner class GuiList(prevGui: GuiScreen) :
-        GuiSlot(mc, prevGui.width, prevGui.height, 40, prevGui.height - 40, 30) {
+    private inner class GuiList(prevGui: Screen) :
+        ListWidget(mc, prevGui.width, prevGui.height, 40, prevGui.height - 40, 30) {
 
         val accounts: List<MinecraftAccount>
             get() {

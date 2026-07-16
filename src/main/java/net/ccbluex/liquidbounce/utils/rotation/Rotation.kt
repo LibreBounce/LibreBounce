@@ -14,7 +14,7 @@ import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.getFixedAngleDelta
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.getFixedSensitivityAngle
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.serverRotation
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.util.MathHelper
+import net.minecraft.util.math.MathHelper
 import net.minecraft.util.Vec3
 import javax.vecmath.Vector2f
 import kotlin.math.*

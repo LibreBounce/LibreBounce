@@ -13,9 +13,9 @@ import net.ccbluex.liquidbounce.utils.client.TabUtils
 import net.ccbluex.liquidbounce.utils.kotlin.SharedScopes
 import net.ccbluex.liquidbounce.utils.io.MiscUtils
 import net.ccbluex.liquidbounce.utils.ui.AbstractScreen
-import net.minecraft.client.gui.GuiButton
-import net.minecraft.client.gui.GuiScreen
-import net.minecraft.client.gui.GuiTextField
+import net.minecraft.client.gui.widget.ButtonWidget
+import net.minecraft.client.gui.screen.Screen
+import net.minecraft.client.gui.GuiElementTextField
 import org.lwjgl.input.Keyboard
 import java.awt.Color
 import java.net.InetSocketAddress
@@ -23,7 +23,7 @@ import java.net.Socket
 import java.util.concurrent.atomic.AtomicInteger
 import javax.swing.JOptionPane
 
-class GuiPortScanner(private val prevGui: GuiScreen) : AbstractScreen() {
+class GuiPortScanner(private val prevGui: Screen) : AbstractScreen() {
 
     private val ports = LinkedHashSet<Int>()
 
@@ -31,7 +31,7 @@ class GuiPortScanner(private val prevGui: GuiScreen) : AbstractScreen() {
     private lateinit var minPortField: GuiTextField
     private lateinit var maxPortField: GuiTextField
     private lateinit var parallelismField: GuiTextField
-    private lateinit var buttonToggle: GuiButton
+    private lateinit var buttonToggle: ButtonWidget
     private var status = "§7Waiting..."
     private var host: String = ""
     private var maxPort = 0
@@ -79,9 +79,9 @@ class GuiPortScanner(private val prevGui: GuiScreen) : AbstractScreen() {
             }
         }
 
-        buttonToggle = +GuiButton(1, width / 2 - 100, height / 4 + 95, if (running) "Stop" else "Start")
-        +GuiButton(0, width / 2 - 100, height / 4 + 120, "Back")
-        +GuiButton(2, width / 2 - 100, height / 4 + 155, "Export")
+        buttonToggle = +ButtonWidget(1, width / 2 - 100, height / 4 + 95, if (running) "Stop" else "Start")
+        +ButtonWidget(0, width / 2 - 100, height / 4 + 120, "Back")
+        +ButtonWidget(2, width / 2 - 100, height / 4 + 155, "Export")
 
         super.initGui()
     }
@@ -112,9 +112,9 @@ class GuiPortScanner(private val prevGui: GuiScreen) : AbstractScreen() {
         super.drawScreen(mouseX, mouseY, partialTicks)
     }
 
-    override fun actionPerformed(button: GuiButton) {
+    override fun actionPerformed(button: ButtonWidget) {
         when (button.id) {
-            0 -> mc.displayGuiScreen(prevGui)
+            0 -> mc.displayScreen(prevGui)
             1 -> togglePortScanning()
             2 -> exportPorts()
         }
@@ -201,7 +201,7 @@ class GuiPortScanner(private val prevGui: GuiScreen) : AbstractScreen() {
 
     override fun keyTyped(typedChar: Char, keyCode: Int) {
         if (keyCode == Keyboard.KEY_ESCAPE) {
-            mc.displayGuiScreen(prevGui)
+            mc.displayScreen(prevGui)
             return
         }
 

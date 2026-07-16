@@ -1,6 +1,6 @@
 package net.ccbluex.liquidbounce.injection.forge.mixins.block;
 
-import net.minecraft.block.BlockAnvil;
+import net.minecraft.block.AnvilBlock;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.BlockPos;
@@ -11,8 +11,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(BlockAnvil.class)
-public abstract class MixinBlockAnvil extends MixinBlock {
+@Mixin(AnvilBlock.class)
+public abstract class MixinAnvilBlock extends MixinBlock {
 
     @Inject(method = "onBlockPlaced", cancellable = true, at = @At("HEAD"))
     private void injectAnvilCrashFix(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer, CallbackInfoReturnable<IBlockState> cir) {

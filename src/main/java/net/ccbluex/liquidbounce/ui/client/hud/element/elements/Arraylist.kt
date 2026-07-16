@@ -34,7 +34,7 @@ import net.ccbluex.liquidbounce.utils.render.shader.shaders.GradientFontShader
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.GradientShader
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowFontShader
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowShader
-import net.minecraft.client.renderer.GlStateManager.resetColor
+import net.minecraft.client.render.platform.GlStateManager.resetColor
 import org.lwjgl.input.Keyboard
 import java.awt.Color
 

@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.utils.client
 
-import net.minecraft.client.gui.GuiTextField
+import net.minecraft.client.gui.GuiElementTextField
 import org.lwjgl.input.Keyboard
 
 object TabUtils {

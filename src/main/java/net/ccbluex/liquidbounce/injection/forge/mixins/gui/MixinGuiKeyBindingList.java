@@ -6,15 +6,15 @@
 package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiKeyBindingList;
-import net.minecraft.client.gui.GuiSlot;
+import net.minecraft.client.gui.GuiElementKeyBindingList;
+import net.minecraft.client.gui.widget.ListWidget;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(GuiKeyBindingList.class)
-public abstract class MixinGuiKeyBindingList extends GuiSlot {
+public abstract class MixinGuiKeyBindingList extends ListWidget {
 
     public MixinGuiKeyBindingList(Minecraft mcIn, int width, int height, int topIn, int bottomIn, int slotHeightIn) {
         super(mcIn, width, height, topIn, bottomIn, slotHeightIn);

@@ -15,14 +15,14 @@ import net.ccbluex.liquidbounce.utils.io.newCall
 import net.ccbluex.liquidbounce.utils.kotlin.SharedScopes
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
 import net.ccbluex.liquidbounce.utils.ui.AbstractScreen
-import net.minecraft.client.gui.GuiButton
-import net.minecraft.client.gui.GuiScreen
+import net.minecraft.client.gui.widget.ButtonWidget
+import net.minecraft.client.gui.screen.Screen
 import okhttp3.Request
 import org.lwjgl.input.Keyboard
 import java.awt.Color
 import java.io.IOException
 
-class GuiServerStatus(private val prevGui: GuiScreen) : AbstractScreen() {
+class GuiServerStatus(private val prevGui: Screen) : AbstractScreen() {
     private val status = hashMapOf<String, String?>(
         "https://api.mojang.com" to null,
         "https://session.minecraft.net" to null,
@@ -34,7 +34,7 @@ class GuiServerStatus(private val prevGui: GuiScreen) : AbstractScreen() {
     )
 
     override fun initGui() {
-        +GuiButton(1, width / 2 - 100, height / 4 + 145, "Back")
+        +ButtonWidget(1, width / 2 - 100, height / 4 + 145, "Back")
 
         loadInformation()
     }
@@ -102,13 +102,13 @@ class GuiServerStatus(private val prevGui: GuiScreen) : AbstractScreen() {
         }
     }
 
-    override fun actionPerformed(button: GuiButton) {
-        if (button.id == 1) mc.displayGuiScreen(prevGui)
+    override fun actionPerformed(button: ButtonWidget) {
+        if (button.id == 1) mc.displayScreen(prevGui)
     }
 
     override fun keyTyped(typedChar: Char, keyCode: Int) {
         if (Keyboard.KEY_ESCAPE == keyCode) {
-            mc.displayGuiScreen(prevGui)
+            mc.displayScreen(prevGui)
             return
         }
 

@@ -19,10 +19,10 @@ import net.ccbluex.liquidbounce.utils.client.javaVersion
 import net.ccbluex.liquidbounce.utils.io.MiscUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedBorderRect
 import net.ccbluex.liquidbounce.utils.ui.AbstractScreen
-import net.minecraft.client.gui.GuiButton
-import net.minecraft.client.gui.GuiMultiplayer
-import net.minecraft.client.gui.GuiOptions
-import net.minecraft.client.gui.GuiSelectWorld
+import net.minecraft.client.gui.widget.ButtonWidget
+import net.minecraft.client.gui.GuiElementMultiplayer
+import net.minecraft.client.gui.GuiElementOptions
+import net.minecraft.client.gui.GuiElementSelectWorld
 import net.minecraft.client.resources.I18n
 import org.lwjgl.input.Mouse
 import org.semver4j.Semver
@@ -75,21 +75,21 @@ class GuiMainMenu : AbstractScreen() {
         val baseCol1 = width / 2 - 100
         val baseCol2 = width / 2 + 2
 
-        +GuiButton(100, baseCol1, defaultHeight + 24, 98, 20, translationMenu("altManager"))
-        +GuiButton(103, baseCol2, defaultHeight + 24, 98, 20, translationMenu("mods"))
-        +GuiButton(109, baseCol1, defaultHeight + 24 * 2, 98, 20, translationMenu("fontManager"))
-        +GuiButton(102, baseCol2, defaultHeight + 24 * 2, 98, 20, translationMenu("configuration"))
-        +GuiButton(101, baseCol1, defaultHeight + 24 * 3, 98, 20, translationMenu("serverStatus"))
-        +GuiButton(108, baseCol2, defaultHeight + 24 * 3, 98, 20, translationMenu("contributors"))
+        +ButtonWidget(100, baseCol1, defaultHeight + 24, 98, 20, translationMenu("altManager"))
+        +ButtonWidget(103, baseCol2, defaultHeight + 24, 98, 20, translationMenu("mods"))
+        +ButtonWidget(109, baseCol1, defaultHeight + 24 * 2, 98, 20, translationMenu("fontManager"))
+        +ButtonWidget(102, baseCol2, defaultHeight + 24 * 2, 98, 20, translationMenu("configuration"))
+        +ButtonWidget(101, baseCol1, defaultHeight + 24 * 3, 98, 20, translationMenu("serverStatus"))
+        +ButtonWidget(108, baseCol2, defaultHeight + 24 * 3, 98, 20, translationMenu("contributors"))
 
-        +GuiButton(1, baseCol1, defaultHeight, 98, 20, I18n.format("menu.singleplayer"))
-        +GuiButton(2, baseCol2, defaultHeight, 98, 20, I18n.format("menu.multiplayer"))
+        +ButtonWidget(1, baseCol1, defaultHeight, 98, 20, I18n.format("menu.singleplayer"))
+        +ButtonWidget(2, baseCol2, defaultHeight, 98, 20, I18n.format("menu.multiplayer"))
 
         // Minecraft Realms
-        //        +GuiButton(14, this.baseCol1, j + 24 * 2, I18n.format("menu.online"))
+        //        +ButtonWidget(14, this.baseCol1, j + 24 * 2, I18n.format("menu.online"))
 
-        +GuiButton(0, baseCol1, defaultHeight + 24 * 4, 98, 20, I18n.format("menu.options"))
-        +GuiButton(4, baseCol2, defaultHeight + 24 * 4, 98, 20, I18n.format("menu.quit"))
+        +ButtonWidget(0, baseCol1, defaultHeight + 24 * 4, 98, 20, I18n.format("menu.options"))
+        +ButtonWidget(4, baseCol2, defaultHeight + 24 * 4, 98, 20, I18n.format("menu.quit"))
     }
 
     private fun showWelcomePopup() {
@@ -245,22 +245,22 @@ class GuiMainMenu : AbstractScreen() {
         super.mouseClicked(mouseX, mouseY, mouseButton)
     }
 
-    override fun actionPerformed(button: GuiButton) {
+    override fun actionPerformed(button: ButtonWidget) {
         if (popup != null) {
             return
         }
 
         when (button.id) {
-            0 -> mc.displayGuiScreen(GuiOptions(this, mc.gameSettings))
-            1 -> mc.displayGuiScreen(GuiSelectWorld(this))
-            2 -> mc.displayGuiScreen(GuiMultiplayer(this))
+            0 -> mc.displayScreen(GuiOptions(this, mc.gameSettings))
+            1 -> mc.displayScreen(GuiSelectWorld(this))
+            2 -> mc.displayScreen(GuiMultiplayer(this))
             4 -> mc.shutdown()
-            100 -> mc.displayGuiScreen(GuiAltManager(this))
-            101 -> mc.displayGuiScreen(GuiServerStatus(this))
-            102 -> mc.displayGuiScreen(GuiClientConfiguration(this))
-            103 -> mc.displayGuiScreen(GuiModsMenu(this))
-            108 -> mc.displayGuiScreen(GuiContributors(this))
-            109 -> mc.displayGuiScreen(GuiFontManager(this))
+            100 -> mc.displayScreen(GuiAltManager(this))
+            101 -> mc.displayScreen(GuiServerStatus(this))
+            102 -> mc.displayScreen(GuiClientConfiguration(this))
+            103 -> mc.displayScreen(GuiModsMenu(this))
+            108 -> mc.displayScreen(GuiContributors(this))
+            109 -> mc.displayScreen(GuiFontManager(this))
         }
     }
 

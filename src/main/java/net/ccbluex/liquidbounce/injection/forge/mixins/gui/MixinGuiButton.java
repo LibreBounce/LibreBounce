@@ -10,7 +10,7 @@ import net.ccbluex.liquidbounce.ui.font.Fonts;
 import net.ccbluex.liquidbounce.utils.render.RenderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
-import net.minecraft.util.MathHelper;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -18,11 +18,11 @@ import org.spongepowered.asm.mixin.*;
 
 import java.awt.*;
 
-import static net.minecraft.client.renderer.GlStateManager.resetColor;
+import static net.minecraft.client.render.platform.GlStateManager.resetColor;
 
-@Mixin(GuiButton.class)
+@Mixin(ButtonWidget.class)
 @SideOnly(Side.CLIENT)
-public abstract class MixinGuiButton extends Gui {
+public abstract class MixinButtonWidget extends Gui {
 
     @Shadow
     public boolean visible;
@@ -82,8 +82,8 @@ public abstract class MixinGuiButton extends Gui {
                 hovered = true;
             }
 
-            if ((Object) this instanceof GuiScreenOptionsSounds.Button) {
-                supposedWidth *= ((GuiScreenOptionsSounds.Button) (Object) this).field_146156_o;
+            if ((Object) this instanceof ScreenOptionsSounds.Button) {
+                supposedWidth *= ((ScreenOptionsSounds.Button) (Object) this).field_146156_o;
                 hovered = true;
             }
 

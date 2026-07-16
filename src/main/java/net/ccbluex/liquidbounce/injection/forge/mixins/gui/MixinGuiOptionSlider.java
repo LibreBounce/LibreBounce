@@ -1,7 +1,7 @@
 package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiOptionSlider;
+import net.minecraft.client.gui.GuiElementOptionSlider;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

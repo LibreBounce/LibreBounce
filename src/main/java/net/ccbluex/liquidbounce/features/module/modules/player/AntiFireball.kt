@@ -20,8 +20,8 @@ import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.setTargetRotation
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.toRotation
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
-import net.minecraft.client.gui.ScaledResolution
-import net.minecraft.client.renderer.GlStateManager
+import net.minecraft.client.render.Window
+import net.minecraft.client.render.platform.GlStateManager
 import net.minecraft.entity.Entity
 import net.minecraft.entity.projectile.EntityFireball
 import net.minecraft.util.ResourceLocation
@@ -81,7 +81,7 @@ object AntiFireball : Module("AntiFireball", Category.PLAYER) {
 
     val onRender2D = handler<Render2DEvent> {
         val player = mc.thePlayer ?: return@handler
-        val t = ScaledResolution(mc)
+        val t = Window(mc)
 
         for (entity in mc.theWorld.loadedEntityList) {
             if (entity.name == "Fireball") {

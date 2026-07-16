@@ -8,7 +8,7 @@ package net.ccbluex.liquidbounce.utils.attack
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance.Companion.mc
 import net.minecraft.item.*
 import net.minecraft.potion.Potion
-import net.minecraft.util.MathHelper
+import net.minecraft.util.math.MathHelper
 import kotlin.math.min
 
 /**

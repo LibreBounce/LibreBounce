@@ -20,14 +20,14 @@ import net.ccbluex.liquidbounce.utils.io.FileFilters
 import net.ccbluex.liquidbounce.utils.io.MiscUtils
 import net.ccbluex.liquidbounce.utils.io.extractZipTo
 import net.ccbluex.liquidbounce.utils.ui.AbstractScreen
-import net.minecraft.client.gui.GuiButton
-import net.minecraft.client.gui.GuiScreen
-import net.minecraft.client.gui.GuiSlot
+import net.minecraft.client.gui.widget.ButtonWidget
+import net.minecraft.client.gui.screen.Screen
+import net.minecraft.client.gui.widget.ListWidget
 import org.lwjgl.input.Keyboard
 import java.awt.Color
 import java.awt.Desktop
 
-class GuiScripts(private val prevGui: GuiScreen) : AbstractScreen() {
+class GuiScripts(private val prevGui: Screen) : AbstractScreen() {
 
     private lateinit var list: GuiList
 
@@ -37,13 +37,13 @@ class GuiScripts(private val prevGui: GuiScreen) : AbstractScreen() {
         list.elementClicked(-1, false, 0, 0)
 
         val j = 22
-        +GuiButton(0, width - 80, height - 65, 70, 20, "Back")
-        +GuiButton(1, width - 80, j + 24, 70, 20, "Import")
-        +GuiButton(2, width - 80, j + 24 * 2, 70, 20, "Delete")
-        +GuiButton(3, width - 80, j + 24 * 3, 70, 20, "Reload")
-        +GuiButton(4, width - 80, j + 24 * 4, 70, 20, "Folder")
-        +GuiButton(5, width - 80, j + 24 * 5, 70, 20, "Docs")
-        +GuiButton(6, width - 80, j + 24 * 6, 70, 20, "Find Scripts")
+        +ButtonWidget(0, width - 80, height - 65, 70, 20, "Back")
+        +ButtonWidget(1, width - 80, j + 24, 70, 20, "Import")
+        +ButtonWidget(2, width - 80, j + 24 * 2, 70, 20, "Delete")
+        +ButtonWidget(3, width - 80, j + 24 * 3, 70, 20, "Reload")
+        +ButtonWidget(4, width - 80, j + 24 * 4, 70, 20, "Folder")
+        +ButtonWidget(5, width - 80, j + 24 * 5, 70, 20, "Docs")
+        +ButtonWidget(6, width - 80, j + 24 * 6, 70, 20, "Find Scripts")
     }
 
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
@@ -58,9 +58,9 @@ class GuiScripts(private val prevGui: GuiScreen) : AbstractScreen() {
         super.drawScreen(mouseX, mouseY, partialTicks)
     }
 
-    override fun actionPerformed(button: GuiButton) {
+    override fun actionPerformed(button: ButtonWidget) {
         when (button.id) {
-            0 -> mc.displayGuiScreen(prevGui)
+            0 -> mc.displayScreen(prevGui)
             1 -> try {
                 val file = MiscUtils.openFileChooser(FileFilters.JAVASCRIPT, FileFilters.ARCHIVE) ?: return
 
@@ -138,7 +138,7 @@ class GuiScripts(private val prevGui: GuiScreen) : AbstractScreen() {
 
     override fun keyTyped(typedChar: Char, keyCode: Int) {
         if (Keyboard.KEY_ESCAPE == keyCode) {
-            mc.displayGuiScreen(prevGui)
+            mc.displayScreen(prevGui)
             return
         }
 
@@ -150,8 +150,8 @@ class GuiScripts(private val prevGui: GuiScreen) : AbstractScreen() {
         list.handleMouseInput()
     }
 
-    private inner class GuiList(gui: GuiScreen) :
-        GuiSlot(mc, gui.width, gui.height, 40, gui.height - 40, 30) {
+    private inner class GuiList(gui: Screen) :
+        ListWidget(mc, gui.width, gui.height, 40, gui.height - 40, 30) {
 
         private var selectedSlot = 0
 

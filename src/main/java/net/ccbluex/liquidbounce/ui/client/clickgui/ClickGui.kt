@@ -37,8 +37,8 @@ import net.ccbluex.liquidbounce.utils.client.playSound
 import net.ccbluex.liquidbounce.utils.kotlin.SharedScopes
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.deltaTime
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawImage
-import net.minecraft.client.gui.GuiScreen
-import net.minecraft.client.renderer.GlStateManager.disableLighting
+import net.minecraft.client.gui.screen.Screen
+import net.minecraft.client.render.platform.GlStateManager.disableLighting
 import net.minecraft.client.renderer.RenderHelper
 import net.minecraft.util.ResourceLocation
 import org.lwjgl.input.Keyboard
@@ -46,7 +46,7 @@ import org.lwjgl.input.Mouse
 import org.lwjgl.opengl.GL11.glScaled
 import kotlin.math.roundToInt
 
-object ClickGui : GuiScreen() {
+object ClickGui : Screen() {
 
     // Note: hash key = [Panel.name]
     val panels = linkedSetOf<Panel>()
@@ -236,7 +236,7 @@ object ClickGui : GuiScreen() {
 
     public override fun mouseClicked(x: Int, y: Int, mouseButton: Int) {
         if (mouseButton == 0 && x in 5..50 && y in height - 50..height - 5) {
-            mc.displayGuiScreen(GuiHudDesigner())
+            mc.displayScreen(GuiHudDesigner())
             return
         }
 
@@ -303,7 +303,7 @@ object ClickGui : GuiScreen() {
                 if (ignoreClosing) {
                     ignoreClosing = false
                 } else {
-                    mc.displayGuiScreen(null)
+                    mc.displayScreen(null)
                 }
 
                 return

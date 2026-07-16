@@ -14,50 +14,50 @@ import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.kotlin.SharedScopes
 import net.ccbluex.liquidbounce.utils.ui.AbstractScreen
-import net.minecraft.client.gui.GuiButton
-import net.minecraft.client.gui.GuiScreen
-import net.minecraft.client.gui.GuiTextField
+import net.minecraft.client.gui.widget.ButtonWidget
+import net.minecraft.client.gui.screen.Screen
+import net.minecraft.client.gui.GuiElementTextField
 import net.minecraftforge.fml.client.GuiModList
 import org.lwjgl.input.Keyboard
 
-class GuiModsMenu(private val prevGui: GuiScreen) : AbstractScreen() {
+class GuiModsMenu(private val prevGui: Screen) : AbstractScreen() {
 
     private lateinit var customTextField: GuiTextField
 
     override fun initGui() {
-        +GuiButton(0, width / 2 - 100, height / 4 + 48, "Forge Mods")
-        +GuiButton(1, width / 2 - 100, height / 4 + 48 + 25, "Scripts")
-        +GuiButton(
+        +ButtonWidget(0, width / 2 - 100, height / 4 + 48, "Forge Mods")
+        +ButtonWidget(1, width / 2 - 100, height / 4 + 48 + 25, "Scripts")
+        +ButtonWidget(
             2,
             width / 2 - 100,
             height / 4 + 48 + 85,
             "Toggle: ${if (clientRichPresence.showRPCValue) "§aON" else "§cOFF"}"
         )
-        +GuiButton(
+        +ButtonWidget(
             3,
             width / 2 - 100,
             height / 4 + 48 + 110,
             "Show IP: ${if (clientRichPresence.showRPCServerIP) "§aON" else "§cOFF"}"
         )
-        +GuiButton(
+        +ButtonWidget(
             4,
             width / 2 - 100,
             height / 4 + 48 + 135,
             "Show Modules Count: ${if (clientRichPresence.showRPCModulesCount) "§aON" else "§cOFF"}"
         )
-        +GuiButton(5, width / 2 - 100, height / 4 + 48 + 255, "Back")
+        +ButtonWidget(5, width / 2 - 100, height / 4 + 48 + 255, "Back")
 
         customTextField = GuiTextField(2, Fonts.font35, width / 2 - 100, height / 4 + 48 + 190, 200, 20)
         customTextField.maxStringLength = Int.MAX_VALUE
     }
 
-    override fun actionPerformed(button: GuiButton) {
+    override fun actionPerformed(button: ButtonWidget) {
         when (val id = button.id) {
             // Forge Mods
-            0 -> mc.displayGuiScreen(GuiModList(this))
+            0 -> mc.displayScreen(GuiModList(this))
 
             // Scripts
-            1 -> mc.displayGuiScreen(GuiScripts(this))
+            1 -> mc.displayScreen(GuiScripts(this))
 
             // Toggle
             2 -> {
@@ -129,7 +129,7 @@ class GuiModsMenu(private val prevGui: GuiScreen) : AbstractScreen() {
             }
 
             // Back
-            5 -> mc.displayGuiScreen(prevGui)
+            5 -> mc.displayScreen(prevGui)
         }
     }
 
@@ -170,7 +170,7 @@ class GuiModsMenu(private val prevGui: GuiScreen) : AbstractScreen() {
 
     override fun keyTyped(typedChar: Char, keyCode: Int) {
         if (Keyboard.KEY_ESCAPE == keyCode) {
-            mc.displayGuiScreen(prevGui)
+            mc.displayScreen(prevGui)
             return
         }
 

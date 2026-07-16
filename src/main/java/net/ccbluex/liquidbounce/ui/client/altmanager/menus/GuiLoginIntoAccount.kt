@@ -15,15 +15,15 @@ import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolat
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.randomUsername
 import net.ccbluex.liquidbounce.utils.ui.AbstractScreen
-import net.minecraft.client.gui.GuiButton
-import net.minecraft.client.gui.GuiTextField
+import net.minecraft.client.gui.widget.ButtonWidget
+import net.minecraft.client.gui.GuiElementTextField
 import net.minecraft.util.Session
 import org.lwjgl.input.Keyboard
 import java.io.IOException
 
 class GuiLoginIntoAccount(private val prevGui: GuiAltManager, val directLogin: Boolean = false) : AbstractScreen() {
 
-    private lateinit var addButton: GuiButton
+    private lateinit var addButton: ButtonWidget
     private lateinit var username: GuiTextField
 
     private var status = ""
@@ -32,16 +32,16 @@ class GuiLoginIntoAccount(private val prevGui: GuiAltManager, val directLogin: B
         Keyboard.enableRepeatEvents(true)
 
         // Add button
-        addButton = +GuiButton(1, width / 2 - 100, height / 2 - 60, if (directLogin) "Login" else "Add")
+        addButton = +ButtonWidget(1, width / 2 - 100, height / 2 - 60, if (directLogin) "Login" else "Add")
 
         // Random button
-        +GuiButton(2, width / 2 + 105, height / 2 - 90, 40, 20, "Random")
+        +ButtonWidget(2, width / 2 + 105, height / 2 - 90, 40, 20, "Random")
 
         // Login via Microsoft account
-        +GuiButton(3, width / 2 - 100, height / 2, "${if (directLogin) "Login to" else "Add"} a Microsoft account")
+        +ButtonWidget(3, width / 2 - 100, height / 2, "${if (directLogin) "Login to" else "Add"} a Microsoft account")
 
         // Back button
-        +GuiButton(0, width / 2 - 100, height / 2 + 30, "Back")
+        +ButtonWidget(0, width / 2 - 100, height / 2 + 30, "Back")
 
         username = GuiTextField(2, Fonts.font40, width / 2 - 100, height / 2 - 90, 200, 20)
         username.isFocused = false
@@ -76,14 +76,14 @@ class GuiLoginIntoAccount(private val prevGui: GuiAltManager, val directLogin: B
         super.drawScreen(mouseX, mouseY, partialTicks)
     }
 
-    public override fun actionPerformed(button: GuiButton) {
+    public override fun actionPerformed(button: ButtonWidget) {
         // Not enabled buttons should be ignored
         if (!button.enabled) {
             return
         }
 
         when (button.id) {
-            0 -> mc.displayGuiScreen(prevGui)
+            0 -> mc.displayScreen(prevGui)
 
             1 -> {
                 val usernameText = username.text
@@ -95,12 +95,12 @@ class GuiLoginIntoAccount(private val prevGui: GuiAltManager, val directLogin: B
             }
 
             3 -> {
-                mc.displayGuiScreen(
+                mc.displayScreen(
                     GuiMicrosoftLoginProgress({
                         status = it
                     }, {
                         prevGui.status = status
-                        mc.displayGuiScreen(prevGui)
+                        mc.displayScreen(prevGui)
                     })
                 )
             }
@@ -111,7 +111,7 @@ class GuiLoginIntoAccount(private val prevGui: GuiAltManager, val directLogin: B
     public override fun keyTyped(typedChar: Char, keyCode: Int) {
         when (keyCode) {
             Keyboard.KEY_ESCAPE -> {
-                mc.displayGuiScreen(prevGui)
+                mc.displayScreen(prevGui)
                 return
             }
 
@@ -179,6 +179,6 @@ class GuiLoginIntoAccount(private val prevGui: GuiAltManager, val directLogin: B
         }
 
         prevGui.status = status
-        mc.displayGuiScreen(prevGui)
+        mc.displayScreen(prevGui)
     }
 }

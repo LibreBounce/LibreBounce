@@ -7,7 +7,7 @@
 package net.ccbluex.liquidbounce.ui.elements
 
 import net.minecraft.client.gui.FontRenderer
-import net.minecraft.client.gui.GuiTextField
+import net.minecraft.client.gui.GuiElementTextField
 
 class GuiPasswordField(
     componentId: Int,

@@ -17,7 +17,7 @@ import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.render.AnimationUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.deltaTime
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
-import net.minecraft.client.renderer.GlStateManager.resetColor
+import net.minecraft.client.render.platform.GlStateManager.resetColor
 import org.lwjgl.opengl.GL11.glColor4f
 import java.awt.Color
 

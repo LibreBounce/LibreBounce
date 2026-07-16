@@ -4,8 +4,8 @@ import net.ccbluex.liquidbounce.ui.client.PopupScreen.Builder
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.Gui
-import net.minecraft.client.gui.ScaledResolution
+import net.minecraft.client.gui.GuiElement
+import net.minecraft.client.render.Window
 import org.lwjgl.opengl.GL11
 import java.awt.Color
 
@@ -269,7 +269,7 @@ class PopupScreen(
     }
 
     private fun setupScissorBox(x: Int, y: Int, width: Int, height: Int) {
-        val scaleFactor = ScaledResolution(Minecraft.getMinecraft()).scaleFactor
+        val scaleFactor = Window(Minecraft.getMinecraft()).scaleFactor
 
         GL11.glScissor(
             x * scaleFactor,

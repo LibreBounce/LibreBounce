@@ -32,7 +32,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import java.util.UUID;
 
 import static net.ccbluex.liquidbounce.utils.client.MinecraftInstance.mc;
-import static net.minecraft.client.renderer.GlStateManager.*;
+import static net.minecraft.client.render.platform.GlStateManager.*;
 
 @Mixin(LayerHeldItem.class)
 @SideOnly(Side.CLIENT)

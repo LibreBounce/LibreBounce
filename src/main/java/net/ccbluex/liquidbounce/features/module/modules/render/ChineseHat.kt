@@ -21,7 +21,7 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawCone
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawConesForEntities
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.glStateManagerColor
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.isEntityHeightVisible
-import net.minecraft.client.renderer.GlStateManager
+import net.minecraft.client.render.platform.GlStateManager
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer

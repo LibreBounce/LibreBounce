@@ -32,7 +32,7 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawTexture
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.updateTextureCache
 import net.ccbluex.liquidbounce.utils.ui.EditableText
-import net.minecraft.client.gui.ScaledResolution
+import net.minecraft.client.render.Window
 import net.minecraft.util.StringUtils
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
@@ -79,7 +79,7 @@ object LiquidBounceStyle : Style() {
         val height = font35.fontHeight * lines.size + 3
 
         // Don't draw hover text beyond window boundaries
-        val (scaledWidth, scaledHeight) = ScaledResolution(mc)
+        val (scaledWidth, scaledHeight) = Window(mc)
         val x = mouseX.clamp(0, (scaledWidth / scale - width).roundToInt())
         val y = mouseY.clamp(0, (scaledHeight / scale - height).roundToInt())
 

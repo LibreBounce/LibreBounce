@@ -15,9 +15,9 @@ import net.ccbluex.liquidbounce.utils.render.ParticleUtils;
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.BackgroundShader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.WorldRenderer;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.client.render.vertex.Tesselator;
+import net.minecraft.client.render.vertex.BufferBuilder;
+import net.minecraft.client.render.vertex.DefaultVertexFormat;
 import net.minecraft.event.ClickEvent;
 import net.minecraft.event.HoverEvent;
 import net.minecraft.util.ChatStyle;
@@ -36,17 +36,17 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.Collections;
 import java.util.List;
 
-import static net.minecraft.client.renderer.GlStateManager.disableFog;
-import static net.minecraft.client.renderer.GlStateManager.disableLighting;
+import static net.minecraft.client.render.platform.GlStateManager.disableFog;
+import static net.minecraft.client.render.platform.GlStateManager.disableLighting;
 
-@Mixin(GuiScreen.class)
+@Mixin(Screen.class)
 @SideOnly(Side.CLIENT)
-public abstract class MixinGuiScreen {
+public abstract class MixinScreen {
     @Shadow
     public Minecraft mc;
 
     @Shadow
-    protected List<GuiButton> buttonList;
+    protected List<ButtonWidget> buttonList;
 
     @Shadow
     public int width;
@@ -72,7 +72,7 @@ public abstract class MixinGuiScreen {
         final HUD hud = HUD.INSTANCE;
 
         if (hud.getInventoryParticle() && mc.thePlayer != null) {
-            final ScaledResolution scaledResolution = new ScaledResolution(mc);
+            final Window scaledResolution = new Window(mc);
             final int width = scaledResolution.getScaledWidth();
             final int height = scaledResolution.getScaledHeight();
             ParticleUtils.INSTANCE.drawParticles(Mouse.getX() * width / mc.displayWidth, height - Mouse.getY() * height / mc.displayHeight - 1);
@@ -96,13 +96,13 @@ public abstract class MixinGuiScreen {
                 GL11.glPushMatrix();
                 BackgroundShader.Companion.getBACKGROUND_SHADER().startShader();
 
-                final Tessellator instance = Tessellator.getInstance();
-                final WorldRenderer worldRenderer = instance.getWorldRenderer();
+                final Tesselator instance = Tesselator.getInstance();
+                final BufferBuilder worldRenderer = instance.getWorldRenderer();
 
                 GL11.glEnable(GL11.GL_BLEND);
                 GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
-                worldRenderer.begin(7, DefaultVertexFormats.POSITION);
+                worldRenderer.begin(7, DefaultVertexFormat.POSITION);
                 worldRenderer.pos(0, height, 0).endVertex();
                 worldRenderer.pos(width, height, 0).endVertex();
                 worldRenderer.pos(width, 0, 0).endVertex();
@@ -160,11 +160,11 @@ public abstract class MixinGuiScreen {
      * @reason Making it possible for other mixins to receive actions
      */
     @Overwrite
-    protected void actionPerformed(GuiButton button) {
+    protected void actionPerformed(ButtonWidget button) {
         injectedActionPerformed(button);
     }
 
-    protected void injectedActionPerformed(GuiButton button) {
+    protected void injectedActionPerformed(ButtonWidget button) {
 
     }
 }

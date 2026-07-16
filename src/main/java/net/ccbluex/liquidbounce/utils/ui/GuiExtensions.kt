@@ -5,15 +5,15 @@ import net.ccbluex.liquidbounce.config.TextValue
 import net.ccbluex.liquidbounce.config.Value
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.minecraft.client.gui.FontRenderer
-import net.minecraft.client.gui.GuiButton
-import net.minecraft.client.gui.GuiScreen
-import net.minecraft.client.gui.GuiScreen.getClipboardString
-import net.minecraft.client.gui.GuiScreen.setClipboardString
-import net.minecraft.client.gui.GuiTextField
+import net.minecraft.client.gui.widget.ButtonWidget
+import net.minecraft.client.gui.screen.Screen
+import net.minecraft.client.gui.screen.Screen.getClipboardString
+import net.minecraft.client.gui.screen.Screen.setClipboardString
+import net.minecraft.client.gui.GuiElementTextField
 import org.lwjgl.input.Keyboard
 import java.awt.Color
 
-abstract class AbstractScreen : GuiScreen() {
+abstract class AbstractScreen : Screen() {
 
     protected val textFields = arrayListOf<GuiTextField>()
 
@@ -30,7 +30,7 @@ abstract class AbstractScreen : GuiScreen() {
         super.mouseClicked(mouseX, mouseY, mouseButton)
     }
 
-    protected operator fun <T : GuiButton> T.unaryPlus(): T {
+    protected operator fun <T : ButtonWidget> T.unaryPlus(): T {
         buttonList.add(this)
         return this
     }

@@ -8,7 +8,7 @@ package net.ccbluex.liquidbounce.utils.client
 import kotlinx.coroutines.launch
 import net.ccbluex.liquidbounce.ui.client.GuiMainMenu
 import net.ccbluex.liquidbounce.utils.kotlin.SharedScopes
-import net.minecraft.client.gui.GuiMultiplayer
+import net.minecraft.client.gui.GuiElementMultiplayer
 import net.minecraft.client.multiplayer.GuiConnecting
 import net.minecraft.client.multiplayer.ServerAddress
 import net.minecraft.client.multiplayer.ServerData
@@ -56,7 +56,7 @@ object ServerUtils : MinecraftInstance {
                     C00PacketLoginStart(mc.session.profile)
                 )
             }
-        } else mc.displayGuiScreen(GuiConnecting(GuiMultiplayer(GuiMainMenu()), mc, serverData))
+        } else mc.displayScreen(GuiConnecting(GuiMultiplayer(GuiMainMenu()), mc, serverData))
     }
 
     /**

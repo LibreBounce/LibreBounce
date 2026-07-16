@@ -22,7 +22,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(GuiContainer.class)
 @SideOnly(Side.CLIENT)
-public abstract class MixinGuiContainer extends MixinGuiScreen {
+public abstract class MixinGuiContainer extends MixinScreen {
 
     // Separate TickTimer instances to avoid timing conflicts
     @Unique

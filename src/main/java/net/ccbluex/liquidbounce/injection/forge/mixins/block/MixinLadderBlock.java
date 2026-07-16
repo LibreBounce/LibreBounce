@@ -6,8 +6,8 @@
 package net.ccbluex.liquidbounce.injection.forge.mixins.block;
 
 import net.ccbluex.liquidbounce.features.module.modules.movement.FastClimb;
-import net.minecraft.block.BlockLadder;
-import net.minecraft.block.properties.PropertyDirection;
+import net.minecraft.block.LadderBlock;
+import net.minecraft.block.state.property.DirectionProperty;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.spongepowered.asm.mixin.Final;
@@ -16,13 +16,13 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
 
-@Mixin(BlockLadder.class)
+@Mixin(LadderBlock.class)
 @SideOnly(Side.CLIENT)
-public abstract class MixinBlockLadder extends MixinBlock {
+public abstract class MixinLadderBlock extends MixinBlock {
 
     @Shadow
     @Final
-    public static PropertyDirection FACING;
+    public static DirectionProperty FACING;
 
     @ModifyConstant(method = "setBlockBoundsBasedOnState", constant = @Constant(floatValue = 0.125F))
     private float injectAACWallClimb(float constant) {

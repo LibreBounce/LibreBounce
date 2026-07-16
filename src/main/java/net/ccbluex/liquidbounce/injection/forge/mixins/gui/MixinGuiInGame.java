@@ -19,9 +19,9 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils;
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.GradientShader;
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowShader;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiIngame;
-import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.gui.GuiElement;
+import net.minecraft.client.gui.GuiElementIngame;
+import net.minecraft.client.render.Window;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -40,7 +40,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
 
-import static net.minecraft.client.renderer.GlStateManager.*;
+import static net.minecraft.client.render.platform.GlStateManager.*;
 import static org.lwjgl.opengl.GL11.*;
 
 @Mixin(GuiIngame.class)
@@ -70,7 +70,7 @@ public abstract class MixinGuiInGame extends Gui {
     }
 
     @Inject(method = "renderTooltip", at = @At("HEAD"), cancellable = true)
-    private void injectCustomHotbar(ScaledResolution resolution, float delta, CallbackInfo ci) {
+    private void injectCustomHotbar(Window resolution, float delta, CallbackInfo ci) {
         final HUD hud = HUD.INSTANCE;
         final RenderUtils render = RenderUtils.INSTANCE;
 

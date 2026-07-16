@@ -15,7 +15,7 @@ import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.render.platform.GlStateManager;
 import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
@@ -34,7 +34,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-import static net.minecraft.client.renderer.GlStateManager.*;
+import static net.minecraft.client.render.platform.GlStateManager.*;
 
 @Mixin(ItemRenderer.class)
 @SideOnly(Side.CLIENT)
