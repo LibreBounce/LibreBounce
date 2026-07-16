@@ -123,12 +123,12 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
 
         when (packet) {
             // Ignore server related packets
-            is HandshakeC2SPacket, is ServerStatusC2SPacket, is S02PacketChat, is PingS2CPacket -> return@handler
+            is HandshakeC2SPacket, is ServerStatusC2SPacket, is ChatMessageS2CPacket, is PingS2CPacket -> return@handler
 
             is S29PacketSoundEffect -> if (nonDelayedSoundSubstrings in packet.soundName) return@handler
 
             // Flush on own death
-            is S06PacketUpdateHealth -> if (packet.health <= 0) {
+            is PlayerHealthS2CPacket -> if (packet.health <= 0) {
                 clearPackets()
                 return@handler
             }

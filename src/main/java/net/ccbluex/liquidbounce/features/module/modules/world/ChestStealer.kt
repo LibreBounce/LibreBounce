@@ -44,8 +44,8 @@ import net.minecraft.init.Blocks.chest
 import net.minecraft.item.ItemArmor
 import net.minecraft.item.ItemStack
 import net.minecraft.network.packet.c2s.play.CloseInventoryMenuC2SPacket
-import net.minecraft.network.play.server.S2DPacketOpenWindow
-import net.minecraft.network.play.server.S2EPacketCloseWindow
+import net.minecraft.network.packet.s2c.play.OpenInventoryMenuS2CPacket
+import net.minecraft.network.packet.s2c.play.CloseInventoryMenuS2CPacket
 import net.minecraft.network.play.server.S30PacketWindowItems
 import java.awt.Color
 import kotlin.math.sqrt
@@ -452,7 +452,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
     val onPacket = handler<PacketEvent> { event ->
         when (val packet = event.packet) {
-            is CloseInventoryMenuC2SPacket, is S2DPacketOpenWindow, is S2EPacketCloseWindow -> {
+            is CloseInventoryMenuC2SPacket, is OpenInventoryMenuS2CPacket, is CloseInventoryMenuS2CPacket -> {
                 receivedId = null
                 progress = null
             }

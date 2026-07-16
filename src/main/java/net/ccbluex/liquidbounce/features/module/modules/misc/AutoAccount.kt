@@ -14,8 +14,8 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
 import net.ccbluex.liquidbounce.utils.client.ServerUtils
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.randomAccount
-import net.minecraft.network.play.server.S02PacketChat
-import net.minecraft.network.play.server.S40PacketDisconnect
+import net.minecraft.network.play.server.ChatMessageS2CPacket
+import net.minecraft.network.packet.s2c.play.DisconnectS2CPacket
 import net.minecraft.network.play.server.S45PacketTitle
 import net.minecraft.util.ChatComponentText
 import net.minecraft.util.Session
@@ -125,12 +125,12 @@ object AutoAccount :
 
     val onPacket = handler<PacketEvent> { event ->
         when (val packet = event.packet) {
-            is S02PacketChat, is S45PacketTitle -> {
+            is ChatMessageS2CPacket, is S45PacketTitle -> {
                 // Don't respond to register / login prompts when failed once
                 if (!passwordValue.isSupported() || status == Status.STOPPED) return@handler
 
                 val msg = when (packet) {
-                    is S02PacketChat -> packet.chatComponent?.unformattedText?.lowercase()
+                    is ChatMessageS2CPacket -> packet.chatComponent?.unformattedText?.lowercase()
                     is S45PacketTitle -> packet.message?.unformattedText?.lowercase()
                     else -> return@handler
                 } ?: return@handler
@@ -161,7 +161,7 @@ object AutoAccount :
                 }
             }
 
-            is S40PacketDisconnect -> {
+            is DisconnectS2CPacket -> {
                 if (relogKickedValue.isActive() && status != Status.SENT_COMMAND) {
                     val reason = packet.reason.unformattedText
                     if ("ban" in reason) return@handler

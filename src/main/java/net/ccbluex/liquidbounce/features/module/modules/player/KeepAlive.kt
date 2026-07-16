@@ -13,7 +13,7 @@ import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.findItem
 import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar.resetSlot
 import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar.selectSlotSilently
-import net.minecraft.init.Items.mushroom_stew
+import net.minecraft.item.Items.mushroom_stew
 import net.minecraft.network.packet.c2s.play.PlayerUseC2SPacket
 
 object KeepAlive : Module("KeepAlive", Category.PLAYER) {

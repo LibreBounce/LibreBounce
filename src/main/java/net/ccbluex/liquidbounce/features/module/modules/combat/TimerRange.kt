@@ -28,7 +28,7 @@ import net.minecraft.network.Packet
 import net.minecraft.network.packet.c2s.play.PlayerHandActionC2SPacket
 import net.minecraft.network.packet.c2s.play.SignUpdateC2SPacket
 import net.minecraft.network.packet.c2s.play.ResourcePackC2SPacket
-import net.minecraft.network.play.server.S06PacketUpdateHealth
+import net.minecraft.network.packet.s2c.play.PlayerHealthS2CPacket
 import net.minecraft.network.packet.s2c.play.PlayerMoveS2CPacket
 import net.minecraft.network.packet.s2c.play.EntityVelocityS2CPacket
 import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket
@@ -386,7 +386,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
                     }
 
                     // Flush on damage
-                    is S06PacketUpdateHealth -> {
+                    is PlayerHealthS2CPacket -> {
                         if (packet.health < player.health) {
                             BlinkUtils.unblink()
                             return@handler

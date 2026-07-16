@@ -16,7 +16,7 @@ import net.minecraft.client.network.NetHandlerLoginClient
 import net.minecraft.network.NetworkProtocol
 import net.minecraft.network.Connection
 import net.minecraft.network.packet.c2s.handshake.HandshakeC2SPacket
-import net.minecraft.network.login.client.C00PacketLoginStart
+import net.minecraft.network.packet.c2s.login.HelloC2SPacket
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
 import java.net.InetAddress
@@ -53,7 +53,7 @@ object ServerUtils : MinecraftInstance {
                 )
 
                 networkManager.sendPacket(
-                    C00PacketLoginStart(mc.session.profile)
+                    HelloC2SPacket(mc.session.profile)
                 )
             }
         } else mc.displayScreen(ConnectScreen(MultiplayerScreen(TitleScreen()), mc, serverData))

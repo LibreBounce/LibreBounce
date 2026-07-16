@@ -38,7 +38,7 @@ import net.minecraft.client.settings.GameSettings
 import net.minecraft.init.Blocks.air
 import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemStack
-import net.minecraft.network.play.client.C0BPacketEntityAction
+import net.minecraft.network.packet.c2s.play.PlayerMovementActionC2SPacket
 import net.minecraft.util.*
 import net.minecraft.world.WorldSettings
 import net.minecraftforge.event.ForgeEventFactory
@@ -361,11 +361,11 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
                 if (eagle == "Silent") {
                     if (eagleSneaking != shouldEagle) {
                         sendPacket(
-                            C0BPacketEntityAction(
+                            PlayerMovementActionC2SPacket(
                                 player, if (shouldEagle) {
-                                    C0BPacketEntityAction.Action.START_SNEAKING
+                                    PlayerMovementActionC2SPacket.Action.START_SNEAKING
                                 } else {
-                                    C0BPacketEntityAction.Action.STOP_SNEAKING
+                                    PlayerMovementActionC2SPacket.Action.STOP_SNEAKING
                                 }
                             )
                         )
@@ -724,7 +724,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
         if (!GameSettings.isKeyDown(mc.gameSettings.keyBindSneak)) {
             mc.gameSettings.keyBindSneak.pressed = false
             if (eagleSneaking && player.isSneaking) {
-                //sendPacket(C0BPacketEntityAction(player, C0BPacketEntityAction.Action.STOP_SNEAKING))
+                //sendPacket(PlayerMovementActionC2SPacket(player, PlayerMovementActionC2SPacket.Action.STOP_SNEAKING))
 
                 /**
                  * Should prevent false flag by some AntiCheat (Ex: Verus)

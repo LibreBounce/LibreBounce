@@ -11,10 +11,10 @@ import net.ccbluex.liquidbounce.utils.extensions.NBTTagCompound
 import net.ccbluex.liquidbounce.utils.extensions.NBTTagList
 import net.ccbluex.liquidbounce.utils.extensions.set
 import net.ccbluex.liquidbounce.utils.kotlin.StringUtils
-import net.minecraft.init.Items
+import net.minecraft.item.Items
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagDouble
-import net.minecraft.network.play.client.C10PacketCreativeInventoryAction
+import net.minecraft.network.packet.c2s.play.CreativeMenuSlotC2SPacket
 
 object HoloStandCommand : Command("holostand") {
     /**
@@ -51,7 +51,7 @@ object HoloStandCommand : Command("holostand") {
 
                 itemStack.setStackDisplayName("§c§lHolo§eStand")
 
-                sendPacket(C10PacketCreativeInventoryAction(36, itemStack))
+                sendPacket(CreativeMenuSlotC2SPacket(36, itemStack))
 
                 chat("The HoloStand was successfully added to your inventory.")
             } catch (exception: NumberFormatException) {

@@ -24,7 +24,7 @@ import net.ccbluex.liquidbounce.utils.inventory.hotBarSlot
 import net.ccbluex.liquidbounce.utils.rotation.Rotation
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils
 import net.ccbluex.liquidbounce.utils.timing.TickedActions.nextTick
-import net.minecraft.init.Items
+import net.minecraft.item.Items
 import net.minecraft.util.BlockPos
 
 object Fireball : FlyMode("Fireball") {

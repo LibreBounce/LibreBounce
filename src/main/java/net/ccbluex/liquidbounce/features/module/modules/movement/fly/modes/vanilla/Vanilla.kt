@@ -12,13 +12,13 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.fly.Fly.keepAli
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.FlyMode
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
-import net.minecraft.network.play.client.C00PacketKeepAlive
+import net.minecraft.network.packet.c2s.play.KeepAliveC2SPacket
 
 object Vanilla : FlyMode("Vanilla") {
 
     override fun onMove(event: MoveEvent) {
         mc.thePlayer?.run {
-            if (keepAlive) sendPacket(C00PacketKeepAlive())
+            if (keepAlive) sendPacket(KeepAliveC2SPacket())
 
             strafe(vanillaSpeed, true, event)
 

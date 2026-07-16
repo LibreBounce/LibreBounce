@@ -32,7 +32,7 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.Packet;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.PacketThreadUtil;
-import net.minecraft.network.play.client.C17PacketCustomPayload;
+import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
 import net.minecraft.network.packet.c2s.play.ResourcePackC2SPacket;
 import net.minecraft.network.play.server.*;
 import net.minecraft.util.math.MathHelper;
@@ -229,7 +229,7 @@ public abstract class MixinNetHandlerPlayClient {
     }
 
     @Inject(method = "handleJoinGame", at = @At("HEAD"), cancellable = true)
-    private void handleJoinGameWithAntiForge(S01PacketJoinGame packetIn, final CallbackInfo callbackInfo) {
+    private void handleJoinGameWithAntiForge(LoginS2CPacket packetIn, final CallbackInfo callbackInfo) {
         if (!ClientFixes.INSTANCE.getFmlFixesEnabled() || !ClientFixes.INSTANCE.getBlockFML() || mc.isIntegratedServerRunning())
             return;
 
@@ -245,7 +245,7 @@ public abstract class MixinNetHandlerPlayClient {
         gameController.thePlayer.setReducedDebug(packetIn.isReducedDebugInfo());
         gameController.playerController.setGameType(packetIn.getGameType());
         gameController.gameSettings.sendSettingsToServer();
-        netManager.sendPacket(new C17PacketCustomPayload("MC|Brand", (new PacketBuffer(Unpooled.buffer())).writeString(ClientBrandRetriever.getClientModName())));
+        netManager.sendPacket(new CustomPayloadC2SPacket("MC|Brand", (new PacketBuffer(Unpooled.buffer())).writeString(ClientBrandRetriever.getClientModName())));
         callbackInfo.cancel();
     }
 

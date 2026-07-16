@@ -12,8 +12,8 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.file.FileManager.friendsConfig
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.translateAlternateColorCodes
-import net.minecraft.network.play.server.S01PacketJoinGame
-import net.minecraft.network.play.server.S40PacketDisconnect
+import net.minecraft.network.packet.s2c.play.LoginS2CPacket
+import net.minecraft.network.packet.s2c.play.DisconnectS2CPacket
 import java.util.*
 
 object NameProtect : Module("NameProtect", Category.MISC, subjective = true, gameDetecting = false) {
@@ -65,14 +65,14 @@ object NameProtect : Module("NameProtect", Category.MISC, subjective = true, gam
         if (mc.thePlayer == null || mc.theWorld == null) return@handler
 
         // Check for new players
-        if (event.packet is S01PacketJoinGame) {
+        if (event.packet is LoginS2CPacket) {
             for (playerInfo in mc.netHandler.playerInfoMap) {
                 handleNewPlayer(playerInfo.gameProfile.id)
             }
         }
 
         // Check if player in game leave
-        if (event.packet is S40PacketDisconnect) {
+        if (event.packet is DisconnectS2CPacket) {
             for (playerInfo in mc.netHandler.playerInfoMap) {
                 handlePlayerLeave(playerInfo.gameProfile.id)
             }

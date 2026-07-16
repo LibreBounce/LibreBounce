@@ -21,7 +21,7 @@ import net.ccbluex.liquidbounce.utils.io.get
 import net.ccbluex.liquidbounce.utils.kotlin.SharedScopes
 import net.minecraft.entity.Entity
 import net.minecraft.entity.living.player.PlayerEntity
-import net.minecraft.init.Items
+import net.minecraft.item.Items
 import net.minecraft.network.Packet
 import net.minecraft.network.play.server.*
 import net.minecraft.network.play.server.S38PacketPlayerListItem.Action.UPDATE_LATENCY
@@ -124,7 +124,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
          * NOTE: Doesn't detect staff spectator all the time.
          */
         if (spectator) {
-            if (packet is S3EPacketTeams) {
+            if (packet is TeamS2CPacket) {
                 val teamName = packet.name
 
                 if (teamName.equals("Z_Spectator", true)) {
@@ -348,7 +348,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
         }
 
         when (packet) {
-            is S01PacketJoinGame -> handleStaff(mc.theWorld.getEntityByID(packet.entityId) ?: null)
+            is LoginS2CPacket -> handleStaff(mc.theWorld.getEntityByID(packet.entityId) ?: null)
             is S0CPacketSpawnPlayer -> handleStaff(mc.theWorld.getEntityByID(packet.entityID) ?: null)
             is S18PacketEntityTeleport -> handleStaff(mc.theWorld.getEntityByID(packet.entityId) ?: null)
             is S1CPacketEntityMetadata -> handleStaff(mc.theWorld.getEntityByID(packet.entityId) ?: null)

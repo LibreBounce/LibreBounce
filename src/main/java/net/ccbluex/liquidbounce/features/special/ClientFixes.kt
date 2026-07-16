@@ -13,7 +13,7 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.minecraft.network.PacketBuffer
-import net.minecraft.network.play.client.C17PacketCustomPayload
+import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket
 
 object ClientFixes : Configurable("Features"), MinecraftInstance, Listenable {
 
@@ -58,7 +58,7 @@ object ClientFixes : Configurable("Features"), MinecraftInstance, Listenable {
                     return@runCatching
                 }
 
-                packet is C17PacketCustomPayload -> when {
+                packet is CustomPayloadC2SPacket -> when {
                     blockPayloadPackets && !packet.channelName.startsWith("MC|") -> {
                         event.cancelEvent()
                     }

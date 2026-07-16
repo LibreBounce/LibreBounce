@@ -17,7 +17,7 @@ import net.ccbluex.liquidbounce.utils.rotation.Rotation
 import net.minecraft.entity.living.LivingEntity
 import net.minecraft.network.Connection
 import net.minecraft.network.Packet
-import net.minecraft.network.play.INetHandlerPlayClient
+import net.minecraft.client.network.handler.ClientPlayPacketHandler
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 import net.minecraft.network.play.server.*
 import net.minecraft.util.BlockPos
@@ -144,7 +144,7 @@ object PacketUtils : MinecraftInstance, Listenable {
 
     @JvmStatic
     private fun handlePacket(packet: Packet<*>?) {
-        runCatching { (packet as Packet<INetHandlerPlayClient>).processPacket(mc.netHandler) }.onSuccess {
+        runCatching { (packet as Packet<ClientPlayPacketHandler>).processPacket(mc.netHandler) }.onSuccess {
             PPSCounter.registerType(PPSCounter.PacketType.RECEIVED)
         }
     }

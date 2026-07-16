@@ -8,7 +8,7 @@ package net.ccbluex.liquidbounce.utils.client
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME
 import net.minecraft.client.settings.GameSettings
 import net.minecraft.network.Connection
-import net.minecraft.network.login.client.C01PacketEncryptionResponse
+import net.minecraft.network.packet.c2s.login.KeyC2SPacket
 import net.minecraft.network.login.server.S01PacketEncryptionRequest
 import net.minecraft.util.ChatComponentText
 import net.minecraftforge.fml.relauncher.Side
@@ -46,7 +46,7 @@ object ClientUtils : MinecraftInstance {
         publicKey: PublicKey?,
         encryptionRequest: S01PacketEncryptionRequest
     ) {
-        networkManager.sendPacket(C01PacketEncryptionResponse(secretKey, publicKey, encryptionRequest.verifyToken),
+        networkManager.sendPacket(KeyC2SPacket(secretKey, publicKey, encryptionRequest.verifyToken),
             { networkManager.enableEncryption(secretKey) }
         )
     }

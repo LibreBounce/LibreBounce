@@ -9,7 +9,7 @@ import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.minecraft.network.play.server.S3FPacketCustomPayload
+import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket
 
 object AntiBlind : Module("AntiBlind", Category.RENDER, gameDetecting = false) {
     val confusionEffect by boolean("Confusion", true)
@@ -22,6 +22,6 @@ object AntiBlind : Module("AntiBlind", Category.RENDER, gameDetecting = false) {
     val onPacket = handler<PacketEvent> { event ->
         if (!bookPage) return@handler
 
-        if (event.packet is S3FPacketCustomPayload && event.packet.channelName == "MC|BOpen") event.cancelEvent()
+        if (event.packet is CustomPayloadS2CPacket && event.packet.channelName == "MC|BOpen") event.cancelEvent()
     }
 }

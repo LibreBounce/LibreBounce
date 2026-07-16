@@ -13,7 +13,7 @@ import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils
 import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar
-import net.minecraft.init.Items
+import net.minecraft.item.Items
 import net.minecraft.network.packet.c2s.play.PlayerUseC2SPacket
 import net.minecraft.world.WorldSettings
 import org.lwjgl.input.Keyboard

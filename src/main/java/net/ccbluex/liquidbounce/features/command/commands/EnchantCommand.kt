@@ -8,7 +8,7 @@ package net.ccbluex.liquidbounce.features.command.commands
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.minecraft.enchantment.Enchantment
-import net.minecraft.network.play.client.C10PacketCreativeInventoryAction
+import net.minecraft.network.packet.c2s.play.CreativeMenuSlotC2SPacket
 
 object EnchantCommand : Command("enchant") {
     /**
@@ -56,7 +56,7 @@ object EnchantCommand : Command("enchant") {
             }
 
             item.addEnchantment(enchantment, level)
-            sendPacket(C10PacketCreativeInventoryAction(36 + mc.thePlayer.inventory.currentItem, item))
+            sendPacket(CreativeMenuSlotC2SPacket(36 + mc.thePlayer.inventory.currentItem, item))
             chat("${enchantment.getTranslatedName(level)} added to ${item.displayName}.")
             return
         }

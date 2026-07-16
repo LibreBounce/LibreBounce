@@ -12,7 +12,7 @@ import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
-import net.minecraft.network.play.client.C09PacketHeldItemChange
+import net.minecraft.network.packet.c2s.play.SelectSlotC2SPacket
 
 object SilentHotbar : Listenable, MinecraftInstance {
 
@@ -103,7 +103,7 @@ object SilentHotbar : Listenable, MinecraftInstance {
 
     val onSlotChange = handler<ClientSlotChangeEvent> { event ->
         /**
-         * Is true only when the server sends S09PacketHeldItemChange to the client.
+         * Is true only when the server sends SelectSlotS2CPacket to the client.
          */
         if (ignoreSlotChange) {
             event.modifiedSlot = event.supposedSlot
@@ -125,7 +125,7 @@ object SilentHotbar : Listenable, MinecraftInstance {
     }
 
     val onPacket = handler<PacketEvent> { event ->
-        if (event.packet !is C09PacketHeldItemChange)
+        if (event.packet !is SelectSlotC2SPacket)
             return@handler
 
         /**

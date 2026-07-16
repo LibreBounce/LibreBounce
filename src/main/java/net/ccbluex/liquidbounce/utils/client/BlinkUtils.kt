@@ -9,7 +9,7 @@ import net.minecraft.network.Packet
 import net.minecraft.network.packet.c2s.handshake.HandshakeC2SPacket
 import net.minecraft.network.packet.c2s.play.ChatMessageC2SPacket
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
-import net.minecraft.network.play.server.S02PacketChat
+import net.minecraft.network.play.server.ChatMessageS2CPacket
 import net.minecraft.network.play.server.S29PacketSoundEffect
 import net.minecraft.network.packet.c2s.query.ServerStatusC2SPacket
 import net.minecraft.network.packet.c2s.query.PingC2SPacket
@@ -32,7 +32,7 @@ object BlinkUtils : MinecraftInstance, Listenable {
         if (event.isCancelled || player.isDead || mc.currentServerData == null) return
 
         when (packet) {
-            is HandshakeC2SPacket, is ServerStatusC2SPacket, is PingC2SPacket, is S02PacketChat, is ChatMessageC2SPacket -> {
+            is HandshakeC2SPacket, is ServerStatusC2SPacket, is PingC2SPacket, is ChatMessageS2CPacket, is ChatMessageC2SPacket -> {
                 return
             }
 

@@ -14,8 +14,8 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
 import net.ccbluex.liquidbounce.utils.client.chat
-import net.minecraft.network.play.server.S01PacketJoinGame
-import net.minecraft.network.play.server.S32PacketConfirmTransaction
+import net.minecraft.network.packet.s2c.play.LoginS2CPacket
+import net.minecraft.network.packet.s2c.play.InventoryMenuConfirmS2CPacket
 import net.ccbluex.liquidbounce.utils.client.ServerUtils.remoteIp
 
 object AnticheatDetector : Module("AnticheatDetector", Category.MISC) {
@@ -27,10 +27,10 @@ object AnticheatDetector : Module("AnticheatDetector", Category.MISC) {
 
     val onPacket = handler<PacketEvent> { event ->
         when (event.packet) {
-            is S32PacketConfirmTransaction -> {
+            is InventoryMenuConfirmS2CPacket -> {
                 if (check) handleTransaction(event.packet.actionNumber.toInt())
             }
-            is S01PacketJoinGame -> reset().also { check = true }
+            is LoginS2CPacket -> reset().also { check = true }
         }
     }
 

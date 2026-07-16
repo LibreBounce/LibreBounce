@@ -33,7 +33,7 @@ import net.minecraft.client.gui.screen.inventory.menu.SurvivalInventoryScreen
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.entity.item.EntityItem
 import net.minecraft.init.Blocks.*
-import net.minecraft.init.Items
+import net.minecraft.item.Items
 import net.minecraft.item.*
 import net.minecraft.potion.Potion
 

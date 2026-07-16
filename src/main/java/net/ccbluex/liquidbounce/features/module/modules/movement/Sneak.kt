@@ -15,9 +15,9 @@ import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPackets
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.minecraft.client.settings.GameSettings
-import net.minecraft.network.play.client.C0BPacketEntityAction
-import net.minecraft.network.play.client.C0BPacketEntityAction.Action.START_SNEAKING
-import net.minecraft.network.play.client.C0BPacketEntityAction.Action.STOP_SNEAKING
+import net.minecraft.network.packet.c2s.play.PlayerMovementActionC2SPacket
+import net.minecraft.network.packet.c2s.play.PlayerMovementActionC2SPacket.Action.START_SNEAKING
+import net.minecraft.network.packet.c2s.play.PlayerMovementActionC2SPacket.Action.STOP_SNEAKING
 
 // TODO: Port all the sneak modes other than Legit to NoSlow, and a customizable speed
 object Sneak : Module("Sneak", Category.MOVEMENT) {
@@ -43,22 +43,22 @@ object Sneak : Module("Sneak", Category.MOVEMENT) {
                 if (sneaking)
                     return@handler
 
-                sendPacket(C0BPacketEntityAction(player, START_SNEAKING))
+                sendPacket(PlayerMovementActionC2SPacket(player, START_SNEAKING))
             }
 
             "Switch" -> {
                 when (event.eventState) {
                     EventState.PRE -> {
                         sendPackets(
-                            C0BPacketEntityAction(player, START_SNEAKING),
-                            C0BPacketEntityAction(player, STOP_SNEAKING)
+                            PlayerMovementActionC2SPacket(player, START_SNEAKING),
+                            PlayerMovementActionC2SPacket(player, STOP_SNEAKING)
                         )
                     }
 
                     EventState.POST -> {
                         sendPackets(
-                            C0BPacketEntityAction(player, STOP_SNEAKING),
-                            C0BPacketEntityAction(player, START_SNEAKING)
+                            PlayerMovementActionC2SPacket(player, STOP_SNEAKING),
+                            PlayerMovementActionC2SPacket(player, START_SNEAKING)
                         )
                     }
 
@@ -70,7 +70,7 @@ object Sneak : Module("Sneak", Category.MOVEMENT) {
                 if (event.eventState == EventState.PRE)
                     return@handler
 
-                sendPacket(C0BPacketEntityAction(player, START_SNEAKING))
+                sendPacket(PlayerMovementActionC2SPacket(player, START_SNEAKING))
             }
         }
     }
@@ -87,7 +87,7 @@ object Sneak : Module("Sneak", Category.MOVEMENT) {
                 mc.gameSettings.keyBindSneak.pressed = false
             }
         } else {
-            (C0BPacketEntityAction(player, STOP_SNEAKING))
+            (PlayerMovementActionC2SPacket(player, STOP_SNEAKING))
         }
 
         sneaking = false

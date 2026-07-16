@@ -14,7 +14,7 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.findItem
 import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar.selectSlotSilently
 import net.ccbluex.liquidbounce.utils.inventory.hotBarSlot
-import net.minecraft.init.Items.paper
+import net.minecraft.item.Items.paper
 import net.minecraft.item.ItemStack
 
 // TODO: Maybe this module is best suited in the Miscellaneous category?

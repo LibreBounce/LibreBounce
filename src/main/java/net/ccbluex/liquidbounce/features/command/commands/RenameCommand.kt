@@ -9,7 +9,7 @@ import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.kotlin.StringUtils.toCompleteString
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.translateAlternateColorCodes
-import net.minecraft.network.play.client.C10PacketCreativeInventoryAction
+import net.minecraft.network.packet.c2s.play.CreativeMenuSlotC2SPacket
 
 object RenameCommand : Command("rename") {
     /**
@@ -30,7 +30,7 @@ object RenameCommand : Command("rename") {
             }
 
             item.setStackDisplayName(translateAlternateColorCodes(toCompleteString(args, 1)))
-            sendPacket(C10PacketCreativeInventoryAction(36 + mc.thePlayer.inventory.currentItem, item))
+            sendPacket(CreativeMenuSlotC2SPacket(36 + mc.thePlayer.inventory.currentItem, item))
             chat("§3Item renamed to '${item.displayName}§3'")
             return
         }

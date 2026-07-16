@@ -14,7 +14,7 @@ import net.ccbluex.liquidbounce.utils.io.HttpClient
 import net.ccbluex.liquidbounce.utils.io.get
 import net.ccbluex.liquidbounce.utils.io.jsonBody
 import net.minecraft.creativetab.CreativeTabs
-import net.minecraft.init.Items
+import net.minecraft.item.Items
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 

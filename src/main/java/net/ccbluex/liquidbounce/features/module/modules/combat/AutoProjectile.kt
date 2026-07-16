@@ -14,8 +14,8 @@ import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils
 import net.ccbluex.liquidbounce.utils.inventory.hotBarSlot
 import net.ccbluex.liquidbounce.utils.rotation.RaycastUtils.raycastEntity
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
-import net.minecraft.init.Items.egg
-import net.minecraft.init.Items.snowball
+import net.minecraft.item.Items.egg
+import net.minecraft.item.Items.snowball
 
 object AutoProjectile : Module("AutoProjectile", Category.COMBAT) {
 

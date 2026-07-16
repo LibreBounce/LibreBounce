@@ -22,11 +22,11 @@ import net.minecraft.item.ItemBlock
 import net.minecraft.network.packet.c2s.play.PlayerUseC2SPacket
 import net.minecraft.network.packet.c2s.play.CloseInventoryMenuC2SPacket
 import net.minecraft.network.packet.c2s.play.InventoryMenuClickSlotC2SPacket
-import net.minecraft.network.play.client.C16PacketClientStatus
-import net.minecraft.network.play.client.C16PacketClientStatus.EnumState.OPEN_INVENTORY_ACHIEVEMENT
-import net.minecraft.network.play.server.S09PacketHeldItemChange
-import net.minecraft.network.play.server.S2DPacketOpenWindow
-import net.minecraft.network.play.server.S2EPacketCloseWindow
+import net.minecraft.network.packet.c2s.play.ClientStatusC2SPacket
+import net.minecraft.network.packet.c2s.play.ClientStatusC2SPacket.EnumState.OPEN_INVENTORY_ACHIEVEMENT
+import net.minecraft.network.packet.s2c.play.SelectSlotS2CPacket
+import net.minecraft.network.packet.s2c.play.OpenInventoryMenuS2CPacket
+import net.minecraft.network.packet.s2c.play.CloseInventoryMenuS2CPacket
 
 object InventoryUtils : MinecraftInstance, Listenable {
     // Is inventory open on server-side?
@@ -35,7 +35,7 @@ object InventoryUtils : MinecraftInstance, Listenable {
         set(value) {
             if (value != _serverOpenInventory) {
                 sendPacket(
-                    if (value) C16PacketClientStatus(OPEN_INVENTORY_ACHIEVEMENT)
+                    if (value) ClientStatusC2SPacket(OPEN_INVENTORY_ACHIEVEMENT)
                     else CloseInventoryMenuC2SPacket(mc.thePlayer?.openContainer?.windowId ?: 0)
                 )
 
@@ -180,7 +180,7 @@ object InventoryUtils : MinecraftInstance, Listenable {
                     isFirstInventoryClick = false
             }
 
-            is C16PacketClientStatus ->
+            is ClientStatusC2SPacket ->
                 if (packet.status == OPEN_INVENTORY_ACHIEVEMENT) {
                     if (_serverOpenInventory) event.cancelEvent()
                     else {
@@ -189,21 +189,21 @@ object InventoryUtils : MinecraftInstance, Listenable {
                     }
                 }
 
-            is CloseInventoryMenuC2SPacket, is S2EPacketCloseWindow, is S2DPacketOpenWindow -> {
+            is CloseInventoryMenuC2SPacket, is CloseInventoryMenuS2CPacket, is OpenInventoryMenuS2CPacket -> {
                 isFirstInventoryClick = false
                 _serverOpenInventory = false
                 serverOpenContainer = false
 
                 timeSinceClosedInventory = System.currentTimeMillis()
 
-                if (packet is S2DPacketOpenWindow) {
+                if (packet is OpenInventoryMenuS2CPacket) {
                     if (packet.guiId == "minecraft:chest" || packet.guiId == "minecraft:container")
                         serverOpenContainer = true
                 } else
                     ChestAura.tileTarget = null
             }
 
-            is S09PacketHeldItemChange -> {
+            is SelectSlotS2CPacket -> {
                 if (SilentHotbar.currentSlot == packet.heldItemHotbarIndex)
                     return@handler
 

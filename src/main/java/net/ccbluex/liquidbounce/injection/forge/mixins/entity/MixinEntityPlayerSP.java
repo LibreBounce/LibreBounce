@@ -39,8 +39,8 @@ import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemSword;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
-import net.minecraft.network.play.client.C0APacketAnimation;
-import net.minecraft.network.play.client.C0BPacketEntityAction;
+import net.minecraft.network.packet.c2s.play.ArmSwingC2SPacket;
+import net.minecraft.network.packet.c2s.play.PlayerMovementActionC2SPacket;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.*;
 import net.minecraftforge.fml.relauncher.Side;
@@ -58,7 +58,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.List;
 
 import static net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.*;
-import static net.minecraft.network.play.client.C0BPacketEntityAction.Action.*;
+import static net.minecraft.network.packet.c2s.play.PlayerMovementActionC2SPacket.Action.*;
 
 @Mixin(LocalClientPlayerEntity.class)
 @SideOnly(Side.CLIENT)
@@ -152,8 +152,8 @@ public abstract class MixinLocalClientPlayerEntity extends MixinAbstractClientPl
 
         if (sprinting != serverSprintState) {
             if (sprinting)
-                sendQueue.addToSendQueue(new C0BPacketEntityAction((LocalClientPlayerEntity) (Object) this, START_SPRINTING));
-            else sendQueue.addToSendQueue(new C0BPacketEntityAction((LocalClientPlayerEntity) (Object) this, STOP_SPRINTING));
+                sendQueue.addToSendQueue(new PlayerMovementActionC2SPacket((LocalClientPlayerEntity) (Object) this, START_SPRINTING));
+            else sendQueue.addToSendQueue(new PlayerMovementActionC2SPacket((LocalClientPlayerEntity) (Object) this, STOP_SPRINTING));
 
             serverSprintState = sprinting;
         }
@@ -162,8 +162,8 @@ public abstract class MixinLocalClientPlayerEntity extends MixinAbstractClientPl
 
         if (sneaking != serverSneakState && (!sneak.handleEvents() || sneak.getMode().equals("Legit"))) {
             if (sneaking)
-                sendQueue.addToSendQueue(new C0BPacketEntityAction((LocalClientPlayerEntity) (Object) this, START_SNEAKING));
-            else sendQueue.addToSendQueue(new C0BPacketEntityAction((LocalClientPlayerEntity) (Object) this, STOP_SNEAKING));
+                sendQueue.addToSendQueue(new PlayerMovementActionC2SPacket((LocalClientPlayerEntity) (Object) this, START_SNEAKING));
+            else sendQueue.addToSendQueue(new PlayerMovementActionC2SPacket((LocalClientPlayerEntity) (Object) this, STOP_SNEAKING));
 
             serverSneakState = sneaking;
         }
@@ -260,7 +260,7 @@ public abstract class MixinLocalClientPlayerEntity extends MixinAbstractClientPl
             callbackInfo.cancel();
 
             if (!noSwing.getServerSide()) {
-                sendQueue.addToSendQueue(new C0APacketAnimation());
+                sendQueue.addToSendQueue(new ArmSwingC2SPacket());
                 CooldownHelper.INSTANCE.resetLastAttackedTicks();
             }
         } else {

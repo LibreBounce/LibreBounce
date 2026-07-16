@@ -28,10 +28,10 @@ import net.minecraft.entity.Entity
 import net.minecraft.network.Packet
 import net.minecraft.network.play.client.*
 import net.minecraft.network.packet.c2s.play.PlayerHandActionC2SPacket.Action.STOP_DESTROY_BLOCK
-import net.minecraft.network.play.client.C0BPacketEntityAction.Action.*
+import net.minecraft.network.packet.c2s.play.PlayerMovementActionC2SPacket.Action.*
 import net.minecraft.network.packet.s2c.play.EntityVelocityS2CPacket
 import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket
-import net.minecraft.network.play.server.S32PacketConfirmTransaction
+import net.minecraft.network.packet.s2c.play.InventoryMenuConfirmS2CPacket
 import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing.DOWN
@@ -520,8 +520,8 @@ object Velocity : Module("Velocity", Category.COMBAT) {
                     hasReceivedVelocity = true
                     event.cancelEvent()
 
-                    sendPacket(C0BPacketEntityAction(player, START_SNEAKING))
-                    sendPacket(C0BPacketEntityAction(player, STOP_SNEAKING))
+                    sendPacket(PlayerMovementActionC2SPacket(player, START_SNEAKING))
+                    sendPacket(PlayerMovementActionC2SPacket(player, STOP_SNEAKING))
                 }
 
                 // Checks to prevent from getting flagged (BadPacketsE)
@@ -560,7 +560,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
         }
 
         if (mode == "BlocksMC" && hasReceivedVelocity) {
-            if (packet is C0BPacketEntityAction) {
+            if (packet is PlayerMovementActionC2SPacket) {
                 hasReceivedVelocity = false
                 event.cancelEvent()
             }
@@ -569,10 +569,10 @@ object Velocity : Module("Velocity", Category.COMBAT) {
         if (mode == "Vulcan") {
             if (Disabler.handleEvents() && Disabler.verusCombat && (!Disabler.onlyCombat || Disabler.isOnCombat)) return@handler
 
-            if (packet is S32PacketConfirmTransaction) {
+            if (packet is InventoryMenuConfirmS2CPacket) {
                 event.cancelEvent()
                 sendPacket(
-                    C0FPacketConfirmTransaction(
+                    InventoryMenuConfirmC2SPacket(
                         if (transaction) 1 else -1,
                         if (transaction) -1 else 1,
                         transaction
@@ -582,7 +582,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
             }
         }
 
-        if (mode == "S32Packet" && packet is S32PacketConfirmTransaction) {
+        if (mode == "S32Packet" && packet is InventoryMenuConfirmS2CPacket) {
             if (!hasReceivedVelocity)
                 return@handler
 
@@ -627,7 +627,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
             return@handler
 
         if (mode == "Delay") {
-            if (packet is S32PacketConfirmTransaction || packet is EntityVelocityS2CPacket) {
+            if (packet is InventoryMenuConfirmS2CPacket || packet is EntityVelocityS2CPacket) {
 
                 event.cancelEvent()
 

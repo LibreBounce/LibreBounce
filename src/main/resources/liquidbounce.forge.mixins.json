@@ -30,7 +30,7 @@
     "gui.MixinConnectScreen",
     "gui.MixinDisconnectedScreen",
     "gui.MixinDownloadingTerrainScreen",
-    "gui.MixinGuiEditSign",
+    "gui.MixinSignEditScreen",
     "gui.MixinGuiInGame",
     "gui.MixinGameMenuScreen",
     "gui.MixinControlsListWidget",

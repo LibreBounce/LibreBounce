@@ -18,7 +18,7 @@ import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.utils.timing.TickedActions.nextTick
 import net.minecraft.client.gui.screen.inventory.menu.SurvivalInventoryScreen
-import net.minecraft.init.Items
+import net.minecraft.item.Items
 import net.minecraft.network.packet.c2s.play.PlayerHandActionC2SPacket
 import net.minecraft.network.packet.c2s.play.PlayerHandActionC2SPacket.Action.DROP_ITEM
 import net.minecraft.util.BlockPos

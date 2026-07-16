@@ -24,8 +24,8 @@ import net.ccbluex.liquidbounce.utils.inventory.hotBarSlot
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.resetTicks
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.minecraft.block.BlockAir
-import net.minecraft.init.Items.lava_bucket
-import net.minecraft.init.Items.flint_and_steel
+import net.minecraft.item.Items.lava_bucket
+import net.minecraft.item.Items.flint_and_steel
 import net.minecraft.item.ItemBucket
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.Angles
 import net.minecraft.util.EnumFacing

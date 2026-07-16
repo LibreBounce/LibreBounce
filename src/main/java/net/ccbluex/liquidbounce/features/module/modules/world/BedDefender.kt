@@ -31,8 +31,8 @@ import net.minecraft.client.settings.GameSettings
 import net.minecraft.init.Blocks.bed
 import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemStack
-import net.minecraft.network.play.client.C0APacketAnimation
-import net.minecraft.network.play.client.C0BPacketEntityAction
+import net.minecraft.network.packet.c2s.play.ArmSwingC2SPacket
+import net.minecraft.network.packet.c2s.play.PlayerMovementActionC2SPacket
 import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.MovingObjectPosition
@@ -138,7 +138,7 @@ object BedDefender : Module("BedDefender", Category.WORLD) {
 
                 when (autoSneak) {
                     "Normal" -> mc.gameSettings.keyBindSneak.pressed = false
-                    "Packet" -> sendPacket(C0BPacketEntityAction(player, C0BPacketEntityAction.Action.START_SNEAKING))
+                    "Packet" -> sendPacket(PlayerMovementActionC2SPacket(player, PlayerMovementActionC2SPacket.Action.START_SNEAKING))
                 }
 
                 placeBlock(blockPos, raytrace.sideHit, raytrace.hitVec)
@@ -146,7 +146,7 @@ object BedDefender : Module("BedDefender", Category.WORLD) {
             } else {
                 when (autoSneak) {
                     "Normal" -> mc.gameSettings.keyBindSneak.pressed = true
-                    "Packet" -> sendPacket(C0BPacketEntityAction(player, C0BPacketEntityAction.Action.STOP_SNEAKING))
+                    "Packet" -> sendPacket(PlayerMovementActionC2SPacket(player, PlayerMovementActionC2SPacket.Action.STOP_SNEAKING))
                 }
             }
         }

@@ -33,7 +33,7 @@ import net.minecraft.entity.passive.EntityVillager
 import net.minecraft.entity.living.player.PlayerEntity
 import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemStack
-import net.minecraft.network.play.client.C0APacketAnimation
+import net.minecraft.network.packet.c2s.play.ArmSwingC2SPacket
 import net.minecraft.network.packet.c2s.play.PlayerUseC2SPacket
 import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.BlockPos
@@ -314,7 +314,7 @@ fun LocalClientPlayerEntity.tryJump() {
 }
 
 fun LocalClientPlayerEntity.swingItem(silent: Boolean) {
-    if (silent) sendPacket(C0APacketAnimation()) else swingItem()
+    if (silent) sendPacket(ArmSwingC2SPacket()) else swingItem()
 }
 
 inline fun LocalClientPlayerEntity.attackEntityWithModifiedSprint(

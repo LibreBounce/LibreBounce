@@ -8,7 +8,7 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.gui.inventory.GuiEditSign;
+import net.minecraft.client.gui.screen.inventory.menu.SignEditScreen;
 import net.minecraft.event.ClickEvent;
 import net.minecraft.tileentity.TileEntitySign;
 import net.minecraft.util.ChatAllowedCharacters;
@@ -26,8 +26,8 @@ import java.io.IOException;
 
 import static net.minecraft.event.ClickEvent.Action.RUN_COMMAND;
 
-@Mixin(GuiEditSign.class)
-public class MixinGuiEditSign extends Screen {
+@Mixin(SignEditScreen.class)
+public class MixinSignEditScreen extends Screen {
 
     @Shadow
     private int editLine;

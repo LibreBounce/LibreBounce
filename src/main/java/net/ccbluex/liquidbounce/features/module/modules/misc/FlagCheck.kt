@@ -19,9 +19,9 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.enableGlCap
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.resetCaps
 import net.minecraft.client.gui.screen.DeathScreen
 import net.minecraft.init.Blocks.air
-import net.minecraft.network.login.server.S00PacketDisconnect
+import net.minecraft.network.packet.s2c.login.LoginFailS2CPacket
 import net.minecraft.network.packet.c2s.play.PlayerUseC2SPacket
-import net.minecraft.network.play.server.S01PacketJoinGame
+import net.minecraft.network.packet.s2c.play.LoginS2CPacket
 import net.minecraft.network.packet.s2c.play.PlayerMoveS2CPacket
 import net.minecraft.util.BlockPos
 import net.minecraft.util.math.Vec3d
@@ -112,7 +112,7 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true) {
             return@handler
 
         when (val packet = event.packet) {
-            is S01PacketJoinGame, is S00PacketDisconnect -> {
+            is LoginS2CPacket, is LoginFailS2CPacket -> {
                 clearFlags()
             }
 

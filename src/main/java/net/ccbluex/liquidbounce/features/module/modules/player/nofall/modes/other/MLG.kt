@@ -32,7 +32,7 @@ import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
 import net.ccbluex.liquidbounce.utils.timing.WaitTickUtils
 import net.minecraft.init.Blocks.web
 import net.minecraft.init.Blocks.water
-import net.minecraft.init.Items
+import net.minecraft.item.Items
 import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemStack
 import net.minecraft.util.*

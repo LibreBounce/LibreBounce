@@ -19,7 +19,7 @@ import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.SlowlyStyle
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel.PanelStyle
 import net.ccbluex.liquidbounce.utils.extensions.capitalize
 import net.ccbluex.liquidbounce.utils.extensions.addSpaces
-import net.minecraft.network.play.server.S2EPacketCloseWindow
+import net.minecraft.network.packet.s2c.play.CloseInventoryMenuS2CPacket
 import org.lwjgl.input.Keyboard
 import java.awt.Color
 
@@ -74,7 +74,7 @@ object ClickGUI : Module("ClickGUI", Category.RENDER, Keyboard.KEY_RSHIFT, canBe
         this.addSpaces(spacedValues).capitalize(valueCase)
 
     val onPacket = handler<PacketEvent>(always = true) { event ->
-        if (event.packet is S2EPacketCloseWindow && mc.currentScreen is ClickGui)
+        if (event.packet is CloseInventoryMenuS2CPacket && mc.currentScreen is ClickGui)
             event.cancelEvent()
     }
 }

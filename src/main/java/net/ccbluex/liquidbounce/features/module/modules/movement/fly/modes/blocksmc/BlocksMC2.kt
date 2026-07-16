@@ -25,8 +25,8 @@ import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 import net.minecraft.client.entity.living.player.LocalClientPlayerEntity
 import net.minecraft.network.Packet
 import net.minecraft.network.packet.c2s.handshake.HandshakeC2SPacket
-import net.minecraft.network.play.server.S02PacketChat
-import net.minecraft.network.play.server.S40PacketDisconnect
+import net.minecraft.network.play.server.ChatMessageS2CPacket
+import net.minecraft.network.packet.s2c.play.DisconnectS2CPacket
 import net.minecraft.network.packet.c2s.query.ServerStatusC2SPacket
 import net.minecraft.network.packet.c2s.query.PingC2SPacket
 import net.minecraft.world.World
@@ -153,7 +153,7 @@ object BlocksMC2 : FlyMode("BlocksMC2"), Listenable {
             return
 
         when (event.packet) {
-            is HandshakeC2SPacket, is ServerStatusC2SPacket, is PingC2SPacket, is S02PacketChat, is S40PacketDisconnect -> {
+            is HandshakeC2SPacket, is ServerStatusC2SPacket, is PingC2SPacket, is ChatMessageS2CPacket, is DisconnectS2CPacket -> {
                 return
             }
         }
