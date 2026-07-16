@@ -9,7 +9,7 @@ import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME
 import net.minecraft.client.options.GameOptions
 import net.minecraft.network.Connection
 import net.minecraft.network.packet.c2s.login.KeyC2SPacket
-import net.minecraft.network.login.server.S01PacketEncryptionRequest
+import net.minecraft.network.packet.s2c.login.HelloS2CPacket
 import net.minecraft.util.ChatComponentText
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
@@ -44,7 +44,7 @@ object ClientUtils : MinecraftInstance {
         networkManager: Connection,
         secretKey: SecretKey?,
         publicKey: PublicKey?,
-        encryptionRequest: S01PacketEncryptionRequest
+        encryptionRequest: HelloS2CPacket
     ) {
         networkManager.sendPacket(KeyC2SPacket(secretKey, publicKey, encryptionRequest.verifyToken),
             { networkManager.enableEncryption(secretKey) }

@@ -25,7 +25,7 @@ import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 import net.minecraft.client.entity.living.player.LocalClientPlayerEntity
 import net.minecraft.network.Packet
 import net.minecraft.network.packet.c2s.handshake.HandshakeC2SPacket
-import net.minecraft.network.play.server.ChatMessageS2CPacket
+import net.minecraft.network.packet.s2c.play.ChatMessageS2CPacket
 import net.minecraft.network.packet.s2c.play.DisconnectS2CPacket
 import net.minecraft.network.packet.c2s.query.ServerStatusC2SPacket
 import net.minecraft.network.packet.c2s.query.PingC2SPacket

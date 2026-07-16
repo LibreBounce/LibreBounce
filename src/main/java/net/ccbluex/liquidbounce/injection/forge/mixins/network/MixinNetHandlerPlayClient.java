@@ -34,7 +34,7 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.PacketThreadUtil;
 import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
 import net.minecraft.network.packet.c2s.play.ResourcePackC2SPacket;
-import net.minecraft.network.play.server.*;
+import net.minecraft.network.packet.s2c.play.*;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.WorldSettings;
 import org.spongepowered.asm.mixin.Final;
@@ -127,8 +127,8 @@ public abstract class MixinNetHandlerPlayClient {
         }
     }
 
-    @Redirect(method = "handleParticles", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/play/server/S2APacketParticles;getParticleCount()I", ordinal = 1))
-    private int onParticleAmount(S2APacketParticles packetParticles) {
+    @Redirect(method = "handleParticles", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/packet/s2c/play/ParticleS2CPacket;getParticleCount()I", ordinal = 1))
+    private int onParticleAmount(ParticleS2CPacket packetParticles) {
         AntiExploit module = AntiExploit.INSTANCE;
 
         if (module.handleEvents() && module.getLimitParticlesAmount() && packetParticles.getParticleCount() >= 500) {
@@ -142,8 +142,8 @@ public abstract class MixinNetHandlerPlayClient {
         return packetParticles.getParticleCount();
     }
 
-    @Redirect(method = "handleParticles", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/play/server/S2APacketParticles;getParticleSpeed()F"))
-    private float onParticleSpeed(S2APacketParticles packetParticles) {
+    @Redirect(method = "handleParticles", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/packet/s2c/play/ParticleS2CPacket;getParticleSpeed()F"))
+    private float onParticleSpeed(ParticleS2CPacket packetParticles) {
         AntiExploit module = AntiExploit.INSTANCE;
 
         if (module.handleEvents() && module.getLimitParticlesSpeed() && packetParticles.getParticleSpeed() >= 10f) {
@@ -157,8 +157,8 @@ public abstract class MixinNetHandlerPlayClient {
         return packetParticles.getParticleSpeed();
     }
 
-    @Redirect(method = "handleSpawnObject", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/play/server/S0EPacketSpawnObject;getType()I"))
-    private int onSpawnObjectType(S0EPacketSpawnObject packet) {
+    @Redirect(method = "handleSpawnObject", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/packet/s2c/play/AddEntityS2CPacket;getType()I"))
+    private int onSpawnObjectType(AddEntityS2CPacket packet) {
         AntiExploit module = AntiExploit.INSTANCE;
         
         if (module.handleEvents() && module.getLimitedEntitySpawn()) {
@@ -192,8 +192,8 @@ public abstract class MixinNetHandlerPlayClient {
         return packet.getType();
     }
 
-    @Redirect(method = "handleChangeGameState", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/play/server/S2BPacketChangeGameState;getGameState()I"))
-    private int onChangeGameState(S2BPacketChangeGameState packet) {
+    @Redirect(method = "handleChangeGameState", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/packet/s2c/play/GameEventS2CPacket;getGameState()I"))
+    private int onChangeGameState(GameEventS2CPacket packet) {
         if (AntiExploit.INSTANCE.handleEvents() && AntiExploit.INSTANCE.getCancelDemo() && packet.getGameState() == 5) {
             chat("Cancelled Demo GameState packet");
             return -1; // Cancel demo
@@ -203,7 +203,7 @@ public abstract class MixinNetHandlerPlayClient {
     }
 
     @Inject(method = "handleResourcePack", at = @At("HEAD"), cancellable = true)
-    private void handleResourcePack(final S48PacketResourcePackSend p_handleResourcePack_1_, final CallbackInfo callbackInfo) {
+    private void handleResourcePack(final ResourcePackS2CPacket p_handleResourcePack_1_, final CallbackInfo callbackInfo) {
         final String url = p_handleResourcePack_1_.getURL();
         final String hash = p_handleResourcePack_1_.getHash();
 
@@ -250,7 +250,7 @@ public abstract class MixinNetHandlerPlayClient {
     }
 
     @Inject(method = "handleEntityMovement", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/Entity;onGround:Z"))
-    private void handleEntityMovementEvent(S14PacketEntity packetIn, final CallbackInfo callbackInfo) {
+    private void handleEntityMovementEvent(EntityMoveS2CPacket packetIn, final CallbackInfo callbackInfo) {
         final Entity entity = packetIn.getEntity(clientWorldController);
 
         if (entity != null)

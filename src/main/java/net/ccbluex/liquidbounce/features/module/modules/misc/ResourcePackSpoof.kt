@@ -14,14 +14,14 @@ import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPackets
 import net.minecraft.network.packet.c2s.play.ResourcePackC2SPacket
 import net.minecraft.network.packet.c2s.play.ResourcePackC2SPacket.Action.*
-import net.minecraft.network.play.server.S48PacketResourcePackSend
+import net.minecraft.network.packet.s2c.play.ResourcePackS2CPacket
 import java.net.URI
 import java.net.URISyntaxException
 
 object ResourcePackSpoof : Module("ResourcePackSpoof", Category.MISC, gameDetecting = false) {
 
     val onPacket = handler<PacketEvent> { event ->
-        val packet = event.packet as? S48PacketResourcePackSend ?: return@handler
+        val packet = event.packet as? ResourcePackS2CPacket ?: return@handler
 
         val url = packet.url
         val hash = packet.hash

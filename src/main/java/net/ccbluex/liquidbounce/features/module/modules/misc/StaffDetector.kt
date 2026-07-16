@@ -23,8 +23,8 @@ import net.minecraft.entity.Entity
 import net.minecraft.entity.living.player.PlayerEntity
 import net.minecraft.item.Items
 import net.minecraft.network.Packet
-import net.minecraft.network.play.server.*
-import net.minecraft.network.play.server.S38PacketPlayerListItem.Action.UPDATE_LATENCY
+import net.minecraft.network.packet.s2c.play.*
+import net.minecraft.network.packet.s2c.play.PlayerInfoS2CPacket.Action.UPDATE_LATENCY
 import java.util.concurrent.ConcurrentHashMap
 
 object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = false) {
@@ -316,7 +316,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
         }
     }
 
-    private fun handlePlayerList(packet: S38PacketPlayerListItem) {
+    private fun handlePlayerList(packet: PlayerInfoS2CPacket) {
         val action = packet.action
         val entries = packet.entries
 
@@ -349,17 +349,17 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
 
         when (packet) {
             is LoginS2CPacket -> handleStaff(mc.theWorld.getEntityByID(packet.entityId) ?: null)
-            is S0CPacketSpawnPlayer -> handleStaff(mc.theWorld.getEntityByID(packet.entityID) ?: null)
-            is S18PacketEntityTeleport -> handleStaff(mc.theWorld.getEntityByID(packet.entityId) ?: null)
-            is S1CPacketEntityMetadata -> handleStaff(mc.theWorld.getEntityByID(packet.entityId) ?: null)
-            is S1DPacketEntityEffect -> handleStaff(mc.theWorld.getEntityByID(packet.entityId) ?: null)
-            is S1EPacketRemoveEntityEffect -> handleStaff(mc.theWorld.getEntityByID(packet.entityId) ?: null)
-            is S19PacketEntityStatus -> handleStaff(mc.theWorld.getEntityByID(packet.entityId) ?: null)
-            is S19PacketEntityHeadLook -> handleStaff(packet.getEntity(mc.theWorld) ?: null)
-            is S49PacketUpdateEntityNBT -> handleStaff(packet.getEntity(mc.theWorld) ?: null)
-            is S1BPacketEntityAttach -> handleStaff(mc.theWorld.getEntityByID(packet.entityId) ?: null)
-            is S04PacketEntityEquipment -> handleStaff(mc.theWorld.getEntityByID(packet.entityID) ?: null)
-            is S38PacketPlayerListItem -> handlePlayerList(packet)
+            is AddPlayerS2CPacket -> handleStaff(mc.theWorld.getEntityByID(packet.entityID) ?: null)
+            is EntityTeleportS2CPacket -> handleStaff(mc.theWorld.getEntityByID(packet.entityId) ?: null)
+            is EntityDataS2CPacket -> handleStaff(mc.theWorld.getEntityByID(packet.entityId) ?: null)
+            is EntityStatusEffectS2CPacket -> handleStaff(mc.theWorld.getEntityByID(packet.entityId) ?: null)
+            is EntityRemoveStatusEffectS2CPacket -> handleStaff(mc.theWorld.getEntityByID(packet.entityId) ?: null)
+            is EntityEventS2CPacket -> handleStaff(mc.theWorld.getEntityByID(packet.entityId) ?: null)
+            is EntityHeadAnglesS2CPacket -> handleStaff(packet.getEntity(mc.theWorld) ?: null)
+            is EntitySyncS2CPacket -> handleStaff(packet.getEntity(mc.theWorld) ?: null)
+            is AttachEntityS2CPacket -> handleStaff(mc.theWorld.getEntityByID(packet.entityId) ?: null)
+            is EntityEquipmentS2CPacket -> handleStaff(mc.theWorld.getEntityByID(packet.entityID) ?: null)
+            is PlayerInfoS2CPacket -> handlePlayerList(packet)
         }
     }
 

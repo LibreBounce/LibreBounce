@@ -27,7 +27,7 @@ import net.minecraft.client.gui.screen.inventory.menu.InventoryMenuScreen
 import net.minecraft.entity.living.LivingEntity
 import net.minecraft.entity.living.player.PlayerEntity
 import net.minecraft.network.packet.c2s.handshake.HandshakeC2SPacket
-import net.minecraft.network.play.client.*
+import net.minecraft.network.packet.c2s.play.*
 import net.minecraft.network.packet.s2c.play.PlayerMoveS2CPacket
 import net.minecraft.network.packet.s2c.play.EntityVelocityS2CPacket
 import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket

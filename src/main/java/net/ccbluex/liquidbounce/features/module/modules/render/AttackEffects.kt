@@ -8,7 +8,7 @@ import net.minecraft.block.Block
 import net.minecraft.entity.living.LivingEntity
 import net.minecraft.entity.effect.EntityLightningBolt
 import net.minecraft.init.Blocks.redstone_block
-import net.minecraft.network.play.server.S2CPacketSpawnGlobalEntity
+import net.minecraft.network.packet.s2c.play.AddGlobalEntityS2CPacket
 import net.minecraft.util.EnumParticleTypes
 
 object AttackEffects : Module("AttackEffects", Category.RENDER) {
@@ -79,7 +79,7 @@ object AttackEffects : Module("AttackEffects", Category.RENDER) {
 
     private fun spawnLightning(target: EntityLivingBase) {
         mc.netHandler.handleSpawnGlobalEntity(
-            S2CPacketSpawnGlobalEntity(
+            AddGlobalEntityS2CPacket(
                 EntityLightningBolt(mc.theWorld, target.posX, target.posY, target.posZ)
             )
         )

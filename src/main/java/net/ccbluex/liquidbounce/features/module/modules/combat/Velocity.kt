@@ -26,7 +26,7 @@ import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.minecraft.block.BlockAir
 import net.minecraft.entity.Entity
 import net.minecraft.network.Packet
-import net.minecraft.network.play.client.*
+import net.minecraft.network.packet.c2s.play.*
 import net.minecraft.network.packet.c2s.play.PlayerHandActionC2SPacket.Action.STOP_DESTROY_BLOCK
 import net.minecraft.network.packet.c2s.play.PlayerMovementActionC2SPacket.Action.*
 import net.minecraft.network.packet.s2c.play.EntityVelocityS2CPacket

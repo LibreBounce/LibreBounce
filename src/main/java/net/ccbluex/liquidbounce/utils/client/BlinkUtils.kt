@@ -9,8 +9,8 @@ import net.minecraft.network.Packet
 import net.minecraft.network.packet.c2s.handshake.HandshakeC2SPacket
 import net.minecraft.network.packet.c2s.play.ChatMessageC2SPacket
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
-import net.minecraft.network.play.server.ChatMessageS2CPacket
-import net.minecraft.network.play.server.S29PacketSoundEffect
+import net.minecraft.network.packet.s2c.play.ChatMessageS2CPacket
+import net.minecraft.network.packet.s2c.play.SoundEventS2CPacket
 import net.minecraft.network.packet.c2s.query.ServerStatusC2SPacket
 import net.minecraft.network.packet.c2s.query.PingC2SPacket
 import net.minecraft.util.math.Vec3d
@@ -36,7 +36,7 @@ object BlinkUtils : MinecraftInstance, Listenable {
                 return
             }
 
-            is S29PacketSoundEffect -> {
+            is SoundEventS2CPacket -> {
                 if (packet.soundName == "game.player.hurt") {
                     return
                 }

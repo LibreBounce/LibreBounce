@@ -15,10 +15,10 @@ import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.serverRotation
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.toRotation
 import net.minecraft.entity.living.LivingEntity
 import net.minecraft.entity.living.player.PlayerEntity
-import net.minecraft.network.play.server.S0BPacketAnimation
-import net.minecraft.network.play.server.S13PacketDestroyEntities
-import net.minecraft.network.play.server.S14PacketEntity
-import net.minecraft.network.play.server.S20PacketEntityProperties
+import net.minecraft.network.packet.s2c.play.EntityAnimationS2CPacket
+import net.minecraft.network.packet.s2c.play.RemoveEntitiesS2CPacket
+import net.minecraft.network.packet.s2c.play.EntityMoveS2CPacket
+import net.minecraft.network.packet.s2c.play.EntityAttributesS2CPacket
 import net.minecraft.potion.Potion
 import java.util.*
 import kotlin.math.abs
@@ -241,7 +241,7 @@ object AntiBot : Module("AntiBot", Category.MISC) {
 
         val packet = event.packet
 
-        if (packet is S14PacketEntity) {
+        if (packet is EntityMoveS2CPacket) {
             val entity = packet.getEntity(mc.theWorld)
 
             if (entity is PlayerEntity) {
@@ -316,7 +316,7 @@ object AntiBot : Module("AntiBot", Category.MISC) {
             }
         }
 
-        if (packet is S0BPacketAnimation) {
+        if (packet is EntityAnimationS2CPacket) {
             val entity = mc.theWorld.getEntityByID(packet.entityID)
 
             if (entity != null && entity is EntityLivingBase && packet.animationType == 0
@@ -325,11 +325,11 @@ object AntiBot : Module("AntiBot", Category.MISC) {
                 swingList += entity.entityId
         }
 
-        if (packet is S20PacketEntityProperties) {
+        if (packet is EntityAttributesS2CPacket) {
             propertiesList += packet.entityId
         }
 
-        if (packet is S13PacketDestroyEntities) {
+        if (packet is RemoveEntitiesS2CPacket) {
             for (entityID in packet.entityIDs) {
                 // Remove [entityID] from every list upon deletion
                 groundList -= entityID

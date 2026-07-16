@@ -18,12 +18,12 @@ import net.ccbluex.liquidbounce.utils.movement.MovementUtils.hasMotion
 import net.ccbluex.liquidbounce.utils.timing.TickTimer
 import net.minecraft.item.*
 import net.minecraft.network.packet.c2s.handshake.HandshakeC2SPacket
-import net.minecraft.network.play.client.*
+import net.minecraft.network.packet.c2s.play.*
 import net.minecraft.network.packet.c2s.play.PlayerHandActionC2SPacket.Action.DROP_ITEM
 import net.minecraft.network.packet.c2s.play.PlayerHandActionC2SPacket.Action.RELEASE_USE_ITEM
 import net.minecraft.network.packet.s2c.play.EntityVelocityS2CPacket
 import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket
-import net.minecraft.network.play.server.S2FPacketSetSlot
+import net.minecraft.network.packet.s2c.play.InventoryMenuSlotContentS2CPacket
 import net.minecraft.network.packet.c2s.query.ServerStatusC2SPacket
 import net.minecraft.network.packet.c2s.query.PingC2SPacket
 import net.minecraft.network.packet.s2c.query.PingS2CPacket
@@ -234,7 +234,7 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
                 sendPacket(PlayerHandActionC2SPacket(DROP_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN))
                 shouldNoSlow = false
                 hasDropped = true
-            } else if (packet is S2FPacketSetSlot && player.isUsingItem) {
+            } else if (packet is InventoryMenuSlotContentS2CPacket && player.isUsingItem) {
                 if (packet.func_149175_c() != 0 || packet.func_149173_d() != SilentHotbar.currentSlot + 36) return@handler
 
                 event.cancelEvent()

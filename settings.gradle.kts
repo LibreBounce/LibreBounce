@@ -14,7 +14,7 @@ pluginManagement {
         }
         maven {
             name = "Jitpack"
-            url = "https://jitpack.io/"
+            url = uri("https://jitpack.io/")
         }
         mavenCentral()
         gradlePluginPortal()
@@ -27,4 +27,4 @@ pluginManagement {
 }
 
 // Should match your modid
-rootProject.name = "template-mod"
+rootProject.name = "librebounce"

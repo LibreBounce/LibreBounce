@@ -46,7 +46,7 @@ import net.minecraft.item.ItemStack
 import net.minecraft.network.packet.c2s.play.CloseInventoryMenuC2SPacket
 import net.minecraft.network.packet.s2c.play.OpenInventoryMenuS2CPacket
 import net.minecraft.network.packet.s2c.play.CloseInventoryMenuS2CPacket
-import net.minecraft.network.play.server.S30PacketWindowItems
+import net.minecraft.network.packet.s2c.play.InventoryMenuContentS2CPacket
 import java.awt.Color
 import kotlin.math.sqrt
 
@@ -457,7 +457,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
                 progress = null
             }
 
-            is S30PacketWindowItems -> {
+            is InventoryMenuContentS2CPacket -> {
                 // Chests never have windowId 0
                 val packetWindowId = packet.func_148911_c()
 

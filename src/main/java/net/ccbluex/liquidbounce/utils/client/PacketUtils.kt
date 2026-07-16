@@ -19,7 +19,7 @@ import net.minecraft.network.Connection
 import net.minecraft.network.Packet
 import net.minecraft.client.network.handler.ClientPlayPacketHandler
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
-import net.minecraft.network.play.server.*
+import net.minecraft.network.packet.s2c.play.*
 import net.minecraft.util.BlockPos
 import net.minecraft.util.math.Vec3d
 import java.util.concurrent.locks.ReentrantLock
@@ -60,15 +60,15 @@ object PacketUtils : MinecraftInstance, Listenable {
         val world = mc.theWorld ?: return@handler
 
         when (val packet = event.packet) {
-            is S0CPacketSpawnPlayer -> (world.getEntityByID(packet.entityID) as? IMixinEntity)?.apply {
+            is AddPlayerS2CPacket -> (world.getEntityByID(packet.entityID) as? IMixinEntity)?.apply {
                 updateSpawnPosition(Vec3d(packet.realX, packet.realY, packet.realZ))
             }
 
-            is S0FPacketSpawnMob -> (world.getEntityByID(packet.entityID) as? IMixinEntity)?.apply {
+            is AddMobS2CPacket -> (world.getEntityByID(packet.entityID) as? IMixinEntity)?.apply {
                 updateSpawnPosition(Vec3d(packet.realX, packet.realY, packet.realZ))
             }
 
-            is S14PacketEntity -> {
+            is EntityMoveS2CPacket -> {
                 val entity = packet.getEntity(world)
                 val mixinEntity = entity as? IMixinEntity
 
@@ -83,7 +83,7 @@ object PacketUtils : MinecraftInstance, Listenable {
                 }
             }
 
-            is S18PacketEntityTeleport -> (world.getEntityByID(packet.entityId) as? IMixinEntity)?.apply {
+            is EntityTeleportS2CPacket -> (world.getEntityByID(packet.entityId) as? IMixinEntity)?.apply {
                 updateSpawnPosition(Vec3d(packet.realX, packet.realY, packet.realZ), true)
             }
         }
@@ -186,48 +186,51 @@ var EntityVelocityS2CPacket.realMotionZ
         motionX = (value * 8000.0).roundToInt()
     }
 
-val S14PacketEntity.realMotionX
+val EntityMoveS2CPacket.realMotionX
     get() = func_149062_c() / 32.0
-val S14PacketEntity.realMotionY
+val EntityMoveS2CPacket.realMotionY
     get() = func_149061_d() / 32.0
-val S14PacketEntity.realMotionZ
+val EntityMoveS2CPacket.realMotionZ
     get() = func_149064_e() / 32.0
 
-var S0EPacketSpawnObject.realX
+var AddEntityS2CPacket.realX
     get() = x / 32.0
     set(value) {
         x = (value * 32.0).roundToInt()
     }
-var S0EPacketSpawnObject.realY
+var AddEntityS2CPacket.realY
     get() = y / 32.0
     set(value) {
         y = (value * 32.0).roundToInt()
     }
-var S0EPacketSpawnObject.realZ
+var AddEntityS2CPacket.realZ
     get() = z / 32.0
     set(value) {
         z = (value * 32.0).roundToInt()
     }
 
-val S0CPacketSpawnPlayer.realX
+val AddPlayerS2CPacket
+.realX
     get() = x / 32.0
-val S0CPacketSpawnPlayer.realY
+val AddPlayerS2CPacket
+.realY
     get() = y / 32.0
-val S0CPacketSpawnPlayer.realZ
+val AddPlayerS2CPacket
+.realZ
     get() = z / 32.0
 
-val S0FPacketSpawnMob.realX
+val AddMobS2CPacket.realX
     get() = x / 32.0
-val S0FPacketSpawnMob.realY
+val AddMobS2CPacket.realY
     get() = y / 32.0
-val S0FPacketSpawnMob.realZ
+val AddMobS2CPacket.realZ
     get() = z / 32.0
 
-val S18PacketEntityTeleport.realX
+val EntityTeleportS2CPacket.realX
     get() = x / 32.0
-val S18PacketEntityTeleport.realY
+val EntityTeleportS2CPacket.realY
     get() = y / 32.0
-val S18PacketEntityTeleport.realZ
+val EntityTeleportS2CPacket.realZ
     get() = z / 32.0
 
 val BlockBBEvent.pos

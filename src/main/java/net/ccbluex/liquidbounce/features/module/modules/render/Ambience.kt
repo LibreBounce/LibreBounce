@@ -11,8 +11,8 @@ import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.Category
-import net.minecraft.network.play.server.S03PacketTimeUpdate
-import net.minecraft.network.play.server.S2BPacketChangeGameState
+import net.minecraft.network.packet.s2c.play.WorldTimeS2CPacket
+import net.minecraft.network.packet.s2c.play.GameEventS2CPacket
 import java.awt.Color
 
 object Ambience : Module("Ambience", Category.RENDER, gameDetecting = false) {
@@ -96,10 +96,10 @@ object Ambience : Module("Ambience", Category.RENDER, gameDetecting = false) {
     val onPacket = handler<PacketEvent> { event ->
         val packet = event.packet
 
-        if (timeMode != "None" && packet is S03PacketTimeUpdate)
+        if (timeMode != "None" && packet is WorldTimeS2CPacket)
             event.cancelEvent()
 
-        if (weatherMode != "None" && packet is S2BPacketChangeGameState) {
+        if (weatherMode != "None" && packet is GameEventS2CPacket) {
             if (packet.gameState in 7..8) { // change weather packet
                 event.cancelEvent()
             }

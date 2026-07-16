@@ -31,10 +31,10 @@ import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.minecraft.block.BlockChest
 import net.minecraft.block.BlockEnderChest
 import net.minecraft.entity.living.player.PlayerEntity
-import net.minecraft.network.play.server.S0EPacketSpawnObject
-import net.minecraft.network.play.server.S24PacketBlockAction
-import net.minecraft.network.play.server.S29PacketSoundEffect
-import net.minecraft.network.play.server.S45PacketTitle
+import net.minecraft.network.packet.s2c.play.AddEntityS2CPacket
+import net.minecraft.network.packet.s2c.play.BlockEventS2CPacket
+import net.minecraft.network.packet.s2c.play.SoundEventS2CPacket
+import net.minecraft.network.packet.s2c.play.TitlesS2CPacket
 import net.minecraft.tileentity.TileEntity
 import net.minecraft.tileentity.TileEntityChest
 import net.minecraft.tileentity.TileEntityEnderChest
@@ -169,7 +169,7 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
     val onPacket = handler<PacketEvent> { event ->
         when (val packet = event.packet) {
             // Detect chest opening from sound effect
-            is S29PacketSoundEffect -> {
+            is SoundEventS2CPacket -> {
                 if (packet.soundName != "random.chestopen")
                     return@handler
 
@@ -179,7 +179,7 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
             }
 
             // Detect already looted chests by having their lid open or closed
-            is S24PacketBlockAction -> {
+            is BlockEventS2CPacket -> {
                 if (!ignoreLooted || (packet.blockType !is BlockChest && packet.blockType !is BlockEnderChest))
                     return@handler
 
@@ -243,7 +243,7 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
             }
 
             // Detect chests getting refilled
-            is S45PacketTitle -> {
+            is TitlesS2CPacket -> {
                 if (!detectRefill)
                     return@handler
 
@@ -253,7 +253,7 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
 
             // Armor stands might be showing time until opened chests get refilled
             // Whenever an armor stand spawns, blacklist chest that it might be inside
-            is S0EPacketSpawnObject -> {
+            is AddEntityS2CPacket -> {
                 if (ignoreLooted && packet.type == 78) {
                     val entity = mc.theWorld.getTileEntity(
                         BlockPos(packet.realX, packet.realY + 2.0, packet.realZ)

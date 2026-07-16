@@ -15,9 +15,9 @@ import net.ccbluex.liquidbounce.features.module.modules.misc.AntiBot.isBot
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.minecraft.block.BlockTNT
 import net.minecraft.item.*
-import net.minecraft.network.play.server.S38PacketPlayerListItem
-import net.minecraft.network.play.server.S38PacketPlayerListItem.Action.ADD_PLAYER
-import net.minecraft.network.play.server.S38PacketPlayerListItem.Action.REMOVE_PLAYER
+import net.minecraft.network.packet.s2c.play.PlayerInfoS2CPacket
+import net.minecraft.network.packet.s2c.play.PlayerInfoS2CPacket.Action.ADD_PLAYER
+import net.minecraft.network.packet.s2c.play.PlayerInfoS2CPacket.Action.REMOVE_PLAYER
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.roundToInt
 
@@ -82,7 +82,7 @@ object Notifier : Module("Notifier", Category.MISC) {
         if (player.ticksExisted < 50) return@handler
 
         when (val packet = event.packet) {
-            is S38PacketPlayerListItem -> {
+            is PlayerInfoS2CPacket -> {
                 if (onPlayerJoin && packet.action == ADD_PLAYER) {
                     for (playerData in packet.entries) {
                         val players = playerData.profile ?: continue

@@ -31,7 +31,7 @@ import net.minecraft.entity.living.LivingEntity
 import net.minecraft.entity.living.player.PlayerEntity
 import net.minecraft.network.Packet
 import net.minecraft.network.packet.c2s.handshake.HandshakeC2SPacket
-import net.minecraft.network.play.server.*
+import net.minecraft.network.packet.s2c.play.*
 import net.minecraft.network.packet.c2s.query.ServerStatusC2SPacket
 import net.minecraft.network.packet.s2c.query.PingS2CPacket
 import net.minecraft.util.math.Vec3d
@@ -125,7 +125,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
             // Ignore server related packets
             is HandshakeC2SPacket, is ServerStatusC2SPacket, is ChatMessageS2CPacket, is PingS2CPacket -> return@handler
 
-            is S29PacketSoundEffect -> if (nonDelayedSoundSubstrings in packet.soundName) return@handler
+            is SoundEventS2CPacket -> if (nonDelayedSoundSubstrings in packet.soundName) return@handler
 
             // Flush on own death
             is PlayerHealthS2CPacket -> if (packet.health <= 0) {
@@ -133,13 +133,13 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
                 return@handler
             }
 
-            is S13PacketDestroyEntities -> if (target != null && target!!.entityId in packet.entityIDs) {
+            is RemoveEntitiesS2CPacket -> if (target != null && target!!.entityId in packet.entityIDs) {
                 clearPackets()
                 reset()
                 return@handler
             }
 
-            is S1CPacketEntityMetadata -> if (target?.entityId == packet.entityId) {
+            is EntityDataS2CPacket -> if (target?.entityId == packet.entityId) {
                 val metadata = packet.func_149376_c() ?: return@handler
 
                 metadata.forEach {
@@ -156,7 +156,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
                 return@handler
             }
 
-            is S19PacketEntityStatus -> if (packet.entityId == target?.entityId) return@handler
+            is EntityEventS2CPacket -> if (packet.entityId == target?.entityId) return@handler
         }
 
         // Cancel every received packet to avoid possible server synchronization issues from random causes.
@@ -164,13 +164,13 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
             //if (packetMode == "Sent") return@handler
 
             when (packet) {
-                is S14PacketEntity -> if (packet.entityId == target?.entityId) {
+                is EntityMoveS2CPacket -> if (packet.entityId == target?.entityId) {
                     (target as? IMixinEntity)?.run {
                         positions += Pair(Vec3d(trueX, trueY, trueZ), System.currentTimeMillis())
                     }
                 }
 
-                is S18PacketEntityTeleport -> if (packet.entityId == target?.entityId) {
+                is EntityTeleportS2CPacket -> if (packet.entityId == target?.entityId) {
                     (target as? IMixinEntity)?.run {
                         positions += Pair(Vec3d(trueX, trueY, trueZ), System.currentTimeMillis())
                     }
