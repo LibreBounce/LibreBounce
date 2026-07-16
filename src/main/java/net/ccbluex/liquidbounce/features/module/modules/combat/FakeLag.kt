@@ -22,18 +22,18 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
 import net.ccbluex.liquidbounce.utils.rotation.Rotation
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
-import net.minecraft.client.entity.EntityPlayerSP
+import net.minecraft.client.entity.living.player.LocalClientPlayerEntity
 import net.minecraft.client.gui.screen.inventory.menu.InventoryMenuScreen
-import net.minecraft.entity.EntityLivingBase
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.network.handshake.client.C00Handshake
+import net.minecraft.entity.living.LivingEntity
+import net.minecraft.entity.living.player.PlayerEntity
+import net.minecraft.network.packet.c2s.handshake.HandshakeC2SPacket
 import net.minecraft.network.play.client.*
-import net.minecraft.network.play.server.S08PacketPlayerPosLook
-import net.minecraft.network.play.server.S12PacketEntityVelocity
-import net.minecraft.network.play.server.S27PacketExplosion
-import net.minecraft.network.status.client.C00PacketServerQuery
-import net.minecraft.network.status.client.C01PacketPing
-import net.minecraft.network.status.server.S01PacketPong
+import net.minecraft.network.packet.s2c.play.PlayerMoveS2CPacket
+import net.minecraft.network.packet.s2c.play.EntityVelocityS2CPacket
+import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket
+import net.minecraft.network.packet.c2s.query.ServerStatusC2SPacket
+import net.minecraft.network.packet.c2s.query.PingC2SPacket
+import net.minecraft.network.packet.s2c.query.PingS2CPacket
 import net.minecraft.util.math.Vec3d
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
@@ -123,7 +123,7 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
         }
 
         // Flush on attack/interact
-        if (blinkOnAction && packet is C02PacketUseEntity && lastActionTime.hasTimePassed(blinkOnActionDelay)) {
+        if (blinkOnAction && packet is PlayerInteractEntityC2SPacket && lastActionTime.hasTimePassed(blinkOnActionDelay)) {
             lastActionTime.reset()
             blink()
             return@handler
@@ -135,29 +135,29 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
         }
 
         when (packet) {
-            is C00Handshake, is C00PacketServerQuery, is C01PacketPing, is C01PacketChatMessage, is S01PacketPong -> return@handler
+            is HandshakeC2SPacket, is ServerStatusC2SPacket, is PingC2SPacket, is ChatMessageC2SPacket, is PingS2CPacket -> return@handler
 
             // Flush on window clicked (Inventory)
-            is C0EPacketClickWindow, is C0DPacketCloseWindow -> {
+            is InventoryMenuClickSlotC2SPacket, is CloseInventoryMenuC2SPacket -> {
                 blink()
                 return@handler
             }
 
             // Flush on doing action/getting action
-            is S08PacketPlayerPosLook, is C08PacketPlayerBlockPlacement, is C07PacketPlayerDigging, is C12PacketUpdateSign, is C19PacketResourcePackStatus -> {
+            is PlayerMoveS2CPacket, is PlayerUseC2SPacket, is PlayerHandActionC2SPacket, is SignUpdateC2SPacket, is ResourcePackC2SPacket -> {
                 blink()
                 return@handler
             }
 
             // Flush on knockback
-            is S12PacketEntityVelocity -> {
+            is EntityVelocityS2CPacket -> {
                 if (pauseOnKnockback && player.entityId == packet.entityID) {
                     blink()
                     return@handler
                 }
             }
 
-            is S27PacketExplosion -> {
+            is ExplosionS2CPacket -> {
                 if (pauseOnKnockback && packet.field_149153_g != 0f || packet.field_149152_f != 0f || packet.field_149159_h != 0f) {
                     blink()
                     return@handler
@@ -182,7 +182,7 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
         if (event.eventType == EventState.SEND) {
             event.cancelEvent()
 
-            if (packet is C03PacketPlayer && packet.isMoving) {
+            if (packet is PlayerMoveC2SPacket && packet.isMoving) {
                 synchronized(positions) {
                     positions += PositionData(
                         packet.pos,
@@ -204,7 +204,7 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
         if (event.worldClient == null) blink(false)
     }
 
-    private fun getTruePositionEyes(player: EntityPlayer): Vec3d {
+    private fun getTruePositionEyes(player: PlayerEntity): Vec3d {
         val mixinPlayer = player as? IMixinEntity
 
         return Vec3d(mixinPlayer!!.trueX, mixinPlayer.trueY + player.getEyeHeight().toDouble(), mixinPlayer.trueZ)
@@ -393,7 +393,7 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
 }
 
 data class ModelRenderData(var pos: Vec3d, var rotation: Rotation) {
-    fun reset(player: EntityPlayerSP) {
+    fun reset(player: LocalClientPlayerEntity) {
         pos = player.currPos
         rotation = RotationUtils.serverRotation
     }

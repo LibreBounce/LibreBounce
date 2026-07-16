@@ -20,7 +20,7 @@ import net.minecraft.block.BlockSlab
 import net.minecraft.block.BlockSlime
 import net.minecraft.block.BlockStairs
 import net.minecraft.init.Blocks.*
-import net.minecraft.network.play.server.S08PacketPlayerPosLook
+import net.minecraft.network.packet.s2c.play.PlayerMoveS2CPacket
 import net.minecraft.util.BlockPos
 
 object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT) {
@@ -212,7 +212,7 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT) {
     }
 
     val onPacket = handler<PacketEvent> { event ->
-        if (event.packet is S08PacketPlayerPosLook)
+        if (event.packet is PlayerMoveS2CPacket)
             speed = 0.0
     }
 

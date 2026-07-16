@@ -13,7 +13,7 @@ import net.ccbluex.liquidbounce.utils.extensions.isAnimal
 import net.ccbluex.liquidbounce.utils.extensions.isClientFriend
 import net.ccbluex.liquidbounce.utils.extensions.isMob
 import net.minecraft.entity.Entity
-import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.entity.living.player.PlayerEntity
 
 object HitBox : Module("HitBox", Category.COMBAT) {
 
@@ -31,7 +31,7 @@ object HitBox : Module("HitBox", Category.COMBAT) {
 
     fun determineSize(entity: Entity): Float {
         return when (entity) {
-            is EntityPlayer -> {
+            is PlayerEntity -> {
                 if (entity.isSpectator || !targetPlayers) {
                     return 0f
                 }

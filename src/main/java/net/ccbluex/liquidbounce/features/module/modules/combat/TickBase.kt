@@ -17,8 +17,8 @@ import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.withinChance
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils
 import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
-import net.minecraft.entity.EntityLivingBase
-import net.minecraft.network.play.server.S08PacketPlayerPosLook
+import net.minecraft.entity.living.LivingEntity
+import net.minecraft.network.packet.s2c.play.PlayerMoveS2CPacket
 import net.minecraft.util.math.Vec3d
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
@@ -224,7 +224,7 @@ object TickBase : Module("TickBase", Category.COMBAT) {
     }
 
     val onPacket = handler<PacketEvent> { event ->
-        if (event.packet is S08PacketPlayerPosLook && pauseOnFlag) {
+        if (event.packet is PlayerMoveS2CPacket && pauseOnFlag) {
             tickBalance = 0f
         }
     }

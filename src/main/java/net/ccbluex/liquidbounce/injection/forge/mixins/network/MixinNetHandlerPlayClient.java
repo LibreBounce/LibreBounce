@@ -22,7 +22,7 @@ import net.ccbluex.liquidbounce.utils.extensions.PlayerExtensionKt;
 import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils;
 import net.minecraft.client.ClientBrandRetriever;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.entity.living.player.LocalClientPlayerEntity;
 import net.minecraft.client.gui.screen.DownloadingTerrainScreen;
 import net.minecraft.client.multiplayer.PlayerControllerMP;
 import net.minecraft.client.multiplayer.WorldClient;
@@ -33,7 +33,7 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.PacketThreadUtil;
 import net.minecraft.network.play.client.C17PacketCustomPayload;
-import net.minecraft.network.play.client.C19PacketResourcePackStatus;
+import net.minecraft.network.packet.c2s.play.ResourcePackC2SPacket;
 import net.minecraft.network.play.server.*;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.WorldSettings;
@@ -50,7 +50,7 @@ import java.net.URISyntaxException;
 
 import static net.ccbluex.liquidbounce.utils.client.ClientUtilsKt.chat;
 import static net.ccbluex.liquidbounce.utils.client.MinecraftInstance.mc;
-import static net.minecraft.network.play.client.C19PacketResourcePackStatus.Action.FAILED_DOWNLOAD;
+import static net.minecraft.network.packet.c2s.play.ResourcePackC2SPacket.Action.FAILED_DOWNLOAD;
 
 @Mixin(NetHandlerPlayClient.class)
 public abstract class MixinNetHandlerPlayClient {
@@ -66,7 +66,7 @@ public abstract class MixinNetHandlerPlayClient {
     private WorldClient clientWorldController;
 
     @Inject(method = "handleExplosion", at = @At("HEAD"), cancellable = true)
-    private void cancelExplosionMotion(S27PacketExplosion packetExplosion, CallbackInfo ci) {
+    private void cancelExplosionMotion(ExplosionS2CPacket packetExplosion, CallbackInfo ci) {
         AntiExploit module = AntiExploit.INSTANCE;
 
         double motionX = packetExplosion.field_149159_h;
@@ -90,7 +90,7 @@ public abstract class MixinNetHandlerPlayClient {
     }
 
     @Inject(method = "handleExplosion", at = @At("HEAD"), cancellable = true)
-    private void cancelExplosionStrength(S27PacketExplosion packetExplosion, CallbackInfo ci) {
+    private void cancelExplosionStrength(ExplosionS2CPacket packetExplosion, CallbackInfo ci) {
         AntiExploit module = AntiExploit.INSTANCE;
 
         if (module.handleEvents() && module.getCancelExplosionStrength()) {
@@ -109,7 +109,7 @@ public abstract class MixinNetHandlerPlayClient {
     }
 
     @Inject(method = "handleExplosion", at = @At("HEAD"), cancellable = true)
-    private void cancelExplosionRadius(S27PacketExplosion packetExplosion, CallbackInfo ci) {
+    private void cancelExplosionRadius(ExplosionS2CPacket packetExplosion, CallbackInfo ci) {
         AntiExploit module = AntiExploit.INSTANCE;
 
         if (module.handleEvents() && module.getCancelExplosionRadius()) {
@@ -221,7 +221,7 @@ public abstract class MixinNetHandlerPlayClient {
                 ClientUtils.INSTANCE.getLOGGER().error("Failed to handle resource pack", e);
 
                 // We fail of course.
-                netManager.sendPacket(new C19PacketResourcePackStatus(hash, FAILED_DOWNLOAD));
+                netManager.sendPacket(new ResourcePackC2SPacket(hash, FAILED_DOWNLOAD));
 
                 callbackInfo.cancel();
             }
@@ -257,8 +257,8 @@ public abstract class MixinNetHandlerPlayClient {
             EventManager.INSTANCE.call(new EntityMovementEvent(entity));
     }
 
-    @Inject(method = "handlePlayerPosLook", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/EntityPlayer;setPositionAndRotation(DDDFF)V", shift = At.Shift.BEFORE))
-    private void injectNoRotateSetPositionOnly(S08PacketPlayerPosLook p_handlePlayerPosLook_1_, CallbackInfo ci) {
+    @Inject(method = "handlePlayerPosLook", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerEntity;setPositionAndRotation(DDDFF)V", shift = At.Shift.BEFORE))
+    private void injectNoRotateSetPositionOnly(PlayerMoveS2CPacket p_handlePlayerPosLook_1_, CallbackInfo ci) {
         NoRotateSet module = NoRotateSet.INSTANCE;
 
         // Save the server's requested rotation before it resets the rotations
@@ -271,7 +271,7 @@ public abstract class MixinNetHandlerPlayClient {
         boolean shouldTrigger = module2.blinkingSend();
         PacketUtils.sendPacket(p_sendPacket_1_, shouldTrigger);
 
-        EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
+        LocalClientPlayerEntity player = Minecraft.getMinecraft().thePlayer;
         NoRotateSet module = NoRotateSet.INSTANCE;
 
         if (player == null || !module.shouldModify(player)) {
@@ -286,7 +286,7 @@ public abstract class MixinNetHandlerPlayClient {
             NoRotateSet.INSTANCE.rotateBackToPlayerRotation();
         }
 
-        // Slightly modify the client-side rotations, so they pass the rotation difference check in onUpdateWalkingPlayer, EntityPlayerSP.
+        // Slightly modify the client-side rotations, so they pass the rotation difference check in onUpdateWalkingPlayer, LocalClientPlayerEntity.
         player.rotationYaw = (rotation.getYaw() + 0.000001f * sign) % 360.0F;
         player.rotationPitch = (rotation.getPitch() + 0.000001f * sign) % 360.0F;
         RotationUtils.INSTANCE.syncRotations();

@@ -14,7 +14,7 @@ import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.findItem
 import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar.resetSlot
 import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar.selectSlotSilently
 import net.minecraft.init.Items.mushroom_stew
-import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
+import net.minecraft.network.packet.c2s.play.PlayerUseC2SPacket
 
 object KeepAlive : Module("KeepAlive", Category.PLAYER) {
 
@@ -41,7 +41,7 @@ object KeepAlive : Module("KeepAlive", Category.PLAYER) {
                             render = false,
                             resetManually = true
                         )
-                        sendPacket(C08PacketPlayerBlockPlacement(player.heldItem))
+                        sendPacket(PlayerUseC2SPacket(player.heldItem))
                         resetSlot(this)
                     }
                 }

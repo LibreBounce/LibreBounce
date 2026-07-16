@@ -9,8 +9,8 @@ import net.ccbluex.liquidbounce.features.module.modules.player.nofall.modes.NoFa
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPackets
 import net.ccbluex.liquidbounce.utils.extensions.stopXZ
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils.serverOnGround
-import net.minecraft.network.play.client.C03PacketPlayer
-import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.Position
 
 object AAC3311 : NoFallMode("AAC3.3.11") {
     override fun onUpdate() {
@@ -19,8 +19,8 @@ object AAC3311 : NoFallMode("AAC3.3.11") {
                 stopXZ()
 
                 sendPackets(
-                    C04PacketPlayerPosition(posX, posY - 10E-4, posZ, serverOnGround),
-                    C03PacketPlayer(true)
+                    Position(posX, posY - 10E-4, posZ, serverOnGround),
+                    PlayerMoveC2SPacket(true)
                 )
             }
         }

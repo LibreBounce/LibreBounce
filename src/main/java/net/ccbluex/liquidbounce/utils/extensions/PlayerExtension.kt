@@ -18,9 +18,9 @@ import net.ccbluex.liquidbounce.utils.movement.MovementUtils
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.stripColor
 import net.ccbluex.liquidbounce.utils.rotation.Rotation
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.getFixedSensitivityAngle
-import net.minecraft.client.entity.EntityPlayerSP
+import net.minecraft.client.entity.living.player.LocalClientPlayerEntity
 import net.minecraft.entity.Entity
-import net.minecraft.entity.EntityLivingBase
+import net.minecraft.entity.living.LivingEntity
 import net.minecraft.entity.boss.EntityDragon
 import net.minecraft.entity.monster.EntityGhast
 import net.minecraft.entity.monster.EntityGolem
@@ -30,11 +30,11 @@ import net.minecraft.entity.passive.EntityAnimal
 import net.minecraft.entity.passive.EntityBat
 import net.minecraft.entity.passive.EntitySquid
 import net.minecraft.entity.passive.EntityVillager
-import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.entity.living.player.PlayerEntity
 import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemStack
 import net.minecraft.network.play.client.C0APacketAnimation
-import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
+import net.minecraft.network.packet.c2s.play.PlayerUseC2SPacket
 import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing
@@ -48,7 +48,7 @@ fun Entity.getDistanceToEntityBox(entity: Entity) = eyes.distanceTo(getNearestPo
 
 fun Entity.getDistanceToBox(box: AxisAlignedBB) = eyes.distanceTo(getNearestPointBB(eyes, box))
 
-fun EntityPlayerSP.isNearEdge(threshold: Float): Boolean {
+fun LocalClientPlayerEntity.isNearEdge(threshold: Float): Boolean {
     val playerPos = Vec3d(posX, posY, posZ)
     val blockPos = BlockPos(playerPos)
 
@@ -78,7 +78,7 @@ fun getNearestPointBB(eye: Vec3d, box: AxisAlignedBB):Vec3d3 {
     return Vec3d(origin[0], origin[1], origin[2])
 }
 
-fun EntityPlayer.getPing() = mc.netHandler.getPlayerInfo(uniqueID)?.responseTime ?: 0
+fun PlayerEntity.getPing() = mc.netHandler.getPlayerInfo(uniqueID)?.responseTime ?: 0
 
 fun Entity.isAnimal() =
     this is EntityAnimal
@@ -93,7 +93,7 @@ fun Entity.isMob() =
             || this is EntityGhast
             || this is EntityDragon
 
-fun EntityPlayer.isClientFriend(): Boolean {
+fun PlayerEntity.isClientFriend(): Boolean {
     val entityName = name ?: return false
 
     return friendsConfig.isFriend(stripColor(entityName))
@@ -137,10 +137,10 @@ val Entity.lastTickPos: Vec3d
 val EntityLivingBase?.isMoving: Boolean
     get() = this?.run { moveForward != 0F || moveStrafing != 0F } == true
 
-val EntityPlayerSP.airTicks
+val LocalClientPlayerEntity.airTicks
     get() = MovementUtils.airTicks
 
-val EntityPlayerSP.groundTicks
+val LocalClientPlayerEntity.groundTicks
     get() = MovementUtils.groundTicks
 
 val Entity.isInLiquid: Boolean
@@ -159,19 +159,19 @@ fun Entity.setPosAndPrevPos(currPos: Vec3d, prevPos:Vec3d3 = currPos, lastTickPo
     }
 }
 
-fun EntityPlayerSP.setFixedSensitivityAngles(yaw: Float? = null, pitch: Float? = null) {
+fun LocalClientPlayerEntity.setFixedSensitivityAngles(yaw: Float? = null, pitch: Float? = null) {
     if (yaw != null) fixedSensitivityYaw = yaw
 
     if (pitch != null) fixedSensitivityPitch = pitch
 }
 
-var EntityPlayerSP.fixedSensitivityYaw
+var LocalClientPlayerEntity.fixedSensitivityYaw
     get() = getFixedSensitivityAngle(mc.thePlayer.rotationYaw)
     set(yaw) {
         rotationYaw = getFixedSensitivityAngle(yaw, rotationYaw)
     }
 
-var EntityPlayerSP.fixedSensitivityPitch
+var LocalClientPlayerEntity.fixedSensitivityPitch
     get() = getFixedSensitivityAngle(rotationPitch)
     set(pitch) {
         rotationPitch = getFixedSensitivityAngle(pitch.coerceIn(-90f, 90f), rotationPitch)
@@ -181,7 +181,7 @@ val IMixinEntity.interpolatedPosition
     get() = Vec3d(lerpX, lerpY, lerpZ)
 
 // Makes fixedSensitivityYaw, ... += work
-operator fun EntityPlayerSP.plusAssign(value: Float) {
+operator fun LocalClientPlayerEntity.plusAssign(value: Float) {
     fixedSensitivityYaw += value
     fixedSensitivityPitch += value
 }
@@ -192,16 +192,16 @@ fun Entity.interpolatedPosition(start: Vec3d, extraHeight: Float? = null) =Vec3d
     start.zCoord + (posZ - start.zCoord) * mc.timer.renderPartialTicks
 )
 
-fun EntityPlayerSP.stopY() {
+fun LocalClientPlayerEntity.stopY() {
     motionY = 0.0
 }
 
-fun EntityPlayerSP.stopXZ() {
+fun LocalClientPlayerEntity.stopXZ() {
     motionX = 0.0
     motionZ = 0.0
 }
 
-fun EntityPlayerSP.stop() {
+fun LocalClientPlayerEntity.stop() {
     stopXZ()
     stopY()
 }
@@ -218,7 +218,7 @@ infix fun EntityLivingBase.setSprintSafely(new: Boolean) {
 }
 
 // Modified mc.playerController.onPlayerRightClick() that sends correct stack in its C08
-fun EntityPlayerSP.onPlayerRightClick(
+fun LocalClientPlayerEntity.onPlayerRightClick(
     clickPos: BlockPos, side: EnumFacing, clickVec: Vec3d,
     stack: ItemStack? = inventory.mainInventory[SilentHotbar.currentSlot],
 ): Boolean {
@@ -232,7 +232,7 @@ fun EntityPlayerSP.onPlayerRightClick(
     val (facingX, facingY, facingZ) = (clickVec - clickPos.toVec()).toFloatArray()
 
     val sendClick = {
-        sendPacket(C08PacketPlayerBlockPlacement(clickPos, side.index, stack, facingX, facingY, facingZ))
+        sendPacket(PlayerUseC2SPacket(clickPos, side.index, stack, facingX, facingY, facingZ))
         true
     }
 
@@ -284,13 +284,13 @@ fun EntityPlayerSP.onPlayerRightClick(
 }
 
 // Modified mc.playerController.sendUseItem() that sends correct stack in its C08
-fun EntityPlayerSP.sendUseItem(stack: ItemStack): Boolean {
+fun LocalClientPlayerEntity.sendUseItem(stack: ItemStack): Boolean {
     if (mc.playerController.isSpectator)
         return false
 
     mc.playerController?.syncCurrentPlayItem()
 
-    sendPacket(C08PacketPlayerBlockPlacement(stack))
+    sendPacket(PlayerUseC2SPacket(stack))
 
     val prevSize = stack.stackSize
 
@@ -307,17 +307,17 @@ fun EntityPlayerSP.sendUseItem(stack: ItemStack): Boolean {
     } else false
 }
 
-fun EntityPlayerSP.tryJump() {
+fun LocalClientPlayerEntity.tryJump() {
     if (!mc.gameSettings.keyBindJump.isKeyDown) {
         jump()
     }
 }
 
-fun EntityPlayerSP.swingItem(silent: Boolean) {
+fun LocalClientPlayerEntity.swingItem(silent: Boolean) {
     if (silent) sendPacket(C0APacketAnimation()) else swingItem()
 }
 
-inline fun EntityPlayerSP.attackEntityWithModifiedSprint(
+inline fun LocalClientPlayerEntity.attackEntityWithModifiedSprint(
     entity: Entity, affectMovementBySprint: Boolean? = null, swing: () -> Unit
 ) {
     swing()

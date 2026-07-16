@@ -11,7 +11,7 @@ import net.ccbluex.liquidbounce.event.async.loopSequence
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.minecraft.network.play.client.C01PacketChatMessage
+import net.minecraft.network.packet.c2s.play.ChatMessageC2SPacket
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
@@ -51,7 +51,7 @@ object AtAllProvider :
     }
 
     val onPacket = handler<PacketEvent> { event ->
-        if (event.packet !is C01PacketChatMessage)
+        if (event.packet !is ChatMessageC2SPacket)
             return@handler
 
         val message = event.packet.message

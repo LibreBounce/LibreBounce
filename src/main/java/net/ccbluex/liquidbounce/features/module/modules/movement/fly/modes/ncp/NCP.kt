@@ -11,8 +11,8 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.FlyMo
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPackets
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
-import net.minecraft.network.play.client.C03PacketPlayer
-import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.Position
 
 object NCP : FlyMode("NCP") {
     override fun onEnable() {
@@ -21,12 +21,12 @@ object NCP : FlyMode("NCP") {
 
             repeat(65) {
                 sendPackets(
-                    C04PacketPlayerPosition(posX, posY + 0.049, posZ, false),
-                    C04PacketPlayerPosition(posX, posY, posZ, false)
+                    Position(posX, posY + 0.049, posZ, false),
+                    Position(posX, posY, posZ, false)
                 )
             }
 
-            sendPacket(C04PacketPlayerPosition(posX, posY + 0.1, posZ, true))
+            sendPacket(Position(posX, posY + 0.1, posZ, true))
 
             motionX *= 0.1
             motionZ *= 0.1
@@ -43,7 +43,7 @@ object NCP : FlyMode("NCP") {
     }
 
     override fun onPacket(event: PacketEvent) {
-        if (event.packet is C03PacketPlayer)
+        if (event.packet is PlayerMoveC2SPacket)
             event.packet.onGround = true
     }
 

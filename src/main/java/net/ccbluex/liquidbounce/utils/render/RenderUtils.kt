@@ -22,7 +22,7 @@ import net.minecraft.client.render.platform.GlStateManager.*
 import net.minecraft.client.render.vertex.Tesselator
 import net.minecraft.client.render.vertex.DefaultVertexFormat
 import net.minecraft.entity.Entity
-import net.minecraft.entity.EntityLivingBase
+import net.minecraft.entity.living.LivingEntity
 import net.minecraft.util.*
 import org.lwjgl.opengl.GL11.*
 import org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE

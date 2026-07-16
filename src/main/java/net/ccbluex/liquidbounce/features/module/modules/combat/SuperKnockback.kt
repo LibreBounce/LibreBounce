@@ -17,8 +17,8 @@ import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.angleDifference
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.toRotation
 import net.ccbluex.liquidbounce.utils.timing.TickDelayTimer
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
-import net.minecraft.entity.EntityLivingBase
-import net.minecraft.network.play.client.C03PacketPlayer
+import net.minecraft.entity.living.LivingEntity
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 import net.minecraft.network.play.client.C0BPacketEntityAction
 import net.minecraft.network.play.client.C0BPacketEntityAction.Action.*
 import net.minecraft.client.settings.GameSettings
@@ -246,7 +246,7 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
     val onPacket = handler<PacketEvent> { event ->
         val player = mc.thePlayer ?: return@handler
 
-        if (mode == "Silent" && event.packet is C03PacketPlayer) {
+        if (mode == "Silent" && event.packet is PlayerMoveC2SPacket) {
             if (ticks == 2) {
                 sendPacket(C0BPacketEntityAction(player, STOP_SPRINTING))
                 ticks--

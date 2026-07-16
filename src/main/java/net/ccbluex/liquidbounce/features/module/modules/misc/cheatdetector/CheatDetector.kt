@@ -17,8 +17,8 @@ import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.timing.TickDelayTimer
 import net.minecraft.entity.Entity
-import net.minecraft.entity.EntityLivingBase
-import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.entity.living.LivingEntity
+import net.minecraft.entity.living.player.PlayerEntity
 import kotlin.math.max
 
 object CheatDetector : Module("CheatDetector", Category.MISC) {

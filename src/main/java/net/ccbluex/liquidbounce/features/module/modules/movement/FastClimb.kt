@@ -15,7 +15,7 @@ import net.ccbluex.liquidbounce.utils.block.block
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.minecraft.block.BlockLadder
 import net.minecraft.block.BlockVine
-import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.Position
 import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing
 
@@ -117,7 +117,7 @@ object FastClimb : Module("FastClimb", Category.MOVEMENT) {
                             event.y = climbSpeed.toDouble()
                             playerClimb()
 
-                            sendPacket(C04PacketPlayerPosition(posX, posY, posZ, true))
+                            sendPacket(Position(posX, posY, posZ, true))
                             climbCount = 0
                         } else {
                             posY = prevPosY

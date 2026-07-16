@@ -27,9 +27,9 @@ import net.minecraft.block.BlockLiquid
 import net.minecraft.init.Blocks.air
 import net.minecraft.init.Blocks.bedrock
 import net.minecraft.item.ItemSword
-import net.minecraft.network.play.client.C07PacketPlayerDigging
-import net.minecraft.network.play.client.C07PacketPlayerDigging.Action.START_DESTROY_BLOCK
-import net.minecraft.network.play.client.C07PacketPlayerDigging.Action.STOP_DESTROY_BLOCK
+import net.minecraft.network.packet.c2s.play.PlayerHandActionC2SPacket
+import net.minecraft.network.packet.c2s.play.PlayerHandActionC2SPacket.Action.START_DESTROY_BLOCK
+import net.minecraft.network.packet.c2s.play.PlayerHandActionC2SPacket.Action.STOP_DESTROY_BLOCK
 import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing
 import java.awt.Color
@@ -160,7 +160,7 @@ object Nuker : Module("Nuker", Category.WORLD, gameDetecting = false) {
 
                 // Start block breaking
                 if (currentDamage == 0F) {
-                    sendPacket(C07PacketPlayerDigging(START_DESTROY_BLOCK, blockPos, EnumFacing.DOWN))
+                    sendPacket(PlayerHandActionC2SPacket(START_DESTROY_BLOCK, blockPos, EnumFacing.DOWN))
 
                     // End block break if able to break instant
                     if (block.getPlayerRelativeBlockHardness(player, world, blockPos) >= 1F) {
@@ -181,7 +181,7 @@ object Nuker : Module("Nuker", Category.WORLD, gameDetecting = false) {
 
                 // End of breaking block
                 if (currentDamage >= 1F) {
-                    sendPacket(C07PacketPlayerDigging(STOP_DESTROY_BLOCK, blockPos, EnumFacing.DOWN))
+                    sendPacket(PlayerHandActionC2SPacket(STOP_DESTROY_BLOCK, blockPos, EnumFacing.DOWN))
                     mc.playerController.onPlayerDestroyBlock(blockPos, EnumFacing.DOWN)
                     blockHitDelay = hitDelay
                     currentDamage = 0F
@@ -209,9 +209,9 @@ object Nuker : Module("Nuker", Category.WORLD, gameDetecting = false) {
 
                     if (isVisible) {
                         // Instant break block
-                        sendPacket(C07PacketPlayerDigging(START_DESTROY_BLOCK, pos, EnumFacing.DOWN))
+                        sendPacket(PlayerHandActionC2SPacket(START_DESTROY_BLOCK, pos, EnumFacing.DOWN))
                         player.swingItem()
-                        sendPacket(C07PacketPlayerDigging(STOP_DESTROY_BLOCK, pos, EnumFacing.DOWN))
+                        sendPacket(PlayerHandActionC2SPacket(STOP_DESTROY_BLOCK, pos, EnumFacing.DOWN))
                         attackedBlocks += pos
                     }
 

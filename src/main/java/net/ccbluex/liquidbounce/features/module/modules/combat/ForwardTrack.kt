@@ -17,7 +17,7 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBacktrackBox
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
 import net.minecraft.client.render.platform.GlStateManager.color
 import net.minecraft.entity.Entity
-import net.minecraft.entity.EntityLivingBase
+import net.minecraft.entity.living.LivingEntity
 import net.minecraft.util.math.Vec3d
 import org.lwjgl.opengl.GL11.*
 

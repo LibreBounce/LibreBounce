@@ -22,7 +22,7 @@ import net.ccbluex.liquidbounce.utils.movement.FallingPlayer
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBacktrackBox
 import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
 import net.ccbluex.liquidbounce.utils.timing.TickDelayTimer
-import net.minecraft.network.play.client.C03PacketPlayer
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 import java.awt.Color
 
 object Blink : NoFallMode("Blink") {
@@ -58,7 +58,7 @@ object Blink : NoFallMode("Blink") {
             }
         }
 
-        if (packet is C03PacketPlayer) {
+        if (packet is PlayerMoveC2SPacket) {
             if (blinked && player.fallDistance > fallDist.start) {
                 if (player.fallDistance < fallDist.endInclusive) {
                     if (blinked)

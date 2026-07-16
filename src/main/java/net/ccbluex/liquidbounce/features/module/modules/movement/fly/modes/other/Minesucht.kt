@@ -8,7 +8,7 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.othe
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.FlyMode
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPackets
 import net.ccbluex.liquidbounce.utils.extensions.*
-import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.Position
 
 object Minesucht : FlyMode("Minesucht") {
     private var minesuchtTP = 0L
@@ -22,23 +22,23 @@ object Minesucht : FlyMode("Minesucht") {
 
                 if (fallDistance > 0.8) {
                     sendPackets(
-                        C04PacketPlayerPosition(posX, posY + 50, posZ, false),
-                        C04PacketPlayerPosition(posX, posY + 20, posZ, true)
+                        Position(posX, posY + 50, posZ, false),
+                        Position(posX, posY + 20, posZ, true)
                     )
                     fall(100f, 100f)
                     fallDistance = 0f
                 }
                 sendPackets(
-                    C04PacketPlayerPosition(vec.xCoord, posY + 50, vec.zCoord, true),
-                    C04PacketPlayerPosition(posX, posY, posZ, false),
-                    C04PacketPlayerPosition(vec.xCoord, posY, vec.zCoord, true),
-                    C04PacketPlayerPosition(posX, posY, posZ, false)
+                    Position(vec.xCoord, posY + 50, vec.zCoord, true),
+                    Position(posX, posY, posZ, false),
+                    Position(vec.xCoord, posY, vec.zCoord, true),
+                    Position(posX, posY, posZ, false)
                 )
                 minesuchtTP = System.currentTimeMillis()
             } else {
                 sendPackets(
-                    C04PacketPlayerPosition(posX, posY, posZ, false),
-                    C04PacketPlayerPosition(posX, posY, posZ, true)
+                    Position(posX, posY, posZ, false),
+                    Position(posX, posY, posZ, true)
                 )
             }
         }

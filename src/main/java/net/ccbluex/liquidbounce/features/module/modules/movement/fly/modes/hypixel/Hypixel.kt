@@ -16,7 +16,7 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.FlyMo
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.utils.timing.TickDelayTimer
 import net.minecraft.init.Blocks.air
-import net.minecraft.network.play.client.C03PacketPlayer
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 import net.minecraft.util.AxisAlignedBB
 
 object Hypixel : FlyMode("Hypixel") {
@@ -41,7 +41,7 @@ object Hypixel : FlyMode("Hypixel") {
     }
 
     override fun onPacket(event: PacketEvent) {
-        if (event.packet is C03PacketPlayer)
+        if (event.packet is PlayerMoveC2SPacket)
             event.packet.onGround = false
     }
 

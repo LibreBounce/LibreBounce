@@ -23,7 +23,7 @@ import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.nextInt
 import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomClickDelay
 import net.minecraft.client.settings.KeyBinding
 import net.minecraft.entity.Entity
-import net.minecraft.entity.EntityLivingBase
+import net.minecraft.entity.living.LivingEntity
 import net.minecraft.item.EnumAction
 import net.minecraft.item.ItemBlock
 import kotlin.random.Random.Default.nextBoolean

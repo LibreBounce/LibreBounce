@@ -20,7 +20,7 @@ import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.nextFloat
 import net.ccbluex.liquidbounce.utils.rotation.RaycastUtils.raycastEntity
 import net.ccbluex.liquidbounce.utils.timing.WaitTickUtils
 import net.minecraft.entity.Entity
-import net.minecraft.network.play.client.C03PacketPlayer
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 import net.minecraft.tileentity.TileEntity
 import net.minecraft.util.*
 import javax.vecmath.Vector2f
@@ -750,7 +750,7 @@ object RotationUtils : MinecraftInstance, Listenable {
     val onPacket = handler<PacketEvent> { event ->
         val packet = event.packet
 
-        if (packet !is C03PacketPlayer) {
+        if (packet !is PlayerMoveC2SPacket) {
             return@handler
         }
 

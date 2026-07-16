@@ -23,8 +23,8 @@ import net.ccbluex.liquidbounce.utils.extensions.airTicks
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.utils.extensions.tryJump
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
-import net.minecraft.client.entity.EntityPlayerSP
-import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
+import net.minecraft.client.entity.living.player.LocalClientPlayerEntity
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.Position
 import net.minecraft.world.World
 
 /**
@@ -110,17 +110,17 @@ object BlocksMC : FlyMode("BlocksMC"), Listenable {
         Fly.state = false
     }
 
-    private fun shouldFly(player: EntityPlayerSP, world: World): Boolean {
+    private fun shouldFly(player: LocalClientPlayerEntity, world: World): Boolean {
         return world.getCollidingBoundingBoxes(player, player.entityBoundingBox.offset(0.0, 1.0, 0.0))
             .isEmpty() || isFlying
     }
 
-    private fun handleTeleport(player: EntityPlayerSP) {
+    private fun handleTeleport(player: LocalClientPlayerEntity) {
         isNotUnder = true
 
         if (!isTeleported) {
             sendPackets(
-                C04PacketPlayerPosition(
+                Position(
                     player.posX,
                     // Clipping is now patch in BlocksMC
                     player.posY - 0.05,
@@ -128,7 +128,7 @@ object BlocksMC : FlyMode("BlocksMC"), Listenable {
                     false
                 ),
 
-                C04PacketPlayerPosition(
+                Position(
                     player.posX,
                     player.posY,
                     player.posZ,

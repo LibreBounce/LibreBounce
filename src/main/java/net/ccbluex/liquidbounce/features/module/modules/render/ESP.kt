@@ -25,8 +25,8 @@ import net.ccbluex.liquidbounce.utils.render.shader.shaders.GlowShader
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.isEntityHeightVisible
 import net.minecraft.client.render.platform.GlStateManager.enableTexture2D
 import net.minecraft.entity.Entity
-import net.minecraft.entity.EntityLivingBase
-import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.entity.living.LivingEntity
+import net.minecraft.entity.living.player.PlayerEntity
 import org.lwjgl.opengl.GL11.*
 import org.lwjgl.util.vector.Vector3f
 import java.awt.Color
@@ -197,7 +197,7 @@ object ESP : Module("ESP", Category.RENDER) {
             if (entity.hurtTime > 0)
                 return Color.RED
 
-            if (entity is EntityPlayer && entity.isClientFriend())
+            if (entity is PlayerEntity && entity.isClientFriend())
                 return Color.BLUE
 
             if (colorTeam) {

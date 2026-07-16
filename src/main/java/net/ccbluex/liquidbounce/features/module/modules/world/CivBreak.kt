@@ -19,9 +19,9 @@ import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.faceBlock
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.setTargetRotation
 import net.minecraft.init.Blocks.air
 import net.minecraft.init.Blocks.bedrock
-import net.minecraft.network.play.client.C07PacketPlayerDigging
-import net.minecraft.network.play.client.C07PacketPlayerDigging.Action.START_DESTROY_BLOCK
-import net.minecraft.network.play.client.C07PacketPlayerDigging.Action.STOP_DESTROY_BLOCK
+import net.minecraft.network.packet.c2s.play.PlayerHandActionC2SPacket
+import net.minecraft.network.packet.c2s.play.PlayerHandActionC2SPacket.Action.START_DESTROY_BLOCK
+import net.minecraft.network.packet.c2s.play.PlayerHandActionC2SPacket.Action.STOP_DESTROY_BLOCK
 import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing
 import java.awt.Color
@@ -42,8 +42,8 @@ object CivBreak : Module("CivBreak", Category.WORLD) {
 
         // Break
         sendPackets(
-            C07PacketPlayerDigging(START_DESTROY_BLOCK, blockPos, enumFacing),
-            C07PacketPlayerDigging(STOP_DESTROY_BLOCK, blockPos, enumFacing)
+            PlayerHandActionC2SPacket(START_DESTROY_BLOCK, blockPos, enumFacing),
+            PlayerHandActionC2SPacket(STOP_DESTROY_BLOCK, blockPos, enumFacing)
         )
     }
 
@@ -71,8 +71,8 @@ object CivBreak : Module("CivBreak", Category.WORLD) {
 
         // Break
         sendPackets(
-            C07PacketPlayerDigging(START_DESTROY_BLOCK, blockPos, enumFacing),
-            C07PacketPlayerDigging(STOP_DESTROY_BLOCK, blockPos, enumFacing)
+            PlayerHandActionC2SPacket(START_DESTROY_BLOCK, blockPos, enumFacing),
+            PlayerHandActionC2SPacket(STOP_DESTROY_BLOCK, blockPos, enumFacing)
         )
 
         mc.playerController.clickBlock(blockPos, enumFacing)

@@ -14,12 +14,12 @@ import net.ccbluex.liquidbounce.features.module.modules.render.SilentHotbarModul
 import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
-import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.entity.living.player.LocalClientPlayerEntity;
 import net.minecraft.client.render.platform.GlStateManager;
 import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
-import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.living.LivingEntity;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemMap;
@@ -59,7 +59,7 @@ public abstract class MixinItemRenderer {
     protected abstract void setLightMapFromPlayer(AbstractClientPlayer clientPlayer);
 
     @Shadow
-    protected abstract void rotateWithPlayerRotations(EntityPlayerSP entityplayerspIn, float partialTicks);
+    protected abstract void rotateWithPlayerRotations(LocalClientPlayerEntity entityplayerspIn, float partialTicks);
 
     @Shadow
     protected abstract void renderItemMap(AbstractClientPlayer clientPlayer, float pitch, float equipmentProgress, float swingProgress);
@@ -92,7 +92,7 @@ public abstract class MixinItemRenderer {
         final Animations animations = Animations.INSTANCE;
 
         float f = 1f - (prevEquippedProgress + (equippedProgress - prevEquippedProgress) * partialTicks);
-        EntityPlayerSP abstractclientplayer = mc.thePlayer;
+        LocalClientPlayerEntity abstractclientplayer = mc.thePlayer;
         float f1 = abstractclientplayer.getSwingProgress(partialTicks);
         float f2 = abstractclientplayer.prevRotationPitch + (abstractclientplayer.rotationPitch - abstractclientplayer.prevRotationPitch) * partialTicks;
         float f3 = abstractclientplayer.prevRotationYaw + (abstractclientplayer.rotationYaw - abstractclientplayer.prevRotationYaw) * partialTicks;

@@ -23,7 +23,7 @@ import net.minecraft.client.gui.GuiElement;
 import net.minecraft.client.gui.GameGui;
 import net.minecraft.client.render.Window;
 import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.living.player.PlayerEntity;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
@@ -48,7 +48,7 @@ import static org.lwjgl.opengl.GL11.*;
 public abstract class MixinGuiInGame extends Gui {
 
     @Shadow
-    protected abstract void renderHotbarItem(int index, int xPos, int yPos, float partialTicks, EntityPlayer player);
+    protected abstract void renderHotbarItem(int index, int xPos, int yPos, float partialTicks, PlayerEntity player);
 
     @Shadow
     @Final
@@ -74,8 +74,8 @@ public abstract class MixinGuiInGame extends Gui {
         final HUD hud = HUD.INSTANCE;
         final RenderUtils render = RenderUtils.INSTANCE;
 
-        if (mc.getRenderViewEntity() instanceof EntityPlayer) {
-            EntityPlayer entityPlayer = (EntityPlayer) mc.getRenderViewEntity();
+        if (mc.getRenderViewEntity() instanceof PlayerEntity) {
+            PlayerEntity entityPlayer = (PlayerEntity) mc.getRenderViewEntity();
             float slot = entityPlayer.inventory.currentItem;
 
             if (hud.handleEvents() && hud.getCustomHotbar()) {

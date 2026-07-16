@@ -10,8 +10,8 @@ import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.minecraft.network.play.client.C03PacketPlayer
-import net.minecraft.network.play.server.S08PacketPlayerPosLook
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
+import net.minecraft.network.packet.s2c.play.PlayerMoveS2CPacket
 
 object Freeze : Module("Freeze", Category.MOVEMENT) {
     private var motionX = 0.0
@@ -40,10 +40,10 @@ object Freeze : Module("Freeze", Category.MOVEMENT) {
     }
 
     val onPacket = handler<PacketEvent> { event ->
-        if (event.packet is C03PacketPlayer) {
+        if (event.packet is PlayerMoveC2SPacket) {
             event.cancelEvent()
         }
-        if (event.packet is S08PacketPlayerPosLook) {
+        if (event.packet is PlayerMoveS2CPacket) {
             x = event.packet.x
             y = event.packet.y
             z = event.packet.z

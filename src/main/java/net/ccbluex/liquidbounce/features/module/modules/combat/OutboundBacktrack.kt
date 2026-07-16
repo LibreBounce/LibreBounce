@@ -20,21 +20,21 @@ import net.ccbluex.liquidbounce.utils.kotlin.removeEach
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
-import net.minecraft.client.entity.EntityPlayerSP
+import net.minecraft.client.entity.living.player.LocalClientPlayerEntity
 import net.minecraft.entity.Entity
 import net.minecraft.client.gui.screen.inventory.menu.InventoryMenuScreen
-import net.minecraft.entity.EntityLivingBase
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.network.handshake.client.C00Handshake
+import net.minecraft.entity.living.LivingEntity
+import net.minecraft.entity.living.player.PlayerEntity
+import net.minecraft.network.packet.c2s.handshake.HandshakeC2SPacket
 import net.minecraft.network.play.client.*
-import net.minecraft.network.play.client.C02PacketUseEntity
-import net.minecraft.network.play.client.C02PacketUseEntity.Action.ATTACK
-import net.minecraft.network.play.server.S08PacketPlayerPosLook
-import net.minecraft.network.play.server.S12PacketEntityVelocity
-import net.minecraft.network.play.server.S27PacketExplosion
-import net.minecraft.network.status.client.C00PacketServerQuery
-import net.minecraft.network.status.client.C01PacketPing
-import net.minecraft.network.status.server.S01PacketPong
+import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket
+import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket.Action.ATTACK
+import net.minecraft.network.packet.s2c.play.PlayerMoveS2CPacket
+import net.minecraft.network.packet.s2c.play.EntityVelocityS2CPacket
+import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket
+import net.minecraft.network.packet.c2s.query.ServerStatusC2SPacket
+import net.minecraft.network.packet.c2s.query.PingC2SPacket
+import net.minecraft.network.packet.s2c.query.PingS2CPacket
 import net.minecraft.util.math.Vec3d
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
@@ -78,7 +78,7 @@ object OutboundBacktrack : Module("OutboundBacktrack", Category.COMBAT, gameDete
             return@handler
         }
 
-        if (packet !is C02PacketUseEntity || packet.action != ATTACK)
+        if (packet !is PlayerInteractEntityC2SPacket || packet.action != ATTACK)
             return@handler
 
         if (!packet.entityID == target || target == null) return@handler
@@ -147,7 +147,7 @@ object OutboundBacktrack : Module("OutboundBacktrack", Category.COMBAT, gameDete
         if (event.worldClient == null) blink(false)
     }
 
-    private fun getTruePositionEyes(player: EntityPlayer): Vec3d {
+    private fun getTruePositionEyes(player: PlayerEntity): Vec3d {
         val mixinPlayer = player as? IMixinEntity
 
         return Vec3d(mixinPlayer!!.trueX, mixinPlayer.trueY + player.getEyeHeight().toDouble(), mixinPlayer.trueZ)

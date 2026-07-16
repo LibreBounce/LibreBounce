@@ -31,7 +31,7 @@ import net.ccbluex.liquidbounce.utils.timing.TickedActions.nextTick
 import net.minecraft.client.gui.screen.inventory.menu.SurvivalInventoryScreen
 import net.minecraft.entity.EntityLiving.getArmorPosition
 import net.minecraft.item.ItemStack
-import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
+import net.minecraft.network.packet.c2s.play.PlayerUseC2SPacket
 
 object AutoArmor : Module("AutoArmor", Category.COMBAT) {
     private val delay by intRange("Delay", 50..50, 0..1000, suffix = "ms")
@@ -116,7 +116,7 @@ object AutoArmor : Module("AutoArmor", Category.COMBAT) {
                 )
 
                 // Switch selected hotbar slot, right click to equip
-                sendPacket(C08PacketPlayerBlockPlacement(stack))
+                sendPacket(PlayerUseC2SPacket(stack))
 
                 // Instantly update inventory on client-side to prevent repetitive clicking because of ping
                 player.inventory.armorInventory[armorPos] = stack
@@ -237,7 +237,7 @@ object AutoArmor : Module("AutoArmor", Category.COMBAT) {
 
         SilentHotbar.selectSlotSilently(this, hotbarIndex, immediate = true, render = false, resetManually = true)
 
-        sendPacket(C08PacketPlayerBlockPlacement(stack))
+        sendPacket(PlayerUseC2SPacket(stack))
     }
 
     fun canEquipFromChest() = handleEvents() && hotbar && !notInContainers

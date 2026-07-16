@@ -11,7 +11,7 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalk.mode
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.collideBlock
 import net.minecraft.block.BlockLiquid
 import net.minecraft.block.material.Material
-import net.minecraft.network.play.client.C03PacketPlayer
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 import net.minecraft.util.AxisAlignedBB.fromBounds
 
 object NCP : LiquidWalkMode("NCP") {
@@ -41,7 +41,7 @@ object NCP : LiquidWalkMode("NCP") {
 
     override fun onPacket(event: PacketEvent) {
         mc.thePlayer?.run {
-            if (event.packet !is C03PacketPlayer)
+            if (event.packet !is PlayerMoveC2SPacket)
                 return
 
             if (collideBlock(

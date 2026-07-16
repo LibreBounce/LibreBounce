@@ -25,10 +25,10 @@ import net.minecraft.client.render.platform.GlStateManager.resetColor
 import net.minecraft.client.render.vertex.Tesselator
 import net.minecraft.client.render.vertex.DefaultVertexFormat
 import net.minecraft.entity.Entity
-import net.minecraft.entity.EntityLivingBase
+import net.minecraft.entity.living.LivingEntity
 import net.minecraft.entity.item.EntityEnderPearl
 import net.minecraft.entity.item.EntityExpBottle
-import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.entity.living.player.PlayerEntity
 import net.minecraft.entity.projectile.*
 import net.minecraft.item.*
 import net.minecraft.util.*
@@ -75,7 +75,7 @@ object Projectiles : Module("Projectiles", Category.RENDER, gameDetecting = fals
                     gravity = 0.05F
                     size = 0.3F
 
-                    if (entity is EntityPlayer) {
+                    if (entity is PlayerEntity) {
                         if (!entity.isUsingItem) continue
 
                         // Calculate power of bow

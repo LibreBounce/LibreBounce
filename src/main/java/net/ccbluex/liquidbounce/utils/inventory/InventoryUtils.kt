@@ -19,9 +19,9 @@ import net.minecraft.block.BlockBush
 import net.minecraft.init.Blocks.*
 import net.minecraft.item.Item
 import net.minecraft.item.ItemBlock
-import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
-import net.minecraft.network.play.client.C0DPacketCloseWindow
-import net.minecraft.network.play.client.C0EPacketClickWindow
+import net.minecraft.network.packet.c2s.play.PlayerUseC2SPacket
+import net.minecraft.network.packet.c2s.play.CloseInventoryMenuC2SPacket
+import net.minecraft.network.packet.c2s.play.InventoryMenuClickSlotC2SPacket
 import net.minecraft.network.play.client.C16PacketClientStatus
 import net.minecraft.network.play.client.C16PacketClientStatus.EnumState.OPEN_INVENTORY_ACHIEVEMENT
 import net.minecraft.network.play.server.S09PacketHeldItemChange
@@ -36,7 +36,7 @@ object InventoryUtils : MinecraftInstance, Listenable {
             if (value != _serverOpenInventory) {
                 sendPacket(
                     if (value) C16PacketClientStatus(OPEN_INVENTORY_ACHIEVEMENT)
-                    else C0DPacketCloseWindow(mc.thePlayer?.openContainer?.windowId ?: 0)
+                    else CloseInventoryMenuC2SPacket(mc.thePlayer?.openContainer?.windowId ?: 0)
                 )
 
                 _serverOpenInventory = value
@@ -173,10 +173,10 @@ object InventoryUtils : MinecraftInstance, Listenable {
         if (event.isCancelled) return@handler
 
         when (val packet = event.packet) {
-            is C08PacketPlayerBlockPlacement, is C0EPacketClickWindow -> {
+            is PlayerUseC2SPacket, is InventoryMenuClickSlotC2SPacket -> {
                 CLICK_TIMER.reset()
 
-                if (packet is C0EPacketClickWindow)
+                if (packet is InventoryMenuClickSlotC2SPacket)
                     isFirstInventoryClick = false
             }
 
@@ -189,7 +189,7 @@ object InventoryUtils : MinecraftInstance, Listenable {
                     }
                 }
 
-            is C0DPacketCloseWindow, is S2EPacketCloseWindow, is S2DPacketOpenWindow -> {
+            is CloseInventoryMenuC2SPacket, is S2EPacketCloseWindow, is S2DPacketOpenWindow -> {
                 isFirstInventoryClick = false
                 _serverOpenInventory = false
                 serverOpenContainer = false

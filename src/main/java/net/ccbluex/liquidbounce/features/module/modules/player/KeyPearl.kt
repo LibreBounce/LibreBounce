@@ -14,7 +14,7 @@ import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils
 import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar
 import net.minecraft.init.Items
-import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
+import net.minecraft.network.packet.c2s.play.PlayerUseC2SPacket
 import net.minecraft.world.WorldSettings
 import org.lwjgl.input.Keyboard
 import org.lwjgl.input.Mouse
@@ -55,7 +55,7 @@ object KeyPearl : Module("KeyPearl", Category.PLAYER, subjective = true, gameDet
                 render = false,
                 resetManually = true
             )
-            sendPacket(C08PacketPlayerBlockPlacement(mc.thePlayer.heldItem))
+            sendPacket(PlayerUseC2SPacket(mc.thePlayer.heldItem))
             SilentHotbar.resetSlot(this)
             return
         }
@@ -67,7 +67,7 @@ object KeyPearl : Module("KeyPearl", Category.PLAYER, subjective = true, gameDet
             render = false,
             resetManually = true
         )
-        sendPacket(C08PacketPlayerBlockPlacement(mc.thePlayer.heldItem))
+        sendPacket(PlayerUseC2SPacket(mc.thePlayer.heldItem))
         hasThrown = true
     }
 

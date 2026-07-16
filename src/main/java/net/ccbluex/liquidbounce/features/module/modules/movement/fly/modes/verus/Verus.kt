@@ -15,9 +15,9 @@ import net.ccbluex.liquidbounce.utils.extensions.component1
 import net.ccbluex.liquidbounce.utils.extensions.component2
 import net.ccbluex.liquidbounce.utils.extensions.component3
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
-import net.minecraft.network.play.client.C03PacketPlayer
-import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
-import net.minecraft.network.play.client.C03PacketPlayer.C06PacketPlayerPosLook
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.Position
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.PositionAndAngles
 
 /**
  * Ported from the VerusDamage Script by Arcane
@@ -43,9 +43,9 @@ object Verus : FlyMode("Verus") {
         ) {
             if (damage) {
                 sendPackets(
-                    C04PacketPlayerPosition(x, y + 3.0001, z, false),
-                    C06PacketPlayerPosLook(x, y, z, player.rotationYaw, player.rotationPitch, false),
-                    C06PacketPlayerPosLook(x, y, z, player.rotationYaw, player.rotationPitch, true)
+                    Position(x, y + 3.0001, z, false),
+                    PositionAndAngles(x, y, z, player.rotationYaw, player.rotationPitch, false),
+                    PositionAndAngles(x, y, z, player.rotationYaw, player.rotationPitch, true)
                 )
                 damaged = true
             } else {
@@ -85,7 +85,7 @@ object Verus : FlyMode("Verus") {
     }
 
     override fun onPacket(event: PacketEvent) {
-        if (event.packet is C03PacketPlayer && damaged) {
+        if (event.packet is PlayerMoveC2SPacket && damaged) {
             event.packet.onGround = true
         }
     }

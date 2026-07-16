@@ -19,8 +19,8 @@ import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.utils.timing.TickedActions.nextTick
 import net.minecraft.client.gui.screen.inventory.menu.SurvivalInventoryScreen
 import net.minecraft.init.Items
-import net.minecraft.network.play.client.C07PacketPlayerDigging
-import net.minecraft.network.play.client.C07PacketPlayerDigging.Action.DROP_ITEM
+import net.minecraft.network.packet.c2s.play.PlayerHandActionC2SPacket
+import net.minecraft.network.packet.c2s.play.PlayerHandActionC2SPacket.Action.DROP_ITEM
 import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing
 
@@ -75,7 +75,7 @@ object AutoSoup : Module("AutoSoup", Category.COMBAT) {
                         SilentHotbar.selectSlotSilently(this, soupInHotbar, 0, true)
                     }
 
-                    sendPacket(C07PacketPlayerDigging(DROP_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN))
+                    sendPacket(PlayerHandActionC2SPacket(DROP_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN))
                 }
 
                 SilentHotbar.resetSlot(this)

@@ -43,7 +43,7 @@ import net.minecraft.entity.EntityLiving.getArmorPosition
 import net.minecraft.init.Blocks.chest
 import net.minecraft.item.ItemArmor
 import net.minecraft.item.ItemStack
-import net.minecraft.network.play.client.C0DPacketCloseWindow
+import net.minecraft.network.packet.c2s.play.CloseInventoryMenuC2SPacket
 import net.minecraft.network.play.server.S2DPacketOpenWindow
 import net.minecraft.network.play.server.S2EPacketCloseWindow
 import net.minecraft.network.play.server.S30PacketWindowItems
@@ -452,7 +452,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
     val onPacket = handler<PacketEvent> { event ->
         when (val packet = event.packet) {
-            is C0DPacketCloseWindow, is S2DPacketOpenWindow, is S2EPacketCloseWindow -> {
+            is CloseInventoryMenuC2SPacket, is S2DPacketOpenWindow, is S2EPacketCloseWindow -> {
                 receivedId = null
                 progress = null
             }

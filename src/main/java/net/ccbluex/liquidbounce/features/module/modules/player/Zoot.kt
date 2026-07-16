@@ -11,7 +11,7 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils.serverOnGround
-import net.minecraft.network.play.client.C03PacketPlayer
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 
 object Zoot : Module("Zoot", Category.PLAYER) {
 
@@ -32,7 +32,7 @@ object Zoot : Module("Zoot", Category.PLAYER) {
 
             if (effect != null) {
                 repeat(effect.duration / 20) {
-                    sendPacket(C03PacketPlayer(serverOnGround))
+                    sendPacket(PlayerMoveC2SPacket(serverOnGround))
                 }
             }
         }
@@ -40,7 +40,7 @@ object Zoot : Module("Zoot", Category.PLAYER) {
 
         if (fire && mc.playerController.gameIsSurvivalOrAdventure() && player.isBurning) {
             repeat(9) {
-                sendPacket(C03PacketPlayer(serverOnGround))
+                sendPacket(PlayerMoveC2SPacket(serverOnGround))
             }
         }
     }

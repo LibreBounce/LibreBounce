@@ -13,8 +13,8 @@ import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.extensions.isInLiquid
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.utils.extensions.stopXZ
-import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
-import net.minecraft.network.play.client.C03PacketPlayer.C06PacketPlayerPosLook
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.Position
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.PositionAndAngles
 
 object VerusDamage : LongJumpMode("VerusDamage") {
     var damaged = false
@@ -29,9 +29,9 @@ object VerusDamage : LongJumpMode("VerusDamage") {
 
             // Note: you'll flag once for Fly G (tested on the CCBlueX Test Server)
             sendPackets(
-                C04PacketPlayerPosition(posX, posY + 3.0001, posZ, false),
-                C06PacketPlayerPosLook(posX, posY, posX, rotationYaw, rotationPitch, false),
-                C06PacketPlayerPosLook(posX, posY, posZ, rotationYaw, rotationPitch, true)
+                Position(posX, posY + 3.0001, posZ, false),
+                PositionAndAngles(posX, posY, posX, rotationYaw, rotationPitch, false),
+                PositionAndAngles(posX, posY, posZ, rotationYaw, rotationPitch, true)
             )
 
             damaged = true

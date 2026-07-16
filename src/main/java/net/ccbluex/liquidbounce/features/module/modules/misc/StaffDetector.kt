@@ -20,7 +20,7 @@ import net.ccbluex.liquidbounce.utils.io.HttpClient
 import net.ccbluex.liquidbounce.utils.io.get
 import net.ccbluex.liquidbounce.utils.kotlin.SharedScopes
 import net.minecraft.entity.Entity
-import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.entity.living.player.PlayerEntity
 import net.minecraft.init.Items
 import net.minecraft.network.Packet
 import net.minecraft.network.play.server.*
@@ -177,7 +177,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
          * Check if this is a regular velocity update
          */
         if (velocity) {
-            if (packet is S12PacketEntityVelocity && packet.entityID == mc.thePlayer?.entityId) {
+            if (packet is EntityVelocityS2CPacket && packet.entityID == mc.thePlayer?.entityId) {
                 if (packet.motionX == 0 && packet.motionZ == 0 && packet.motionY / 8000.0 > 0.075) {
                     attemptLeave = false
                     autoLeave()
@@ -269,10 +269,10 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
             return
         }
 
-        val isStaff = staff is EntityPlayer && isStaff(staff.gameProfile.name)
+        val isStaff = staff is PlayerEntity && isStaff(staff.gameProfile.name)
 
         val condition = when (staff) {
-            is EntityPlayer -> {
+            is PlayerEntity -> {
                 val responseTime = mc.netHandler?.getPlayerInfo(staff.uniqueID)?.responseTime ?: 0
                 when {
                     responseTime > 0 -> "§e(${responseTime}ms)"
@@ -284,7 +284,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
             else -> ""
         }
 
-        val playerName = if (staff is EntityPlayer) staff.gameProfile.name else ""
+        val playerName = if (staff is PlayerEntity) staff.gameProfile.name else ""
 
         val warnings = "§c[STAFF] §d${playerName} §3is a staff §b(Packet) $condition"
 

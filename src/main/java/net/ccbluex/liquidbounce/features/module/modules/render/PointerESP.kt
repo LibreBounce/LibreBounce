@@ -20,7 +20,7 @@ import net.ccbluex.liquidbounce.utils.render.ColorSettingsInteger
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
 import net.minecraft.client.render.Window
-import net.minecraft.entity.EntityLivingBase
+import net.minecraft.entity.living.LivingEntity
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 import kotlin.math.*

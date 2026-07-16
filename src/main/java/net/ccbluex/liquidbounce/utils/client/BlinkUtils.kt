@@ -6,13 +6,13 @@ import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPackets
 import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils
 import net.minecraft.client.entity.EntityOtherPlayerMP
 import net.minecraft.network.Packet
-import net.minecraft.network.handshake.client.C00Handshake
-import net.minecraft.network.play.client.C01PacketChatMessage
-import net.minecraft.network.play.client.C03PacketPlayer
+import net.minecraft.network.packet.c2s.handshake.HandshakeC2SPacket
+import net.minecraft.network.packet.c2s.play.ChatMessageC2SPacket
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 import net.minecraft.network.play.server.S02PacketChat
 import net.minecraft.network.play.server.S29PacketSoundEffect
-import net.minecraft.network.status.client.C00PacketServerQuery
-import net.minecraft.network.status.client.C01PacketPing
+import net.minecraft.network.packet.c2s.query.ServerStatusC2SPacket
+import net.minecraft.network.packet.c2s.query.PingC2SPacket
 import net.minecraft.util.math.Vec3d
 
 object BlinkUtils : MinecraftInstance, Listenable {
@@ -32,7 +32,7 @@ object BlinkUtils : MinecraftInstance, Listenable {
         if (event.isCancelled || player.isDead || mc.currentServerData == null) return
 
         when (packet) {
-            is C00Handshake, is C00PacketServerQuery, is C01PacketPing, is S02PacketChat, is C01PacketChatMessage -> {
+            is HandshakeC2SPacket, is ServerStatusC2SPacket, is PingC2SPacket, is S02PacketChat, is ChatMessageC2SPacket -> {
                 return
             }
 
@@ -55,7 +55,7 @@ object BlinkUtils : MinecraftInstance, Listenable {
                 synchronized(packets) {
                     packets += packet
                 }
-                if (packet is C03PacketPlayer && packet.isMoving) {
+                if (packet is PlayerMoveC2SPacket && packet.isMoving) {
                     val packetPos = Vec3d(packet.x, packet.y, packet.z)
                     synchronized(positions) {
                         positions += packetPos
@@ -75,7 +75,7 @@ object BlinkUtils : MinecraftInstance, Listenable {
                 synchronized(packets) {
                     sendPackets(*packets.toTypedArray(), triggerEvents = false)
                 }
-                if (packet is C03PacketPlayer && packet.isMoving) {
+                if (packet is PlayerMoveC2SPacket && packet.isMoving) {
                     val packetPos = Vec3d(packet.x, packet.y, packet.z)
                     synchronized(positions) {
                         positions += packetPos
@@ -97,7 +97,7 @@ object BlinkUtils : MinecraftInstance, Listenable {
                 synchronized(packets) {
                     packets += packet
                 }
-                if (packet is C03PacketPlayer && packet.isMoving) {
+                if (packet is PlayerMoveC2SPacket && packet.isMoving) {
                     val packetPos = Vec3d(packet.x, packet.y, packet.z)
                     synchronized(positions) {
                         positions += packetPos
@@ -141,7 +141,7 @@ object BlinkUtils : MinecraftInstance, Listenable {
             val iterator = packets.iterator()
             while (iterator.hasNext()) {
                 val packet = iterator.next()
-                if (packet is C03PacketPlayer) {
+                if (packet is PlayerMoveC2SPacket) {
                     iterator.remove()
                 } else {
                     sendPacket(packet)

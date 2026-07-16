@@ -17,16 +17,16 @@ import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils.hasMotion
 import net.ccbluex.liquidbounce.utils.timing.TickTimer
 import net.minecraft.item.*
-import net.minecraft.network.handshake.client.C00Handshake
+import net.minecraft.network.packet.c2s.handshake.HandshakeC2SPacket
 import net.minecraft.network.play.client.*
-import net.minecraft.network.play.client.C07PacketPlayerDigging.Action.DROP_ITEM
-import net.minecraft.network.play.client.C07PacketPlayerDigging.Action.RELEASE_USE_ITEM
-import net.minecraft.network.play.server.S12PacketEntityVelocity
-import net.minecraft.network.play.server.S27PacketExplosion
+import net.minecraft.network.packet.c2s.play.PlayerHandActionC2SPacket.Action.DROP_ITEM
+import net.minecraft.network.packet.c2s.play.PlayerHandActionC2SPacket.Action.RELEASE_USE_ITEM
+import net.minecraft.network.packet.s2c.play.EntityVelocityS2CPacket
+import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket
 import net.minecraft.network.play.server.S2FPacketSetSlot
-import net.minecraft.network.status.client.C00PacketServerQuery
-import net.minecraft.network.status.client.C01PacketPing
-import net.minecraft.network.status.server.S01PacketPong
+import net.minecraft.network.packet.c2s.query.ServerStatusC2SPacket
+import net.minecraft.network.packet.c2s.query.PingC2SPacket
+import net.minecraft.network.packet.s2c.query.PingS2CPacket
 import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing
 
@@ -102,7 +102,7 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
             ) {
                 when (consumeMode) {
                     "AAC5" ->
-                        sendPacket(C08PacketPlayerBlockPlacement(BlockPos(-1, -1, -1), 255, heldItem, 0f, 0f, 0f))
+                        sendPacket(PlayerUseC2SPacket(BlockPos(-1, -1, -1), 255, heldItem, 0f, 0f, 0f))
 
                     "SwitchItem" ->
                         if (event.eventState == EventState.PRE) {
@@ -112,7 +112,7 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
                     "UpdatedNCP" ->
                         if (event.eventState == EventState.PRE && shouldSwap) {
                             updateSlot()
-                            sendPacket(C08PacketPlayerBlockPlacement(BlockPos.ORIGIN, 255, heldItem, 0f, 0f, 0f))
+                            sendPacket(PlayerUseC2SPacket(BlockPos.ORIGIN, 255, heldItem, 0f, 0f, 0f))
                             shouldSwap = false
                         }
 
@@ -120,14 +120,14 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
                         if (event.eventState == EventState.PRE) {
                             if (InventoryUtils.hasSpaceInInventory()) {
                                 if (player.ticksExisted % 3 == 0)
-                                    sendPacket(C08PacketPlayerBlockPlacement(BlockPos(-1, -1, -1), 1, null, 0f, 0f, 0f))
+                                    sendPacket(PlayerUseC2SPacket(BlockPos(-1, -1, -1), 1, null, 0f, 0f, 0f))
                             }
                         }
                     }
 
                     "Intave" -> {
                         if (event.eventState == EventState.PRE) {
-                            sendPacket(C07PacketPlayerDigging(RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.UP))
+                            sendPacket(PlayerHandActionC2SPacket(RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.UP))
                         }
                     }
                 }
@@ -137,7 +137,7 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
         if (heldItem.item is ItemBow && (isUsingItem || shouldSwap)) {
             when (bowPacket) {
                 "AAC5" ->
-                    sendPacket(C08PacketPlayerBlockPlacement(BlockPos(-1, -1, -1), 255, heldItem, 0f, 0f, 0f))
+                    sendPacket(PlayerUseC2SPacket(BlockPos(-1, -1, -1), 255, heldItem, 0f, 0f, 0f))
 
                 "SwitchItem" ->
                     if (event.eventState == EventState.PRE) {
@@ -147,7 +147,7 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
                 "UpdatedNCP" ->
                     if (event.eventState == EventState.PRE && shouldSwap) {
                         updateSlot()
-                        sendPacket(C08PacketPlayerBlockPlacement(BlockPos.ORIGIN, 255, heldItem, 0f, 0f, 0f))
+                        sendPacket(PlayerUseC2SPacket(BlockPos.ORIGIN, 255, heldItem, 0f, 0f, 0f))
                         shouldSwap = false
                     }
 
@@ -155,7 +155,7 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
                     if (event.eventState == EventState.PRE) {
                         if (InventoryUtils.hasSpaceInInventory()) {
                             if (player.ticksExisted % 3 == 0)
-                                sendPacket(C08PacketPlayerBlockPlacement(BlockPos(-1, -1, -1), 1, null, 0f, 0f, 0f))
+                                sendPacket(PlayerUseC2SPacket(BlockPos(-1, -1, -1), 1, null, 0f, 0f, 0f))
                         }
                     }
                 }
@@ -167,11 +167,11 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
                 "NCP" ->
                     when (event.eventState) {
                         EventState.PRE -> sendPacket(
-                            C07PacketPlayerDigging(RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN)
+                            PlayerHandActionC2SPacket(RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN)
                         )
 
                         EventState.POST -> sendPacket(
-                            C08PacketPlayerBlockPlacement(
+                            PlayerUseC2SPacket(
                                 BlockPos(-1, -1, -1), 255, heldItem, 0f, 0f, 0f
                             )
                         )
@@ -181,13 +181,13 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
 
                 "UpdatedNCP" ->
                     if (event.eventState == EventState.POST) {
-                        sendPacket(C08PacketPlayerBlockPlacement(BlockPos.ORIGIN, 255, heldItem, 0f, 0f, 0f))
+                        sendPacket(PlayerUseC2SPacket(BlockPos.ORIGIN, 255, heldItem, 0f, 0f, 0f))
                     }
 
                 "AAC5" ->
                     if (event.eventState == EventState.POST) {
                         sendPacket(
-                            C08PacketPlayerBlockPlacement(BlockPos(-1, -1, -1), 255, player.heldItem, 0f, 0f, 0f)
+                            PlayerUseC2SPacket(BlockPos(-1, -1, -1), 255, player.heldItem, 0f, 0f, 0f)
                         )
                     }
 
@@ -200,7 +200,7 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
                     if (event.eventState == EventState.PRE) {
                         if (InventoryUtils.hasSpaceInInventory()) {
                             if (player.ticksExisted % 3 == 0)
-                                sendPacket(C08PacketPlayerBlockPlacement(BlockPos(-1, -1, -1), 1, null, 0f, 0f, 0f))
+                                sendPacket(PlayerUseC2SPacket(BlockPos(-1, -1, -1), 1, null, 0f, 0f, 0f))
                         }
                     }
                 }
@@ -223,7 +223,7 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
                 return@handler
             }
 
-            val isUsingItem = packet is C08PacketPlayerBlockPlacement && packet.placedBlockDirection == 255
+            val isUsingItem = packet is PlayerUseC2SPacket && packet.placedBlockDirection == 255
 
             if (!player.isUsingItem) {
                 shouldNoSlow = false
@@ -231,7 +231,7 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
             }
 
             if (isUsingItem && !hasDropped) {
-                sendPacket(C07PacketPlayerDigging(DROP_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN))
+                sendPacket(PlayerHandActionC2SPacket(DROP_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN))
                 shouldNoSlow = false
                 hasDropped = true
             } else if (packet is S2FPacketSetSlot && player.isUsingItem) {
@@ -248,9 +248,9 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
 
         if (swordMode == "Blink") {
             when (packet) {
-                is C00Handshake, is C00PacketServerQuery, is C01PacketPing, is C01PacketChatMessage, is S01PacketPong -> return@handler
+                is HandshakeC2SPacket, is ServerStatusC2SPacket, is PingC2SPacket, is ChatMessageC2SPacket, is PingS2CPacket -> return@handler
 
-                is C07PacketPlayerDigging, is C02PacketUseEntity, is C12PacketUpdateSign, is C19PacketResourcePackStatus -> {
+                is PlayerHandActionC2SPacket, is PlayerInteractEntityC2SPacket, is SignUpdateC2SPacket, is ResourcePackC2SPacket -> {
                     BlinkTimer.update()
                     if (shouldBlink && BlinkTimer.hasTimePassed(reblinkTicks) && (BlinkUtils.packetsReceived.isNotEmpty() || BlinkUtils.packets.isNotEmpty())) {
                         BlinkUtils.unblink()
@@ -263,7 +263,7 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
                 }
 
                 // Flush on kb
-                is S12PacketEntityVelocity -> {
+                is EntityVelocityS2CPacket -> {
                     if (player.entityId == packet.entityID) {
                         BlinkUtils.unblink()
                         return@handler
@@ -271,14 +271,14 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
                 }
 
                 // Flush on explosion
-                is S27PacketExplosion -> {
+                is ExplosionS2CPacket -> {
                     if (packet.field_149153_g != 0f || packet.field_149152_f != 0f || packet.field_149159_h != 0f) {
                         BlinkUtils.unblink()
                         return@handler
                     }
                 }
 
-                is C03PacketPlayer -> {
+                is PlayerMoveC2SPacket -> {
                     if (player.isMoving) {
                         if (player.heldItem?.item is ItemSword && usingItemFunc()) {
                             if (shouldBlink)
@@ -293,7 +293,7 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
         }
 
         when (packet) {
-            is C08PacketPlayerBlockPlacement -> {
+            is PlayerUseC2SPacket -> {
                 if (packet.stack?.item != null && player.heldItem?.item != null && packet.stack.item == player.heldItem?.item) {
                     if ((consumeMode == "UpdatedNCP" && (
                                 packet.stack.item is ItemFood ||

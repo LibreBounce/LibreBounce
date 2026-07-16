@@ -14,9 +14,9 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.fly.Fly
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPackets
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
-import net.minecraft.entity.EntityLivingBase
-import net.minecraft.network.play.client.C03PacketPlayer
-import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
+import net.minecraft.entity.living.LivingEntity
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.Position
 
 object Criticals : Module("Criticals", Category.COMBAT) {
 
@@ -65,31 +65,31 @@ object Criticals : Module("Criticals", Category.COMBAT) {
             when (mode) {
                 "Packet" -> {
                     sendPackets(
-                        C04PacketPlayerPosition(x, y + 0.0625, z, true),
-                        C04PacketPlayerPosition(x, y, z, false)
+                        Position(x, y + 0.0625, z, true),
+                        Position(x, y, z, false)
                     )
                 }
 
                 "NCPPacket" -> {
                     sendPackets(
-                        C04PacketPlayerPosition(x, y + 0.11, z, false),
-                        C04PacketPlayerPosition(x, y + 0.1100013579, z, false),
-                        C04PacketPlayerPosition(x, y + 0.0000013579, z, false)
+                        Position(x, y + 0.11, z, false),
+                        Position(x, y + 0.1100013579, z, false),
+                        Position(x, y + 0.0000013579, z, false)
                     )
                 }
 
                 "BlocksMC" -> {
                     sendPackets(
-                        C04PacketPlayerPosition(x, y + 0.001091981, z, true),
-                        C04PacketPlayerPosition(x, y, z, false)
+                        Position(x, y + 0.001091981, z, true),
+                        Position(x, y, z, false)
                     )
                 }
 
                 "BlocksMC2" -> {
                     if (player.ticksExisted % 4 == 0) {
                         sendPackets(
-                            C04PacketPlayerPosition(x, y + 0.0011, z, true),
-                            C04PacketPlayerPosition(x, y, z, false)
+                            Position(x, y + 0.0011, z, true),
+                            Position(x, y, z, false)
                         )
                     }
                 }
@@ -102,8 +102,8 @@ object Criticals : Module("Criticals", Category.COMBAT) {
 
                 "TPHop" -> {
                     sendPackets(
-                        C04PacketPlayerPosition(x, y + 0.02, z, false),
-                        C04PacketPlayerPosition(x, y + 0.01, z, false)
+                        Position(x, y + 0.02, z, false),
+                        Position(x, y + 0.01, z, false)
                     )
                     player.setPosition(x, y + 0.01, z)
                 }
@@ -119,7 +119,7 @@ object Criticals : Module("Criticals", Category.COMBAT) {
     }
 
     val onPacket = handler<PacketEvent> { event ->
-        if (event.packet is C03PacketPlayer && mode == "NoGround")
+        if (event.packet is PlayerMoveC2SPacket && mode == "NoGround")
             event.packet.onGround = false
     }
 

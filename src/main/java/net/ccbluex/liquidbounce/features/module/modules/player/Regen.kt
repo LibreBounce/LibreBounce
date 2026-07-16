@@ -13,7 +13,7 @@ import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils.serverOnGround
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
-import net.minecraft.network.play.client.C03PacketPlayer
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 import net.minecraft.potion.Potion
 
 object Regen : Module("Regen", Category.PLAYER) {
@@ -50,14 +50,14 @@ object Regen : Module("Regen", Category.PLAYER) {
             when (mode) {
                 "Vanilla" -> {
                     repeat(speed) {
-                        sendPacket(C03PacketPlayer(serverOnGround))
+                        sendPacket(PlayerMoveC2SPacket(serverOnGround))
                     }
                 }
 
                 "Spartan" -> {
                     if (!isMoving && serverOnGround) {
                         repeat(9) {
-                            sendPacket(C03PacketPlayer(serverOnGround))
+                            sendPacket(PlayerMoveC2SPacket(serverOnGround))
                         }
 
                         mc.timer.timerSpeed = 0.45F

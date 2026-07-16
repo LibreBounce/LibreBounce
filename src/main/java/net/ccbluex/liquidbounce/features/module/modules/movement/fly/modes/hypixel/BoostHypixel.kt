@@ -15,9 +15,9 @@ import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils.direction
 import net.ccbluex.liquidbounce.utils.timing.TickDelayTimer
 import net.minecraft.init.Blocks.air
-import net.minecraft.network.play.client.C03PacketPlayer
-import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
-import net.minecraft.network.play.server.S08PacketPlayerPosLook
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.Position
+import net.minecraft.network.packet.s2c.play.PlayerMoveS2CPacket
 import net.minecraft.potion.Potion
 import net.minecraft.util.AxisAlignedBB
 import kotlin.math.cos
@@ -41,22 +41,22 @@ object BoostHypixel : FlyMode("BoostHypixel") {
 
             repeat(10) {
                 // Imagine flagging to NCP
-                sendPacket(C04PacketPlayerPosition(x, y, z, true))
+                sendPacket(Position(x, y, z, true))
             }
 
             var fallDistance = 3.0125 // + 0.0125 Y ensures we get the fall damage
 
             while (fallDistance > 0) {
                 sendPackets(
-                    C04PacketPlayerPosition(x, y + 0.0624986421, z, false),
-                    C04PacketPlayerPosition(x, y + 0.0625, z, false),
-                    C04PacketPlayerPosition(x, y + 0.0624986421, z, false),
-                    C04PacketPlayerPosition(x, y + 0.0000013579, z, false)
+                    Position(x, y + 0.0624986421, z, false),
+                    Position(x, y + 0.0625, z, false),
+                    Position(x, y + 0.0624986421, z, false),
+                    Position(x, y + 0.0000013579, z, false)
                 )
                 fallDistance -= 0.0624986421
             }
 
-            sendPacket(C04PacketPlayerPosition(x, y, z, true))
+            sendPacket(Position(x, y, z, true))
 
             tryJump()
 

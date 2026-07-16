@@ -10,7 +10,7 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.NoSlow;
 import net.ccbluex.liquidbounce.features.module.modules.render.SilentHotbarModule;
 import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar;
 import net.minecraft.client.entity.AbstractClientPlayer;
-import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.entity.living.player.LocalClientPlayerEntity;
 import net.minecraft.client.model.ModelPlayer;
 import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.entity.player.EnumPlayerModelParts;
@@ -43,7 +43,7 @@ public abstract class MixinRenderPlayer {
 
             int slot = SilentHotbar.INSTANCE.renderSlot(module.handleEvents() && module.getKeepItemInHandInThirdPerson());
 
-            ItemStack itemstack = entity instanceof EntityPlayerSP ? entity.inventory.getStackInSlot(slot) : entity.getHeldItem();
+            ItemStack itemstack = entity instanceof LocalClientPlayerEntity ? entity.inventory.getStackInSlot(slot) : entity.getHeldItem();
 
             modelplayer.setInvisible(true);
             modelplayer.bipedHeadwear.showModel = entity.isWearing(EnumPlayerModelParts.HAT);
@@ -59,7 +59,7 @@ public abstract class MixinRenderPlayer {
                 modelplayer.heldItemRight = 0;
             } else {
                 modelplayer.heldItemRight = 1;
-                boolean isForceBlocking = entity instanceof EntityPlayerSP && ((itemstack.getItem() instanceof ItemSword && KillAura.INSTANCE.getRenderBlocking()) || NoSlow.INSTANCE.isUNCPBlocking());
+                boolean isForceBlocking = entity instanceof LocalClientPlayerEntity && ((itemstack.getItem() instanceof ItemSword && KillAura.INSTANCE.getRenderBlocking()) || NoSlow.INSTANCE.isUNCPBlocking());
                 if (entity.getItemInUseCount() > 0 || isForceBlocking) {
                     EnumAction enumaction = isForceBlocking? EnumAction.BLOCK : itemstack.getItemUseAction();
                     if (enumaction == EnumAction.BLOCK) {

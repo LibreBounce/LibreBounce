@@ -27,7 +27,7 @@ import net.minecraft.block.BlockAir
 import net.minecraft.init.Items.lava_bucket
 import net.minecraft.init.Items.flint_and_steel
 import net.minecraft.item.ItemBucket
-import net.minecraft.network.play.client.C03PacketPlayer.C05PacketPlayerLook
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.Angles
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Vec3d
@@ -76,7 +76,7 @@ object Ignite : Module("Ignite", Category.COMBAT) {
                     val pitch = -(atan2(diffY, sqrt)).toDegreesF()
 
                     sendPacket(
-                        C05PacketPlayerLook(
+                        Angles(
                             player.rotationYaw +
                                     MathHelper.wrapAngleTo180_float(yaw - player.rotationYaw),
                             player.rotationPitch +
@@ -101,7 +101,7 @@ object Ignite : Module("Ignite", Category.COMBAT) {
                         val pitch = -(atan2(diffY, sqrt)).toDegreesF()
 
                         sendPacket(
-                            C05PacketPlayerLook(
+                            Angles(
                                 player.rotationYaw +
                                         MathHelper.wrapAngleTo180_float(yaw - player.rotationYaw),
                                 player.rotationPitch +
@@ -124,7 +124,7 @@ object Ignite : Module("Ignite", Category.COMBAT) {
                     render = false,
                     resetManually = true
                 )
-                sendPacket(C05PacketPlayerLook(player.rotationYaw, player.rotationPitch, player.onGround))
+                sendPacket(Angles(player.rotationYaw, player.rotationPitch, player.onGround))
                 resetSlot(this)
 
                 msTimer.reset()

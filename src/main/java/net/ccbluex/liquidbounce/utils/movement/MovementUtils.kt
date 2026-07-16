@@ -8,7 +8,7 @@ package net.ccbluex.liquidbounce.utils.movement
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.extensions.*
-import net.minecraft.network.play.client.C03PacketPlayer
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 import net.minecraft.util.math.Vec3d
 import kotlin.math.cos
 import kotlin.math.sin
@@ -123,7 +123,7 @@ object MovementUtils : MinecraftInstance, Listenable {
         if (event.isCancelled)
             return@handler
 
-        (event.packet as? C03PacketPlayer)?.let {
+        (event.packet as? PlayerMoveC2SPacket)?.let {
             serverOnGround = it.onGround
 
             if (it.isMoving) {

@@ -15,8 +15,8 @@ import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar
 import net.ccbluex.liquidbounce.utils.inventory.attackDamage
 import net.minecraft.item.ItemSword
 import net.minecraft.item.ItemTool
-import net.minecraft.network.play.client.C02PacketUseEntity
-import net.minecraft.network.play.client.C02PacketUseEntity.Action.ATTACK
+import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket
+import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket.Action.ATTACK
 
 object AutoWeapon : Module("AutoWeapon", Category.COMBAT, subjective = true) {
 
@@ -34,7 +34,7 @@ object AutoWeapon : Module("AutoWeapon", Category.COMBAT, subjective = true) {
     val onPacket = handler<PacketEvent> { event ->
         val player = mc.thePlayer ?: return@handler
 
-        if (event.packet is C02PacketUseEntity && event.packet.action == ATTACK && attackEnemy) {
+        if (event.packet is PlayerInteractEntityC2SPacket && event.packet.action == ATTACK && attackEnemy) {
             attackEnemy = false
 
             // Find the best weapon in hotbar (#Kotlin Style)

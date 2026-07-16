@@ -12,7 +12,7 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.deltaTime
 import net.minecraft.client.render.platform.GlStateManager.*
 import net.minecraft.client.renderer.OpenGlHelper
 import net.minecraft.client.renderer.RenderHelper
-import net.minecraft.entity.EntityLivingBase
+import net.minecraft.entity.living.LivingEntity
 import org.lwjgl.opengl.GL11.*
 import kotlin.math.abs
 import kotlin.math.atan

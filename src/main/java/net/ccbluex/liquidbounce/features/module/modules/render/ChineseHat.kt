@@ -23,8 +23,8 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.glStateManagerColor
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.isEntityHeightVisible
 import net.minecraft.client.render.platform.GlStateManager
 import net.minecraft.entity.Entity
-import net.minecraft.entity.EntityLivingBase
-import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.entity.living.LivingEntity
+import net.minecraft.entity.living.player.PlayerEntity
 import java.awt.Color
 
 object ChineseHat : Module("ChineseHat", Category.RENDER) {
@@ -96,7 +96,7 @@ object ChineseHat : Module("ChineseHat", Category.RENDER) {
         val dist = mc.thePlayer.getDistanceSqToEntity(entity).coerceAtMost(255.0).toInt()
 
         return when {
-            entity is EntityPlayer && entity.isClientFriend() -> Color(0, 0, 255)
+            entity is PlayerEntity && entity.isClientFriend() -> Color(0, 0, 255)
             teams && Teams.isInYourTeam(entity) -> Color(0, 162, 232)
             colorMode == "Custom" -> colors.color()
             colorMode == "DistanceColor" -> Color(255 - dist, dist, 0)

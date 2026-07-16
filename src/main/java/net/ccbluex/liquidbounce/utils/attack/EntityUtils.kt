@@ -19,8 +19,8 @@ import net.ccbluex.liquidbounce.utils.extensions.toRadiansD
 import net.ccbluex.liquidbounce.utils.kotlin.StringUtils.contains
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.minecraft.entity.Entity
-import net.minecraft.entity.EntityLivingBase
-import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.entity.living.LivingEntity
+import net.minecraft.entity.living.player.PlayerEntity
 import net.minecraft.tileentity.TileEntity
 import net.minecraft.util.math.Vec3d
 import java.awt.Color
@@ -42,7 +42,7 @@ object EntityUtils : MinecraftInstance {
     fun isSelected(entity: Entity?, canAttackCheck: Boolean): Boolean {
         if (entity is EntityLivingBase && (Targets.dead || entity.isEntityAlive) && entity != mc.thePlayer) {
             if (Targets.invisible || !entity.isInvisible) {
-                if (Targets.player && entity is EntityPlayer) {
+                if (Targets.player && entity is PlayerEntity) {
                     if (canAttackCheck) {
                         if (isBot(entity))
                             return false
@@ -98,7 +98,7 @@ object EntityUtils : MinecraftInstance {
     }
 
     fun getHealth(entity: EntityLivingBase, fromScoreboard: Boolean = false, absorption: Boolean = true): Float {
-        if (fromScoreboard && entity is EntityPlayer) run {
+        if (fromScoreboard && entity is PlayerEntity) run {
             val scoreboard = entity.worldScoreboard
             val objective = scoreboard.getValueFromObjective(entity.name, scoreboard.getObjectiveInDisplaySlot(2))
 

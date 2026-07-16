@@ -22,8 +22,8 @@ import net.ccbluex.liquidbounce.utils.rotation.RotationUtils;
 import net.ccbluex.liquidbounce.utils.extensions.MathExtensionsKt;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.client.entity.living.player.LocalClientPlayerEntity;
+import net.minecraft.entity.living.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
@@ -133,7 +133,7 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
     @Inject(method = "getLook", at = @At("HEAD"), cancellable = true)
     private void getLook(CallbackInfoReturnable<Vec3d> callbackInfoReturnable) {
         //noinspection ConstantConditions
-        if (((EntityLivingBase) (Object) this) instanceof EntityPlayerSP)
+        if (((EntityLivingBase) (Object) this) instanceof LocalClientPlayerEntity)
             callbackInfoReturnable.setReturnValue(getVectorForRotation(rotationPitch, rotationYaw));
     }
 
@@ -145,7 +145,7 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
         Rotation rotation = Rotations.INSTANCE.getRotation();
 
         //noinspection ConstantValue
-        this.rotationYawHead = ((EntityLivingBase) (Object) this) instanceof EntityPlayerSP && Rotations.INSTANCE.shouldUseRealisticMode() && rotation != null ? rotation.getYaw() : this.rotationYawHead;
+        this.rotationYawHead = ((EntityLivingBase) (Object) this) instanceof LocalClientPlayerEntity && Rotations.INSTANCE.shouldUseRealisticMode() && rotation != null ? rotation.getYaw() : this.rotationYawHead;
     }
 
     /**
@@ -155,7 +155,7 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
     private float hookBodyRotationsA(EntityLivingBase instance) {
         Rotation rotation = Rotations.INSTANCE.getRotation();
 
-        return instance instanceof EntityPlayerSP && Rotations.INSTANCE.shouldUseRealisticMode() && rotation != null ? rotation.getYaw() : instance.rotationYaw;
+        return instance instanceof LocalClientPlayerEntity && Rotations.INSTANCE.shouldUseRealisticMode() && rotation != null ? rotation.getYaw() : instance.rotationYaw;
     }
 
     /**
@@ -165,7 +165,7 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
     private float hookBodyRotationsB(EntityLivingBase instance) {
         Rotation rotation = Rotations.INSTANCE.getRotation();
 
-        return instance instanceof EntityPlayerSP && Rotations.INSTANCE.shouldUseRealisticMode() && rotation != null ? rotation.getYaw() : instance.rotationYaw;
+        return instance instanceof LocalClientPlayerEntity && Rotations.INSTANCE.shouldUseRealisticMode() && rotation != null ? rotation.getYaw() : instance.rotationYaw;
     }
 
     /**

@@ -27,13 +27,13 @@ import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomDelay
 import net.minecraft.client.render.platform.GlStateManager.color
 import net.minecraft.entity.Entity
-import net.minecraft.entity.EntityLivingBase
-import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.entity.living.LivingEntity
+import net.minecraft.entity.living.player.PlayerEntity
 import net.minecraft.network.Packet
-import net.minecraft.network.handshake.client.C00Handshake
+import net.minecraft.network.packet.c2s.handshake.HandshakeC2SPacket
 import net.minecraft.network.play.server.*
-import net.minecraft.network.status.client.C00PacketServerQuery
-import net.minecraft.network.status.server.S01PacketPong
+import net.minecraft.network.packet.c2s.query.ServerStatusC2SPacket
+import net.minecraft.network.packet.s2c.query.PingS2CPacket
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.WorldSettings
 import org.lwjgl.opengl.GL11.*
@@ -123,7 +123,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
 
         when (packet) {
             // Ignore server related packets
-            is C00Handshake, is C00PacketServerQuery, is S02PacketChat, is S01PacketPong -> return@handler
+            is HandshakeC2SPacket, is ServerStatusC2SPacket, is S02PacketChat, is PingS2CPacket -> return@handler
 
             is S29PacketSoundEffect -> if (nonDelayedSoundSubstrings in packet.soundName) return@handler
 
@@ -422,7 +422,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
     }
 
     fun <T> runWithModifiedRotation(
-        entity: EntityPlayer, rotation: Rotation, body: Pair<Float, Float>? = null,
+        entity: PlayerEntity, rotation: Rotation, body: Pair<Float, Float>? = null,
         f: (Rotation) -> T?
     ): T? {
         val currRotation = entity.rotation

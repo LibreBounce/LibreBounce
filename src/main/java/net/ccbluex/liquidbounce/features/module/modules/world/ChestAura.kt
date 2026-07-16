@@ -30,7 +30,7 @@ import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.toRotation
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.minecraft.block.BlockChest
 import net.minecraft.block.BlockEnderChest
-import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.entity.living.player.PlayerEntity
 import net.minecraft.network.play.server.S0EPacketSpawnObject
 import net.minecraft.network.play.server.S24PacketBlockAction
 import net.minecraft.network.play.server.S29PacketSoundEffect
@@ -198,7 +198,7 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
                     if (packet.data2 == 0 && prevState != 1)
                         return@handler
 
-                    val player: EntityPlayer
+                    val player: PlayerEntity
                     val distance: String
 
                     // If chest is not last clicked chest, find a player that might have opened it

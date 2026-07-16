@@ -7,7 +7,7 @@ package net.ccbluex.liquidbounce.features.module.modules.player.nofall.modes.oth
 
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.features.module.modules.player.nofall.modes.NoFallMode
-import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.Position
 
 /*
 * Working on Watchdog
@@ -22,7 +22,7 @@ object Hypixel : NoFallMode("Hypixel") {
         val player = mc.thePlayer ?: return
         val packet = event.packet
 
-        if (packet is C04PacketPlayerPosition) {
+        if (packet is Position) {
             if (player.fallDistance >= 3.3) {
                 jump = true
             }

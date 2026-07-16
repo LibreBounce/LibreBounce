@@ -18,8 +18,8 @@ import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.isEntityHeightVisible
 import net.minecraft.entity.Entity
-import net.minecraft.entity.EntityLivingBase
-import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.entity.living.LivingEntity
+import net.minecraft.entity.living.player.PlayerEntity
 import net.minecraft.util.math.Vec3d
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
@@ -81,7 +81,7 @@ object Tracers : Module("Tracers", Category.RENDER) {
             val dist = mc.thePlayer.getDistanceSqToEntity(entity).coerceAtMost(255.0).toInt()
 
             val color = when {
-                entity is EntityPlayer && entity.isClientFriend() -> Color(0, 0, 255, 150)
+                entity is PlayerEntity && entity.isClientFriend() -> Color(0, 0, 255, 150)
                 teams && Teams.handleEvents() && Teams.isInYourTeam(entity) -> Color(0, 162, 232)
                 colorMode == "Custom" -> color
                 colorMode == "DistanceColor" -> Color(255 - dist, dist, 0, 150)

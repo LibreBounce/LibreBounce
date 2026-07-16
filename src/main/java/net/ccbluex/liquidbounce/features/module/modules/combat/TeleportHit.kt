@@ -15,10 +15,10 @@ import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.pathfinding.PathUtils.findPath
 import net.ccbluex.liquidbounce.utils.rotation.RaycastUtils.raycastEntity
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.getVectorForRotation
-import net.minecraft.client.entity.EntityPlayerSP
-import net.minecraft.entity.EntityLivingBase
-import net.minecraft.network.play.client.C02PacketUseEntity
-import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
+import net.minecraft.client.entity.living.player.LocalClientPlayerEntity
+import net.minecraft.entity.living.LivingEntity
+import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.Position
 import net.minecraft.util.math.Vec3d
 
 object TeleportHit : Module("TeleportHit", Category.COMBAT) {
@@ -51,7 +51,7 @@ object TeleportHit : Module("TeleportHit", Category.COMBAT) {
 
                 findPath(x, y + 1, z, 4.0).forEach { pos ->
                     sendPacket(
-                        C04PacketPlayerPosition(
+                        Position(
                             pos.x,
                             pos.y,
                             pos.z,
@@ -61,7 +61,7 @@ object TeleportHit : Module("TeleportHit", Category.COMBAT) {
                 }
 
                 player.swingItem()
-                sendPacket(C02PacketUseEntity(it, C02PacketUseEntity.Action.ATTACK))
+                sendPacket(PlayerInteractEntityC2SPacket(it, PlayerInteractEntityC2SPacket.Action.ATTACK))
                 player.onCriticalHit(it)
                 shouldHit = false
                 targetEntity = null

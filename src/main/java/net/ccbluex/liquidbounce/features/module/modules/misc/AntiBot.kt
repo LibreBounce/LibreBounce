@@ -13,8 +13,8 @@ import net.ccbluex.liquidbounce.utils.render.ColorUtils.stripColor
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.angleDifference
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.serverRotation
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.toRotation
-import net.minecraft.entity.EntityLivingBase
-import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.entity.living.LivingEntity
+import net.minecraft.entity.living.player.PlayerEntity
 import net.minecraft.network.play.server.S0BPacketAnimation
 import net.minecraft.network.play.server.S13PacketDestroyEntities
 import net.minecraft.network.play.server.S14PacketEntity
@@ -85,7 +85,7 @@ object AntiBot : Module("AntiBot", Category.MISC) {
 
     fun isBot(entity: EntityLivingBase): Boolean {
         // Check if entity is a player
-        if (entity !is EntityPlayer)
+        if (entity !is PlayerEntity)
             return false
 
         // Check if anti bot is enabled
@@ -219,7 +219,7 @@ object AntiBot : Module("AntiBot", Category.MISC) {
         mc.theWorld ?: return@handler
 
         mc.theWorld.loadedEntityList.forEach { entity ->
-            if (entity !is EntityPlayer) return@forEach
+            if (entity !is PlayerEntity) return@forEach
             val profile = entity.gameProfile ?: return@forEach
 
             if (isBot(entity)) {
@@ -244,7 +244,7 @@ object AntiBot : Module("AntiBot", Category.MISC) {
         if (packet is S14PacketEntity) {
             val entity = packet.getEntity(mc.theWorld)
 
-            if (entity is EntityPlayer) {
+            if (entity is PlayerEntity) {
                 if (entity.onGround && entity.entityId !in groundList)
                     groundList += entity.entityId
 

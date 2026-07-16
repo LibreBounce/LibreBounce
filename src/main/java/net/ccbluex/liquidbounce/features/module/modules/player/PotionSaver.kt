@@ -9,7 +9,7 @@ import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.minecraft.network.play.client.C03PacketPlayer
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 
 object PotionSaver : Module("PotionSaver", Category.PLAYER) {
 
@@ -17,7 +17,7 @@ object PotionSaver : Module("PotionSaver", Category.PLAYER) {
         mc.thePlayer?.run {
             val packet = it.packet
 
-            if (packet is C03PacketPlayer && !isUsingItem && !packet.rotating &&
+            if (packet is PlayerMoveC2SPacket && !isUsingItem && !packet.rotating &&
                 (!packet.isMoving || (packet.x == lastTickPosX && packet.y == lastTickPosY && packet.z == lastTickPosZ))
             )
                 it.cancelEvent()

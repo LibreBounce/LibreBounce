@@ -25,7 +25,7 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.entity.living.player.LocalClientPlayerEntity;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.render.Window;
 import net.minecraft.client.multiplayer.PlayerControllerMP;
@@ -75,7 +75,7 @@ public abstract class MixinMinecraft {
     public WorldClient theWorld;
 
     @Shadow
-    public EntityPlayerSP thePlayer;
+    public LocalClientPlayerEntity thePlayer;
 
     @Shadow
     public PlayerControllerMP playerController;
@@ -271,8 +271,8 @@ public abstract class MixinMinecraft {
     }
 
 
-    @Redirect(method = "sendClickBlockToController", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/entity/EntityPlayerSP;isUsingItem()Z"))
-    private boolean injectMultiActions(EntityPlayerSP instance) {
+    @Redirect(method = "sendClickBlockToController", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/entity/LocalClientPlayerEntity;isUsingItem()Z"))
+    private boolean injectMultiActions(LocalClientPlayerEntity instance) {
         ItemStack itemStack = instance.itemInUse;
 
         if (MultiActions.INSTANCE.handleEvents()) itemStack = null;
@@ -297,7 +297,7 @@ public abstract class MixinMinecraft {
         return SilentHotbar.INSTANCE.getCurrentSlot();
     }
 
-    @Inject(method = "runTick", at = @At(value = "FIELD", target = "Lnet/minecraft/client/entity/EntityPlayerSP;inventory:Lnet/minecraft/entity/player/InventoryPlayer;"))
+    @Inject(method = "runTick", at = @At(value = "FIELD", target = "Lnet/minecraft/client/entity/LocalClientPlayerEntity;inventory:Lnet/minecraft/entity/player/InventoryPlayer;"))
     private void injectSilentHotbarManualPressDetection(CallbackInfo ci) {
         SilentHotbar.INSTANCE.setPressedAtSlot(true);
     }

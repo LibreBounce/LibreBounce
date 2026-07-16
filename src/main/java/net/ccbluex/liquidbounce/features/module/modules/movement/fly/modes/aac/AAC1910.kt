@@ -12,7 +12,7 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.FlyMo
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawPlatform
-import net.minecraft.network.play.client.C03PacketPlayer
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 import java.awt.Color
 
 object AAC1910 : FlyMode("AAC1.9.10") {
@@ -31,7 +31,7 @@ object AAC1910 : FlyMode("AAC1.9.10") {
                 jump -= 0.2
 
             if (startY + jump > posY) {
-                sendPacket(C03PacketPlayer(true))
+                sendPacket(PlayerMoveC2SPacket(true))
                 motionY = 0.8
                 strafe(aacSpeed)
             }

@@ -10,13 +10,13 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.NoSlow;
 import net.ccbluex.liquidbounce.features.module.modules.render.SilentHotbarModule;
 import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar;
 import net.minecraft.block.Block;
-import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.entity.living.player.LocalClientPlayerEntity;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.entity.RendererLivingEntity;
 import net.minecraft.client.renderer.entity.layers.LayerHeldItem;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.living.LivingEntity;
+import net.minecraft.entity.living.player.PlayerEntity;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
@@ -51,7 +51,7 @@ public class MixinLayerHeldItem {
 
         int slot = SilentHotbar.INSTANCE.renderSlot(module.handleEvents() && module.getKeepItemInHandInThirdPerson());
 
-        ItemStack itemstack = entity instanceof EntityPlayerSP ? ((EntityPlayerSP) entity).inventory.getStackInSlot(slot) : entity.getHeldItem();
+        ItemStack itemstack = entity instanceof LocalClientPlayerEntity ? ((LocalClientPlayerEntity) entity).inventory.getStackInSlot(slot) : entity.getHeldItem();
 
         if (itemstack != null) {
             pushMatrix();
@@ -64,9 +64,9 @@ public class MixinLayerHeldItem {
             }
 
             final UUID uuid = entity.getUniqueID();
-            final EntityPlayer entityplayer = mc.theWorld.getPlayerEntityByUUID(uuid);
+            final PlayerEntity entityplayer = mc.theWorld.getPlayerEntityByUUID(uuid);
 
-            if (entityplayer != null && (entityplayer.isBlocking() || entityplayer instanceof EntityPlayerSP && ((itemstack.getItem() instanceof ItemSword && KillAura.INSTANCE.getRenderBlocking()) || NoSlow.INSTANCE.isUNCPBlocking()))) {
+            if (entityplayer != null && (entityplayer.isBlocking() || entityplayer instanceof LocalClientPlayerEntity && ((itemstack.getItem() instanceof ItemSword && KillAura.INSTANCE.getRenderBlocking()) || NoSlow.INSTANCE.isUNCPBlocking()))) {
                 if (entity.isSneaking()) {
                     ((ModelBiped) livingEntityRenderer.getMainModel()).postRenderArm(0.0325F);
                     translate(-0.58F, 0.3F, -0.2F);
@@ -82,7 +82,7 @@ public class MixinLayerHeldItem {
 
             translate(-0.0625F, 0.4375F, 0.0625F);
 
-            if (entity instanceof EntityPlayer && ((EntityPlayer) entity).fishEntity != null) {
+            if (entity instanceof PlayerEntity && ((PlayerEntity) entity).fishEntity != null) {
                 itemstack = new ItemStack(Items.fishing_rod, 0);
             }
 

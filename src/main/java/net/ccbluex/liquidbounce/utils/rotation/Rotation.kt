@@ -13,7 +13,7 @@ import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.angleDifferences
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.getFixedAngleDelta
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.getFixedSensitivityAngle
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.serverRotation
-import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.entity.living.player.PlayerEntity
 import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Vec3d
 import javax.vecmath.Vector2f
@@ -56,7 +56,7 @@ data class Rotation(var yaw: Float, var pitch: Float) : MinecraftInstance {
     /**
      * Set rotations to [player]
      */
-    fun toPlayer(player: EntityPlayer = mc.thePlayer, changeYaw: Boolean = true, changePitch: Boolean = true) {
+    fun toPlayer(player: PlayerEntity = mc.thePlayer, changeYaw: Boolean = true, changePitch: Boolean = true) {
         if (yaw.isNaN() || pitch.isNaN() || pitch > 90 || pitch < -90) return
 
         fixedSensitivity()

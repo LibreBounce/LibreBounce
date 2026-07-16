@@ -17,7 +17,7 @@ import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.rotationDifference
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.toRotation
 import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
 import net.minecraft.entity.Entity
-import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.entity.living.player.PlayerEntity
 import net.minecraft.potion.Potion.blindness
 import net.minecraft.util.math.MathHelper
 import kotlin.math.sqrt
@@ -78,10 +78,10 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         val player = mc.thePlayer ?: return@handler
         val target = event.targetEntity ?: return@handler
 
-        val targetPlayer = target as EntityPlayer
+        val targetPlayer = target as PlayerEntity
 
         val hittable = canHit(simTargetHurtTime)
-        val latency = latencyInTicks(player as EntityPlayer)
+        val latency = latencyInTicks(player as PlayerEntity)
 
         simTargetHurtTime = targetPlayer.hurtTime - latency
 
@@ -108,9 +108,9 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
     fun shouldHit(target: Entity): Boolean {
         val player = mc.thePlayer ?: return false
 
-        val playerPing = (player as EntityPlayer).getPing()
-        val playerLatencyInTicks = latencyInTicks(player as EntityPlayer)
-        val targetPing = (target as EntityPlayer).getPing()
+        val playerPing = (player as PlayerEntity).getPing()
+        val playerLatencyInTicks = latencyInTicks(player as PlayerEntity)
+        val targetPing = (target as PlayerEntity).getPing()
 
         val combinedPing = playerPing + targetPing
         val combinedPingMult = combinedPing.toFloat() / 100f
@@ -203,7 +203,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
     }
 
     // Can you land a critical hit on the subject?
-    private fun canCritHit(player: EntityPlayer): Boolean =
+    private fun canCritHit(player: PlayerEntity): Boolean =
         player.fallDistance > 0 &&
         !player.isOnLadder &&
         !player.isInWater &&
@@ -212,9 +212,9 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
     // Can the subject be hit?
     private fun canHit(hurtTime: Int): Boolean = hurtTime <= 10 - attackDelay
-    private fun canHit(player: EntityPlayer): Boolean = canHit(player.hurtTime)
+    private fun canHit(player: PlayerEntity): Boolean = canHit(player.hurtTime)
 
-    private fun latencyInTicks(player: EntityPlayer): Int =
+    private fun latencyInTicks(player: PlayerEntity): Int =
         player.getPing().ceilDiv(2).ceilDiv(20)
     
     private fun simulateDistance(simPlayer: SimulatedPlayer, target: Entity, simulateKnockback: Boolean): Double {

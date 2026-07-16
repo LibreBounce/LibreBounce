@@ -20,9 +20,9 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.resetCaps
 import net.minecraft.client.gui.screen.DeathScreen
 import net.minecraft.init.Blocks.air
 import net.minecraft.network.login.server.S00PacketDisconnect
-import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
+import net.minecraft.network.packet.c2s.play.PlayerUseC2SPacket
 import net.minecraft.network.play.server.S01PacketJoinGame
-import net.minecraft.network.play.server.S08PacketPlayerPosLook
+import net.minecraft.network.packet.s2c.play.PlayerMoveS2CPacket
 import net.minecraft.util.BlockPos
 import net.minecraft.util.math.Vec3d
 import org.lwjgl.opengl.GL11.*
@@ -116,7 +116,7 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true) {
                 clearFlags()
             }
 
-            is S08PacketPlayerPosLook -> {
+            is PlayerMoveS2CPacket -> {
                 val deltaYaw = calculateAngleDelta(packet.yaw, lastYaw)
                 val deltaPitch = calculateAngleDelta(packet.pitch, lastPitch)
 
@@ -145,7 +145,7 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true) {
                 lastPitch = mc.thePlayer.rotationPitch
             }
 
-            is C08PacketPlayerBlockPlacement -> {
+            is PlayerUseC2SPacket -> {
                 val blockPos = packet.position
                 blockPlacementAttempts[blockPos] = System.currentTimeMillis()
                 successfulPlacements.add(blockPos)

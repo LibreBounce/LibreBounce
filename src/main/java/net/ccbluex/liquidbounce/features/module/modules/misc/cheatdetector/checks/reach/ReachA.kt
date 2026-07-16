@@ -12,7 +12,7 @@ import net.ccbluex.liquidbounce.features.module.modules.misc.cheatdetector.Cheat
 import net.ccbluex.liquidbounce.features.module.modules.misc.cheatdetector.CheatDetector.potentialDelayDistance
 import net.ccbluex.liquidbounce.features.module.modules.misc.cheatdetector.CheatDetector.differenceToFlag
 import net.ccbluex.liquidbounce.utils.extensions.*
-import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.entity.living.player.PlayerEntity
 import kotlin.math.max
 
 object ReachA : Check("ReachA") {
@@ -26,7 +26,7 @@ object ReachA : Check("ReachA") {
 
         val player = mc.thePlayer
 
-        val targetPing = (target!! as EntityPlayer).getPing()
+        val targetPing = (target!! as PlayerEntity).getPing()
 
         if (targetPing != 0) {
             lowestPing = if (targetPing < lowestPing && lowestPing != 0) targetPing else lowestPing

@@ -5,7 +5,7 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.minecraft.block.Block
-import net.minecraft.entity.EntityLivingBase
+import net.minecraft.entity.living.LivingEntity
 import net.minecraft.entity.effect.EntityLightningBolt
 import net.minecraft.init.Blocks.redstone_block
 import net.minecraft.network.play.server.S2CPacketSpawnGlobalEntity

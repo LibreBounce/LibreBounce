@@ -27,10 +27,10 @@ import net.ccbluex.liquidbounce.utils.timing.WaitTickUtils
 import net.minecraft.block.BlockAir
 import net.minecraft.client.render.platform.GlStateManager.resetColor
 import net.minecraft.item.ItemBlock
-import net.minecraft.network.play.client.C03PacketPlayer
-import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
-import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
-import net.minecraft.network.play.server.S08PacketPlayerPosLook
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.Position
+import net.minecraft.network.packet.c2s.play.PlayerUseC2SPacket
+import net.minecraft.network.packet.s2c.play.PlayerMoveS2CPacket
 import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.BlockPos
 import org.lwjgl.opengl.GL11.*
@@ -111,11 +111,11 @@ object AntiVoid : Module("AntiVoid", Category.MOVEMENT) {
                         player.fallDistance = 0F
                     }
 
-                    "OnGroundSpoof" -> sendPacket(C03PacketPlayer(true))
+                    "OnGroundSpoof" -> sendPacket(PlayerMoveC2SPacket(true))
 
                     "MotionTeleport-Flag" -> {
                         player.setPositionAndUpdate(player.posX, player.posY + 1f, player.posZ)
-                        sendPacket(C04PacketPlayerPosition(player.posX, player.posY, player.posZ, true))
+                        sendPacket(Position(player.posX, player.posY, player.posZ, true))
                         player.motionY = 0.1
 
                         strafe()
@@ -170,7 +170,7 @@ object AntiVoid : Module("AntiVoid", Category.MOVEMENT) {
         val packet = event.packet
 
         // Stop considering non colliding blocks as collidable ones on setback.
-        if (packet is S08PacketPlayerPosLook) {
+        if (packet is PlayerMoveS2CPacket) {
             shouldSimulateBlock = false
         }
 
@@ -181,7 +181,7 @@ object AntiVoid : Module("AntiVoid", Category.MOVEMENT) {
 
         if (!onScaffold && mode == "Blink") {
             // Check for block placement
-            if (packet is C08PacketPlayerBlockPlacement) {
+            if (packet is PlayerUseC2SPacket) {
                 if (packet.stack?.item is ItemBlock) {
 
                     if (BlinkUtils.isBlinking && player.fallDistance < 1.5f) BlinkUtils.unblink()

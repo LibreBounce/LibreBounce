@@ -25,12 +25,12 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.quickDrawBorderedRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.quickDrawRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.resetCaps
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.isEntityHeightVisible
-import net.minecraft.client.entity.EntityPlayerSP
+import net.minecraft.client.entity.living.player.LocalClientPlayerEntity
 import net.minecraft.client.render.platform.GlStateManager.*
 import net.minecraft.client.renderer.RenderHelper
 import net.minecraft.entity.Entity
-import net.minecraft.entity.EntityLivingBase
-import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.entity.living.LivingEntity
+import net.minecraft.entity.living.player.PlayerEntity
 import net.minecraft.potion.Potion
 import net.minecraft.util.ResourceLocation
 import org.lwjgl.opengl.GL11.*
@@ -111,7 +111,7 @@ object NameTags : Module("NameTags", Category.RENDER) {
 
         for (entity in entities) {
             val isRenderingSelf =
-                entity is EntityPlayerSP && (mc.gameSettings.thirdPersonView != 0 || FreeCam.handleEvents())
+                entity is LocalClientPlayerEntity && (mc.gameSettings.thirdPersonView != 0 || FreeCam.handleEvents())
 
             if (!isRenderingSelf || !renderSelf) {
                 if (!isSelected(entity, false)) continue
@@ -176,12 +176,12 @@ object NameTags : Module("NameTags", Category.RENDER) {
         // Modify tag
         val bot = isBot(entity)
         val nameColor = if (bot) "§3" else if (entity.isInvisible) "§6" else if (entity.isSneaking) "§4" else "§7"
-        val playerPing = if (entity is EntityPlayer) entity.getPing() else 0
+        val playerPing = if (entity is PlayerEntity) entity.getPing() else 0
         val playerDistance = player.getDistanceToEntity(entity)
 
         val distanceText = if (distance && !isRenderingSelf) "§7${playerDistance.roundToInt()} m " else ""
         val pingText =
-            if (ping && entity is EntityPlayer) "§7[" + (if (playerPing > 200) "§c" else if (playerPing > 100) "§e" else "§a") + playerPing + "ms§7] " else ""
+            if (ping && entity is PlayerEntity) "§7[" + (if (playerPing > 200) "§c" else if (playerPing > 100) "§e" else "§a") + playerPing + "ms§7] " else ""
         val healthText = if (health) " " + getHealthString(entity) else ""
         val botText = if (bot) " §c§lBot" else ""
 
@@ -259,7 +259,7 @@ object NameTags : Module("NameTags", Category.RENDER) {
 
         var foundPotion = false
 
-        if (potion && entity is EntityPlayer) {
+        if (potion && entity is PlayerEntity) {
             val potions =
                 entity.activePotionEffects.map { Potion.potionTypes[it.potionID] }.filter { it.hasStatusIcon() }
             if (potions.isNotEmpty()) {
@@ -288,7 +288,7 @@ object NameTags : Module("NameTags", Category.RENDER) {
             }
         }
 
-        if (armor && entity is EntityPlayer) {
+        if (armor && entity is PlayerEntity) {
             RenderHelper.enableGUIStandardItemLighting()
             for (index in 0..4) {
                 val itemStack = entity.getEquipmentInSlot(index) ?: continue

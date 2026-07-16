@@ -35,7 +35,7 @@ import net.ccbluex.liquidbounce.utils.extensions.stopXZ
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawPlatform
 import net.ccbluex.liquidbounce.utils.rotation.RotationSettings
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
-import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.Position
 import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.BlockPos
 import org.lwjgl.input.Keyboard
@@ -284,19 +284,19 @@ object Fly : Module("Fly", Category.MOVEMENT, Keyboard.KEY_F) {
 
         var posY = player.posY
         while (posY > ground) {
-            sendPacket(C04PacketPlayerPosition(player.posX, posY, player.posZ, true))
+            sendPacket(Position(player.posX, posY, player.posZ, true))
             if (posY - 8.0 < ground) break // Prevent next step
             posY -= 8.0
         }
 
-        sendPacket(C04PacketPlayerPosition(player.posX, ground, player.posZ, true))
+        sendPacket(Position(player.posX, ground, player.posZ, true))
         posY = ground
         while (posY < player.posY) {
-            sendPacket(C04PacketPlayerPosition(player.posX, posY, player.posZ, true))
+            sendPacket(Position(player.posX, posY, player.posZ, true))
             if (posY + 8.0 > player.posY) break // Prevent next step
             posY += 8.0
         }
-        sendPacket(C04PacketPlayerPosition(player.posX, player.posY, player.posZ, true))
+        sendPacket(Position(player.posX, player.posY, player.posZ, true))
         groundTimer.reset()
     }
 

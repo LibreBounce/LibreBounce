@@ -11,7 +11,7 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.nextInt
 import net.minecraft.network.NetworkProtocol
-import net.minecraft.network.handshake.client.C00Handshake
+import net.minecraft.network.packet.c2s.handshake.HandshakeC2SPacket
 
 object BungeeCordSpoof : MinecraftInstance, Listenable {
     var enabled by ClientFixes.bungeeSpoofValue
@@ -19,7 +19,7 @@ object BungeeCordSpoof : MinecraftInstance, Listenable {
     val onPacket = handler<PacketEvent> { event ->
         val packet = event.packet
 
-        if (packet is C00Handshake && packet.requestedState == NetworkProtocol.LOGIN) {
+        if (packet is HandshakeC2SPacket && packet.requestedState == NetworkProtocol.LOGIN) {
             packet.ip = packet.ip + "\u0000" + String.format(
                 "{0}.{1}.{2}.{3}", getRandomIpPart(), getRandomIpPart(), getRandomIpPart(), getRandomIpPart()
             ) + "\u0000" + mc.session.playerID.replace("-", "")

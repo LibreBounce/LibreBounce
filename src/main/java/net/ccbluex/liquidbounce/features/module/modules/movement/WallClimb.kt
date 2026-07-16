@@ -15,7 +15,7 @@ import net.ccbluex.liquidbounce.utils.extensions.isInLiquid
 import net.ccbluex.liquidbounce.utils.extensions.tryJump
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils.direction
 import net.minecraft.init.Blocks
-import net.minecraft.network.play.client.C03PacketPlayer
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 import net.minecraft.util.AxisAlignedBB
 import kotlin.math.cos
 import kotlin.math.sin
@@ -86,7 +86,7 @@ object WallClimb : Module("WallClimb", Category.MOVEMENT) {
     val onPacket = handler<PacketEvent> { event ->
         val packet = event.packet
 
-        if (packet is C03PacketPlayer && glitch) {
+        if (packet is PlayerMoveC2SPacket && glitch) {
             val yaw = direction
 
             packet.x -= sin(yaw) * 0.00000001

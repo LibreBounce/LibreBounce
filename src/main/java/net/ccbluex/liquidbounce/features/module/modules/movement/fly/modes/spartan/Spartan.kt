@@ -11,7 +11,7 @@ import net.ccbluex.liquidbounce.utils.extensions.component1
 import net.ccbluex.liquidbounce.utils.extensions.component2
 import net.ccbluex.liquidbounce.utils.extensions.component3
 import net.ccbluex.liquidbounce.utils.timing.TickDelayTimer
-import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.Position
 
 object Spartan : FlyMode("Spartan") {
     private val timer = TickDelayTimer(12)
@@ -26,8 +26,8 @@ object Spartan : FlyMode("Spartan") {
 
             if (timer.resetIfPassed()) {
                 sendPackets(
-                    C04PacketPlayerPosition(posX, posY + 8, posZ, true),
-                    C04PacketPlayerPosition(posX, posY - 8, posZ, true)
+                    Position(posX, posY + 8, posZ, true),
+                    Position(posX, posY - 8, posZ, true)
                 )
             }
         }

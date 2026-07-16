@@ -11,7 +11,7 @@ import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPackets
 import net.ccbluex.liquidbounce.utils.extensions.toRadiansD
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
-import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.Position
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -31,8 +31,8 @@ object MineSecure : FlyMode("MineSecure") {
                 return
 
             sendPackets(
-                C04PacketPlayerPosition(posX, posY + 5, posZ, false),
-                C04PacketPlayerPosition(0.5, -1000.0, 0.5, false)
+                Position(posX, posY + 5, posZ, false),
+                Position(0.5, -1000.0, 0.5, false)
             )
 
             val yaw = rotationYaw.toRadiansD()

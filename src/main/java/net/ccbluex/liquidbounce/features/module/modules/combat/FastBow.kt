@@ -13,10 +13,10 @@ import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.extensions.rotation
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.currentRotation
 import net.minecraft.item.ItemBow
-import net.minecraft.network.play.client.C03PacketPlayer.C05PacketPlayerLook
-import net.minecraft.network.play.client.C07PacketPlayerDigging
-import net.minecraft.network.play.client.C07PacketPlayerDigging.Action.RELEASE_USE_ITEM
-import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.Angles
+import net.minecraft.network.packet.c2s.play.PlayerHandActionC2SPacket
+import net.minecraft.network.packet.c2s.play.PlayerHandActionC2SPacket.Action.RELEASE_USE_ITEM
+import net.minecraft.network.packet.c2s.play.PlayerUseC2SPacket
 import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing
 
@@ -33,7 +33,7 @@ object FastBow : Module("FastBow", Category.COMBAT) {
 
             if (currentItem != null && currentItem.item is ItemBow) {
                 sendPacket(
-                    C08PacketPlayerBlockPlacement(
+                    PlayerUseC2SPacket(
                         BlockPos.ORIGIN,
                         255,
                         currentEquippedItem,
@@ -46,10 +46,10 @@ object FastBow : Module("FastBow", Category.COMBAT) {
                 val (yaw, pitch) = currentRotation ?: rotation
 
                 repeat(packets) {
-                    sendPacket(C05PacketPlayerLook(yaw, pitch, true))
+                    sendPacket(Angles(yaw, pitch, true))
                 }
 
-                sendPacket(C07PacketPlayerDigging(RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN))
+                sendPacket(PlayerHandActionC2SPacket(RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN))
                 itemInUseCount = currentItem.maxItemUseDuration - 1
             }
         }

@@ -23,15 +23,15 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawPlatform
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.searchCenter
 import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
 import net.minecraft.entity.Entity
-import net.minecraft.entity.EntityLivingBase
+import net.minecraft.entity.living.LivingEntity
 import net.minecraft.network.Packet
-import net.minecraft.network.play.client.C07PacketPlayerDigging
-import net.minecraft.network.play.client.C12PacketUpdateSign
-import net.minecraft.network.play.client.C19PacketResourcePackStatus
+import net.minecraft.network.packet.c2s.play.PlayerHandActionC2SPacket
+import net.minecraft.network.packet.c2s.play.SignUpdateC2SPacket
+import net.minecraft.network.packet.c2s.play.ResourcePackC2SPacket
 import net.minecraft.network.play.server.S06PacketUpdateHealth
-import net.minecraft.network.play.server.S08PacketPlayerPosLook
-import net.minecraft.network.play.server.S12PacketEntityVelocity
-import net.minecraft.network.play.server.S27PacketExplosion
+import net.minecraft.network.packet.s2c.play.PlayerMoveS2CPacket
+import net.minecraft.network.packet.s2c.play.EntityVelocityS2CPacket
+import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket
 import java.awt.Color
 
 // TODO: Refactor entirely
@@ -372,13 +372,13 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
             if (blinked) {
                 when (packet) {
                     // Flush on doing/getting action.
-                    is S08PacketPlayerPosLook, is C07PacketPlayerDigging, is C12PacketUpdateSign, is C19PacketResourcePackStatus -> {
+                    is PlayerMoveS2CPacket, is PlayerHandActionC2SPacket, is SignUpdateC2SPacket, is ResourcePackC2SPacket -> {
                         BlinkUtils.unblink()
                         return@handler
                     }
 
                     // Flush on explosion
-                    is S27PacketExplosion -> {
+                    is ExplosionS2CPacket -> {
                         if (packet.field_149153_g != 0f || packet.field_149152_f != 0f || packet.field_149159_h != 0f) {
                             BlinkUtils.unblink()
                             return@handler
@@ -397,7 +397,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
         }
 
         // Check for lagback
-        if (resetOnlagBack && packet is S08PacketPlayerPosLook) {
+        if (resetOnlagBack && packet is PlayerMoveS2CPacket) {
             shouldResetTimer()
 
             if (shouldReset) {
@@ -414,7 +414,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
         }
 
         // Check for knockback
-        if (resetOnKnockback && packet is S12PacketEntityVelocity && player.entityId == packet.entityID) {
+        if (resetOnKnockback && packet is EntityVelocityS2CPacket && player.entityId == packet.entityID) {
             shouldResetTimer()
 
             if (shouldReset) {

@@ -10,7 +10,7 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.FlyMo
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPackets
 import net.ccbluex.liquidbounce.utils.extensions.tryJump
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
-import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.Position
 
 object OldNCP : FlyMode("OldNCP") {
     override fun onEnable() {
@@ -19,8 +19,8 @@ object OldNCP : FlyMode("OldNCP") {
 
             repeat(4) {
                 sendPackets(
-                    C04PacketPlayerPosition(posX, posY + 1.01, posZ, false),
-                    C04PacketPlayerPosition(posX, posY, posZ, false)
+                    Position(posX, posY + 1.01, posZ, false),
+                    Position(posX, posY, posZ, false)
                 )
             }
 

@@ -13,7 +13,7 @@ import net.ccbluex.liquidbounce.utils.rotation.Rotation
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.currentRotation
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.setTargetRotation
 import net.ccbluex.liquidbounce.utils.timing.WaitTickUtils
-import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.entity.living.player.PlayerEntity
 
 object NoRotateSet : Module("NoRotateSet", Category.MISC, gameDetecting = false) {
     var savedRotation = Rotation.ZERO
@@ -29,7 +29,7 @@ object NoRotateSet : Module("NoRotateSet", Category.MISC, gameDetecting = false)
         resetTicksValue.excludeWithState(1)
     }
 
-    fun shouldModify(player: EntityPlayer) = handleEvents() && (!ignoreOnSpawn || player.ticksExisted != 0)
+    fun shouldModify(player: PlayerEntity) = handleEvents() && (!ignoreOnSpawn || player.ticksExisted != 0)
 
     fun rotateBackToPlayerRotation() {
         val player = mc.thePlayer ?: return

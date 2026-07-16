@@ -15,7 +15,7 @@ import net.minecraft.client.options.ServerListEntry
 import net.minecraft.client.network.NetHandlerLoginClient
 import net.minecraft.network.NetworkProtocol
 import net.minecraft.network.Connection
-import net.minecraft.network.handshake.client.C00Handshake
+import net.minecraft.network.packet.c2s.handshake.HandshakeC2SPacket
 import net.minecraft.network.login.client.C00PacketLoginStart
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
@@ -49,7 +49,7 @@ object ServerUtils : MinecraftInstance {
                 networkManager.netHandler = NetHandlerLoginClient(networkManager, mc, TitleScreen())
 
                 networkManager.sendPacket(
-                    C00Handshake(47, serverAddress.ip, serverAddress.port, NetworkProtocol.LOGIN, true)
+                    HandshakeC2SPacket(47, serverAddress.ip, serverAddress.port, NetworkProtocol.LOGIN, true)
                 )
 
                 networkManager.sendPacket(

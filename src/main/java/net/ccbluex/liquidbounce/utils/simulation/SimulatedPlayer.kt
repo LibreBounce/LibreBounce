@@ -14,11 +14,11 @@ import net.ccbluex.liquidbounce.utils.extensions.toRadians
 import net.minecraft.block.*
 import net.minecraft.block.material.Material
 import net.minecraft.block.state.IBlockState
-import net.minecraft.client.entity.EntityPlayerSP
+import net.minecraft.client.entity.living.player.LocalClientPlayerEntity
 import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.enchantment.EnchantmentProtection
 import net.minecraft.entity.Entity
-import net.minecraft.entity.EntityLivingBase
+import net.minecraft.entity.living.LivingEntity
 import net.minecraft.entity.SharedMonsterAttributes
 import net.minecraft.entity.ai.attributes.BaseAttributeMap
 import net.minecraft.entity.ai.attributes.IAttribute
@@ -55,7 +55,7 @@ import kotlin.math.ceil
 // TODO: Properly check simulated ground
 @Suppress("SameParameterValue", "MemberVisibilityCanBePrivate")
 class SimulatedPlayer(
-    private val player: EntityPlayerSP,
+    private val player: LocalClientPlayerEntity,
     var box: AxisAlignedBB,
     var movementInput: MovementInput,
     private var jumpTicks: Int,
@@ -165,7 +165,7 @@ class SimulatedPlayer(
             )
         }
 
-        /*fun fromOtherPlayer(player: EntityPlayerSP, input: MovementInput): SimulatedPlayer {
+        /*fun fromOtherPlayer(player: LocalClientPlayerEntity, input: MovementInput): SimulatedPlayer {
             val capabilities = createCapabilitiesCopy(player)
             val foodStats = createFoodStatsCopy(player)
 
@@ -219,7 +219,7 @@ class SimulatedPlayer(
             )
         }*/
 
-        private fun createFoodStatsCopy(player: EntityPlayerSP): FoodStats {
+        private fun createFoodStatsCopy(player: LocalClientPlayerEntity): FoodStats {
             val foodStatsNBT = NBTTagCompound()
             val foodStats = FoodStats()
 
@@ -228,7 +228,7 @@ class SimulatedPlayer(
             return foodStats
         }
 
-        private fun createCapabilitiesCopy(player: EntityPlayerSP): PlayerCapabilities {
+        private fun createCapabilitiesCopy(player: LocalClientPlayerEntity): PlayerCapabilities {
             val capabilitiesNBT = NBTTagCompound()
             val capabilities = PlayerCapabilities()
 
@@ -311,7 +311,7 @@ class SimulatedPlayer(
             if (this.isSpectator)
                 onGround = false
         } else {
-            clampPositionFromEntityPlayer()
+            clampPositionFromPlayerEntity()
         }
     }
 
@@ -353,13 +353,13 @@ class SimulatedPlayer(
         this.moveForward *= 0.98f
         this.playerSideMoveEntityWithHeading(this.moveStrafing, this.moveForward)
 
-        // EntityPlayer post onLivingUpdate
+        // PlayerEntity post onLivingUpdate
         jumpMovementFactor = SPEED_IN_AIR
 
         if (isSprinting())
             jumpMovementFactor = (jumpMovementFactor.toDouble() + SPEED_IN_AIR.toDouble() * 0.3).toFloat()
 
-        // EntityPlayerSP post onLivingUpdate
+        // LocalClientPlayerEntity post onLivingUpdate
         if (this.onGround && this.capabilities.isFlying && !isSpectator) {
             this.capabilities.isFlying = false
         }
@@ -388,8 +388,8 @@ class SimulatedPlayer(
         return posY < -64.0
     }
 
-    private fun clampPositionFromEntityPlayer() {
-        // Post EntityPlayer onUpdate
+    private fun clampPositionFromPlayerEntity() {
+        // Post PlayerEntity onUpdate
         val d3 = MathHelper.clamp_double(posX, -2.9999999E7, 2.9999999E7)
         val d4 = MathHelper.clamp_double(posZ, -2.9999999E7, 2.9999999E7)
 

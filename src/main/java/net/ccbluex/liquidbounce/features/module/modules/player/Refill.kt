@@ -18,7 +18,7 @@ import net.ccbluex.liquidbounce.utils.inventory.hasItemAgePassed
 import net.ccbluex.liquidbounce.utils.inventory.inventorySlot
 import net.minecraft.client.gui.screen.inventory.menu.SurvivalInventoryScreen
 import net.minecraft.item.ItemStack
-import net.minecraft.network.play.client.C0EPacketClickWindow
+import net.minecraft.network.packet.c2s.play.InventoryMenuClickSlotC2SPacket
 
 object Refill : Module("Refill", Category.PLAYER) {
     private val delay by int("Delay", 400, 10..1000, suffix = "ms")
@@ -96,7 +96,7 @@ object Refill : Module("Refill", Category.PLAYER) {
         if (simulateInventory) serverOpenInventory = true
 
         sendPacket(
-            C0EPacketClickWindow(
+            InventoryMenuClickSlotC2SPacket(
                 mc.thePlayer.openContainer.windowId, slot, button, mode, stack,
                 mc.thePlayer.openContainer.getNextTransactionID(mc.thePlayer.inventory)
             )

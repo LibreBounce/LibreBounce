@@ -31,9 +31,9 @@ import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.utils.timing.TickedActions.nextTick
 import net.minecraft.block.Block
 import net.minecraft.init.Blocks.air
-import net.minecraft.network.play.client.C07PacketPlayerDigging
-import net.minecraft.network.play.client.C07PacketPlayerDigging.Action.*
-import net.minecraft.network.play.server.S08PacketPlayerPosLook
+import net.minecraft.network.packet.c2s.play.PlayerHandActionC2SPacket
+import net.minecraft.network.packet.c2s.play.PlayerHandActionC2SPacket.Action.*
+import net.minecraft.network.packet.s2c.play.PlayerMoveS2CPacket
 import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.math.Vec3d
@@ -89,7 +89,7 @@ object Fucker : Module("Fucker", Category.WORLD) {
 
     override fun onToggle(state: Boolean) {
         if (pos != null && !mc.thePlayer.capabilities.isCreativeMode) {
-            sendPacket(C07PacketPlayerDigging(ABORT_DESTROY_BLOCK, pos, EnumFacing.DOWN))
+            sendPacket(PlayerHandActionC2SPacket(ABORT_DESTROY_BLOCK, pos, EnumFacing.DOWN))
         }
 
         currentDamage = 0F
@@ -103,7 +103,7 @@ object Fucker : Module("Fucker", Category.WORLD) {
         if (mc.thePlayer == null || mc.theWorld == null) return@handler
 
         val packet = event.packet
-        if (packet is S08PacketPlayerPosLook) {
+        if (packet is PlayerMoveS2CPacket) {
             spawnLocation = Vec3d(packet.x, packet.y, packet.z)
         }
     }
@@ -244,9 +244,9 @@ object Fucker : Module("Fucker", Category.WORLD) {
 
                 if (instant && !hypixel) {
                     // CivBreak style block breaking
-                    sendPacket(C07PacketPlayerDigging(START_DESTROY_BLOCK, currentPos, raytrace.sideHit))
+                    sendPacket(PlayerHandActionC2SPacket(START_DESTROY_BLOCK, currentPos, raytrace.sideHit))
                     if (swing) player.swingItem()
-                    sendPacket(C07PacketPlayerDigging(STOP_DESTROY_BLOCK, currentPos, raytrace.sideHit))
+                    sendPacket(PlayerHandActionC2SPacket(STOP_DESTROY_BLOCK, currentPos, raytrace.sideHit))
                     clearTarget(currentPos)
                     return@handler
                 }
@@ -255,9 +255,9 @@ object Fucker : Module("Fucker", Category.WORLD) {
 
                 if (currentDamage == 0F) {
                     // Prevent flagging FastBreak
-                    sendPacket(C07PacketPlayerDigging(STOP_DESTROY_BLOCK, currentPos, raytrace.sideHit))
+                    sendPacket(PlayerHandActionC2SPacket(STOP_DESTROY_BLOCK, currentPos, raytrace.sideHit))
                     nextTick {
-                        sendPacket(C07PacketPlayerDigging(START_DESTROY_BLOCK, currentPos, raytrace.sideHit))
+                        sendPacket(PlayerHandActionC2SPacket(START_DESTROY_BLOCK, currentPos, raytrace.sideHit))
                     }
                     if (player.capabilities.isCreativeMode ||
                         block.getPlayerRelativeBlockHardness(player, world, currentPos) >= 1f
@@ -274,7 +274,7 @@ object Fucker : Module("Fucker", Category.WORLD) {
                 world.sendBlockBreakProgress(player.entityId, currentPos, (currentDamage * 10F).toInt() - 1)
 
                 if (currentDamage >= 1F) {
-                    sendPacket(C07PacketPlayerDigging(STOP_DESTROY_BLOCK, currentPos, raytrace.sideHit))
+                    sendPacket(PlayerHandActionC2SPacket(STOP_DESTROY_BLOCK, currentPos, raytrace.sideHit))
                     controller.onPlayerDestroyBlock(currentPos, raytrace.sideHit)
                     blockHitDelay = 4
                     clearTarget(currentPos)

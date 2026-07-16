@@ -8,7 +8,7 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.spar
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.FlyMode
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
-import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.Position
 
 object Spartan2 : FlyMode("Spartan2") {
     override fun onUpdate() {
@@ -16,7 +16,7 @@ object Spartan2 : FlyMode("Spartan2") {
             strafe(0.264f)
 
             if (ticksExisted % 8 == 0)
-                sendPacket(C04PacketPlayerPosition(posX, posY + 10, posZ, true))
+                sendPacket(Position(posX, posY + 10, posZ, true))
         }
     }
 }

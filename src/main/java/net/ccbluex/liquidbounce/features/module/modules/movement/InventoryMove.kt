@@ -24,8 +24,8 @@ import net.minecraft.client.gui.screen.inventory.menu.ChestScreen
 import net.minecraft.client.gui.screen.inventory.menu.SurvivalInventoryScreen
 import net.minecraft.client.settings.GameSettings
 import net.minecraft.client.settings.KeyBinding
-import net.minecraft.network.play.client.C0DPacketCloseWindow
-import net.minecraft.network.play.client.C0EPacketClickWindow
+import net.minecraft.network.packet.c2s.play.CloseInventoryMenuC2SPacket
+import net.minecraft.network.packet.c2s.play.InventoryMenuClickSlotC2SPacket
 import org.lwjgl.input.Mouse
 
 object InventoryMove : Module("InventoryMove", Category.MOVEMENT, gameDetecting = false) {
@@ -38,7 +38,7 @@ object InventoryMove : Module("InventoryMove", Category.MOVEMENT, gameDetecting 
     private val noSprintWhenClosed by boolean("NoSprintWhenClosed", false) { saveC0E }
 
     private val isIntave = (mc.currentScreen is SurvivalInventoryScreen || mc.currentScreen is ChestScreen) && intave
-    private val clickWindowList = ArrayDeque<C0EPacketClickWindow>()
+    private val clickWindowList = ArrayDeque<InventoryMenuClickSlotC2SPacket>()
 
     private val noMove by +InventoryManager.noMoveValue
     private val noMoveAir by +InventoryManager.noMoveAirValue
@@ -130,15 +130,15 @@ object InventoryMove : Module("InventoryMove", Category.MOVEMENT, gameDetecting 
             if (clickWindowList.isNotEmpty() && !(serverOpenInventory || serverOpenContainer)) player.isSprinting =
                 false
 
-            if (packet is C0DPacketCloseWindow) {
+            if (packet is CloseInventoryMenuC2SPacket) {
                 event.cancelEvent()
                 player.isSprinting = false
-                if (!player.serverSprintState) PacketUtils.sendPacket(C0DPacketCloseWindow(), false)
+                if (!player.serverSprintState) PacketUtils.sendPacket(CloseInventoryMenuC2SPacket(), false)
             }
         }
 
         if (serverOpenInventory || serverOpenContainer) {
-            if (packet is C0EPacketClickWindow) {
+            if (packet is InventoryMenuClickSlotC2SPacket) {
                 clickWindowList.add(packet)
                 event.cancelEvent()
             }

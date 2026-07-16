@@ -13,7 +13,7 @@ import net.ccbluex.liquidbounce.utils.client.pos
 import net.ccbluex.liquidbounce.utils.extensions.offset
 import net.minecraft.block.BlockLadder
 import net.minecraft.block.material.Material
-import net.minecraft.network.play.server.S08PacketPlayerPosLook
+import net.minecraft.network.packet.s2c.play.PlayerMoveS2CPacket
 import net.minecraft.util.AxisAlignedBB
 
 object VulcanGhost : FlyMode("VulcanGhost") {
@@ -25,7 +25,7 @@ object VulcanGhost : FlyMode("VulcanGhost") {
     }
 
     override fun onPacket(event: PacketEvent) {
-        if (event.packet is S08PacketPlayerPosLook) {
+        if (event.packet is PlayerMoveS2CPacket) {
             event.cancelEvent()
         }
     }

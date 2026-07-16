@@ -22,13 +22,13 @@ import net.ccbluex.liquidbounce.utils.extensions.airTicks
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.utils.extensions.tryJump
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
-import net.minecraft.client.entity.EntityPlayerSP
+import net.minecraft.client.entity.living.player.LocalClientPlayerEntity
 import net.minecraft.network.Packet
-import net.minecraft.network.handshake.client.C00Handshake
+import net.minecraft.network.packet.c2s.handshake.HandshakeC2SPacket
 import net.minecraft.network.play.server.S02PacketChat
 import net.minecraft.network.play.server.S40PacketDisconnect
-import net.minecraft.network.status.client.C00PacketServerQuery
-import net.minecraft.network.status.client.C01PacketPing
+import net.minecraft.network.packet.c2s.query.ServerStatusC2SPacket
+import net.minecraft.network.packet.c2s.query.PingC2SPacket
 import net.minecraft.world.World
 
 /**
@@ -121,12 +121,12 @@ object BlocksMC2 : FlyMode("BlocksMC2"), Listenable {
         }
     }
 
-    private fun shouldFly(player: EntityPlayerSP, world: World): Boolean {
+    private fun shouldFly(player: LocalClientPlayerEntity, world: World): Boolean {
         return world.getCollidingBoundingBoxes(player, player.entityBoundingBox.offset(0.0, 0.5, 0.0))
             .isEmpty() || isFlying
     }
 
-    private fun handlePlayerFlying(player: EntityPlayerSP) {
+    private fun handlePlayerFlying(player: LocalClientPlayerEntity) {
         when (player.airTicks) {
             0 -> {
                 if (isNotUnder) {
@@ -153,7 +153,7 @@ object BlocksMC2 : FlyMode("BlocksMC2"), Listenable {
             return
 
         when (event.packet) {
-            is C00Handshake, is C00PacketServerQuery, is C01PacketPing, is S02PacketChat, is S40PacketDisconnect -> {
+            is HandshakeC2SPacket, is ServerStatusC2SPacket, is PingC2SPacket, is S02PacketChat, is S40PacketDisconnect -> {
                 return
             }
         }

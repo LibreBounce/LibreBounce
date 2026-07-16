@@ -11,7 +11,7 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.Spe
 import net.ccbluex.liquidbounce.utils.extensions.isInLiquid
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
-import net.minecraft.network.play.client.C03PacketPlayer
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 import net.minecraft.potion.Potion
 
 object VulcanGround288 : SpeedMode("VulcanGround2.8.8") {
@@ -37,7 +37,7 @@ object VulcanGround288 : SpeedMode("VulcanGround2.8.8") {
     }
 
     override fun onPacket(event: PacketEvent) {
-        if (event.packet is C03PacketPlayer && collidesBottom()) {
+        if (event.packet is PlayerMoveC2SPacket && collidesBottom()) {
             event.packet.y += 0.005
         }
     }

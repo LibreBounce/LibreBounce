@@ -9,7 +9,7 @@ import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance.Companion.mc
 import net.ccbluex.liquidbounce.utils.extensions.plus
 import net.ccbluex.liquidbounce.utils.extensions.toRadians
-import net.minecraft.client.entity.EntityPlayerSP
+import net.minecraft.client.entity.living.player.LocalClientPlayerEntity
 import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.MovingObjectPosition.MovingObjectType.BLOCK
@@ -29,7 +29,7 @@ class FallingPlayer(
     private var strafe: Float = mc.thePlayer.moveStrafing,
     private var forward: Float = mc.thePlayer.moveForward
 ) : MinecraftInstance {
-    constructor(player: EntityPlayerSP, predict: Boolean = false) : this(
+    constructor(player: LocalClientPlayerEntity, predict: Boolean = false) : this(
         if (predict) player.posX + player.motionX else player.posX,
         if (predict) player.posY + player.motionY else player.posY,
         if (predict) player.posZ + player.motionZ else player.posZ,

@@ -7,7 +7,7 @@ package net.ccbluex.liquidbounce.utils.render
 
 import net.ccbluex.liquidbounce.utils.attack.EntityUtils.getHealth
 import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.nextInt
-import net.minecraft.entity.EntityLivingBase
+import net.minecraft.entity.living.LivingEntity
 import java.awt.Color
 import java.util.regex.Pattern
 import kotlin.math.abs

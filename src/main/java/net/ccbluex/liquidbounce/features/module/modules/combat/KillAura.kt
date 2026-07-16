@@ -58,16 +58,16 @@ import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomClickDelay
 import net.minecraft.client.gui.screen.inventory.menu.InventoryMenuScreen
 import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.entity.Entity
-import net.minecraft.entity.EntityLivingBase
+import net.minecraft.entity.living.LivingEntity
 import net.minecraft.entity.item.EntityArmorStand
-import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.entity.living.player.PlayerEntity
 import net.minecraft.item.ItemAxe
 import net.minecraft.item.ItemSword
-import net.minecraft.network.play.client.C02PacketUseEntity
-import net.minecraft.network.play.client.C02PacketUseEntity.Action.*
-import net.minecraft.network.play.client.C07PacketPlayerDigging
-import net.minecraft.network.play.client.C07PacketPlayerDigging.Action.RELEASE_USE_ITEM
-import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
+import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket
+import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket.Action.*
+import net.minecraft.network.packet.c2s.play.PlayerHandActionC2SPacket
+import net.minecraft.network.packet.c2s.play.PlayerHandActionC2SPacket.Action.RELEASE_USE_ITEM
+import net.minecraft.network.packet.c2s.play.PlayerUseC2SPacket
 import net.minecraft.potion.Potion
 import net.minecraft.util.*
 import org.lwjgl.input.Keyboard
@@ -962,7 +962,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
                 range.toDouble(), currentRotation.yaw, currentRotation.pitch
             ) { entity -> !livingRaycast || entity is EntityLivingBase && entity !is EntityArmorStand }
 
-            if (chosenEntity != null && chosenEntity is EntityLivingBase && (NoFriends.handleEvents() || !(chosenEntity is EntityPlayer && chosenEntity.isClientFriend()))) {
+            if (chosenEntity != null && chosenEntity is EntityLivingBase && (NoFriends.handleEvents() || !(chosenEntity is PlayerEntity && chosenEntity.isClientFriend()))) {
                 if (raycastIgnored && target != chosenEntity) {
                     this.target = chosenEntity
                 }
@@ -1057,8 +1057,8 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
                 val hitVec = movingObject.hitVec
 
                 sendPackets(
-                    C02PacketUseEntity(interactEntity, hitVec - interactEntity.positionVector),
-                    C02PacketUseEntity(interactEntity, INTERACT)
+                    PlayerInteractEntityC2SPacket(interactEntity, hitVec - interactEntity.positionVector),
+                    PlayerInteractEntityC2SPacket(interactEntity, INTERACT)
                 )
 
             }
@@ -1067,7 +1067,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
                 switchToSlot((SilentHotbar.currentSlot + 1) % 9)
             }
 
-            sendPacket(C08PacketPlayerBlockPlacement(player.heldItem))
+            sendPacket(PlayerUseC2SPacket(player.heldItem))
             blockStatus = true
         }
 
@@ -1086,7 +1086,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             if (blockStatus && !player.isBlocking) {
                 when (unblockMode) {
                     "Stop" -> {
-                        sendPacket(C07PacketPlayerDigging(RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN))
+                        sendPacket(PlayerHandActionC2SPacket(RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN))
                     }
 
                     "Switch" -> {
@@ -1096,7 +1096,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
                     "Empty" -> {
                         player.inventory.firstEmptyStack.takeIf { it in 0..8 }.let {
                             if (it == null) {
-                                sendPacket(C07PacketPlayerDigging(RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN))
+                                sendPacket(PlayerHandActionC2SPacket(RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN))
                                 return@let
                             }
 
@@ -1109,7 +1109,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             }
         } else {
             if (blockStatus) {
-                sendPacket(C07PacketPlayerDigging(RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN))
+                sendPacket(PlayerHandActionC2SPacket(RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN))
             }
 
             blockStatus = false

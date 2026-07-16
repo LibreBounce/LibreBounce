@@ -15,7 +15,7 @@ import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar;
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils;
 import net.minecraft.client.multiplayer.PlayerControllerMP;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.living.player.PlayerEntity;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
@@ -32,7 +32,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class MixinPlayerControllerMP {
 
     @Inject(method = "attackEntity", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/PlayerControllerMP;syncCurrentPlayItem()V"))
-    private void attackEntity(EntityPlayer entityPlayer, Entity targetEntity, CallbackInfo callbackInfo) {
+    private void attackEntity(PlayerEntity entityPlayer, Entity targetEntity, CallbackInfo callbackInfo) {
         EventManager.INSTANCE.call(new AttackEvent(targetEntity));
         CooldownHelper.INSTANCE.resetLastAttackedTicks();
     }
@@ -43,7 +43,7 @@ public class MixinPlayerControllerMP {
     }
 
     @Inject(method = "windowClick", at = @At("HEAD"), cancellable = true)
-    private void windowClick(int windowId, int slotId, int mouseButtonClicked, int mode, EntityPlayer playerIn, CallbackInfoReturnable<ItemStack> callbackInfo) {
+    private void windowClick(int windowId, int slotId, int mouseButtonClicked, int mode, PlayerEntity playerIn, CallbackInfoReturnable<ItemStack> callbackInfo) {
         final ClickWindowEvent event = new ClickWindowEvent(windowId, slotId, mouseButtonClicked, mode);
         EventManager.INSTANCE.call(event);
 

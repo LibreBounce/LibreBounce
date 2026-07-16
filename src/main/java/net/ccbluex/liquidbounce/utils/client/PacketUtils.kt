@@ -14,11 +14,11 @@ import net.ccbluex.liquidbounce.utils.extensions.currPos
 import net.ccbluex.liquidbounce.utils.kotlin.removeEach
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.rotation.Rotation
-import net.minecraft.entity.EntityLivingBase
+import net.minecraft.entity.living.LivingEntity
 import net.minecraft.network.Connection
 import net.minecraft.network.Packet
 import net.minecraft.network.play.INetHandlerPlayClient
-import net.minecraft.network.play.client.C03PacketPlayer
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 import net.minecraft.network.play.server.*
 import net.minecraft.util.BlockPos
 import net.minecraft.util.math.Vec3d
@@ -170,17 +170,17 @@ fun interpolatePosition(entity: IMixinEntity) = entity.run {
     lerpZ += (trueZ - lerpZ) * delta
 }
 
-var S12PacketEntityVelocity.realMotionX
+var EntityVelocityS2CPacket.realMotionX
     get() = motionX / 8000.0
     set(value) {
         motionX = (value * 8000.0).roundToInt()
     }
-var S12PacketEntityVelocity.realMotionY
+var EntityVelocityS2CPacket.realMotionY
     get() = motionY / 8000.0
     set(value) {
         motionX = (value * 8000.0).roundToInt()
     }
-var S12PacketEntityVelocity.realMotionZ
+var EntityVelocityS2CPacket.realMotionZ
     get() = motionZ / 8000.0
     set(value) {
         motionX = (value * 8000.0).roundToInt()
@@ -233,14 +233,14 @@ val S18PacketEntityTeleport.realZ
 val BlockBBEvent.pos
     get() = BlockPos(x, y, z)
 
-var C03PacketPlayer.rotation
+var PlayerMoveC2SPacket.rotation
     get() = Rotation(yaw, pitch)
     set(value) {
         yaw = value.yaw
         pitch = value.pitch
     }
 
-var C03PacketPlayer.pos
+var PlayerMoveC2SPacket.pos
     get() = Vec3d(x, y, z)
     set(value) {
         x = value.xCoord

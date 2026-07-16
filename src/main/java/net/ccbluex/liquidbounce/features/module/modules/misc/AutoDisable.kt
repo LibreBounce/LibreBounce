@@ -18,7 +18,7 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.speed.Speed
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffolds.Scaffold
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
 import net.ccbluex.liquidbounce.utils.client.chat
-import net.minecraft.network.play.server.S08PacketPlayerPosLook
+import net.minecraft.network.packet.s2c.play.PlayerMoveS2CPacket
 
 object AutoDisable : Module("AutoDisable", Category.MISC, gameDetecting = false) {
     private val modulesList = hashSetOf(KillAura, Scaffold, Fly, Speed)
@@ -30,7 +30,7 @@ object AutoDisable : Module("AutoDisable", Category.MISC, gameDetecting = false)
     private val warn by choices("Warn", arrayOf("Chat", "Notification"), "Chat")
 
     val onPacket = handler<PacketEvent> { event ->
-        if (event.packet is S08PacketPlayerPosLook && onFlagged) {
+        if (event.packet is PlayerMoveS2CPacket && onFlagged) {
             disabled("flagged")
         }
     }

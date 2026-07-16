@@ -2,7 +2,7 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.block;
 
 import net.minecraft.block.AnvilBlock;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.living.LivingEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;

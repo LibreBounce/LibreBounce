@@ -31,14 +31,14 @@ import net.minecraft.block.BlockWall;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
-import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.entity.living.player.LocalClientPlayerEntity;
 import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemSword;
-import net.minecraft.network.play.client.C03PacketPlayer;
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.network.play.client.C0APacketAnimation;
 import net.minecraft.network.play.client.C0BPacketEntityAction;
 import net.minecraft.potion.Potion;
@@ -57,12 +57,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
 
-import static net.minecraft.network.play.client.C03PacketPlayer.*;
+import static net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.*;
 import static net.minecraft.network.play.client.C0BPacketEntityAction.Action.*;
 
-@Mixin(EntityPlayerSP.class)
+@Mixin(LocalClientPlayerEntity.class)
 @SideOnly(Side.CLIENT)
-public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
+public abstract class MixinLocalClientPlayerEntity extends MixinAbstractClientPlayer {
 
     @Shadow
     public boolean serverSprintState;
@@ -152,8 +152,8 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
 
         if (sprinting != serverSprintState) {
             if (sprinting)
-                sendQueue.addToSendQueue(new C0BPacketEntityAction((EntityPlayerSP) (Object) this, START_SPRINTING));
-            else sendQueue.addToSendQueue(new C0BPacketEntityAction((EntityPlayerSP) (Object) this, STOP_SPRINTING));
+                sendQueue.addToSendQueue(new C0BPacketEntityAction((LocalClientPlayerEntity) (Object) this, START_SPRINTING));
+            else sendQueue.addToSendQueue(new C0BPacketEntityAction((LocalClientPlayerEntity) (Object) this, STOP_SPRINTING));
 
             serverSprintState = sprinting;
         }
@@ -162,8 +162,8 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
 
         if (sneaking != serverSneakState && (!sneak.handleEvents() || sneak.getMode().equals("Legit"))) {
             if (sneaking)
-                sendQueue.addToSendQueue(new C0BPacketEntityAction((EntityPlayerSP) (Object) this, START_SNEAKING));
-            else sendQueue.addToSendQueue(new C0BPacketEntityAction((EntityPlayerSP) (Object) this, STOP_SNEAKING));
+                sendQueue.addToSendQueue(new C0BPacketEntityAction((LocalClientPlayerEntity) (Object) this, START_SNEAKING));
+            else sendQueue.addToSendQueue(new C0BPacketEntityAction((LocalClientPlayerEntity) (Object) this, STOP_SNEAKING));
 
             serverSneakState = sneaking;
         }
@@ -205,16 +205,16 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
 
             if (ridingEntity == null) {
                 if (moved && rotated) {
-                    sendQueue.addToSendQueue(new C06PacketPlayerPosLook(motionEvent.getX(), motionEvent.getY(), motionEvent.getZ(), yaw, pitch, motionEvent.getOnGround()));
+                    sendQueue.addToSendQueue(new PositionAndAngles(motionEvent.getX(), motionEvent.getY(), motionEvent.getZ(), yaw, pitch, motionEvent.getOnGround()));
                 } else if (moved) {
-                    sendQueue.addToSendQueue(new C04PacketPlayerPosition(motionEvent.getX(), motionEvent.getY(), motionEvent.getZ(), motionEvent.getOnGround()));
+                    sendQueue.addToSendQueue(new Position(motionEvent.getX(), motionEvent.getY(), motionEvent.getZ(), motionEvent.getOnGround()));
                 } else if (rotated) {
-                    sendQueue.addToSendQueue(new C05PacketPlayerLook(yaw, pitch, motionEvent.getOnGround()));
+                    sendQueue.addToSendQueue(new Angles(yaw, pitch, motionEvent.getOnGround()));
                 } else {
-                    sendQueue.addToSendQueue(new C03PacketPlayer(motionEvent.getOnGround()));
+                    sendQueue.addToSendQueue(new PlayerMoveC2SPacket(motionEvent.getOnGround()));
                 }
             } else {
-                sendQueue.addToSendQueue(new C06PacketPlayerPosLook(motionX, -999, motionZ, yaw, pitch, motionEvent.getOnGround()));
+                sendQueue.addToSendQueue(new PositionAndAngles(motionX, -999, motionZ, yaw, pitch, motionEvent.getOnGround()));
                 moved = false;
             }
 

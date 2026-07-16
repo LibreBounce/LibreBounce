@@ -6,7 +6,7 @@
 package net.ccbluex.liquidbounce.utils.simulation;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.entity.living.player.LocalClientPlayerEntity;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -16,7 +16,7 @@ public class SimulatedPlayerJavaExtensions {
      * This game movement code had to be kept in its original language as it gives proper results.
      */
     public Pair<Double, Double> checkForCollision(SimulatedPlayer simPlayer, double velocityX, double velocityZ) {
-        EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
+        LocalClientPlayerEntity player = Minecraft.getMinecraft().thePlayer;
         World worldObj = player.worldObj;
 
         double d6;

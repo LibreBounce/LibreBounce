@@ -17,11 +17,11 @@ import net.ccbluex.liquidbounce.utils.client.ClientUtils;
 import net.ccbluex.liquidbounce.utils.rotation.Rotation;
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.entity.living.player.LocalClientPlayerEntity;
 import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.living.LivingEntity;
 import net.minecraft.entity.item.EntityItemFrame;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.*;
@@ -361,8 +361,8 @@ public abstract class MixinEntityRenderer {
     /**
      * Properly implement the confusion option from AntiBlind module
      */
-    @Redirect(method = "setupCameraTransform", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/entity/EntityPlayerSP;isPotionActive(Lnet/minecraft/potion/Potion;)Z"))
-    private boolean injectAntiBlindA(EntityPlayerSP instance, Potion potion) {
+    @Redirect(method = "setupCameraTransform", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/entity/LocalClientPlayerEntity;isPotionActive(Lnet/minecraft/potion/Potion;)Z"))
+    private boolean injectAntiBlindA(LocalClientPlayerEntity instance, Potion potion) {
         AntiBlind module = AntiBlind.INSTANCE;
 
         return (!module.handleEvents() || !module.getConfusionEffect()) && instance.isPotionActive(potion);
