@@ -4,10 +4,10 @@ plugins {
     `maven-publish`
     id("org.jetbrains.kotlin.jvm") version "2.4.0"
     id("fabric-loom")
-    id("ploceus")
+    id("ploceus") version "1.17.4"
 }
 
-version = "${providers.gradleProperty("mod_version").get()}+mc${providers.gradleProperty("minecraft_version").get()}"
+version = "${providers.gradleProperty("version").get()}+mc${providers.gradleProperty("minecraft_version").get()}"
 group = providers.gradleProperty("maven_group").get()
 
 repositories {
@@ -16,6 +16,10 @@ repositories {
     // Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
     // See https://docs.gradle.org/current/userguide/declaring_repositories.html
     // for more information about repositories.
+}
+
+ploceus {
+	setIntermediaryGeneration(2)
 }
 
 dependencies {
@@ -57,10 +61,6 @@ dependencies {
 }
 
 minecraft {
-    version = "1.8.9-11.15.1.2318-1.8.9"
-    runDir = "run"
-    mappings = "stable_22"
-    makeObfSourceJar = false
     clientJvmArgs += ["-Dfml.coreMods.load=net.ccbluex.liquidbounce.injection.forge.MixinLoader", "-Xmx4096m", "-Xms1024m", "-Ddev-mode"]
 }
 
