@@ -36,7 +36,7 @@ class Armor(
             glPushMatrix()
 
             val renderItem = mc.renderItem
-            val isInsideWater = mc.thePlayer.isInsideOfMaterial(Material.water)
+            val isInsideWater = mc.player.isInsideOfMaterial(Material.water)
 
             var x = 1
             var y = if (isInsideWater) -10 else 0
@@ -44,7 +44,7 @@ class Armor(
             glColor4f(1F, 1F, 1F, 1F)
 
             for (index in 3 downTo 0) {
-                val stack = mc.thePlayer.inventory.armorInventory[index] ?: continue
+                val stack = mc.player.inventory.armorInventory[index] ?: continue
 
                 glPushMatrix()
                 glEnable(GL_BLEND)

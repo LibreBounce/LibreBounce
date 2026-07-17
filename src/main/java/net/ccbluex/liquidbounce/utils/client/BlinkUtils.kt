@@ -27,7 +27,7 @@ object BlinkUtils : MinecraftInstance, Listenable {
 
     // TODO: Make better & more reliable BlinkUtils.
     fun blink(packet: Packet<*>, event: PacketEvent, sent: Boolean? = true, receive: Boolean? = true) {
-        val player = mc.thePlayer ?: return
+        val player = mc.player ?: return
 
         if (event.isCancelled || player.isDead || mc.currentServerData == null) return
 
@@ -132,7 +132,7 @@ object BlinkUtils : MinecraftInstance, Listenable {
     }
 
     fun cancel() {
-        val player = mc.thePlayer ?: return
+        val player = mc.player ?: return
         val firstPosition = positions.firstOrNull() ?: return
 
         player.setPositionAndUpdate(firstPosition.xCoord, firstPosition.yCoord, firstPosition.zCoord)
@@ -156,7 +156,7 @@ object BlinkUtils : MinecraftInstance, Listenable {
 
         // Remove fake player
         fakePlayer?.apply {
-            fakePlayer?.entityId?.let { mc.theWorld?.removeEntityFromWorld(it) }
+            fakePlayer?.entityId?.let { mc.world?.removeEntityFromWorld(it) }
             fakePlayer = null
         }
     }
@@ -173,7 +173,7 @@ object BlinkUtils : MinecraftInstance, Listenable {
 
         // Remove fake player
         fakePlayer?.apply {
-            fakePlayer?.entityId?.let { mc.theWorld?.removeEntityFromWorld(it) }
+            fakePlayer?.entityId?.let { mc.world?.removeEntityFromWorld(it) }
             fakePlayer = null
         }
     }
@@ -193,8 +193,8 @@ object BlinkUtils : MinecraftInstance, Listenable {
     }
 
     fun addFakePlayer() {
-        val player = mc.thePlayer ?: return
-        val world = mc.theWorld ?: return
+        val player = mc.player ?: return
+        val world = mc.world ?: return
 
         val faker = EntityOtherPlayerMP(world, player.gameProfile).apply {
             copyLocationAndAnglesFrom(player)

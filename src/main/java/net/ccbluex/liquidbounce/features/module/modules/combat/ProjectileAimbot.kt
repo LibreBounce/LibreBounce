@@ -99,7 +99,7 @@ object ProjectileAimbot : Module("ProjectileAimbot", Category.COMBAT) {
     }
 
     val onRotationUpdate = handler<RotationUpdateEvent> {
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
 
         target = null
 
@@ -158,9 +158,9 @@ object ProjectileAimbot : Module("ProjectileAimbot", Category.COMBAT) {
     }
 
     private fun getTarget(throughWalls: Boolean, priorityMode: String): Entity? {
-        val player = mc.thePlayer ?: return null
+        val player = mc.player ?: return null
 
-        return mc.theWorld.loadedEntityList
+        return mc.world.loadedEntityList
             .asSequence()
             .filterIsInstance<LivingEntity>()
             .filter {
@@ -178,5 +178,5 @@ object ProjectileAimbot : Module("ProjectileAimbot", Category.COMBAT) {
             }
     }
 
-    fun hasTarget() = target != null && mc.thePlayer.canEntityBeSeen(target)
+    fun hasTarget() = target != null && mc.player.canEntityBeSeen(target)
 }

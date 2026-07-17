@@ -43,7 +43,7 @@ object AutoPlay : Module("AutoPlay", Category.PLAYER, gameDetecting = false) {
     private var delayTick = 0
 
     val onGameTick = handler<GameTickEvent> {
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
 
         if (!playerInGame() || !player.inventory.hasItemStack(ItemStack(paper))) {
             if (delayTick > 0)
@@ -63,7 +63,7 @@ object AutoPlay : Module("AutoPlay", Category.PLAYER, gameDetecting = false) {
                 selectSlotSilently(this, paperSlot, immediate = true, resetManually = true)
 
                 if (delayTick >= delay) {
-                    mc.playerController.sendUseItem(player, mc.theWorld, player.hotBarSlot(paperSlot).stack)
+                    mc.playerController.sendUseItem(player, mc.world, player.hotBarSlot(paperSlot).stack)
                     delayTick = 0
                 }
             }
@@ -96,7 +96,7 @@ object AutoPlay : Module("AutoPlay", Category.PLAYER, gameDetecting = false) {
     // TODO: Maybe this should be a job for GameDetector?
     private fun playerInGame(): Boolean {
         // Isn't the null check already covered on the game tick event above?
-        val player = mc.thePlayer ?: return false
+        val player = mc.player ?: return false
 
         return player.ticksExisted >= 20
                 && (player.capabilities.isFlying

@@ -73,7 +73,7 @@ object LiquidChat : Module(
         override fun onPacket(packet: Packet) {
             when (packet) {
                 is ClientMessagePacket -> {
-                    val player = mc.thePlayer
+                    val player = mc.player
 
                     if (player == null) {
                         LOGGER.info("[LiquidChat] ${packet.user.name}: ${packet.content}")

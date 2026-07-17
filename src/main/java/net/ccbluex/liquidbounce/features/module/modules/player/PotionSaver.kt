@@ -14,7 +14,7 @@ import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 object PotionSaver : Module("PotionSaver", Category.PLAYER) {
 
     val onPacket = handler<PacketEvent> {
-        mc.thePlayer?.run {
+        mc.player?.run {
             val packet = it.packet
 
             if (packet is PlayerMoveC2SPacket && !isUsingItem && !packet.rotating &&

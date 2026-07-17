@@ -89,7 +89,7 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
     }
 
     val onMotion = handler<MotionEvent> { event ->
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
         val heldItem = player.heldItem ?: return@handler
         val isUsingItem = usingItemFunc()
 
@@ -210,7 +210,7 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
 
     val onPacket = handler<PacketEvent> { event ->
         val packet = event.packet
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
 
         if (event.isCancelled || shouldSwap)
             return@handler
@@ -309,7 +309,7 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
     }
 
     val onSlowDown = handler<SlowDownEvent> { event ->
-        val heldItem = mc.thePlayer.heldItem?.item
+        val heldItem = mc.player.heldItem?.item
 
         if (heldItem !is ItemSword) {
             if (!consumeFoodOnly && heldItem is ItemFood ||
@@ -337,10 +337,10 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
     }
 
     fun isUNCPBlocking() =
-        swordMode == "UpdatedNCP" && mc.gameSettings.keyBindUseItem.isKeyDown && (mc.thePlayer.heldItem?.item is ItemSword)
+        swordMode == "UpdatedNCP" && mc.gameSettings.keyBindUseItem.isKeyDown && (mc.player.heldItem?.item is ItemSword)
 
     fun usingItemFunc() =
-        mc.thePlayer?.heldItem != null && (mc.thePlayer.isUsingItem || (mc.thePlayer.heldItem?.item is ItemSword && KillAura.blockStatus) || isUNCPBlocking())
+        mc.player?.heldItem != null && (mc.player.isUsingItem || (mc.player.heldItem?.item is ItemSword && KillAura.blockStatus) || isUNCPBlocking())
 
     private fun updateSlot() {
         SilentHotbar.selectSlotSilently(this, (SilentHotbar.currentSlot + 1) % 9, immediate = true)

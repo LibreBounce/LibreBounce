@@ -19,15 +19,15 @@ import kotlin.math.sin
 import kotlin.math.sqrt
 
 class FallingPlayer(
-    private var x: Double = mc.thePlayer.posX,
-    private var y: Double = mc.thePlayer.posY,
-    private var z: Double = mc.thePlayer.posZ,
-    private var motionX: Double = mc.thePlayer.motionX,
-    private var motionY: Double = mc.thePlayer.motionY,
-    private var motionZ: Double = mc.thePlayer.motionZ,
-    private val yaw: Float = mc.thePlayer.rotationYaw,
-    private var strafe: Float = mc.thePlayer.moveStrafing,
-    private var forward: Float = mc.thePlayer.moveForward
+    private var x: Double = mc.player.posX,
+    private var y: Double = mc.player.posY,
+    private var z: Double = mc.player.posZ,
+    private var motionX: Double = mc.player.motionX,
+    private var motionY: Double = mc.player.motionY,
+    private var motionZ: Double = mc.player.motionZ,
+    private val yaw: Float = mc.player.rotationYaw,
+    private var strafe: Float = mc.player.moveStrafing,
+    private var forward: Float = mc.player.moveForward
 ) : MinecraftInstance {
     constructor(player: LocalClientPlayerEntity, predict: Boolean = false) : this(
         if (predict) player.posX + player.motionX else player.posX,
@@ -46,8 +46,9 @@ class FallingPlayer(
         forward *= 0.98f
 
         var v = strafe * strafe + forward * forward
+
         if (v >= 0.0001f) {
-            v = mc.thePlayer.jumpMovementFactor / sqrt(v).coerceAtLeast(1f)
+            v = mc.player.jumpMovementFactor / sqrt(v).coerceAtLeast(1f)
 
             strafe *= v
             forward *= v
@@ -84,7 +85,7 @@ class FallingPlayer(
     }
 
     private fun rayTrace(start: Vec3d, end:Vec3d3): BlockPos? {
-        val result = mc.theWorld.rayTraceBlocks(start, end, true) ?: return null
+        val result = mc.world.rayTraceBlocks(start, end, true) ?: return null
 
         return if (result.typeOfHit == BLOCK && result.sideHit == EnumFacing.UP) result.blockPos
         else null

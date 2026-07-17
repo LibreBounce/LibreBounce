@@ -51,7 +51,7 @@ object Tracers : Module("Tracers", Category.RENDER) {
 
     private val entities by EntityLookup<LivingEntity>()
         .filter { isSelected(it, false) }
-        .filter { mc.thePlayer.getDistanceSqToEntity(it) <= maxRenderDistanceSq }
+        .filter { mc.player.getDistanceSqToEntity(it) <= maxRenderDistanceSq }
         .filter { bot || !isBot(it) }
         .filter { !onLook || isLookingOnEntities(it, maxAngleDifference.toDouble()) }
         .filter { thruBlocks || isEntityHeightVisible(it) }
@@ -59,7 +59,7 @@ object Tracers : Module("Tracers", Category.RENDER) {
     // Priority must be set lower than every other Listenable class that also listens to this event.
     // We re-apply camera transformation, which would affect NameTags if the priority was normal.
     val onRender3D = handler<Render3DEvent>(priority = -5) {
-        mc.thePlayer ?: return@handler
+        mc.player ?: return@handler
 
         val originalViewBobbing = mc.gameSettings.viewBobbing
 
@@ -78,7 +78,7 @@ object Tracers : Module("Tracers", Category.RENDER) {
         glBegin(GL_LINES)
 
         for (entity in entities) {
-            val dist = mc.thePlayer.getDistanceSqToEntity(entity).coerceAtMost(255.0).toInt()
+            val dist = mc.player.getDistanceSqToEntity(entity).coerceAtMost(255.0).toInt()
 
             val color = when {
                 entity is PlayerEntity && entity.isClientFriend() -> Color(0, 0, 255, 150)
@@ -104,7 +104,7 @@ object Tracers : Module("Tracers", Category.RENDER) {
     }
 
     private fun drawTraces(entity: Entity, color: Color) {
-        val player = mc.thePlayer ?: return
+        val player = mc.player ?: return
 
         val (x, y, z) = entity.interpolatedPosition(entity.lastTickPos) - mc.renderManager.renderPos
 

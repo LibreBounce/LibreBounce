@@ -20,7 +20,7 @@ import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 object HypixelTimer : NoFallMode("HypixelTimer") {
 
     override fun onPacket(event: PacketEvent) {
-        mc.thePlayer?.run {
+        mc.player?.run {
             val fallingPlayer = FallingPlayer()
 
             if (event.packet is PlayerMoveC2SPacket) {

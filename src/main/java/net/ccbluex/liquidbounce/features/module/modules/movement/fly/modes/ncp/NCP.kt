@@ -16,7 +16,7 @@ import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.Position
 
 object NCP : FlyMode("NCP") {
     override fun onEnable() {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (!onGround) return
 
             repeat(65) {
@@ -35,7 +35,7 @@ object NCP : FlyMode("NCP") {
     }
 
     override fun onUpdate() {
-        mc.thePlayer.motionY =
+        mc.player.motionY =
             if (mc.gameSettings.keyBindSneak.isKeyDown) -0.5
             else -ncpMotion.toDouble()
 

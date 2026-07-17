@@ -89,7 +89,7 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
     }
 
     val onAttack = handler<AttackEvent> { event ->
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
         val target = event.targetEntity as? LivingEntity ?: return@handler
         val distance = player.getDistanceToEntityBox(target)
 
@@ -183,7 +183,7 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
     }
 
     val onPostSprintUpdate = handler<PostSprintUpdateEvent> {
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
 
         if (mode != "SprintTap") return@handler
 
@@ -244,7 +244,7 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
     }
 
     val onPacket = handler<PacketEvent> { event ->
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
 
         if (mode == "Silent" && event.packet is PlayerMoveC2SPacket) {
             if (ticks == 2) {

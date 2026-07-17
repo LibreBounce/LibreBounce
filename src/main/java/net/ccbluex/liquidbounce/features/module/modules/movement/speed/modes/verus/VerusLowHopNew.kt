@@ -17,7 +17,7 @@ object VerusLowHopNew : SpeedMode("VerusLowHopNew") {
     private var speed = 0.0f
 
     override fun onUpdate() {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (isInLiquid || isInWeb || isOnLadder) return
 
             if (isMoving) {

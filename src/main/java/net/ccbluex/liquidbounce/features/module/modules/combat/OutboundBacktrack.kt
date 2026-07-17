@@ -61,7 +61,7 @@ object OutboundBacktrack : Module("OutboundBacktrack", Category.COMBAT, gameDete
     private var timeRequired = maxDelay
 
     override fun onDisable() {
-        if (mc.thePlayer == null) return
+        if (mc.player == null) return
 
         blink()
     }
@@ -71,7 +71,7 @@ object OutboundBacktrack : Module("OutboundBacktrack", Category.COMBAT, gameDete
     }
 
     val onPacket = handler<PacketEvent> { event ->
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
         val packet = event.packet
 
         if (!handleEvents() || player.isDead || event.isCancelled || ignoreWholeTick) {
@@ -154,8 +154,8 @@ object OutboundBacktrack : Module("OutboundBacktrack", Category.COMBAT, gameDete
     }
 
     val onGameLoop = handler<GameLoopEvent> {
-        val player = mc.thePlayer ?: return@handler
-        mc.theWorld ?: return@handler
+        val player = mc.player ?: return@handler
+        mc.world ?: return@handler
 
         if (Blink.blinkingSend() || player.isDead) {
             blink()

@@ -41,7 +41,7 @@ class Effects(
         val height = ((font as? GameFontRenderer)?.height ?: font.FONT_HEIGHT).toFloat()
 
         assumeNonVolatile {
-            for (effect in mc.thePlayer.activePotionEffects) {
+            for (effect in mc.player.activePotionEffects) {
                 val potion = Potion.potionTypes[effect.potionID]
                 val amplifier = effect.amplifier + 1
 

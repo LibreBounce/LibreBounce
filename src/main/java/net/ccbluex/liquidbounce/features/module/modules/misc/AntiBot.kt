@@ -166,7 +166,7 @@ object AntiBot : Module("AntiBot", Category.MISC) {
         }
 
         if (duplicateInWorld) {
-            for (player in mc.theWorld.playerEntities.filterNotNull()) {
+            for (player in mc.world.playerEntities.filterNotNull()) {
                 val playerName = player.name
 
                 if (worldPlayerNames.contains(playerName)) {
@@ -177,7 +177,7 @@ object AntiBot : Module("AntiBot", Category.MISC) {
             }
 
             if (worldDuplicateNames.isNotEmpty()) {
-                return mc.theWorld.playerEntities.count { it.name in worldDuplicateNames } > 1
+                return mc.world.playerEntities.count { it.name in worldDuplicateNames } > 1
             }
         }
 
@@ -212,13 +212,13 @@ object AntiBot : Module("AntiBot", Category.MISC) {
             return !shouldReturn
         }
 
-        return entity.name.isEmpty() || entity.name == mc.thePlayer.name
+        return entity.name.isEmpty() || entity.name == mc.player.name
     }
 
     val onUpdate = handler<UpdateEvent>(always = true) {
-        mc.theWorld ?: return@handler
+        mc.world ?: return@handler
 
-        mc.theWorld.loadedEntityList.forEach { entity ->
+        mc.world.loadedEntityList.forEach { entity ->
             if (entity !is PlayerEntity) return@forEach
             val profile = entity.gameProfile ?: return@forEach
 
@@ -236,13 +236,13 @@ object AntiBot : Module("AntiBot", Category.MISC) {
 
     // Alternative for isBot() check.
     val onPacket = handler<PacketEvent>(always = true) { event ->
-        if (mc.thePlayer == null || mc.theWorld == null)
+        if (mc.player == null || mc.world == null)
             return@handler
 
         val packet = event.packet
 
         if (packet is EntityMoveS2CPacket) {
-            val entity = packet.getEntity(mc.theWorld)
+            val entity = packet.getEntity(mc.world)
 
             if (entity is PlayerEntity) {
                 if (entity.onGround && entity.entityId !in groundList)
@@ -268,11 +268,11 @@ object AntiBot : Module("AntiBot", Category.MISC) {
                     }
                 }
 
-                if ((entity.isInvisible || entity.isInvisibleToPlayer(mc.thePlayer)) && entity.entityId !in invisibleList)
+                if ((entity.isInvisible || entity.isInvisibleToPlayer(mc.player)) && entity.entityId !in invisibleList)
                     invisibleList += entity.entityId
 
                 if (alwaysInRadius) {
-                    val distance = mc.thePlayer.getDistanceToEntity(entity)
+                    val distance = mc.player.getDistanceToEntity(entity)
                     val currentTicks = entityTickMap.getOrDefault(entity.entityId, 0)
 
                     entityTickMap[entity.entityId] = if (distance < alwaysRadius) currentTicks + 1
@@ -288,8 +288,8 @@ object AntiBot : Module("AntiBot", Category.MISC) {
                 }
 
                 if (alwaysBehind) {
-                    val distance = mc.thePlayer.getDistanceToEntity(entity)
-                    val rotationToEntity = toRotation(entity.hitBox.center, false, mc.thePlayer).fixedSensitivity().yaw
+                    val distance = mc.player.getDistanceToEntity(entity)
+                    val rotationToEntity = toRotation(entity.hitBox.center, false, mc.player).fixedSensitivity().yaw
                     val angleDifferenceToEntity = abs(angleDifference(rotationToEntity, serverRotation.yaw))
 
                     if (distance < alwaysBehindRadius && angleDifferenceToEntity > behindRotDiffToIgnore) {
@@ -317,7 +317,7 @@ object AntiBot : Module("AntiBot", Category.MISC) {
         }
 
         if (packet is EntityAnimationS2CPacket) {
-            val entity = mc.theWorld.getEntityByID(packet.entityID)
+            val entity = mc.world.getEntityByID(packet.entityID)
 
             if (entity != null && entity is LivingEntity && packet.animationType == 0
                 && entity.entityId !in swingList

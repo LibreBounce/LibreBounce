@@ -37,7 +37,7 @@ object Strafe : Module("Strafe", Category.MOVEMENT, gameDetecting = false) {
     }
 
     val onUpdate = handler<UpdateEvent> {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (onGround && mc.gameSettings.keyBindJump.isKeyDown && allDirectionsJump && isMoving && !(isInLiquid || isOnLadder || isInWeb)) {
                 if (mc.gameSettings.keyBindJump.isKeyDown) {
                     mc.gameSettings.keyBindJump.pressed = false
@@ -62,7 +62,7 @@ object Strafe : Module("Strafe", Category.MOVEMENT, gameDetecting = false) {
     }
 
     val onStrafe = handler<StrafeEvent> {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (!isMoving) {
                 if (noMoveStop)
                     stopXZ()

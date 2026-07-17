@@ -67,7 +67,7 @@ object HUD : Module("HUD", Category.RENDER, gameDetecting = false, defaultState 
     }
 
     val onScreen = handler<ScreenEvent>(always = true) { event ->
-        if (mc.theWorld == null || mc.thePlayer == null) return@handler
+        if (mc.world == null || mc.player == null) return@handler
         if (state && blur && !mc.entityRenderer.isShaderActive && event.guiScreen != null &&
             !(event.guiScreen is ChatScreen || event.guiScreen is GuiHudDesigner)
         ) mc.entityRenderer.loadShader(

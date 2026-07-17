@@ -103,7 +103,7 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true) {
     }
 
     val onPacket = handler<PacketEvent> { event ->
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
 
         if (player.ticksExisted <= 100)
             return@handler
@@ -141,8 +141,8 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true) {
                     lagbackDetected = false
                 }
 
-                lastYaw = mc.thePlayer.rotationYawHead
-                lastPitch = mc.thePlayer.rotationPitch
+                lastYaw = mc.player.rotationYawHead
+                lastPitch = mc.player.rotationPitch
             }
 
             is PlayerUseC2SPacket -> {
@@ -165,8 +165,8 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true) {
      * Rubberband, Invalid Health/Hunger & GhostBlock Checks
      */
     val onUpdate = handler<UpdateEvent> {
-        val player = mc.thePlayer ?: return@handler
-        val world = mc.theWorld ?: return@handler
+        val player = mc.player ?: return@handler
+        val world = mc.world ?: return@handler
 
         if (player.isDead || mc.currentScreen is DeathScreen || player.ticksExisted <= 100) {
             return@handler
@@ -259,7 +259,7 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true) {
     }
 
     val onRender3D = handler<Render3DEvent> {
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
         val renderManager = mc.renderManager
         val pos = lastServerPos ?: return@handler
 
@@ -312,7 +312,7 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true) {
     }
 
     val onTick = handler<GameTickEvent> {
-        if (mc.thePlayer == null || mc.theWorld == null)
+        if (mc.player == null || mc.world == null)
             return@handler
 
         if (resetTicks >= resetFlagCounterTicks) {
@@ -321,7 +321,7 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true) {
             return@handler
         }
 
-        if (mc.thePlayer.ticksExisted > 100) {
+        if (mc.player.ticksExisted > 100) {
             resetTicks++
         }
     }

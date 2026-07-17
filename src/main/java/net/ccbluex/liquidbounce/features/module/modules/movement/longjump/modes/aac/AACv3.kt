@@ -12,7 +12,7 @@ object AACv3 : LongJumpMode("AACv3") {
     var teleported = false
 
     override fun onUpdate() {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (fallDistance > 0.5f && !teleported) {
                 val value = 3.0
                 val horizontalFacing = horizontalFacing

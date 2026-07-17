@@ -189,7 +189,7 @@ object Fly : Module("Fly", Category.MOVEMENT, Keyboard.KEY_F) {
     private var wasFlying = false
 
     override fun onEnable() {
-        val player = mc.thePlayer ?: return
+        val player = mc.player ?: return
 
         startY = player.posY
         jumpY = player.posY
@@ -199,7 +199,7 @@ object Fly : Module("Fly", Category.MOVEMENT, Keyboard.KEY_F) {
     }
 
     override fun onDisable() {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (!mode.startsWith("AAC") && mode != "Hypixel" && mode != "VerusGlide" && !mode.startsWith("Vulcan")
                 && mode != "SmoothVanilla" && mode != "Vanilla" && mode != "Rewinside"
                 && mode != "Fireball" && mode != "Collide" && mode != "Jump"
@@ -242,7 +242,7 @@ object Fly : Module("Fly", Category.MOVEMENT, Keyboard.KEY_F) {
 
         drawPlatform(
             y,
-            if (mc.thePlayer.entityBoundingBox.maxY < y) Color(0, 255, 0, 90) else Color(255, 0, 0, 90),
+            if (mc.player.entityBoundingBox.maxY < y) Color(0, 255, 0, 90) else Color(255, 0, 0, 90),
             1.0
         )
 
@@ -250,13 +250,13 @@ object Fly : Module("Fly", Category.MOVEMENT, Keyboard.KEY_F) {
     }
 
     val onPacket = handler<PacketEvent> { event ->
-        mc.thePlayer ?: return@handler
+        mc.player ?: return@handler
 
         modeModule.onPacket(event)
     }
 
     val onBB = handler<BlockBBEvent> { event ->
-        mc.thePlayer ?: return@handler
+        mc.player ?: return@handler
 
         modeModule.onBB(event)
     }
@@ -279,7 +279,7 @@ object Fly : Module("Fly", Category.MOVEMENT, Keyboard.KEY_F) {
 
     fun handleVanillaKickBypass() {
         if (!vanillaKickBypass || !groundTimer.hasTimePassed(1000)) return
-        val player = mc.thePlayer
+        val player = mc.player
         val ground = calculateGround() + 0.5
 
         var posY = player.posY
@@ -302,9 +302,9 @@ object Fly : Module("Fly", Category.MOVEMENT, Keyboard.KEY_F) {
 
     // TODO: Make faster and more accurate calculations
     private fun calculateGround(): Double {
-        val boundingBox = mc.thePlayer.entityBoundingBox
+        val boundingBox = mc.player.entityBoundingBox
         var blockHeight = 0.05
-        var ground = mc.thePlayer.posY
+        var ground = mc.player.posY
 
         while (ground > 0.0) {
             val customBox = AxisAlignedBB.fromBounds(
@@ -315,7 +315,7 @@ object Fly : Module("Fly", Category.MOVEMENT, Keyboard.KEY_F) {
                 ground,
                 boundingBox.minZ
             )
-            if (mc.theWorld.checkBlockCollision(customBox)) {
+            if (mc.world.checkBlockCollision(customBox)) {
                 if (blockHeight <= 0.05) return ground + blockHeight
                 ground += blockHeight
                 blockHeight = 0.05

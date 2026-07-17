@@ -20,7 +20,7 @@ import kotlin.math.sin
 
 object AACHop3313 : SpeedMode("AACHop3.3.13") {
     override fun onUpdate() {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (!isMoving || isInLiquid || isOnLadder || isRiding || hurtTime > 0) return
 
             if (onGround && isCollidedVertically) {
@@ -48,6 +48,6 @@ object AACHop3313 : SpeedMode("AACHop3.3.13") {
     }
 
     override fun onDisable() {
-        mc.thePlayer.jumpMovementFactor = 0.02f
+        mc.player.jumpMovementFactor = 0.02f
     }
 }

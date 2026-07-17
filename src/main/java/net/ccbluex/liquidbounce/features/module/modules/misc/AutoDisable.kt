@@ -36,7 +36,7 @@ object AutoDisable : Module("AutoDisable", Category.MISC, gameDetecting = false)
     }
 
     val onUpdate = handler<UpdateEvent> {
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
 
         if (onDeath && player.isDead) disabled("deaths")
     }

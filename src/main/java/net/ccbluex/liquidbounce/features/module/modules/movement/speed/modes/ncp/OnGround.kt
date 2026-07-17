@@ -13,7 +13,7 @@ object OnGround : SpeedMode("OnGround") {
     private const val vertical = 0.3993000090122223
 
     override fun onMotion() {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (isInWater || isOnLadder || isCollidedHorizontally)
                 return
 

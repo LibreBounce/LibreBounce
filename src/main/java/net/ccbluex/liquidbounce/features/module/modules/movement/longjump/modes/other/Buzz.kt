@@ -10,7 +10,7 @@ import net.ccbluex.liquidbounce.utils.movement.MovementUtils.speed
 
 object Buzz : LongJumpMode("Buzz") {
     override fun onUpdate() {
-        mc.thePlayer.motionY += 0.4679942989799998
+        mc.player.motionY += 0.4679942989799998
         speed *= 0.7578698f
     }
 }

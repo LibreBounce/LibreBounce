@@ -17,13 +17,13 @@ object NCPHop : SpeedMode("NCPHop") {
     }
 
     override fun onDisable() {
-        mc.thePlayer.speedInAir = 0.02f
+        mc.player.speedInAir = 0.02f
         mc.timer.timerSpeed = 1f
         super.onDisable()
     }
 
     override fun onUpdate() {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (isMoving) {
                 if (onGround) {
                     tryJump()

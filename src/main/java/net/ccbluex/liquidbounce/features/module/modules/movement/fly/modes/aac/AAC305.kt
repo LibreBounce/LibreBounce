@@ -12,7 +12,7 @@ object AAC305 : FlyMode("AAC3.0.5") {
     private var tick = 0
 
     override fun onUpdate() {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (tick == 2) motionY = 0.1
             else if (tick > 2) tick = 0
 

@@ -167,7 +167,7 @@ object ESP : Module("ESP", Category.RENDER) {
     }
 
     val onRender2D = handler<Render2DEvent> { event ->
-        if (mc.theWorld == null || mode != "Glow" || entities.isEmpty())
+        if (mc.world == null || mode != "Glow" || entities.isEmpty())
             return@handler
 
         renderNameTags = false
@@ -211,7 +211,7 @@ object ESP : Module("ESP", Category.RENDER) {
     }
 
     fun shouldRender(entity: LivingEntity): Boolean {
-        val player = mc.thePlayer ?: return false
+        val player = mc.player ?: return false
 
         return (player.getDistanceSqToEntity(entity) <= maxRenderDistanceSq
                 && (thruBlocks || isEntityHeightVisible(entity))

@@ -26,7 +26,7 @@ object FastStairs : Module("FastStairs", Category.MOVEMENT) {
     private var walkingDown = false
 
     val onUpdate = handler<UpdateEvent> {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (!isMoving || Speed.handleEvents())
                 return@handler
 

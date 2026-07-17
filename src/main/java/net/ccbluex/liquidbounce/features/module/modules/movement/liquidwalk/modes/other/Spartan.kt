@@ -12,7 +12,7 @@ import net.minecraft.util.BlockPos
 
 object Spartan : LiquidWalkMode("Spartan") {
     override fun onUpdate() {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (isSneaking) return
 
             if (isInWater) {

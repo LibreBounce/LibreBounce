@@ -113,7 +113,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
             if (mc.playerController?.currentGameType?.isSurvivalOrAdventure != true)
                 return false
 
-            if (mc.thePlayer?.openContainer?.windowId != 0)
+            if (mc.player?.openContainer?.windowId != 0)
                 return false
 
             if (invOpen && mc.currentScreen !is SurvivalInventoryScreen)
@@ -134,7 +134,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
         if (!mergeStacks || !shouldOperate())
             return
 
-        val player = mc.thePlayer ?: return
+        val player = mc.player ?: return
 
         // Loop multiple times until no clicks were scheduled
         while (true) {
@@ -205,7 +205,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
         if (!repairEquipment || !shouldOperate())
             return
 
-        val player = mc.thePlayer ?: return
+        val player = mc.player ?: return
 
         // Loop multiple times until no repairs were done
         while (true) {
@@ -334,7 +334,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
     suspend fun sortHotbar() {
         if (!sort || !shouldOperate()) return
 
-        val player = mc.thePlayer ?: return
+        val player = mc.player ?: return
 
         hotbarLoop@ for ((hotbarIndex, value) in SORTING_VALUES.withIndex().shuffled(randomSlot)) {
             // Check if slot has a valid sorting target
@@ -392,7 +392,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
     suspend fun dropGarbage() {
         if (!drop || !shouldOperate()) return
 
-        val player = mc.thePlayer ?: return
+        val player = mc.player ?: return
 
         for (index in player.openContainer.inventorySlots.indices.shuffled(randomSlot)) {
             // Stop if player violates invopen or nomove checks
@@ -575,7 +575,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
         var distanceSqToItem = .0
 
         if (!entityStacksMap.isNullOrEmpty()) {
-            distanceSqToItem = mc.thePlayer.getDistanceSqToEntity(entityStacksMap[stack] ?: return false)
+            distanceSqToItem = mc.player.getDistanceSqToEntity(entityStacksMap[stack] ?: return false)
             stacksToIterate += entityStacksMap.keys
         }
 
@@ -595,7 +595,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
             if (index == otherIndex) {
                 val otherItemEntity = entityStacksMap?.get(otherStack) ?: return@none false
 
-                return distanceSqToItem > mc.thePlayer.getDistanceSqToEntity(otherItemEntity)
+                return distanceSqToItem > mc.player.getDistanceSqToEntity(otherItemEntity)
             }
 
             canBeSortedTo(otherIndex, otherItem, stacks.size)
@@ -630,7 +630,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
         var distanceSqToItem = .0
 
         if (!entityStacksMap.isNullOrEmpty()) {
-            distanceSqToItem = mc.thePlayer.getDistanceSqToEntity(entityStacksMap[stack] ?: return false)
+            distanceSqToItem = mc.player.getDistanceSqToEntity(entityStacksMap[stack] ?: return false)
             stacksToIterate += entityStacksMap.keys
         }
 
@@ -658,7 +658,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
                         val otherItemEntity = entityStacksMap?.get(otherStack) ?: return@count false
 
                         // If other item is closer, count it as better
-                        distanceSqToItem > mc.thePlayer.getDistanceSqToEntity(otherItemEntity)
+                        distanceSqToItem > mc.player.getDistanceSqToEntity(otherItemEntity)
                     } else {
                         val isOtherSorted = canBeSortedTo(otherIndex, otherItem, stacks.size)
 
@@ -698,7 +698,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
         var distanceSqToItem = .0
 
         if (!entityStacksMap.isNullOrEmpty()) {
-            distanceSqToItem = mc.thePlayer.getDistanceSqToEntity(entityStacksMap[stack] ?: return false)
+            distanceSqToItem = mc.player.getDistanceSqToEntity(entityStacksMap[stack] ?: return false)
             stacksToIterate += entityStacksMap.keys
         }
 
@@ -719,7 +719,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
                         val otherItemEntity = entityStacksMap?.get(otherStack) ?: return@count false
 
                         // If other item is closer, count it as better
-                        distanceSqToItem > mc.thePlayer.getDistanceSqToEntity(otherItemEntity)
+                        distanceSqToItem > mc.player.getDistanceSqToEntity(otherItemEntity)
                     } else {
                         val isOtherSorted = canBeSortedTo(otherIndex, otherStack.item, stacks.size)
 
@@ -761,7 +761,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
         var distanceSqToItem = .0
 
         if (!entityStacksMap.isNullOrEmpty()) {
-            distanceSqToItem = mc.thePlayer.getDistanceSqToEntity(entityStacksMap[stack] ?: return false)
+            distanceSqToItem = mc.player.getDistanceSqToEntity(entityStacksMap[stack] ?: return false)
             stacksToIterate += entityStacksMap.keys
         }
 
@@ -786,7 +786,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
                         val otherItemEntity = entityStacksMap?.get(otherStack) ?: return@count false
 
                         // If other item is closer, count it as better
-                        distanceSqToItem > mc.thePlayer.getDistanceSqToEntity(otherItemEntity)
+                        distanceSqToItem > mc.player.getDistanceSqToEntity(otherItemEntity)
                     } else {
                         val isOtherSorted = canBeSortedTo(otherIndex, otherStack.item, stacks.size)
 
@@ -823,7 +823,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
         var distanceSqToItem = .0
 
         if (!entityStacksMap.isNullOrEmpty()) {
-            distanceSqToItem = mc.thePlayer.getDistanceSqToEntity(entityStacksMap[stack] ?: return false)
+            distanceSqToItem = mc.player.getDistanceSqToEntity(entityStacksMap[stack] ?: return false)
             stacksToIterate += entityStacksMap.keys
         }
 
@@ -843,7 +843,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
             if (index == otherIndex) {
                 val otherItemEntity = entityStacksMap?.get(otherStack) ?: return@none false
 
-                return distanceSqToItem > mc.thePlayer.getDistanceSqToEntity(otherItemEntity)
+                return distanceSqToItem > mc.player.getDistanceSqToEntity(otherItemEntity)
             }
 
             canBeSortedTo(otherIndex, otherItem, stacks.size) || otherIndex > index
@@ -867,7 +867,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
         var distanceSqToItem = .0
 
         if (!entityStacksMap.isNullOrEmpty()) {
-            distanceSqToItem = mc.thePlayer.getDistanceSqToEntity(entityStacksMap[stack] ?: return false)
+            distanceSqToItem = mc.player.getDistanceSqToEntity(entityStacksMap[stack] ?: return false)
             stacksToIterate += entityStacksMap.keys
         }
 
@@ -900,7 +900,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
                             // Only true when both items are dropped on ground, if other item is closer, compared one isn't the best
                             if (index == otherIndex) {
                                 val otherItemEntity = entityStacksMap?.get(otherStack) ?: return@forEachIndexed
-                                when (distanceSqToItem.compareTo(mc.thePlayer.getDistanceSqToEntity(otherItemEntity))) {
+                                when (distanceSqToItem.compareTo(mc.player.getDistanceSqToEntity(otherItemEntity))) {
                                     1 -> return false
                                     // Both items are exactly far, pretty much impossible
                                     0 -> return true

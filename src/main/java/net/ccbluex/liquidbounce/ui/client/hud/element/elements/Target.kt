@@ -98,7 +98,7 @@ class Target : Element("Target") {
         val fadeMode = animation == "Fade"
 
         val shouldRender = KillAura.handleEvents() && KillAura.target != null || mc.currentScreen is ChatScreen
-        val target = KillAura.target ?: if (delayCounter >= vanishDelay) mc.thePlayer else lastTarget ?: mc.thePlayer
+        val target = KillAura.target ?: if (delayCounter >= vanishDelay) mc.player else lastTarget ?: mc.player
 
         val stringWidth = (40f + (target.name?.let(titleFont::getStringWidth) ?: 0)).coerceAtLeast(118F)
 
@@ -235,7 +235,7 @@ class Target : Element("Target") {
 
                         // Draw body text
                         bodyFont.drawString(
-                            "Distance: ${decimalFormat.format(mc.thePlayer.getDistanceToEntityBox(target))}",
+                            "Distance: ${decimalFormat.format(mc.player.getDistanceToEntityBox(target))}",
                             36F,
                             15F,
                             textCustomColor,

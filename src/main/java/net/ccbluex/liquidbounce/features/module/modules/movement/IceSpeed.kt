@@ -32,7 +32,7 @@ object IceSpeed : Module("IceSpeed", Category.MOVEMENT) {
     }
 
     val onUpdate = handler<UpdateEvent> {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (!onGround || isOnLadder || isSneaking || !isSprinting || !isMoving) {
                 return@handler
             }

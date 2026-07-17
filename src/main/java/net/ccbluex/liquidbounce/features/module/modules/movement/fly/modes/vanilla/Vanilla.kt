@@ -17,7 +17,7 @@ import net.minecraft.network.packet.c2s.play.KeepAliveC2SPacket
 object Vanilla : FlyMode("Vanilla") {
 
     override fun onMove(event: MoveEvent) {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (keepAlive) sendPacket(KeepAliveC2SPacket())
 
             strafe(vanillaSpeed, true, event)

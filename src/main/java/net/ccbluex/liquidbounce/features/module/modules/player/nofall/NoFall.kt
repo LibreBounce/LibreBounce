@@ -107,7 +107,7 @@ object NoFall : Module("NoFall", Category.PLAYER) {
     }
 
     val onUpdate = handler<UpdateEvent> {
-        val player = mc.thePlayer
+        val player = mc.player
 
         if (collideBlock(player.entityBoundingBox) { it is BlockLiquid } || collideBlock(
                 fromBounds(
@@ -129,13 +129,13 @@ object NoFall : Module("NoFall", Category.PLAYER) {
     }
 
     val onPacket = handler<PacketEvent> {
-        mc.thePlayer ?: return@handler
+        mc.player ?: return@handler
 
         modeModule.onPacket(it)
     }
 
     val onBB = handler<BlockBBEvent> {
-        mc.thePlayer ?: return@handler
+        mc.player ?: return@handler
 
         modeModule.onBB(it)
     }
@@ -154,7 +154,7 @@ object NoFall : Module("NoFall", Category.PLAYER) {
     }
 
     val onMove = handler<MoveEvent> {
-        val player = mc.thePlayer
+        val player = mc.player
 
         if (collideBlock(player.entityBoundingBox) { it is BlockLiquid }
             || collideBlock(

@@ -47,12 +47,12 @@ object AntiFireball : Module("AntiFireball", Category.PLAYER) {
     lateinit var displayName: String
 
     val onRotationUpdate = handler<RotationUpdateEvent> {
-        val player = mc.thePlayer ?: return@handler
-        mc.theWorld ?: return@handler
+        val player = mc.player ?: return@handler
+        mc.world ?: return@handler
 
         target = null
 
-        for (entity in mc.theWorld.loadedEntityList.filterIsInstance<EntityFireball>()
+        for (entity in mc.world.loadedEntityList.filterIsInstance<EntityFireball>()
             .sortedBy { player.getDistanceToBox(it.hitBox) }) {
             val nearestPoint = getNearestPointBB(player.eyes, entity.hitBox)
             val entityPrediction = entity.currPos - entity.prevPos
@@ -80,10 +80,10 @@ object AntiFireball : Module("AntiFireball", Category.PLAYER) {
     }
 
     val onRender2D = handler<Render2DEvent> {
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
         val t = Window(mc)
 
-        for (entity in mc.theWorld.loadedEntityList) {
+        for (entity in mc.world.loadedEntityList) {
             if (entity.name == "Fireball") {
                 distance = floor(player.getDistanceToEntity(entity))
                 displayName = entity.name
@@ -159,7 +159,7 @@ object AntiFireball : Module("AntiFireball", Category.PLAYER) {
     }
 
     val onTick = handler<GameTickEvent> {
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
         val entity = target ?: return@handler
         val rotation = currentRotation ?: player.rotation
 

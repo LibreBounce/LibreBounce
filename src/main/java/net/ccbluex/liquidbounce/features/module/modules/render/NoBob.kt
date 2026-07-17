@@ -13,6 +13,6 @@ import net.ccbluex.liquidbounce.features.module.Module
 object NoBob : Module("NoBob", Category.RENDER, gameDetecting = false) {
 
     val onMotion = handler<MotionEvent> {
-        mc.thePlayer?.distanceWalkedModified = -1f
+        mc.player?.distanceWalkedModified = -1f
     }
 }

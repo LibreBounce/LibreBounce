@@ -20,7 +20,7 @@ object VerusDamage : LongJumpMode("VerusDamage") {
     var damaged = false
 
     override fun onEnable() {
-        mc.thePlayer?.run {
+        mc.player?.run {
             // Otherwise you'll get flagged
             if (!isMoving) {
                 chat("§8[§c§lVerusDamage-§a§lLongJump§8] §cPlease move while toggling LongJump. Using AutoJump option is recommended.")
@@ -43,7 +43,7 @@ object VerusDamage : LongJumpMode("VerusDamage") {
     }
 
     override fun onUpdate() {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (isInLiquid || isInWeb || isOnLadder) {
                 LongJump.state = false
                 return

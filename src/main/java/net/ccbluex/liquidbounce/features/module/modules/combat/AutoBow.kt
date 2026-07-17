@@ -21,7 +21,7 @@ object AutoBow : Module("AutoBow", Category.COMBAT, subjective = true) {
     private val waitForBowAimbot by boolean("WaitForBowAimbot", true)
 
     val onUpdate = handler<UpdateEvent> {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (isUsingItem && heldItem?.item is ItemBow && itemInUseDuration > 20
                 && (!waitForBowAimbot || !ProjectileAimbot.handleEvents() || ProjectileAimbot.hasTarget())
             ) {

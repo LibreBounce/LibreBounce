@@ -41,7 +41,7 @@ class SpeedGraph(
         assumeNonVolatile {
             val width = width
 
-            val player = mc.thePlayer
+            val player = mc.player
 
             if (lastTick != player.ticksExisted) {
                 lastTick = player.ticksExisted

@@ -110,7 +110,7 @@ object ClientRichPresence : Configurable("DiscordRPC"), MinecraftInstance, Liste
             }
 
             // Check user is in-game
-            mc.thePlayer?.let {
+            mc.player?.let {
                 val serverData = mc.currentServerData
 
                 // Set server info

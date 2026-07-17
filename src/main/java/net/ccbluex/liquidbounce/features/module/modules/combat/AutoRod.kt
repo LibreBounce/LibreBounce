@@ -57,7 +57,7 @@ object AutoRod : Module("AutoRod", Category.COMBAT) {
     private var switchBack = -1
 
     val onUpdate = handler<UpdateEvent> {
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
 
         // Check if player is using rod
         val usingRod = (player.isUsingItem && player.heldItem?.item == Items.fishing_rod) || rodInUse
@@ -153,10 +153,10 @@ object AutoRod : Module("AutoRod", Category.COMBAT) {
     private fun rod() {
         val rod = findRod(36, 45)
 
-        mc.thePlayer.inventory.currentItem = rod
+        mc.player.inventory.currentItem = rod
         // We do not need to send our own packet, because sendUseItem will handle it for us
         // TODO: Use SilentHotbar, instead
-        mc.playerController.sendUseItem(mc.thePlayer, mc.theWorld, mc.thePlayer.hotBarSlot(rod).stack)
+        mc.playerController.sendUseItem(mc.player, mc.world, mc.player.hotBarSlot(rod).stack)
 
         rodInUse = true
         rodPullTimer.reset()
@@ -164,7 +164,7 @@ object AutoRod : Module("AutoRod", Category.COMBAT) {
 
     private fun findRod(startSlot: Int, endSlot: Int): Int {
         for (i in startSlot until endSlot) {
-            val stack = mc.thePlayer.inventorySlot(i).stack
+            val stack = mc.player.inventorySlot(i).stack
             if (stack != null && stack.item === Items.fishing_rod) {
                 return i - 36
             }
@@ -173,9 +173,9 @@ object AutoRod : Module("AutoRod", Category.COMBAT) {
     }
 
     private fun getAllNearbyEnemies(): List<Entity> {
-        val player = mc.thePlayer ?: return emptyList()
+        val player = mc.player ?: return emptyList()
 
-        return mc.theWorld.loadedEntityList.filter {
+        return mc.world.loadedEntityList.filter {
             isSelected(it, true) && player.getDistanceToEntityBox(it) < activationDistance
         }
     }

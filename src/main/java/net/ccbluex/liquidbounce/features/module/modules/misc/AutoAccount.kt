@@ -86,7 +86,7 @@ object AutoAccount :
 
     private fun relog(info: String = "") {
         // Disconnect from server
-        if (mc.currentServerData != null && mc.theWorld != null)
+        if (mc.currentServerData != null && mc.world != null)
             mc.netHandler.networkManager.closeChannel(
                 ChatComponentText("$info\n\nReconnecting with a random account in ${reconnectDelay}ms")
             )
@@ -106,7 +106,7 @@ object AutoAccount :
             addNotification(Notification("Trying to register."))
             launchSequence(Dispatchers.IO) {
                 delay(sendDelay.random().toLong())
-                mc.thePlayer.sendChatMessage("/register $password $password")
+                mc.player.sendChatMessage("/register $password $password")
             }
             true
         }
@@ -115,7 +115,7 @@ object AutoAccount :
             addNotification(Notification("Trying to log in."))
             launchSequence(Dispatchers.IO) {
                 delay(sendDelay.random().toLong())
-                mc.thePlayer.sendChatMessage("/login $password")
+                mc.player.sendChatMessage("/login $password")
             }
             true
         }
@@ -177,14 +177,14 @@ object AutoAccount :
         if (!passwordValue.isSupported()) return@handler
 
         // Reset status if player wasn't in a world before
-        if (mc.theWorld == null) {
+        if (mc.world == null) {
             status = Status.WAITING
             return@handler
         }
 
         if (status == Status.SENT_COMMAND) {
             // Server redirected the player to a lobby, success
-            if (event.worldClient != null && mc.theWorld != event.worldClient) success()
+            if (event.worldClient != null && mc.world != event.worldClient) success()
             // Login failed, possibly relog
             else fail()
         }

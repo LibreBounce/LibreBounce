@@ -12,14 +12,14 @@ object Boost : SpeedMode("Boost") {
     private var motionDelay = 0
 
     override fun onMotion() {
-        mc.thePlayer?.run {
+        mc.player?.run {
             var ground = 0f
             var speed = 3.1981
             var offset = 4.69
             var shouldOffset = true
 
-            if (mc.theWorld.getCollidingBoundingBoxes(
-                    mc.thePlayer,
+            if (mc.world.getCollidingBoundingBoxes(
+                    mc.player,
                     entityBoundingBox.offset(motionX / offset, 0.0, motionZ / offset)
                 ).isNotEmpty()
             ) {
@@ -73,5 +73,5 @@ object Boost : SpeedMode("Boost") {
 
 
     private fun shouldSpeedUp() =
-        mc.thePlayer.isMoving && !mc.thePlayer.isInLava && !mc.thePlayer.isOnLadder
+        mc.player.isMoving && !mc.player.isInLava && !mc.player.isOnLadder
 }

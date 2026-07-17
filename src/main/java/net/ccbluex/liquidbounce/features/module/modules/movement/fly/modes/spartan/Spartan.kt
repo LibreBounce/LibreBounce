@@ -21,7 +21,7 @@ object Spartan : FlyMode("Spartan") {
     }
 
     override fun onUpdate() {
-        mc.thePlayer?.apply {
+        mc.player?.apply {
             motionY = 0.0
 
             if (timer.resetIfPassed()) {

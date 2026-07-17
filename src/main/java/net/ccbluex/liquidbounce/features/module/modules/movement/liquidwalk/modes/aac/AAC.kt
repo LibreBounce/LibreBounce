@@ -11,7 +11,7 @@ import net.minecraft.init.Blocks.water
 
 object AAC : LiquidWalkMode("AAC") {
     override fun onUpdate() {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (isSneaking) return
 
             val blockPos = position.down()

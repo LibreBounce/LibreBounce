@@ -19,7 +19,7 @@ object MineSecure : FlyMode("MineSecure") {
     private val timer = MSTimer()
 
     override fun onUpdate() {
-        mc.thePlayer?.run {
+        mc.player?.run {
             capabilities.isFlying = false
 
             motionY = if (mc.gameSettings.keyBindSneak.isKeyDown) 0.0

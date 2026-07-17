@@ -57,7 +57,7 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT) {
     private var lastBlocking = 0L
 
     private val shouldAutoClick
-        get() = mc.thePlayer.capabilities.isCreativeMode || (!breakBlocks || !mc.objectMouseOver.typeOfHit.isBlock)
+        get() = mc.player.capabilities.isCreativeMode || (!breakBlocks || !mc.objectMouseOver.typeOfHit.isBlock)
 
     private var target: LivingEntity? = null
 
@@ -75,7 +75,7 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT) {
     }
 
     val onRender3D = handler<Render3DEvent> {
-        mc.thePlayer?.let { player ->
+        mc.player?.let { player ->
             val time = System.currentTimeMillis()
             val doubleClick = if (simulateDoubleClicking) nextInt(-1, 1) else 0
 
@@ -111,14 +111,14 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT) {
     }
 
     private val entities by EntityLookup<LivingEntity> {
-        isSelected(it, true) && mc.thePlayer.getDistanceToEntityBox(it) <= range
+        isSelected(it, true) && mc.player.getDistanceToEntityBox(it) <= range
     }
 
     private fun getNearestEntityInRange(): Entity? {
-        return entities.minByOrNull { mc.thePlayer.getDistanceToEntityBox(it) }
+        return entities.minByOrNull { mc.player.getDistanceToEntityBox(it) }
     }
 
-    private fun shouldAutoRightClick() = mc.thePlayer.heldItem?.itemUseAction in arrayOf(EnumAction.BLOCK)
+    private fun shouldAutoRightClick() = mc.player.heldItem?.itemUseAction in arrayOf(EnumAction.BLOCK)
 
     private fun handleLeftClick(time: Long, doubleClick: Int) {
         val shouldHit = target == null || if (SmartHit.handleEvents()) SmartHit.shouldHit(target!!) else target!!.hurtTime <= hurtTime

@@ -20,7 +20,7 @@ object ReverseStep : Module("ReverseStep", Category.MOVEMENT) {
     private var jumped = false
 
     val onUpdate = handler<UpdateEvent>(always = true) {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (onGround)
                 jumped = false
 

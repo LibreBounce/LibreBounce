@@ -69,7 +69,7 @@ object InventoryMove : Module("InventoryMove", Category.MOVEMENT, gameDetecting 
     )
 
     val onUpdate = handler<UpdateEvent>(priority = -1) {
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
         val screen = mc.currentScreen
 
         if (shouldFreezeInputs(screen)) {
@@ -122,7 +122,7 @@ object InventoryMove : Module("InventoryMove", Category.MOVEMENT, gameDetecting 
 
     val onPacket = handler<PacketEvent> { event ->
         val packet = event.packet
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
 
         if (!saveC0E) return@handler
 

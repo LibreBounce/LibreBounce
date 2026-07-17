@@ -56,7 +56,7 @@ data class Rotation(var yaw: Float, var pitch: Float) : MinecraftInstance {
     /**
      * Set rotations to [player]
      */
-    fun toPlayer(player: PlayerEntity = mc.thePlayer, changeYaw: Boolean = true, changePitch: Boolean = true) {
+    fun toPlayer(player: PlayerEntity = mc.player, changeYaw: Boolean = true, changePitch: Boolean = true) {
         if (yaw.isNaN() || pitch.isNaN() || pitch > 90 || pitch < -90) return
 
         fixedSensitivity()
@@ -89,7 +89,7 @@ data class Rotation(var yaw: Float, var pitch: Float) : MinecraftInstance {
      * @author bestnub
      */
     fun applyStrafeToPlayer(event: StrafeEvent, strict: Boolean = false) {
-        val player = mc.thePlayer
+        val player = mc.player
 
         // TODO: Slightly rounded rotationYaw number for stabler bridging, in Scaffold
         val diff = (player.rotationYaw - yaw).toRadians()

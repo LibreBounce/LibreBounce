@@ -95,7 +95,7 @@ object FriendCommand : Command("friend", "friends") {
             2 -> {
                 when (args[0].lowercase()) {
                     "add" -> {
-                        return mc.theWorld.playerEntities
+                        return mc.world.playerEntities
                             .mapNotNull { it.name?.takeIf { name -> name.startsWith(args[1], true) } }
                     }
 

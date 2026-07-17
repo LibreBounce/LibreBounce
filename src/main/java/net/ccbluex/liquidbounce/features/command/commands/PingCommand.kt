@@ -11,7 +11,7 @@ import net.minecraft.entity.living.player.PlayerEntity
 
 object PingCommand : Command("ping") {
     override fun execute(args: Array<String>) {
-        val ping = (mc.thePlayer as PlayerEntity).getPing()
+        val ping = (mc.player as PlayerEntity).getPing()
 
         chat("§3Your ping is §a${ping}ms§3.")
     }

@@ -9,7 +9,7 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.noweb.modes.NoW
 
 object IntaveOld : NoWebMode("IntaveOld") {
     override fun onUpdate() {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (!isInWeb)
                 return
 

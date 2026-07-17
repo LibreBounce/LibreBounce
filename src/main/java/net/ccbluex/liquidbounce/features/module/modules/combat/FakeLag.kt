@@ -88,13 +88,13 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
     private var renderData = ModelRenderData(Vec3d_ZERO, Rotation.ZERO)
 
     override fun onDisable() {
-        if (mc.thePlayer == null) return
+        if (mc.player == null) return
 
         blink()
     }
 
     val onPacket = handler<PacketEvent> { event ->
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
         val packet = event.packet
 
         if (!handleEvents() || player.isDead || event.isCancelled || ignoreWholeTick) {
@@ -211,15 +211,15 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
     }
 
     val onGameLoop = handler<GameLoopEvent> {
-        val player = mc.thePlayer ?: return@handler
-        mc.theWorld ?: return@handler
+        val player = mc.player ?: return@handler
+        mc.world ?: return@handler
 
         val playerPos = player.currPos
         val serverPos = positions.firstOrNull()?.pos ?: playerPos
 
         val playerBox = player.hitBox.offset(serverPos - playerPos)
 
-        mc.theWorld.playerEntities.forEach { otherPlayer ->
+        mc.world.playerEntities.forEach { otherPlayer ->
             if (otherPlayer == player) return@forEach
 
             val entityMixin = otherPlayer as? IMixinEntity
@@ -274,7 +274,7 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
     }
 
     val onRender3D = handler<Render3DEvent> { event ->
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
 
         if (Blink.blinkingSend() || positions.isEmpty()) {
             renderData.reset(player)
@@ -369,8 +369,8 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
 
     private fun onAllowedHurtTime(): Boolean {
         return when (ownHurtTimeHandling) {
-            "Allow" -> mc.thePlayer!!.hurtTime in ownHurtTime
-            "Forbid" -> mc.thePlayer!!.hurtTime !in ownHurtTime
+            "Allow" -> mc.player!!.hurtTime in ownHurtTime
+            "Forbid" -> mc.player!!.hurtTime !in ownHurtTime
             else -> true
         }
     }

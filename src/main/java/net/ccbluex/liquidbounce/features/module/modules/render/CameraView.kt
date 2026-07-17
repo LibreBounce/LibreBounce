@@ -27,7 +27,7 @@ object CameraView : Module("CameraView", Category.RENDER, gameDetecting = false)
     private var launchY: Double? = null
 
     override fun onEnable() {
-        mc.thePlayer?.run {
+        mc.player?.run {
             launchY = posY
         }
     }
@@ -35,7 +35,7 @@ object CameraView : Module("CameraView", Category.RENDER, gameDetecting = false)
     val onMotion = handler<MotionEvent> { event ->
         if (event.eventState != EventState.POST) return@handler
 
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (!saveLastGroundY || (onGround || ticksExisted == 1)) {
                 launchY = posY
             }
@@ -43,7 +43,7 @@ object CameraView : Module("CameraView", Category.RENDER, gameDetecting = false)
     }
 
     val onCameraUpdate = handler<CameraPositionEvent> { event ->
-        mc.thePlayer?.run {
+        mc.player?.run {
             val currentLaunchY = launchY ?: return@handler
             val shouldOperate = (onFly && Fly.handleEvents()) || (onLongJump && LongJump.handleEvents()) || (onScaffold && Scaffold.handleEvents())
 

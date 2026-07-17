@@ -29,7 +29,7 @@ import net.minecraft.item.ItemPotion
 object CustomSpeed : SpeedMode("Custom") {
 
     override fun onMotion() {
-        mc.thePlayer?.run {
+        mc.player?.run {
             val fallingPlayer = FallingPlayer()
 
             if (notOnVoid && fallingPlayer.findCollision(500) == null
@@ -62,7 +62,7 @@ object CustomSpeed : SpeedMode("Custom") {
     }
 
     override fun onEnable() {
-        val player = mc.thePlayer ?: return
+        val player = mc.player ?: return
 
         if (Speed.resetXZ) player.stopXZ()
         if (Speed.resetY) player.stopY()

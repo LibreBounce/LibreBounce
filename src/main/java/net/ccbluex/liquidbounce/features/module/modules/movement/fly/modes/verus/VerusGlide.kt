@@ -16,7 +16,7 @@ import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 object VerusGlide : FlyMode("VerusGlide") {
 
     override fun onUpdate() {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (isInLiquid || isInWeb || isOnLadder) return
 
             if (!onGround && fallDistance > 1) {

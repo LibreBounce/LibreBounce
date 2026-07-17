@@ -13,7 +13,7 @@ object AAC : NoFallMode("AAC") {
     private var currentState = 0
 
     override fun onUpdate() {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (fallDistance > 2f) {
                 sendPacket(PlayerMoveC2SPacket(true))
                 currentState = 2

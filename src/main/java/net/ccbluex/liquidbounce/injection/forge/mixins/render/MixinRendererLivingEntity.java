@@ -73,7 +73,7 @@ public abstract class MixinRendererLivingEntity extends MixinRender {
     private <T extends LivingEntity> void renderModel(T p_renderModel_1_, float p_renderModel_2_, float p_renderModel_3_, float p_renderModel_4_, float p_renderModel_5_, float p_renderModel_6_, float p_renderModel_7_, CallbackInfo ci) {
         boolean visible = !p_renderModel_1_.isInvisible();
         final TrueSight trueSight = TrueSight.INSTANCE;
-        boolean semiVisible = !visible && (!p_renderModel_1_.isInvisibleToPlayer(mc.thePlayer) || (trueSight.handleEvents() && trueSight.getEntities()));
+        boolean semiVisible = !visible && (!p_renderModel_1_.isInvisibleToPlayer(mc.player) || (trueSight.handleEvents() && trueSight.getEntities()));
 
         if (visible || semiVisible) {
             final ESP esp = ESP.INSTANCE;

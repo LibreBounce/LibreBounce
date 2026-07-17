@@ -62,14 +62,14 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
     private val timer = MSTimer()
 
     override fun onDisable() {
-        val player = mc.thePlayer ?: return
+        val player = mc.player ?: return
 
         // Change step height back to default (0.6 is default)
         player.stepHeight = 0.6F
     }
 
     val onUpdate = loopSequence {
-        val player = mc.thePlayer ?: return@loopSequence
+        val player = mc.player ?: return@loopSequence
 
         if (player.isOnLadder || player.isInLiquid || player.isInWeb) return@loopSequence
 
@@ -142,7 +142,7 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
     }
 
     val onMove = handler<MoveEvent> { event ->
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
 
         if (mode != "MotionNCP" || !player.isCollidedHorizontally || mc.gameSettings.keyBindJump.isKeyDown)
             return@handler
@@ -172,7 +172,7 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
     }
 
     val onStep = handler<StepEvent> { event ->
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
 
         // Phase should disable step
         if (Phase.handleEvents()) {
@@ -215,7 +215,7 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
     }
 
     val onStepConfirm = handler<StepConfirmEvent>(always = true) {
-        val player = mc.thePlayer
+        val player = mc.player
 
         if (player == null || !isStep) // Check if step
             return@handler
@@ -287,14 +287,14 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
 
     // There could be some anti cheats which tries to detect step by checking for achievements and stuff
     private fun fakeJump() {
-        val player = mc.thePlayer ?: return
+        val player = mc.player ?: return
 
         player.isAirBorne = true
         player.triggerAchievement(StatList.jumpStat)
     }
 
     private fun couldStep(): Boolean {
-        val player = mc.thePlayer ?: return false
+        val player = mc.player ?: return false
 
         if (player.isSneaking || mc.gameSettings.keyBindJump.isKeyDown)
             return false
@@ -307,7 +307,7 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
             val x = -sin(adjustedYaw) * 0.2
             val z = cos(adjustedYaw) * 0.2
 
-            if (mc.theWorld.getCollisionBoxes(player.entityBoundingBox.offset(x, heightOffset, z)).isNotEmpty()) {
+            if (mc.world.getCollisionBoxes(player.entityBoundingBox.offset(x, heightOffset, z)).isNotEmpty()) {
                 return false
             }
         }

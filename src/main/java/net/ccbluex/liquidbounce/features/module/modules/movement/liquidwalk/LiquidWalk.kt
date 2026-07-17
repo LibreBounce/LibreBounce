@@ -41,31 +41,31 @@ object LiquidWalk : Module("LiquidWalk", Category.MOVEMENT, Keyboard.KEY_J) {
     private val noJump by boolean("NoJump", false)
 
     val onUpdate = handler<UpdateEvent> { event ->
-        mc.thePlayer ?: return@handler
+        mc.player ?: return@handler
 
         modeModule.onUpdate()
     }
 
     val onMove = handler<MoveEvent> { event ->
-        mc.thePlayer ?: return@handler
+        mc.player ?: return@handler
 
         modeModule.onMove(event)
     }
 
     val onPacket = handler<PacketEvent> { event ->
-        mc.thePlayer ?: return@handler
+        mc.player ?: return@handler
 
         modeModule.onPacket(event)
     }
 
     val onBB = handler<BlockBBEvent> { event ->
-        mc.thePlayer ?: return@handler
+        mc.player ?: return@handler
 
         modeModule.onBB(event)
     }
 
     val onJump = handler<JumpEvent> { event ->
-        mc.thePlayer?.run {
+        mc.player?.run {
             val block = BlockPos(posX, posY - 0.01, posZ).block
 
             if (noJump && block is BlockLiquid)

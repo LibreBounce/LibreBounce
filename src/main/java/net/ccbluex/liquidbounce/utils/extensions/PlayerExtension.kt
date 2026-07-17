@@ -166,7 +166,7 @@ fun LocalClientPlayerEntity.setFixedSensitivityAngles(yaw: Float? = null, pitch:
 }
 
 var LocalClientPlayerEntity.fixedSensitivityYaw
-    get() = getFixedSensitivityAngle(mc.thePlayer.rotationYaw)
+    get() = getFixedSensitivityAngle(mc.player.rotationYaw)
     set(yaw) {
         rotationYaw = getFixedSensitivityAngle(yaw, rotationYaw)
     }
@@ -298,10 +298,10 @@ fun LocalClientPlayerEntity.sendUseItem(stack: ItemStack): Boolean {
 
     return if (newStack != stack || newStack.stackSize != prevSize) {
         if (newStack.stackSize <= 0) {
-            mc.thePlayer.inventory.mainInventory[SilentHotbar.currentSlot] = null
-            ForgeEventFactory.onPlayerDestroyItem(mc.thePlayer, newStack)
+            mc.player.inventory.mainInventory[SilentHotbar.currentSlot] = null
+            ForgeEventFactory.onPlayerDestroyItem(mc.player, newStack)
         } else
-            mc.thePlayer.inventory.mainInventory[SilentHotbar.currentSlot] = newStack
+            mc.player.inventory.mainInventory[SilentHotbar.currentSlot] = newStack
 
         true
     } else false

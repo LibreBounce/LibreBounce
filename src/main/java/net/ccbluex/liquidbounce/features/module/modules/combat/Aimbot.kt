@@ -197,7 +197,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
      * Tick event
      */
     val onTick = handler<GameTickEvent>(priority = 2) {
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
 
         if (shouldPrioritize()) {
             target = null
@@ -255,8 +255,8 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
         // TODO: Use target, instead
         val currentTarget = this.target ?: return@handler
 
-        val player = mc.thePlayer ?: return@handler
-        val world = mc.theWorld ?: return@handler
+        val player = mc.player ?: return@handler
+        val world = mc.world ?: return@handler
 
         val switchMode = targetMode == "Switch"
 
@@ -282,8 +282,8 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
 
         val switchMode = targetMode == "Switch"
 
-        val world = mc.theWorld ?: return
-        val player = mc.thePlayer ?: return
+        val world = mc.world ?: return
+        val player = mc.player ?: return
 
         var bestTarget: LivingEntity? = null
         var bestValue: Double? = null
@@ -351,7 +351,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
      * Update rotations to enemy
      */
     private fun updateRotations(entity: Entity): Boolean {
-        val player = mc.thePlayer ?: return false
+        val player = mc.player ?: return false
 
         if (clickOnly && (clickTimer.hasTimePassed(clickDelay) || !mc.gameSettings.keyBindAttack.isKeyDown && AutoClicker.handleEvents())) {
             return false
@@ -435,7 +435,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
     }
 
     private fun drawAimPointBox() {
-        val player = mc.thePlayer ?: return
+        val player = mc.player ?: return
         val target = this.target ?: return
 
         if (!renderAimPointBox) {
@@ -465,7 +465,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
      * Check if run should be cancelled
      */
     private val cancelRun
-        inline get() = mc.thePlayer.isSpectator || !isAlive(mc.thePlayer) || (notOnConsume && isConsumingItem())
+        inline get() = mc.player.isSpectator || !isAlive(mc.player) || (notOnConsume && isConsumingItem())
 
     /**
      * Check if [entity] is alive

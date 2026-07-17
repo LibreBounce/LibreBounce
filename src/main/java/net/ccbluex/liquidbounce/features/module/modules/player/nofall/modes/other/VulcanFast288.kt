@@ -18,7 +18,7 @@ import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.Position
 */
 object VulcanFast288 : NoFallMode("VulcanFast2.8.8") {
     override fun onPacket(event: PacketEvent) {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (event.packet is Position) {
                 val fallingPlayer = FallingPlayer()
                 if (fallDistance > 2.5 && fallDistance < 50) {

@@ -31,7 +31,7 @@ object TeleportHit : Module("TeleportHit", Category.COMBAT) {
 
         val facedEntity = raycastEntity(100.0) { raycastedEntity -> raycastedEntity is LivingEntity }
 
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
 
         if (mc.gameSettings.keyBindAttack.isKeyDown && isSelected(facedEntity, true)) {
             if (facedEntity?.getDistanceSqToEntity(player)!! >= 1) targetEntity = facedEntity as LivingEntity

@@ -17,7 +17,7 @@ object AutoFish : Module("AutoFish", Category.PLAYER, subjective = true, gameDet
     private val rodOutTimer = MSTimer()
 
     val onUpdate = handler<UpdateEvent> {
-        val player = mc.thePlayer
+        val player = mc.player
 
         if (player?.heldItem == null || player.heldItem.item !is ItemFishingRod)
             return@handler

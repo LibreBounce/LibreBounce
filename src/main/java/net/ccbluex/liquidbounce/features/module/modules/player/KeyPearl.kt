@@ -55,7 +55,7 @@ object KeyPearl : Module("KeyPearl", Category.PLAYER, subjective = true, gameDet
                 render = false,
                 resetManually = true
             )
-            sendPacket(PlayerUseC2SPacket(mc.thePlayer.heldItem))
+            sendPacket(PlayerUseC2SPacket(mc.player.heldItem))
             SilentHotbar.resetSlot(this)
             return
         }
@@ -67,7 +67,7 @@ object KeyPearl : Module("KeyPearl", Category.PLAYER, subjective = true, gameDet
             render = false,
             resetManually = true
         )
-        sendPacket(PlayerUseC2SPacket(mc.thePlayer.heldItem))
+        sendPacket(PlayerUseC2SPacket(mc.player.heldItem))
         hasThrown = true
     }
 

@@ -25,10 +25,10 @@ object AutoTool : Module("AutoTool", Category.PLAYER, subjective = true, gameDet
     }
 
     val onClick = handler<ClickBlockEvent> { event ->
-        mc.thePlayer?.run {
-            val block = mc.theWorld.getBlockState(event.clickedBlock ?: return@handler).block
+        mc.player?.run {
+            val block = mc.world.getBlockState(event.clickedBlock ?: return@handler).block
 
-            if (onlySneaking && !isSneaking || block.getBlockHardness(mc.theWorld, event.clickedBlock) == 0f)
+            if (onlySneaking && !isSneaking || block.getBlockHardness(mc.world, event.clickedBlock) == 0f)
                 return@handler
 
             var fastest = 1f

@@ -27,7 +27,7 @@ object Eagle : Module("Eagle", Category.PLAYER) {
     private val sneakTimer = TickDelayTimer(maxSneakTime.first, maxSneakTime.last)
 
     val onUpdate = handler<UpdateEvent> {
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
 
         if (GameOptions.isKeyDown(mc.gameSettings.keyBindSneak)) return@handler
 

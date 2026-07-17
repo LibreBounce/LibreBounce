@@ -17,7 +17,7 @@ object Frame : SpeedMode("Frame") {
     private val tickTimer = TickTimer()
 
     override fun onMotion() {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (isMoving) {
                 val speed = 4.25
 

@@ -22,7 +22,7 @@ import net.minecraft.potion.Potion
 object BlocksMCHop : SpeedMode("BlocksMCHop") {
 
     override fun onUpdate() {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (isInLiquid || isInWeb || isOnLadder) return
 
             if (isMoving) {

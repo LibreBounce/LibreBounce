@@ -63,7 +63,7 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT) {
     private var legitHop = false
 
     val onUpdate = handler<UpdateEvent> {
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
 
         if (Speed.handleEvents() || noHurt && player.hurtTime > 0) {
             reset()
@@ -221,7 +221,7 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT) {
     override fun onDisable() = reset()
 
     private fun reset() {
-        val player = mc.thePlayer ?: return
+        val player = mc.player ?: return
         legitHop = true
         speed = 0.0
 
@@ -232,8 +232,8 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT) {
     }
 
     private fun boost(boost: Float) {
-        mc.thePlayer.motionX *= boost
-        mc.thePlayer.motionZ *= boost
+        mc.player.motionX *= boost
+        mc.player.motionZ *= boost
 
         speed = MovementUtils.speed.toDouble()
 
@@ -243,7 +243,7 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT) {
 
     private val isNearBlock: Boolean
         get() {
-            val player = mc.thePlayer
+            val player = mc.player
             val blocks = arrayOf(
                 BlockPos(player.posX, player.posY + 1, player.posZ - 0.7),
                 BlockPos(player.posX + 0.7, player.posY + 1, player.posZ),
@@ -252,9 +252,9 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT) {
             )
 
             for (blockPos in blocks) {
-                val blockState = mc.theWorld.getBlockState(blockPos)
+                val blockState = mc.world.getBlockState(blockPos)
 
-                val collisionBoundingBox = blockState.block.getCollisionBoundingBox(mc.theWorld, blockPos, blockState)
+                val collisionBoundingBox = blockState.block.getCollisionBoundingBox(mc.world, blockPos, blockState)
 
                 if ((collisionBoundingBox == null || collisionBoundingBox.maxX ==
                             collisionBoundingBox.minY + 1) &&

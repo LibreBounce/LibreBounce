@@ -24,7 +24,7 @@ object ReachA : Check("ReachA") {
     override fun onUpdate() {
         if (target == null) return
 
-        val player = mc.thePlayer
+        val player = mc.player
 
         val targetPing = (target!! as PlayerEntity).getPing()
 

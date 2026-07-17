@@ -70,7 +70,7 @@ public abstract class MixinPlayerEntity extends MixinLivingEntity {
 
     @Inject(method = "onUpdate", at = @At("RETURN"))
     private void injectCooldown(final CallbackInfo callbackInfo) {
-        if (getGameProfile() == mc.thePlayer.getGameProfile()) {
+        if (getGameProfile() == mc.player.getGameProfile()) {
             CooldownHelper.INSTANCE.incrementLastAttackedTicks();
             CooldownHelper.INSTANCE.updateGenericAttackSpeed(getHeldItem());
 
@@ -121,8 +121,8 @@ public abstract class MixinPlayerEntity extends MixinLivingEntity {
         final KillAura killAura = KillAura.INSTANCE;
         final NoSlow noSlow = NoSlow.INSTANCE;
 
-        if ((Object) this == mc.thePlayer) {
-            ItemStack stack = mc.thePlayer.getHeldItem();
+        if ((Object) this == mc.player) {
+            ItemStack stack = mc.player.getHeldItem();
             if (itemInUseCount > 0 || !ClassUtils.INSTANCE.hasClass("com.orangemarshall.animations.BlockhitAnimation") || stack == null) {
                 return;
             }

@@ -10,7 +10,7 @@ import net.ccbluex.liquidbounce.utils.extensions.tryJump
 
 object Rewi : NoWebMode("Rewi") {
     override fun onUpdate() {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (!isInWeb)
                 return
 

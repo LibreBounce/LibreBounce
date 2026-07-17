@@ -12,7 +12,7 @@ object NeruxVace : FlyMode("NeruxVace") {
     private var tick = 0
 
     override fun onUpdate() {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (!onGround) {
                 if (tick >= neruxVaceTicks) {
                     tick = 0

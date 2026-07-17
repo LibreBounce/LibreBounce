@@ -9,7 +9,7 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.FlyMo
 
 object VulcanOld : FlyMode("VulcanOld") {
     override fun onUpdate() {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (!onGround && fallDistance > 0) {
                 motionY = if (ticksExisted % 2 == 0) -0.1
                 else -0.16

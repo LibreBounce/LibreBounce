@@ -13,7 +13,7 @@ import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 
 object HypixelHop : SpeedMode("HypixelHop") {
     override fun onStrafe() {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (isInLiquid) return
 
             if (onGround && isMoving) {

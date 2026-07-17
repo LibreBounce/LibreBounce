@@ -19,13 +19,13 @@ object MovementUtils : MinecraftInstance, Listenable {
     var affectSprintOnAttack: Boolean? = null
 
     var speed
-        get() = mc.thePlayer?.run { sqrt(motionX * motionX + motionZ * motionZ).toFloat() } ?: .0f
+        get() = mc.player?.run { sqrt(motionX * motionX + motionZ * motionZ).toFloat() } ?: .0f
         set(value) {
             strafe(value)
         }
 
     val hasMotion
-        get() = mc.thePlayer?.run { motionX != .0 || motionY != .0 || motionZ != .0 } == true
+        get() = mc.player?.run { motionX != .0 || motionY != .0 || motionZ != .0 } == true
 
     var airTicks = 0
     var groundTicks = 0
@@ -35,7 +35,7 @@ object MovementUtils : MinecraftInstance, Listenable {
         speed: Float = MovementUtils.speed, stopWhenNoInput: Boolean = false, moveEvent: MoveEvent? = null,
         strength: Double = 1.0,
     ) =
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (!isMoving) {
                 if (stopWhenNoInput) {
                     moveEvent?.zeroXZ()
@@ -84,13 +84,13 @@ object MovementUtils : MinecraftInstance, Listenable {
     }
 
     fun forward(distance: Double) =
-        mc.thePlayer?.run {
+        mc.player?.run {
             val yaw = rotationYaw.toRadiansD()
             setPosition(posX - sin(yaw) * distance, posY, posZ + cos(yaw) * distance)
         }
 
     val direction
-        get() = mc.thePlayer?.run {
+        get() = mc.player?.run {
             var yaw = rotationYaw
             var forward = 1f
 
@@ -101,16 +101,15 @@ object MovementUtils : MinecraftInstance, Listenable {
                 forward = 0.5f
             }
 
-            if (movementInput.moveStrafe < 0f) yaw += 90f * forward
-            else if (movementInput.moveStrafe > 0f) yaw -= 90f * forward
+            yaw -= (sign(movementInput.moveStrafe) * 90f) * forward
 
             yaw.toRadiansD()
         } ?: 0.0
 
     fun isOnGround(height: Double) =
-        mc.theWorld != null && mc.thePlayer != null &&
-            mc.theWorld.getCollidingBoundingBoxes(mc.thePlayer,
-                mc.thePlayer.entityBoundingBox.offset(Vec3d_ZERO.withY(-height))
+        mc.world != null && mc.player != null &&
+            mc.world.getCollidingBoundingBoxes(mc.player,
+                mc.player.entityBoundingBox.offset(Vec3d_ZERO.withY(-height))
             ).isNotEmpty()
 
     var serverOnGround = false

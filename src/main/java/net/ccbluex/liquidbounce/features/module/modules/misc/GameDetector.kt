@@ -53,8 +53,8 @@ object GameDetector : Module("GameDetector", Category.MISC, gameDetecting = fals
     val onUpdate = handler<UpdateEvent>(priority = 1) {
         isPlaying = false
 
-        val player = mc.thePlayer ?: return@handler
-        val world = mc.theWorld ?: return@handler
+        val player = mc.player ?: return@handler
+        val world = mc.world ?: return@handler
         val netHandler = mc.netHandler ?: return@handler
         val capabilities = player.capabilities
 

@@ -23,7 +23,7 @@ object SafeWalk : Module("SafeWalk", Category.MOVEMENT) {
     private var lastCollisionY: Int? = null
 
     val onMove = handler<MoveEvent> { event ->
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
 
         if (player.capabilities.allowFlying || player.capabilities.isFlying
             || !mc.playerController.gameIsSurvivalOrAdventure()

@@ -11,7 +11,7 @@ import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 
 object Packet : NoFallMode("Packet") {
     override fun onUpdate() {
-        if (mc.thePlayer.fallDistance > 2f)
+        if (mc.player.fallDistance > 2f)
             sendPacket(PlayerMoveC2SPacket(true))
     }
 }

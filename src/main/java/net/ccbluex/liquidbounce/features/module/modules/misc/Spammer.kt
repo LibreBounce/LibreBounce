@@ -21,7 +21,7 @@ object Spammer : Module("Spammer", Category.MISC, subjective = true) {
     private val custom by boolean("Custom", false)
 
     val onUpdate = loopSequence {
-        mc.thePlayer?.sendChatMessage(
+        mc.player?.sendChatMessage(
             if (custom) replace(message)
             else message + " >" + randomString(nextInt(5, 11)) + "<"
         )
@@ -61,7 +61,7 @@ object Spammer : Module("Spammer", Category.MISC, subjective = true) {
     private fun randomPlayer() =
         mc.netHandler.playerInfoMap
             .map { playerInfo -> playerInfo.gameProfile.name }
-            .filter { name -> name != mc.thePlayer.name }
+            .filter { name -> name != mc.player.name }
             .randomOrNull() ?: "none"
 
     private val replaceMap = mapOf(

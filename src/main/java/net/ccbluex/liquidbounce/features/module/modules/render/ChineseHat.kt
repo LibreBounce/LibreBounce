@@ -51,7 +51,7 @@ object ChineseHat : Module("ChineseHat", Category.RENDER) {
     private val thruBlocks by boolean("ThruBlocks", true)
 
     private val entityLookup by EntityLookup<LivingEntity>()
-        .filter { mc.thePlayer.getDistanceSqToEntity(it) <= maxRenderDistance * maxRenderDistance }
+        .filter { mc.player.getDistanceSqToEntity(it) <= maxRenderDistance * maxRenderDistance }
         .filter { bots || !isBot(it) }
         .filter { !onLook || isLookingOnEntities(it, maxAngleDifference.toDouble()) }
         .filter { thruBlocks || isEntityHeightVisible(it) }
@@ -60,7 +60,7 @@ object ChineseHat : Module("ChineseHat", Category.RENDER) {
         drawConesForEntities {
             for (entity in entityLookup) {
                 val isRenderingSelf =
-                    entity == mc.thePlayer && (mc.gameSettings.thirdPersonView != 0 || FreeCam.handleEvents())
+                    entity == mc.player && (mc.gameSettings.thirdPersonView != 0 || FreeCam.handleEvents())
 
                 if (!isRenderingSelf || !renderSelf) {
                     if (!isSelected(entity, false)) continue
@@ -93,7 +93,7 @@ object ChineseHat : Module("ChineseHat", Category.RENDER) {
     }
 
     private fun figureOutColor(entity: LivingEntity): Color {
-        val dist = mc.thePlayer.getDistanceSqToEntity(entity).coerceAtMost(255.0).toInt()
+        val dist = mc.player.getDistanceSqToEntity(entity).coerceAtMost(255.0).toInt()
 
         return when {
             entity is PlayerEntity && entity.isClientFriend() -> Color(0, 0, 255)

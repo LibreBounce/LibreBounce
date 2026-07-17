@@ -15,7 +15,7 @@ import kotlin.math.sin
 object SpectreOnGround : SpeedMode("SpectreOnGround") {
     private var speedUp = 0
     override fun onMove(event: MoveEvent) {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (!isMoving || movementInput.jump) return
 
             if (speedUp >= 10) {

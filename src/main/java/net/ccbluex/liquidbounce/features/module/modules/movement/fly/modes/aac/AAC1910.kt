@@ -23,7 +23,7 @@ object AAC1910 : FlyMode("AAC1.9.10") {
     }
 
     override fun onUpdate() {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (mc.gameSettings.keyBindJump.isKeyDown)
                 jump += 0.2
 

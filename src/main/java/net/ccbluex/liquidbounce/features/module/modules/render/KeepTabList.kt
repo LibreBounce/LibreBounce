@@ -14,7 +14,7 @@ import net.minecraft.client.options.GameOptions
 object KeepTabList : Module("KeepTabList", Category.RENDER, gameDetecting = false) {
 
     val onUpdate = handler<UpdateEvent> {
-        if (mc.thePlayer == null || mc.theWorld == null) return@handler
+        if (mc.player == null || mc.world == null) return@handler
 
         mc.gameSettings.keyBindPlayerList.pressed = true
     }

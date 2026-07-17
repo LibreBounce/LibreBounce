@@ -179,7 +179,7 @@ object Speed : Module("Speed", Category.MOVEMENT) {
     val safeY by boolean("SafeY", true) { mode.get() == "BlocksMCHop" }
 
     val onUpdate = handler<UpdateEvent> {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (isSneaking)
                 return@handler
 
@@ -191,7 +191,7 @@ object Speed : Module("Speed", Category.MOVEMENT) {
     }
 
     val onMotion = handler<MotionEvent> { event ->
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (isSneaking || event.eventState != EventState.PRE)
                 return@handler
 
@@ -203,42 +203,42 @@ object Speed : Module("Speed", Category.MOVEMENT) {
     }
 
     val onMove = handler<MoveEvent> { event ->
-        if (mc.thePlayer.isSneaking)
+        if (mc.player.isSneaking)
             return@handler
 
         modeModule.onMove(event)
     }
 
     val tickHandler = handler<GameTickEvent> {
-        if (mc.thePlayer.isSneaking)
+        if (mc.player.isSneaking)
             return@handler
 
         modeModule.onTick()
     }
 
     val onStrafe = handler<StrafeEvent> {
-        if (mc.thePlayer.isSneaking)
+        if (mc.player.isSneaking)
             return@handler
 
         modeModule.onStrafe()
     }
 
     val onJump = handler<JumpEvent> { event ->
-        if (mc.thePlayer.isSneaking)
+        if (mc.player.isSneaking)
             return@handler
 
         modeModule.onJump(event)
     }
 
     val onPacket = handler<PacketEvent> { event ->
-        if (mc.thePlayer.isSneaking)
+        if (mc.player.isSneaking)
             return@handler
 
         modeModule.onPacket(event)
     }
 
     override fun onEnable() {
-        if (mc.thePlayer == null)
+        if (mc.player == null)
             return
 
         mc.timer.timerSpeed = 1f
@@ -247,11 +247,11 @@ object Speed : Module("Speed", Category.MOVEMENT) {
     }
 
     override fun onDisable() {
-        if (mc.thePlayer == null)
+        if (mc.player == null)
             return
 
         mc.timer.timerSpeed = 1f
-        mc.thePlayer.speedInAir = 0.02f
+        mc.player.speedInAir = 0.02f
 
         modeModule.onDisable()
     }

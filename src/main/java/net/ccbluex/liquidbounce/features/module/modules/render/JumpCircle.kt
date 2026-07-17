@@ -36,7 +36,7 @@ object JumpCircle : Module("JumpCircle", Category.RENDER) {
 
     val onJump = handler<JumpEvent> {
         if (it.eventState === EventState.POST) {
-            circles += JumpData(mc.thePlayer.currPos, runTimeTicks + if (blackHole) lifeTime else 0)
+            circles += JumpData(mc.player.currPos, runTimeTicks + if (blackHole) lifeTime else 0)
         }
     }
 

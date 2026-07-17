@@ -29,7 +29,7 @@ object FreeLook : Module("FreeLook", Category.RENDER) {
     private var modifySavedRotations = true
 
     override fun onEnable() {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (autoF5 && mc.gameSettings.thirdPersonView != 1) {
                 mc.gameSettings.thirdPersonView = 1
             }
@@ -47,7 +47,7 @@ object FreeLook : Module("FreeLook", Category.RENDER) {
         if (mc.gameSettings.thirdPersonView != 0) {
             event.cancelEvent()
         } else {
-            currRotation = mc.thePlayer.rotation
+            currRotation = mc.player.rotation
             prevRotation = currRotation
         }
 
@@ -58,7 +58,7 @@ object FreeLook : Module("FreeLook", Category.RENDER) {
     }
 
     fun useModifiedRotation() {
-        val player = mc.thePlayer ?: return
+        val player = mc.player ?: return
 
         if (mc.gameSettings.thirdPersonView == 0)
             return
@@ -80,7 +80,7 @@ object FreeLook : Module("FreeLook", Category.RENDER) {
     }
 
     fun restoreOriginalRotation() {
-        val player = mc.thePlayer ?: return
+        val player = mc.player ?: return
 
         if (!handleEvents() || mc.gameSettings.thirdPersonView == 0)
             return

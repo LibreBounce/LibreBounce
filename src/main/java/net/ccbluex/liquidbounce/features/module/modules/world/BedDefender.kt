@@ -67,7 +67,7 @@ object BedDefender : Module("BedDefender", Category.WORLD) {
     private var blockPosition: BlockPos? = null
 
     override fun onDisable() {
-        val player = mc.thePlayer ?: return
+        val player = mc.player ?: return
 
         if (!GameOptions.isKeyDown(mc.gameSettings.keyBindSneak)) {
             mc.gameSettings.keyBindSneak.pressed = false
@@ -81,8 +81,8 @@ object BedDefender : Module("BedDefender", Category.WORLD) {
     }
 
     val onUpdate = handler<UpdateEvent> {
-        val player = mc.thePlayer ?: return@handler
-        val world = mc.theWorld ?: return@handler
+        val player = mc.player ?: return@handler
+        val world = mc.world ?: return@handler
 
         if (onSneakOnly && !mc.gameSettings.keyBindSneak.isKeyDown) {
             return@handler
@@ -171,7 +171,7 @@ object BedDefender : Module("BedDefender", Category.WORLD) {
             )
 
             for (pos in surroundingPositions) {
-                if (pos !in bedTopPositions && pos !in bedBottomPositions && mc.theWorld.isAirBlock(pos)) {
+                if (pos !in bedTopPositions && pos !in bedBottomPositions && mc.world.isAirBlock(pos)) {
                     defenceBlocks.add(pos)
                 }
             }
@@ -179,7 +179,7 @@ object BedDefender : Module("BedDefender", Category.WORLD) {
     }
 
     private fun placeBlock(blockPos: BlockPos, side: EnumFacing, hitVec: Vec3d) {
-        val player = mc.thePlayer ?: return
+        val player = mc.player ?: return
 
         var stack = player.inventorySlot(SilentHotbar.currentSlot + 36).stack ?: return
 
@@ -220,7 +220,7 @@ object BedDefender : Module("BedDefender", Category.WORLD) {
         side: EnumFacing,
         hitVec: Vec3d,
     ): Boolean {
-        val player = mc.thePlayer ?: return false
+        val player = mc.player ?: return false
 
         val prevSize = stack.stackSize
 
@@ -245,8 +245,8 @@ object BedDefender : Module("BedDefender", Category.WORLD) {
     }
 
     private fun isPlaceablePos(pos: BlockPos): Boolean {
-        val player = mc.thePlayer ?: return false
-        val world = mc.theWorld ?: return false
+        val player = mc.player ?: return false
+        val world = mc.world ?: return false
 
         return when (raycastMode) {
             "Normal" -> {
@@ -282,8 +282,8 @@ object BedDefender : Module("BedDefender", Category.WORLD) {
     }
 
     private fun performBlockRaytrace(rotation: Rotation, maxReach: Float): MovingObjectPosition? {
-        val player = mc.thePlayer ?: return null
-        val world = mc.theWorld ?: return null
+        val player = mc.player ?: return null
+        val world = mc.world ?: return null
 
         val eyes = player.eyes
         val rotationVec = getVectorForRotation(rotation)

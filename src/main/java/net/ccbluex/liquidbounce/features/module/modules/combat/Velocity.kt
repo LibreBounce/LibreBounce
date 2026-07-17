@@ -169,13 +169,13 @@ object Velocity : Module("Velocity", Category.COMBAT) {
 
     override fun onDisable() {
         pauseTicks = 0
-        mc.thePlayer?.speedInAir = 0.02F
+        mc.player?.speedInAir = 0.02F
         timerTicks = 0
         reset()
     }
 
     val onUpdate = handler<UpdateEvent> {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (isInLiquid || isInWeb || isDead)
                 return@handler
 
@@ -344,9 +344,9 @@ object Velocity : Module("Velocity", Category.COMBAT) {
      * @see net.minecraft.entity.living.LivingEntity.setSprinting
      */
     val onGameTick = handler<GameTickEvent> {
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
 
-        mc.theWorld ?: return@handler
+        mc.world ?: return@handler
 
         if (mode != "Click" || !(player.hurtTime in hurtTimeToAct) || ignoreBlocking && (player.isBlocking || KillAura.blockStatus))
             return@handler
@@ -377,7 +377,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
     }
 
     val onAttack = handler<AttackEvent> {
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
 
         if (mode != "IntaveReduce" || !hasReceivedVelocity) return@handler
 
@@ -390,7 +390,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
     }
 
     private fun checkAir(blockPos: BlockPos): Boolean {
-        val world = mc.theWorld ?: return false
+        val world = mc.world ?: return false
 
         if (!world.isAirBlock(blockPos)) {
             return false
@@ -410,28 +410,29 @@ object Velocity : Module("Velocity", Category.COMBAT) {
 
     // TODO: Recode
     private fun getDirection(): Double {
-        val player = mc.thePlayer
+        val player = mc.player
         var moveYaw = player.rotationYaw
 
         when {
-            player.moveForward != 0f && player.moveStrafing == 0f -> {
-                moveYaw += if (player.moveForward > 0) 0 else 180
-            }
-
             player.moveForward != 0f && player.moveStrafing != 0f -> {
                 if (player.moveForward > 0) moveYaw += if (player.moveStrafing > 0) -45 else 45 else moveYaw -= if (player.moveStrafing > 0) -45 else 45
                 moveYaw += if (player.moveForward > 0) 0 else 180
             }
 
-            player.moveStrafing != 0f && player.moveForward == 0f -> {
-                moveYaw += if (player.moveStrafing > 0) -90 else 90
+            player.moveForward != 0f -> {
+                moveYaw += if (player.moveForward > 0) 0 else 180
+            }
+
+            player.moveStrafing != 0f -> {
+                moveYaw -= sign(player.moveStrafing) * 90
             }
         }
+
         return Math.floorMod(moveYaw.toInt(), 360).toDouble()
     }
 
     val onPacket = handler<PacketEvent>(priority = 1) { event ->
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
 
         val packet = event.packet
 
@@ -545,17 +546,12 @@ object Velocity : Module("Velocity", Category.COMBAT) {
                     }
                 }
 
-                "HypixelAir" -> {
+                "HypixelAir", "S32Packet" -> {
                     hasReceivedVelocity = true
                     event.cancelEvent()
                 }
 
                 "Vulcan" -> event.cancelEvent()
-
-                "S32Packet" -> {
-                    hasReceivedVelocity = true
-                    event.cancelEvent()
-                }
             }
         }
 
@@ -595,7 +591,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
      * Tick Event (Abuse Timer Balance)
      */
     val onTick = handler<GameTickEvent> {
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
 
         if (mode != "GrimC03")
             return@handler
@@ -605,8 +601,8 @@ object Velocity : Module("Velocity", Category.COMBAT) {
             val timerSpeed = 0.8f + (0.2f * (20 - timerTicks) / 20)
             mc.timer.timerSpeed = timerSpeed.coerceAtMost(1f)
             --timerTicks
-        } else if (mc.timer.timerSpeed <= 1) {
-            mc.timer.timerSpeed = 1f
+        } else {
+            mc.timer.timerSpeed.coerceAtLeast(1f)
         }
 
         if (hasReceivedVelocity) {
@@ -674,7 +670,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
     }
 
     val onJump = handler<JumpEvent> { event ->
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (isInLiquid || isInWeb)
                 return@handler
 
@@ -692,7 +688,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
     }
 
     val onStrafe = handler<StrafeEvent> {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (mode == "Jump" && hasReceivedVelocity) {
                 if (!isJumping && withinChance(chance) && shouldJump() && (isSprinting || !onlySprinting) && onGround && hurtTime in hurtTimeToAct) {
                     tryJump()
@@ -712,14 +708,14 @@ object Velocity : Module("Velocity", Category.COMBAT) {
     }
 
     val onBlockBB = handler<BlockBBEvent> { event ->
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
 
         if (mode != "GhostBlock") return@handler
 
         if (hasReceivedVelocity) {
             if (player.hurtTime in hurtTimeToAct) {
                 // Check if there is air exactly 1 level above the player's Y position
-                if (event.block is BlockAir && event.y == mc.thePlayer.posY.toInt() + 1) {
+                if (event.block is BlockAir && event.y == mc.player.posY.toInt() + 1) {
                     event.boundingBox = AxisAlignedBB(
                         event.x.toDouble(),
                         event.y.toDouble(),
@@ -767,8 +763,8 @@ object Velocity : Module("Velocity", Category.COMBAT) {
                     }
                 }
 
-                mc.thePlayer.motionX = motionX * horizontal
-                mc.thePlayer.motionZ = motionZ * horizontal
+                mc.player.motionX = motionX * horizontal
+                mc.player.motionZ = motionZ * horizontal
             }
 
             // Don't modify player's motionY when vertical value is 0
@@ -778,7 +774,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
                 if (limitMaxMotionValue.get())
                     motionY = motionY.coerceAtMost(maxYMotion + 0.00075)
 
-                mc.thePlayer.motionY = motionY * vertical
+                mc.player.motionY = motionY * vertical
             }
         } else if (packet is ExplosionS2CPacket) {
             // Don't cancel explosions, modify them, they could change blocks in the world
@@ -817,9 +813,9 @@ object Velocity : Module("Velocity", Category.COMBAT) {
     }
 
     private fun getNearestEntityInRange(range: Float = this.range): Entity? {
-        val player = mc.thePlayer ?: return null
+        val player = mc.player ?: return null
 
-        return mc.theWorld.loadedEntityList.filter {
+        return mc.world.loadedEntityList.filter {
             isSelected(it, true) && player.getDistanceToEntityBox(it) <= range
         }.minByOrNull { player.getDistanceToEntityBox(it) }
     }

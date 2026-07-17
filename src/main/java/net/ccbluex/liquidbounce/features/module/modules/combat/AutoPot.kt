@@ -61,7 +61,7 @@ object AutoPot : Module("AutoPot", Category.COMBAT) {
         if (!msTimer.hasTimePassed(delay) || mc.playerController.isInCreativeMode)
             return@handler
 
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
 
         // Hotbar Potion
         val potionInHotbar = findPotion(36, 44)
@@ -131,7 +131,7 @@ object AutoPot : Module("AutoPot", Category.COMBAT) {
     }
 
     private fun findPotion(startSlot: Int, endSlot: Int): Int? {
-        val player = mc.thePlayer
+        val player = mc.player
 
         fun onEffect(potion: Potion): Boolean = player.isPotionActive(potion)
 

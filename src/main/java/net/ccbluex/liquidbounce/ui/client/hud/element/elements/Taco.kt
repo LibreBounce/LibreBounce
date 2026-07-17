@@ -31,7 +31,7 @@ class Taco(x: Double = 2.0, y: Double = 441.0) : Element("Taco", x = x, y = y) {
     private val tacoTextures = Array(12) { i -> Identifier("librebounce/taco/${i + 1}.png") }
 
     override fun drawElement(): Border {
-        val player = mc.thePlayer ?: return Border(0F, 0F, 0F, 0F)
+        val player = mc.player ?: return Border(0F, 0F, 0F, 0F)
 
         if (tacoToggle || player.ticksExisted < 20)
             return Border(0F, 0F, 0F, 0F)

@@ -23,7 +23,7 @@ import net.minecraft.potion.Potion
 object HypixelLowHop : SpeedMode("HypixelLowHop") {
 
     override fun onUpdate() {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (!isMoving || fallDistance > 1.2) return
 
             if (onGround) {
@@ -63,7 +63,7 @@ object HypixelLowHop : SpeedMode("HypixelLowHop") {
     }
 
     override fun onJump(event: JumpEvent) {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (!isMoving) return
             val atLeast = 0.281F + 0.13F * (getActivePotionEffect(Potion.moveSpeed)?.amplifier ?: 0)
 

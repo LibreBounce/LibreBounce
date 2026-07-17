@@ -14,7 +14,7 @@ import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.Position
 
 object AAC3311 : NoFallMode("AAC3.3.11") {
     override fun onUpdate() {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (fallDistance > 2) {
                 stopXZ()
 

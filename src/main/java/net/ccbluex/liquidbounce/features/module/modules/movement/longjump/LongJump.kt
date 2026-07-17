@@ -50,7 +50,7 @@ object LongJump : Module("LongJump", Category.MOVEMENT) {
     var canBoost = false
 
     val onUpdate = handler<UpdateEvent> {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (jumped) {
                 if (onGround || capabilities.isFlying) {
                     jumped = false

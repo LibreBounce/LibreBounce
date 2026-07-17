@@ -113,9 +113,9 @@ object BedPlates : Module("BedPlates", Category.RENDER) {
     )
 
     val onUpdate = loopSequence(dispatcher = Dispatchers.Default) {
-        val world = mc.theWorld ?: return@loopSequence
+        val world = mc.world ?: return@loopSequence
 
-        val searchCenter = mc.thePlayer?.position ?: return@loopSequence
+        val searchCenter = mc.player?.position ?: return@loopSequence
 
         val radius = maxRenderDistance
         val radiusSq = radius * radius
@@ -183,13 +183,13 @@ object BedPlates : Module("BedPlates", Category.RENDER) {
     }
 
     val onRender3D = handler<Render3DEvent> {
-        if (mc.thePlayer == null || mc.theWorld == null || bedStates.isEmpty()) return@handler
+        if (mc.player == null || mc.world == null || bedStates.isEmpty()) return@handler
 
         bedStates.values.forEach(::drawPlate)
     }
 
     private fun drawPlate(bedState: BedState) {
-        val player = mc.thePlayer ?: return
+        val player = mc.player ?: return
         val renderManager = mc.renderManager ?: return
         val rotateX = if (mc.gameSettings.thirdPersonView == 2) -1.0f else 1.0f
 

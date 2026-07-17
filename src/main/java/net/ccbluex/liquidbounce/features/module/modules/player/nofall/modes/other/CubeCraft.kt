@@ -11,8 +11,8 @@ import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 
 object CubeCraft : NoFallMode("CubeCraft") {
     override fun onUpdate() {
-        if (mc.thePlayer.fallDistance > 2f) {
-            mc.thePlayer.onGround = false
+        if (mc.player.fallDistance > 2f) {
+            mc.player.onGround = false
             sendPacket(PlayerMoveC2SPacket(true))
         }
     }

@@ -75,7 +75,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
     private var lastHitBlocked = false
 
     val onAttack = handler<AttackEvent> { event ->
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
         val target = event.targetEntity ?: return@handler
 
         val targetPlayer = target as PlayerEntity
@@ -106,7 +106,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
     }
 
     fun shouldHit(target: Entity): Boolean {
-        val player = mc.thePlayer ?: return false
+        val player = mc.player ?: return false
 
         if (target.isDead) return false
 
@@ -218,7 +218,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         player.getPing().ceilDiv(2).ceilDiv(20)
     
     private fun simulateDistance(simPlayer: SimulatedPlayer, target: Entity, simulateKnockback: Boolean): Double {
-        val player = mc.thePlayer ?: return 0.0
+        val player = mc.player ?: return 0.0
 
         val targetBox = target.hitBox.offset(
             target.currPos.subtract(target.prevPos).times(predictEnemyPosition.toDouble())

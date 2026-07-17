@@ -56,7 +56,7 @@ class Inventory : Element("Inventory", 300.0, 50.0) {
         resetColor()
         glColor4f(1F, 1F, 1F, 1F)
 
-        val invDisplayName = mc.thePlayer.inventory.displayName.formattedText
+        val invDisplayName = mc.player.inventory.displayName.formattedText
 
         val textLocation = when (title) {
             "Left" -> padding
@@ -94,7 +94,7 @@ class Inventory : Element("Inventory", 300.0, 50.0) {
         for (i in slot..endSlot) {
             xOffset += 18
 
-            val stack = mc.thePlayer.inventorySlot(i).stack ?: continue
+            val stack = mc.player.inventorySlot(i).stack ?: continue
 
             // Prevent overlapping while editing
             if (mc.currentScreen is GuiHudDesigner) glDisable(GL_DEPTH_TEST)

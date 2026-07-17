@@ -36,7 +36,7 @@ object Ambience : Module("Ambience", Category.RENDER, gameDetecting = false) {
 
 
     val onUpdate = handler<UpdateEvent> {
-        mc.theWorld?.run {
+        mc.world?.run {
             when (timeMode) {
                 "Normal" -> {
                     i += changeWorldTimeSpeed

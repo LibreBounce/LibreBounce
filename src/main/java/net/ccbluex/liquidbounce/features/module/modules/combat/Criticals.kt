@@ -46,12 +46,12 @@ object Criticals : Module("Criticals", Category.COMBAT) {
 
     override fun onEnable() {
         if (mode == "NoGround")
-            mc.thePlayer.tryJump()
+            mc.player.tryJump()
     }
 
     val onAttack = handler<AttackEvent> { event ->
         if (event.targetEntity is LivingEntity) {
-            val player = mc.thePlayer ?: return@handler
+            val player = mc.player ?: return@handler
             val entity = event.targetEntity
 
             if (!player.onGround || player.isOnLadder || player.isInWeb || player.isInLiquid ||

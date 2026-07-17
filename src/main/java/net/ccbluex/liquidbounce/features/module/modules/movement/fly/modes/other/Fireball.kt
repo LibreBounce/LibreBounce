@@ -30,7 +30,7 @@ import net.minecraft.util.BlockPos
 object Fireball : FlyMode("Fireball") {
 
     override fun onMotion(event: MotionEvent) {
-        val player = mc.thePlayer ?: return
+        val player = mc.player ?: return
 
         val fireballSlot = findItem(36, 44, Items.fire_charge) ?: return
 
@@ -52,7 +52,7 @@ object Fireball : FlyMode("Fireball") {
             Fly.rotationPitch
         )
 
-        if (player.onGround && !mc.theWorld.isAirBlock(BlockPos(player.posX, player.posY - 1, player.posZ))) {
+        if (player.onGround && !mc.world.isAirBlock(BlockPos(player.posX, player.posY - 1, player.posZ))) {
             Fly.firePosition = BlockPos(player.posX, player.posY - 1, player.posZ)
         }
 
@@ -72,7 +72,7 @@ object Fireball : FlyMode("Fireball") {
     }
 
     override fun onTick() {
-        val player = mc.thePlayer ?: return
+        val player = mc.player ?: return
 
         val fireballSlot = findItem(36, 44, Items.fire_charge) ?: return
 

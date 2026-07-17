@@ -23,10 +23,10 @@ object NCPBHop : SpeedMode("NCPBHop") {
     override fun onEnable() {
         mc.timer.timerSpeed = 1f
 
-        level = if (mc.theWorld.getCollidingBoundingBoxes(
-                mc.thePlayer,
-                mc.thePlayer.entityBoundingBox.offset(0.0, mc.thePlayer.motionY, 0.0)
-            ).size > 0 || mc.thePlayer.isCollidedVertically
+        level = if (mc.world.getCollidingBoundingBoxes(
+                mc.player,
+                mc.player.entityBoundingBox.offset(0.0, mc.player.motionY, 0.0)
+            ).size > 0 || mc.player.isCollidedVertically
         ) 1 else 4
     }
 
@@ -38,14 +38,14 @@ object NCPBHop : SpeedMode("NCPBHop") {
     }
 
     override fun onMotion() {
-        val xDist = mc.thePlayer.posX - mc.thePlayer.prevPosX
-        val zDist = mc.thePlayer.posZ - mc.thePlayer.prevPosZ
+        val xDist = mc.player.posX - mc.player.prevPosX
+        val zDist = mc.player.posZ - mc.player.prevPosZ
         lastDist = sqrt(xDist * xDist + zDist * zDist)
     }
 
     // TODO: Recode this mess
     override fun onMove(event: MoveEvent) {
-        val player = mc.thePlayer
+        val player = mc.player
 
         ++timerDelay
 
@@ -83,7 +83,7 @@ object NCPBHop : SpeedMode("NCPBHop") {
             val difference = 0.66 * (lastDist - baseMoveSpeed)
             moveSpeed = lastDist - difference
         } else {
-            if (mc.theWorld.getCollidingBoundingBoxes(
+            if (mc.world.getCollidingBoundingBoxes(
                     player,
                     player.entityBoundingBox.offset(0.0, player.motionY, 0.0)
                 ).isNotEmpty() || player.isCollidedVertically
@@ -122,7 +122,7 @@ object NCPBHop : SpeedMode("NCPBHop") {
     private val baseMoveSpeed: Double
         get() {
             var baseSpeed = 0.2873
-            if (mc.thePlayer.isPotionActive(Potion.moveSpeed)) baseSpeed *= 1.0 + 0.2 * (mc.thePlayer.getActivePotionEffect(
+            if (mc.player.isPotionActive(Potion.moveSpeed)) baseSpeed *= 1.0 + 0.2 * (mc.player.getActivePotionEffect(
                 Potion.moveSpeed
             )).amplifier + 1
             return baseSpeed

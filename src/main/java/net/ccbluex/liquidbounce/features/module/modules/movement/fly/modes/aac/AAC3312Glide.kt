@@ -11,7 +11,7 @@ object AAC3312Glide : FlyMode("AAC3.3.12-Glide") {
     private var tick = 0
 
     override fun onUpdate() {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (!onGround)
                 tick++
 

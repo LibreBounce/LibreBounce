@@ -32,7 +32,7 @@ object BoostHypixel : FlyMode("BoostHypixel") {
     private val tickTimer = TickDelayTimer(2)
 
     override fun onEnable() {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (!onGround) return
 
             tickTimer.reset()
@@ -69,7 +69,7 @@ object BoostHypixel : FlyMode("BoostHypixel") {
     }
 
     override fun onMotion(event: MotionEvent) {
-        mc.thePlayer?.run {
+        mc.player?.run {
             when (event.eventState) {
                 EventState.PRE -> {
                     if (tickTimer.resetIfPassed())
@@ -90,7 +90,7 @@ object BoostHypixel : FlyMode("BoostHypixel") {
     }
 
     override fun onMove(event: MoveEvent) {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (!isMoving) {
                 event.zeroXZ()
                 return
@@ -134,13 +134,13 @@ object BoostHypixel : FlyMode("BoostHypixel") {
     }
 
     override fun onBB(event: BlockBBEvent) {
-        if (event.block == air && event.y < mc.thePlayer.posY)
+        if (event.block == air && event.y < mc.player.posY)
             event.boundingBox = AxisAlignedBB.fromBounds(
                 event.x.toDouble(),
                 event.y.toDouble(),
                 event.z.toDouble(),
                 event.x + 1.0,
-                mc.thePlayer.posY,
+                mc.player.posY,
                 event.z + 1.0
             )
     }

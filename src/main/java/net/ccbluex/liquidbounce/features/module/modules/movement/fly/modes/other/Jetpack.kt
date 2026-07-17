@@ -10,7 +10,7 @@ import net.minecraft.util.EnumParticleTypes
 
 object Jetpack : FlyMode("Jetpack") {
     override fun onUpdate() {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (!mc.gameSettings.keyBindJump.isKeyDown)
                 return
 

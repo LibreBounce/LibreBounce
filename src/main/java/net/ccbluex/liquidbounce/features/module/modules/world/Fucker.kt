@@ -88,7 +88,7 @@ object Fucker : Module("Fucker", Category.WORLD) {
     private var areSurroundings = false
 
     override fun onToggle(state: Boolean) {
-        if (pos != null && !mc.thePlayer.capabilities.isCreativeMode) {
+        if (pos != null && !mc.player.capabilities.isCreativeMode) {
             sendPacket(PlayerHandActionC2SPacket(ABORT_DESTROY_BLOCK, pos, EnumFacing.DOWN))
         }
 
@@ -100,7 +100,7 @@ object Fucker : Module("Fucker", Category.WORLD) {
     }
 
     val onPacket = handler<PacketEvent> { event ->
-        if (mc.thePlayer == null || mc.theWorld == null) return@handler
+        if (mc.player == null || mc.world == null) return@handler
 
         val packet = event.packet
         if (packet is PlayerMoveS2CPacket) {
@@ -109,8 +109,8 @@ object Fucker : Module("Fucker", Category.WORLD) {
     }
 
     val onRotationUpdate = handler<RotationUpdateEvent> {
-        val player = mc.thePlayer ?: return@handler
-        val world = mc.theWorld ?: return@handler
+        val player = mc.player ?: return@handler
+        val world = mc.world ?: return@handler
 
         if (noHit && KillAura.handleEvents() && KillAura.target != null) return@handler
 
@@ -214,8 +214,8 @@ object Fucker : Module("Fucker", Category.WORLD) {
     }
 
     val onUpdate = handler<UpdateEvent> {
-        val player = mc.thePlayer ?: return@handler
-        val world = mc.theWorld ?: return@handler
+        val player = mc.player ?: return@handler
+        val world = mc.world ?: return@handler
         val controller = mc.playerController ?: return@handler
 
         var currentPos = pos ?: return@handler
@@ -296,7 +296,7 @@ object Fucker : Module("Fucker", Category.WORLD) {
         val posToDraw = renderPos ?: return@handler
 
         isOwnBed = ignoreOwnBed && isBedNearSpawn(posToDraw)
-        if (mc.thePlayer == null || isOwnBed) return@handler
+        if (mc.player == null || isOwnBed) return@handler
 
         if (block.blockById == air) return@handler
 
@@ -317,7 +317,7 @@ object Fucker : Module("Fucker", Category.WORLD) {
      * Finds a new target block by [targetID]
      */
     private fun find(targetID: Int): BlockPos? {
-        val eyes = mc.thePlayer?.eyes ?: return null
+        val eyes = mc.player?.eyes ?: return null
         var nearestBlockDistanceSq = Double.MAX_VALUE
         val nearestBlock = BlockPos.MutableBlockPos()
         val rangeSq = range * range
@@ -339,11 +339,11 @@ object Fucker : Module("Fucker", Category.WORLD) {
      * Checks if the block is hittable (or allowed to be hit through walls)
      */
     private fun isHittable(blockPos: BlockPos): Boolean {
-        val player = mc.thePlayer ?: return false
+        val player = mc.player ?: return false
         return when (throughWalls) {
             "Raycast" -> {
                 val eyesPos = player.eyes
-                val movingObjectPosition = mc.theWorld.rayTraceBlocks(eyesPos, blockPos.center, false, true, false)
+                val movingObjectPosition = mc.world.rayTraceBlocks(eyesPos, blockPos.center, false, true, false)
                 movingObjectPosition != null && movingObjectPosition.blockPos == blockPos
             }
             "Around" -> EnumFacing.entries.any { !isBlockBBValid(blockPos.offset(it)) }

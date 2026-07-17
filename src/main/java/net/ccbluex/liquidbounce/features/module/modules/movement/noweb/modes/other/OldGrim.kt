@@ -16,7 +16,7 @@ import net.minecraft.util.EnumFacing
 object OldGrim : NoWebMode("OldGrim") {
     override fun onUpdate() {
         val searchBlocks = BlockUtils.searchBlocks(2, setOf(web))
-        mc.thePlayer.isInWeb = false
+        mc.player.isInWeb = false
         for (block in searchBlocks) {
             val blockpos = block.key
             sendPacket(PlayerHandActionC2SPacket(Action.STOP_DESTROY_BLOCK, blockpos, EnumFacing.DOWN))

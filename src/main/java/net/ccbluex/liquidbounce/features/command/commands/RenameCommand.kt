@@ -22,7 +22,7 @@ object RenameCommand : Command("rename") {
                 return
             }
 
-            val item = mc.thePlayer.heldItem
+            val item = mc.player.heldItem
 
             if (item?.item == null) {
                 chat("§c§lError: §3You need to hold a item.")
@@ -30,7 +30,7 @@ object RenameCommand : Command("rename") {
             }
 
             item.setStackDisplayName(translateAlternateColorCodes(toCompleteString(args, 1)))
-            sendPacket(CreativeMenuSlotC2SPacket(36 + mc.thePlayer.inventory.currentItem, item))
+            sendPacket(CreativeMenuSlotC2SPacket(36 + mc.player.inventory.currentItem, item))
             chat("§3Item renamed to '${item.displayName}§3'")
             return
         }

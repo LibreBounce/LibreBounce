@@ -16,9 +16,9 @@ object BPSUtils : MinecraftInstance, Listenable {
     private var lastTimestamp: Long = 0
 
     fun getBPS(): Double {
-        val player = mc.thePlayer ?: return 0.0
+        val player = mc.player ?: return 0.0
 
-        if (player.ticksExisted < 1 || mc.theWorld == null) {
+        if (player.ticksExisted < 1 || mc.world == null) {
             return 0.0
         }
 
@@ -40,6 +40,4 @@ object BPSUtils : MinecraftInstance, Listenable {
 
         return bps
     }
-
-    
 }

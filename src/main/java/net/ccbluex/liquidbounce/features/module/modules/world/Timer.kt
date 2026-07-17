@@ -19,13 +19,13 @@ object Timer : Module("Timer", Category.WORLD, gameDetecting = false) {
     private val speed by float("Speed", 2f, 0.1f..10f)
 
     override fun onDisable() {
-        mc.thePlayer ?: return
+        mc.player ?: return
 
         mc.timer.timerSpeed = 1f
     }
 
     val onUpdate = handler<UpdateEvent> {
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
 
         val shouldTimer = when (mode) {
             "OnMove" -> player.isMoving

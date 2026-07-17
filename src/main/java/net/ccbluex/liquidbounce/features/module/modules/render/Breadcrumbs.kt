@@ -28,7 +28,7 @@ object Breadcrumbs : Module("Breadcrumbs", Category.RENDER) {
     private val positions = ArrayDeque<PositionData>()
 
     val onRender3D = handler<Render3DEvent> {
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
 
         if (positions.isEmpty() && !player.isMoving) {
             return@handler

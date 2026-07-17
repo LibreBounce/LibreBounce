@@ -10,7 +10,7 @@ import net.ccbluex.liquidbounce.utils.extensions.tryJump
 
 object LAAC : NoWebMode("LAAC") {
     override fun onUpdate() {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (!isInWeb)
                 return
 

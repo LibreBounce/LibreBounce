@@ -43,7 +43,7 @@ object TNTTimer : Module("TNTTimer", Category.RENDER) {
 
     private val tntEntities by EntityLookup<EntityTNTPrimed>()
         .filter { it.fuse > 0 }
-        .filter { mc.thePlayer.getDistanceSqToEntity(it) <= maxRenderDistanceSq }
+        .filter { mc.player.getDistanceSqToEntity(it) <= maxRenderDistanceSq }
         .filter { !onLook || isLookingOnEntities(it, maxAngleDifference.toDouble()) }
 
     val onRender3D = handler<Render3DEvent> {
@@ -53,7 +53,7 @@ object TNTTimer : Module("TNTTimer", Category.RENDER) {
     }
 
     private fun renderTNTTimer(tnt: EntityTNTPrimed, timeRemaining: Int) {
-        val player = mc.thePlayer ?: return
+        val player = mc.player ?: return
 
         val renderManager = mc.renderManager
         val rotateX = if (mc.gameSettings.thirdPersonView == 2) -1.0f else 1.0f

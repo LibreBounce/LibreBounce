@@ -38,7 +38,7 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
     
     // Anti-cheats such as Grim flag when you don't jump on this event
     val onStrafe = handler<StrafeEvent> { event ->
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
 
         val fixedTarget: Entity? = KillAura.target ?: target
 
@@ -56,7 +56,7 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
     }
 
     private fun shouldJump(target: Entity): Boolean {
-        val player = mc.thePlayer ?: return false
+        val player = mc.player ?: return false
         val modifiedInput = RotationUtils.modifiedInput
         val simPlayer = SimulatedPlayer.fromClientPlayer(modifiedInput)
     

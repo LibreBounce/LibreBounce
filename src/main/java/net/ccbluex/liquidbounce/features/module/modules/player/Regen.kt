@@ -36,7 +36,7 @@ object Regen : Module("Regen", Category.PLAYER) {
         if (resetTimer) mc.timer.timerSpeed = 1F
         else resetTimer = false
 
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (
                 !mc.playerController.gameIsSurvivalOrAdventure()
                 || noAir && !serverOnGround

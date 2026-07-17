@@ -23,8 +23,8 @@ object HighJump : Module("HighJump", Category.MOVEMENT) {
     private val glass by boolean("OnlyGlassPane", false)
 
     val onUpdate = handler<UpdateEvent> {
-        mc.thePlayer?.run {
-            if (glass && BlockPos(mc.thePlayer).block !is BlockPane)
+        mc.player?.run {
+            if (glass && BlockPos(mc.player).block !is BlockPane)
                 return@handler
 
             when (mode) {
@@ -37,8 +37,8 @@ object HighJump : Module("HighJump", Category.MOVEMENT) {
     }
 
     val onMove = handler<MoveEvent> {
-        mc.thePlayer?.run {
-            if (glass && BlockPos(mc.thePlayer).block !is BlockPane)
+        mc.player?.run {
+            if (glass && BlockPos(mc.player).block !is BlockPane)
                 return@handler
 
             if (mode == "Mineplex" && !onGround)
@@ -47,7 +47,7 @@ object HighJump : Module("HighJump", Category.MOVEMENT) {
     }
 
     val onJump = handler<JumpEvent> { event ->
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
 
         if (glass && BlockPos(player).block !is BlockPane)
             return@handler

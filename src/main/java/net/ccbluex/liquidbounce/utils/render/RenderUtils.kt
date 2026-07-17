@@ -177,7 +177,7 @@ object RenderUtils : MinecraftInstance {
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
         // Scale
-        val renderScale = (mc.thePlayer.getDistanceSq(this) / 8F).coerceAtLeast(1.5) / 150F * scale
+        val renderScale = (mc.player.getDistanceSq(this) / 8F).coerceAtLeast(1.5) / 150F * scale
         glScaled(-renderScale, -renderScale, renderScale)
 
         // Draw text
@@ -199,15 +199,15 @@ object RenderUtils : MinecraftInstance {
         var axisAlignedBB = AxisAlignedBB.fromBounds(x, y, z, x + 1.0, y + 1.0, z + 1.0)
 
         blockPos.block?.let { block ->
-            val player = mc.thePlayer
+            val player = mc.player
 
             val pos = -player.interpolatedPosition(player.lastTickPos)
 
             val f = 0.002F.toDouble()
 
-            block.setBlockBoundsBasedOnState(mc.theWorld, blockPos)
+            block.setBlockBoundsBasedOnState(mc.world, blockPos)
 
-            axisAlignedBB = block.getSelectedBoundingBox(mc.theWorld, blockPos).expand(f, f, f).offset(pos)
+            axisAlignedBB = block.getSelectedBoundingBox(mc.world, blockPos).expand(f, f, f).offset(pos)
         }
 
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
@@ -1236,7 +1236,7 @@ object RenderUtils : MinecraftInstance {
         color: Color
     ) {
         glPushMatrix()
-        val texture: Identifier = skin ?: mc.thePlayer.locationSkin
+        val texture: Identifier = skin ?: mc.player.locationSkin
 
         glColor(color)
         mc.textureManager.bindTexture(texture)

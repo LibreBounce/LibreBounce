@@ -60,10 +60,10 @@ object TickedActions : Listenable {
      */
     inline fun Module.clickNextTick(
         slot: Int, button: Int, mode: Int,
-        allowDuplicates: Boolean = false, windowId: Int = mc.thePlayer.openContainer.windowId,
+        allowDuplicates: Boolean = false, windowId: Int = mc.player.openContainer.windowId,
         crossinline callback: (ItemStack?) -> Unit = {}
     ) = nextTick(slot, allowDuplicates) {
-        val newStack = mc.playerController?.windowClick(windowId, slot, button, mode, mc.thePlayer)
+        val newStack = mc.playerController?.windowClick(windowId, slot, button, mode, mc.player)
         callback.invoke(newStack)
     }
 

@@ -28,7 +28,7 @@ object UNCPHopNew : SpeedMode("UNCPHopNew") {
     private const val damageBoostSpeed = 0.5f
 
     override fun onUpdate() {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (fallDistance > 2) {
                 mc.timer.timerSpeed = 1f
                 return
@@ -83,7 +83,7 @@ object UNCPHopNew : SpeedMode("UNCPHopNew") {
     }
 
     private fun calculateSpeed(baseValue: Double): Double {
-        val player = mc.thePlayer ?: return 0.0
+        val player = mc.player ?: return 0.0
 
         val speedAmplifier = player.getActivePotionEffect(Potion.moveSpeed)?.amplifier ?: 0
         return baseValue + speedValue * speedAmplifier

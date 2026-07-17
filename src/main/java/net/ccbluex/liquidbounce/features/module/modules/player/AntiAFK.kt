@@ -38,7 +38,7 @@ object AntiAFK : Module("AntiAFK", Category.PLAYER, gameDetecting = false) {
     private val delayTimer = MSTimer()
 
     val onUpdate = handler<UpdateEvent> {
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
 
         when (mode) {
             "Old" -> {

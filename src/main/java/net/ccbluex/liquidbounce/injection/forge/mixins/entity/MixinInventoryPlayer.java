@@ -19,9 +19,9 @@ public class MixinPlayerInventory {
 
     @Redirect(method = {"getCurrentItem", "decrementAnimations", "getStrVsBlock", "canHeldItemHarvest"}, at = @At(value = "FIELD", target = "Lnet/minecraft/entity/living/player/PlayerInventory;currentItem:I", opcode = Opcodes.GETFIELD))
     private int hookSilentHotbar(PlayerInventory instance) {
-        if (instance == null || instance.player == null || mc.thePlayer == null)
+        if (instance == null || instance.player == null || mc.player == null)
             return instance != null ? instance.currentItem : 0;
 
-        return instance.player.getGameProfile().equals(mc.thePlayer.getGameProfile()) ? SilentHotbar.INSTANCE.getCurrentSlot() : instance.currentItem;
+        return instance.player.getGameProfile().equals(mc.player.getGameProfile()) ? SilentHotbar.INSTANCE.getCurrentSlot() : instance.currentItem;
     }
 }

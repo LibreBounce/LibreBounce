@@ -37,7 +37,7 @@ object BlockUtils : MinecraftInstance {
     ): Boolean {
         val state = blockState ?: blockPos.state ?: return false
 
-        val box = state.block.getCollisionBoundingBox(mc.theWorld, blockPos, state) ?: return false
+        val box = state.block.getCollisionBoundingBox(mc.world, blockPos, state) ?: return false
 
         // Support blocks like stairs, slab (1x), dragon-eggs, glass-panes, fences, etc
         if (supportPartialBlocks && (box.maxY - box.minY < 1.0 || box.maxX - box.minX < 1.0 || box.maxZ - box.minZ < 1.0)) {
@@ -66,7 +66,7 @@ object BlockUtils : MinecraftInstance {
      * Get distance to center of [blockPos]
      */
     fun getCenterDistance(blockPos: BlockPos) =
-        mc.thePlayer.getDistance(blockPos.x + 0.5, blockPos.y + 0.5, blockPos.z + 0.5)
+        mc.player.getDistance(blockPos.x + 0.5, blockPos.y + 0.5, blockPos.z + 0.5)
 
     /**
      * Search a limited amount [maxBlocksLimit] of specific blocks [targetBlocks] around the player in a specific [radius].
@@ -78,7 +78,7 @@ object BlockUtils : MinecraftInstance {
         maxBlocksLimit: Int? = null,
         predicate: (BlockPos, Block) -> Boolean = { _, _ -> true }
     ): MutableMap<BlockPos, Block> {
-        val player = mc.thePlayer ?: return mutableMapOf()
+        val player = mc.player ?: return mutableMapOf()
 
         val blocks = mutableMapOf<BlockPos, Block>()
 
@@ -112,7 +112,7 @@ object BlockUtils : MinecraftInstance {
      * Check if [axisAlignedBB] has collidable blocks using custom [collide] check
      */
     fun collideBlock(axisAlignedBB: AxisAlignedBB, collide: Collidable): Boolean {
-        val player = mc.thePlayer
+        val player = mc.player
 
         val y = axisAlignedBB.minY.toInt()
         val mutable = BlockPos.MutableBlockPos(0, 0, 0)
@@ -133,7 +133,7 @@ object BlockUtils : MinecraftInstance {
      * Check if [axisAlignedBB] has collidable blocks using custom [collide] check
      */
     fun collideBlockIntersects(axisAlignedBB: AxisAlignedBB, collide: Collidable): Boolean {
-        val player = mc.thePlayer
+        val player = mc.player
 
         val y = axisAlignedBB.minY.toInt()
         val mutable = BlockPos.MutableBlockPos(0, 0, 0)
@@ -143,7 +143,7 @@ object BlockUtils : MinecraftInstance {
                 val block = blockPos.block
 
                 if (collide(block)) {
-                    val boundingBox = blockPos.state?.let { block?.getCollisionBoundingBox(mc.theWorld, blockPos, it) }
+                    val boundingBox = blockPos.state?.let { block?.getCollisionBoundingBox(mc.world, blockPos, it) }
                         ?: continue
 
                     if (player.entityBoundingBox.intersectsWith(boundingBox))

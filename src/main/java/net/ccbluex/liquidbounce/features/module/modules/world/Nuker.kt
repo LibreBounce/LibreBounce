@@ -94,8 +94,8 @@ object Nuker : Module("Nuker", Category.WORLD, gameDetecting = false) {
         // Clear blocks
         attackedBlocks.clear()
 
-        val player = mc.thePlayer ?: return@handler
-        val world = mc.theWorld ?: return@handler
+        val player = mc.player ?: return@handler
+        val world = mc.world ?: return@handler
 
         val eyes = player.eyes
 
@@ -224,7 +224,7 @@ object Nuker : Module("Nuker", Category.WORLD, gameDetecting = false) {
     }
 
     val onRender3D = handler<Render3DEvent> {
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
 
         if (blocks.blockById == air) return@handler
 

@@ -22,7 +22,7 @@ object SilentHotbar : Listenable, MinecraftInstance {
     private var originalSlot: Int? = null
 
     val currentSlot: Int
-        get() = hotbarState?.enforcedSlot ?: mc.thePlayer?.inventory?.currentItem ?: 0
+        get() = hotbarState?.enforcedSlot ?: mc.player?.inventory?.currentItem ?: 0
 
     val modifiedThisTick
         get() = ticksSinceLastUpdate == 0 && hotbarState != null
@@ -44,7 +44,7 @@ object SilentHotbar : Listenable, MinecraftInstance {
         render: Boolean = true, resetManually: Boolean = false,
     ) {
         if (originalSlot == null) {
-            originalSlot = mc.thePlayer?.inventory?.currentItem ?: 0
+            originalSlot = mc.player?.inventory?.currentItem ?: 0
         }
 
         hotbarState = SilentHotbarState(slot, requester, ticksUntilReset, render, resetManually)
@@ -90,7 +90,7 @@ object SilentHotbar : Listenable, MinecraftInstance {
 
     fun renderSlot(option: Boolean): Int {
 
-        val original = mc.thePlayer.inventory.currentItem
+        val original = mc.player.inventory.currentItem
 
         val state = hotbarState ?: return original
 
@@ -136,7 +136,7 @@ object SilentHotbar : Listenable, MinecraftInstance {
             resetSlot()
     }
 
-    override fun handleEvents() = mc.thePlayer != null && mc.theWorld != null
+    override fun handleEvents() = mc.player != null && mc.world != null
 
 }
 

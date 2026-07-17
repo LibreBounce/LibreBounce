@@ -25,7 +25,7 @@ object IntaveHop14 : SpeedMode("IntaveHop14") {
     private const val boostConstant = 0.003
 
     override fun onUpdate() {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (!isMoving || isInLiquid || isInWeb || isOnLadder) return
 
             if (onGround) {

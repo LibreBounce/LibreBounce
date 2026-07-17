@@ -45,12 +45,12 @@ object Refill : Module("Refill", Category.PLAYER) {
             return@handler
 
         for (slot in 36..44) {
-            val stack = mc.thePlayer.inventorySlot(slot).stack ?: continue
+            val stack = mc.player.inventorySlot(slot).stack ?: continue
             if (stack.stackSize == stack.maxStackSize || !stack.hasItemAgePassed(minItemAge)) continue
 
             when (mode) {
                 "Swap" -> {
-                    val bestOption = mc.thePlayer.inventoryContainer.inventory.withIndex()
+                    val bestOption = mc.player.inventoryContainer.inventory.withIndex()
                         .filter { (index, searchStack) ->
                             index < 36 && searchStack != null && searchStack.stackSize > stack.stackSize
                                     && (ItemStack.areItemsEqual(stack, searchStack)
@@ -67,7 +67,7 @@ object Refill : Module("Refill", Category.PLAYER) {
                 }
 
                 "Merge" -> {
-                    val bestOption = mc.thePlayer.inventoryContainer.inventory.withIndex()
+                    val bestOption = mc.player.inventoryContainer.inventory.withIndex()
                         .filter { (index, searchStack) ->
                             index < 36 && searchStack != null && ItemStack.areItemsEqual(stack, searchStack)
                         }.minByOrNull { it.value.stackSize }
@@ -97,8 +97,8 @@ object Refill : Module("Refill", Category.PLAYER) {
 
         sendPacket(
             InventoryMenuClickSlotC2SPacket(
-                mc.thePlayer.openContainer.windowId, slot, button, mode, stack,
-                mc.thePlayer.openContainer.getNextTransactionID(mc.thePlayer.inventory)
+                mc.player.openContainer.windowId, slot, button, mode, stack,
+                mc.player.openContainer.getNextTransactionID(mc.player.inventory)
             )
         )
     }

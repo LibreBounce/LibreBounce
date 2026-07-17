@@ -46,15 +46,15 @@ object Ignite : Module("Ignite", Category.COMBAT) {
         if (!msTimer.hasTimePassed(500))
             return@handler
 
-        val player = mc.thePlayer ?: return@handler
-        mc.theWorld ?: return@handler
+        val player = mc.player ?: return@handler
+        mc.world ?: return@handler
 
         val lighterInHotbar = if (lighter) findItem(36, 44, flint_and_steel) else null
         val lavaInHotbar = if (lavaBucket) findItem(36, 44, lava_bucket) else null
 
         val fireInHotbar = lighterInHotbar ?: lavaInHotbar ?: return@handler
 
-        for (entity in mc.theWorld.loadedEntityList) {
+        for (entity in mc.world.loadedEntityList) {
             if (isSelected(entity, true) && !entity.isBurning) {
                 val blockPos = entity.position
 

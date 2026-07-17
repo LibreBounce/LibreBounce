@@ -66,9 +66,9 @@ class ScoreboardElement(
             val textColor = textColor.rgb
             val backColor = backgroundColor.rgb
 
-            val worldScoreboard = mc.theWorld.scoreboard ?: return null
+            val worldScoreboard = mc.world.scoreboard ?: return null
             var currObjective: ScoreObjective? = null
-            val playerTeam = worldScoreboard.getPlayersTeam(mc.thePlayer.name)
+            val playerTeam = worldScoreboard.getPlayersTeam(mc.player.name)
 
             if (playerTeam != null) {
                 val colorIndex = playerTeam.chatFormat.colorIndex

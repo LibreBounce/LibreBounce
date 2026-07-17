@@ -32,11 +32,11 @@ object Verus : FlyMode("Verus") {
     private var damaged = false
 
     override fun onEnable() {
-        val player = mc.thePlayer ?: return
+        val player = mc.player ?: return
         val (x, y, z) = player
 
         boostTicks = 0
-        if (mc.theWorld.getCollidingBoundingBoxes(
+        if (mc.world.getCollidingBoundingBoxes(
                 player,
                 player.entityBoundingBox.offset(0.0, 3.0001, 0.0).expand(0.0, 0.0, 0.0)
             ).isEmpty()
@@ -59,13 +59,13 @@ object Verus : FlyMode("Verus") {
         damaged = false
 
         if (boostTicks > 0) {
-            mc.thePlayer?.stopXZ()
+            mc.player?.stopXZ()
             mc.timer.timerSpeed = 1f
         }
     }
 
     override fun onUpdate() {
-        mc.thePlayer?.run {
+        mc.player?.run {
             stopXZ()
             stop()
 

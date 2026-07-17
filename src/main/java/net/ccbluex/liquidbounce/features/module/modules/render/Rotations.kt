@@ -37,7 +37,7 @@ object Rotations : Module("Rotations", Category.RENDER, gameDetecting = false) {
         if (event.eventState != EventState.POST)
             return@handler
 
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
         val targetRotation = getRotation() ?: serverRotation
 
         prevHeadPitch = headPitch

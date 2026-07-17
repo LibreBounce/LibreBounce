@@ -145,7 +145,7 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
 
         final boolean fakeSprint = inventoryMove.handleEvents() && inventoryMove.getAacAdditionPro()
                 || AntiHunger.INSTANCE.handleEvents()
-                || sneak.handleEvents() && (!PlayerExtensionKt.isMoving(mc.thePlayer) || !sneak.getStopMove()) && sneak.getMode().equals("MineSecure")
+                || sneak.handleEvents() && (!PlayerExtensionKt.isMoving(mc.player) || !sneak.getStopMove()) && sneak.getMode().equals("MineSecure")
                 || Disabler.INSTANCE.handleEvents() && Disabler.INSTANCE.getStartSprint();
 
         boolean sprinting = isSprinting() && !fakeSprint;

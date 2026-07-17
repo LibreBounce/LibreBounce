@@ -16,7 +16,7 @@ import net.minecraft.init.Blocks.air
 object AutoBreak : Module("AutoBreak", Category.WORLD, subjective = true, gameDetecting = false) {
 
     val onUpdate = handler<UpdateEvent> {
-        mc.theWorld ?: return@handler
+        mc.world ?: return@handler
 
         val target = mc.objectMouseOver?.blockPos ?: return@handler
 

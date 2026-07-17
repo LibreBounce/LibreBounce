@@ -71,7 +71,7 @@ public abstract class MixinScreen {
     private void drawWorldBackground(final CallbackInfo callbackInfo) {
         final HUD hud = HUD.INSTANCE;
 
-        if (hud.getInventoryParticle() && mc.thePlayer != null) {
+        if (hud.getInventoryParticle() && mc.player != null) {
             final Window scaledResolution = new Window(mc);
             final int width = scaledResolution.getScaledWidth();
             final int height = scaledResolution.getScaledHeight();

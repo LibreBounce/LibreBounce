@@ -91,7 +91,7 @@ object Tower : Configurable("Tower"), MinecraftInstance, Listenable {
     val onMotion = handler<MotionEvent> { event ->
         val eventState = event.eventState
 
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
 
         isTowering = false
 
@@ -125,7 +125,7 @@ object Tower : Configurable("Tower"), MinecraftInstance, Listenable {
                 return@handler
             if (towerModeValues.get() == "None" || towerModeValues.get() == "Jump")
                 return@handler
-            if (notOnMoveValues.get() && mc.thePlayer.isMoving)
+            if (notOnMoveValues.get() && mc.player.isMoving)
                 return@handler
             if (Speed.state || Fly.state)
                 return@handler
@@ -136,19 +136,19 @@ object Tower : Configurable("Tower"), MinecraftInstance, Listenable {
 
     // Send jump packets, bypasses Hypixel.
     private fun fakeJump() {
-        mc.thePlayer?.isAirBorne = true
-        mc.thePlayer?.triggerAchievement(StatList.jumpStat)
+        mc.player?.isAirBorne = true
+        mc.player?.triggerAchievement(StatList.jumpStat)
     }
 
     /**
      * Move player
      */
     private fun move() {
-        mc.thePlayer?.apply {
+        mc.player?.apply {
             if (blocksAmount() <= 0)
                 return
 
-            // TODO: Use mc.thePlayer?.run instead
+            // TODO: Use mc.player?.run instead
             when (towerModeValues.get()) {
                 "Jump" -> if (onGround && tickTimer.hasTimePassed(jumpDelayValues.get())) {
                     fakeJump()
@@ -287,7 +287,7 @@ object Tower : Configurable("Tower"), MinecraftInstance, Listenable {
     }
 
     val onPacket = handler<PacketEvent> { event ->
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
 
         val packet = event.packet
 

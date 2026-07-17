@@ -179,7 +179,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1f, side: Side = S
         }
 
     private fun getReplacement(str: String): Any? {
-        mc.thePlayer?.run {
+        mc.player?.run {
             when (str.lowercase()) {
                 // TODO: Add MotionX, MotionY, and MotionZ
                 "x" -> return DECIMAL_FORMAT.format(posX)
@@ -270,7 +270,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1f, side: Side = S
      */
     @Suppress("UnclearPrecedenceOfBinaryExpression")
     override fun drawElement(): Border {
-        val stack = mc.thePlayer?.inventory?.getStackInSlot(SilentHotbar.currentSlot)
+        val stack = mc.player?.inventory?.getStackInSlot(SilentHotbar.currentSlot)
         val shouldRender = showBlock && stack?.item is ItemBlock
         val blockScale = if (shouldRender) 2.5F else 1F
         val fontRenderer = font.get()

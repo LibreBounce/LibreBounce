@@ -23,7 +23,7 @@ object KeepAlive : Module("KeepAlive", Category.PLAYER) {
     private var runOnce = false
 
     val onMotion = handler<MotionEvent> {
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
 
         if (player.isDead || player.health <= 0) {
             if (runOnce) return@handler

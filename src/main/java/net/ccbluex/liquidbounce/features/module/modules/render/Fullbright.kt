@@ -28,7 +28,7 @@ object Fullbright : Module("Fullbright", Category.RENDER, gameDetecting = false)
         mc.gameSettings.gammaSetting = prevGamma
         prevGamma = -1f
 
-        mc.thePlayer?.removePotionEffectClient(Potion.nightVision.id)
+        mc.player?.removePotionEffectClient(Potion.nightVision.id)
     }
 
     val onUpdate = handler<UpdateEvent>(always = true) {
@@ -38,7 +38,7 @@ object Fullbright : Module("Fullbright", Category.RENDER, gameDetecting = false)
                     mc.gameSettings.gammaSetting <= 100f -> mc.gameSettings.gammaSetting++
                 }
 
-                "NightVision" -> mc.thePlayer?.addPotionEffect(PotionEffect(Potion.nightVision.id, 1337, 1))
+                "NightVision" -> mc.player?.addPotionEffect(PotionEffect(Potion.nightVision.id, 1337, 1))
             }
         } else if (prevGamma != -1f) {
             mc.gameSettings.gammaSetting = prevGamma

@@ -17,7 +17,7 @@ object AutoRespawn : Module("AutoRespawn", Category.PLAYER, gameDetecting = fals
     private val instant by boolean("Instant", true)
 
     val onUpdate = handler<UpdateEvent> {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (Ghost.handleEvents())
                 return@handler
 

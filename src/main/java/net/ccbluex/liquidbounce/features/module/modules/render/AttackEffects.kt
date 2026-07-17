@@ -36,7 +36,7 @@ object AttackEffects : Module("AttackEffects", Category.RENDER) {
     }
 
     private fun doSound() {
-        val player = mc.thePlayer
+        val player = mc.player
 
         when (sound) {
             "Hit" -> player.playSound("random.bowhit", volume, pitch)
@@ -61,7 +61,7 @@ object AttackEffects : Module("AttackEffects", Category.RENDER) {
     }
 
     private fun spawnBloodParticle(particleType: EnumParticleTypes, target: LivingEntity) {
-        mc.theWorld.spawnParticle(
+        mc.world.spawnParticle(
             particleType,
             target.posX, target.posY + target.height - 0.75, target.posZ,
             0.0, 0.0, 0.0,
@@ -80,7 +80,7 @@ object AttackEffects : Module("AttackEffects", Category.RENDER) {
     private fun spawnLightning(target: LivingEntity) {
         mc.netHandler.handleSpawnGlobalEntity(
             AddGlobalEntityS2CPacket(
-                EntityLightningBolt(mc.theWorld, target.posX, target.posY, target.posZ)
+                EntityLightningBolt(mc.world, target.posX, target.posY, target.posZ)
             )
         )
     }

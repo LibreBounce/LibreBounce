@@ -9,7 +9,7 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalk.mode
 
 object Dolphin : LiquidWalkMode("Dolphin") {
     override fun onUpdate() {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (isSneaking) return
 
             if (isInWater) motionY += 0.03999999910593033

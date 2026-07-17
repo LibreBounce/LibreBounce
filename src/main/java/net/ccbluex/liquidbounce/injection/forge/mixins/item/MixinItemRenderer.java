@@ -92,7 +92,7 @@ public abstract class MixinItemInHandRenderer {
         final Animations animations = Animations.INSTANCE;
 
         float f = 1f - (prevEquippedProgress + (equippedProgress - prevEquippedProgress) * partialTicks);
-        LocalClientPlayerEntity abstractclientplayer = mc.thePlayer;
+        LocalClientPlayerEntity abstractclientplayer = mc.player;
         float f1 = abstractclientplayer.getSwingProgress(partialTicks);
         float f2 = abstractclientplayer.prevRotationPitch + (abstractclientplayer.rotationPitch - abstractclientplayer.prevRotationPitch) * partialTicks;
         float f3 = abstractclientplayer.prevRotationYaw + (abstractclientplayer.rotationYaw - abstractclientplayer.prevRotationYaw) * partialTicks;

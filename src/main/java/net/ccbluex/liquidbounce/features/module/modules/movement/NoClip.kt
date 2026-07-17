@@ -15,11 +15,11 @@ object NoClip : Module("NoClip", Category.MOVEMENT) {
     val speed by float("Speed", 0.5f, 0f..10f)
 
     override fun onDisable() {
-        mc.thePlayer?.noClip = false
+        mc.player?.noClip = false
     }
 
     val onMove = handler<MoveEvent> { event ->
-        mc.thePlayer?.run {
+        mc.player?.run {
             strafe(speed, stopWhenNoInput = true, event)
 
             noClip = true

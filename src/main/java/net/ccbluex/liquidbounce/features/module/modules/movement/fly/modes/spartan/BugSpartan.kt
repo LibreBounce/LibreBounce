@@ -14,7 +14,7 @@ import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.Position
 
 object BugSpartan : FlyMode("BugSpartan") {
     override fun onEnable() {
-        mc.thePlayer?.run {
+        mc.player?.run {
             repeat(65) {
                 sendPackets(
                     Position(posX, posY + 0.049, posZ, false),
@@ -31,9 +31,9 @@ object BugSpartan : FlyMode("BugSpartan") {
     }
 
     override fun onUpdate() {
-        mc.thePlayer.capabilities.isFlying = false
+        mc.player.capabilities.isFlying = false
 
-        mc.thePlayer.motionY = when {
+        mc.player.motionY = when {
             mc.gameSettings.keyBindJump.isKeyDown -> vanillaSpeed.toDouble()
             mc.gameSettings.keyBindSneak.isKeyDown -> -vanillaSpeed.toDouble()
             else -> 0.0

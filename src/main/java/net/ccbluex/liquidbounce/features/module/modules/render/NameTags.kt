@@ -94,7 +94,7 @@ object NameTags : Module("NameTags", Category.RENDER) {
         .filter { thruBlocks || isEntityHeightVisible(it) }
 
     val onRender3D = handler<Render3DEvent> {
-        if (mc.theWorld == null || mc.thePlayer == null) return@handler
+        if (mc.world == null || mc.player == null) return@handler
 
         glPushAttrib(GL_ENABLE_BIT)
         glPushMatrix()
@@ -119,7 +119,7 @@ object NameTags : Module("NameTags", Category.RENDER) {
 
             val name = entity.displayName.unformattedText ?: continue
 
-            val distanceSquared = mc.thePlayer.getDistanceSqToEntity(entity)
+            val distanceSquared = mc.player.getDistanceSqToEntity(entity)
 
             // In case user has FreeCam enabled, we restore the position back to normal,
             // so it renders the name-tag at the player's body position instead of the FreeCam position.
@@ -147,7 +147,7 @@ object NameTags : Module("NameTags", Category.RENDER) {
     }
 
     private fun renderNameTag(entity: LivingEntity, isRenderingSelf: Boolean, name: String) {
-        val player = mc.thePlayer ?: return
+        val player = mc.player ?: return
 
         // Set fontrenderer local
         val fontRenderer = font

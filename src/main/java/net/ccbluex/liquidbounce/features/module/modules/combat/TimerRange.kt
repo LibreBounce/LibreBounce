@@ -104,7 +104,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
 
     private val entities by EntityLookup<LivingEntity>().filter { isSelected(it, true) }.filter { entity ->
             Backtrack.runWithNearestTrackedDistance(entity) {
-                val distance = mc.thePlayer.getDistanceToEntityBox(entity)
+                val distance = mc.player.getDistanceToEntityBox(entity)
 
                 if (timerBoostMode == "Normal") distance <= rangeValue else distance <= scanRange + randomRange
             }
@@ -130,7 +130,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
      * Attack event (Normal & Smart Mode)
      */
     val onAttack = handler<AttackEvent> { event ->
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
 
         if (event.targetEntity !is LivingEntity && playerTicks >= 1) {
             shouldResetTimer()
@@ -173,7 +173,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
      * Move event (Modern Mode)
      */
     val onMove = handler<MoveEvent> {
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
 
         if (timerBoostMode != "Modern") return@handler
 
@@ -218,7 +218,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
     }
 
     private fun updateDistance(entity: Entity): Boolean {
-        val player = mc.thePlayer ?: return false
+        val player = mc.player ?: return false
 
         val prediction = entity.currPos.subtract(entity.prevPos).times(2 + predictEnemyPosition.toDouble())
 
@@ -269,7 +269,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
         val timerBoost = boostDelay.random()
         val charged = chargedDelay.random()
 
-        if (mc.thePlayer != null && mc.theWorld != null) {
+        if (mc.player != null && mc.world != null) {
             randomRange = range.random()
         }
 
@@ -303,7 +303,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
      * Render event (Mark)
      */
     val onRender3D = handler<Render3DEvent> {
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
 
         if (timerBoostMode != "Modern") return@handler
 
@@ -329,8 +329,8 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
      * Find the nearest entity in range.
      */
     private fun getNearestEntityInRange(): Entity? {
-        mc.thePlayer ?: return null
-        return entities.minByOrNull { mc.thePlayer.getDistanceToEntityBox(it) }
+        mc.player ?: return null
+        return entities.minByOrNull { mc.player.getDistanceToEntityBox(it) }
     }
 
     /**
@@ -358,7 +358,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
     }
 
     val onPacket = handler<PacketEvent> { event ->
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
         val packet = event.packet
 
         if (player.isDead) return@handler

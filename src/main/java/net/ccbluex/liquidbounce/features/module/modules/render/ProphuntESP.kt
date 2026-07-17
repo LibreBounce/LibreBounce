@@ -51,7 +51,7 @@ object ProphuntESP : Module("ProphuntESP", Category.RENDER, gameDetecting = fals
     private val entities by EntityLookup<EntityFallingBlock>()
         .filter { !onLook || isLookingOnEntities(it, maxAngleDifference.toDouble()) }
         .filter { thruBlocks || isEntityHeightVisible(it) }
-        .filter { mc.thePlayer.getDistanceSqToEntity(it) <= maxRenderDistanceSq }
+        .filter { mc.player.getDistanceSqToEntity(it) <= maxRenderDistanceSq }
 
     fun recordBlock(blockPos: BlockPos) {
         blocks[blockPos] = System.currentTimeMillis()
@@ -87,7 +87,7 @@ object ProphuntESP : Module("ProphuntESP", Category.RENDER, gameDetecting = fals
     }
 
     val onRender2D = handler<Render2DEvent> { event ->
-        if (mc.theWorld == null || mode != "Glow") return@handler
+        if (mc.world == null || mode != "Glow") return@handler
 
         GlowShader.startDraw(event.partialTicks, glowRenderScale)
 

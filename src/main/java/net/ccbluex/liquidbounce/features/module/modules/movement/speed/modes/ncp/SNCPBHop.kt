@@ -34,15 +34,15 @@ object SNCPBHop : SpeedMode("SNCPBHop") {
     }
 
     override fun onMotion() {
-        val xDist = mc.thePlayer.posX - mc.thePlayer.prevPosX
-        val zDist = mc.thePlayer.posZ - mc.thePlayer.prevPosZ
+        val xDist = mc.player.posX - mc.player.prevPosX
+        val zDist = mc.player.posZ - mc.player.prevPosZ
         lastDist = sqrt(xDist * xDist + zDist * zDist)
     }
 
 
     // TODO: Recode this mess
     override fun onMove(event: MoveEvent) {
-        val player = mc.thePlayer ?: return
+        val player = mc.player ?: return
 
         ++timerDelay
 
@@ -83,7 +83,7 @@ object SNCPBHop : SpeedMode("SNCPBHop") {
             moveSpeed = baseMoveSpeed
             lastDist = 0.0
         } else if (level == 89) {
-            if (mc.theWorld.getCollidingBoundingBoxes(
+            if (mc.world.getCollidingBoundingBoxes(
                     player,
                     player.entityBoundingBox.offset(0.0, player.motionY, 0.0)
                 ).isNotEmpty() || player.isCollidedVertically
@@ -92,7 +92,7 @@ object SNCPBHop : SpeedMode("SNCPBHop") {
             moveSpeed = baseMoveSpeed
             return
         } else {
-            if (mc.theWorld.getCollidingBoundingBoxes(
+            if (mc.world.getCollidingBoundingBoxes(
                     player,
                     player.entityBoundingBox.offset(0.0, player.motionY, 0.0)
                 ).isNotEmpty() || player.isCollidedVertically
@@ -137,7 +137,7 @@ object SNCPBHop : SpeedMode("SNCPBHop") {
     private val baseMoveSpeed: Double
         get() {
             var baseSpeed = 0.2873
-            if (mc.thePlayer.isPotionActive(Potion.moveSpeed)) baseSpeed *= 1.0 + 0.2 * (mc.thePlayer.getActivePotionEffect(
+            if (mc.player.isPotionActive(Potion.moveSpeed)) baseSpeed *= 1.0 + 0.2 * (mc.player.getActivePotionEffect(
                 Potion.moveSpeed
             ).amplifier + 1)
             return baseSpeed

@@ -28,7 +28,7 @@ object Sneak : Module("Sneak", Category.MOVEMENT) {
     private var sneaking = false
 
     val onMotion = handler<MotionEvent> { event ->
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
 
         if (stopMove && player.isMoving) {
             if (sneaking)
@@ -80,7 +80,7 @@ object Sneak : Module("Sneak", Category.MOVEMENT) {
     }
 
     override fun onDisable() {
-        val player = mc.thePlayer ?: return
+        val player = mc.player ?: return
 
         if (mode == "Legit") {
             if (!GameOptions.isKeyDown(mc.gameSettings.keyBindSneak)) {

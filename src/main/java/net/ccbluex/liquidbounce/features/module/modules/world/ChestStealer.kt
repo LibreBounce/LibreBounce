@@ -130,7 +130,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
             if (mc.currentScreen !is ChestScreen)
                 return false
 
-            if (mc.thePlayer?.openContainer?.windowId != receivedId)
+            if (mc.player?.openContainer?.windowId != receivedId)
                 return false
 
             // Wait until NoMove check isn't violated
@@ -147,7 +147,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
         if (!handleEvents())
             return
 
-        val player = mc.thePlayer ?: return
+        val player = mc.player ?: return
         val screen = mc.currentScreen ?: return
 
         if (screen !is ChestScreen)
@@ -307,7 +307,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
                 if (isTicked(index)) return@mapIndexedNotNullTo null
 
-                val mergeableCount = mc.thePlayer.inventory.mainInventory.sumOf { otherStack ->
+                val mergeableCount = mc.player.inventory.mainInventory.sumOf { otherStack ->
                     otherStack ?: return@sumOf 0
 
                     if (otherStack.isItemEqual(stack) && ItemStack.areItemStackTagsEqual(stack, otherStack))

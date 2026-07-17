@@ -16,7 +16,7 @@ import net.minecraft.potion.Potion
 
 object VulcanGround288 : SpeedMode("VulcanGround2.8.8") {
     override fun onUpdate() {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (isInLiquid || isInWeb || isOnLadder) return
 
             if (isMoving && collidesBottom()) {
@@ -43,10 +43,10 @@ object VulcanGround288 : SpeedMode("VulcanGround2.8.8") {
     }
 
     private fun collidesBottom(): Boolean {
-        val player = mc.thePlayer ?: return false
-        mc.theWorld ?: return false
+        val player = mc.player ?: return false
+        mc.world ?: return false
 
-        return mc.theWorld.getCollidingBoundingBoxes(player, player.entityBoundingBox.offset(0.0, -0.005, 0.0)).isNotEmpty()
+        return mc.world.getCollidingBoundingBoxes(player, player.entityBoundingBox.offset(0.0, -0.005, 0.0)).isNotEmpty()
     }
 
     override fun onJump(event: JumpEvent) {

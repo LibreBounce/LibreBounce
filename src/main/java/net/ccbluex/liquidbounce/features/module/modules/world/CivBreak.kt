@@ -67,7 +67,7 @@ object CivBreak : Module("CivBreak", Category.WORLD) {
         blockPos ?: return@handler
         enumFacing ?: return@handler
 
-        mc.thePlayer.swingItem(!swing)
+        mc.player.swingItem(!swing)
 
         // Break
         sendPackets(

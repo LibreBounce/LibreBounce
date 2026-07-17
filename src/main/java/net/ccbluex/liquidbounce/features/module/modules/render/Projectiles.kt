@@ -49,7 +49,7 @@ object Projectiles : Module("Projectiles", Category.RENDER, gameDetecting = fals
     private val trailPositions = mutableMapOf<Entity, ArrayDeque<ProjectilePos>>()
 
     val onRender3D = handler<Render3DEvent> {
-        val world = mc.theWorld ?: return@handler
+        val world = mc.world ?: return@handler
         val renderManager = mc.renderManager
 
         for (entity in world.loadedEntityList) {
@@ -346,7 +346,7 @@ object Projectiles : Module("Projectiles", Category.RENDER, gameDetecting = fals
     }
 
     val onUpdate = handler<UpdateEvent> {
-        val world = mc.theWorld ?: return@handler
+        val world = mc.world ?: return@handler
 
         val currentTime = System.currentTimeMillis()
 

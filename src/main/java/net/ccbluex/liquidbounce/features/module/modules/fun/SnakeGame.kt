@@ -74,7 +74,7 @@ object SnakeGame : Module("SnakeGame", Category.FUN, gameDetecting = false) {
     }
 
     val onUpdate = handler<UpdateEvent> {
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
 
         if (player.ticksExisted % speed == 0) {
             if (snake[0].x == food.x && snake[0].y == food.y) {

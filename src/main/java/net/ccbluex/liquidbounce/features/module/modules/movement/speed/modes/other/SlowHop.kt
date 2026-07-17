@@ -13,7 +13,7 @@ import net.ccbluex.liquidbounce.utils.movement.MovementUtils.speed
 
 object SlowHop : SpeedMode("SlowHop") {
     override fun onMotion() {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (isInLiquid || isInWeb || isOnLadder) return
 
             if (isMoving) {

@@ -17,7 +17,7 @@ object NCPFHop : SpeedMode("NCPFHop") {
     }
 
     override fun onUpdate() {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (isMoving) {
                 if (onGround) {
                     tryJump()

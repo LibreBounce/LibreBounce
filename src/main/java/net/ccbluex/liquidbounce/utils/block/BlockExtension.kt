@@ -18,7 +18,7 @@ import net.minecraft.util.math.Vec3d
 import net.minecraft.util.math.Vec3di
 
 val BlockPos.state: IBlockState?
-    get() = mc.theWorld?.getBlockState(this)
+    get() = mc.world?.getBlockState(this)
 
 val BlockPos.block: Block?
     get() = this.state?.block
@@ -35,7 +35,7 @@ val BlockPos.center: Vec3d
 fun BlockPos.toVec() = Vec3d(this)
 
 fun BlockPos.canBeClicked(): Boolean {
-    val world = mc.theWorld ?: return false
+    val world = mc.world ?: return false
     val state = this.state ?: return false
     val block = state.block ?: return false
 

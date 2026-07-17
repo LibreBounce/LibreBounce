@@ -12,7 +12,7 @@ import net.minecraft.util.BlockPos
 
 object AAC3311 : LiquidWalkMode("AAC3.3.11") {
     override fun onUpdate() {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (isSneaking) return
 
             if (isInWater) {

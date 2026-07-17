@@ -11,7 +11,7 @@ import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.Position
 
 object Flag : FlyMode("Flag") {
     override fun onUpdate() {
-        mc.thePlayer?.run {
+        mc.player?.run {
             sendPackets(
                 Position(
                     posX + motionX * 999,

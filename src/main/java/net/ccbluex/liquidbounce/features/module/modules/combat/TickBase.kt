@@ -60,7 +60,7 @@ object TickBase : Module("TickBase", Category.COMBAT) {
     }
 
     val onPreTick = handler<PlayerTickEvent> { event ->
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
 
         if (player.ridingEntity != null || Blink.handleEvents()) {
             return@handler
@@ -81,7 +81,7 @@ object TickBase : Module("TickBase", Category.COMBAT) {
     }
 
     val onGameTick = handler<GameTickEvent>(dispatcher = Dispatchers.Main, priority = 1) {
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
 
         if (player.ridingEntity != null || Blink.handleEvents()) {
             return@handler
@@ -142,7 +142,7 @@ object TickBase : Module("TickBase", Category.COMBAT) {
     }
 
     val onMove = handler<MoveEvent> {
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
 
         if (player.ridingEntity != null || Blink.handleEvents()) {
             return@handler
@@ -240,10 +240,10 @@ object TickBase : Module("TickBase", Category.COMBAT) {
     )
 
     private fun getNearestEntityInRange(): LivingEntity? {
-        mc.thePlayer ?: return null
-        val entities = mc.theWorld.loadedEntityList ?: return null
+        mc.player ?: return null
+        val entities = mc.world.loadedEntityList ?: return null
 
         return entities.asSequence().filterIsInstance<LivingEntity>()
-            .filter { EntityUtils.isSelected(it, true) }.minByOrNull { mc.thePlayer.getDistanceToEntity(it) }
+            .filter { EntityUtils.isSelected(it, true) }.minByOrNull { mc.player.getDistanceToEntity(it) }
     }
 }

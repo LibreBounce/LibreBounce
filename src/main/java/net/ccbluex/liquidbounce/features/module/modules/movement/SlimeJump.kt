@@ -17,8 +17,8 @@ object SlimeJump : Module("SlimeJump", Category.MOVEMENT) {
     private val mode by choices("Mode", arrayOf("Set", "Add"), "Add")
 
     val onJump = handler<JumpEvent> { event ->
-        mc.thePlayer?.run {
-            if (mc.theWorld != null && position.down().block is BlockSlime) {
+        mc.player?.run {
+            if (mc.world != null && position.down().block is BlockSlime) {
                 event.cancelEvent()
 
                 when (mode) {

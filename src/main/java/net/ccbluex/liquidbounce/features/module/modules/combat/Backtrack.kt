@@ -188,8 +188,8 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
 
         if (shouldBacktrack() && targetMixin != null) {
             if (!Blink.blinkingReceive() && targetMixin.truePos) {
-                val trueDist = mc.thePlayer.getDistance(targetMixin.trueX, targetMixin.trueY, targetMixin.trueZ)
-                val dist = mc.thePlayer.getDistance(target.posX, target.posY, target.posZ)
+                val trueDist = mc.player.getDistance(targetMixin.trueX, targetMixin.trueY, targetMixin.trueZ)
+                val dist = mc.player.getDistance(target.posX, target.posY, target.posZ)
 
                 if (trueDist <= 6f && (!smart || trueDist > dist + advantageTreshold) && (style == "Smooth" || !globalTimer.hasTimePassed(
                         supposedDelay
@@ -197,7 +197,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
                 ) {
                     shouldRender = true
 
-                    if (mc.thePlayer.getDistanceToEntityBox(target) in distance) {
+                    if (mc.player.getDistanceToEntityBox(target) in distance) {
                         handlePackets()
 
                         if (debug && target.hurtTime in targetHurtTimeToDebug) chat("(Backtrack) Lag distance: ${dist}, true distance: ${trueDist}")
@@ -377,7 +377,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
 
             val targetBox = target.hitBox.offset(data.first - targetPos)
 
-            if (mc.thePlayer.getDistanceToBox(targetBox) in distance) {
+            if (mc.player.getDistanceToBox(targetBox) in distance) {
                 found = true
                 break
             }
@@ -460,8 +460,8 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
 
     private fun onAllowedHurtTime(): Boolean {
         val playerAllowed = when (ownHurtTimeHandling) {
-                "Allow" -> mc.thePlayer!!.hurtTime in ownHurtTime
-                "Forbid" -> mc.thePlayer!!.hurtTime !in ownHurtTime
+                "Allow" -> mc.player!!.hurtTime in ownHurtTime
+                "Forbid" -> mc.player!!.hurtTime !in ownHurtTime
                 else -> true
             }
 
@@ -475,8 +475,8 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
     }
 
     private fun shouldBacktrack() =
-        mc.thePlayer != null && mc.theWorld != null && target != null && mc.thePlayer.health > 0 && (target!!.health > 0 || target!!.health.isNaN()) && mc.playerController.currentGameType != WorldSettings.GameType.SPECTATOR && System.currentTimeMillis() >= delayForNextBacktrack && target?.let {
-            isSelected(it, true) && (mc.thePlayer?.ticksExisted ?: 0) > 20 && !ignoreWholeTick && onAllowedHurtTime()
+        mc.player != null && mc.world != null && target != null && mc.player.health > 0 && (target!!.health > 0 || target!!.health.isNaN()) && mc.playerController.currentGameType != WorldSettings.GameType.SPECTATOR && System.currentTimeMillis() >= delayForNextBacktrack && target?.let {
+            isSelected(it, true) && (mc.player?.ticksExisted ?: 0) > 20 && !ignoreWholeTick && onAllowedHurtTime()
         } == true
 
     private fun reset() {

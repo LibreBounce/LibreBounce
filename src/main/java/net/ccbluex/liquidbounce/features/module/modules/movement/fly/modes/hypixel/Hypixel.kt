@@ -29,7 +29,7 @@ object Hypixel : FlyMode("Hypixel") {
     }
 
     override fun onUpdate() {
-        mc.thePlayer?.run {
+        mc.player?.run {
             mc.timer.timerSpeed =
                 if (hypixelBoost && !msTimer.hasTimePassed(hypixelBoostDelay))
                     1f + hypixelBoostTimer * (msTimer.hasTimeLeft(hypixelBoostDelay) / hypixelBoostDelay.toFloat())
@@ -46,13 +46,13 @@ object Hypixel : FlyMode("Hypixel") {
     }
 
     override fun onBB(event: BlockBBEvent) {
-        if (event.block == air && event.y < mc.thePlayer.posY)
+        if (event.block == air && event.y < mc.player.posY)
             event.boundingBox = AxisAlignedBB.fromBounds(
                 event.x.toDouble(),
                 event.y.toDouble(),
                 event.z.toDouble(),
                 event.x + 1.0,
-                mc.thePlayer.posY,
+                mc.player.posY,
                 event.z + 1.0
             )
     }

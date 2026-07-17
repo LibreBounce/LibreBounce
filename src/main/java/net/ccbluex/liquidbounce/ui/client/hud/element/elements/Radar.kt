@@ -167,8 +167,8 @@ class Radar(x: Double = 5.0, y: Double = 130.0) : Element("Radar", x, y) {
             glPointSize(playerSize)
         }
 
-        for (entity in mc.theWorld.loadedEntityList) {
-            if (entity != mc.thePlayer && isSelected(entity, false)) {
+        for (entity in mc.world.loadedEntityList) {
+            if (entity != mc.player && isSelected(entity, false)) {
                 val positionRelativeToPlayer = Vector2f(
                     (renderViewEntity.posX - entity.posX).toFloat(),
                     (renderViewEntity.posZ - entity.posZ).toFloat()

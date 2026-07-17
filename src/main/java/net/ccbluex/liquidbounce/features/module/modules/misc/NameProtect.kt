@@ -62,7 +62,7 @@ object NameProtect : Module("NameProtect", Category.MISC, subjective = true, gam
     }
 
     val onPacket = handler<PacketEvent> { event ->
-        if (mc.thePlayer == null || mc.theWorld == null) return@handler
+        if (mc.player == null || mc.world == null) return@handler
 
         // Check for new players
         if (event.packet is LoginS2CPacket) {
@@ -109,7 +109,7 @@ object NameProtect : Module("NameProtect", Category.MISC, subjective = true, gam
      * Handle text messages from font renderer
      */
     fun handleTextMessage(text: String): String {
-        val p = mc.thePlayer ?: return text
+        val p = mc.player ?: return text
 
         // If the message includes the client name, don't change it
         if ("§8[§9§l$CLIENT_NAME§8] §3" in text) {

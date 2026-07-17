@@ -15,7 +15,7 @@ object AACHop350 : SpeedMode("AACHop3.5.0") {
 
     // Currently not working properly, for some reason
     fun onMotion(event: MotionEvent) {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (isMoving && !isInLiquid) {
                 jumpMovementFactor += 0.00208f
 
@@ -35,7 +35,7 @@ object AACHop350 : SpeedMode("AACHop3.5.0") {
     }
 
     override fun onEnable() {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (onGround) {
                 motionX = 0.0
                 motionZ = 0.0
@@ -44,6 +44,6 @@ object AACHop350 : SpeedMode("AACHop3.5.0") {
     }
 
     override fun onDisable() {
-        mc.thePlayer?.jumpMovementFactor = 0.02f
+        mc.player?.jumpMovementFactor = 0.02f
     }
 }

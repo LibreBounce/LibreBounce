@@ -16,7 +16,7 @@ import net.minecraft.util.AxisAlignedBB
 object Jump : FlyMode("Jump") {
 
     override fun onUpdate() {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (onGround && !isJumping)
                 tryJump()
 

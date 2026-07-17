@@ -14,7 +14,7 @@ object Minesucht : FlyMode("Minesucht") {
     private var minesuchtTP = 0L
 
     override fun onUpdate() {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (!mc.gameSettings.keyBindForward.isKeyDown) return
 
             if (System.currentTimeMillis() - minesuchtTP > 99) {

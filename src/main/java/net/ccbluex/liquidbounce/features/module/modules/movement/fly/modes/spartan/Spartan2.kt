@@ -12,7 +12,7 @@ import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.Position
 
 object Spartan2 : FlyMode("Spartan2") {
     override fun onUpdate() {
-        mc.thePlayer?.run {
+        mc.player?.run {
             strafe(0.264f)
 
             if (ticksExisted % 8 == 0)

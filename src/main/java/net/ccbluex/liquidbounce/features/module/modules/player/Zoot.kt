@@ -20,7 +20,7 @@ object Zoot : Module("Zoot", Category.PLAYER) {
     private val noAir by boolean("NoAir", false)
 
     val onUpdate = handler<UpdateEvent> {
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
 
         if (noAir && !serverOnGround)
             return@handler

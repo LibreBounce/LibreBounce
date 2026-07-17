@@ -83,8 +83,8 @@ object RotationUtils : MinecraftInstance, Listenable {
         targetUpperFace: Boolean = false,
         hRange: ClosedFloatingPointRange<Double> = 0.0..1.0
     ): VecRotation? {
-        val player = mc.thePlayer ?: return null
-        mc.theWorld ?: return null
+        val player = mc.player ?: return null
+        mc.world ?: return null
 
         if (blockPos == null) return null
 
@@ -117,7 +117,7 @@ object RotationUtils : MinecraftInstance, Listenable {
                     val vector = eyesPos + (rotationVector * dist)
 
                     val currentVec = VecRotation(posVec, rotation)
-                    val raycast = mc.theWorld.rayTraceBlocks(eyesPos, vector, false, true, false)
+                    val raycast = mc.world.rayTraceBlocks(eyesPos, vector, false, true, false)
 
                     val currentRotation = currentRotation ?: player.rotation
 
@@ -166,7 +166,7 @@ object RotationUtils : MinecraftInstance, Listenable {
         gravity: Float = 0.05f,
         velocity: Float? = null,
     ): Rotation {
-        val player = mc.thePlayer
+        val player = mc.player
 
         val posX =
             target.posX + (if (predict) (target.posX - target.prevPosX) * predictSize else .0) - (player.posX + if (predict) player.posX - player.prevPosX else .0)
@@ -201,7 +201,7 @@ object RotationUtils : MinecraftInstance, Listenable {
      * @param predict predict new location of your body
      * @return rotation
      */
-    fun toRotation(vec: Vec3d, predict: Boolean = false, fromEntity: Entity = mc.thePlayer): Rotation {
+    fun toRotation(vec: Vec3d, predict: Boolean = false, fromEntity: Entity = mc.player): Rotation {
         val eyesPos = fromEntity.eyes
         if (predict) eyesPos.addVector(fromEntity.motionX, fromEntity.motionY, fromEntity.motionZ)
 
@@ -244,11 +244,11 @@ object RotationUtils : MinecraftInstance, Listenable {
             return toRotation(vec3, predict).fixedSensitivity()
         }
 
-        val eyes = mc.thePlayer.eyes
+        val eyes = mc.player.eyes
 
         val preferredRotation = toRotation(getNearestPointBB(eyes, bb), predict).takeIf {
             distanceBasedSpot
-        } ?: currentRotation ?: mc.thePlayer.rotation
+        } ?: currentRotation ?: mc.player.rotation
 
         val currRotation = Rotation.ZERO.plus(preferredRotation)
 
@@ -311,7 +311,7 @@ object RotationUtils : MinecraftInstance, Listenable {
      * @return difference between rotation
      */
     fun rotationDifference(entity: Entity) =
-        rotationDifference(toRotation(entity.hitBox.center, true), mc.thePlayer.rotation)
+        rotationDifference(toRotation(entity.hitBox.center, true), mc.player.rotation)
 
     /**
      * Calculate difference between two rotations
@@ -533,7 +533,7 @@ object RotationUtils : MinecraftInstance, Listenable {
     /**
      * Allows you to check if your enemy is behind a wall
      */
-    fun isVisible(vec3: Vec3d) = mc.theWorld.rayTraceBlocks(mc.thePlayer.eyes, vec3) == null
+    fun isVisible(vec3: Vec3d) = mc.world.rayTraceBlocks(mc.player.eyes, vec3) == null
 
     fun isEntityHeightVisible(entity: Entity) = arrayOf(
         entity.hitBox.center.withY(entity.hitBox.maxY), entity.hitBox.center.withY(entity.hitBox.minY)
@@ -560,8 +560,8 @@ object RotationUtils : MinecraftInstance, Listenable {
 
         if (!options.applyServerSide) {
             currentRotation?.let {
-                mc.thePlayer.rotationYaw = it.yaw
-                mc.thePlayer.rotationPitch = it.pitch
+                mc.player.rotationYaw = it.yaw
+                mc.player.rotationPitch = it.pitch
             }
 
             resetRotation()
@@ -581,7 +581,7 @@ object RotationUtils : MinecraftInstance, Listenable {
     private fun resetRotation() {
         resetTicks = 0
         currentRotation?.let { (yaw, _) ->
-            mc.thePlayer?.let {
+            mc.player?.let {
                 it.rotationYaw = yaw + angleDifference(it.rotationYaw, yaw)
                 syncRotations()
             }
@@ -611,8 +611,8 @@ object RotationUtils : MinecraftInstance, Listenable {
         rotation: Rotation,
         reach: Float = mc.playerController.blockReachDistance,
     ): MovingObjectPosition? {
-        val world = mc.theWorld ?: return null
-        val player = mc.thePlayer ?: return null
+        val world = mc.world ?: return null
+        val player = mc.player ?: return null
 
         val eyes = player.eyes
 
@@ -621,11 +621,11 @@ object RotationUtils : MinecraftInstance, Listenable {
         )
     }
 
-    fun performRayTrace(blockPos: BlockPos, vec: Vec3d, eyes:Vec3d3 = mc.thePlayer.eyes) =
-        mc.theWorld?.let { blockPos.block?.collisionRayTrace(it, blockPos, eyes, vec) }
+    fun performRayTrace(blockPos: BlockPos, vec: Vec3d, eyes:Vec3d3 = mc.player.eyes) =
+        mc.world?.let { blockPos.block?.collisionRayTrace(it, blockPos, eyes, vec) }
 
     fun syncRotations() {
-        val player = mc.thePlayer ?: return
+        val player = mc.player ?: return
 
         player.prevRotationYaw = player.rotationYaw
         player.prevRotationPitch = player.rotationPitch
@@ -637,7 +637,7 @@ object RotationUtils : MinecraftInstance, Listenable {
 
     private fun update() {
         val settings = activeSettings ?: return
-        val player = mc.thePlayer ?: return
+        val player = mc.player ?: return
 
         val playerRotation = player.rotation
 
@@ -695,7 +695,7 @@ object RotationUtils : MinecraftInstance, Listenable {
      */
     fun syncSpecialModuleRotations() {
         serverRotation.let { (yaw, _) ->
-            mc.thePlayer?.let {
+            mc.player?.let {
                 it.rotationYaw = yaw + angleDifference(it.rotationYaw, yaw)
                 syncRotations()
             }

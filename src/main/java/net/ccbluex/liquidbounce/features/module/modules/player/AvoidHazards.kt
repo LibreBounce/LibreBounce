@@ -17,7 +17,7 @@ object AvoidHazards : Module("AvoidHazards", Category.WORLD) {
     private val onSnow by boolean("Snow", true)
 
     val onBlockBB = handler<BlockBBEvent> { e ->
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
 
         when (e.block) {
             fire -> if (!onFire) return@handler

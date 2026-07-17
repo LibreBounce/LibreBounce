@@ -45,7 +45,7 @@ object PacketUtils : MinecraftInstance, Listenable {
     }
 
     val onTick = handler<GameTickEvent>(priority = 2) {
-        for (entity in mc.theWorld.loadedEntityList) {
+        for (entity in mc.world.loadedEntityList) {
             if (entity is LivingEntity) {
                 (entity as? IMixinEntity)?.apply {
                     if (!truePos) {
@@ -57,7 +57,7 @@ object PacketUtils : MinecraftInstance, Listenable {
     }
 
     val onPacket = handler<PacketEvent>(dispatcher = Dispatchers.Main, priority = 2) { event ->
-        val world = mc.theWorld ?: return@handler
+        val world = mc.world ?: return@handler
 
         when (val packet = event.packet) {
             is AddPlayerS2CPacket -> (world.getEntityByID(packet.entityID) as? IMixinEntity)?.apply {

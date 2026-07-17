@@ -38,14 +38,14 @@ object BlockOverlay : Module("BlockOverlay", Category.RENDER, gameDetecting = fa
 
     val currentBlock: BlockPos?
         get() {
-            mc.theWorld ?: return null
+            mc.world ?: return null
             val blockPos = mc.objectMouseOver?.blockPos ?: return null
 
             if (blockPos.block !in arrayOf(
                     air,
                     water,
                     lava
-                ) && mc.theWorld.worldBorder.contains(blockPos)
+                ) && mc.world.worldBorder.contains(blockPos)
             )
                 return blockPos
 
@@ -67,15 +67,15 @@ object BlockOverlay : Module("BlockOverlay", Category.RENDER, gameDetecting = fa
         if (depth3D) glDisable(GL_DEPTH_TEST)
         glDepthMask(false)
 
-        block.setBlockBoundsBasedOnState(mc.theWorld, blockPos)
+        block.setBlockBoundsBasedOnState(mc.world, blockPos)
 
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
 
         val pos = player.interpolatedPosition(player.lastTickPos)
 
         val f = 0.002F.toDouble()
 
-        val axisAlignedBB = block.getSelectedBoundingBox(mc.theWorld, blockPos).expand(f, f, f).offset(-pos)
+        val axisAlignedBB = block.getSelectedBoundingBox(mc.world, blockPos).expand(f, f, f).offset(-pos)
 
         if (mode in arrayOf("Box", "OtherBox"))
             drawFilledBox(axisAlignedBB)

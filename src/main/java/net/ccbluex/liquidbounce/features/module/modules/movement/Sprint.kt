@@ -51,7 +51,7 @@ object Sprint : Module("Sprint", Category.MOVEMENT, gameDetecting = false) {
         get() = mode
 
     fun correctSprintState(movementInput: Input, isUsingItem: Boolean) {
-        val player = mc.thePlayer ?: return
+        val player = mc.player ?: return
 
         if (SuperKnockback.breakSprint()) {
             player setSprintSafely false
@@ -87,7 +87,7 @@ object Sprint : Module("Sprint", Category.MOVEMENT, gameDetecting = false) {
     }
 
     private fun shouldStopSprinting(movementInput: Input, isUsingItem: Boolean): Boolean {
-        val player = mc.thePlayer ?: return false
+        val player = mc.player ?: return false
 
         val isLegitModeActive = mode == "Legit"
 

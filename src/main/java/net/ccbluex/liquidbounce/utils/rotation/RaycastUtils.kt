@@ -34,7 +34,7 @@ object RaycastUtils : MinecraftInstance {
     ): Entity? {
         val renderViewEntity = mc.renderViewEntity
 
-        if (renderViewEntity == null || mc.theWorld == null)
+        if (renderViewEntity == null || mc.world == null)
             return null
 
         var blockReachDistance = range
@@ -42,7 +42,7 @@ object RaycastUtils : MinecraftInstance {
         val entityLook = getVectorForRotation(yaw, pitch)
         val vec = eyePosition + (entityLook * blockReachDistance)
 
-        val entityList = mc.theWorld.getEntities(Entity::class.java) {
+        val entityList = mc.world.getEntities(Entity::class.java) {
             it != null && (it is LivingEntity || it is EntityLargeFireball) && (it !is PlayerEntity || !it.isSpectator) && it.canBeCollidedWith() && it != renderViewEntity
         }
 
@@ -99,7 +99,7 @@ object RaycastUtils : MinecraftInstance {
         val prevPointedEntity = mc.pointedEntity
         val prevObjectMouseOver = mc.objectMouseOver
 
-        if (entity != null && mc.theWorld != null) {
+        if (entity != null && mc.world != null) {
             mc.pointedEntity = null
 
             val buildReach = if (mc.playerController.currentGameType.isCreative) 5.0 else 4.5
@@ -126,7 +126,7 @@ object RaycastUtils : MinecraftInstance {
             var pointedEntity: Entity? = null
             var vec33: Vec3d? = null
 
-            val list = mc.theWorld.getEntities(LivingEntity::class.java) {
+            val list = mc.world.getEntities(LivingEntity::class.java) {
                 it != null && (it !is PlayerEntity || !it.isSpectator) && it.canBeCollidedWith() && it != entity
             }
 

@@ -82,7 +82,7 @@ object PointerESP : Module("PointerESP", Category.RENDER) {
     val onRender3D = handler<Render3DEvent> { event ->
         if (dimension == "2D") return@handler
 
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
 
         glDisable(GL_CULL_FACE)
         glEnable(GL_POLYGON_OFFSET_FILL)
@@ -107,7 +107,7 @@ object PointerESP : Module("PointerESP", Category.RENDER) {
             return
         }
 
-        val player = mc.thePlayer ?: return
+        val player = mc.player ?: return
 
         val arrowRadius = -arrowRadius
         val halfAngle = arrowAngle / 2

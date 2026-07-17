@@ -25,7 +25,7 @@ object FastBow : Module("FastBow", Category.COMBAT) {
     private val packets by int("Packets", 20, 3..20)
 
     val onUpdate = handler<UpdateEvent> {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (!isUsingItem)
                 return@handler
 

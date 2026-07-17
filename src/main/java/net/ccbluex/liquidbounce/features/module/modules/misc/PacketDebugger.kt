@@ -28,7 +28,7 @@ object PacketDebugger : Module("PacketDebugger", Category.MISC, gameDetecting = 
     val selectedPackets = mutableSetOf<String>()
 
     val onPacket = handler<PacketEvent> { event ->
-        if (mc.thePlayer == null || mc.theWorld == null) {
+        if (mc.player == null || mc.world == null) {
             return@handler
         }
 

@@ -69,13 +69,13 @@ object FreeCam : Module("FreeCam", Category.RENDER, gameDetecting = false) {
     private var pos: PositionPair? = null
 
     private fun updatePosition(velocity: Vec3d) {
-        val player = mc.thePlayer ?: return
+        val player = mc.player ?: return
 
         pos = (pos ?: PositionPair(player.currPos, player.currPos)).apply { this += velocity }
     }
 
     fun useModifiedPosition() {
-        val player = mc.thePlayer ?: return
+        val player = mc.player ?: return
 
         originalPos = PositionPair(player.currPos, player.prevPos, player.lastTickPos)
 
@@ -93,16 +93,16 @@ object FreeCam : Module("FreeCam", Category.RENDER, gameDetecting = false) {
     }
 
     fun restoreOriginalPosition() {
-        val player = mc.thePlayer ?: return
+        val player = mc.player ?: return
 
         originalPos?.run { player.setPosAndPrevPos(pos, lastPos, extraPos) }
     }
 
     fun renderPlayerFromAllPerspectives(entity: LivingEntity) =
-        handleEvents() && entity == mc.thePlayer || entity.isPlayerSleeping
+        handleEvents() && entity == mc.player || entity.isPlayerSleeping
 
     fun modifyRaycast(original: Vec3d, entity: Entity, tickDelta: Float):Vec3d3 {
-        if (!handleEvents() || entity != mc.thePlayer || !allowCameraInteract) {
+        if (!handleEvents() || entity != mc.player || !allowCameraInteract) {
             return original
         }
 

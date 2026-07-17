@@ -44,7 +44,7 @@ object AtAllProvider :
                     sendQueue += retryQueue
             }
 
-            mc.thePlayer.sendChatMessage(sendQueue.removeFirst())
+            mc.player.sendChatMessage(sendQueue.removeFirst())
         }
 
         delay(delay.random().toLong())
@@ -60,7 +60,7 @@ object AtAllProvider :
             return@handler
 
         lock.withLock {
-            val selfName = mc.thePlayer.name
+            val selfName = mc.player.name
             for (playerInfo in mc.netHandler.playerInfoMap) {
                 val playerName = playerInfo?.gameProfile?.name
 

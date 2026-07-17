@@ -54,7 +54,7 @@ object AutoSoup : Module("AutoSoup", Category.COMBAT) {
         get() = health.toString()
 
     val onGameTick = handler<GameTickEvent>(priority = -1) {
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
 
         if (!timer.hasTimePassed(randomizedDelay))
             return@handler

@@ -24,11 +24,11 @@ object TNTBlock : Module("TNTBlock", Category.COMBAT) {
 
     private val entities by EntityLookup<EntityTNTPrimed>()
         .filter { it.fuse <= fuse }
-        .filter { mc.thePlayer.getDistanceSqToEntity(it) <= range * range }
+        .filter { mc.player.getDistanceSqToEntity(it) <= range * range }
 
     val onMotion = handler<MotionEvent> {
-        val player = mc.thePlayer ?: return@handler
-        mc.theWorld ?: return@handler
+        val player = mc.player ?: return@handler
+        mc.world ?: return@handler
 
         for (entity in entities) {
             if (autoSword) {

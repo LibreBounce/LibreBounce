@@ -59,19 +59,19 @@ object ItemESP : Module("ItemESP", Category.RENDER) {
     private val thruBlocks by boolean("ThruBlocks", true)
 
     private val itemEntities by EntityLookup<ItemEntity>()
-        .filter { mc.thePlayer.getDistanceSqToEntity(it) <= maxRenderDistanceSq }
+        .filter { mc.player.getDistanceSqToEntity(it) <= maxRenderDistanceSq }
         .filter { !onLook || isLookingOnEntities(it, maxAngleDifference.toDouble()) }
         .filter { thruBlocks || isEntityHeightVisible(it) }
 
     val onRender3D = handler<Render3DEvent> {
-        if (mc.theWorld == null || mc.thePlayer == null)
+        if (mc.world == null || mc.player == null)
             return@handler
 
         for (entityItem in itemEntities) {
             val isUseful =
                 InventoryCleaner.handleEvents() && InventoryCleaner.highlightUseful && InventoryCleaner.isStackUseful(
                     entityItem.entityItem,
-                    mc.thePlayer.openContainer.inventory,
+                    mc.player.openContainer.inventory,
                     mapOf(entityItem.entityItem to entityItem)
                 )
 
@@ -95,7 +95,7 @@ object ItemESP : Module("ItemESP", Category.RENDER) {
             val isUseful =
                 InventoryCleaner.handleEvents() && InventoryCleaner.highlightUseful && InventoryCleaner.isStackUseful(
                     entityItem.entityItem,
-                    mc.thePlayer.openContainer.inventory,
+                    mc.player.openContainer.inventory,
                     mapOf(entityItem.entityItem to entityItem)
                 )
 
@@ -109,7 +109,7 @@ object ItemESP : Module("ItemESP", Category.RENDER) {
     }
 
     private fun renderEntityText(entity: ItemEntity, color: Color) {
-        val player = mc.thePlayer ?: return
+        val player = mc.player ?: return
         val renderManager = mc.renderManager
         val rotateX = if (mc.gameSettings.thirdPersonView == 2) -1.0f else 1.0f
 

@@ -19,7 +19,7 @@ object FreeHypixel : FlyMode("FreeHypixel") {
     private var startPitch = 0f
 
     override fun onEnable() {
-        mc.thePlayer?.run {
+        mc.player?.run {
             timer.reset()
 
             setPositionAndUpdate(posX, posY + 0.42, posZ)
@@ -30,7 +30,7 @@ object FreeHypixel : FlyMode("FreeHypixel") {
     }
 
     override fun onUpdate() {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (timer.hasTimePassed(10)) {
                 capabilities.isFlying = true
                 return

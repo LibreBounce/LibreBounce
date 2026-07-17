@@ -13,7 +13,7 @@ import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 
 object WatchCat : FlyMode("WatchCat") {
     override fun onUpdate() {
-        mc.thePlayer?.run {
+        mc.player?.run {
             strafe(0.15f)
             isSprinting = true
 

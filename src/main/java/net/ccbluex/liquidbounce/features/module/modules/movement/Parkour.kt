@@ -15,7 +15,7 @@ import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
 object Parkour : Module("Parkour", Category.MOVEMENT, subjective = true, gameDetecting = false) {
 
     val onInput = handler<InputEvent> { event ->
-        mc.thePlayer?.run {
+        mc.player?.run {
             val simPlayer = SimulatedPlayer.fromClientPlayer(event.originalInput)
 
             simPlayer.tick()

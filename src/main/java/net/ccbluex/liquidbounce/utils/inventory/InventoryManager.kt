@@ -139,11 +139,11 @@ object InventoryManager : Configurable("InventoryManager"), MinecraftInstance, L
             !canCloseInventory -> null
 
             // Prevent any other container guis from getting closed
-            mc.thePlayer?.openContainer?.windowId != 0 -> null
+            mc.player?.openContainer?.windowId != 0 -> null
 
             // Check if open inventory should be closed
             mc.currentScreen is SurvivalInventoryScreen && invOpenValue.get() && autoCloseValue.get() ->
-                Runnable { mc.thePlayer?.closeScreen() }
+                Runnable { mc.player?.closeScreen() }
 
             // Check if simulated inventory should be closed
             mc.currentScreen !is SurvivalInventoryScreen && simulateInventoryValue.get() && serverOpenInventory ->
@@ -153,7 +153,7 @@ object InventoryManager : Configurable("InventoryManager"), MinecraftInstance, L
         }
 
     fun canClickInventory(closeWhenViolating: Boolean = false) =
-        if (noMoveValue.get() && mc.thePlayer.isMoving && if (serverOnGround) noMoveGroundValue.get() else noMoveAirValue.get()) {
+        if (noMoveValue.get() && mc.player.isMoving && if (serverOnGround) noMoveGroundValue.get() else noMoveAirValue.get()) {
 
             // NoMove check is violated, close simulated inventory
             if (closeWhenViolating)

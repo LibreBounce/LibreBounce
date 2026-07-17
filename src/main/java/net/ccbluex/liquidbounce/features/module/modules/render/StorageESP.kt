@@ -110,12 +110,12 @@ object StorageESP : Module("StorageESP", Category.RENDER) {
 
             mc.gameSettings.gammaSetting = 100000f
 
-            for (tileEntity in mc.theWorld.loadedTileEntityList) {
+            for (tileEntity in mc.world.loadedTileEntityList) {
                 val color = getColor(tileEntity) ?: continue
 
                 val tileEntityPos = tileEntity.pos
 
-                val distanceSquared = mc.thePlayer.getDistanceSq(
+                val distanceSquared = mc.player.getDistanceSq(
                     tileEntityPos.x.toDouble(),
                     tileEntityPos.y.toDouble(),
                     tileEntityPos.z.toDouble()
@@ -173,10 +173,10 @@ object StorageESP : Module("StorageESP", Category.RENDER) {
                 }
             }
 
-            for (entity in mc.theWorld.loadedEntityList) {
+            for (entity in mc.world.loadedEntityList) {
                 val entityPos = entity.position
 
-                val distanceSquared = mc.thePlayer.getDistanceSq(
+                val distanceSquared = mc.player.getDistanceSq(
                     entityPos.x.toDouble(),
                     entityPos.y.toDouble(),
                     entityPos.z.toDouble()
@@ -244,13 +244,13 @@ object StorageESP : Module("StorageESP", Category.RENDER) {
     }
 
     val onRender2D = handler<Render2DEvent> { event ->
-        if (mc.theWorld == null || mode != "Glow")
+        if (mc.world == null || mode != "Glow")
             return@handler
 
         val renderManager = mc.renderManager
 
         try {
-            mc.theWorld.loadedTileEntityList
+            mc.world.loadedTileEntityList
                 .groupBy { getColor(it) }
                 .forEach { (color, tileEntities) ->
                     color ?: return@forEach
@@ -259,7 +259,7 @@ object StorageESP : Module("StorageESP", Category.RENDER) {
 
                     for (entity in tileEntities) {
                         val pos = entity.pos.toVec()
-                        val distanceSquared = mc.thePlayer.getDistanceSq(pos.xCoord, pos.yCoord, pos.zCoord)
+                        val distanceSquared = mc.player.getDistanceSq(pos.xCoord, pos.yCoord, pos.zCoord)
 
                         if (distanceSquared > maxRenderDistanceSq)
                             continue

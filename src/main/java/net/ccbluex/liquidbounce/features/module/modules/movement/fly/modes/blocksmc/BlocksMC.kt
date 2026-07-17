@@ -50,8 +50,8 @@ object BlocksMC : FlyMode("BlocksMC"), Listenable {
     private var jumped = false
 
     override fun onUpdate() {
-        val player = mc.thePlayer ?: return
-        mc.theWorld ?: return
+        val player = mc.player ?: return
+        mc.world ?: return
 
         if (isFlying) {
             if (player.onGround && stopOnLanding) {
@@ -67,7 +67,7 @@ object BlocksMC : FlyMode("BlocksMC"), Listenable {
             }
         }
 
-        if (shouldFly(player, mc.theWorld)) {
+        if (shouldFly(player, mc.world)) {
             if (isTeleported) {
                 if (stable) player.motionY = 0.0
 

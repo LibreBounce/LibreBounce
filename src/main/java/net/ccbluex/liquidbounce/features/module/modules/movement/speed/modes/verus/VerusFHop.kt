@@ -11,7 +11,7 @@ import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 
 object VerusFHop : SpeedMode("VerusFHop") {
     override fun onMotion() {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (onGround) {
                 if (movementInput.moveForward != 0f && moveStrafing != 0f) strafe(0.4825f)
                 else strafe(0.535f)

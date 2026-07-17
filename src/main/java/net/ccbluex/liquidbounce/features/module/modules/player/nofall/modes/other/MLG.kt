@@ -48,7 +48,7 @@ object MLG : NoFallMode("MLG") {
         get() = RotationUtils.currentRotation ?: RotationUtils.serverRotation
 
     override fun onRotationUpdate() {
-        val player = mc.thePlayer ?: return
+        val player = mc.player ?: return
 
         retrievingPos?.let {
             if (player.hotBarSlot(SilentHotbar.currentSlot).stack?.item != Items.bucket) {
@@ -137,7 +137,7 @@ object MLG : NoFallMode("MLG") {
     }
 
     override fun onTick() {
-        val player = mc.thePlayer ?: return
+        val player = mc.player ?: return
         val target = currentMlgBlock ?: run {
             // If the slot was modified but rotations did not reach the target spot in time, reset the slot
             if (retrievingPos == null) {
@@ -199,7 +199,7 @@ object MLG : NoFallMode("MLG") {
 
                         // Are we too far away from the block?
                         if (block == null || player.getDistanceToBox(
-                                block.getSelectedBoundingBox(mc.theWorld, target)
+                                block.getSelectedBoundingBox(mc.world, target)
                             ) > reach
                         ) {
                             reset()
@@ -263,7 +263,7 @@ object MLG : NoFallMode("MLG") {
     private inline fun tryToPlaceBlock(
         stack: ItemStack, clickPos: BlockPos, side: EnumFacing, hitVec: Vec3d, onSuccess: () -> Unit
     ): Boolean {
-        val player = mc.thePlayer ?: return false
+        val player = mc.player ?: return false
 
         val prevSize = stack.stackSize
 
@@ -300,19 +300,19 @@ object MLG : NoFallMode("MLG") {
     }
 
     private fun performBlockRaytrace(rotation: Rotation, maxReach: Float): MovingObjectPosition? {
-        val player = mc.thePlayer ?: return null
-        mc.theWorld ?: return null
+        val player = mc.player ?: return null
+        mc.world ?: return null
 
         val eyes = player.eyes
         val rotationVec = getVectorForRotation(rotation)
 
         val reach = eyes + (rotationVec * maxReach.toDouble())
 
-        return mc.theWorld.rayTraceBlocks(eyes, reach, false, true, false)
+        return mc.world.rayTraceBlocks(eyes, reach, false, true, false)
     }
 
     private fun findMlgSlot(onlyBucket: Boolean = false): Int? {
-        val player = mc.thePlayer ?: return null
+        val player = mc.player ?: return null
 
         val bucket = if (onlyBucket) Items.bucket else Items.water_bucket
 

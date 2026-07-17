@@ -29,7 +29,7 @@ object WallClimb : Module("WallClimb", Category.MOVEMENT) {
     private var waited = 0
 
     val onMove = handler<MoveEvent> { event ->
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (!isCollidedHorizontally || isOnLadder || isInLiquid)
                 return@handler
 
@@ -41,7 +41,7 @@ object WallClimb : Module("WallClimb", Category.MOVEMENT) {
     }
 
     val onUpdate = loopSequence {
-        mc.thePlayer?.run {
+        mc.player?.run {
             when (mode) {
                 "Clip" -> {
                     if (motionY < 0)
@@ -96,7 +96,7 @@ object WallClimb : Module("WallClimb", Category.MOVEMENT) {
     }
 
     val onBlockBB = handler<BlockBBEvent> { event ->
-        mc.thePlayer?.run {
+        mc.player?.run {
             when (mode) {
                 "CheckerClimb" -> if (event.y > posY) event.boundingBox = null
 

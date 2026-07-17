@@ -32,7 +32,7 @@ object AutoWeapon : Module("AutoWeapon", Category.COMBAT, subjective = true) {
     }
 
     val onPacket = handler<PacketEvent> { event ->
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
 
         if (event.packet is PlayerInteractEntityC2SPacket && event.packet.action == ATTACK && attackEnemy) {
             attackEnemy = false

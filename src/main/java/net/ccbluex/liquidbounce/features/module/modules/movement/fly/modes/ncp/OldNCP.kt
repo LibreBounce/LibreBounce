@@ -14,7 +14,7 @@ import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.Position
 
 object OldNCP : FlyMode("OldNCP") {
     override fun onEnable() {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (!onGround) return
 
             repeat(4) {
@@ -30,7 +30,7 @@ object OldNCP : FlyMode("OldNCP") {
     }
 
     override fun onUpdate() {
-        mc.thePlayer?.run {
+        mc.player?.run {
             if (startY > posY)
                 motionY = -0.000000000000000000000000000000001
 

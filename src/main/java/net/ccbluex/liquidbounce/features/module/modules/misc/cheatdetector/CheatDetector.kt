@@ -56,7 +56,7 @@ object CheatDetector : Module("CheatDetector", Category.MISC) {
     }
 
     val onUpdate = handler<UpdateEvent> { event ->
-        val player = mc.thePlayer ?: return@handler
+        val player = mc.player ?: return@handler
 
         target = KillAura.target as Entity ?: target
 

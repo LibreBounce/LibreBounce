@@ -111,7 +111,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
     }
 
     val onPacket = handler<PacketEvent> { event ->
-        if (mc.thePlayer == null || mc.theWorld == null) {
+        if (mc.player == null || mc.world == null) {
             return@handler
         }
 
@@ -177,7 +177,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
          * Check if this is a regular velocity update
          */
         if (velocity) {
-            if (packet is EntityVelocityS2CPacket && packet.entityID == mc.thePlayer?.entityId) {
+            if (packet is EntityVelocityS2CPacket && packet.entityID == mc.player?.entityId) {
                 if (packet.motionX == 0 && packet.motionZ == 0 && packet.motionY / 8000.0 > 0.075) {
                     attemptLeave = false
                     autoLeave()
@@ -190,7 +190,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
     }
 
     private fun notifySpectators(player: String) {
-        if (mc.thePlayer == null || mc.theWorld == null) {
+        if (mc.player == null || mc.world == null) {
             return
         }
 
@@ -221,7 +221,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
         if (!tab)
             return
 
-        if (mc.thePlayer == null || mc.theWorld == null) {
+        if (mc.player == null || mc.world == null) {
             return
         }
 
@@ -265,7 +265,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
         if (!packet)
             return
 
-        if (mc.thePlayer == null || mc.theWorld == null) {
+        if (mc.player == null || mc.world == null) {
             return
         }
 
@@ -300,7 +300,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
     }
 
     private fun autoLeave() {
-        val firstSlotItemStack = mc.thePlayer.inventory.mainInventory[0] ?: return
+        val firstSlotItemStack = mc.player.inventory.mainInventory[0] ?: return
 
         if (inGame && (firstSlotItemStack.item == Items.compass || firstSlotItemStack.item == Items.bow)) {
             return
@@ -308,9 +308,9 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
 
         if (!attemptLeave && autoLeave != "Off") {
             when (autoLeave) {
-                "Leave" -> mc.thePlayer.sendChatMessage("/leave")
-                "Lobby" -> mc.thePlayer.sendChatMessage("/lobby")
-                "Quit" -> mc.theWorld.sendQuittingDisconnectingPacket()
+                "Leave" -> mc.player.sendChatMessage("/leave")
+                "Lobby" -> mc.player.sendChatMessage("/lobby")
+                "Quit" -> mc.world.sendQuittingDisconnectingPacket()
             }
             attemptLeave = true
         }
@@ -343,28 +343,28 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
     }
 
     private fun handleOtherChecks(packet: Packet<*>?) {
-        if (mc.thePlayer == null || mc.theWorld == null) {
+        if (mc.player == null || mc.world == null) {
             return
         }
 
         when (packet) {
-            is LoginS2CPacket -> handleStaff(mc.theWorld.getEntityByID(packet.entityId) ?: null)
-            is AddPlayerS2CPacket -> handleStaff(mc.theWorld.getEntityByID(packet.entityID) ?: null)
-            is EntityTeleportS2CPacket -> handleStaff(mc.theWorld.getEntityByID(packet.entityId) ?: null)
-            is EntityDataS2CPacket -> handleStaff(mc.theWorld.getEntityByID(packet.entityId) ?: null)
-            is EntityStatusEffectS2CPacket -> handleStaff(mc.theWorld.getEntityByID(packet.entityId) ?: null)
-            is EntityRemoveStatusEffectS2CPacket -> handleStaff(mc.theWorld.getEntityByID(packet.entityId) ?: null)
-            is EntityEventS2CPacket -> handleStaff(mc.theWorld.getEntityByID(packet.entityId) ?: null)
-            is EntityHeadAnglesS2CPacket -> handleStaff(packet.getEntity(mc.theWorld) ?: null)
-            is EntitySyncS2CPacket -> handleStaff(packet.getEntity(mc.theWorld) ?: null)
-            is AttachEntityS2CPacket -> handleStaff(mc.theWorld.getEntityByID(packet.entityId) ?: null)
-            is EntityEquipmentS2CPacket -> handleStaff(mc.theWorld.getEntityByID(packet.entityID) ?: null)
+            is LoginS2CPacket -> handleStaff(mc.world.getEntityByID(packet.entityId) ?: null)
+            is AddPlayerS2CPacket -> handleStaff(mc.world.getEntityByID(packet.entityID) ?: null)
+            is EntityTeleportS2CPacket -> handleStaff(mc.world.getEntityByID(packet.entityId) ?: null)
+            is EntityDataS2CPacket -> handleStaff(mc.world.getEntityByID(packet.entityId) ?: null)
+            is EntityStatusEffectS2CPacket -> handleStaff(mc.world.getEntityByID(packet.entityId) ?: null)
+            is EntityRemoveStatusEffectS2CPacket -> handleStaff(mc.world.getEntityByID(packet.entityId) ?: null)
+            is EntityEventS2CPacket -> handleStaff(mc.world.getEntityByID(packet.entityId) ?: null)
+            is EntityHeadAnglesS2CPacket -> handleStaff(packet.getEntity(mc.world) ?: null)
+            is EntitySyncS2CPacket -> handleStaff(packet.getEntity(mc.world) ?: null)
+            is AttachEntityS2CPacket -> handleStaff(mc.world.getEntityByID(packet.entityId) ?: null)
+            is EntityEquipmentS2CPacket -> handleStaff(mc.world.getEntityByID(packet.entityID) ?: null)
             is PlayerInfoS2CPacket -> handlePlayerList(packet)
         }
     }
 
     private fun handleStaff(staff: Entity?) {
-        if (mc.thePlayer == null || mc.theWorld == null || staff == null) {
+        if (mc.player == null || mc.world == null || staff == null) {
             return
         }
 
