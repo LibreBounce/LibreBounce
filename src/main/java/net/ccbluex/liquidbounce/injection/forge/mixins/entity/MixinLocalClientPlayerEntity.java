@@ -32,7 +32,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.entity.living.player.LocalClientPlayerEntity;
-import net.minecraft.client.network.NetHandlerPlayClient;
+import net.minecraft.client.network.handler.ClientPlayNetworkHandler;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.entity.Entity;
@@ -80,7 +80,7 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
     public int horseJumpPowerCounter;
     @Shadow
     @Final
-    public NetHandlerPlayClient sendQueue;
+    public ClientPlayNetworkHandler sendQueue;
     @Shadow
     protected int sprintToggleTimer;
     @Shadow

@@ -16,7 +16,7 @@ public class SimulatedPlayerJavaExtensions {
      * This game movement code had to be kept in its original language as it gives proper results.
      */
     public Pair<Double, Double> checkForCollision(SimulatedPlayer simPlayer, double velocityX, double velocityZ) {
-        LocalClientPlayerEntity player = Minecraft.getMinecraft().thePlayer;
+        LocalClientPlayerEntity player = Minecraft.getMinecraft().player;
         World worldObj = player.worldObj;
 
         double d6;

@@ -210,8 +210,8 @@ object BlinkUtils : MinecraftInstance, Listenable {
         fakePlayer = faker
 
         // Add positions indicating a blink start
-        // val pos = thePlayer.positionVector
-        // positions += pos.addVector(.0, thePlayer.eyeHeight / 2.0, .0)
+        // val pos = player.positionVector
+        // positions += pos.addVector(.0, player.eyeHeight / 2.0, .0)
         // positions += pos
     }
 }

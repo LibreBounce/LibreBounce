@@ -78,7 +78,7 @@ public abstract class MixinLivingEntity extends MixinEntity {
     @Overwrite
     protected void jump() {
         final JumpEvent prejumpEvent = new JumpEvent(getJumpUpwardsMotion(), EventState.PRE);
-        if ((Object) this == Minecraft.getMinecraft().thePlayer) {
+        if ((Object) this == Minecraft.getMinecraft().player) {
             EventManager.INSTANCE.call(prejumpEvent);
             if (prejumpEvent.isCancelled()) return;
         }
@@ -110,7 +110,7 @@ public abstract class MixinLivingEntity extends MixinEntity {
 
         isAirBorne = true;
 
-        if ((Object) this == Minecraft.getMinecraft().thePlayer) {
+        if ((Object) this == Minecraft.getMinecraft().player) {
             final JumpEvent postjumpEvent = new JumpEvent((float) motionY, EventState.POST);
             EventManager.INSTANCE.call(postjumpEvent);
         }

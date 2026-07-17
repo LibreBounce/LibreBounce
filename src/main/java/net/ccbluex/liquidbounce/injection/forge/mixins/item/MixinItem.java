@@ -24,7 +24,7 @@ public class MixinItem {
     private float hookCurrentRotationYaw(PlayerEntity instance) {
         Rotation rotation = RotationUtils.INSTANCE.getCurrentRotation();
 
-        if (instance.getGameProfile() != Minecraft.getMinecraft().thePlayer.getGameProfile() || rotation == null) {
+        if (instance.getGameProfile() != Minecraft.getMinecraft().player.getGameProfile() || rotation == null) {
             return instance.rotationYaw;
         }
 
@@ -35,7 +35,7 @@ public class MixinItem {
     private float hookCurrentRotationPitch(PlayerEntity instance) {
         Rotation rotation = RotationUtils.INSTANCE.getCurrentRotation();
 
-        if (instance.getGameProfile() != Minecraft.getMinecraft().thePlayer.getGameProfile() || rotation == null) {
+        if (instance.getGameProfile() != Minecraft.getMinecraft().player.getGameProfile() || rotation == null) {
             return instance.rotationPitch;
         }
 

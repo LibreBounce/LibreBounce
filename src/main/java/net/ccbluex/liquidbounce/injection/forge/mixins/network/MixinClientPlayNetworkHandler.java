@@ -26,7 +26,7 @@ import net.minecraft.client.entity.living.player.LocalClientPlayerEntity;
 import net.minecraft.client.gui.screen.DownloadingTerrainScreen;
 import net.minecraft.client.ClientPlayerInteractionManager;
 import net.minecraft.client.multiplayer.WorldClient;
-import net.minecraft.client.network.NetHandlerPlayClient;
+import net.minecraft.client.network.handler.ClientPlayNetworkHandler;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.Connection;
 import net.minecraft.network.Packet;
@@ -52,8 +52,8 @@ import static net.ccbluex.liquidbounce.utils.client.ClientUtilsKt.chat;
 import static net.ccbluex.liquidbounce.utils.client.MinecraftInstance.mc;
 import static net.minecraft.network.packet.c2s.play.ResourcePackC2SPacket.Action.FAILED_DOWNLOAD;
 
-@Mixin(NetHandlerPlayClient.class)
-public abstract class MixinNetHandlerPlayClient {
+@Mixin(ClientPlayNetworkHandler.class)
+public abstract class MixinClientPlayNetworkHandler {
 
     @Shadow
     public int currentServerMaxPlayers;
@@ -233,16 +233,16 @@ public abstract class MixinNetHandlerPlayClient {
         if (!ClientFixes.INSTANCE.getFmlFixesEnabled() || !ClientFixes.INSTANCE.getBlockFML() || mc.isIntegratedServerRunning())
             return;
 
-        PacketThreadUtil.checkThreadAndEnqueue(packetIn, (NetHandlerPlayClient) (Object) this, gameController);
-        gameController.playerController = new ClientPlayerInteractionManager(gameController, (NetHandlerPlayClient) (Object) this);
-        clientWorldController = new WorldClient((NetHandlerPlayClient) (Object) this, new WorldSettings(0L, packetIn.getGameType(), false, packetIn.isHardcoreMode(), packetIn.getWorldType()), packetIn.getDimension(), packetIn.getDifficulty(), gameController.mcProfiler);
+        PacketThreadUtil.checkThreadAndEnqueue(packetIn, (ClientPlayNetworkHandler) (Object) this, gameController);
+        gameController.playerController = new ClientPlayerInteractionManager(gameController, (ClientPlayNetworkHandler) (Object) this);
+        clientWorldController = new WorldClient((ClientPlayNetworkHandler) (Object) this, new WorldSettings(0L, packetIn.getGameType(), false, packetIn.isHardcoreMode(), packetIn.getWorldType()), packetIn.getDimension(), packetIn.getDifficulty(), gameController.mcProfiler);
         gameController.gameSettings.difficulty = packetIn.getDifficulty();
         gameController.loadWorld(clientWorldController);
-        gameController.thePlayer.dimension = packetIn.getDimension();
-        gameController.displayScreen(new DownloadingTerrainScreen((NetHandlerPlayClient) (Object) this));
-        gameController.thePlayer.setEntityId(packetIn.getEntityId());
+        gameController.player.dimension = packetIn.getDimension();
+        gameController.displayScreen(new DownloadingTerrainScreen((ClientPlayNetworkHandler) (Object) this));
+        gameController.player.setEntityId(packetIn.getEntityId());
         currentServerMaxPlayers = packetIn.getMaxPlayers();
-        gameController.thePlayer.setReducedDebug(packetIn.isReducedDebugInfo());
+        gameController.player.setReducedDebug(packetIn.isReducedDebugInfo());
         gameController.playerController.setGameType(packetIn.getGameType());
         gameController.gameSettings.sendSettingsToServer();
         netManager.sendPacket(new CustomPayloadC2SPacket("MC|Brand", (new PacketBuffer(Unpooled.buffer())).writeString(ClientBrandRetriever.getClientModName())));
@@ -262,7 +262,7 @@ public abstract class MixinNetHandlerPlayClient {
         NoRotateSet module = NoRotateSet.INSTANCE;
 
         // Save the server's requested rotation before it resets the rotations
-        module.setSavedRotation(PlayerExtensionKt.getRotation(Minecraft.getMinecraft().thePlayer));
+        module.setSavedRotation(PlayerExtensionKt.getRotation(Minecraft.getMinecraft().player));
     }
 
     @Redirect(method = "handlePlayerPosLook", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/Connection;sendPacket(Lnet/minecraft/network/Packet;)V"))
@@ -271,7 +271,7 @@ public abstract class MixinNetHandlerPlayClient {
         boolean shouldTrigger = module2.blinkingSend();
         PacketUtils.sendPacket(p_sendPacket_1_, shouldTrigger);
 
-        LocalClientPlayerEntity player = Minecraft.getMinecraft().thePlayer;
+        LocalClientPlayerEntity player = Minecraft.getMinecraft().player;
         NoRotateSet module = NoRotateSet.INSTANCE;
 
         if (player == null || !module.shouldModify(player)) {

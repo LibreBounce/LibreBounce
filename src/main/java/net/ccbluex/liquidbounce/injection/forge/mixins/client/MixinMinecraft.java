@@ -75,7 +75,7 @@ public abstract class MixinMinecraft {
     public WorldClient theWorld;
 
     @Shadow
-    public LocalClientPlayerEntity thePlayer;
+    public LocalClientPlayerEntity player;
 
     @Shadow
     public ClientPlayerInteractionManager playerController;
@@ -246,7 +246,7 @@ public abstract class MixinMinecraft {
         if (!fastPlace.handleEvents()) return;
 
         // Don't spam-click when the player isn't holding blocks
-        if (fastPlace.getOnlyBlocks() && (thePlayer.getDisplayItemInHand() == null || !(thePlayer.getDisplayItemInHand().getItem() instanceof ItemBlock)))
+        if (fastPlace.getOnlyBlocks() && (player.getDisplayItemInHand() == null || !(player.getDisplayItemInHand().getItem() instanceof ItemBlock)))
             return;
 
         if (objectMouseOver != null && objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
