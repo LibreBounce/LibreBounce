@@ -60,9 +60,9 @@ dependencies {
     //implementation fileTree(include: ["*.jar"], dir: "libs")
 }
 
-minecraft {
+/*minecraft {
     clientJvmArgs += ["-Dfml.coreMods.load=net.ccbluex.liquidbounce.injection.forge.MixinLoader", "-Xmx4096m", "-Xms1024m", "-Ddev-mode"]
-}
+}*/
 
 tasks.processResources {
     val version = version
