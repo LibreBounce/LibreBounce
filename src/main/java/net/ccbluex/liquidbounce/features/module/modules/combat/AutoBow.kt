@@ -22,7 +22,7 @@ object AutoBow : Module("AutoBow", Category.COMBAT, subjective = true) {
 
     val onUpdate = handler<UpdateEvent> {
         mc.player?.run {
-            if (isUsingItem && heldItem?.item is ItemBow && itemInUseDuration > 20
+            if (isUsingItem && displayItemInHand?.item is ItemBow && itemInUseDuration > 20
                 && (!waitForBowAimbot || !ProjectileAimbot.handleEvents() || ProjectileAimbot.hasTarget())
             ) {
                 stopUsingItem()

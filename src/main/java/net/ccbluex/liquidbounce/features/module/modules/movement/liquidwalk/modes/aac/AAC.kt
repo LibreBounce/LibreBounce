@@ -28,7 +28,7 @@ object AAC : LiquidWalkMode("AAC") {
                     -0.004 else if (isInWater) motionY = 0.09
             }
 
-            if (hurtTime != 0) onGround = false
+            if (damagedTimer != 0) onGround = false
         }
     }
 }

@@ -14,9 +14,9 @@ object IntaveOld : NoWebMode("IntaveOld") {
                 return
 
             if (movementInput.moveStrafe == 0.0F && mc.gameSettings.keyBindForward.isKeyDown && isCollidedVertically) {
-                jumpMovementFactor = 0.74F
+                flyingSpeed = 0.74F
             } else {
-                jumpMovementFactor = 0.2F
+                flyingSpeed = 0.2F
                 onGround = true
             }
         }

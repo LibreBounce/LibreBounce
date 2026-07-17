@@ -94,10 +94,10 @@ object MovementUtils : MinecraftInstance, Listenable {
             var yaw = rotationYaw
             var forward = 1f
 
-            if (movementInput.moveForward < 0f) {
+            if (movementInput.forwardSpeed < 0f) {
                 yaw += 180f
                 forward = -0.5f
-            } else if (movementInput.moveForward > 0f) {
+            } else if (movementInput.forwardSpeed > 0f) {
                 forward = 0.5f
             }
 
@@ -109,7 +109,7 @@ object MovementUtils : MinecraftInstance, Listenable {
     fun isOnGround(height: Double) =
         mc.world != null && mc.player != null &&
             mc.world.getCollidingBoundingBoxes(mc.player,
-                mc.player.entityBoundingBox.offset(Vec3d_ZERO.withY(-height))
+                mc.player.shape.offset(Vec3d_ZERO.withY(-height))
             ).isNotEmpty()
 
     var serverOnGround = false

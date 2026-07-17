@@ -12,10 +12,10 @@ object Hycraft : LongJumpMode("Hycraft") {
         mc.player?.run {
             if (motionY < 0) {
                 motionY *= 0.75f
-                jumpMovementFactor = 0.055f
+                flyingSpeed = 0.055f
             } else {
                 motionY += 0.02f
-                jumpMovementFactor = 0.08f
+                flyingSpeed = 0.08f
             }
         }
     }

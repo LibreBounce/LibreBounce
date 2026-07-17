@@ -104,7 +104,7 @@ public abstract class MixinEntity implements IMixinEntity {
     public float rotationYaw;
 
     @Shadow
-    public abstract AxisAlignedBB getEntityBoundingBox();
+    public abstract AxisAlignedBB getShape();
 
     @Shadow
     public Entity ridingEntity;
@@ -131,7 +131,7 @@ public abstract class MixinEntity implements IMixinEntity {
     public World worldObj;
 
     @Shadow
-    public void moveEntity(double x, double y, double z) {
+    public void move(double x, double y, double z) {
     }
 
     @Shadow
@@ -177,10 +177,10 @@ public abstract class MixinEntity implements IMixinEntity {
     public abstract boolean isRiding();
 
     @Shadow
-    public abstract void setFire(int seconds);
+    public abstract void setOnFireFor(int seconds);
 
     @Shadow
-    protected abstract void dealFireDamage(int amount);
+    protected abstract void takeFireDamage(int amount);
 
     @Shadow
     public abstract boolean isWet();
@@ -195,7 +195,7 @@ public abstract class MixinEntity implements IMixinEntity {
     protected abstract void playStepSound(BlockPos pos, Block blockIn);
 
     @Shadow
-    public abstract void setEntityBoundingBox(AxisAlignedBB bb);
+    public abstract void setShape(AxisAlignedBB bb);
 
     @Shadow
     private int nextStepDistance;
@@ -210,10 +210,10 @@ public abstract class MixinEntity implements IMixinEntity {
     public float prevRotationYaw;
 
     @Shadow
-    protected abstract Vec3d getVectorForRotation(float pitch, float yaw);
+    protected abstract Vec3d getRotationVector(float pitch, float yaw);
 
     @Shadow
-    public abstract UUID getUniqueID();
+    public abstract UUID getUuid();
 
     @Shadow
     public abstract boolean isSneaking();
@@ -246,7 +246,7 @@ public abstract class MixinEntity implements IMixinEntity {
         return NoPitchLimit.INSTANCE.handleEvents() ? a : MathHelper.clamp_float(a, min, max);
     }
 
-    @Inject(method = "moveFlying", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "updateVelocity", at = @At("HEAD"), cancellable = true)
     private void handleRotations(float strafe, float forward, float friction, final CallbackInfo callbackInfo) {
         //noinspection ConstantConditions
         if ((Object) this != mc.player) return;
@@ -271,7 +271,7 @@ public abstract class MixinEntity implements IMixinEntity {
         }
     }
 
-    @Inject(method = "getPositionEyes", at = @At("RETURN"), cancellable = true)
+    @Inject(method = "getEyePosition", at = @At("RETURN"), cancellable = true)
     private void hookFreeCamModifiedRaycast(float tickDelta, CallbackInfoReturnable<Vec3d> cir) {
         cir.setReturnValue(FreeCam.INSTANCE.modifyRaycast(cir.getReturnValue(), (Entity) (Object) this, tickDelta));
     }

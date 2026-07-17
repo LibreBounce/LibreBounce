@@ -200,7 +200,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
                     if (mc.player.getDistanceToEntityBox(target) in distance) {
                         handlePackets()
 
-                        if (debug && target.hurtTime in targetHurtTimeToDebug) chat("(Backtrack) Lag distance: ${dist}, true distance: ${trueDist}")
+                        if (debug && target.damagedTimer in targetHurtTimeToDebug) chat("(Backtrack) Lag distance: ${dist}, true distance: ${trueDist}")
                     } else {
                         handlePacketsRange()
                     }
@@ -254,7 +254,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
             if (targetEntity.truePos) {
                 when (espMode) {
                     "Box" -> {
-                        val axisAlignedBB = entityBoundingBox.offset(-currPos + Vec3d(x, y, z))
+                        val axisAlignedBB = shape.offset(-currPos + Vec3d(x, y, z))
 
                         drawBacktrackBox(axisAlignedBB, color)
                     }
@@ -427,29 +427,29 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
     ): T? {
         val currRotation = entity.rotation
         val prevRotation = entity.prevRotation
-        val bodyYaw = entity.prevRenderYawOffset to entity.renderYawOffset
-        val headRotation = entity.prevRotationYawHead to entity.rotationYawHead
+        val bodyYaw = entity.lastBodyYaw to entity.bodyYaw
+        val headRotation = entity.lastHeadYaw to entity.headYaw
 
         entity.prevRotation = rotation
         entity.rotation = rotation
-        entity.prevRotationYawHead = rotation.yaw
-        entity.rotationYawHead = rotation.yaw
+        entity.lastHeadYaw = rotation.yaw
+        entity.headYaw = rotation.yaw
 
         body?.let {
-            entity.prevRenderYawOffset = it.first
-            entity.renderYawOffset = it.second
+            entity.lastBodyYaw = it.first
+            entity.bodyYaw = it.second
         }
 
         val result = f(rotation)
 
         entity.rotation = currRotation
         entity.prevRotation = prevRotation
-        entity.rotationYawHead = headRotation.second
-        entity.prevRotationYawHead = headRotation.first
+        entity.headYaw = headRotation.second
+        entity.lastHeadYaw = headRotation.first
 
         body?.let {
-            entity.prevRenderYawOffset = bodyYaw.first
-            entity.renderYawOffset = bodyYaw.second
+            entity.lastBodyYaw = bodyYaw.first
+            entity.bodyYaw = bodyYaw.second
         }
 
         return result
@@ -460,14 +460,14 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
 
     private fun onAllowedHurtTime(): Boolean {
         val playerAllowed = when (ownHurtTimeHandling) {
-                "Allow" -> mc.player!!.hurtTime in ownHurtTime
-                "Forbid" -> mc.player!!.hurtTime !in ownHurtTime
+                "Allow" -> mc.player!!.damagedTimer in ownHurtTime
+                "Forbid" -> mc.player!!.damagedTimer !in ownHurtTime
                 else -> true
             }
 
         val targetAllowed = when (targetHurtTimeHandling) {
-                "Allow" -> target!!.hurtTime in targetHurtTime
-                "Forbid" -> target!!.hurtTime !in targetHurtTime
+                "Allow" -> target!!.damagedTimer in targetHurtTime
+                "Forbid" -> target!!.damagedTimer !in targetHurtTime
                 else -> true
             }
 

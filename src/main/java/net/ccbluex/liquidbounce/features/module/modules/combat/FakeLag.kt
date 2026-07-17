@@ -187,7 +187,7 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
                     positions += PositionData(
                         packet.pos,
                         System.currentTimeMillis(),
-                        player.renderYawOffset,
+                        player.bodyYaw,
                         RotationUtils.serverRotation
                     )
                 }
@@ -369,8 +369,8 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
 
     private fun onAllowedHurtTime(): Boolean {
         return when (ownHurtTimeHandling) {
-            "Allow" -> mc.player!!.hurtTime in ownHurtTime
-            "Forbid" -> mc.player!!.hurtTime !in ownHurtTime
+            "Allow" -> mc.player!!.damagedTimer in ownHurtTime
+            "Forbid" -> mc.player!!.damagedTimer !in ownHurtTime
             else -> true
         }
     }

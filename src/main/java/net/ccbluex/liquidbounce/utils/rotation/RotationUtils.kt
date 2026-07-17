@@ -113,7 +113,7 @@ object RotationUtils : MinecraftInstance, Listenable {
                         MathHelper.wrapAngleTo180_float(-atan2(diffY, diffXZ).toDegreesF())
                     ).fixedSensitivity()
 
-                    val rotationVector = getVectorForRotation(rotation)
+                    val rotationVector = getRotationVector(rotation)
                     val vector = eyesPos + (rotationVector * dist)
 
                     val currentVec = VecRotation(posVec, rotation)
@@ -171,7 +171,7 @@ object RotationUtils : MinecraftInstance, Listenable {
         val posX =
             target.posX + (if (predict) (target.posX - target.prevPosX) * predictSize else .0) - (player.posX + if (predict) player.posX - player.prevPosX else .0)
         val posY =
-            target.entityBoundingBox.minY + (if (predict) (target.entityBoundingBox.minY - target.prevPosY) * predictSize else .0) + target.eyeHeight - 0.15 - (player.entityBoundingBox.minY + (if (predict) player.posY - player.prevPosY else .0)) - player.getEyeHeight()
+            target.shape.minY + (if (predict) (target.shape.minY - target.prevPosY) * predictSize else .0) + target.eyeHeight - 0.15 - (player.shape.minY + (if (predict) player.posY - player.prevPosY else .0)) - player.getEyeHeight()
         val posZ =
             target.posZ + (if (predict) (target.posZ - target.prevPosZ) * predictSize else .0) - (player.posZ + if (predict) player.posZ - player.prevPosZ else .0)
         val posSqrt = sqrt(posX * posX + posZ * posZ)
@@ -270,7 +270,7 @@ object RotationUtils : MinecraftInstance, Listenable {
 
                     // Calculate actual hit vec after applying fixed sensitivity to rotation
                     val gcdVec = bb.calculateIntercept(
-                        eyes, eyes + getVectorForRotation(rotation) * scanRange.toDouble()
+                        eyes, eyes + getRotationVector(rotation) * scanRange.toDouble()
                     )?.hitVec ?: continue
 
                     val distance = eyes.distanceTo(gcdVec)
@@ -485,7 +485,7 @@ object RotationUtils : MinecraftInstance, Listenable {
      * @param [yaw] [pitch] your rotation
      * @return target vector
      */
-    fun getVectorForRotation(yaw: Float, pitch: Float): Vec3d {
+    fun getRotationVector(yaw: Float, pitch: Float): Vec3d {
         val yawRad = yaw.toRadians()
         val pitchRad = pitch.toRadians()
 
@@ -497,7 +497,7 @@ object RotationUtils : MinecraftInstance, Listenable {
         return Vec3d((f1 * f2).toDouble(), f3.toDouble(), (f * f2).toDouble())
     }
 
-    fun getVectorForRotation(rotation: Rotation) = getVectorForRotation(rotation.yaw, rotation.pitch)
+    fun getRotationVector(rotation: Rotation) = getRotationVector(rotation.yaw, rotation.pitch)
 
     /**
      * Returns the inverted yaw angle.
@@ -617,7 +617,7 @@ object RotationUtils : MinecraftInstance, Listenable {
         val eyes = player.eyes
 
         return blockPos.block?.collisionRayTrace(
-            world, blockPos, eyes, eyes + (getVectorForRotation(rotation) * reach.toDouble())
+            world, blockPos, eyes, eyes + (getRotationVector(rotation) * reach.toDouble())
         )
     }
 

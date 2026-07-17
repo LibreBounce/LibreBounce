@@ -112,7 +112,7 @@ object OutboundBacktrack : Module("OutboundBacktrack", Category.COMBAT, gameDete
             }
         }
 
-        val lagCompensatedHurtTime = (target.hurtTime * 50) - player.getPing()
+        val lagCompensatedHurtTime = (target.damagedTimer * 50) - player.getPing()
         timeRequired = (attackDelay * 50) - lagCompensatedHurtTime
 
         chat("(OutboundBacktrack) Lag compensated hurt time: ${lagCompensatedHurtTime}, time required to hit: ${timeRequired}")

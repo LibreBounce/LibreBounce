@@ -109,14 +109,14 @@ object NoFall : Module("NoFall", Category.PLAYER) {
     val onUpdate = handler<UpdateEvent> {
         val player = mc.player
 
-        if (collideBlock(player.entityBoundingBox) { it is BlockLiquid } || collideBlock(
+        if (collideBlock(player.shape) { it is BlockLiquid } || collideBlock(
                 fromBounds(
-                    player.entityBoundingBox.maxX,
-                    player.entityBoundingBox.maxY,
-                    player.entityBoundingBox.maxZ,
-                    player.entityBoundingBox.minX,
-                    player.entityBoundingBox.minY - 0.01,
-                    player.entityBoundingBox.minZ
+                    player.shape.maxX,
+                    player.shape.maxY,
+                    player.shape.maxZ,
+                    player.shape.minX,
+                    player.shape.minY - 0.01,
+                    player.shape.minZ
                 )
             ) { it is BlockLiquid }
         ) return@handler
@@ -156,15 +156,15 @@ object NoFall : Module("NoFall", Category.PLAYER) {
     val onMove = handler<MoveEvent> {
         val player = mc.player
 
-        if (collideBlock(player.entityBoundingBox) { it is BlockLiquid }
+        if (collideBlock(player.shape) { it is BlockLiquid }
             || collideBlock(
                 fromBounds(
-                    player.entityBoundingBox.maxX,
-                    player.entityBoundingBox.maxY,
-                    player.entityBoundingBox.maxZ,
-                    player.entityBoundingBox.minX,
-                    player.entityBoundingBox.minY - 0.01,
-                    player.entityBoundingBox.minZ
+                    player.shape.maxX,
+                    player.shape.maxY,
+                    player.shape.maxZ,
+                    player.shape.minX,
+                    player.shape.minY - 0.01,
+                    player.shape.minZ
                 )
             ) { it is BlockLiquid }
         ) return@handler

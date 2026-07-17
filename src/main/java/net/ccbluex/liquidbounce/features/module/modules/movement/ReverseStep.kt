@@ -30,15 +30,15 @@ object ReverseStep : Module("ReverseStep", Category.MOVEMENT) {
             if (!handleEvents())
                 return@handler
 
-            if (collideBlock(entityBoundingBox) { it is BlockLiquid } ||
+            if (collideBlock(shape) { it is BlockLiquid } ||
                 collideBlock(
                     AxisAlignedBB.fromBounds(
-                        entityBoundingBox.maxX,
-                        entityBoundingBox.maxY,
-                        entityBoundingBox.maxZ,
-                        entityBoundingBox.minX,
-                        entityBoundingBox.minY - 0.01,
-                        entityBoundingBox.minZ
+                        shape.maxX,
+                        shape.maxY,
+                        shape.maxZ,
+                        shape.minX,
+                        shape.minY - 0.01,
+                        shape.minZ
                     )
                 ) {
                     it is BlockLiquid

@@ -84,7 +84,7 @@ object LiquidChat : Module(
                     val messageComponent = toChatComponent(packet.content)
                     chatComponent.appendSibling(messageComponent)
 
-                    player.addChatMessage(chatComponent)
+                    player.sendMessage(chatComponent)
                 }
 
                 is ClientPrivateMessagePacket -> chat("§7[§a§lChat§7] §c(P)§9 ${packet.user.name}: §7${packet.content}")

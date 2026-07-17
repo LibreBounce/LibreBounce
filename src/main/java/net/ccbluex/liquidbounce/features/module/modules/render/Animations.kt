@@ -94,12 +94,12 @@ abstract class Animation(val name: String) : MinecraftInstance {
      *
      * @author Mojang
      */
-    protected fun transformFirstPersonItem(equipProgress: Float, swingProgress: Float) {
+    protected fun transformFirstPersonItem(equipProgress: Float, attackAnimationProgress: Float) {
         translate(0.56f, -0.52f, -0.71999997f)
         translate(0f, equipProgress * -0.6f, 0f)
         rotate(45f, 0f, 1f, 0f)
-        val f = MathHelper.sin(swingProgress * swingProgress * 3.1415927f)
-        val f1 = MathHelper.sin(MathHelper.sqrt_float(swingProgress) * 3.1415927f)
+        val f = MathHelper.sin(attackAnimationProgress * attackAnimationProgress * 3.1415927f)
+        val f1 = MathHelper.sin(MathHelper.sqrt_float(attackAnimationProgress) * 3.1415927f)
         rotate(f * -20f, 0f, 1f, 0f)
         rotate(f1 * -20f, 0f, 0f, 1f)
         rotate(f1 * -80f, 1f, 0f, 0f)

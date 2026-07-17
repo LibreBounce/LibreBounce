@@ -242,7 +242,7 @@ object Fly : Module("Fly", Category.MOVEMENT, Keyboard.KEY_F) {
 
         drawPlatform(
             y,
-            if (mc.player.entityBoundingBox.maxY < y) Color(0, 255, 0, 90) else Color(255, 0, 0, 90),
+            if (mc.player.shape.maxY < y) Color(0, 255, 0, 90) else Color(255, 0, 0, 90),
             1.0
         )
 
@@ -302,7 +302,7 @@ object Fly : Module("Fly", Category.MOVEMENT, Keyboard.KEY_F) {
 
     // TODO: Make faster and more accurate calculations
     private fun calculateGround(): Double {
-        val boundingBox = mc.player.entityBoundingBox
+        val boundingBox = mc.player.shape
         var blockHeight = 0.05
         var ground = mc.player.posY
 

@@ -91,8 +91,8 @@ object Sprint : Module("Sprint", Category.MOVEMENT, gameDetecting = false) {
 
         val isLegitModeActive = mode == "Legit"
 
-        val modifiedForward = if (currentRotation != null && activeSettings?.strict == true) player.movementInput.moveForward
-        else movementInput.moveForward
+        val modifiedForward = if (currentRotation != null && activeSettings?.strict == true) player.movementInput.forwardSpeed
+        else movementInput.forwardSpeed
 
         if (!player.isMoving) {
             return true
@@ -102,7 +102,7 @@ object Sprint : Module("Sprint", Category.MOVEMENT, gameDetecting = false) {
             return true
         }
 
-        if ((blindness || isLegitModeActive) && player.isPotionActive(Potion.blindness) && !player.isSprinting) {
+        if ((blindness || isLegitModeActive) && player.hasStatusEffect(Potion.blindness) && !player.isSprinting) {
             return true
         }
 
@@ -127,7 +127,7 @@ object Sprint : Module("Sprint", Category.MOVEMENT, gameDetecting = false) {
         }
 
         val threshold = if ((!usingItem || NoSlow.handleEvents()) && isUsingItem) 0.2 else 0.8
-        val playerForwardInput = player.movementInput.moveForward
+        val playerForwardInput = player.movementInput.forwardSpeed
 
         if (!checkServerSide) {
             return if (currentRotation != null) {

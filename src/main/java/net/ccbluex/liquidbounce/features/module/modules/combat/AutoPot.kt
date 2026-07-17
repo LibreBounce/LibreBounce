@@ -70,7 +70,7 @@ object AutoPot : Module("AutoPot", Category.COMBAT) {
             if (player.onGround) {
                 when (mode) {
                     "Jump" -> player.tryJump()
-                    "Port" -> player.moveEntity(0.0, 0.42, 0.0)
+                    "Port" -> player.move(0.0, 0.42, 0.0)
                 }
             }
 
@@ -99,7 +99,7 @@ object AutoPot : Module("AutoPot", Category.COMBAT) {
                 )
 
                 if (potion >= 0 && RotationUtils.serverRotation.pitch >= 75F) {
-                    player.sendUseItem(player.heldItem)
+                    player.sendUseItem(player.displayItemInHand)
 
                     msTimer.reset()
                     potion = -1
@@ -133,7 +133,7 @@ object AutoPot : Module("AutoPot", Category.COMBAT) {
     private fun findPotion(startSlot: Int, endSlot: Int): Int? {
         val player = mc.player
 
-        fun onEffect(potion: Potion): Boolean = player.isPotionActive(potion)
+        fun onEffect(potion: Potion): Boolean = player.hasStatusEffect(potion)
 
         for (i in startSlot..endSlot) {
             val stack = player.inventorySlot(i).stack

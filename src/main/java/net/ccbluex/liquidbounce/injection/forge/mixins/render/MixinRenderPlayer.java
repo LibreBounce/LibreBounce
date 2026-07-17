@@ -43,7 +43,7 @@ public abstract class MixinRenderPlayer {
 
             int slot = SilentHotbar.INSTANCE.renderSlot(module.handleEvents() && module.getKeepItemInHandInThirdPerson());
 
-            ItemStack itemstack = entity instanceof LocalClientPlayerEntity ? entity.inventory.getStackInSlot(slot) : entity.getHeldItem();
+            ItemStack itemstack = entity instanceof LocalClientPlayerEntity ? entity.inventory.getStackInSlot(slot) : entity.getDisplayItemInHand();
 
             modelplayer.setInvisible(true);
             modelplayer.bipedHeadwear.showModel = entity.isWearing(EnumPlayerModelParts.HAT);
@@ -52,18 +52,18 @@ public abstract class MixinRenderPlayer {
             modelplayer.bipedRightLegwear.showModel = entity.isWearing(EnumPlayerModelParts.RIGHT_PANTS_LEG);
             modelplayer.bipedLeftArmwear.showModel = entity.isWearing(EnumPlayerModelParts.LEFT_SLEEVE);
             modelplayer.bipedRightArmwear.showModel = entity.isWearing(EnumPlayerModelParts.RIGHT_SLEEVE);
-            modelplayer.heldItemLeft = 0;
+            modelplayer.displayItemInHandLeft = 0;
             modelplayer.aimedBow = false;
             modelplayer.isSneak = entity.isSneaking();
             if (itemstack == null) {
-                modelplayer.heldItemRight = 0;
+                modelplayer.displayItemInHandRight = 0;
             } else {
-                modelplayer.heldItemRight = 1;
+                modelplayer.displayItemInHandRight = 1;
                 boolean isForceBlocking = entity instanceof LocalClientPlayerEntity && ((itemstack.getItem() instanceof ItemSword && KillAura.INSTANCE.getRenderBlocking()) || NoSlow.INSTANCE.isUNCPBlocking());
                 if (entity.getItemInUseCount() > 0 || isForceBlocking) {
                     EnumAction enumaction = isForceBlocking? EnumAction.BLOCK : itemstack.getItemUseAction();
                     if (enumaction == EnumAction.BLOCK) {
-                        modelplayer.heldItemRight = 3;
+                        modelplayer.displayItemInHandRight = 3;
                     } else if (enumaction == EnumAction.BOW) {
                         modelplayer.aimedBow = true;
                     }

@@ -54,7 +54,7 @@ object Projectiles : Module("Projectiles", Category.RENDER, gameDetecting = fals
 
         for (entity in world.loadedEntityList) {
             if (entity !is LivingEntity) continue
-            val heldStack = entity.heldItem ?: continue
+            val heldStack = entity.displayItemInHand ?: continue
             
             // Check if the entity is selected
             if (!isSelected(entity, false)) {
@@ -206,7 +206,7 @@ object Projectiles : Module("Projectiles", Category.RENDER, gameDetecting = fals
                 // Check all possible entities
                 for (possibleEntity in collidedEntities) {
                     if (possibleEntity.canBeCollidedWith() && possibleEntity != entity) {
-                        val possibleEntityBoundingBox = possibleEntity.entityBoundingBox
+                        val possibleEntityBoundingBox = possibleEntity.shape
                             .expand(size.toDouble(), size.toDouble(), size.toDouble())
 
                         val possibleEntityLanding = possibleEntityBoundingBox

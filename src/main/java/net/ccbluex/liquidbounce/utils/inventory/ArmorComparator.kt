@@ -32,7 +32,7 @@ object ArmorComparator: MinecraftInstance {
 		val comparator = Comparator.comparingDouble<Pair<Int?, ItemStack>> { (index, stack) ->
 			// Sort items by distance from player, equipped items are always preferred with distance -1
 			if (index == -1)
-				player.getDistanceSqToEntity(entityStacksMap?.get(stack) ?: return@comparingDouble -1.0)
+				player.getSquaredDistanceToToEntity(entityStacksMap?.get(stack) ?: return@comparingDouble -1.0)
 			else -1.0
 		}.thenComparingInt { (index, stack) ->
 			// Prioritise sets that are in lower parts of inventory (not in chest) or equipped, prevents stealing multiple armor duplicates.

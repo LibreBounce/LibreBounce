@@ -11,9 +11,9 @@ import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 object AACv2 : LongJumpMode("AACv2") {
     override fun onUpdate() {
         mc.player?.run {
-            jumpMovementFactor = 0.09f
+            flyingSpeed = 0.09f
             motionY += 0.01320999999999999
-            jumpMovementFactor = 0.08f
+            flyingSpeed = 0.08f
             strafe()
         }
     }

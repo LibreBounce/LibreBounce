@@ -43,10 +43,10 @@ object Rotations : Module("Rotations", Category.RENDER, gameDetecting = false) {
         prevHeadPitch = headPitch
         headPitch = targetRotation.pitch
 
-        player.rotationYawHead = targetRotation.yaw
+        player.headYaw = targetRotation.yaw
 
         if (shouldRotate() && body && !realistic) {
-            player.renderYawOffset = player.rotationYawHead
+            player.bodyYaw = player.headYaw
         }
 
         lastRotation = targetRotation

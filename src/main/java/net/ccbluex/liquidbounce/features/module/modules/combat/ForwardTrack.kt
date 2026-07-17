@@ -55,7 +55,7 @@ object ForwardTrack : Module("ForwardTrack", Category.COMBAT) {
                 }
 
                 this is LivingEntity -> {
-                    Vec3d(newPosX, newPosY, newPosZ)
+                    Vec3d(lerpX, lerpY, lerpZ)
                 }
 
                 else -> positionVector
@@ -78,7 +78,7 @@ object ForwardTrack : Module("ForwardTrack", Category.COMBAT) {
 
             when (espMode) {
                 "Box" -> {
-                    val axisAlignedBB = target.entityBoundingBox.offset(Vec3d(x, y, z) - target.currPos)
+                    val axisAlignedBB = target.shape.offset(Vec3d(x, y, z) - target.currPos)
 
                     drawBacktrackBox(axisAlignedBB, color)
                 }

@@ -78,7 +78,7 @@ fun getNearestPointBB(eye: Vec3d, box: AxisAlignedBB):Vec3d3 {
     return Vec3d(origin[0], origin[1], origin[2])
 }
 
-fun PlayerEntity.getPing() = mc.netHandler.getPlayerInfo(uniqueID)?.responseTime ?: 0
+fun PlayerEntity.getPing() = mc.netHandler.getPlayerInfo(uuid)?.responseTime ?: 0
 
 fun Entity.isAnimal() =
     this is EntityAnimal
@@ -119,11 +119,11 @@ var Entity?.prevRotation
 val Entity.hitBox: AxisAlignedBB
     get() {
         val borderSize = collisionBorderSize.toDouble()
-        return entityBoundingBox.expand(borderSize, borderSize, borderSize)
+        return shape.expand(borderSize, borderSize, borderSize)
     }
 
 val Entity.eyes: Vec3d
-    get() = getPositionEyes(1f)
+    get() = getEyePosition(1f)
 
 val Entity.prevPos: Vec3d
     get() = Vec3d(prevPosX, prevPosY, prevPosZ)
@@ -135,7 +135,7 @@ val Entity.lastTickPos: Vec3d
     get() = Vec3d(lastTickPosX, lastTickPosY, lastTickPosZ)
 
 val LivingEntity?.isMoving: Boolean
-    get() = this?.run { moveForward != 0F || moveStrafing != 0F } == true
+    get() = this?.run { forwardSpeed != 0F || sidewaysSpeed != 0F } == true
 
 val LocalClientPlayerEntity.airTicks
     get() = MovementUtils.airTicks

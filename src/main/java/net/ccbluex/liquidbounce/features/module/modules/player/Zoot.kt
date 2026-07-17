@@ -38,7 +38,7 @@ object Zoot : Module("Zoot", Category.PLAYER) {
         }
 
 
-        if (fire && mc.playerController.gameIsSurvivalOrAdventure() && player.isBurning) {
+        if (fire && mc.playerController.gameIsSurvivalOrAdventure() && player.isOnFire) {
             repeat(9) {
                 sendPacket(PlayerMoveC2SPacket(serverOnGround))
             }

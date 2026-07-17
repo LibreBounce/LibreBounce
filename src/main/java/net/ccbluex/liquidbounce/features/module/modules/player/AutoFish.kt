@@ -19,7 +19,7 @@ object AutoFish : Module("AutoFish", Category.PLAYER, subjective = true, gameDet
     val onUpdate = handler<UpdateEvent> {
         val player = mc.player
 
-        if (player?.heldItem == null || player.heldItem.item !is ItemFishingRod)
+        if (player?.displayItemInHand == null || player.displayItemInHand.item !is ItemFishingRod)
             return@handler
 
         val fishEntity = player.fishEntity

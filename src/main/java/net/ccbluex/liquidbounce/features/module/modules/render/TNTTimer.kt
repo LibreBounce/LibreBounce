@@ -43,7 +43,7 @@ object TNTTimer : Module("TNTTimer", Category.RENDER) {
 
     private val tntEntities by EntityLookup<EntityTNTPrimed>()
         .filter { it.fuse > 0 }
-        .filter { mc.player.getDistanceSqToEntity(it) <= maxRenderDistanceSq }
+        .filter { mc.player.getSquaredDistanceToToEntity(it) <= maxRenderDistanceSq }
         .filter { !onLook || isLookingOnEntities(it, maxAngleDifference.toDouble()) }
 
     val onRender3D = handler<Render3DEvent> {

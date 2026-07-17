@@ -22,7 +22,7 @@ object VulcanGround288 : SpeedMode("VulcanGround2.8.8") {
             if (isMoving && collidesBottom()) {
                 val speedEffect = getActivePotionEffect(Potion.moveSpeed)
                 val isAffectedBySpeed = speedEffect != null && speedEffect.amplifier > 0
-                val isMovingSideways = moveStrafing != 0f
+                val isMovingSideways = sidewaysSpeed != 0f
 
                 val strafe = when {
                     isAffectedBySpeed -> 0.59f
@@ -46,7 +46,7 @@ object VulcanGround288 : SpeedMode("VulcanGround2.8.8") {
         val player = mc.player ?: return false
         mc.world ?: return false
 
-        return mc.world.getCollidingBoundingBoxes(player, player.entityBoundingBox.offset(0.0, -0.005, 0.0)).isNotEmpty()
+        return mc.world.getCollidingBoundingBoxes(player, player.shape.offset(0.0, -0.005, 0.0)).isNotEmpty()
     }
 
     override fun onJump(event: JumpEvent) {

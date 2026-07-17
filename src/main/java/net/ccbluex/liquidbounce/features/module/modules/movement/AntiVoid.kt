@@ -101,7 +101,7 @@ object AntiVoid : Module("AntiVoid", Category.MOVEMENT) {
             if (player.fallDistance - lastFound > maxDistanceWithoutGround) {
                 when (mode) {
                     "TeleportBack" -> {
-                        player.setPositionAndUpdate(prevX, prevY, prevZ)
+                        player.teleport(prevX, prevY, prevZ)
                         player.fallDistance = 0F
                         player.motionY = 0.0
                     }
@@ -114,7 +114,7 @@ object AntiVoid : Module("AntiVoid", Category.MOVEMENT) {
                     "OnGroundSpoof" -> sendPacket(PlayerMoveC2SPacket(true))
 
                     "MotionTeleport-Flag" -> {
-                        player.setPositionAndUpdate(player.posX, player.posY + 1f, player.posZ)
+                        player.teleport(player.posX, player.posY + 1f, player.posZ)
                         sendPacket(Position(player.posX, player.posY, player.posZ, true))
                         player.motionY = 0.1
 

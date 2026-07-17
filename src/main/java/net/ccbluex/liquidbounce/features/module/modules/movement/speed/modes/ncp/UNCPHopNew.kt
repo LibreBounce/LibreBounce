@@ -41,7 +41,7 @@ object UNCPHopNew : SpeedMode("UNCPHopNew") {
                 airTick = 0
                 return
             } else {
-                if (hurtTime <= 1) {
+                if (damagedTimer <= 1) {
                     if (++airTick == Speed.onTick) {
                         strafe()
                         motionY = -0.1523351824467155
@@ -49,7 +49,7 @@ object UNCPHopNew : SpeedMode("UNCPHopNew") {
                 }
             }
 
-            if (Speed.onHurt && hurtTime in 2..4 && motionY >= 0) {
+            if (Speed.onHurt && damagedTimer in 2..4 && motionY >= 0) {
                 motionY -= 0.1
             }
 
@@ -60,7 +60,7 @@ object UNCPHopNew : SpeedMode("UNCPHopNew") {
             }
 
             if (Speed.timerBoost) {
-                mc.timer.timerSpeed = if (hurtTime <= 1) {
+                mc.timer.timerSpeed = if (damagedTimer <= 1) {
                     when (ticksExisted % 5) {
                         0, 1 -> 1.025f
                         2, 3 -> 1.08f
@@ -76,7 +76,7 @@ object UNCPHopNew : SpeedMode("UNCPHopNew") {
                 motionZ *= 1f + boostMultiplier
             }
 
-            if (Speed.damageBoost && hurtTime >= 1) {
+            if (Speed.damageBoost && damagedTimer >= 1) {
                 strafe(speed = MovementUtils.speed.coerceAtLeast(damageBoostSpeed))
             }
         }

@@ -33,7 +33,7 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
     @Inject(method = "getLocationCape", at = @At("HEAD"), cancellable = true)
     private void getCape(CallbackInfoReturnable<Identifier> callbackInfoReturnable) {
         if (capeInfo == null) {
-            CapeAPI.INSTANCE.loadCape(getUniqueID(), newCapeInfo -> {
+            CapeAPI.INSTANCE.loadCape(getUuid(), newCapeInfo -> {
                 capeInfo = newCapeInfo;
                 return null;
             });
@@ -77,7 +77,7 @@ public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
             if (!nameProtect.getAllPlayers() && !Objects.equals(getGameProfile().getName(), mc.player.getGameProfile().getName()))
                 return;
 
-            callbackInfoReturnable.setReturnValue(DefaultPlayerSkin.getDefaultSkin(getUniqueID()));
+            callbackInfoReturnable.setReturnValue(DefaultPlayerSkin.getDefaultSkin(getUuid()));
         }
     }
 }

@@ -22,7 +22,7 @@ object VerusLowHop : SpeedMode("VerusLowHop") {
 
             if (isMoving) {
                 if (onGround) {
-                    speed = if (isPotionActive(Potion.moveSpeed)
+                    speed = if (hasStatusEffect(Potion.moveSpeed)
                         && getActivePotionEffect(Potion.moveSpeed).amplifier >= 1
                     ) 0.5f else 0.36f
 

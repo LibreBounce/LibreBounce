@@ -42,7 +42,7 @@ import net.ccbluex.liquidbounce.utils.rotation.Rotation
 import net.ccbluex.liquidbounce.utils.rotation.RotationSettings
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.currentRotation
-import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.getVectorForRotation
+import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.getRotationVector
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.isRotationFaced
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.isVisible
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.rotationDifference
@@ -85,7 +85,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         attackDelay = randomClickDelay(it)
     }
 
-    private val hurtTime by int("HurtTime", 10, 0..10) { !simulateCooldown && !SmartHit.handleEvents() }
+    private val damagedTimer by int("HurtTime", 10, 0..10) { !simulateCooldown && !SmartHit.handleEvents() }
 
     private val activationSlot by boolean("ActivationSlot", false)
     private val preferredSlot by int("PreferredSlot", 1, 1..9) { activationSlot }
@@ -406,7 +406,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     val onTick = handler<GameTickEvent>(priority = 2) {
         val player = mc.player ?: return@handler
 
-        if (blockStatus && player.heldItem?.item !is ItemSword) {
+        if (blockStatus && player.displayItemInHand?.item !is ItemSword) {
             blockStatus = false
             renderBlocking = false
             return@handler
@@ -589,7 +589,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         if (noConsumeAttack == "NoHits" && isConsumingItem())
             return
 
-        var shouldHit = if (SmartHit.handleEvents()) SmartHit.shouldHit(currentTarget) else currentTarget.hurtTime <= hurtTime
+        var shouldHit = if (SmartHit.handleEvents()) SmartHit.shouldHit(currentTarget) else currentTarget.damagedTimer <= damagedTimer
 
         val manipulateInventory = simulateClosingInventory && !noInventoryAttack && serverOpenInventory
 
@@ -666,7 +666,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
                             if (renderBoxOnSwingFail) {
                                 synchronized(swingFails) {
                                     val centerDistance = (currentTarget.hitBox.center - player.eyes).lengthVector()
-                                    val spot = player.eyes + getVectorForRotation(rotation) * centerDistance
+                                    val spot = player.eyes + getRotationVector(rotation) * centerDistance
 
                                     swingFails += SwingFailData(spot, System.currentTimeMillis())
                                 }
@@ -783,7 +783,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
             // Credits to Gugustus / Augustus b2.6
             // TODO: Maybe we should also prioritize players that are looking at you, with weapons (or without), and breaking blocks (could be possibly trying to break your bed?)
-            val optimal = (distance * 2.0) + (entity.health.toDouble() + entity.absorptionAmount) + (entity.hurtTime.toDouble() * 4.0) + (entity.totalArmorValue.toDouble() / 2.0) + (entityFov.toDouble() / 2.0)
+            val optimal = (distance * 2.0) + (entity.health.toDouble() + entity.absorption) + (entity.damagedTimer.toDouble() * 4.0) + (entity.totalArmorValue.toDouble() / 2.0) + (entityFov.toDouble() / 2.0)
 
             val currentValue = when (priority) {
                 "Optimal" -> optimal
@@ -793,9 +793,9 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
                 "LivingTime" -> -entity.ticksExisted.toDouble()
                 "Armor" -> entity.totalArmorValue.toDouble()
                 "HurtResistance" -> entity.hurtResistantTime.toDouble()
-                "HurtTime" -> entity.hurtTime.toDouble()
-                "HealthAbsorption" -> (entity.health + entity.absorptionAmount).toDouble()
-                "RegenAmplifier" -> if (entity.isPotionActive(Potion.regeneration)) {
+                "HurtTime" -> entity.damagedTimer.toDouble()
+                "HealthAbsorption" -> (entity.health + entity.absorption).toDouble()
+                "RegenAmplifier" -> if (entity.hasStatusEffect(Potion.regeneration)) {
                     entity.getActivePotionEffect(Potion.regeneration).amplifier.toDouble()
                 } else -1.0
 
@@ -852,7 +852,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
             // Apply enchantment critical effect if FakeSharp is enabled
             if (EnchantmentHelper.getModifierForCreature(
-                    player.heldItem, entity.creatureAttribute
+                    player.displayItemInHand, entity.creatureAttribute
                 ) <= 0F && fakeSharp
             ) {
                 player.onEnchantmentCritical(entity)
@@ -1013,7 +1013,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
         // Recreate raycast logic
         val intercept = targetToCheck.hitBox.calculateIntercept(
-            eyes, eyes + getVectorForRotation(currentRotation) * range.toDouble()
+            eyes, eyes + getRotationVector(currentRotation) * range.toDouble()
         )
 
         // Is the entity box raycast vector visible? If not, check through-wall range
@@ -1049,7 +1049,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
                 val (yaw, pitch) = currentRotation ?: player.rotation
 
-                val vec = getVectorForRotation(Rotation(yaw, pitch))
+                val vec = getRotationVector(Rotation(yaw, pitch))
 
                 val lookAt = positionEye.add(vec * maxRange.toDouble())
 
@@ -1067,7 +1067,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
                 switchToSlot((SilentHotbar.currentSlot + 1) % 9)
             }
 
-            sendPacket(PlayerUseC2SPacket(player.heldItem))
+            sendPacket(PlayerUseC2SPacket(player.displayItemInHand))
             blockStatus = true
         }
 
@@ -1164,7 +1164,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
         // Recreate raycast logic
         val intercept = targetToCheck.hitBox.calculateIntercept(
-            eyes, eyes + getVectorForRotation(currentRotation) * range.toDouble()
+            eyes, eyes + getRotationVector(currentRotation) * range.toDouble()
         )
 
         if (intercept != null) {
@@ -1236,7 +1236,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
         runWithSimulatedPosition(player, player.interpolatedPosition(player.prevPos)) {
             runWithSimulatedPosition(target, target.interpolatedPosition(target.prevPos)) {
-                val rotationVec = player.eyes + getVectorForRotation(
+                val rotationVec = player.eyes + getRotationVector(
                     serverRotation.lerpWith(currentRotation ?: player.rotation, mc.timer.renderPartialTicks)
                 ) * player.getDistanceToEntityBox(target).coerceAtMost(range.toDouble())
 
@@ -1265,7 +1265,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         get() {
             val player = mc.player ?: return false
 
-            if (target != null && player.heldItem?.item is ItemSword) {
+            if (target != null && player.displayItemInHand?.item is ItemSword) {
                 val distance = player.getDistanceToEntityBox(target!!)
                 val targetDistance = target!!.getDistanceToEntityBox(player)
 
@@ -1280,24 +1280,24 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
                 // TODO: Use `when` for all this
                 if (smartAutoBlock) {
                     val playerAllowed = when (ownHurtTimeHandling) {
-                        "Allow" -> player.hurtTime in ownHurtTime
-                        "Forbid" -> player.hurtTime !in ownHurtTime
+                        "Allow" -> player.damagedTimer in ownHurtTime
+                        "Forbid" -> player.damagedTimer !in ownHurtTime
                         else -> true
                     }
 
                     val targetAllowed = when (targetHurtTimeHandling) {
-                        "Allow" -> target!!.hurtTime in targetHurtTime
-                        "Forbid" -> target!!.hurtTime !in targetHurtTime
+                        "Allow" -> target!!.damagedTimer in targetHurtTime
+                        "Forbid" -> target!!.damagedTimer !in targetHurtTime
                         else -> true
                     }
 
                     when {
                         !player.isMoving && forceBlock -> return true
-                        checkWeapon && target!!.heldItem?.item !is ItemSword && target!!.heldItem?.item !is ItemAxe -> return false
+                        checkWeapon && target!!.displayItemInHand?.item !is ItemSword && target!!.displayItemInHand?.item !is ItemAxe -> return false
                         checkSprinting && !target!!.isSprinting && distance > 2.8f && rotationDifference > 60f / distance -> return false
                         !playerAllowed || !targetAllowed -> return false
                         rotationDifference > maxDirectionDiff -> return false
-                        target!!.swingProgressInt > maxSwingProgress -> return false
+                        target!!.armSwingingTicks > maxSwingProgress -> return false
                     }
                 }
 

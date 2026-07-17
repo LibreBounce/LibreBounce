@@ -83,12 +83,12 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         val hittable = canHit(simTargetHurtTime)
         val latency = latencyInTicks(player as PlayerEntity)
 
-        simTargetHurtTime = targetPlayer.hurtTime - latency
+        simTargetHurtTime = targetPlayer.damagedTimer - latency
 
         simTargetHurtTime = if (usePredictedTargetHurtTime)
             if (hittable)
             10 + latency else simTargetHurtTime
-        else targetPlayer.hurtTime
+        else targetPlayer.damagedTimer
 
         if (hittable) {
             hitOnTheWay = true
@@ -121,7 +121,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         val targetDistance = target.getDistanceToEntityBox(player)
     
         val simPlayer = SimulatedPlayer.fromClientPlayer(RotationUtils.modifiedInput)
-        simHurtTime = player.hurtTime
+        simHurtTime = player.damagedTimer
 
         repeat(predictClientMovement + 1) {
             simPlayer.tick()
@@ -131,7 +131,8 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
         var targetHittable = canHit(simTargetHurtTime) || ticksSinceHit >= attackDelay
 
-        if (failsafe && ticksSinceHit > playerLatencyInTicks + 1) {
+        if (failsafe && ticksSinceHit > playerLatencyInTicks + 1 &&
+            target.damagedTimer !in (target.damagedTimer + 1 - playerLatencyInTicks)..(target.damagedTimer - 1 - playerLatencyInTicks)) {
             ticksSinceHit = attackDelay + 1
         }
 
@@ -145,20 +146,20 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
             target.rotation
         )
 
-        val targetCanHit = rotDiff < 22f + (18f * combinedPingMult) && !target.hitBox.isVecInside(player.eyes) && canHit(player.hurtTime - playerLatencyInTicks)
+        val targetCanHit = rotDiff < 22f + (18f * combinedPingMult) && !target.hitBox.isVecInside(player.eyes) && canHit(player.damagedTimer - playerLatencyInTicks)
         val targetHitLikely = targetCanHit && !target.isUsingItem && targetDistance < 3.08f
 
         val simDistance = simulateDistance(simPlayer, target, simulateKnockback && targetHitLikely)
 
         val playerHurtTimeAllowed = when (ownHurtTimeHandling) {
-            "Allow" -> player.hurtTime in ownHurtTime
-            "Forbid" -> player.hurtTime !in ownHurtTime
+            "Allow" -> player.damagedTimer in ownHurtTime
+            "Forbid" -> player.damagedTimer !in ownHurtTime
             else -> false
         }
 
         val targetHurtTimeAllowed = when (targetHurtTimeHandling) {
-            "Allow" -> target.hurtTime in targetHurtTime
-            "Forbid" -> target.hurtTime !in targetHurtTime
+            "Allow" -> target.damagedTimer in targetHurtTime
+            "Forbid" -> target.damagedTimer !in targetHurtTime
             else -> false
         }
 
@@ -183,13 +184,13 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
             (checkForCriticalHits && canCritHit(player) && (!lastHitCrit || !hitOnTheWay))
 
         val baseHurtTime = 3f / (1f + sqrt(dist) - (rotDiff / 180f))
-        val hurtTimeNoEscape = (2 * dist * 8).toInt() / 10
+        val damagedTimerNoEscape = (2 * dist * 8).toInt() / 10
             
         val shouldHit = when {    
             groundHit || airHit -> true
             checkForBlockedHits && lastHitBlocked && !target.isBlocking -> true
             minTargetRotationDifference != 0f && rotDiff < minTargetRotationDifference -> true
-            experimentalChecks && player.hurtTime !in hurtTimeNoEscape..8 && targetHitLikely -> true
+            experimentalChecks && player.damagedTimer !in damagedTimerNoEscape..8 && targetHitLikely -> true
             experimentalChecks && targetDistance > 3.05f && targetHittable -> true
             player.health < notBelowOwnHealth || target.health < notBelowTargetHealth -> true
             notOnEdge && player.isNearEdge(notOnEdgeLimit) -> true
@@ -197,7 +198,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
             else -> playerHurtTimeAllowed || targetHurtTimeAllowed || distanceAllowed || predictedDistanceAllowed
         }
 
-        if (debug) chat("(SmartHit) Will hit: ${shouldHit}, hit on the way: ${hitOnTheWay}, last hit blocked: ${lastHitBlocked}, current distance: ${dist}, current distance (target POV): ${targetDistance}, predicted distance: ${simDistance}, combined ping: ${combinedPing}, combined ping multiplier: ${combinedPingMult}, rotation difference: ${rotDiff}, target hit likely: ${targetHitLikely}, own hurttime: ${player.hurtTime}, simulated own hurttime: ${simHurtTime}, target hurttime: ${target.hurtTime}, simulated target hurt time: ${simTargetHurtTime}, on ground: ${player.onGround}, predicted ground: ${simPlayer.onGround}, can critical hit: ${canCritHit(player)}")
+        if (debug) chat("(SmartHit) Will hit: ${shouldHit}, hit on the way: ${hitOnTheWay}, last hit blocked: ${lastHitBlocked}, current distance: ${dist}, current distance (target POV): ${targetDistance}, predicted distance: ${simDistance}, combined ping: ${combinedPing}, combined ping multiplier: ${combinedPingMult}, rotation difference: ${rotDiff}, target hit likely: ${targetHitLikely}, own hurttime: ${player.damagedTimer}, simulated own hurttime: ${simHurtTime}, target hurttime: ${target.damagedTimer}, simulated target hurt time: ${simTargetHurtTime}, on ground: ${player.onGround}, predicted ground: ${simPlayer.onGround}, can critical hit: ${canCritHit(player)}")
 
         return shouldHit
     }
@@ -207,12 +208,12 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         player.fallDistance > 0 &&
         !player.isOnLadder &&
         !player.isInWater &&
-        !player.isPotionActive(blindness) &&
+        !player.hasStatusEffect(blindness) &&
         player.ridingEntity == null
 
     // Can the subject be hit?
-    private fun canHit(hurtTime: Int): Boolean = hurtTime <= 10 - attackDelay
-    private fun canHit(player: PlayerEntity): Boolean = canHit(player.hurtTime)
+    private fun canHit(damagedTimer: Int): Boolean = damagedTimer <= 10 - attackDelay
+    private fun canHit(player: PlayerEntity): Boolean = canHit(player.damagedTimer)
 
     private fun latencyInTicks(player: PlayerEntity): Int =
         player.getPing().ceilDiv(2).ceilDiv(20)

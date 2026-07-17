@@ -22,7 +22,7 @@ object FreeHypixel : FlyMode("FreeHypixel") {
         mc.player?.run {
             timer.reset()
 
-            setPositionAndUpdate(posX, posY + 0.42, posZ)
+            teleport(posX, posY + 0.42, posZ)
 
             startYaw = rotationYaw
             startPitch = rotationPitch

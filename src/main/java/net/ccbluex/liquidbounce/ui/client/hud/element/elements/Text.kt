@@ -195,7 +195,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1f, side: Side = S
                 "ping" -> return getPing()
                 "health" -> return DECIMAL_FORMAT.format(health)
                 "maxhealth" -> return DECIMAL_FORMAT.format(maxHealth)
-                "hurttime" -> return hurtTime
+                "hurttime" -> return damagedTimer
                 "yaw" -> return DECIMAL_FORMAT.format(rotationYaw)
                 "pitch" -> return DECIMAL_FORMAT.format(rotationPitch)
                 "yawint" -> return DECIMAL_FORMAT.format(rotationYaw).toInt()
@@ -203,7 +203,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1f, side: Side = S
                 "food" -> return foodStats.foodLevel
                 "onground" -> return onGround
                 "moving" -> return isMoving
-                "block", "blocking" -> return (heldItem?.item is ItemSword && (blockStatus || isUsingItem || isBlocking))
+                "block", "blocking" -> return (displayItemInHand?.item is ItemSword && (blockStatus || isUsingItem || isBlocking))
                 "sneak", "sneaking" -> return (isSneaking || mc.gameSettings.keyBindSneak.isKeyDown)
                 "sprint", "sprinting" -> return (serverSprintState || isSprinting || mc.gameSettings.keyBindSprint.isKeyDown)
                 "inventory", "inv" -> return mc.currentScreen is SurvivalInventoryScreen || mc.currentScreen is InventoryMenuScreen

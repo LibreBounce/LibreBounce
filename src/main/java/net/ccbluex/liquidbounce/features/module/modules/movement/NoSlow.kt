@@ -90,19 +90,19 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
 
     val onMotion = handler<MotionEvent> { event ->
         val player = mc.player ?: return@handler
-        val heldItem = player.heldItem ?: return@handler
+        val displayItemInHand = player.displayItemInHand ?: return@handler
         val isUsingItem = usingItemFunc()
 
         if (!hasMotion && !shouldSwap)
             return@handler
 
         if (isUsingItem || shouldSwap) {
-            if (heldItem.item !is ItemSword && heldItem.item !is ItemBow && (consumeFoodOnly && heldItem.item is ItemFood ||
-                        consumeDrinkOnly && (heldItem.item is ItemPotion || heldItem.item is ItemBucketMilk))
+            if (displayItemInHand.item !is ItemSword && displayItemInHand.item !is ItemBow && (consumeFoodOnly && displayItemInHand.item is ItemFood ||
+                        consumeDrinkOnly && (displayItemInHand.item is ItemPotion || displayItemInHand.item is ItemBucketMilk))
             ) {
                 when (consumeMode) {
                     "AAC5" ->
-                        sendPacket(PlayerUseC2SPacket(BlockPos(-1, -1, -1), 255, heldItem, 0f, 0f, 0f))
+                        sendPacket(PlayerUseC2SPacket(BlockPos(-1, -1, -1), 255, displayItemInHand, 0f, 0f, 0f))
 
                     "SwitchItem" ->
                         if (event.eventState == EventState.PRE) {
@@ -112,7 +112,7 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
                     "UpdatedNCP" ->
                         if (event.eventState == EventState.PRE && shouldSwap) {
                             updateSlot()
-                            sendPacket(PlayerUseC2SPacket(BlockPos.ORIGIN, 255, heldItem, 0f, 0f, 0f))
+                            sendPacket(PlayerUseC2SPacket(BlockPos.ORIGIN, 255, displayItemInHand, 0f, 0f, 0f))
                             shouldSwap = false
                         }
 
@@ -134,10 +134,10 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
             }
         }
 
-        if (heldItem.item is ItemBow && (isUsingItem || shouldSwap)) {
+        if (displayItemInHand.item is ItemBow && (isUsingItem || shouldSwap)) {
             when (bowPacket) {
                 "AAC5" ->
-                    sendPacket(PlayerUseC2SPacket(BlockPos(-1, -1, -1), 255, heldItem, 0f, 0f, 0f))
+                    sendPacket(PlayerUseC2SPacket(BlockPos(-1, -1, -1), 255, displayItemInHand, 0f, 0f, 0f))
 
                 "SwitchItem" ->
                     if (event.eventState == EventState.PRE) {
@@ -147,7 +147,7 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
                 "UpdatedNCP" ->
                     if (event.eventState == EventState.PRE && shouldSwap) {
                         updateSlot()
-                        sendPacket(PlayerUseC2SPacket(BlockPos.ORIGIN, 255, heldItem, 0f, 0f, 0f))
+                        sendPacket(PlayerUseC2SPacket(BlockPos.ORIGIN, 255, displayItemInHand, 0f, 0f, 0f))
                         shouldSwap = false
                     }
 
@@ -162,7 +162,7 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
             }
         }
 
-        if (heldItem.item is ItemSword && isUsingItem) {
+        if (displayItemInHand.item is ItemSword && isUsingItem) {
             when (swordMode) {
                 "NCP" ->
                     when (event.eventState) {
@@ -172,7 +172,7 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
 
                         EventState.POST -> sendPacket(
                             PlayerUseC2SPacket(
-                                BlockPos(-1, -1, -1), 255, heldItem, 0f, 0f, 0f
+                                BlockPos(-1, -1, -1), 255, displayItemInHand, 0f, 0f, 0f
                             )
                         )
 
@@ -181,13 +181,13 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
 
                 "UpdatedNCP" ->
                     if (event.eventState == EventState.POST) {
-                        sendPacket(PlayerUseC2SPacket(BlockPos.ORIGIN, 255, heldItem, 0f, 0f, 0f))
+                        sendPacket(PlayerUseC2SPacket(BlockPos.ORIGIN, 255, displayItemInHand, 0f, 0f, 0f))
                     }
 
                 "AAC5" ->
                     if (event.eventState == EventState.POST) {
                         sendPacket(
-                            PlayerUseC2SPacket(BlockPos(-1, -1, -1), 255, player.heldItem, 0f, 0f, 0f)
+                            PlayerUseC2SPacket(BlockPos(-1, -1, -1), 255, player.displayItemInHand, 0f, 0f, 0f)
                         )
                     }
 
@@ -218,7 +218,7 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
         // Credit: @ManInMyVan
         // TODO: Not sure how to fix random grim simulation flag. (Seem to only happen in Loyisa).
         if (consumeMode == "Drop") {
-            if (player.heldItem?.item !is ItemFood || !player.isMoving) {
+            if (player.displayItemInHand?.item !is ItemFood || !player.isMoving) {
                 shouldNoSlow = false
                 return@handler
             }
@@ -280,7 +280,7 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
 
                 is PlayerMoveC2SPacket -> {
                     if (player.isMoving) {
-                        if (player.heldItem?.item is ItemSword && usingItemFunc()) {
+                        if (player.displayItemInHand?.item is ItemSword && usingItemFunc()) {
                             if (shouldBlink)
                                 BlinkUtils.blink(packet, event)
                         } else {
@@ -294,7 +294,7 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
 
         when (packet) {
             is PlayerUseC2SPacket -> {
-                if (packet.stack?.item != null && player.heldItem?.item != null && packet.stack.item == player.heldItem?.item) {
+                if (packet.stack?.item != null && player.displayItemInHand?.item != null && packet.stack.item == player.displayItemInHand?.item) {
                     if ((consumeMode == "UpdatedNCP" && (
                                 packet.stack.item is ItemFood ||
                                         packet.stack.item is ItemPotion ||
@@ -309,11 +309,11 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
     }
 
     val onSlowDown = handler<SlowDownEvent> { event ->
-        val heldItem = mc.player.heldItem?.item
+        val displayItemInHand = mc.player.displayItemInHand?.item
 
-        if (heldItem !is ItemSword) {
-            if (!consumeFoodOnly && heldItem is ItemFood ||
-                !consumeDrinkOnly && (heldItem is ItemPotion || heldItem is ItemBucketMilk)
+        if (displayItemInHand !is ItemSword) {
+            if (!consumeFoodOnly && displayItemInHand is ItemFood ||
+                !consumeDrinkOnly && (displayItemInHand is ItemPotion || displayItemInHand is ItemBucketMilk)
             ) {
                 return@handler
             }
@@ -322,8 +322,8 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
                 return@handler
         }
 
-        event.forward = getMultiplier(heldItem, true)
-        event.strafe = getMultiplier(heldItem, false)
+        event.forward = getMultiplier(displayItemInHand, true)
+        event.strafe = getMultiplier(displayItemInHand, false)
     }
 
     private fun getMultiplier(item: Item?, isForward: Boolean) = when (item) {
@@ -337,10 +337,10 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
     }
 
     fun isUNCPBlocking() =
-        swordMode == "UpdatedNCP" && mc.gameSettings.keyBindUseItem.isKeyDown && (mc.player.heldItem?.item is ItemSword)
+        swordMode == "UpdatedNCP" && mc.gameSettings.keyBindUseItem.isKeyDown && (mc.player.displayItemInHand?.item is ItemSword)
 
     fun usingItemFunc() =
-        mc.player?.heldItem != null && (mc.player.isUsingItem || (mc.player.heldItem?.item is ItemSword && KillAura.blockStatus) || isUNCPBlocking())
+        mc.player?.displayItemInHand != null && (mc.player.isUsingItem || (mc.player.displayItemInHand?.item is ItemSword && KillAura.blockStatus) || isUNCPBlocking())
 
     private fun updateSlot() {
         SilentHotbar.selectSlotSilently(this, (SilentHotbar.currentSlot + 1) % 9, immediate = true)

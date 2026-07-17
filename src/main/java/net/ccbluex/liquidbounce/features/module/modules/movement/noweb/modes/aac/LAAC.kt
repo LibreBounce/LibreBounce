@@ -14,7 +14,7 @@ object LAAC : NoWebMode("LAAC") {
             if (!isInWeb)
                 return
 
-            jumpMovementFactor = if (movementInput.moveStrafe != 0f) 1f else 1.21f
+            flyingSpeed = if (movementInput.moveStrafe != 0f) 1f else 1.21f
 
             if (!mc.gameSettings.keyBindSneak.isKeyDown)
                 motionY = 0.0

@@ -159,8 +159,8 @@ object InventoryUtils : MinecraftInstance, Listenable {
             val item = stack.item
             if (item is ItemBlock) {
                 val block = item.block
-                val heldItem = player.heldItem
-                if (heldItem != null && heldItem == stack || block !in BLOCK_BLACKLIST && block !is BlockBush) {
+                val displayItemInHand = player.displayItemInHand
+                if (displayItemInHand != null && displayItemInHand == stack || block !in BLOCK_BLACKLIST && block !is BlockBush) {
                     amount += stack.stackSize
                 }
             }
@@ -204,7 +204,7 @@ object InventoryUtils : MinecraftInstance, Listenable {
             }
 
             is SelectSlotS2CPacket -> {
-                if (SilentHotbar.currentSlot == packet.heldItemHotbarIndex)
+                if (SilentHotbar.currentSlot == packet.displayItemInHandHotbarIndex)
                     return@handler
 
                 SilentHotbar.ignoreSlotChange = true
@@ -213,7 +213,7 @@ object InventoryUtils : MinecraftInstance, Listenable {
 
                 if (NoSlotSet.handleEvents()) {
                     WaitTickUtils.conditionalSchedule {
-                        if (SilentHotbar.currentSlot == packet.heldItemHotbarIndex) {
+                        if (SilentHotbar.currentSlot == packet.displayItemInHandHotbarIndex) {
                             mc.player?.inventory?.currentItem = previousSlot
 
                             return@conditionalSchedule true

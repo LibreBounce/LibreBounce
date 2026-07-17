@@ -193,7 +193,7 @@ object Nuker : Module("Nuker", Category.WORLD, gameDetecting = false) {
             // Fast creative mode nuker (CreativeStorm option)
 
             // Unable to break with swords in creative mode
-            if (player.heldItem?.item is ItemSword) return@handler
+            if (player.displayItemInHand?.item is ItemSword) return@handler
 
             searchBlocks(radius.roundToInt() + 1, null) { pos, block ->
                 if (getCenterDistance(pos) <= radius && validBlock(block)) {

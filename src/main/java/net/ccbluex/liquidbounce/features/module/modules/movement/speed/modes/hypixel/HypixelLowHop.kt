@@ -46,7 +46,7 @@ object HypixelLowHop : SpeedMode("HypixelLowHop") {
                     strafe(speed = speed.coerceAtLeast(0.281F), strength = 0.7)
                 }
 
-                if (hurtTime == 9) {
+                if (damagedTimer == 9) {
                     strafe()
                 }
 

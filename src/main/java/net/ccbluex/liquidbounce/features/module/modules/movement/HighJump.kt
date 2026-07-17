@@ -28,7 +28,7 @@ object HighJump : Module("HighJump", Category.MOVEMENT) {
                 return@handler
 
             when (mode) {
-                "Damage" -> if (hurtTime > 0 && onGround) motionY += 0.42f * height
+                "Damage" -> if (damagedTimer > 0 && onGround) motionY += 0.42f * height
                 "AACv3" -> if (!onGround) motionY += 0.059
                 "DAC" -> if (!onGround) motionY += 0.049999
                 "Mineplex" -> if (!onGround) strafe(0.35f)

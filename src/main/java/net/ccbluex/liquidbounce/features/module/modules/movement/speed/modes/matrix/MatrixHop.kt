@@ -25,7 +25,7 @@ object MatrixHop : SpeedMode("MatrixHop") {
         mc.player?.run {
             if (isInLiquid || isInWeb || isOnLadder) return
 
-            if (matrixLowHop) jumpMovementFactor = 0.026f
+            if (matrixLowHop) flyingSpeed = 0.026f
 
             if (isMoving) {
                 if (onGround) {
@@ -37,7 +37,7 @@ object MatrixHop : SpeedMode("MatrixHop") {
                     }
                 }
 
-                speedInAir = if (fallDistance <= 0.4 && moveStrafing == 0f)
+                speedInAir = if (fallDistance <= 0.4 && sidewaysSpeed == 0f)
                     0.02035f else 0.02f
             }
         }

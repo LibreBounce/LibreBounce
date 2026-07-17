@@ -24,7 +24,7 @@ object TNTBlock : Module("TNTBlock", Category.COMBAT) {
 
     private val entities by EntityLookup<EntityTNTPrimed>()
         .filter { it.fuse <= fuse }
-        .filter { mc.player.getDistanceSqToEntity(it) <= range * range }
+        .filter { mc.player.getSquaredDistanceToToEntity(it) <= range * range }
 
     val onMotion = handler<MotionEvent> {
         val player = mc.player ?: return@handler
@@ -54,7 +54,7 @@ object TNTBlock : Module("TNTBlock", Category.COMBAT) {
                 }
             }
 
-            if (player.heldItem?.item is ItemSword) {
+            if (player.displayItemInHand?.item is ItemSword) {
                 mc.gameSettings.keyBindUseItem.pressed = true
                 blocked = true
             }

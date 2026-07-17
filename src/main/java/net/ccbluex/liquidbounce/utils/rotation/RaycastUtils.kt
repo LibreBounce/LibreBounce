@@ -6,7 +6,7 @@
 package net.ccbluex.liquidbounce.utils.rotation
 
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
-import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.getVectorForRotation
+import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.getRotationVector
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.isVisible
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.serverRotation
 import net.ccbluex.liquidbounce.utils.extensions.eyes
@@ -39,7 +39,7 @@ object RaycastUtils : MinecraftInstance {
 
         var blockReachDistance = range
         val eyePosition = renderViewEntity.eyes
-        val entityLook = getVectorForRotation(yaw, pitch)
+        val entityLook = getRotationVector(yaw, pitch)
         val vec = eyePosition + (entityLook * blockReachDistance)
 
         val entityList = mc.world.getEntities(Entity::class.java) {
@@ -105,7 +105,7 @@ object RaycastUtils : MinecraftInstance {
             val buildReach = if (mc.playerController.currentGameType.isCreative) 5.0 else 4.5
 
             val vec3 = entity.eyes
-            val vec31 = getVectorForRotation(rotation)
+            val vec31 = getRotationVector(rotation)
             val vec32 = vec3.addVector(vec31.xCoord * buildReach, vec31.yCoord * buildReach, vec31.zCoord * buildReach)
 
             mc.objectMouseOver = entity.worldObj.rayTraceBlocks(vec3, vec32, false, false, true)
@@ -136,7 +136,7 @@ object RaycastUtils : MinecraftInstance {
                 val f1 = entity1.collisionBorderSize
                 val boxes = ArrayList<AxisAlignedBB>()
 
-                boxes.add(entity1.entityBoundingBox.expand(f1.toDouble(), f1.toDouble(), f1.toDouble()))
+                boxes.add(entity1.shape.expand(f1.toDouble(), f1.toDouble(), f1.toDouble()))
 
                 for (box in boxes) {
                     val intercept = box.calculateIntercept(vec3, vec32)

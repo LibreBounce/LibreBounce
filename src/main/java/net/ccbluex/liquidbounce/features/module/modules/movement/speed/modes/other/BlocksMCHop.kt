@@ -46,11 +46,11 @@ object BlocksMCHop : SpeedMode("BlocksMCHop") {
                         }
                     }
 
-                    if (hurtTime == 9 && bmcDamageBoost) {
+                    if (damagedTimer == 9 && bmcDamageBoost) {
                         strafe(speed.coerceAtLeast(0.7F))
                     }
 
-                    if (damageLowHop && hurtTime >= 1 && motionY > 0) {
+                    if (damageLowHop && damagedTimer >= 1 && motionY > 0) {
                         motionY -= 0.15
                     }
                 }

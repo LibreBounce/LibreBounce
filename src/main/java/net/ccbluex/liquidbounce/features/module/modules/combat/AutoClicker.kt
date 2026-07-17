@@ -34,7 +34,7 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT) {
     private val left by boolean("Left", true)
     private val leftCPS by intRange("LeftCPS", 5..8, 1..50) { left }
 
-    private val hurtTime by int("HurtTime", 10, 0..10) { left && !SmartHit.handleEvents() }
+    private val damagedTimer by int("HurtTime", 10, 0..10) { left && !SmartHit.handleEvents() }
 
     private val breakBlocks by boolean("BreakBlocks", true)
 
@@ -79,12 +79,12 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT) {
             val time = System.currentTimeMillis()
             val doubleClick = if (simulateDoubleClicking) nextInt(-1, 1) else 0
 
-            if (block && player.swingProgress > 0 && !mc.gameSettings.keyBindUseItem.isKeyDown) {
+            if (block && player.attackAnimationProgress > 0 && !mc.gameSettings.keyBindUseItem.isKeyDown) {
                 mc.gameSettings.keyBindUseItem.pressTime = 0
             }
 
             if (right && mc.gameSettings.keyBindUseItem.isKeyDown && time - rightLastSwing >= rightDelay) {
-                if (!onlyBlocks || player.heldItem?.item is ItemBlock) {
+                if (!onlyBlocks || player.displayItemInHand?.item is ItemBlock) {
                     handleRightClick(time, doubleClick)
                 }
             }
@@ -118,10 +118,10 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT) {
         return entities.minByOrNull { mc.player.getDistanceToEntityBox(it) }
     }
 
-    private fun shouldAutoRightClick() = mc.player.heldItem?.itemUseAction in arrayOf(EnumAction.BLOCK)
+    private fun shouldAutoRightClick() = mc.player.displayItemInHand?.itemUseAction in arrayOf(EnumAction.BLOCK)
 
     private fun handleLeftClick(time: Long, doubleClick: Int) {
-        val shouldHit = target == null || if (SmartHit.handleEvents()) SmartHit.shouldHit(target!!) else target!!.hurtTime <= hurtTime
+        val shouldHit = target == null || if (SmartHit.handleEvents()) SmartHit.shouldHit(target!!) else target!!.damagedTimer <= damagedTimer
 
         if (!shouldHit) return
 

@@ -51,7 +51,7 @@ object ChineseHat : Module("ChineseHat", Category.RENDER) {
     private val thruBlocks by boolean("ThruBlocks", true)
 
     private val entityLookup by EntityLookup<LivingEntity>()
-        .filter { mc.player.getDistanceSqToEntity(it) <= maxRenderDistance * maxRenderDistance }
+        .filter { mc.player.getSquaredDistanceToToEntity(it) <= maxRenderDistance * maxRenderDistance }
         .filter { bots || !isBot(it) }
         .filter { !onLook || isLookingOnEntities(it, maxAngleDifference.toDouble()) }
         .filter { thruBlocks || isEntityHeightVisible(it) }
@@ -93,7 +93,7 @@ object ChineseHat : Module("ChineseHat", Category.RENDER) {
     }
 
     private fun figureOutColor(entity: LivingEntity): Color {
-        val dist = mc.player.getDistanceSqToEntity(entity).coerceAtMost(255.0).toInt()
+        val dist = mc.player.getSquaredDistanceToToEntity(entity).coerceAtMost(255.0).toInt()
 
         return when {
             entity is PlayerEntity && entity.isClientFriend() -> Color(0, 0, 255)

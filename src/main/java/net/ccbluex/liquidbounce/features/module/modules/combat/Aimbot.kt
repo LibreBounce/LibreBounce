@@ -30,7 +30,7 @@ import net.ccbluex.liquidbounce.utils.rotation.RaycastUtils.runWithModifiedRayca
 import net.ccbluex.liquidbounce.utils.rotation.RotationSettings
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.currentRotation
-import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.getVectorForRotation
+import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.getRotationVector
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.isFaced
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.rotationDifference
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.searchCenter
@@ -226,7 +226,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
 
         target ?: return@handler
 
-        val color = if ((target as LivingEntity).hurtTime == 0) markHittableColor else markColor
+        val color = if ((target as LivingEntity).damagedTimer == 0) markHittableColor else markColor
 
         if (targetMode != "Multi") {
             when (mark) {
@@ -306,7 +306,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
 
             // Credits to Gugustus / Augustus b2.6
             // TODO: Maybe we should also prioritize players that are looking at you, with weapons (or without), and breaking blocks (could be possibly trying to break your bed?)
-            val optimal = (distance * 2.0) + (entity.health.toDouble() + entity.absorptionAmount) + (entity.hurtTime.toDouble() * 4.0) + (entity.totalArmorValue.toDouble() / 2.0) + (entityFov.toDouble() / 2.0)
+            val optimal = (distance * 2.0) + (entity.health.toDouble() + entity.absorption) + (entity.damagedTimer.toDouble() * 4.0) + (entity.totalArmorValue.toDouble() / 2.0) + (entityFov.toDouble() / 2.0)
 
             val currentValue = when (priority) {
                 "Optimal" -> optimal
@@ -316,9 +316,9 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
                 "LivingTime" -> -entity.ticksExisted.toDouble()
                 "Armor" -> entity.totalArmorValue.toDouble()
                 "HurtResistance" -> entity.hurtResistantTime.toDouble()
-                "HurtTime" -> entity.hurtTime.toDouble()
-                "HealthAbsorption" -> (entity.health + entity.absorptionAmount).toDouble()
-                "RegenAmplifier" -> if (entity.isPotionActive(Potion.regeneration)) {
+                "HurtTime" -> entity.damagedTimer.toDouble()
+                "HealthAbsorption" -> (entity.health + entity.absorption).toDouble()
+                "RegenAmplifier" -> if (entity.hasStatusEffect(Potion.regeneration)) {
                     entity.getActivePotionEffect(Potion.regeneration).amplifier.toDouble()
                 } else -1.0
 
@@ -450,7 +450,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
 
         runWithSimulatedPosition(player, player.interpolatedPosition(player.prevPos)) {
             runWithSimulatedPosition(target, target.interpolatedPosition(target.prevPos)) {
-                val rotationVec = player.eyes + getVectorForRotation(
+                val rotationVec = player.eyes + getRotationVector(
                     serverRotation.lerpWith(currentRotation ?: player.rotation, mc.timer.renderPartialTicks)
                 ) * player.getDistanceToEntityBox(target).coerceAtMost(attackRange.toDouble())
 

@@ -26,8 +26,8 @@ class FallingPlayer(
     private var motionY: Double = mc.player.motionY,
     private var motionZ: Double = mc.player.motionZ,
     private val yaw: Float = mc.player.rotationYaw,
-    private var strafe: Float = mc.player.moveStrafing,
-    private var forward: Float = mc.player.moveForward
+    private var strafe: Float = mc.player.sidewaysSpeed,
+    private var forward: Float = mc.player.forwardSpeed
 ) : MinecraftInstance {
     constructor(player: LocalClientPlayerEntity, predict: Boolean = false) : this(
         if (predict) player.posX + player.motionX else player.posX,
@@ -37,8 +37,8 @@ class FallingPlayer(
         player.motionY,
         player.motionZ,
         player.rotationYaw,
-        player.moveStrafing,
-        player.moveForward
+        player.sidewaysSpeed,
+        player.forwardSpeed
     )
 
     private fun calculateForTick() {
@@ -48,7 +48,7 @@ class FallingPlayer(
         var v = strafe * strafe + forward * forward
 
         if (v >= 0.0001f) {
-            v = mc.player.jumpMovementFactor / sqrt(v).coerceAtLeast(1f)
+            v = mc.player.flyingSpeed / sqrt(v).coerceAtLeast(1f)
 
             strafe *= v
             forward *= v

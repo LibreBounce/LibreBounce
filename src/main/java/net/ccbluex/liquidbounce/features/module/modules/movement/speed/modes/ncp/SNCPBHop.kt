@@ -85,7 +85,7 @@ object SNCPBHop : SpeedMode("SNCPBHop") {
         } else if (level == 89) {
             if (mc.world.getCollidingBoundingBoxes(
                     player,
-                    player.entityBoundingBox.offset(0.0, player.motionY, 0.0)
+                    player.shape.offset(0.0, player.motionY, 0.0)
                 ).isNotEmpty() || player.isCollidedVertically
             ) level = 1
             lastDist = 0.0
@@ -94,7 +94,7 @@ object SNCPBHop : SpeedMode("SNCPBHop") {
         } else {
             if (mc.world.getCollidingBoundingBoxes(
                     player,
-                    player.entityBoundingBox.offset(0.0, player.motionY, 0.0)
+                    player.shape.offset(0.0, player.motionY, 0.0)
                 ).isNotEmpty() || player.isCollidedVertically
             ) {
                 moveSpeed = baseMoveSpeed
@@ -107,7 +107,7 @@ object SNCPBHop : SpeedMode("SNCPBHop") {
 
         moveSpeed.coerceAtLeast(baseMoveSpeed)
 
-        var forward = player.movementInput.moveForward
+        var forward = player.movementInput.forwardSpeed
         var strafe = player.movementInput.moveStrafe
         var yaw = player.rotationYaw
 
@@ -137,7 +137,7 @@ object SNCPBHop : SpeedMode("SNCPBHop") {
     private val baseMoveSpeed: Double
         get() {
             var baseSpeed = 0.2873
-            if (mc.player.isPotionActive(Potion.moveSpeed)) baseSpeed *= 1.0 + 0.2 * (mc.player.getActivePotionEffect(
+            if (mc.player.hasStatusEffect(Potion.moveSpeed)) baseSpeed *= 1.0 + 0.2 * (mc.player.getActivePotionEffect(
                 Potion.moveSpeed
             ).amplifier + 1)
             return baseSpeed

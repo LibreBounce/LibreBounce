@@ -38,7 +38,7 @@ object Verus : FlyMode("Verus") {
         boostTicks = 0
         if (mc.world.getCollidingBoundingBoxes(
                 player,
-                player.entityBoundingBox.offset(0.0, 3.0001, 0.0).expand(0.0, 0.0, 0.0)
+                player.shape.offset(0.0, 3.0001, 0.0).expand(0.0, 0.0, 0.0)
             ).isEmpty()
         ) {
             if (damage) {
@@ -69,7 +69,7 @@ object Verus : FlyMode("Verus") {
             stopXZ()
             stop()
 
-            if (boostTicks == 0 && hurtTime > 0) {
+            if (boostTicks == 0 && damagedTimer > 0) {
                 boostTicks = boostTicksValue
             }
 

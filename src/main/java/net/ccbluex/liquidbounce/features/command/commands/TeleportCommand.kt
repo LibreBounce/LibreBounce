@@ -52,7 +52,7 @@ object TeleportCommand : Command("tp", "teleport") {
             val (pathX, pathY, pathZ) = vec
 
             if (it == packetsNeeded - 1)
-                mc.player.setPositionAndUpdate(x, y, z)
+                mc.player.teleport(x, y, z)
             else sendPacket(Position(pathX, pathY, pathZ, false))
         }
 

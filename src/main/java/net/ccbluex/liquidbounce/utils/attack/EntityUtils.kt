@@ -68,7 +68,7 @@ object EntityUtils : MinecraftInstance {
 
         if (entity == player) return true
 
-        val playerYaw = player.rotationYawHead
+        val playerYaw = player.headYaw
         val playerPitch = player.rotationPitch
 
         val maxAngleDifferenceRadians = maxAngleDifference.toRadians()
@@ -114,7 +114,7 @@ object EntityUtils : MinecraftInstance {
         var health = entity.health
 
         if (absorption)
-            health += entity.absorptionAmount
+            health += entity.absorption
 
         return if (health >= 0) health else 20f
     }

@@ -141,7 +141,7 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true) {
                     lagbackDetected = false
                 }
 
-                lastYaw = mc.player.rotationYawHead
+                lastYaw = mc.player.headYaw
                 lastPitch = mc.player.rotationPitch
             }
 
@@ -288,7 +288,7 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true) {
 
         // Scale
         val scale =
-            (((player.getDistanceSq(pos.xCoord, pos.yCoord, pos.zCoord) / 8F).coerceIn(1.5, 5.0) / 100F) * scale)
+            (((player.getSquaredDistanceTo(pos.xCoord, pos.yCoord, pos.zCoord) / 8F).coerceIn(1.5, 5.0) / 100F) * scale)
         glScaled(-scale, -scale, scale)
 
         // Draw text

@@ -17,7 +17,7 @@ object Jump : FlyMode("Jump") {
 
     override fun onUpdate() {
         mc.player?.run {
-            if (onGround && !isJumping)
+            if (onGround && !jumping)
                 tryJump()
 
             if (onGround ||

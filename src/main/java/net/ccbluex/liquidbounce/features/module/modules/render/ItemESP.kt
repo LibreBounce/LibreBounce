@@ -59,7 +59,7 @@ object ItemESP : Module("ItemESP", Category.RENDER) {
     private val thruBlocks by boolean("ThruBlocks", true)
 
     private val itemEntities by EntityLookup<ItemEntity>()
-        .filter { mc.player.getDistanceSqToEntity(it) <= maxRenderDistanceSq }
+        .filter { mc.player.getSquaredDistanceToToEntity(it) <= maxRenderDistanceSq }
         .filter { !onLook || isLookingOnEntities(it, maxAngleDifference.toDouble()) }
         .filter { thruBlocks || isEntityHeightVisible(it) }
 

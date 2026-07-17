@@ -111,7 +111,7 @@ class Target : Element("Target") {
 
             if (shouldRender || isRendered || isAlpha) {
                 val targetHealth = getHealth(target!!, healthFromScoreboard, absorption)
-                val maxHealth = target.maxHealth + if (absorption) target.absorptionAmount else 0F
+                val maxHealth = target.maxHealth + if (absorption) target.absorption else 0F
 
                 // Calculate health color based on entity's health
                 val healthColor = when {
@@ -243,7 +243,7 @@ class Target : Element("Target") {
                         )
 
                         // Draw info
-                        mc.netHandler?.getPlayerInfo(target.uniqueID)?.let {
+                        mc.netHandler?.getPlayerInfo(target.uuid)?.let {
                             bodyFont.drawString(
                                 "Ping: ${it.responseTime.coerceAtLeast(0)}", 36F, 24F, textCustomColor, textShadow
                             )

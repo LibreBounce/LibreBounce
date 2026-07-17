@@ -19,14 +19,14 @@ object NCP : LiquidWalkMode("NCP") {
 
     override fun onUpdate() {
         mc.player?.run {
-            if (!isSneaking && collideBlock(entityBoundingBox) { it is BlockLiquid } && isInsideOfMaterial(Material.air))
+            if (!isSneaking && collideBlock(shape) { it is BlockLiquid } && isInsideOfMaterial(Material.air))
                 motionY = 0.08
         }
     }
 
     override fun onBB(event: BlockBBEvent) {
         mc.player?.run {
-            if (event.block is BlockLiquid && !collideBlock(entityBoundingBox) { it is BlockLiquid } && !isSneaking) {
+            if (event.block is BlockLiquid && !collideBlock(shape) { it is BlockLiquid } && !isSneaking) {
                 event.boundingBox = fromBounds(
                     event.x.toDouble(),
                     event.y.toDouble(),
@@ -46,12 +46,12 @@ object NCP : LiquidWalkMode("NCP") {
 
             if (collideBlock(
                     fromBounds(
-                        entityBoundingBox.maxX,
-                        entityBoundingBox.maxY,
-                        entityBoundingBox.maxZ,
-                        entityBoundingBox.minX,
-                        entityBoundingBox.minY - 0.01,
-                        entityBoundingBox.minZ
+                        shape.maxX,
+                        shape.maxY,
+                        shape.maxZ,
+                        shape.minX,
+                        shape.minY - 0.01,
+                        shape.minZ
                     )
                 ) { it is BlockLiquid }
             ) {

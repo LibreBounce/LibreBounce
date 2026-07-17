@@ -131,7 +131,7 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
     private void onUpdateWalkingPlayer(CallbackInfo ci) {
         MotionEvent motionEvent = new MotionEvent(
                 posX,
-                getEntityBoundingBox().minY,
+                getShape().minY,
                 posZ,
                 onGround,
                 EventState.PRE
@@ -237,7 +237,7 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
             }
         }
 
-        EventManager.INSTANCE.call(new MotionEvent(posX, getEntityBoundingBox().minY, posZ, onGround, EventState.POST));
+        EventManager.INSTANCE.call(new MotionEvent(posX, getShape().minY, posZ, onGround, EventState.POST));
 
         EventManager.INSTANCE.call(RotationUpdateEvent.INSTANCE);
 
@@ -318,7 +318,7 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
             }
 
             inPortal = false;
-        } else if (isPotionActive(Potion.confusion) && getActivePotionEffect(Potion.confusion).getDuration() > 60) {
+        } else if (hasStatusEffect(Potion.confusion) && getActivePotionEffect(Potion.confusion).getDuration() > 60) {
             timeInPortal += 0.006666667F;
 
             if (timeInPortal > 1f) {
@@ -341,7 +341,7 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
         boolean flag = movementInput.jump;
         boolean flag1 = movementInput.sneak;
         float f = 0.8F;
-        boolean flag2 = movementInput.moveForward >= f;
+        boolean flag2 = movementInput.forwardSpeed >= f;
         movementInput.updatePlayerMoveState();
 
         RotationUtils utils = RotationUtils.INSTANCE;
@@ -352,65 +352,65 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
         Input modifiedInput = new Input();
 
         // Recreate inputs
-        modifiedInput.moveForward = movementInput.moveForward;
+        modifiedInput.forwardSpeed = movementInput.forwardSpeed;
         modifiedInput.moveStrafe = movementInput.moveStrafe;
 
         // Reverse the effects of sneak and apply them after the input variable calculates the input
         if (movementInput.sneak) {
             modifiedInput.moveStrafe /= 0.3f;
-            modifiedInput.moveForward /= 0.3f;
+            modifiedInput.forwardSpeed /= 0.3f;
         }
 
         // Calculate and apply the movement input based on rotation
-        float moveForward = currentRotation != null ? Math.round(modifiedInput.moveForward * MathHelper.cos(MathExtensionsKt.toRadians(rotationYaw - currentRotation.getYaw())) + modifiedInput.moveStrafe * MathHelper.sin(MathExtensionsKt.toRadians(rotationYaw - currentRotation.getYaw()))) : modifiedInput.moveForward;
-        float moveStrafe = currentRotation != null ? Math.round(modifiedInput.moveStrafe * MathHelper.cos(MathExtensionsKt.toRadians(rotationYaw - currentRotation.getYaw())) - modifiedInput.moveForward * MathHelper.sin(MathExtensionsKt.toRadians(rotationYaw - currentRotation.getYaw()))) : modifiedInput.moveStrafe;
+        float forwardSpeed = currentRotation != null ? Math.round(modifiedInput.forwardSpeed * MathHelper.cos(MathExtensionsKt.toRadians(rotationYaw - currentRotation.getYaw())) + modifiedInput.moveStrafe * MathHelper.sin(MathExtensionsKt.toRadians(rotationYaw - currentRotation.getYaw()))) : modifiedInput.forwardSpeed;
+        float moveStrafe = currentRotation != null ? Math.round(modifiedInput.moveStrafe * MathHelper.cos(MathExtensionsKt.toRadians(rotationYaw - currentRotation.getYaw())) - modifiedInput.forwardSpeed * MathHelper.sin(MathExtensionsKt.toRadians(rotationYaw - currentRotation.getYaw()))) : modifiedInput.moveStrafe;
 
-        modifiedInput.moveForward = moveForward;
+        modifiedInput.forwardSpeed = forwardSpeed;
         modifiedInput.moveStrafe = moveStrafe;
 
         if (movementInput.sneak) {
-            final SneakSlowDownEvent sneakSlowDownEvent = new SneakSlowDownEvent(movementInput.moveStrafe, movementInput.moveForward);
+            final SneakSlowDownEvent sneakSlowDownEvent = new SneakSlowDownEvent(movementInput.moveStrafe, movementInput.forwardSpeed);
             EventManager.INSTANCE.call(sneakSlowDownEvent);
             movementInput.moveStrafe = sneakSlowDownEvent.getStrafe();
-            movementInput.moveForward = sneakSlowDownEvent.getForward();
+            movementInput.forwardSpeed = sneakSlowDownEvent.getForward();
             // Add the sneak effect back
-            modifiedInput.moveForward *= 0.3f;
+            modifiedInput.forwardSpeed *= 0.3f;
             modifiedInput.moveStrafe *= 0.3f;
             // Call again the event but this time have the modifiedInput
-            final SneakSlowDownEvent secondSneakSlowDownEvent = new SneakSlowDownEvent(modifiedInput.moveStrafe, modifiedInput.moveForward);
+            final SneakSlowDownEvent secondSneakSlowDownEvent = new SneakSlowDownEvent(modifiedInput.moveStrafe, modifiedInput.forwardSpeed);
             EventManager.INSTANCE.call(secondSneakSlowDownEvent);
             modifiedInput.moveStrafe = secondSneakSlowDownEvent.getStrafe();
-            modifiedInput.moveForward = secondSneakSlowDownEvent.getForward();
+            modifiedInput.forwardSpeed = secondSneakSlowDownEvent.getForward();
         }
 
         final NoSlow noSlow = NoSlow.INSTANCE;
         final KillAura killAura = KillAura.INSTANCE;
 
-        boolean isUsingItem = getHeldItem() != null && (isUsingItem() || (getHeldItem().getItem() instanceof ItemSword && killAura.getBlockStatus()) || NoSlow.INSTANCE.isUNCPBlocking());
+        boolean isUsingItem = getDisplayItemInHand() != null && (isUsingItem() || (getDisplayItemInHand().getItem() instanceof ItemSword && killAura.getBlockStatus()) || NoSlow.INSTANCE.isUNCPBlocking());
 
         if (isUsingItem && !isRiding()) {
             final SlowDownEvent slowDownEvent = new SlowDownEvent(0.2F, 0.2F);
             EventManager.INSTANCE.call(slowDownEvent);
             movementInput.moveStrafe *= slowDownEvent.getStrafe();
-            movementInput.moveForward *= slowDownEvent.getForward();
+            movementInput.forwardSpeed *= slowDownEvent.getForward();
             sprintToggleTimer = 0;
             modifiedInput.moveStrafe *= slowDownEvent.getStrafe();
-            modifiedInput.moveForward *= slowDownEvent.getForward();
+            modifiedInput.forwardSpeed *= slowDownEvent.getForward();
         }
 
         RotationSettings settings = utils.getActiveSettings();
 
         utils.setModifiedInput(settings != null && !settings.getStrict() ? modifiedInput : movementInput);
 
-        pushOutOfBlocks(posX - width * 0.35, getEntityBoundingBox().minY + 0.5, posZ + width * 0.35);
-        pushOutOfBlocks(posX - width * 0.35, getEntityBoundingBox().minY + 0.5, posZ - width * 0.35);
-        pushOutOfBlocks(posX + width * 0.35, getEntityBoundingBox().minY + 0.5, posZ - width * 0.35);
-        pushOutOfBlocks(posX + width * 0.35, getEntityBoundingBox().minY + 0.5, posZ + width * 0.35);
+        pushOutOfBlocks(posX - width * 0.35, getShape().minY + 0.5, posZ + width * 0.35);
+        pushOutOfBlocks(posX - width * 0.35, getShape().minY + 0.5, posZ - width * 0.35);
+        pushOutOfBlocks(posX + width * 0.35, getShape().minY + 0.5, posZ - width * 0.35);
+        pushOutOfBlocks(posX + width * 0.35, getShape().minY + 0.5, posZ + width * 0.35);
 
         final Sprint sprint = Sprint.INSTANCE;
 
         boolean flag3 = (float) getFoodStats().getFoodLevel() > 6F || capabilities.allowFlying;
-        if (onGround && !flag1 && !flag2 && movementInput.moveForward >= f && !isSprinting() && flag3 && !isUsingItem() && !isPotionActive(Potion.blindness)) {
+        if (onGround && !flag1 && !flag2 && movementInput.forwardSpeed >= f && !isSprinting() && flag3 && !isUsingItem() && !hasStatusEffect(Potion.blindness)) {
             if (sprintToggleTimer <= 0 && !mc.gameSettings.keyBindSprint.isKeyDown()) {
                 sprintToggleTimer = 7;
             } else {
@@ -418,11 +418,11 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
             }
         }
 
-        if (!isSprinting() && movementInput.moveForward >= f && flag3 && (noSlow.handleEvents() || !isUsingItem()) && !isPotionActive(Potion.blindness) && mc.gameSettings.keyBindSprint.isKeyDown()) {
+        if (!isSprinting() && movementInput.forwardSpeed >= f && flag3 && (noSlow.handleEvents() || !isUsingItem()) && !hasStatusEffect(Potion.blindness) && mc.gameSettings.keyBindSprint.isKeyDown()) {
             setSprinting(true);
         }
 
-        if (isSprinting() && (movementInput.moveForward < f || isCollidedHorizontally || !flag3)) {
+        if (isSprinting() && (movementInput.forwardSpeed < f || isCollidedHorizontally || !flag3)) {
             setSprinting(false);
         }
 
@@ -494,7 +494,7 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
     }
 
     @Override
-    public void moveEntity(double x, double y, double z) {
+    public void move(double x, double y, double z) {
         MoveEvent moveEvent = new MoveEvent(x, y, z);
         EventManager.INSTANCE.call(moveEvent);
 
@@ -505,10 +505,10 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
         z = moveEvent.getZ();
 
         if (noClip) {
-            setEntityBoundingBox(getEntityBoundingBox().offset(x, y, z));
-            posX = (getEntityBoundingBox().minX + getEntityBoundingBox().maxX) / 2;
-            posY = getEntityBoundingBox().minY;
-            posZ = (getEntityBoundingBox().minZ + getEntityBoundingBox().maxZ) / 2;
+            setShape(getShape().offset(x, y, z));
+            posX = (getShape().minX + getShape().maxX) / 2;
+            posY = getShape().minY;
+            posZ = (getShape().minZ + getShape().maxZ) / 2;
         } else {
             worldObj.theProfiler.startSection("move");
             double d0 = posX;
@@ -534,7 +534,7 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
                 double d6;
 
                 //noinspection ConstantConditions
-                for (d6 = 0.05; x != 0 && worldObj.getCollidingBoundingBoxes((Entity) (Object) this, getEntityBoundingBox().offset(x, -1, 0)).isEmpty(); d3 = x) {
+                for (d6 = 0.05; x != 0 && worldObj.getCollidingBoundingBoxes((Entity) (Object) this, getShape().offset(x, -1, 0)).isEmpty(); d3 = x) {
                     if (x < d6 && x >= -d6) {
                         x = 0;
                     } else if (x > 0) {
@@ -545,7 +545,7 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
                 }
 
                 //noinspection ConstantConditions
-                for (; z != 0 && worldObj.getCollidingBoundingBoxes((Entity) (Object) this, getEntityBoundingBox().offset(0, -1, z)).isEmpty(); d5 = z) {
+                for (; z != 0 && worldObj.getCollidingBoundingBoxes((Entity) (Object) this, getShape().offset(0, -1, z)).isEmpty(); d5 = z) {
                     if (z < d6 && z >= -d6) {
                         z = 0;
                     } else if (z > 0) {
@@ -556,7 +556,7 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
                 }
 
                 //noinspection ConstantConditions
-                for (; x != 0 && z != 0 && worldObj.getCollidingBoundingBoxes((Entity) (Object) this, getEntityBoundingBox().offset(x, -1, z)).isEmpty(); d5 = z) {
+                for (; x != 0 && z != 0 && worldObj.getCollidingBoundingBoxes((Entity) (Object) this, getShape().offset(x, -1, z)).isEmpty(); d5 = z) {
                     if (x < d6 && x >= -d6) {
                         x = 0;
                     } else if (x > 0) {
@@ -578,27 +578,27 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
             }
 
             //noinspection ConstantConditions
-            List<AxisAlignedBB> list1 = worldObj.getCollidingBoundingBoxes((Entity) (Object) this, getEntityBoundingBox().addCoord(x, y, z));
-            AxisAlignedBB axisalignedbb = getEntityBoundingBox();
+            List<AxisAlignedBB> list1 = worldObj.getCollidingBoundingBoxes((Entity) (Object) this, getShape().addCoord(x, y, z));
+            AxisAlignedBB axisalignedbb = getShape();
 
             for (AxisAlignedBB axisalignedbb1 : list1) {
-                y = axisalignedbb1.calculateYOffset(getEntityBoundingBox(), y);
+                y = axisalignedbb1.calculateYOffset(getShape(), y);
             }
 
-            setEntityBoundingBox(getEntityBoundingBox().offset(0, y, 0));
+            setShape(getShape().offset(0, y, 0));
             boolean flag1 = onGround || d4 != y && d4 < 0;
 
             for (AxisAlignedBB axisalignedbb2 : list1) {
-                x = axisalignedbb2.calculateXOffset(getEntityBoundingBox(), x);
+                x = axisalignedbb2.calculateXOffset(getShape(), x);
             }
 
-            setEntityBoundingBox(getEntityBoundingBox().offset(x, 0, 0));
+            setShape(getShape().offset(x, 0, 0));
 
             for (AxisAlignedBB axisalignedbb13 : list1) {
-                z = axisalignedbb13.calculateZOffset(getEntityBoundingBox(), z);
+                z = axisalignedbb13.calculateZOffset(getShape(), z);
             }
 
-            setEntityBoundingBox(getEntityBoundingBox().offset(0, 0, z));
+            setShape(getShape().offset(0, 0, z));
 
             if (stepHeight > 0f && flag1 && (d3 != x || d5 != z)) {
                 StepEvent stepEvent = new StepEvent(stepHeight);
@@ -606,12 +606,12 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
                 double d11 = x;
                 double d7 = y;
                 double d8 = z;
-                AxisAlignedBB axisalignedbb3 = getEntityBoundingBox();
-                setEntityBoundingBox(axisalignedbb);
+                AxisAlignedBB axisalignedbb3 = getShape();
+                setShape(axisalignedbb);
                 y = stepEvent.getStepHeight();
                 //noinspection ConstantConditions
-                List<AxisAlignedBB> list = worldObj.getCollidingBoundingBoxes((Entity) (Object) this, getEntityBoundingBox().addCoord(d3, y, d5));
-                AxisAlignedBB axisalignedbb4 = getEntityBoundingBox();
+                List<AxisAlignedBB> list = worldObj.getCollidingBoundingBoxes((Entity) (Object) this, getShape().addCoord(d3, y, d5));
+                AxisAlignedBB axisalignedbb4 = getShape();
                 AxisAlignedBB axisalignedbb5 = axisalignedbb4.addCoord(d3, 0, d5);
                 double d9 = y;
 
@@ -634,7 +634,7 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
                 }
 
                 axisalignedbb4 = axisalignedbb4.offset(0, 0, d16);
-                AxisAlignedBB axisalignedbb14 = getEntityBoundingBox();
+                AxisAlignedBB axisalignedbb14 = getShape();
                 double d17 = y;
 
                 for (AxisAlignedBB axisalignedbb9 : list) {
@@ -663,25 +663,25 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
                     x = d15;
                     z = d16;
                     y = -d9;
-                    setEntityBoundingBox(axisalignedbb4);
+                    setShape(axisalignedbb4);
                 } else {
                     x = d18;
                     z = d19;
                     y = -d17;
-                    setEntityBoundingBox(axisalignedbb14);
+                    setShape(axisalignedbb14);
                 }
 
                 for (AxisAlignedBB axisalignedbb12 : list) {
-                    y = axisalignedbb12.calculateYOffset(getEntityBoundingBox(), y);
+                    y = axisalignedbb12.calculateYOffset(getShape(), y);
                 }
 
-                setEntityBoundingBox(getEntityBoundingBox().offset(0, y, 0));
+                setShape(getShape().offset(0, y, 0));
 
                 if (d11 * d11 + d8 * d8 >= x * x + z * z) {
                     x = d11;
                     y = d7;
                     z = d8;
-                    setEntityBoundingBox(axisalignedbb3);
+                    setShape(axisalignedbb3);
                 } else {
                     EventManager.INSTANCE.call(StepConfirmEvent.INSTANCE);
                 }
@@ -689,9 +689,9 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
 
             worldObj.theProfiler.endSection();
             worldObj.theProfiler.startSection("rest");
-            posX = (getEntityBoundingBox().minX + getEntityBoundingBox().maxX) / 2;
-            posY = getEntityBoundingBox().minY;
-            posZ = (getEntityBoundingBox().minZ + getEntityBoundingBox().maxZ) / 2;
+            posX = (getShape().minX + getShape().maxX) / 2;
+            posY = getShape().minY;
+            posZ = (getShape().minZ + getShape().maxZ) / 2;
             isCollidedHorizontally = d3 != x || d5 != z;
             isCollidedVertically = d4 != y;
             onGround = isCollidedVertically && d4 < 0;
@@ -711,7 +711,7 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
                 }
             }
 
-            updateFallState(y, onGround, block1, blockpos);
+            checkFallDamage(y, onGround, block1, blockpos);
 
             if (d3 != x) {
                 motionX = 0;
@@ -771,23 +771,23 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
 
             boolean flag2 = isWet();
 
-            if (worldObj.isFlammableWithin(getEntityBoundingBox().contract(0.001, 0.001, 0.001))) {
-                dealFireDamage(1);
+            if (worldObj.isFlammableWithin(getShape().contract(0.001, 0.001, 0.001))) {
+                takeFireDamage(1);
 
                 if (!flag2) {
-                    setFire(getFire() + 1);
+                    setOnFireFor(getFire() + 1);
 
                     if (getFire() == 0) {
-                        setFire(8);
+                        setOnFireFor(8);
                     }
                 }
             } else if (getFire() <= 0) {
-                setFire(-fireResistance);
+                setOnFireFor(-fireResistance);
             }
 
             if (flag2 && getFire() > 0) {
                 playSound("random.fizz", 0.7F, 1.6F + (rand.nextFloat() - rand.nextFloat()) * 0.4F);
-                setFire(-fireResistance);
+                setOnFireFor(-fireResistance);
             }
 
             worldObj.theProfiler.endSection();

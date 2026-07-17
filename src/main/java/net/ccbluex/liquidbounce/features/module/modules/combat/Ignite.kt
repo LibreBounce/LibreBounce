@@ -55,10 +55,10 @@ object Ignite : Module("Ignite", Category.COMBAT) {
         val fireInHotbar = lighterInHotbar ?: lavaInHotbar ?: return@handler
 
         for (entity in mc.world.loadedEntityList) {
-            if (isSelected(entity, true) && !entity.isBurning) {
+            if (isSelected(entity, true) && !entity.isOnFire) {
                 val blockPos = entity.position
 
-                if (player.getDistanceSq(blockPos) >= 22.3 || !blockPos.isReplaceable || blockPos.block !is BlockAir)
+                if (player.getSquaredDistanceTo(blockPos) >= 22.3 || !blockPos.isReplaceable || blockPos.block !is BlockAir)
                     continue
 
                 resetTicks++
@@ -69,7 +69,7 @@ object Ignite : Module("Ignite", Category.COMBAT) {
 
                 if (itemStack.item is ItemBucket) {
                     val diffX = blockPos.x + 0.5 - player.posX
-                    val diffY = blockPos.y + 0.5 - (player.entityBoundingBox.minY + player.eyeHeight)
+                    val diffY = blockPos.y + 0.5 - (player.shape.minY + player.eyeHeight)
                     val diffZ = blockPos.z + 0.5 - player.posZ
                     val sqrt = sqrt(diffX * diffX + diffZ * diffZ)
                     val yaw = (atan2(diffZ, diffX)).toDegreesF() - 90F
@@ -94,7 +94,7 @@ object Ignite : Module("Ignite", Category.COMBAT) {
                             continue
 
                         val diffX = neighbor.x + 0.5 - player.posX
-                        val diffY = neighbor.y + 0.5 - (player.entityBoundingBox.minY + player.eyeHeight)
+                        val diffY = neighbor.y + 0.5 - (player.shape.minY + player.eyeHeight)
                         val diffZ = neighbor.z + 0.5 - player.posZ
                         val sqrt = sqrt(diffX * diffX + diffZ * diffZ)
                         val yaw = (atan2(diffZ, diffX)).toDegreesF() - 90F

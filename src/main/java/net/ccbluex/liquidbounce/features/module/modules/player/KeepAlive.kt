@@ -41,7 +41,7 @@ object KeepAlive : Module("KeepAlive", Category.PLAYER) {
                             render = false,
                             resetManually = true
                         )
-                        sendPacket(PlayerUseC2SPacket(player.heldItem))
+                        sendPacket(PlayerUseC2SPacket(player.displayItemInHand))
                         resetSlot(this)
                     }
                 }

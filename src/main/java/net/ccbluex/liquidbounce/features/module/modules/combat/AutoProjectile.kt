@@ -37,7 +37,7 @@ object AutoProjectile : Module("AutoProjectile", Category.COMBAT) {
     val onUpdate = handler<UpdateEvent> {
         val player = mc.player ?: return@handler
         val usingProjectile =
-            (player.isUsingItem && (player.heldItem?.item == snowball || player.heldItem?.item == egg)) || projectileInUse
+            (player.isUsingItem && (player.displayItemInHand?.item == snowball || player.displayItemInHand?.item == egg)) || projectileInUse
 
         if (usingProjectile) {
             if (projectilePullTimer.hasTimePassed(switchBackDelay)) {
@@ -75,7 +75,7 @@ object AutoProjectile : Module("AutoProjectile", Category.COMBAT) {
                 val randomThrowDelay = throwDelay.random()
 
                 if (throwTimer.hasTimePassed(randomThrowDelay)) {
-                    if (player.heldItem?.item != snowball && player.heldItem?.item != egg) {
+                    if (player.displayItemInHand?.item != snowball && player.displayItemInHand?.item != egg) {
                         val projectile = InventoryUtils.findItemArray(36, 44, arrayOf(snowball, egg)) ?: return@handler
 
                         switchBack = player.inventory.currentItem

@@ -208,7 +208,7 @@ object Tower : Configurable("Tower"), MinecraftInstance, Listenable {
                         )
                     ) {
                         fakeJump()
-                        setPositionAndUpdate(
+                        teleport(
                             posX, posY + teleportHeightValues.get(), posZ
                         )
                         tickTimer.reset()

@@ -20,7 +20,7 @@ object Boost : SpeedMode("Boost") {
 
             if (mc.world.getCollidingBoundingBoxes(
                     mc.player,
-                    entityBoundingBox.offset(motionX / offset, 0.0, motionZ / offset)
+                    shape.offset(motionX / offset, 0.0, motionZ / offset)
                 ).isNotEmpty()
             ) {
                 shouldOffset = false
@@ -36,7 +36,7 @@ object Boost : SpeedMode("Boost") {
                 if (!isSprinting)
                     offset += 0.8
 
-                if (moveStrafing != 0f) {
+                if (sidewaysSpeed != 0f) {
                     speed -= 0.1
                     offset += 0.5
                 }

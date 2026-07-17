@@ -43,7 +43,7 @@ object Regen : Module("Regen", Category.PLAYER) {
                 || foodStats.foodLevel <= food
                 || !isEntityAlive
                 || health >= healthToRegen
-                || (potionEffect && !isPotionActive(Potion.regeneration))
+                || (potionEffect && !hasStatusEffect(Potion.regeneration))
                 || !timer.hasTimePassed(delay)
             ) return@handler
 

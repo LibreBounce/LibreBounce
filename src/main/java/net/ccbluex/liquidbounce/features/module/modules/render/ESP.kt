@@ -194,7 +194,7 @@ object ESP : Module("ESP", Category.RENDER) {
 
     fun getColor(entity: Entity? = null): Color {
         if (entity != null && entity is LivingEntity) {
-            if (entity.hurtTime > 0)
+            if (entity.damagedTimer > 0)
                 return Color.RED
 
             if (entity is PlayerEntity && entity.isClientFriend())
@@ -213,7 +213,7 @@ object ESP : Module("ESP", Category.RENDER) {
     fun shouldRender(entity: LivingEntity): Boolean {
         val player = mc.player ?: return false
 
-        return (player.getDistanceSqToEntity(entity) <= maxRenderDistanceSq
+        return (player.getSquaredDistanceToToEntity(entity) <= maxRenderDistanceSq
                 && (thruBlocks || isEntityHeightVisible(entity))
                 && (!onLook || isLookingOnEntities(entity, maxAngleDifference.toDouble()))
                 && isSelected(entity, false)

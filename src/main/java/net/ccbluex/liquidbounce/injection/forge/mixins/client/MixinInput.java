@@ -14,5 +14,5 @@ public class MixinInput {
 
     @Shadow public float moveStrafe;
     @Shadow
-    public float moveForward;
+    public float forwardSpeed;
 }

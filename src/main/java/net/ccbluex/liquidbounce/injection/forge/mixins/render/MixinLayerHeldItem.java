@@ -51,7 +51,7 @@ public class MixinLayerHeldItem {
 
         int slot = SilentHotbar.INSTANCE.renderSlot(module.handleEvents() && module.getKeepItemInHandInThirdPerson());
 
-        ItemStack itemstack = entity instanceof LocalClientPlayerEntity ? ((LocalClientPlayerEntity) entity).inventory.getStackInSlot(slot) : entity.getHeldItem();
+        ItemStack itemstack = entity instanceof LocalClientPlayerEntity ? ((LocalClientPlayerEntity) entity).inventory.getStackInSlot(slot) : entity.getDisplayItemInHand();
 
         if (itemstack != null) {
             pushMatrix();
@@ -63,7 +63,7 @@ public class MixinLayerHeldItem {
                 scale(f, f, f);
             }
 
-            final UUID uuid = entity.getUniqueID();
+            final UUID uuid = entity.getUuid();
             final PlayerEntity entityplayer = mc.world.getPlayerEntityByUUID(uuid);
 
             if (entityplayer != null && (entityplayer.isBlocking() || entityplayer instanceof LocalClientPlayerEntity && ((itemstack.getItem() instanceof ItemSword && KillAura.INSTANCE.getRenderBlocking()) || NoSlow.INSTANCE.isUNCPBlocking()))) {

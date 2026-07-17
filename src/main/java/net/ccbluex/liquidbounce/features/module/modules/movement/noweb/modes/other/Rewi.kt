@@ -14,7 +14,7 @@ object Rewi : NoWebMode("Rewi") {
             if (!isInWeb)
                 return
 
-            jumpMovementFactor = 0.42f
+            flyingSpeed = 0.42f
 
             if (onGround)
                 tryJump()

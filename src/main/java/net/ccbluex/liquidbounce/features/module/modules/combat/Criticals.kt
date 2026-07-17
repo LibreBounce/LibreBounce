@@ -39,7 +39,7 @@ object Criticals : Module("Criticals", Category.COMBAT) {
     )
 
     val delay by int("Delay", 0, 0..500, suffix = "ms")
-    private val hurtTime by int("HurtTime", 10, 0..10)
+    private val damagedTimer by int("HurtTime", 10, 0..10)
     private val customMotionY by float("CustomY", 0.2f, 0.01f..0.42f) { mode == "CustomMotion" }
 
     val msTimer = MSTimer()
@@ -55,7 +55,7 @@ object Criticals : Module("Criticals", Category.COMBAT) {
             val entity = event.targetEntity
 
             if (!player.onGround || player.isOnLadder || player.isInWeb || player.isInLiquid ||
-                player.ridingEntity != null || entity.hurtTime > hurtTime ||
+                player.ridingEntity != null || entity.damagedTimer > damagedTimer ||
                 Fly.handleEvents() || !msTimer.hasTimePassed(delay)
             )
                 return@handler

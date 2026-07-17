@@ -101,7 +101,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
     private val reduceFactor by float("Factor", 0.6f, 0.6f..1f) { mode == "IntaveReduce" }
 
     private val clicks by intRange("Clicks", 3..5, 1..20) { mode == "Click" }
-    private val hurtTimeToAct by intRange("HurtTime", 1..9, 1..10) {
+    private val damagedTimerToAct by intRange("HurtTime", 1..9, 1..10) {
         mode in arrayOf("GhostBlock", "IntaveReduce", "Click", "Jump")
     }
     private val whenFacingEnemyOnly by boolean("WhenFacingEnemyOnly", true) { mode == "Click" }
@@ -183,7 +183,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
                 "Glitch" -> {
                     noClip = hasReceivedVelocity
 
-                if (hurtTime == 7)
+                if (damagedTimer == 7)
                     motionY = 0.4
 
                     hasReceivedVelocity = false
@@ -220,7 +220,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
                                 speedInAir = 0.02F
                                 reverseHurt = false
                             } else {
-                                if (hurtTime > 0)
+                                if (damagedTimer > 0)
                                     reverseHurt = true
 
                                 if (!onGround) {
@@ -242,7 +242,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
                     hasReceivedVelocity = false
                 }
 
-                "AACv4" -> if (hurtTime > 0 && !onGround) {
+                "AACv4" -> if (damagedTimer > 0 && !onGround) {
                     val reduce = aacv4MotionReducer
 
                     motionX *= reduce
@@ -254,7 +254,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
                         if (onGround)
                             jump = false
                     } else {
-                        if (hurtTime > 0 && motionX != 0.0 && motionZ != 0.0)
+                        if (damagedTimer > 0 && motionX != 0.0 && motionZ != 0.0)
                             onGround = true
 
                         if (hurtResistantTime > 0 && aacPushYReducer && !Speed.handleEvents())
@@ -269,7 +269,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
                     }
                 }
 
-                "AACZero" -> if (hurtTime > 0) {
+                "AACZero" -> if (damagedTimer > 0) {
                     if (!hasReceivedVelocity || onGround || fallDistance > 2F)
                         return@handler
 
@@ -284,7 +284,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
                     if (legitDisableInAir && !isOnGround(0.5))
                         return@handler
 
-                    if (maxHurtResistantTime != hurtResistantTime || maxHurtResistantTime == 0)
+                    if (invulnerabilityTicks != hurtResistantTime || invulnerabilityTicks == 0)
                         return@handler
 
                     if (withinChance(chance)) {
@@ -301,7 +301,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
                     if (!hasReceivedVelocity) return@handler
                     intaveTick++
 
-                    if (hurtTime == 2) {
+                    if (damagedTimer == 2) {
                         intaveDamageTick++
 
                         if (onGround && intaveTick % 2 == 0 && intaveDamageTick <= 10) {
@@ -348,7 +348,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
 
         mc.world ?: return@handler
 
-        if (mode != "Click" || !(player.hurtTime in hurtTimeToAct) || ignoreBlocking && (player.isBlocking || KillAura.blockStatus))
+        if (mode != "Click" || !(player.damagedTimer in damagedTimerToAct) || ignoreBlocking && (player.isBlocking || KillAura.blockStatus))
             return@handler
 
         var entity = mc.objectMouseOver?.entityHit
@@ -381,7 +381,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
 
         if (mode != "IntaveReduce" || !hasReceivedVelocity) return@handler
 
-        if (player.hurtTime in hurtTimeToAct && System.currentTimeMillis() - lastAttackTime <= 8000) {
+        if (player.damagedTimer in damagedTimerToAct && System.currentTimeMillis() - lastAttackTime <= 8000) {
             player.motionX *= reduceFactor
             player.motionZ *= reduceFactor
         }
@@ -414,17 +414,17 @@ object Velocity : Module("Velocity", Category.COMBAT) {
         var moveYaw = player.rotationYaw
 
         when {
-            player.moveForward != 0f && player.moveStrafing != 0f -> {
-                if (player.moveForward > 0) moveYaw += if (player.moveStrafing > 0) -45 else 45 else moveYaw -= if (player.moveStrafing > 0) -45 else 45
-                moveYaw += if (player.moveForward > 0) 0 else 180
+            player.forwardSpeed != 0f && player.sidewaysSpeed != 0f -> {
+                if (player.forwardSpeed > 0) moveYaw += if (player.sidewaysSpeed > 0) -45 else 45 else moveYaw -= if (player.sidewaysSpeed > 0) -45 else 45
+                moveYaw += if (player.forwardSpeed > 0) 0 else 180
             }
 
-            player.moveForward != 0f -> {
-                moveYaw += if (player.moveForward > 0) 0 else 180
+            player.forwardSpeed != 0f -> {
+                moveYaw += if (player.forwardSpeed > 0) 0 else 180
             }
 
-            player.moveStrafing != 0f -> {
-                moveYaw -= sign(player.moveStrafing) * 90
+            player.sidewaysSpeed != 0f -> {
+                moveYaw -= sign(player.sidewaysSpeed) * 90
             }
         }
 
@@ -682,7 +682,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
                         event.cancelEvent()
                 }
 
-                "AACZero" -> if (hurtTime > 0) event.cancelEvent()
+                "AACZero" -> if (damagedTimer > 0) event.cancelEvent()
             }
         }
     }
@@ -690,9 +690,9 @@ object Velocity : Module("Velocity", Category.COMBAT) {
     val onStrafe = handler<StrafeEvent> {
         mc.player?.run {
             if (mode == "Jump" && hasReceivedVelocity) {
-                if (!isJumping && withinChance(chance) && shouldJump() && (isSprinting || !onlySprinting) && onGround && hurtTime in hurtTimeToAct) {
+                if (!jumping && withinChance(chance) && shouldJump() && (isSprinting || !onlySprinting) && onGround && damagedTimer in damagedTimerToAct) {
                     tryJump()
-                    if (debug) chat("Velocity jumped at hurttime ${hurtTime}")
+                    if (debug) chat("Velocity jumped at hurttime ${damagedTimer}")
                     limitUntilJump = 0
                 }
 
@@ -702,7 +702,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
 
             when (jumpCooldownMode) {
                 "Ticks" -> limitUntilJump++
-                "ReceivedHits" -> if (hurtTime == 9) limitUntilJump++
+                "ReceivedHits" -> if (damagedTimer == 9) limitUntilJump++
             }
         }
     }
@@ -713,7 +713,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
         if (mode != "GhostBlock") return@handler
 
         if (hasReceivedVelocity) {
-            if (player.hurtTime in hurtTimeToAct) {
+            if (player.damagedTimer in damagedTimerToAct) {
                 // Check if there is air exactly 1 level above the player's Y position
                 if (event.block is BlockAir && event.y == mc.player.posY.toInt() + 1) {
                     event.boundingBox = AxisAlignedBB(
@@ -725,7 +725,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
                         event.z + 1.0
                     )
                 }
-            } else if (player.hurtTime == 0) {
+            } else if (player.damagedTimer == 0) {
                 hasReceivedVelocity = false
             }
         }

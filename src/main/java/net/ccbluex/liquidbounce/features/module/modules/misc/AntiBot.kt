@@ -134,7 +134,7 @@ object AntiBot : Module("AntiBot", Category.MISC) {
             if (entity.getPing() == 0) return true
         }
 
-        if (invalidUUID && mc.netHandler.getPlayerInfo(entity.uniqueID) == null) {
+        if (invalidUUID && mc.netHandler.getPlayerInfo(entity.uuid) == null) {
             return true
         }
 

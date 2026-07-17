@@ -127,7 +127,7 @@ object Blink : NoFallMode("Blink") {
             if (targetEntity.truePos) {
                 val pos = simPlayer.pos - mc.renderManager.renderPos
 
-                val axisAlignedBB = entityBoundingBox.offset(-currPos + pos)
+                val axisAlignedBB = shape.offset(-currPos + pos)
 
                 drawBacktrackBox(axisAlignedBB, Color.BLUE)
             }

@@ -11,7 +11,7 @@ import net.ccbluex.liquidbounce.utils.extensions.plus
 import net.ccbluex.liquidbounce.utils.extensions.random
 import net.ccbluex.liquidbounce.utils.extensions.times
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.angleDifference
-import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.getVectorForRotation
+import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.getRotationVector
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.lastRotations
 import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.math.Vec3d
@@ -65,7 +65,7 @@ class RandomizationSettings(owner: Module, val generalApply: () -> Boolean = { t
         get() = randomizationPattern != "None" && generalApply()
 
     fun processNextSpot(box: AxisAlignedBB, rotation: Rotation, eyes: Vec3d, range: Double) {
-        val intercept = box.calculateIntercept(eyes, eyes + getVectorForRotation(lastRotations.random()) * range)
+        val intercept = box.calculateIntercept(eyes, eyes + getRotationVector(lastRotations.random()) * range)
 
         // Smooth out randomized rotation pattern using previous rotation to simulate natural movement
         val pitchMovement =

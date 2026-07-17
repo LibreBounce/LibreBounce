@@ -100,7 +100,7 @@ class InputEvent(var originalInput: Input) : Event()
 object PostSprintUpdateEvent : Event()
 
 /**
- * Called in "moveFlying"
+ * Called in "updateVelocity"
  */
 class StrafeEvent(val strafe: Float, val forward: Float, val friction: Float) : CancellableEvent()
 

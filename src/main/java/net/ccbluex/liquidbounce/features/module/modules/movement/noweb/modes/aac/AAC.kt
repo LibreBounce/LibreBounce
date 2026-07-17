@@ -13,7 +13,7 @@ object AAC : NoWebMode("AAC") {
             return
         }
 
-        mc.player.jumpMovementFactor = 0.59f
+        mc.player.flyingSpeed = 0.59f
 
         if (!mc.gameSettings.keyBindSneak.isKeyDown)
             mc.player.motionY = 0.0

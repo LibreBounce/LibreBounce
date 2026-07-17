@@ -16,7 +16,7 @@ object IntaveNew : NoWebMode("IntaveNew") {
             if (!isInWeb)
                 return
 
-            if (isMoving && onGround && moveStrafing == 0.0f) {
+            if (isMoving && onGround && sidewaysSpeed == 0.0f) {
                 if (ticksExisted % 3 == 0) {
                     strafe(0.734f)
                 } else {

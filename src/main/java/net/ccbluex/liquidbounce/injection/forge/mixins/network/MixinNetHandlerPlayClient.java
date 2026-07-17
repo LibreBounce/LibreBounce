@@ -257,7 +257,7 @@ public abstract class MixinNetHandlerPlayClient {
             EventManager.INSTANCE.call(new EntityMovementEvent(entity));
     }
 
-    @Inject(method = "handlePlayerPosLook", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerEntity;setPositionAndRotation(DDDFF)V", shift = At.Shift.BEFORE))
+    @Inject(method = "handlePlayerPosLook", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerEntity;updatePositionAndAngles(DDDFF)V", shift = At.Shift.BEFORE))
     private void injectNoRotateSetPositionOnly(PlayerMoveS2CPacket p_handlePlayerPosLook_1_, CallbackInfo ci) {
         NoRotateSet module = NoRotateSet.INSTANCE;
 

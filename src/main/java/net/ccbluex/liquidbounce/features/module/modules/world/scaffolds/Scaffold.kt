@@ -26,7 +26,7 @@ import net.ccbluex.liquidbounce.utils.rotation.RotationSettingsWithRotationModes
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.canUpdateRotation
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.getFixedAngleDelta
-import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.getVectorForRotation
+import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.getRotationVector
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.rotationDifference
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.setTargetRotation
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.toRotation
@@ -256,7 +256,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
             val yaw = round(abs(MathHelper.wrapAngleTo180_float(directionDegree)) / 45f) * 45f
 
             val isYawDiagonal = yaw % 90 != 0f
-            val isMovingDiagonal = player.movementInput.moveForward != 0f && player.movementInput.moveStrafe == 0f
+            val isMovingDiagonal = player.movementInput.forwardSpeed != 0f && player.movementInput.moveStrafe == 0f
             val isStrafing = mc.gameSettings.keyBindRight.isKeyDown || mc.gameSettings.keyBindLeft.isKeyDown
 
             return isYawDiagonal && (isMovingDiagonal || isStrafing)
@@ -544,7 +544,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
     fun update() {
         val player = mc.player ?: return
-        val holdingItem = player.heldItem?.item is ItemBlock
+        val holdingItem = player.displayItemInHand?.item is ItemBlock
 
         if (!holdingItem && (autoBlock == "Off" || InventoryUtils.findBlockInHotbar() == null)) {
             return
@@ -992,7 +992,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
         val world = mc.world ?: return null
 
         val eyes = player.eyes
-        val rotationVec = getVectorForRotation(rotation)
+        val rotationVec = getRotationVector(rotation)
 
         val reach = eyes + (rotationVec * maxReach.toDouble())
 
@@ -1090,7 +1090,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
         if (!slow && speedLimiter && MovementUtils.speed > speedLimit) {
             input.moveStrafe = 0f
-            input.moveForward = 0f
+            input.forwardSpeed = 0f
             return
         }
 

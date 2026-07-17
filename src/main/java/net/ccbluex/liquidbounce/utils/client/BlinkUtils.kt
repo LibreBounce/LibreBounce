@@ -135,7 +135,7 @@ object BlinkUtils : MinecraftInstance, Listenable {
         val player = mc.player ?: return
         val firstPosition = positions.firstOrNull() ?: return
 
-        player.setPositionAndUpdate(firstPosition.xCoord, firstPosition.yCoord, firstPosition.zCoord)
+        player.teleport(firstPosition.xCoord, firstPosition.yCoord, firstPosition.zCoord)
 
         synchronized(packets) {
             val iterator = packets.iterator()
@@ -200,8 +200,8 @@ object BlinkUtils : MinecraftInstance, Listenable {
             copyLocationAndAnglesFrom(player)
             rotationYaw = player.rotationYaw
             rotationPitch = player.rotationPitch
-            rotationYawHead = player.rotationYawHead
-            renderYawOffset = player.renderYawOffset
+            headYaw = player.headYaw
+            bodyYaw = player.bodyYaw
             inventory = player.inventory
         }
 

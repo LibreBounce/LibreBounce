@@ -22,7 +22,7 @@ import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverOpenContain
 import net.ccbluex.liquidbounce.utils.kotlin.StringUtils.contains
 import net.ccbluex.liquidbounce.utils.rotation.RotationSettings
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.currentRotation
-import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.getVectorForRotation
+import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.getRotationVector
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.performRayTrace
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.performRaytrace
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.setTargetRotation
@@ -109,7 +109,7 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
 
         // Check if there is an opponent in range
         if (mc.world.loadedEntityList.any {
-                isSelected(it, true) && player.getDistanceSqToEntity(it) < minDistanceFromOpponentSq
+                isSelected(it, true) && player.getSquaredDistanceToToEntity(it) < minDistanceFromOpponentSq
             }) return@handler
 
         if (serverOpenContainer && tileTarget != null) {
@@ -205,7 +205,7 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
                     if (packetBlockPos != tileTarget?.entity?.pos) {
                         val nearPlayers = (mc.world.playerEntities ?: return@handler)
                             .mapNotNull {
-                                val distanceSq = it.getDistanceSqToCenter(packetBlockPos)
+                                val distanceSq = it.getSquaredDistanceToToCenter(packetBlockPos)
 
                                 if (distanceSq <= 36) it to distanceSq
                                 else null
@@ -281,7 +281,7 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
         if (distance <= range) {
             val pos = target.entity.pos
 
-            val rotationVec = getVectorForRotation(rotationToUse) * mc.playerController.blockReachDistance.toDouble()
+            val rotationVec = getRotationVector(rotationToUse) * mc.playerController.blockReachDistance.toDouble()
 
             val visibleResult = performRayTrace(pos, rotationVec)?.takeIf { it.blockPos == pos }
             val invisibleResult = performRaytrace(pos, rotationToUse)?.takeIf { it.blockPos == pos }

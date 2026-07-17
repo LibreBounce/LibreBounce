@@ -68,7 +68,7 @@ object FastClimb : Module("FastClimb", Category.MOVEMENT) {
                 }
 
                 mode == "AAC3.0.5" && mc.gameSettings.keyBindForward.isKeyDown &&
-                    collideBlockIntersects(entityBoundingBox) {
+                    collideBlockIntersects(shape) {
                         it is BlockLadder || it is BlockVine
                     } -> {
                     event.x = 0.0

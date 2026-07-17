@@ -41,11 +41,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class MixinLivingEntity extends MixinEntity {
 
     @Shadow
-    public float rotationYawHead;
+    public float headYaw;
     @Shadow
-    public boolean isJumping;
+    public boolean jumping;
     @Shadow
-    public int jumpTicks;
+    public int jumpingCooldown;
 
     @Shadow
     protected abstract float getJumpUpwardsMotion();
@@ -54,23 +54,23 @@ public abstract class MixinLivingEntity extends MixinEntity {
     public abstract PotionEffect getActivePotionEffect(Potion potionIn);
 
     @Shadow
-    public abstract boolean isPotionActive(Potion potionIn);
+    public abstract boolean hasStatusEffect(Potion potionIn);
 
     @Shadow
     public void onLivingUpdate() {
     }
 
     @Shadow
-    protected abstract void updateFallState(double y, boolean onGroundIn, Block blockIn, BlockPos pos);
+    protected abstract void checkFallDamage(double y, boolean onGroundIn, Block blockIn, BlockPos pos);
 
     @Shadow
     public abstract float getHealth();
 
     @Shadow
-    public abstract ItemStack getHeldItem();
+    public abstract ItemStack getDisplayItemInHand();
 
     @Shadow
-    protected abstract void updateAITick();
+    protected abstract void jumpInWater();
 
     /**
      * @author CCBlueX
@@ -85,7 +85,7 @@ public abstract class MixinLivingEntity extends MixinEntity {
 
         motionY = prejumpEvent.getMotion();
 
-        if (isPotionActive(Potion.jump))
+        if (hasStatusEffect(Potion.jump))
             motionY += (float) (getActivePotionEffect(Potion.jump).getAmplifier() + 1) * 0.1F;
 
         if (isSprinting()) {
@@ -118,23 +118,23 @@ public abstract class MixinLivingEntity extends MixinEntity {
 
     @Inject(method = "onLivingUpdate", at = @At("HEAD"))
     private void headLiving(CallbackInfo callbackInfo) {
-        if (NoJumpDelay.INSTANCE.handleEvents() || Scaffold.INSTANCE.handleEvents() && Tower.INSTANCE.getTowerModeValues().equals("Pulldown")) jumpTicks = 0;
+        if (NoJumpDelay.INSTANCE.handleEvents() || Scaffold.INSTANCE.handleEvents() && Tower.INSTANCE.getTowerModeValues().equals("Pulldown")) jumpingCooldown = 0;
     }
 
-    @Inject(method = "onLivingUpdate", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/LivingEntity;isJumping:Z", ordinal = 1))
+    @Inject(method = "onLivingUpdate", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/LivingEntity;jumping:Z", ordinal = 1))
     private void onJumpSection(CallbackInfo callbackInfo) {
         final LiquidWalk liquidWalk = LiquidWalk.INSTANCE;
 
-        if (liquidWalk.handleEvents() && !isJumping && !isSneaking() && isInWater() && liquidWalk.getMode().equals("Swim")) {
-            updateAITick();
+        if (liquidWalk.handleEvents() && !jumping && !isSneaking() && isInWater() && liquidWalk.getMode().equals("Swim")) {
+            jumpInWater();
         }
     }
 
-    @Inject(method = "getLook", at = @At("HEAD"), cancellable = true)
-    private void getLook(CallbackInfoReturnable<Vec3d> callbackInfoReturnable) {
+    @Inject(method = "getRotationVec", at = @At("HEAD"), cancellable = true)
+    private void getRotationVec(CallbackInfoReturnable<Vec3d> callbackInfoReturnable) {
         //noinspection ConstantConditions
         if (((LivingEntity) (Object) this) instanceof LocalClientPlayerEntity)
-            callbackInfoReturnable.setReturnValue(getVectorForRotation(rotationPitch, rotationYaw));
+            callbackInfoReturnable.setReturnValue(getRotationVector(rotationPitch, rotationYaw));
     }
 
     /**
@@ -145,7 +145,7 @@ public abstract class MixinLivingEntity extends MixinEntity {
         Rotation rotation = Rotations.INSTANCE.getRotation();
 
         //noinspection ConstantValue
-        this.rotationYawHead = ((LivingEntity) (Object) this) instanceof LocalClientPlayerEntity && Rotations.INSTANCE.shouldUseRealisticMode() && rotation != null ? rotation.getYaw() : this.rotationYawHead;
+        this.headYaw = ((LivingEntity) (Object) this) instanceof LocalClientPlayerEntity && Rotations.INSTANCE.shouldUseRealisticMode() && rotation != null ? rotation.getYaw() : this.headYaw;
     }
 
     /**

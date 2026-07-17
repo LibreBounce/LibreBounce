@@ -15,14 +15,14 @@ import net.minecraft.util.AxisAlignedBB.fromBounds
 object Vanilla : LiquidWalkMode("Vanilla") {
     override fun onUpdate() {
         mc.player?.run {
-            if (!isSneaking && collideBlock(entityBoundingBox) { it is BlockLiquid } && isInsideOfMaterial(Material.air))
+            if (!isSneaking && collideBlock(shape) { it is BlockLiquid } && isInsideOfMaterial(Material.air))
                 motionY = 0.08
         }
     }
 
     override fun onBB(event: BlockBBEvent) {
         mc.player?.run {
-            if (event.block is BlockLiquid && !collideBlock(entityBoundingBox) { it is BlockLiquid } && !isSneaking) {
+            if (event.block is BlockLiquid && !collideBlock(shape) { it is BlockLiquid } && !isSneaking) {
                 event.boundingBox = fromBounds(
                     event.x.toDouble(),
                     event.y.toDouble(),

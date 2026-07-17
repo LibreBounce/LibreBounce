@@ -23,7 +23,7 @@ object VerusGlide : FlyMode("VerusGlide") {
                 // Good job, Verus
                 motionY = -0.09800000190734863
 
-                if (movementInput.moveForward != 0f && moveStrafing != 0f) strafe(0.334f)
+                if (movementInput.forwardSpeed != 0f && sidewaysSpeed != 0f) strafe(0.334f)
                 else strafe(0.3345f)
             }
         }

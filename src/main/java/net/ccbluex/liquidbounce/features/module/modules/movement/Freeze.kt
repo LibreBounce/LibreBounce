@@ -36,7 +36,7 @@ object Freeze : Module("Freeze", Category.MOVEMENT) {
         mc.player.motionX = 0.0
         mc.player.motionY = 0.0
         mc.player.motionZ = 0.0
-        mc.player.setPositionAndRotation(x, y, z, mc.player.rotationYaw, mc.player.rotationPitch)
+        mc.player.updatePositionAndAngles(x, y, z, mc.player.rotationYaw, mc.player.rotationPitch)
     }
 
     val onPacket = handler<PacketEvent> { event ->
@@ -57,6 +57,6 @@ object Freeze : Module("Freeze", Category.MOVEMENT) {
         mc.player.motionX = motionX
         mc.player.motionY = motionY
         mc.player.motionZ = motionZ
-        mc.player.setPositionAndRotation(x, y, z, mc.player.rotationYaw, mc.player.rotationPitch)
+        mc.player.updatePositionAndAngles(x, y, z, mc.player.rotationYaw, mc.player.rotationPitch)
     }
 }

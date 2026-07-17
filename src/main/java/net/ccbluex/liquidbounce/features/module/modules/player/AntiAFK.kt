@@ -65,7 +65,7 @@ object AntiAFK : Module("AntiAFK", Category.PLAYER, gameDetecting = false) {
                     }
 
                     1 -> {
-                        if (!player.isSwingInProgress) player.swingItem()
+                        if (!player.armSwinging) player.swingItem()
                         delayTimer.reset()
                     }
 
@@ -107,7 +107,7 @@ object AntiAFK : Module("AntiAFK", Category.PLAYER, gameDetecting = false) {
                     delayTimer.reset()
                 }
 
-                if (swing && !player.isSwingInProgress && swingDelayTimer.hasTimePassed(swingDelay)) {
+                if (swing && !player.armSwinging && swingDelayTimer.hasTimePassed(swingDelay)) {
                     player.swingItem()
                     swingDelayTimer.reset()
                 }

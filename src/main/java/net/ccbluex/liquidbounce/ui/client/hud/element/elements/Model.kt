@@ -90,22 +90,22 @@ class Model(x: Double = 40.0, y: Double = 100.0) : Element("Model", x, y) {
         glScalef(-50F, 50F, 50F)
         glRotatef(180F, 0F, 0F, 1F)
 
-        val renderYawOffset = entityLivingBase.renderYawOffset
+        val bodyYaw = entityLivingBase.bodyYaw
         val rotationYaw = entityLivingBase.rotationYaw
         val rotationPitch = entityLivingBase.rotationPitch
-        val prevRotationYawHead = entityLivingBase.prevRotationYawHead
-        val rotationYawHead = entityLivingBase.rotationYawHead
+        val lastHeadYaw = entityLivingBase.lastHeadYaw
+        val headYaw = entityLivingBase.headYaw
 
         glRotatef(135F, 0F, 1F, 0F)
         Lighting.turnOn()
         glRotatef(-135F, 0F, 1F, 0F)
         glRotatef(-atan(pitch / 40F) * 20f, 1F, 0F, 0F)
 
-        entityLivingBase.renderYawOffset = atan(yaw / 40F) * 20F
+        entityLivingBase.bodyYaw = atan(yaw / 40F) * 20F
         entityLivingBase.rotationYaw = atan(yaw / 40F) * 40F
         entityLivingBase.rotationPitch = -atan(pitch / 40F) * 20F
-        entityLivingBase.rotationYawHead = entityLivingBase.rotationYaw
-        entityLivingBase.prevRotationYawHead = entityLivingBase.rotationYaw
+        entityLivingBase.headYaw = entityLivingBase.rotationYaw
+        entityLivingBase.lastHeadYaw = entityLivingBase.rotationYaw
 
         glTranslatef(0F, 0F, 0F)
 
@@ -115,11 +115,11 @@ class Model(x: Double = 40.0, y: Double = 100.0) : Element("Model", x, y) {
         renderManager.renderEntityWithPosYaw(entityLivingBase, 0.0, 0.0, 0.0, 0F, 1F)
         renderManager.isRenderShadow = true
 
-        entityLivingBase.renderYawOffset = renderYawOffset
+        entityLivingBase.bodyYaw = bodyYaw
         entityLivingBase.rotationYaw = rotationYaw
         entityLivingBase.rotationPitch = rotationPitch
-        entityLivingBase.prevRotationYawHead = prevRotationYawHead
-        entityLivingBase.rotationYawHead = rotationYawHead
+        entityLivingBase.lastHeadYaw = lastHeadYaw
+        entityLivingBase.headYaw = headYaw
 
         glPopMatrix()
         Lighting.turnOff()

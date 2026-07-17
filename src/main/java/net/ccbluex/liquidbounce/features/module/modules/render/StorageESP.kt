@@ -115,7 +115,7 @@ object StorageESP : Module("StorageESP", Category.RENDER) {
 
                 val tileEntityPos = tileEntity.pos
 
-                val distanceSquared = mc.player.getDistanceSq(
+                val distanceSquared = mc.player.getSquaredDistanceTo(
                     tileEntityPos.x.toDouble(),
                     tileEntityPos.y.toDouble(),
                     tileEntityPos.z.toDouble()
@@ -176,7 +176,7 @@ object StorageESP : Module("StorageESP", Category.RENDER) {
             for (entity in mc.world.loadedEntityList) {
                 val entityPos = entity.position
 
-                val distanceSquared = mc.player.getDistanceSq(
+                val distanceSquared = mc.player.getSquaredDistanceTo(
                     entityPos.x.toDouble(),
                     entityPos.y.toDouble(),
                     entityPos.z.toDouble()
@@ -259,7 +259,7 @@ object StorageESP : Module("StorageESP", Category.RENDER) {
 
                     for (entity in tileEntities) {
                         val pos = entity.pos.toVec()
-                        val distanceSquared = mc.player.getDistanceSq(pos.xCoord, pos.yCoord, pos.zCoord)
+                        val distanceSquared = mc.player.getSquaredDistanceTo(pos.xCoord, pos.yCoord, pos.zCoord)
 
                         if (distanceSquared > maxRenderDistanceSq)
                             continue

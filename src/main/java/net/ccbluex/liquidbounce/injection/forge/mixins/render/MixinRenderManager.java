@@ -32,16 +32,16 @@ public abstract class MixinRenderManager {
     @Shadow
     public double renderPosZ;
 
-    @Redirect(method = "renderDebugBoundingBox", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;getEntityBoundingBox()Lnet/minecraft/util/AxisAlignedBB;", ordinal = 0), require = 1, allow = 1)
-    private AxisAlignedBB getEntityBoundingBox(Entity entity) {
+    @Redirect(method = "renderDebugBoundingBox", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;getShape()Lnet/minecraft/util/AxisAlignedBB;", ordinal = 0), require = 1, allow = 1)
+    private AxisAlignedBB getShape(Entity entity) {
         final HitBox hitBox = HitBox.INSTANCE;
 
         if (!hitBox.handleEvents()) {
-            return entity.getEntityBoundingBox();
+            return entity.getShape();
         }
 
         float size = hitBox.determineSize(entity);
-        return entity.getEntityBoundingBox().expand(size, size, size);
+        return entity.getShape().expand(size, size, size);
     }
 
     @Inject(method = "renderEntityStatic", at = @At(value = "HEAD"))

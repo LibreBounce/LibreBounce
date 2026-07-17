@@ -22,7 +22,7 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBlockBox
 import net.ccbluex.liquidbounce.utils.rotation.Rotation
 import net.ccbluex.liquidbounce.utils.rotation.RotationSettings
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils
-import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.getVectorForRotation
+import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.getRotationVector
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.setTargetRotation
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.utils.timing.TickedActions.nextTick
@@ -286,7 +286,7 @@ object BedDefender : Module("BedDefender", Category.WORLD) {
         val world = mc.world ?: return null
 
         val eyes = player.eyes
-        val rotationVec = getVectorForRotation(rotation)
+        val rotationVec = getRotationVector(rotation)
 
         val reach = eyes + (rotationVec * maxReach.toDouble())
 

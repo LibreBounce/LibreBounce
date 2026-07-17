@@ -135,7 +135,7 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
                         player.motionY -= 0.015
 
                         if (!player.isUsingItem && player.movementInput.moveStrafe == 0F)
-                            player.jumpMovementFactor = 0.3F
+                            player.flyingSpeed = 0.3F
                     }
                 } else isAACStep = false
         }
@@ -220,7 +220,7 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
         if (player == null || !isStep) // Check if step
             return@handler
 
-        if (player.entityBoundingBox.minY - stepY > 0.6) { // Check if full block step
+        if (player.shape.minY - stepY > 0.6) { // Check if full block step
             when (mode) {
                 "NCP", "AAC" -> {
                     fakeJump()
@@ -307,7 +307,7 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
             val x = -sin(adjustedYaw) * 0.2
             val z = cos(adjustedYaw) * 0.2
 
-            if (mc.world.getCollisionBoxes(player.entityBoundingBox.offset(x, heightOffset, z)).isNotEmpty()) {
+            if (mc.world.getCollisionBoxes(player.shape.offset(x, heightOffset, z)).isNotEmpty()) {
                 return false
             }
         }

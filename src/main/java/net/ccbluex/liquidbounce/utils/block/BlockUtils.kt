@@ -116,8 +116,8 @@ object BlockUtils : MinecraftInstance {
 
         val y = axisAlignedBB.minY.toInt()
         val mutable = BlockPos.MutableBlockPos(0, 0, 0)
-        for (x in player.entityBoundingBox.minX.toInt() until player.entityBoundingBox.maxX.toInt() + 1) {
-            for (z in player.entityBoundingBox.minZ.toInt() until player.entityBoundingBox.maxZ.toInt() + 1) {
+        for (x in player.shape.minX.toInt() until player.shape.maxX.toInt() + 1) {
+            for (z in player.shape.minZ.toInt() until player.shape.maxZ.toInt() + 1) {
                 val blockPos = mutable.set(x, y, z)
                 val block = blockPos.block
 
@@ -137,8 +137,8 @@ object BlockUtils : MinecraftInstance {
 
         val y = axisAlignedBB.minY.toInt()
         val mutable = BlockPos.MutableBlockPos(0, 0, 0)
-        for (x in player.entityBoundingBox.minX.toInt() until player.entityBoundingBox.maxX.toInt() + 1) {
-            for (z in player.entityBoundingBox.minZ.toInt() until player.entityBoundingBox.maxZ.toInt() + 1) {
+        for (x in player.shape.minX.toInt() until player.shape.maxX.toInt() + 1) {
+            for (z in player.shape.minZ.toInt() until player.shape.maxZ.toInt() + 1) {
                 val blockPos = mutable.set(x, y, z)
                 val block = blockPos.block
 
@@ -146,7 +146,7 @@ object BlockUtils : MinecraftInstance {
                     val boundingBox = blockPos.state?.let { block?.getCollisionBoundingBox(mc.world, blockPos, it) }
                         ?: continue
 
-                    if (player.entityBoundingBox.intersectsWith(boundingBox))
+                    if (player.shape.intersectsWith(boundingBox))
                         return true
                 }
             }

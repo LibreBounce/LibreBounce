@@ -177,7 +177,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
 
         if (timerBoostMode != "Modern") return@handler
 
-        val moving = if (!onForwardOnly) player.isMoving else player.moveForward != 0f && player.moveStrafing == 0f
+        val moving = if (!onForwardOnly) player.isMoving else player.forwardSpeed != 0f && player.sidewaysSpeed == 0f
 
         val nearbyEntity = getNearestEntityInRange() ?: return@handler
 

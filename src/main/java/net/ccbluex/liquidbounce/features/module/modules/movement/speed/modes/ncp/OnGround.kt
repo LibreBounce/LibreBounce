@@ -21,7 +21,7 @@ object OnGround : SpeedMode("OnGround") {
 
             posY -= vertical
             motionY = -1000.0
-            cameraPitch = 0.3f
+            tilt = 0.3f
             distanceWalkedModified = 44f
             mc.timer.timerSpeed = 1f
 
@@ -31,7 +31,7 @@ object OnGround : SpeedMode("OnGround") {
                 distanceWalkedOnStepModified = 44f
                 motionX *= horizontal
                 motionZ *= horizontal
-                cameraPitch = 0f
+                tilt = 0f
                 mc.timer.timerSpeed = 1.199f
             }
         }

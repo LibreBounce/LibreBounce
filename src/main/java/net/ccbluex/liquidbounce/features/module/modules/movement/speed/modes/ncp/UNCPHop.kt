@@ -22,7 +22,7 @@ object UNCPHop : SpeedMode("UNCPHop") {
 
             if (isMoving) {
                 if (onGround) {
-                    speed = if (isPotionActive(Potion.moveSpeed)
+                    speed = if (hasStatusEffect(Potion.moveSpeed)
                         && getActivePotionEffect(Potion.moveSpeed).amplifier >= 1
                     ) 0.4563f else 0.3385f
 

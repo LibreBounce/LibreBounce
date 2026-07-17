@@ -146,9 +146,9 @@ public abstract class MixinEntityRenderer {
             final Reach reach = Reach.INSTANCE;
 
             double d0 = reach.handleEvents() ? reach.getMaxRange() : mc.playerController.getBlockReachDistance();
-            Vec3d vec3 = entity.getPositionEyes(p_getMouseOver_1_);
+            Vec3d vec3 = entity.getEyePosition(p_getMouseOver_1_);
             Rotation rotation = new Rotation(mc.player.rotationYaw, mc.player.rotationPitch);
-            Vec3d vec31 = RotationUtils.INSTANCE.getVectorForRotation(RotationUtils.INSTANCE.getCurrentRotation() != null && OverrideRaycast.INSTANCE.shouldOverride() ? RotationUtils.INSTANCE.getCurrentRotation() : rotation);
+            Vec3d vec31 = RotationUtils.INSTANCE.getRotationVector(RotationUtils.INSTANCE.getCurrentRotation() != null && OverrideRaycast.INSTANCE.shouldOverride() ? RotationUtils.INSTANCE.getCurrentRotation() : rotation);
             double p_rayTrace_1_ = (reach.handleEvents() ? reach.getBuildReach() : d0);
             Vec3d vec32 = vec3.addVector(vec31.xCoord * p_rayTrace_1_, vec31.yCoord * p_rayTrace_1_, vec31.zCoord * p_rayTrace_1_);
             mc.objectMouseOver = entity.worldObj.rayTraceBlocks(vec3, vec32, false, false, true);
@@ -182,10 +182,10 @@ public abstract class MixinEntityRenderer {
                 float f1 = entity1.getCollisionBorderSize();
 
                 final ArrayList<AxisAlignedBB> boxes = new ArrayList<>();
-                boxes.add(entity1.getEntityBoundingBox().expand(f1, f1, f1));
+                boxes.add(entity1.getShape().expand(f1, f1, f1));
 
                 ForwardTrack.INSTANCE.includeEntityTruePos(entity1, () -> {
-                    boxes.add(entity1.getEntityBoundingBox().expand(f1, f1, f1));
+                    boxes.add(entity1.getShape().expand(f1, f1, f1));
                     return null;
                 });
 
@@ -277,7 +277,7 @@ public abstract class MixinEntityRenderer {
                         f10 = 0.25F + f7 * 0.75F;
                     }
 
-                    if (this.mc.player.isPotionActive(Potion.nightVision)) {
+                    if (this.mc.player.hasStatusEffect(Potion.nightVision)) {
                         float f15 = this.getNightVisionBrightness(this.mc.player, p_updateLightmap_1_);
                         float f12 = 1.0F / f8;
                         if (f12 > 1.0F / f9) {
@@ -361,21 +361,21 @@ public abstract class MixinEntityRenderer {
     /**
      * Properly implement the confusion option from AntiBlind module
      */
-    @Redirect(method = "setupCameraTransform", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/entity/LocalClientPlayerEntity;isPotionActive(Lnet/minecraft/potion/Potion;)Z"))
+    @Redirect(method = "setupCameraTransform", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/entity/LocalClientPlayerEntity;hasStatusEffect(Lnet/minecraft/potion/Potion;)Z"))
     private boolean injectAntiBlindA(LocalClientPlayerEntity instance, Potion potion) {
         AntiBlind module = AntiBlind.INSTANCE;
 
-        return (!module.handleEvents() || !module.getConfusionEffect()) && instance.isPotionActive(potion);
+        return (!module.handleEvents() || !module.getConfusionEffect()) && instance.hasStatusEffect(potion);
     }
 
-    @Redirect(method = {"setupFog", "updateFogColor"}, at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;isPotionActive(Lnet/minecraft/potion/Potion;)Z"))
+    @Redirect(method = {"setupFog", "updateFogColor"}, at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;hasStatusEffect(Lnet/minecraft/potion/Potion;)Z"))
     private boolean injectAntiBlindB(LivingEntity instance, Potion potion) {
         if (instance != mc.player) {
-            return instance.isPotionActive(potion);
+            return instance.hasStatusEffect(potion);
         }
 
         AntiBlind module = AntiBlind.INSTANCE;
 
-        return (!module.handleEvents() || !module.getConfusionEffect()) && instance.isPotionActive(potion);
+        return (!module.handleEvents() || !module.getConfusionEffect()) && instance.hasStatusEffect(potion);
     }
 }

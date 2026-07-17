@@ -51,7 +51,7 @@ object Tracers : Module("Tracers", Category.RENDER) {
 
     private val entities by EntityLookup<LivingEntity>()
         .filter { isSelected(it, false) }
-        .filter { mc.player.getDistanceSqToEntity(it) <= maxRenderDistanceSq }
+        .filter { mc.player.getSquaredDistanceToToEntity(it) <= maxRenderDistanceSq }
         .filter { bot || !isBot(it) }
         .filter { !onLook || isLookingOnEntities(it, maxAngleDifference.toDouble()) }
         .filter { thruBlocks || isEntityHeightVisible(it) }
@@ -78,7 +78,7 @@ object Tracers : Module("Tracers", Category.RENDER) {
         glBegin(GL_LINES)
 
         for (entity in entities) {
-            val dist = mc.player.getDistanceSqToEntity(entity).coerceAtMost(255.0).toInt()
+            val dist = mc.player.getSquaredDistanceToToEntity(entity).coerceAtMost(255.0).toInt()
 
             val color = when {
                 entity is PlayerEntity && entity.isClientFriend() -> Color(0, 0, 255, 150)

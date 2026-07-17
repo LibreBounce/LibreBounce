@@ -119,7 +119,7 @@ object NameTags : Module("NameTags", Category.RENDER) {
 
             val name = entity.displayName.unformattedText ?: continue
 
-            val distanceSquared = mc.player.getDistanceSqToEntity(entity)
+            val distanceSquared = mc.player.getSquaredDistanceToToEntity(entity)
 
             // In case user has FreeCam enabled, we restore the position back to normal,
             // so it renders the name-tag at the player's body position instead of the FreeCam position.

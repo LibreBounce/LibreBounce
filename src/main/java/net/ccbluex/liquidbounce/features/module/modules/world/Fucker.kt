@@ -282,7 +282,7 @@ object Fucker : Module("Fucker", Category.WORLD) {
             }
             // Use block
             action == "Use" -> {
-                if (player.onPlayerRightClick(currentPos, raytrace.sideHit, raytrace.hitVec, player.heldItem)) {
+                if (player.onPlayerRightClick(currentPos, raytrace.sideHit, raytrace.hitVec, player.displayItemInHand)) {
                     player.swingItem(!swing)
                     blockHitDelay = 4
                     clearTarget(currentPos)

@@ -60,7 +60,7 @@ object WallClimb : Module("WallClimb", Category.MOVEMENT) {
                 }
 
                 "CheckerClimb" -> {
-                    val isInsideBlock = collideBlockIntersects(entityBoundingBox) {
+                    val isInsideBlock = collideBlockIntersects(shape) {
                         it != Blocks.air
                     }
 

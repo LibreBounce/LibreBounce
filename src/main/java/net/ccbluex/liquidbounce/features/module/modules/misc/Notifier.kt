@@ -43,33 +43,33 @@ object Notifier : Module("Notifier", Category.MISC) {
         val currentTime = System.currentTimeMillis()
 
         for (entity in mc.world.playerEntities) {
-            if (entity.gameProfile.id == player.uniqueID || isBot(entity)) continue
+            if (entity.gameProfile.id == player.uuid || isBot(entity)) continue
             val entityDistance = player.getDistanceToEntity(entity).roundToInt()
 
-            val lastNotified = recentlyWarned[entity.uniqueID.toString()] ?: 0L
+            val lastNotified = recentlyWarned[entity.uuid.toString()] ?: 0L
             if (currentTime - lastNotified < warnDelay) continue
 
-            val heldItem = entity.heldItem?.item ?: continue
+            val displayItemInHand = entity.displayItemInHand?.item ?: continue
 
             when {
                 onPlayerDeath && (entity.isDead || !entity.isEntityAlive) -> {
                     chat("§7${entity.name} has §cdied §a(${entityDistance}m)")
-                    recentlyWarned[entity.uniqueID.toString()] = currentTime
+                    recentlyWarned[entity.uuid.toString()] = currentTime
                 }
 
-                onHeldExplosive && (heldItem is ItemFireball || heldItem is ItemBlock && heldItem.block is BlockTNT) -> {
+                onHeldExplosive && (displayItemInHand is ItemFireball || displayItemInHand is ItemBlock && displayItemInHand.block is BlockTNT) -> {
                     chat("§7${entity.name} is holding a §eFireball §a(${entityDistance}m)")
-                    recentlyWarned[entity.uniqueID.toString()] = currentTime
+                    recentlyWarned[entity.uuid.toString()] = currentTime
                 }
 
-                onPlayerTool && heldItem is ItemTool -> {
-                    chat("§7${entity.name} is holding a §b${entity.heldItem?.displayName} §a(${entityDistance}m)")
-                    recentlyWarned[entity.uniqueID.toString()] = currentTime
+                onPlayerTool && displayItemInHand is ItemTool -> {
+                    chat("§7${entity.name} is holding a §b${entity.displayItemInHand?.displayName} §a(${entityDistance}m)")
+                    recentlyWarned[entity.uuid.toString()] = currentTime
                 }
 
-                onPlayerWeapon && (heldItem is ItemSword || heldItem is ItemBow) -> {
-                    chat("§7${entity.name} is holding a §b${entity.heldItem?.displayName} §a(${entityDistance}m)")
-                    recentlyWarned[entity.uniqueID.toString()] = currentTime
+                onPlayerWeapon && (displayItemInHand is ItemSword || displayItemInHand is ItemBow) -> {
+                    chat("§7${entity.name} is holding a §b${entity.displayItemInHand?.displayName} §a(${entityDistance}m)")
+                    recentlyWarned[entity.uuid.toString()] = currentTime
                 }
             }
         }
@@ -86,7 +86,7 @@ object Notifier : Module("Notifier", Category.MISC) {
                 if (onPlayerJoin && packet.action == ADD_PLAYER) {
                     for (playerData in packet.entries) {
                         val players = playerData.profile ?: continue
-                        if (players.id == player.uniqueID || players.id in AntiBot.botList) continue
+                        if (players.id == player.uuid || players.id in AntiBot.botList) continue
 
                         chat("§7${players.name} §ajoined the game.")
                     }
@@ -96,7 +96,7 @@ object Notifier : Module("Notifier", Category.MISC) {
                     for (playerData in packet.entries) {
                         // Different val players? Why?
                         val players = mc.world.getPlayerEntityByUUID(playerData?.profile?.id)?.gameProfile ?: continue
-                        if (players.id == player.uniqueID || players.id in AntiBot.botList) continue
+                        if (players.id == player.uuid || players.id in AntiBot.botList) continue
 
                         chat("§7${players.name} §cleft the game.")
                     }

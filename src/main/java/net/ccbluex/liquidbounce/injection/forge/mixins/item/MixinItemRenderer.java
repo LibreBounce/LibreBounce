@@ -62,10 +62,10 @@ public abstract class MixinItemInHandRenderer {
     protected abstract void rotateWithPlayerRotations(LocalClientPlayerEntity entityplayerspIn, float partialTicks);
 
     @Shadow
-    protected abstract void renderItemMap(ClientPlayerEntity clientPlayer, float pitch, float equipmentProgress, float swingProgress);
+    protected abstract void renderItemMap(ClientPlayerEntity clientPlayer, float pitch, float equipmentProgress, float attackAnimationProgress);
 
     @Shadow
-    protected abstract void transformFirstPersonItem(float equipProgress, float swingProgress);
+    protected abstract void transformFirstPersonItem(float equipProgress, float attackAnimationProgress);
 
     @Shadow
     protected abstract void performDrinking(ClientPlayerEntity clientPlayer, float partialTicks);
@@ -74,13 +74,13 @@ public abstract class MixinItemInHandRenderer {
     protected abstract void doBowTransformations(float partialTicks, ClientPlayerEntity clientPlayer);
 
     @Shadow
-    protected abstract void doItemUsedTransformations(float swingProgress);
+    protected abstract void doItemUsedTransformations(float attackAnimationProgress);
 
     @Shadow
     public abstract void renderItem(LivingEntity entityIn, ItemStack heldStack, ItemCameraTransforms.TransformType transform);
 
     @Shadow
-    protected abstract void renderPlayerArm(ClientPlayerEntity clientPlayer, float equipProgress, float swingProgress);
+    protected abstract void renderPlayerArm(ClientPlayerEntity clientPlayer, float equipProgress, float attackAnimationProgress);
 
     /**
      * @author CCBlueX

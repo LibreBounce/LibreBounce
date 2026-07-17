@@ -177,7 +177,7 @@ object RenderUtils : MinecraftInstance {
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
         // Scale
-        val renderScale = (mc.player.getDistanceSq(this) / 8F).coerceAtLeast(1.5) / 150F * scale
+        val renderScale = (mc.player.getSquaredDistanceTo(this) / 8F).coerceAtLeast(1.5) / 150F * scale
         glScaled(-renderScale, -renderScale, renderScale)
 
         // Draw text
@@ -671,7 +671,7 @@ object RenderUtils : MinecraftInstance {
 
     fun drawPlatform(entity: Entity, color: Color) {
         val deltaPos = entity.interpolatedPosition(entity.lastTickPos) - mc.renderManager.renderPos
-        val axisAlignedBB = entity.entityBoundingBox.offset(-entity.currPos + deltaPos)
+        val axisAlignedBB = entity.shape.offset(-entity.currPos + deltaPos)
 
         drawAxisAlignedBB(
             AxisAlignedBB.fromBounds(
@@ -1371,7 +1371,7 @@ object RenderUtils : MinecraftInstance {
         glCallList(DISPLAY_LISTS_2D[0])
         glColor(backgroundColor)
         glCallList(DISPLAY_LISTS_2D[1])
-        glTranslated(0.0, 21 + -(entity.entityBoundingBox.maxY - entity.entityBoundingBox.minY) * 12, 0.0)
+        glTranslated(0.0, 21 + -(entity.shape.maxY - entity.shape.minY) * 12, 0.0)
         glColor(color)
         glCallList(DISPLAY_LISTS_2D[2])
         glColor(backgroundColor)

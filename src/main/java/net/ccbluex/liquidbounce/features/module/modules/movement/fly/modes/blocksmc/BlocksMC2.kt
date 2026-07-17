@@ -122,7 +122,7 @@ object BlocksMC2 : FlyMode("BlocksMC2"), Listenable {
     }
 
     private fun shouldFly(player: LocalClientPlayerEntity, world: World): Boolean {
-        return world.getCollidingBoundingBoxes(player, player.entityBoundingBox.offset(0.0, 0.5, 0.0))
+        return world.getCollidingBoundingBoxes(player, player.shape.offset(0.0, 0.5, 0.0))
             .isEmpty() || isFlying
     }
 

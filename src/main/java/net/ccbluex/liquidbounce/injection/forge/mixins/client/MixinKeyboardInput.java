@@ -25,7 +25,7 @@ public class MixinKeyboardInput extends MixinInput {
 
         if (module.shouldBlockInput()) {
             if (module.getOnlyMove()) {
-                this.moveForward = 0f;
+                this.forwardSpeed = 0f;
 
                 if (!module.getOnlyMoveForward()) {
                     this.moveStrafe = 0f;

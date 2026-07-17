@@ -35,9 +35,9 @@ object CustomSpeed : SpeedMode("Custom") {
             if (notOnVoid && fallingPlayer.findCollision(500) == null
                 || notOnFalling && fallDistance > 2.5f
                 || notOnConsuming && isUsingItem
-                && (heldItem.item is ItemFood
-                        || heldItem.item is ItemPotion
-                        || heldItem.item is ItemBucketMilk)
+                && (displayItemInHand.item is ItemFood
+                        || displayItemInHand.item is ItemPotion
+                        || displayItemInHand.item is ItemBucketMilk)
             ) {
 
                 if (onGround) tryJump()

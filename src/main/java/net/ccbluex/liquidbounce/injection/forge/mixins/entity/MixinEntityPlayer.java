@@ -32,7 +32,7 @@ import static net.ccbluex.liquidbounce.utils.client.MinecraftInstance.mc;
 public abstract class MixinPlayerEntity extends MixinLivingEntity {
 
     @Shadow
-    public abstract ItemStack getHeldItem();
+    public abstract ItemStack getDisplayItemInHand();
 
     @Shadow
     public abstract GameProfile getGameProfile();
@@ -72,13 +72,13 @@ public abstract class MixinPlayerEntity extends MixinLivingEntity {
     private void injectCooldown(final CallbackInfo callbackInfo) {
         if (getGameProfile() == mc.player.getGameProfile()) {
             CooldownHelper.INSTANCE.incrementLastAttackedTicks();
-            CooldownHelper.INSTANCE.updateGenericAttackSpeed(getHeldItem());
+            CooldownHelper.INSTANCE.updateGenericAttackSpeed(getDisplayItemInHand());
 
-            if (cooldownStackSlot != inventory.currentItem || !ItemStack.areItemStacksEqual(cooldownStack, getHeldItem())) {
+            if (cooldownStackSlot != inventory.currentItem || !ItemStack.areItemStacksEqual(cooldownStack, getDisplayItemInHand())) {
                 CooldownHelper.INSTANCE.resetLastAttackedTicks();
             }
 
-            cooldownStack = getHeldItem();
+            cooldownStack = getDisplayItemInHand();
             cooldownStackSlot = inventory.currentItem;
         }
     }
@@ -104,7 +104,7 @@ public abstract class MixinPlayerEntity extends MixinLivingEntity {
         }
     }
 
-    @Inject(method = "attackTargetEntityWithCurrentItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z"), locals = LocalCapture.CAPTURE_FAILHARD)
+    @Inject(method = "attackTargetEntityWithCurrentItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;takeDamage(Lnet/minecraft/util/DamageSource;F)Z"), locals = LocalCapture.CAPTURE_FAILHARD)
     private void injectSprintState(Entity entity, CallbackInfo ci, float f, int i, float f1, boolean flag, boolean flag1, int j, double d0, double d1, double d2) {
         Boolean sprint = MovementUtils.INSTANCE.getAffectSprintOnAttack();
 
@@ -122,7 +122,7 @@ public abstract class MixinPlayerEntity extends MixinLivingEntity {
         final NoSlow noSlow = NoSlow.INSTANCE;
 
         if ((Object) this == mc.player) {
-            ItemStack stack = mc.player.getHeldItem();
+            ItemStack stack = mc.player.getDisplayItemInHand();
             if (itemInUseCount > 0 || !ClassUtils.INSTANCE.hasClass("com.orangemarshall.animations.BlockhitAnimation") || stack == null) {
                 return;
             }

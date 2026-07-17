@@ -17,7 +17,7 @@ object AACHop350 : SpeedMode("AACHop3.5.0") {
     fun onMotion(event: MotionEvent) {
         mc.player?.run {
             if (isMoving && !isInLiquid) {
-                jumpMovementFactor += 0.00208f
+                flyingSpeed += 0.00208f
 
                 if (fallDistance > 1f) return
 
@@ -44,6 +44,6 @@ object AACHop350 : SpeedMode("AACHop3.5.0") {
     }
 
     override fun onDisable() {
-        mc.player?.jumpMovementFactor = 0.02f
+        mc.player?.flyingSpeed = 0.02f
     }
 }

@@ -28,7 +28,7 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
 
     private val chance by int("Chance", 100, 0..100, suffix = "%")
     private val delay by int("Delay", 0, 0..500, suffix = "ms")
-    private val hurtTime by intRange("HurtTime", 0..10, 0..10)
+    private val damagedTimer by intRange("HurtTime", 0..10, 0..10)
 
     // TODO: Fix SprintTap flagging on prediction anti-cheats
     // TODO: Fix STap mode
@@ -96,7 +96,7 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
         val rotationToPlayer = toRotation(player.hitBox.center, false, target).fixedSensitivity().yaw
         val angleDifferenceToPlayer = abs(angleDifference(rotationToPlayer, target.rotationYaw))
 
-        if (event.targetEntity.hurtTime !in hurtTime ||
+        if (event.targetEntity.damagedTimer !in damagedTimer ||
             !timer.hasTimePassed(delay) ||
             onlyGround && !player.onGround ||
             (onlyMove && (!player.isMoving || onlyMoveForward && player.movementInput.moveStrafe != 0f)) ||
@@ -195,7 +195,7 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
             }
 
             1 -> {
-                if (player.movementInput.moveForward > 0.8)
+                if (player.movementInput.forwardSpeed > 0.8)
                     player.isSprinting = true
 
                 forceSprintState = 1

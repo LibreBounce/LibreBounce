@@ -18,7 +18,7 @@ object Minesucht : FlyMode("Minesucht") {
             if (!mc.gameSettings.keyBindForward.isKeyDown) return
 
             if (System.currentTimeMillis() - minesuchtTP > 99) {
-                val vec = eyes + getLook(1f) * 7.0
+                val vec = eyes + getRotationVec(1f) * 7.0
 
                 if (fallDistance > 0.8) {
                     sendPackets(
