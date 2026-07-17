@@ -30,7 +30,7 @@ dependencies {
 
     mappings(ploceus.featherMappings(providers.gradleProperty("feather_build").get()))
 
-    modImplementation("com.terraformersmc:modmenu:${providers.gradleProperty("mod_menu_version").get()}")
+    //modImplementation("com.terraformersmc:modmenu:${providers.gradleProperty("mod_menu_version").get()}")
 
     ploceus.dependOsl(providers.gradleProperty("osl_version").get())
 
