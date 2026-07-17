@@ -37,8 +37,8 @@ dependencies {
     implementation("com.jagrosh:DiscordIPC:0.4")
 
     implementation("com.github.CCBlueX:Elixir:1.2.6") {
-        exclude module: "kotlin-stdlib"
-        exclude module: "authlib"
+        exclude(module = "kotlin-stdlib")
+        exclude(module = "authlib")
     }
 
     implementation("com.github.TheAltening:TheAltening4j:d0771f42d3")
@@ -48,7 +48,7 @@ dependencies {
 
     // HTTP Client
     implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.16") {
-        exclude module: "kotlin-stdlib"
+        exclude(module = "kotlin-stdlib")
     }
 
     // Update Checker - Semver Implementation
@@ -57,7 +57,7 @@ dependencies {
     // Swing theme
     implementation("com.formdev:flatlaf:3.6.1")
 
-    implementation fileTree(include: ["*.jar"], dir: "libs")
+    //implementation fileTree(include: ["*.jar"], dir: "libs")
 }
 
 minecraft {
