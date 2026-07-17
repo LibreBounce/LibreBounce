@@ -76,7 +76,7 @@ class Target : Element("Target") {
 
     private val decimalFormat = DecimalFormat("##0.00", DecimalFormatSymbols(Locale.ENGLISH))
     private var easingHealth = 0F
-    private var lastTarget: EntityLivingBase? = null
+    private var lastTarget: LivingEntity? = null
 
     private var width = 0f
     private var height = 0f

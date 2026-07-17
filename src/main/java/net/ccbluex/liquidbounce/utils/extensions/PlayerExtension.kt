@@ -134,7 +134,7 @@ val Entity.currPos: Vec3d
 val Entity.lastTickPos: Vec3d
     get() = Vec3d(lastTickPosX, lastTickPosY, lastTickPosZ)
 
-val EntityLivingBase?.isMoving: Boolean
+val LivingEntity?.isMoving: Boolean
     get() = this?.run { moveForward != 0F || moveStrafing != 0F } == true
 
 val LocalClientPlayerEntity.airTicks
@@ -209,7 +209,7 @@ fun LocalClientPlayerEntity.stop() {
 /**
  * Its sole purpose is to prevent duplicate sprint state updates.
  */
-infix fun EntityLivingBase.setSprintSafely(new: Boolean) {
+infix fun LivingEntity.setSprintSafely(new: Boolean) {
     if (new == isSprinting) {
         return
     }

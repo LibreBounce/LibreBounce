@@ -10,7 +10,7 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.render.Animations.animations
 import net.ccbluex.liquidbounce.features.module.modules.render.Animations.defaultAnimation
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
-import net.minecraft.client.entity.AbstractClientPlayer
+import net.minecraft.client.entity.living.player.ClientPlayerEntity
 import net.minecraft.client.render.platform.GlStateManager.*
 import net.minecraft.util.math.MathHelper
 import org.lwjgl.opengl.GL11.glTranslated
@@ -75,7 +75,7 @@ object Animations : Module("Animations", Category.RENDER, gameDetecting = false)
  * @author CCBlueX
  */
 abstract class Animation(val name: String) : MinecraftInstance {
-    abstract fun transform(f1: Float, f: Float, clientPlayer: AbstractClientPlayer)
+    abstract fun transform(f1: Float, f: Float, clientPlayer: ClientPlayerEntity)
 
     /**
      * Transforms the block in the hand
@@ -114,7 +114,7 @@ abstract class Animation(val name: String) : MinecraftInstance {
  * @author CCBlueX
  */
 class OneSevenAnimation : Animation("OneSeven") {
-    override fun transform(f1: Float, f: Float, clientPlayer: AbstractClientPlayer) {
+    override fun transform(f1: Float, f: Float, clientPlayer: ClientPlayerEntity) {
         transformFirstPersonItem(f, f1)
         doBlockTransformations()
         translate(-0.5f, 0.2f, 0f)
@@ -123,7 +123,7 @@ class OneSevenAnimation : Animation("OneSeven") {
 }
 
 class OldAnimation : Animation("Old") {
-    override fun transform(f1: Float, f: Float, clientPlayer: AbstractClientPlayer) {
+    override fun transform(f1: Float, f: Float, clientPlayer: ClientPlayerEntity) {
         transformFirstPersonItem(f, f1)
         doBlockTransformations()
     }
@@ -137,7 +137,7 @@ class OldPushdownAnimation : Animation("OldPushdown") {
     /**
      * @author CzechHek. Taken from Animations script.
      */
-    override fun transform(f1: Float, f: Float, clientPlayer: AbstractClientPlayer) {
+    override fun transform(f1: Float, f: Float, clientPlayer: ClientPlayerEntity) {
         translate(0.56, -0.52, -0.5)
         translate(0.0, -f.toDouble() * 0.3, 0.0)
         rotate(45.5f, 0f, 1f, 0f)
@@ -168,7 +168,7 @@ class OldPushdownAnimation : Animation("OldPushdown") {
  */
 class NewPushdownAnimation : Animation("NewPushdown") {
 
-    override fun transform(f1: Float, f: Float, clientPlayer: AbstractClientPlayer) {
+    override fun transform(f1: Float, f: Float, clientPlayer: ClientPlayerEntity) {
         val x = Animations.handPosX - 0.08
         val y = Animations.handPosY + 0.12
         val z = Animations.handPosZ.toDouble()
@@ -193,7 +193,7 @@ class NewPushdownAnimation : Animation("NewPushdown") {
  * @author 182exe
  */
 class HeliumAnimation : Animation("Helium") {
-    override fun transform(f1: Float, f: Float, clientPlayer: AbstractClientPlayer) {
+    override fun transform(f1: Float, f: Float, clientPlayer: ClientPlayerEntity) {
         transformFirstPersonItem(f, 0.0f)
         val c0 = MathHelper.sin(f1 * f * 3.1415927f)
         val c1 = MathHelper.sin(MathHelper.sqrt_float(f1) * 3.1415927f)
@@ -207,7 +207,7 @@ class HeliumAnimation : Animation("Helium") {
  * @author 182exe
  */
 class ArgonAnimation : Animation("Argon") {
-    override fun transform(f1: Float, f: Float, clientPlayer: AbstractClientPlayer) {
+    override fun transform(f1: Float, f: Float, clientPlayer: ClientPlayerEntity) {
         transformFirstPersonItem(f / 2.5f, f1)
         val c2 = MathHelper.sin(MathHelper.sqrt_float(f1) * 3.1415927f)
         val c3 = MathHelper.cos(MathHelper.sqrt_float(f) * 3.1415927f)
@@ -223,7 +223,7 @@ class ArgonAnimation : Animation("Argon") {
  * @author 182exe
  */
 class CesiumAnimation : Animation("Cesium") {
-    override fun transform(f1: Float, f: Float, clientPlayer: AbstractClientPlayer) {
+    override fun transform(f1: Float, f: Float, clientPlayer: ClientPlayerEntity) {
         val c4 = MathHelper.sin(MathHelper.sqrt_float(f1) * 3.1415927f)
         transformFirstPersonItem(f, 0.0f)
         rotate(-c4 * 10.0f / 20.0f, c4 / 2.0f, 0.0f, 4.0f)
@@ -239,7 +239,7 @@ class CesiumAnimation : Animation("Cesium") {
  * @author 182exe
  */
 class SulfurAnimation : Animation("Sulfur") {
-    override fun transform(f1: Float, f: Float, clientPlayer: AbstractClientPlayer) {
+    override fun transform(f1: Float, f: Float, clientPlayer: ClientPlayerEntity) {
         val c5 = MathHelper.sin(MathHelper.sqrt_float(f1) * 3.1415927f)
         val c6 = MathHelper.cos(MathHelper.sqrt_float(f1) * 3.1415927f)
         transformFirstPersonItem(f, 0.0f)

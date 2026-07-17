@@ -24,7 +24,7 @@ import net.minecraft.client.render.Window
 import net.minecraft.client.render.platform.GlStateManager
 import net.minecraft.entity.Entity
 import net.minecraft.entity.projectile.EntityFireball
-import net.minecraft.util.ResourceLocation
+import net.minecraft.resource.Identifier
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.floor
@@ -110,7 +110,7 @@ object AntiFireball : Module("AntiFireball", Category.PLAYER) {
                 if (displayName == "Fireball" && indicators) {
                     GlStateManager.scale(scaleFactor, scaleFactor, scaleFactor)
                     RenderUtils.drawImage(
-                        ResourceLocation("textures/items/fireball.png"),
+                        Identifier("textures/items/fireball.png"),
                         (imgX / scaleFactor - 5).toInt(),
                         (imgY / scaleFactor - 5).toInt(),
                         32,

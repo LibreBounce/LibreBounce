@@ -14,7 +14,7 @@ import net.minecraft.client.gui.GuiElement
 import net.minecraft.client.render.platform.GlStateManager.color
 import net.minecraft.client.renderer.texture.DynamicTexture
 import net.minecraft.client.render.vertex.DefaultVertexFormat
-import net.minecraft.util.ResourceLocation
+import net.minecraft.resource.Identifier
 import java.io.File
 import java.util.concurrent.CountDownLatch
 import javax.imageio.ImageIO
@@ -39,7 +39,7 @@ sealed class Background(val backgroundFile: File) {
 
 private class ImageBackground(backgroundFile: File) : Background(backgroundFile) {
 
-    private val resourceLocation = ResourceLocation("${CLIENT_NAME.lowercase()}/background.png")
+    private val resourceLocation = Identifier("${CLIENT_NAME.lowercase()}/background.png")
 
     override fun initBackground() {
         try {

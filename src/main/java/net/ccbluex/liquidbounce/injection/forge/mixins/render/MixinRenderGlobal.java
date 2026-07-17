@@ -20,14 +20,14 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 @Mixin(RenderGlobal.class)
 public class MixinRenderGlobal {
 
-    @Redirect(method = "renderEntities", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/EntityLivingBase;isPlayerSleeping()Z"))
-    private boolean injectFreeCam(EntityLivingBase instance) {
+    @Redirect(method = "renderEntities", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;isPlayerSleeping()Z"))
+    private boolean injectFreeCam(LivingEntity instance) {
         return FreeCam.INSTANCE.renderPlayerFromAllPerspectives(instance);
     }
 
     @Redirect(method = "renderEntities", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/RenderManager;shouldRender(Lnet/minecraft/entity/Entity;Lnet/minecraft/client/renderer/culling/ICamera;DDD)Z"))
     private boolean injectFreeCamB(RenderManager instance, Entity entity, ICamera camera, double x, double y, double z) {
-        if (entity instanceof EntityLivingBase) {
+        if (entity instanceof LivingEntity) {
             IMixinEntity iEntity = (IMixinEntity) entity;
 
             if (iEntity.getTruePos()) {

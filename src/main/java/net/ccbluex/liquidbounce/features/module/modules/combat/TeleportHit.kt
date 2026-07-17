@@ -22,19 +22,19 @@ import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.Position
 import net.minecraft.util.math.Vec3d
 
 object TeleportHit : Module("TeleportHit", Category.COMBAT) {
-    private var targetEntity: EntityLivingBase? = null
+    private var targetEntity: LivingEntity? = null
     private var shouldHit = false
 
     val onMotion = handler<MotionEvent> { event ->
         if (event.eventState != EventState.PRE)
             return@handler
 
-        val facedEntity = raycastEntity(100.0) { raycastedEntity -> raycastedEntity is EntityLivingBase }
+        val facedEntity = raycastEntity(100.0) { raycastedEntity -> raycastedEntity is LivingEntity }
 
         val player = mc.thePlayer ?: return@handler
 
         if (mc.gameSettings.keyBindAttack.isKeyDown && isSelected(facedEntity, true)) {
-            if (facedEntity?.getDistanceSqToEntity(player)!! >= 1) targetEntity = facedEntity as EntityLivingBase
+            if (facedEntity?.getDistanceSqToEntity(player)!! >= 1) targetEntity = facedEntity as LivingEntity
         }
 
         targetEntity?.let {
@@ -60,9 +60,9 @@ object TeleportHit : Module("TeleportHit", Category.COMBAT) {
                     )
                 }
 
-                player.swingItem()
-                sendPacket(PlayerInteractEntityC2SPacket(it, PlayerInteractEntityC2SPacket.Action.ATTACK))
-                player.onCriticalHit(it)
+                player.attack(it)
+                //sendPacket(PlayerInteractEntityC2SPacket(it, PlayerInteractEntityC2SPacket.Action.ATTACK))
+                player.addCritParticles(it)
                 shouldHit = false
                 targetEntity = null
             } else if (player.onGround) {

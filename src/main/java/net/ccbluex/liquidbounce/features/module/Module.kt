@@ -20,7 +20,7 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notifications
 import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
-import net.ccbluex.liquidbounce.utils.client.asResourceLocation
+import net.ccbluex.liquidbounce.utils.client.asIdentifier
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.playSound
 import net.ccbluex.liquidbounce.utils.extensions.addSpaces
@@ -95,7 +95,7 @@ open class Module(
 
             // Play sound and add notification
             if (!isStarting) {
-                mc.playSound("random.click".asResourceLocation())
+                mc.playSound("random.click".asIdentifier())
 
                 addNotification(
                     Notification(translation("notification.module" + if (value) "Enabled" else "Disabled", name))

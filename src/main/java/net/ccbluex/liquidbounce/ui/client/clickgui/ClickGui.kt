@@ -31,7 +31,7 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.utils.attack.EntityUtils.Targets
 import net.ccbluex.liquidbounce.utils.client.ClientUtils
-import net.ccbluex.liquidbounce.utils.client.asResourceLocation
+import net.ccbluex.liquidbounce.utils.client.asIdentifier
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.playSound
 import net.ccbluex.liquidbounce.utils.kotlin.SharedScopes
@@ -39,8 +39,8 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.deltaTime
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawImage
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.render.platform.GlStateManager.disableLighting
-import net.minecraft.client.renderer.RenderHelper
-import net.minecraft.util.ResourceLocation
+import net.minecraft.client.render.platform.Lighting
+import net.minecraft.resource.Identifier
 import org.lwjgl.input.Keyboard
 import org.lwjgl.input.Mouse
 import org.lwjgl.opengl.GL11.glScaled
@@ -50,7 +50,7 @@ object ClickGui : Screen() {
 
     // Note: hash key = [Panel.name]
     val panels = linkedSetOf<Panel>()
-    private val hudIcon = ResourceLocation("${CLIENT_NAME.lowercase()}/custom_hud_icon.png")
+    private val hudIcon = Identifier("${CLIENT_NAME.lowercase()}/custom_hud_icon.png")
     var style: Style = LiquidBounceStyle
     private var mouseX = 0
         set(value) {
@@ -130,7 +130,7 @@ object ClickGui : Screen() {
 
                         chat("§6Settings applied successfully.")
                         HUD.addNotification(Notification("Updated Settings"))
-                        mc.playSound("random.anvil_use".asResourceLocation())
+                        mc.playSound("random.anvil_use".asIdentifier())
                     } catch (e: Exception) {
                         ClientUtils.LOGGER.error("Failed to load settings", e)
                         chat("Failed to load settings: ${e.message}")
@@ -213,7 +213,7 @@ object ClickGui : Screen() {
             }
 
             disableLighting()
-            RenderHelper.disableStandardItemLighting()
+            Lighting.turnOff()
             glScaled(1.0, 1.0, 1.0)
         }
 

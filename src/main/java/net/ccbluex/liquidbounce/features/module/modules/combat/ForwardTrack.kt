@@ -54,7 +54,7 @@ object ForwardTrack : Module("ForwardTrack", Category.COMBAT) {
                     if (iEntity.truePos) iEntity.interpolatedPosition else positionVector
                 }
 
-                this is EntityLivingBase -> {
+                this is LivingEntity -> {
                     Vec3d(newPosX, newPosY, newPosZ)
                 }
 

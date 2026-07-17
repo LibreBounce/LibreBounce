@@ -102,7 +102,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
     private val chatDebug by boolean("ChatDebug", true) { resetOnlagBack || resetOnKnockback }
     private val notificationDebug by boolean("NotificationDebug", false) { resetOnlagBack || resetOnKnockback }
 
-    private val entities by EntityLookup<EntityLivingBase>().filter { isSelected(it, true) }.filter { entity ->
+    private val entities by EntityLookup<LivingEntity>().filter { isSelected(it, true) }.filter { entity ->
             Backtrack.runWithNearestTrackedDistance(entity) {
                 val distance = mc.thePlayer.getDistanceToEntityBox(entity)
 
@@ -132,7 +132,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
     val onAttack = handler<AttackEvent> { event ->
         val player = mc.thePlayer ?: return@handler
 
-        if (event.targetEntity !is EntityLivingBase && playerTicks >= 1) {
+        if (event.targetEntity !is LivingEntity && playerTicks >= 1) {
             shouldResetTimer()
             return@handler
         } else {

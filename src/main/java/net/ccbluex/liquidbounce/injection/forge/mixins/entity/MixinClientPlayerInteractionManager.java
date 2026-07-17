@@ -13,10 +13,10 @@ import net.ccbluex.liquidbounce.features.module.modules.exploit.AbortBreaking;
 import net.ccbluex.liquidbounce.utils.attack.CooldownHelper;
 import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar;
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils;
-import net.minecraft.client.multiplayer.PlayerControllerMP;
+import net.minecraft.client.ClientPlayerInteractionManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.living.player.PlayerEntity;
-import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.entity.living.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -27,23 +27,23 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(PlayerControllerMP.class)
+@Mixin(ClientPlayerInteractionManager.class)
 @SideOnly(Side.CLIENT)
-public class MixinPlayerControllerMP {
+public class MixinClientPlayerInteractionManager {
 
-    @Inject(method = "attackEntity", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/PlayerControllerMP;syncCurrentPlayItem()V"))
+    @Inject(method = "attackEntity", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/ClientPlayerInteractionManager;syncCurrentPlayItem()V"))
     private void attackEntity(PlayerEntity entityPlayer, Entity targetEntity, CallbackInfo callbackInfo) {
         EventManager.INSTANCE.call(new AttackEvent(targetEntity));
         CooldownHelper.INSTANCE.resetLastAttackedTicks();
     }
 
-    @Inject(method = "getIsHittingBlock", at = @At("HEAD"), cancellable = true)
-    private void getIsHittingBlock(CallbackInfoReturnable<Boolean> callbackInfoReturnable) {
+    @Inject(method = "isMiningBlock", at = @At("HEAD"), cancellable = true)
+    private void isMiningBlock(CallbackInfoReturnable<Boolean> callbackInfoReturnable) {
         if (AbortBreaking.INSTANCE.handleEvents()) callbackInfoReturnable.setReturnValue(false);
     }
 
-    @Inject(method = "windowClick", at = @At("HEAD"), cancellable = true)
-    private void windowClick(int windowId, int slotId, int mouseButtonClicked, int mode, PlayerEntity playerIn, CallbackInfoReturnable<ItemStack> callbackInfo) {
+    @Inject(method = "clickSlot", at = @At("HEAD"), cancellable = true)
+    private void clickSlot(int windowId, int slotId, int mouseButtonClicked, int mode, PlayerEntity playerIn, CallbackInfoReturnable<ItemStack> callbackInfo) {
         final ClickWindowEvent event = new ClickWindowEvent(windowId, slotId, mouseButtonClicked, mode);
         EventManager.INSTANCE.call(event);
 
@@ -56,8 +56,8 @@ public class MixinPlayerControllerMP {
         InventoryUtils.INSTANCE.getCLICK_TIMER().reset();
     }
 
-    @Redirect(method = "syncCurrentPlayItem", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/player/InventoryPlayer;currentItem:I"))
-    private int hookSilentHotbarA(InventoryPlayer instance) {
+    @Redirect(method = "syncCurrentPlayItem", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/living/player/PlayerInventory;currentItem:I"))
+    private int hookSilentHotbarA(PlayerInventory instance) {
         SilentHotbar silentHotbar = SilentHotbar.INSTANCE;
 
         int prevSlot = instance.currentItem;
@@ -69,8 +69,8 @@ public class MixinPlayerControllerMP {
         return event.getModifiedSlot();
     }
 
-    @Redirect(method = "sendUseItem", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/player/InventoryPlayer;currentItem:I"))
-    private int hookSilentHotbarB(InventoryPlayer instance) {
+    @Redirect(method = "sendUseItem", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/living/player/PlayerInventory;currentItem:I"))
+    private int hookSilentHotbarB(PlayerInventory instance) {
         return SilentHotbar.INSTANCE.getCurrentSlot();
     }
 }

@@ -21,7 +21,7 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.enableGlCap
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.resetCaps
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.GlowShader
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.isEntityHeightVisible
-import net.minecraft.entity.item.EntityItem
+import net.minecraft.entity.ItemEntity
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 import kotlin.math.pow
@@ -58,7 +58,7 @@ object ItemESP : Module("ItemESP", Category.RENDER) {
 
     private val thruBlocks by boolean("ThruBlocks", true)
 
-    private val itemEntities by EntityLookup<EntityItem>()
+    private val itemEntities by EntityLookup<ItemEntity>()
         .filter { mc.thePlayer.getDistanceSqToEntity(it) <= maxRenderDistanceSq }
         .filter { !onLook || isLookingOnEntities(it, maxAngleDifference.toDouble()) }
         .filter { thruBlocks || isEntityHeightVisible(it) }
@@ -108,7 +108,7 @@ object ItemESP : Module("ItemESP", Category.RENDER) {
         }
     }
 
-    private fun renderEntityText(entity: EntityItem, color: Color) {
+    private fun renderEntityText(entity: ItemEntity, color: Color) {
         val player = mc.thePlayer ?: return
         val renderManager = mc.renderManager
         val rotateX = if (mc.gameSettings.thirdPersonView == 2) -1.0f else 1.0f

@@ -15,7 +15,7 @@ import net.ccbluex.liquidbounce.utils.extensions.plus
 import net.ccbluex.liquidbounce.utils.extensions.times
 import net.minecraft.entity.Entity
 import net.minecraft.entity.living.LivingEntity
-import net.minecraft.entity.item.EntityItemFrame
+import net.minecraft.entity.ItemEntityFrame
 import net.minecraft.entity.living.player.PlayerEntity
 import net.minecraft.entity.projectile.EntityLargeFireball
 import net.minecraft.util.AxisAlignedBB
@@ -43,7 +43,7 @@ object RaycastUtils : MinecraftInstance {
         val vec = eyePosition + (entityLook * blockReachDistance)
 
         val entityList = mc.theWorld.getEntities(Entity::class.java) {
-            it != null && (it is EntityLivingBase || it is EntityLargeFireball) && (it !is PlayerEntity || !it.isSpectator) && it.canBeCollidedWith() && it != renderViewEntity
+            it != null && (it is LivingEntity || it is EntityLargeFireball) && (it !is PlayerEntity || !it.isSpectator) && it.canBeCollidedWith() && it != renderViewEntity
         }
 
         var pointedEntity: Entity? = null
@@ -126,7 +126,7 @@ object RaycastUtils : MinecraftInstance {
             var pointedEntity: Entity? = null
             var vec33: Vec3d? = null
 
-            val list = mc.theWorld.getEntities(EntityLivingBase::class.java) {
+            val list = mc.theWorld.getEntities(LivingEntity::class.java) {
                 it != null && (it !is PlayerEntity || !it.isSpectator) && it.canBeCollidedWith() && it != entity
             }
 
@@ -191,7 +191,7 @@ object RaycastUtils : MinecraftInstance {
             if (pointedEntity != null && (d2 < d1 || mc.objectMouseOver == null)) {
                 mc.objectMouseOver = MovingObjectPosition(pointedEntity, vec33)
 
-                if (pointedEntity is EntityLivingBase || pointedEntity is EntityItemFrame) {
+                if (pointedEntity is LivingEntity || pointedEntity is ItemEntityFrame) {
                     mc.pointedEntity = pointedEntity
                 }
             }

@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
-import net.ccbluex.liquidbounce.event.MovementInputEvent
+import net.ccbluex.liquidbounce.event.InputEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
@@ -14,7 +14,7 @@ import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
 
 object Parkour : Module("Parkour", Category.MOVEMENT, subjective = true, gameDetecting = false) {
 
-    val onMovementInput = handler<MovementInputEvent> { event ->
+    val onInput = handler<InputEvent> { event ->
         mc.thePlayer?.run {
             val simPlayer = SimulatedPlayer.fromClientPlayer(event.originalInput)
 

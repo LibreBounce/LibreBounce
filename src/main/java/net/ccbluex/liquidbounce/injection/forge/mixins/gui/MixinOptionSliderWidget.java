@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(OptionSliderWidget.class)
 public class MixinOptionSliderWidget {
 
-    @Inject(method = "mouseDragged", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/texture/TextureManager;bindTexture(Lnet/minecraft/util/ResourceLocation;)V", shift = At.Shift.BEFORE), cancellable = true)
+    @Inject(method = "mouseDragged", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/texture/TextureManager;bindTexture(Lnet/minecraft/util/Identifier;)V", shift = At.Shift.BEFORE), cancellable = true)
     public void cancelRectangleDrawing(Minecraft p_mouseDragged_1_, int p_mouseDragged_2_, int p_mouseDragged_3_, CallbackInfo ci) {
         ci.cancel();
     }

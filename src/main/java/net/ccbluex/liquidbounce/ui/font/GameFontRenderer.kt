@@ -14,7 +14,7 @@ import net.ccbluex.liquidbounce.utils.render.shader.shaders.GradientFontShader
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowFontShader
 import net.minecraft.client.gui.FontRenderer
 import net.minecraft.client.render.platform.GlStateManager.*
-import net.minecraft.util.ResourceLocation
+import net.minecraft.resource.Identifier
 import org.lwjgl.opengl.GL11.*
 import org.lwjgl.opengl.GL20.glUseProgram
 import java.awt.Color
@@ -46,7 +46,7 @@ fun FontRenderer.drawCenteredString(
 class GameFontRenderer(
     font: Font
 ) : FontRenderer(
-    mc.gameSettings, ResourceLocation("textures/font/ascii.png"), mc.textureManager, false
+    mc.gameSettings, Identifier("textures/font/ascii.png"), mc.textureManager, false
 ) {
 
     val defaultFont = AWTFontRenderer(font)

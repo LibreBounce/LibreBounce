@@ -46,7 +46,7 @@ public class MixinLayerHeldItem {
      * @author CCBlueX
      */
     @Overwrite
-    public void doRenderLayer(EntityLivingBase entity, float p_177141_2_, float p_177141_3_, float partialTicks, float p_177141_5_, float p_177141_6_, float p_177141_7_, float scale) {
+    public void doRenderLayer(LivingEntity entity, float p_177141_2_, float p_177141_3_, float partialTicks, float p_177141_5_, float p_177141_6_, float p_177141_7_, float scale) {
         SilentHotbarModule module = SilentHotbarModule.INSTANCE;
 
         int slot = SilentHotbar.INSTANCE.renderSlot(module.handleEvents() && module.getKeepItemInHandInThirdPerson());
@@ -100,7 +100,7 @@ public class MixinLayerHeldItem {
                 translate(0f, 0.203125F, 0f);
             }
 
-            mc.getItemRenderer().renderItem(entity, itemstack, ItemCameraTransforms.TransformType.THIRD_PERSON);
+            mc.getItemInHandRenderer().renderItem(entity, itemstack, ItemCameraTransforms.TransformType.THIRD_PERSON);
             popMatrix();
         }
     }

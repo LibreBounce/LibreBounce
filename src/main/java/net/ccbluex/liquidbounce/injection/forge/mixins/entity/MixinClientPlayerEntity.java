@@ -9,10 +9,10 @@ import net.ccbluex.liquidbounce.cape.CapeAPI;
 import net.ccbluex.liquidbounce.cape.CapeInfo;
 import net.ccbluex.liquidbounce.features.module.modules.misc.NameProtect;
 import net.ccbluex.liquidbounce.features.module.modules.render.NoFOV;
-import net.minecraft.client.entity.AbstractClientPlayer;
+import net.minecraft.client.entity.living.player.ClientPlayerEntity;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.item.Items;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resource.Identifier;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.spongepowered.asm.mixin.Mixin;
@@ -24,14 +24,14 @@ import java.util.Objects;
 
 import static net.ccbluex.liquidbounce.utils.client.MinecraftInstance.mc;
 
-@Mixin(AbstractClientPlayer.class)
+@Mixin(ClientPlayerEntity.class)
 @SideOnly(Side.CLIENT)
-public abstract class MixinAbstractClientPlayer extends MixinPlayerEntity {
+public abstract class MixinClientPlayerEntity extends MixinPlayerEntity {
 
     private CapeInfo capeInfo;
 
     @Inject(method = "getLocationCape", at = @At("HEAD"), cancellable = true)
-    private void getCape(CallbackInfoReturnable<ResourceLocation> callbackInfoReturnable) {
+    private void getCape(CallbackInfoReturnable<Identifier> callbackInfoReturnable) {
         if (capeInfo == null) {
             CapeAPI.INSTANCE.loadCape(getUniqueID(), newCapeInfo -> {
                 capeInfo = newCapeInfo;
@@ -40,7 +40,7 @@ public abstract class MixinAbstractClientPlayer extends MixinPlayerEntity {
         }
 
         if (capeInfo != null && capeInfo.isCapeAvailable()) {
-            callbackInfoReturnable.setReturnValue(capeInfo.getResourceLocation());
+            callbackInfoReturnable.setReturnValue(capeInfo.getIdentifier());
         }
     }
 
@@ -69,8 +69,8 @@ public abstract class MixinAbstractClientPlayer extends MixinPlayerEntity {
         }
     }
 
-    @Inject(method = "getLocationSkin()Lnet/minecraft/util/ResourceLocation;", at = @At("HEAD"), cancellable = true)
-    private void getSkin(CallbackInfoReturnable<ResourceLocation> callbackInfoReturnable) {
+    @Inject(method = "getLocationSkin()Lnet/minecraft/util/Identifier;", at = @At("HEAD"), cancellable = true)
+    private void getSkin(CallbackInfoReturnable<Identifier> callbackInfoReturnable) {
         final NameProtect nameProtect = NameProtect.INSTANCE;
 
         if (nameProtect.handleEvents() && nameProtect.getSkinProtect()) {

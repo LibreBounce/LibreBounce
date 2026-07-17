@@ -57,7 +57,7 @@ import kotlin.math.ceil
 class SimulatedPlayer(
     private val player: LocalClientPlayerEntity,
     var box: AxisAlignedBB,
-    var movementInput: MovementInput,
+    var movementInput: Input,
     private var jumpTicks: Int,
     var motionZ: Double,
     var motionY: Double,
@@ -109,13 +109,13 @@ class SimulatedPlayer(
 
         private const val SPEED_IN_AIR = 0.02F
 
-        fun fromClientPlayer(input: MovementInput): SimulatedPlayer {
+        fun fromClientPlayer(input: Input): SimulatedPlayer {
             val player = mc.thePlayer
 
             val capabilities = createCapabilitiesCopy(player)
             val foodStats = createFoodStatsCopy(player)
 
-            val movementInput = MovementInput().apply {
+            val movementInput = Input().apply {
                 this.jump = input.jump
                 this.moveForward = input.moveForward
                 this.moveStrafe = input.moveStrafe
@@ -165,11 +165,11 @@ class SimulatedPlayer(
             )
         }
 
-        /*fun fromOtherPlayer(player: LocalClientPlayerEntity, input: MovementInput): SimulatedPlayer {
+        /*fun fromOtherPlayer(player: LocalClientPlayerEntity, input: Input): SimulatedPlayer {
             val capabilities = createCapabilitiesCopy(player)
             val foodStats = createFoodStatsCopy(player)
 
-            val movementInput = MovementInput().apply {
+            val movementInput = Input().apply {
                 this.jump = input.jump
                 this.moveForward = input.moveForward
                 this.moveStrafe = input.moveStrafe
@@ -1232,7 +1232,7 @@ class SimulatedPlayer(
         return this.attributeMap!!
     }
 
-    private fun isLivingOnLadder(block: Block?, world: World, pos: BlockPos?, entity: EntityLivingBase): Boolean {
+    private fun isLivingOnLadder(block: Block?, world: World, pos: BlockPos?, entity: LivingEntity): Boolean {
         val isSpectator = this.isSpectator
 
         return if (isSpectator) {

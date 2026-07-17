@@ -90,7 +90,7 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
 
     val onAttack = handler<AttackEvent> { event ->
         val player = mc.thePlayer ?: return@handler
-        val target = event.targetEntity as? EntityLivingBase ?: return@handler
+        val target = event.targetEntity as? LivingEntity ?: return@handler
         val distance = player.getDistanceToEntityBox(target)
 
         val rotationToPlayer = toRotation(player.hitBox.center, false, target).fixedSensitivity().yaw

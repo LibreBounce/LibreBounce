@@ -49,7 +49,7 @@ object Tracers : Module("Tracers", Category.RENDER) {
 
     private val thruBlocks by boolean("ThruBlocks", true)
 
-    private val entities by EntityLookup<EntityLivingBase>()
+    private val entities by EntityLookup<LivingEntity>()
         .filter { isSelected(it, false) }
         .filter { mc.thePlayer.getDistanceSqToEntity(it) <= maxRenderDistanceSq }
         .filter { bot || !isBot(it) }

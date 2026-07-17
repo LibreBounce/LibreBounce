@@ -59,7 +59,7 @@ object PointerESP : Module("PointerESP", Category.RENDER) {
     private val colorTeam by boolean("TeamColor", false)
     private val bot by boolean("Bots", true)
 
-    private val entities by EntityLookup<EntityLivingBase>()
+    private val entities by EntityLookup<LivingEntity>()
         .filter { bot || !isBot(it) }
         .filter { team || !Teams.isInYourTeam(it) }
         .filter { EntityUtils.isSelected(it, false) }

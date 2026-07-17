@@ -17,8 +17,8 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedRect2
 import net.minecraft.client.gui.FontRenderer
 import net.minecraft.client.render.platform.GlStateManager.*
-import net.minecraft.client.renderer.RenderHelper.disableStandardItemLighting
-import net.minecraft.client.renderer.RenderHelper.enableGUIStandardItemLighting
+import net.minecraft.client.render.platform.Lighting.turnOff
+import net.minecraft.client.render.platform.Lighting.turnOnGui
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 
@@ -72,11 +72,11 @@ class Inventory : Element("Inventory", 300.0, 50.0) {
             false
         )
 
-        enableGUIStandardItemLighting()
+        turnOnGui()
         renderInv(9, 17, 6, 6, font)
         renderInv(18, 26, 6, 24, font)
         renderInv(27, 35, 6, 42, font)
-        disableStandardItemLighting()
+        turnOff()
         enableAlpha()
         disableBlend()
         disableLighting()

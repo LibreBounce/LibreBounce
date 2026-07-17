@@ -78,7 +78,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
     private val packetQueue = ConcurrentLinkedQueue<QueueData>()
     private val positions = ConcurrentLinkedQueue<Pair<Vec3d, Long>>()
 
-    var target: EntityLivingBase? = null
+    var target: LivingEntity? = null
 
     private var globalTimer = MSTimer()
 
@@ -236,7 +236,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
             reset()
         }
 
-        if (event.targetEntity is EntityLivingBase) {
+        if (event.targetEntity is LivingEntity) {
             target = event.targetEntity
         }
     }

@@ -11,7 +11,7 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.deltaTime
 import net.minecraft.client.render.platform.GlStateManager.*
 import net.minecraft.client.renderer.OpenGlHelper
-import net.minecraft.client.renderer.RenderHelper
+import net.minecraft.client.render.platform.Lighting
 import net.minecraft.entity.living.LivingEntity
 import org.lwjgl.opengl.GL11.*
 import kotlin.math.abs
@@ -82,7 +82,7 @@ class Model(x: Double = 40.0, y: Double = 100.0) : Element("Model", x, y) {
     /**
      * Draw [entityLivingBase] to screen
      */
-    private fun drawEntityOnScreen(yaw: Float, pitch: Float, entityLivingBase: EntityLivingBase) {
+    private fun drawEntityOnScreen(yaw: Float, pitch: Float, entityLivingBase: LivingEntity) {
         resetColor()
         enableColorMaterial()
         glPushMatrix()
@@ -97,7 +97,7 @@ class Model(x: Double = 40.0, y: Double = 100.0) : Element("Model", x, y) {
         val rotationYawHead = entityLivingBase.rotationYawHead
 
         glRotatef(135F, 0F, 1F, 0F)
-        RenderHelper.enableStandardItemLighting()
+        Lighting.turnOn()
         glRotatef(-135F, 0F, 1F, 0F)
         glRotatef(-atan(pitch / 40F) * 20f, 1F, 0F, 0F)
 
@@ -122,7 +122,7 @@ class Model(x: Double = 40.0, y: Double = 100.0) : Element("Model", x, y) {
         entityLivingBase.rotationYawHead = rotationYawHead
 
         glPopMatrix()
-        RenderHelper.disableStandardItemLighting()
+        Lighting.turnOff()
         disableRescaleNormal()
         setActiveTexture(OpenGlHelper.lightmapTexUnit)
         disableTexture2D()

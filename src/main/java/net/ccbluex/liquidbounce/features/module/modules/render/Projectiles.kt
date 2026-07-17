@@ -53,7 +53,7 @@ object Projectiles : Module("Projectiles", Category.RENDER, gameDetecting = fals
         val renderManager = mc.renderManager
 
         for (entity in world.loadedEntityList) {
-            if (entity !is EntityLivingBase) continue
+            if (entity !is LivingEntity) continue
             val heldStack = entity.heldItem ?: continue
             
             // Check if the entity is selected

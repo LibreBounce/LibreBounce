@@ -46,7 +46,7 @@ object PacketUtils : MinecraftInstance, Listenable {
 
     val onTick = handler<GameTickEvent>(priority = 2) {
         for (entity in mc.theWorld.loadedEntityList) {
-            if (entity is EntityLivingBase) {
+            if (entity is LivingEntity) {
                 (entity as? IMixinEntity)?.apply {
                     if (!truePos) {
                         updateSpawnPosition(entity.currPos)

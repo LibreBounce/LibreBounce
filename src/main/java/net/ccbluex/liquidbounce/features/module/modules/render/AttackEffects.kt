@@ -26,7 +26,7 @@ object AttackEffects : Module("AttackEffects", Category.RENDER) {
     private val pitch by float("Pitch", 1f, 0.1f..5f) { sound != "None" }
 
     val onAttack = handler<AttackEvent> { event ->
-        val target = event.targetEntity as? EntityLivingBase ?: return@handler
+        val target = event.targetEntity as? LivingEntity ?: return@handler
 
         repeat(amount) {
             doEffect(target)
@@ -47,7 +47,7 @@ object AttackEffects : Module("AttackEffects", Category.RENDER) {
         }
     }
 
-    private fun doEffect(target: EntityLivingBase) {
+    private fun doEffect(target: LivingEntity) {
         when (particle) {
             "Blood" -> spawnBloodParticle(EnumParticleTypes.BLOCK_CRACK, target)
             "Crits" -> spawnEffectParticle(EnumParticleTypes.CRIT, target)
@@ -60,7 +60,7 @@ object AttackEffects : Module("AttackEffects", Category.RENDER) {
         }
     }
 
-    private fun spawnBloodParticle(particleType: EnumParticleTypes, target: EntityLivingBase) {
+    private fun spawnBloodParticle(particleType: EnumParticleTypes, target: LivingEntity) {
         mc.theWorld.spawnParticle(
             particleType,
             target.posX, target.posY + target.height - 0.75, target.posZ,
@@ -69,7 +69,7 @@ object AttackEffects : Module("AttackEffects", Category.RENDER) {
         )
     }
 
-    private fun spawnEffectParticle(particleType: EnumParticleTypes, target: EntityLivingBase) {
+    private fun spawnEffectParticle(particleType: EnumParticleTypes, target: LivingEntity) {
         mc.effectRenderer.spawnEffectParticle(
             particleType.particleID,
             target.posX, target.posY, target.posZ,
@@ -77,7 +77,7 @@ object AttackEffects : Module("AttackEffects", Category.RENDER) {
         )
     }
 
-    private fun spawnLightning(target: EntityLivingBase) {
+    private fun spawnLightning(target: LivingEntity) {
         mc.netHandler.handleSpawnGlobalEntity(
             AddGlobalEntityS2CPacket(
                 EntityLightningBolt(mc.theWorld, target.posX, target.posY, target.posZ)

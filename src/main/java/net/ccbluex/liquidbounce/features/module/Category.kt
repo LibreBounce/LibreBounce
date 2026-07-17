@@ -6,7 +6,7 @@
 package net.ccbluex.liquidbounce.features.module
 
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME
-import net.minecraft.util.ResourceLocation
+import net.minecraft.resource.Identifier
 
 enum class Category(val displayName: String) {
 
@@ -19,6 +19,6 @@ enum class Category(val displayName: String) {
     EXPLOIT("Exploit"),
     FUN("Fun");
 
-    val iconResourceLocation = ResourceLocation("${CLIENT_NAME.lowercase()}/tabgui/${name.lowercase()}.png")
+    val iconIdentifier = Identifier("${CLIENT_NAME.lowercase()}/tabgui/${name.lowercase()}.png")
 
 }

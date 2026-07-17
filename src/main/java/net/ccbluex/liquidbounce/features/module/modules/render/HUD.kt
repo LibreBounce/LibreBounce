@@ -15,7 +15,7 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.Element.Companion.MAX_GRAD
 import net.ccbluex.liquidbounce.utils.render.ColorSettingsFloat
 import net.ccbluex.liquidbounce.utils.render.ColorSettingsInteger
 import net.minecraft.client.gui.screen.ChatScreen
-import net.minecraft.util.ResourceLocation
+import net.minecraft.resource.Identifier
 
 object HUD : Module("HUD", Category.RENDER, gameDetecting = false, defaultState = true, defaultHidden = true) {
     // TODO: Make this a separate module
@@ -71,7 +71,7 @@ object HUD : Module("HUD", Category.RENDER, gameDetecting = false, defaultState 
         if (state && blur && !mc.entityRenderer.isShaderActive && event.guiScreen != null &&
             !(event.guiScreen is ChatScreen || event.guiScreen is GuiHudDesigner)
         ) mc.entityRenderer.loadShader(
-            ResourceLocation(CLIENT_NAME.lowercase() + "/blur.json")
+            Identifier(CLIENT_NAME.lowercase() + "/blur.json")
         ) else if (mc.entityRenderer.shaderGroup != null &&
             "librebounce/blur.json" in mc.entityRenderer.shaderGroup.shaderGroupName
         ) mc.entityRenderer.stopUseShader()

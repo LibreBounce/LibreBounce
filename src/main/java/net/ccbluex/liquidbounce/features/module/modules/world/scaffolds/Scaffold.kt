@@ -342,7 +342,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
                     else -> true
                 }
 
-                // For better sneak support we could move this to MovementInputEvent
+                // For better sneak support we could move this to InputEvent
                 val pressedOnKeyboard = Keyboard.isKeyDown(options.keyBindSneak.keyCode)
 
                 var shouldEagle =
@@ -515,7 +515,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
         event.strafe *= eagleSpeed / 0.3f
     }
 
-    val onMovementInput = handler<MovementInputEvent> { event ->
+    val onInput = handler<InputEvent> { event ->
         val player = mc.thePlayer ?: return@handler
 
         if (!isGodBridgeEnabled || !player.onGround) return@handler
@@ -1081,7 +1081,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
         return clickedSuccessfully
     }
 
-    fun handleMovementOptions(input: MovementInput) {
+    fun handleMovementOptions(input: Input) {
         val player = mc.thePlayer ?: return
 
         if (!state) {

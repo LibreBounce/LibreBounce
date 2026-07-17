@@ -256,7 +256,7 @@ object RenderUtils : MinecraftInstance {
     }
 
     fun drawCircle(
-        entity: EntityLivingBase,
+        entity: LivingEntity,
         speed: Float,
         height: ClosedFloatingPointRange<Float>,
         size: Float,
@@ -541,7 +541,7 @@ object RenderUtils : MinecraftInstance {
 
     fun drawCone(width: Float, height: Float, useTexture: Boolean = false) {
         if (useTexture) {
-            mc.textureManager.bindTexture(ResourceLocation("librebounce/textures/hat.png"))
+            mc.textureManager.bindTexture(Identifier("librebounce/textures/hat.png"))
             enableTexture2D()
             depthMask(true)
         }
@@ -1222,7 +1222,7 @@ object RenderUtils : MinecraftInstance {
     }
 
     fun drawHead(
-        skin: ResourceLocation?,
+        skin: Identifier?,
         x: Int,
         y: Int,
         u: Float,
@@ -1236,7 +1236,7 @@ object RenderUtils : MinecraftInstance {
         color: Color
     ) {
         glPushMatrix()
-        val texture: ResourceLocation = skin ?: mc.thePlayer.locationSkin
+        val texture: Identifier = skin ?: mc.thePlayer.locationSkin
 
         glColor(color)
         mc.textureManager.bindTexture(texture)
@@ -1246,7 +1246,7 @@ object RenderUtils : MinecraftInstance {
     }
 
     fun drawImage(
-        image: ResourceLocation?,
+        image: Identifier?,
         x: Number,
         y: Number,
         width: Int,
@@ -1357,7 +1357,7 @@ object RenderUtils : MinecraftInstance {
 
     private fun glColor(hex: Int) = glColor(hex shr 16 and 0xFF, hex shr 8 and 0xFF, hex and 0xFF, hex shr 24 and 0xFF)
 
-    fun draw2D(entity: EntityLivingBase, posX: Double, posY: Double, posZ: Double, color: Int, backgroundColor: Int) {
+    fun draw2D(entity: LivingEntity, posX: Double, posY: Double, posZ: Double, color: Int, backgroundColor: Int) {
         glPushMatrix()
         glTranslated(posX, posY, posZ)
         glRotated(-mc.renderManager.playerViewY.toDouble(), 0.0, 1.0, 0.0)

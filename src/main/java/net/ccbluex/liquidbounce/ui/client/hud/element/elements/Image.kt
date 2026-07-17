@@ -14,7 +14,7 @@ import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.randomNumber
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.withAlpha
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawImage
 import net.minecraft.client.renderer.texture.DynamicTexture
-import net.minecraft.util.ResourceLocation
+import net.minecraft.resource.Identifier
 import java.awt.Color
 import java.io.File
 import java.util.*
@@ -56,7 +56,7 @@ class Image : Element("Image") {
         setImage(value)
     }
 
-    private val resourceLocation = ResourceLocation(randomNumber(128))
+    private val resourceLocation = Identifier(randomNumber(128))
     private var width = 64
     private var height = 64
 

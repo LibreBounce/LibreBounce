@@ -47,8 +47,8 @@ import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.screen.inventory.menu.InventoryMenuScreen
 import net.minecraft.client.gui.screen.inventory.menu.SurvivalInventoryScreen
 import net.minecraft.client.render.platform.GlStateManager.*
-import net.minecraft.client.renderer.RenderHelper.disableStandardItemLighting
-import net.minecraft.client.renderer.RenderHelper.enableGUIStandardItemLighting
+import net.minecraft.client.render.platform.Lighting.turnOff
+import net.minecraft.client.render.platform.Lighting.turnOnGui
 import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemSword
 import org.lwjgl.input.Keyboard
@@ -344,7 +344,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1f, side: Side = S
                 if (showBlock) {
                     glPushMatrix()
 
-                    enableGUIStandardItemLighting()
+                    turnOnGui()
 
                     // Prevent overlapping while editing
                     if (mc.currentScreen is GuiHudDesigner) glDisable(GL_DEPTH_TEST)
@@ -353,7 +353,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1f, side: Side = S
                         mc.renderItem.renderItemAndEffectIntoGUI(stack, -18, -3)
                     }
 
-                    disableStandardItemLighting()
+                    turnOff()
                     enableAlpha()
                     disableBlend()
                     disableLighting()

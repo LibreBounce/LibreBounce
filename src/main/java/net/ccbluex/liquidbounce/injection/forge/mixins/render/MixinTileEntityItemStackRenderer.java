@@ -7,7 +7,7 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.render;
 
 import com.mojang.authlib.GameProfile;
 import net.minecraft.block.Block;
-import net.minecraft.client.renderer.tileentity.TileEntityItemStackRenderer;
+import net.minecraft.client.renderer.tileentity.TileItemEntityStackRenderer;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.client.renderer.tileentity.TileEntitySkullRenderer;
 import net.minecraft.init.Blocks;
@@ -28,9 +28,9 @@ import org.spongepowered.asm.mixin.Shadow;
 
 import static net.minecraft.client.render.platform.GlStateManager.*;
 
-@Mixin(TileEntityItemStackRenderer.class)
+@Mixin(TileItemEntityStackRenderer.class)
 @SideOnly(Side.CLIENT)
-public class MixinTileEntityItemStackRenderer {
+public class MixinTileItemEntityStackRenderer {
 
     @Shadow
     private TileEntityBanner banner;

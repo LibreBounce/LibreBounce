@@ -36,7 +36,7 @@ object SilentHotbar : Listenable, MinecraftInstance {
      * [requester] The class that called this function
      * [ticksUntilReset] The amount of ticks it will take to reset
      * [immediate] An option to update the slot server-side
-     * [render] Whether the slot should be rendered in MixinGuiInGameMenu/MixinItemRenderer or not
+     * [render] Whether the slot should be rendered in MixinGuiInGameMenu/MixinItemInHandRenderer or not
      * [resetManually] When true, the [hotbarState] will reset only when the user switches to another slot themselves.
      */
     fun selectSlotSilently(

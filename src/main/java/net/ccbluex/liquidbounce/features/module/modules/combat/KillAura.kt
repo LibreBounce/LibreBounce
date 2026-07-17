@@ -322,7 +322,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
      */
 
     // Target
-    var target: EntityLivingBase? = null
+    var target: LivingEntity? = null
     private var hittable = false
     private val prevTargetEntities = mutableListOf<Int>()
     private var randomizedScanRange: Float = scanRange.random()
@@ -656,7 +656,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
                             val entity = it.entityHit
 
                             // Use own function instead of clickMouse() to maintain keep sprint, auto block, etc
-                            if (entity is EntityLivingBase && isSelected(entity, true)) {
+                            if (entity is LivingEntity && isSelected(entity, true)) {
                                 attackEntity(entity, isLastClick)
                             } else attackTickTimes -= it to runTimeTicks
                         } else {
@@ -720,7 +720,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             for (entity in world.loadedEntityList) {
                 val distance = player.getDistanceToEntityBox(entity)
 
-                if (entity is EntityLivingBase && isSelected(entity, true) && distance <= getRange(entity)) {
+                if (entity is LivingEntity && isSelected(entity, true) && distance <= getRange(entity)) {
                     attackEntity(entity, isLastClick)
 
                     targets++
@@ -762,11 +762,11 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         val world = mc.theWorld ?: return
         val player = mc.thePlayer ?: return
 
-        var bestTarget: EntityLivingBase? = null
+        var bestTarget: LivingEntity? = null
         var bestValue: Double? = null
 
         for (entity in world.loadedEntityList) {
-            if (entity !is EntityLivingBase || !isSelected(
+            if (entity !is LivingEntity || !isSelected(
                     entity, true
                 ) || switchMode && entity.entityId in prevTargetEntities
             ) continue
@@ -827,7 +827,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     /**
      * Attack [entity]
      */
-    private fun attackEntity(entity: EntityLivingBase, isLastClick: Boolean) {
+    private fun attackEntity(entity: LivingEntity, isLastClick: Boolean) {
         val player = mc.thePlayer
 
         if (shouldPrioritize()) return
@@ -960,9 +960,9 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         if (raycast) {
             chosenEntity = raycastEntity(
                 range.toDouble(), currentRotation.yaw, currentRotation.pitch
-            ) { entity -> !livingRaycast || entity is EntityLivingBase && entity !is EntityArmorStand }
+            ) { entity -> !livingRaycast || entity is LivingEntity && entity !is EntityArmorStand }
 
-            if (chosenEntity != null && chosenEntity is EntityLivingBase && (NoFriends.handleEvents() || !(chosenEntity is PlayerEntity && chosenEntity.isClientFriend()))) {
+            if (chosenEntity != null && chosenEntity is LivingEntity && (NoFriends.handleEvents() || !(chosenEntity is PlayerEntity && chosenEntity.isClientFriend()))) {
                 if (raycastIgnored && target != chosenEntity) {
                     this.target = chosenEntity
                 }
@@ -1256,7 +1256,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     /**
      * Check if [entity] is alive
      */
-    private fun isAlive(entity: EntityLivingBase) = entity.isEntityAlive && entity.health > 0
+    private fun isAlive(entity: LivingEntity) = entity.isEntityAlive && entity.health > 0
 
     /**
      * Check if player is able to block

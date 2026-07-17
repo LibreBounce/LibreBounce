@@ -239,11 +239,11 @@ object TickBase : Module("TickBase", Category.COMBAT) {
         val isCollidedHorizontally: Boolean,
     )
 
-    private fun getNearestEntityInRange(): EntityLivingBase? {
+    private fun getNearestEntityInRange(): LivingEntity? {
         mc.thePlayer ?: return null
         val entities = mc.theWorld.loadedEntityList ?: return null
 
-        return entities.asSequence().filterIsInstance<EntityLivingBase>()
+        return entities.asSequence().filterIsInstance<LivingEntity>()
             .filter { EntityUtils.isSelected(it, true) }.minByOrNull { mc.thePlayer.getDistanceToEntity(it) }
     }
 }

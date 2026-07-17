@@ -35,8 +35,8 @@ public abstract class MixinRendererLivingEntity extends MixinRender {
     @Shadow
     protected ModelBase mainModel;
 
-    @Inject(method = "doRender(Lnet/minecraft/entity/EntityLivingBase;DDDFF)V", at = @At("HEAD"))
-    private <T extends EntityLivingBase> void injectChamsPre(T entity, double x, double y, double z, float entityYaw, float partialTicks, CallbackInfo callbackInfo) {
+    @Inject(method = "doRender(Lnet/minecraft/entity/LivingEntity;DDDFF)V", at = @At("HEAD"))
+    private <T extends LivingEntity> void injectChamsPre(T entity, double x, double y, double z, float entityYaw, float partialTicks, CallbackInfo callbackInfo) {
         final Chams chams = Chams.INSTANCE;
         final ESP esp = ESP.INSTANCE;
         boolean shouldRender = chams.handleEvents() && chams.getTargets() && EntityUtils.INSTANCE.isSelected(entity, false) || esp.handleEvents() && esp.shouldRender(entity) && esp.getMode().equals("Gaussian");
@@ -47,8 +47,8 @@ public abstract class MixinRendererLivingEntity extends MixinRender {
         }
     }
 
-    @Inject(method = "doRender(Lnet/minecraft/entity/EntityLivingBase;DDDFF)V", at = @At("RETURN"))
-    private <T extends EntityLivingBase> void injectChamsPost(T entity, double x, double y, double z, float entityYaw, float partialTicks, CallbackInfo callbackInfo) {
+    @Inject(method = "doRender(Lnet/minecraft/entity/LivingEntity;DDDFF)V", at = @At("RETURN"))
+    private <T extends LivingEntity> void injectChamsPost(T entity, double x, double y, double z, float entityYaw, float partialTicks, CallbackInfo callbackInfo) {
         final Chams chams = Chams.INSTANCE;
         final ESP esp = ESP.INSTANCE;
         boolean shouldRender = chams.handleEvents() && chams.getTargets() && EntityUtils.INSTANCE.isSelected(entity, false) || esp.handleEvents() && esp.shouldRender(entity) && esp.getMode().equals("Gaussian");
@@ -59,8 +59,8 @@ public abstract class MixinRendererLivingEntity extends MixinRender {
         }
     }
 
-    @Inject(method = "canRenderName(Lnet/minecraft/entity/EntityLivingBase;)Z", at = @At("HEAD"), cancellable = true)
-    private <T extends EntityLivingBase> void canRenderName(T entity, CallbackInfoReturnable<Boolean> callbackInfoReturnable) {
+    @Inject(method = "canRenderName(Lnet/minecraft/entity/LivingEntity;)Z", at = @At("HEAD"), cancellable = true)
+    private <T extends LivingEntity> void canRenderName(T entity, CallbackInfoReturnable<Boolean> callbackInfoReturnable) {
         if (NameTags.INSTANCE.shouldRenderNameTags(entity)) {
             callbackInfoReturnable.setReturnValue(false);
         }
@@ -70,7 +70,7 @@ public abstract class MixinRendererLivingEntity extends MixinRender {
      * @author CCBlueX
      */
     @Inject(method = "renderModel", at = @At("HEAD"), cancellable = true)
-    private <T extends EntityLivingBase> void renderModel(T p_renderModel_1_, float p_renderModel_2_, float p_renderModel_3_, float p_renderModel_4_, float p_renderModel_5_, float p_renderModel_6_, float p_renderModel_7_, CallbackInfo ci) {
+    private <T extends LivingEntity> void renderModel(T p_renderModel_1_, float p_renderModel_2_, float p_renderModel_3_, float p_renderModel_4_, float p_renderModel_5_, float p_renderModel_6_, float p_renderModel_7_, CallbackInfo ci) {
         boolean visible = !p_renderModel_1_.isInvisible();
         final TrueSight trueSight = TrueSight.INSTANCE;
         boolean semiVisible = !visible && (!p_renderModel_1_.isInvisibleToPlayer(mc.thePlayer) || (trueSight.handleEvents() && trueSight.getEntities()));
@@ -163,12 +163,12 @@ public abstract class MixinRendererLivingEntity extends MixinRender {
         ci.cancel();
     }
 
-    @Inject(method = "doRender(Lnet/minecraft/entity/EntityLivingBase;DDDFF)V", at = @At(value = "HEAD"))
+    @Inject(method = "doRender(Lnet/minecraft/entity/LivingEntity;DDDFF)V", at = @At(value = "HEAD"))
     private void injectFreeLookPitchPreMovePrevention(CallbackInfo ci) {
         FreeLook.INSTANCE.restoreOriginalRotation();
     }
 
-    @Inject(method = "doRender(Lnet/minecraft/entity/EntityLivingBase;DDDFF)V", at = @At(value = "TAIL"))
+    @Inject(method = "doRender(Lnet/minecraft/entity/LivingEntity;DDDFF)V", at = @At(value = "TAIL"))
     private void injectFreeLookPitchPostMovePrevention(CallbackInfo ci) {
         FreeLook.INSTANCE.useModifiedRotation();
     }

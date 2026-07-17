@@ -40,7 +40,7 @@ object EntityUtils : MinecraftInstance {
     private val healthSubstrings = arrayOf("hp", "health", "❤", "lives")
 
     fun isSelected(entity: Entity?, canAttackCheck: Boolean): Boolean {
-        if (entity is EntityLivingBase && (Targets.dead || entity.isEntityAlive) && entity != mc.thePlayer) {
+        if (entity is LivingEntity && (Targets.dead || entity.isEntityAlive) && entity != mc.thePlayer) {
             if (Targets.invisible || !entity.isInvisible) {
                 if (Targets.player && entity is PlayerEntity) {
                     if (canAttackCheck) {
@@ -97,7 +97,7 @@ object EntityUtils : MinecraftInstance {
         return dotProductThreshold > cos(maxAngleDifferenceRadians)
     }
 
-    fun getHealth(entity: EntityLivingBase, fromScoreboard: Boolean = false, absorption: Boolean = true): Float {
+    fun getHealth(entity: LivingEntity, fromScoreboard: Boolean = false, absorption: Boolean = true): Float {
         if (fromScoreboard && entity is PlayerEntity) run {
             val scoreboard = entity.worldScoreboard
             val objective = scoreboard.getValueFromObjective(entity.name, scoreboard.getObjectiveInDisplaySlot(2))

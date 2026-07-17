@@ -18,7 +18,7 @@ import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.activeSettings
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.currentRotation
 import net.minecraft.network.packet.c2s.play.PlayerMovementActionC2SPacket
 import net.minecraft.potion.Potion
-import net.minecraft.util.MovementInput
+import net.minecraft.client.entity.living.player.Input
 import kotlin.math.abs
 
 object Sprint : Module("Sprint", Category.MOVEMENT, gameDetecting = false) {
@@ -50,7 +50,7 @@ object Sprint : Module("Sprint", Category.MOVEMENT, gameDetecting = false) {
     override val tag
         get() = mode
 
-    fun correctSprintState(movementInput: MovementInput, isUsingItem: Boolean) {
+    fun correctSprintState(movementInput: Input, isUsingItem: Boolean) {
         val player = mc.thePlayer ?: return
 
         if (SuperKnockback.breakSprint()) {
@@ -86,7 +86,7 @@ object Sprint : Module("Sprint", Category.MOVEMENT, gameDetecting = false) {
         }
     }
 
-    private fun shouldStopSprinting(movementInput: MovementInput, isUsingItem: Boolean): Boolean {
+    private fun shouldStopSprinting(movementInput: Input, isUsingItem: Boolean): Boolean {
         val player = mc.thePlayer ?: return false
 
         val isLegitModeActive = mode == "Legit"

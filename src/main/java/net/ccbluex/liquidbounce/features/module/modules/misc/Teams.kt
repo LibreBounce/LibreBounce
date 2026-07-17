@@ -20,7 +20,7 @@ object Teams : Module("Teams", Category.MISC, gameDetecting = false) {
     /**
      * Check if [entity] is in your own team using scoreboard, name/armor color or team prefix
      */
-    fun isInYourTeam(entity: EntityLivingBase): Boolean {
+    fun isInYourTeam(entity: LivingEntity): Boolean {
         val player = mc.thePlayer ?: return false
 
         if (scoreboard && player.team != null && entity.team != null &&

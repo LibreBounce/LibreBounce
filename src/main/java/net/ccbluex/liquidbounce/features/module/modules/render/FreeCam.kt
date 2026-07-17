@@ -45,7 +45,7 @@ object FreeCam : Module("FreeCam", Category.RENDER, gameDetecting = false) {
         originalPos = null
     }
 
-    val onInputEvent = handler<MovementInputEvent> { event ->
+    val onInputEvent = handler<InputEvent> { event ->
         val speed = speed.toDouble()
 
         val yAxisMovement = when {
@@ -98,7 +98,7 @@ object FreeCam : Module("FreeCam", Category.RENDER, gameDetecting = false) {
         originalPos?.run { player.setPosAndPrevPos(pos, lastPos, extraPos) }
     }
 
-    fun renderPlayerFromAllPerspectives(entity: EntityLivingBase) =
+    fun renderPlayerFromAllPerspectives(entity: LivingEntity) =
         handleEvents() && entity == mc.thePlayer || entity.isPlayerSleeping
 
     fun modifyRaycast(original: Vec3d, entity: Entity, tickDelta: Float):Vec3d3 {

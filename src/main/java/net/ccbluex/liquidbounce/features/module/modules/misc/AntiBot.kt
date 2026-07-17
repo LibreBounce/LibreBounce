@@ -83,7 +83,7 @@ object AntiBot : Module("AntiBot", Category.MISC) {
 
     val botList = mutableSetOf<UUID>()
 
-    fun isBot(entity: EntityLivingBase): Boolean {
+    fun isBot(entity: LivingEntity): Boolean {
         // Check if entity is a player
         if (entity !is PlayerEntity)
             return false
@@ -319,7 +319,7 @@ object AntiBot : Module("AntiBot", Category.MISC) {
         if (packet is EntityAnimationS2CPacket) {
             val entity = mc.theWorld.getEntityByID(packet.entityID)
 
-            if (entity != null && entity is EntityLivingBase && packet.animationType == 0
+            if (entity != null && entity is LivingEntity && packet.animationType == 0
                 && entity.entityId !in swingList
             )
                 swingList += entity.entityId
@@ -346,7 +346,7 @@ object AntiBot : Module("AntiBot", Category.MISC) {
     val onAttack = handler<AttackEvent>(always = true) { e ->
         val entity = e.targetEntity
 
-        if (entity != null && entity is EntityLivingBase && entity.entityId !in hitList)
+        if (entity != null && entity is LivingEntity && entity.entityId !in hitList)
             hitList += entity.entityId
     }
 

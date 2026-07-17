@@ -15,7 +15,7 @@ import net.minecraft.block.state.IBlockState
 import net.minecraft.init.Blocks.*
 import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.BlockPos
-import net.minecraft.util.ResourceLocation
+import net.minecraft.resource.Identifier
 
 typealias Collidable = (Block?) -> Boolean
 
@@ -172,17 +172,17 @@ object BlockUtils : MinecraftInstance {
     /**
      * Bedwars Blocks Texture List
      */
-    fun getBlockTexture(block: Block): ResourceLocation {
+    fun getBlockTexture(block: Block): Identifier {
         return when (block) {
-            bed -> ResourceLocation("minecraft:textures/items/bed.png")
-            obsidian -> ResourceLocation("minecraft:textures/blocks/obsidian.png")
-            end_stone -> ResourceLocation("minecraft:textures/blocks/end_stone.png")
-            stained_hardened_clay -> ResourceLocation("minecraft:textures/blocks/hardened_clay_stained_white.png")
-            stained_glass -> ResourceLocation("minecraft:textures/blocks/glass.png")
-            water -> ResourceLocation("minecraft:textures/blocks/water_still.png")
-            planks -> ResourceLocation("minecraft:textures/blocks/planks_oak.png")
-            wool -> ResourceLocation("minecraft:textures/blocks/wool_colored_white.png")
-            else -> ResourceLocation("minecraft:textures/blocks/stone.png")
+            bed -> Identifier("minecraft:textures/items/bed.png")
+            obsidian -> Identifier("minecraft:textures/blocks/obsidian.png")
+            end_stone -> Identifier("minecraft:textures/blocks/end_stone.png")
+            stained_hardened_clay -> Identifier("minecraft:textures/blocks/hardened_clay_stained_white.png")
+            stained_glass -> Identifier("minecraft:textures/blocks/glass.png")
+            water -> Identifier("minecraft:textures/blocks/water_still.png")
+            planks -> Identifier("minecraft:textures/blocks/planks_oak.png")
+            wool -> Identifier("minecraft:textures/blocks/wool_colored_white.png")
+            else -> Identifier("minecraft:textures/blocks/stone.png")
         }
     }
 }

@@ -62,7 +62,7 @@ import static net.minecraft.network.packet.c2s.play.PlayerMovementActionC2SPacke
 
 @Mixin(LocalClientPlayerEntity.class)
 @SideOnly(Side.CLIENT)
-public abstract class MixinLocalClientPlayerEntity extends MixinAbstractClientPlayer {
+public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEntity {
 
     @Shadow
     public boolean serverSprintState;
@@ -73,7 +73,7 @@ public abstract class MixinLocalClientPlayerEntity extends MixinAbstractClientPl
     @Shadow
     public float prevTimeInPortal;
     @Shadow
-    public MovementInput movementInput;
+    public Input movementInput;
     @Shadow
     public float horseJumpPower;
     @Shadow
@@ -308,7 +308,7 @@ public abstract class MixinLocalClientPlayerEntity extends MixinAbstractClientPl
             }
 
             if (timeInPortal == 0f) {
-                mc.getSoundHandler().playSound(PositionedSoundRecord.create(new ResourceLocation("portal.trigger"), rand.nextFloat() * 0.4F + 0.8F));
+                mc.getSoundHandler().playSound(PositionedSoundRecord.create(new Identifier("portal.trigger"), rand.nextFloat() * 0.4F + 0.8F));
             }
 
             timeInPortal += 0.0125F;
@@ -349,7 +349,7 @@ public abstract class MixinLocalClientPlayerEntity extends MixinAbstractClientPl
         final Rotation currentRotation = utils.getCurrentRotation();
 
         // A separate movement input for currentRotation
-        MovementInput modifiedInput = new MovementInput();
+        Input modifiedInput = new Input();
 
         // Recreate inputs
         modifiedInput.moveForward = movementInput.moveForward;
@@ -794,7 +794,7 @@ public abstract class MixinLocalClientPlayerEntity extends MixinAbstractClientPl
         }
     }
 
-    @Inject(method = "onUpdate", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/entity/AbstractClientPlayer;onUpdate()V", shift = At.Shift.BEFORE, ordinal = 0), cancellable = true)
+    @Inject(method = "onUpdate", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/entity/ClientPlayerEntity;onUpdate()V", shift = At.Shift.BEFORE, ordinal = 0), cancellable = true)
     private void preTickEvent(CallbackInfo ci) {
         final PlayerTickEvent tickEvent = new PlayerTickEvent(EventState.PRE);
         EventManager.INSTANCE.call(tickEvent);
@@ -805,7 +805,7 @@ public abstract class MixinLocalClientPlayerEntity extends MixinAbstractClientPl
         }
     }
 
-    @Inject(method = "onUpdate", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/entity/AbstractClientPlayer;onUpdate()V", shift = At.Shift.AFTER, ordinal = 0))
+    @Inject(method = "onUpdate", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/entity/ClientPlayerEntity;onUpdate()V", shift = At.Shift.AFTER, ordinal = 0))
     private void postTickEvent(CallbackInfo ci) {
         final PlayerTickEvent tickEvent = new PlayerTickEvent(EventState.POST);
         EventManager.INSTANCE.call(tickEvent);

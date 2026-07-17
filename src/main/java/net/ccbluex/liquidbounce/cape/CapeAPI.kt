@@ -9,7 +9,7 @@ import net.ccbluex.liquidbounce.file.FileManager.dir
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.minecraft.client.renderer.IImageBuffer
 import net.minecraft.client.renderer.ThreadDownloadImageData
-import net.minecraft.util.ResourceLocation
+import net.minecraft.resource.Identifier
 import java.awt.image.BufferedImage
 import java.io.File
 import java.util.*
@@ -34,7 +34,7 @@ object CapeAPI : MinecraftInstance {
                 val (name, url) = CapeService.getCapeDownload(uuid) ?: return@refreshCapeCarriers
 
                 // Load cape
-                val resourceLocation = ResourceLocation("capes/$name.png")
+                val resourceLocation = Identifier("capes/$name.png")
                 val cacheFile = File(capesCache, "$name.png")
                 val capeInfo = CapeInfo(resourceLocation)
                 val threadDownloadImageData = ThreadDownloadImageData(cacheFile, url, null, object : IImageBuffer {
@@ -56,4 +56,4 @@ object CapeAPI : MinecraftInstance {
     }
 }
 
-data class CapeInfo(val resourceLocation: ResourceLocation, var isCapeAvailable: Boolean = false)
+data class CapeInfo(val resourceLocation: Identifier, var isCapeAvailable: Boolean = false)

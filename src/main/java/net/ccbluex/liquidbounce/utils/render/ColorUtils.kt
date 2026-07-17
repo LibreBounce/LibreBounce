@@ -149,7 +149,7 @@ object ColorUtils {
     }
 
     fun interpolateHealthColor(
-        entity: EntityLivingBase,
+        entity: LivingEntity,
         r: Int,
         g: Int,
         b: Int,

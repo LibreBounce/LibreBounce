@@ -163,7 +163,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
     private val boxOutline by boolean("Outline", true) { mark == "Box" }.subjective()
 
     // Target
-    var target: EntityLivingBase? = null
+    var target: LivingEntity? = null
     private val prevTargetEntities = mutableListOf<Int>()
 
     private val switchTimer = MSTimer()
@@ -226,7 +226,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
 
         target ?: return@handler
 
-        val color = if ((target as EntityLivingBase).hurtTime == 0) markHittableColor else markColor
+        val color = if ((target as LivingEntity).hurtTime == 0) markHittableColor else markColor
 
         if (targetMode != "Multi") {
             when (mark) {
@@ -285,11 +285,11 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
         val world = mc.theWorld ?: return
         val player = mc.thePlayer ?: return
 
-        var bestTarget: EntityLivingBase? = null
+        var bestTarget: LivingEntity? = null
         var bestValue: Double? = null
 
         for (entity in world.loadedEntityList) {
-            if (entity !is EntityLivingBase || !isSelected(
+            if (entity !is LivingEntity || !isSelected(
                     entity, true
                 ) || switchMode && entity.entityId in prevTargetEntities
             ) continue
@@ -470,7 +470,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
     /**
      * Check if [entity] is alive
      */
-    private fun isAlive(entity: EntityLivingBase) = entity.isEntityAlive && entity.health > 0
+    private fun isAlive(entity: LivingEntity) = entity.isEntityAlive && entity.health > 0
 
     /**
      * HUD Tag

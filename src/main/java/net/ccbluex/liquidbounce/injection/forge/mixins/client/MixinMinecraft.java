@@ -28,11 +28,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.living.player.LocalClientPlayerEntity;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.render.Window;
-import net.minecraft.client.multiplayer.PlayerControllerMP;
+import net.minecraft.client.ClientPlayerInteractionManager;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.options.GameOptions;
 import net.minecraft.crash.CrashReport;
-import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.entity.living.player.PlayerInventory;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockPos;
@@ -78,7 +78,7 @@ public abstract class MixinMinecraft {
     public LocalClientPlayerEntity thePlayer;
 
     @Shadow
-    public PlayerControllerMP playerController;
+    public ClientPlayerInteractionManager playerController;
 
     @Shadow
     public int displayWidth;
@@ -280,8 +280,8 @@ public abstract class MixinMinecraft {
         return itemStack != null;
     }
 
-    @Redirect(method = "sendClickBlockToController", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/PlayerControllerMP;resetBlockRemoving()V"))
-    private void injectAbortBreaking(PlayerControllerMP instance) {
+    @Redirect(method = "sendClickBlockToController", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/ClientPlayerInteractionManager;resetBlockRemoving()V"))
+    private void injectAbortBreaking(ClientPlayerInteractionManager instance) {
         if (!AbortBreaking.INSTANCE.handleEvents()) {
             instance.resetBlockRemoving();
         }
@@ -292,12 +292,12 @@ public abstract class MixinMinecraft {
         return TickBase.INSTANCE.getDuringTickModification() || instance.isEmpty();
     }
 
-    @Redirect(method = {"middleClickMouse", "rightClickMouse"}, at = @At(value = "FIELD", target = "Lnet/minecraft/entity/player/InventoryPlayer;currentItem:I"))
-    private int injectSilentHotbar(InventoryPlayer instance) {
+    @Redirect(method = {"middleClickMouse", "rightClickMouse"}, at = @At(value = "FIELD", target = "Lnet/minecraft/entity/living/player/PlayerInventory;currentItem:I"))
+    private int injectSilentHotbar(PlayerInventory instance) {
         return SilentHotbar.INSTANCE.getCurrentSlot();
     }
 
-    @Inject(method = "runTick", at = @At(value = "FIELD", target = "Lnet/minecraft/client/entity/LocalClientPlayerEntity;inventory:Lnet/minecraft/entity/player/InventoryPlayer;"))
+    @Inject(method = "runTick", at = @At(value = "FIELD", target = "Lnet/minecraft/client/entity/LocalClientPlayerEntity;inventory:Lnet/minecraft/entity/living/player/PlayerInventory;"))
     private void injectSilentHotbarManualPressDetection(CallbackInfo ci) {
         SilentHotbar.INSTANCE.setPressedAtSlot(true);
     }

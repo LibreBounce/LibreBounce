@@ -11,8 +11,8 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
 import net.ccbluex.liquidbounce.ui.client.hud.element.Side
 import net.minecraft.block.material.Material
 import net.minecraft.client.render.platform.GlStateManager.*
-import net.minecraft.client.renderer.RenderHelper.disableStandardItemLighting
-import net.minecraft.client.renderer.RenderHelper.enableGUIStandardItemLighting
+import net.minecraft.client.render.platform.Lighting.turnOff
+import net.minecraft.client.render.platform.Lighting.turnOnGui
 import org.lwjgl.opengl.GL11.*
 
 /**
@@ -49,10 +49,10 @@ class Armor(
                 glPushMatrix()
                 glEnable(GL_BLEND)
                 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-                enableGUIStandardItemLighting()
+                turnOnGui()
                 renderItem.renderItemIntoGUI(stack, x, y)
                 renderItem.renderItemOverlays(mc.fontRendererObj, stack, x, y)
-                disableStandardItemLighting()
+                turnOff()
                 glDisable(GL_BLEND)
                 glPopMatrix()
 

@@ -26,15 +26,15 @@ import kotlin.math.PI
 object SmartHit : Module("SmartHit", Category.COMBAT) {
 
     private val usePredictedTargetHurtTime by boolean("UsePredictedTargetHurtTime", true)
-    private val attackDelay by int("AttackDelay", 10, 0..10, suffix = "ticks")
+    private val attackDelay by int("AttackDelay", 9, 0..10, suffix = "ticks")
 
-    private val distanceHandling by choices("DistanceHandling", arrayOf("Allow", "Forbid", "Ignore"), "Allow")
+    private val distanceHandling by choices("DistanceHandling", arrayOf("Allow", "Forbid", "Ignore"), "Ignore")
     private val distance by floatRange("Distance", 2.7f..8f, 0f..8f, suffix = "blocks") { distanceHandling != "Ignore" }
 
     private val predictedDistanceHandling by choices("PredictedDistanceHandling", arrayOf("Allow", "Forbid", "Ignore"), "Allow")
-    private val predictedDistance by floatRange("PredictedDistance", 2.8f..8f, 0f..8f, suffix = "blocks") { predictedDistanceHandling != "Ignore" }
+    private val predictedDistance by floatRange("PredictedDistance", 3.1f..8f, 0f..8f, suffix = "blocks") { predictedDistanceHandling != "Ignore" }
 
-    private val minTargetRotationDifference by float("MinTargetRotationDifference", 70f, 0f..180f, suffix = "º")
+    private val minTargetRotationDifference by float("MinTargetRotationDifference", 8f, 0f..180f, suffix = "º")
 
     private val checkForCriticalHits by boolean("CheckForCriticalHits", true)
     private val improveCritHandling by boolean("ImproveCritHandling", false) { checkForCriticalHits }
@@ -42,7 +42,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
     private val checkForBlockedHits by boolean("CheckForBlockedHits", true)
 
     private val experimentalChecks by boolean("ExperimentalChecks", true)
-    private val failsafe by boolean("Failsafe", true)
+    private val failsafe by boolean("Failsafe", false)
 
     private val notBelowOwnHealth by float("NotBelowOwnHealth", 5f, 0f..20f)
     private val notBelowTargetHealth by float("NotBelowTargetHealth", 5f, 0f..20f)
@@ -53,8 +53,8 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
     private val targetHurtTimeHandling by choices("TargetHurtTimeHandling", arrayOf("Allow", "Forbid", "Ignore"), "Ignore")
     private val targetHurtTime by intRange("TargetHurtTime", 0..1, 0..10) { targetHurtTimeHandling != "Ignore" }
 
-    private val ownHurtTimeHandling by choices("OwnHurtTimeHandling", arrayOf("Allow", "Forbid", "Ignore"), "Ignore")
-    private val ownHurtTime by intRange("OwnHurtTime", 9..10, 0..10) { ownHurtTimeHandling != "Ignore" }
+    private val ownHurtTimeHandling by choices("OwnHurtTimeHandling", arrayOf("Allow", "Forbid", "Ignore"), "Allow")
+    private val ownHurtTime by intRange("OwnHurtTime", 7..10, 0..10) { ownHurtTimeHandling != "Ignore" }
 
     private val predictClientMovement by int("PredictClientMovement", 5, 0..5, suffix = "ticks")
     private val predictEnemyPosition by float("PredictEnemyPosition", 1.5f, 0f..2f)
@@ -107,6 +107,8 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
     fun shouldHit(target: Entity): Boolean {
         val player = mc.thePlayer ?: return false
+
+        if (target.isDead) return false
 
         val playerPing = (player as PlayerEntity).getPing()
         val playerLatencyInTicks = latencyInTicks(player as PlayerEntity)
@@ -183,9 +185,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         val baseHurtTime = 3f / (1f + sqrt(dist) - (rotDiff / 180f))
         val hurtTimeNoEscape = (2 * dist * 8).toInt() / 10
             
-        val shouldHit = when {
-            target.isDead -> false
-    
+        val shouldHit = when {    
             groundHit || airHit -> true
             checkForBlockedHits && lastHitBlocked && !target.isBlocking -> true
             minTargetRotationDifference != 0f && rotDiff < minTargetRotationDifference -> true

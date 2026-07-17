@@ -13,7 +13,7 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.deltaTime
 import net.minecraft.client.render.Window
-import net.minecraft.util.ResourceLocation
+import net.minecraft.resource.Identifier
 
 /**
  * TACO TACO TACO!!
@@ -28,7 +28,7 @@ class Taco(x: Double = 2.0, y: Double = 441.0) : Element("Taco", x = x, y = y) {
     private var image = 0
     private var running = 0f
 
-    private val tacoTextures = Array(12) { i -> ResourceLocation("librebounce/taco/${i + 1}.png") }
+    private val tacoTextures = Array(12) { i -> Identifier("librebounce/taco/${i + 1}.png") }
 
     override fun drawElement(): Border {
         val player = mc.thePlayer ?: return Border(0F, 0F, 0F, 0F)

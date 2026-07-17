@@ -251,7 +251,7 @@ class TabGUI(x: Double = 5.0, y: Double = 25.0) : Element("TabGUI", x = x, y = y
                         iconSideX.first + 2
                     }
 
-                    val resource = tab.category.iconResourceLocation
+                    val resource = tab.category.iconIdentifier
 
                     val iconY = y - 1
 

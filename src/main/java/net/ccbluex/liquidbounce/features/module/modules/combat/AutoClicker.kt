@@ -59,7 +59,7 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT) {
     private val shouldAutoClick
         get() = mc.thePlayer.capabilities.isCreativeMode || (!breakBlocks || !mc.objectMouseOver.typeOfHit.isBlock)
 
-    private var target: EntityLivingBase? = null
+    private var target: LivingEntity? = null
 
     override fun onDisable() {
         rightLastSwing = 0L
@@ -71,7 +71,7 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT) {
     val onAttack = handler<AttackEvent> { event ->
         if (!left) return@handler
 
-        target = event.targetEntity as EntityLivingBase
+        target = event.targetEntity as LivingEntity
     }
 
     val onRender3D = handler<Render3DEvent> {
@@ -110,7 +110,7 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT) {
         }
     }
 
-    private val entities by EntityLookup<EntityLivingBase> {
+    private val entities by EntityLookup<LivingEntity> {
         isSelected(it, true) && mc.thePlayer.getDistanceToEntityBox(it) <= range
     }
 

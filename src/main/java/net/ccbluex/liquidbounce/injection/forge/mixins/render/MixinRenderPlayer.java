@@ -9,7 +9,7 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura;
 import net.ccbluex.liquidbounce.features.module.modules.movement.NoSlow;
 import net.ccbluex.liquidbounce.features.module.modules.render.SilentHotbarModule;
 import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar;
-import net.minecraft.client.entity.AbstractClientPlayer;
+import net.minecraft.client.entity.living.player.ClientPlayerEntity;
 import net.minecraft.client.entity.living.player.LocalClientPlayerEntity;
 import net.minecraft.client.model.ModelPlayer;
 import net.minecraft.client.renderer.entity.RenderPlayer;
@@ -32,7 +32,7 @@ public abstract class MixinRenderPlayer {
      * @author CCBlueX
      */
     @Overwrite
-    private void setModelVisibilities(AbstractClientPlayer entity) {
+    private void setModelVisibilities(ClientPlayerEntity entity) {
         ModelPlayer modelplayer = this.getMainModel();
         if (entity.isSpectator()) {
             modelplayer.setInvisible(false);

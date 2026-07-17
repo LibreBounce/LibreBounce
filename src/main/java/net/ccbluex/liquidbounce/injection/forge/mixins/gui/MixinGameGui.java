@@ -22,9 +22,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiElement;
 import net.minecraft.client.gui.GameGui;
 import net.minecraft.client.render.Window;
-import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.render.platform.Lighting;
 import net.minecraft.entity.living.player.PlayerEntity;
-import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.entity.living.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -60,8 +60,8 @@ public abstract class MixinGuiInGame extends Gui {
             callbackInfo.cancel();
     }
 
-    @Redirect(method = "updateTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/InventoryPlayer;getCurrentItem()Lnet/minecraft/item/ItemStack;"))
-    private ItemStack hookSilentHotbarHighlightedName(InventoryPlayer instance) {
+    @Redirect(method = "updateTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/living/player/PlayerInventory;getCurrentItem()Lnet/minecraft/item/ItemStack;"))
+    private ItemStack hookSilentHotbarHighlightedName(PlayerInventory instance) {
         SilentHotbarModule module = SilentHotbarModule.INSTANCE;
 
         int slot = SilentHotbar.INSTANCE.renderSlot(module.handleEvents() && module.getKeepHighlightedName());
@@ -169,7 +169,7 @@ public abstract class MixinGuiInGame extends Gui {
                 enableRescaleNormal();
                 glEnable(GL_BLEND);
                 tryBlendFuncSeparate(770, 771, 1, 0);
-                RenderHelper.enableGUIStandardItemLighting();
+                Lighting.turnOnGui();
 
                 for (int j = 0; j < 9; ++j) {
                     int l = height - 16 - 3;
@@ -177,7 +177,7 @@ public abstract class MixinGuiInGame extends Gui {
                     renderHotbarItem(j, k, l, delta, entityPlayer);
                 }
 
-                RenderHelper.disableStandardItemLighting();
+                Lighting.turnOff();
                 disableRescaleNormal();
                 disableBlend();
 

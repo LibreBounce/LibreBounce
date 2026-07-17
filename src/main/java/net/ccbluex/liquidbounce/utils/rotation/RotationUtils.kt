@@ -49,7 +49,7 @@ object RotationUtils : MinecraftInstance, Listenable {
 
     private const val MAX_CAPTURE_TICKS = 3
 
-    var modifiedInput = MovementInput()
+    var modifiedInput = Input()
 
     /**
      * A list that stores the last rotations captured from 0 up to [MAX_CAPTURE_TICKS] previous ticks.

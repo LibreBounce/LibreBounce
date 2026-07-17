@@ -22,8 +22,8 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.makeScissorBox
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.render.Window
 import net.minecraft.client.render.platform.GlStateManager.disableLighting
-import net.minecraft.client.renderer.RenderHelper.disableStandardItemLighting
-import net.minecraft.util.ResourceLocation
+import net.minecraft.client.render.platform.Lighting.turnOff
+import net.minecraft.resource.Identifier
 import org.lwjgl.input.Mouse
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
@@ -70,7 +70,7 @@ object PanelStyle : Screen() {
     private var startY: Int? = null
 
     // TODO: Add HUD
-    private val hudIcon = ResourceLocation("${CLIENT_NAME.lowercase()}/custom_hud_icon.png")
+    private val hudIcon = Identifier("${CLIENT_NAME.lowercase()}/custom_hud_icon.png")
 
     private var mouseX = 0
         set(value) {
@@ -152,7 +152,7 @@ object PanelStyle : Screen() {
         glDisable(GL_SCISSOR_TEST)
 
         disableLighting()
-        disableStandardItemLighting()
+        turnOff()
         glScaled(1.0, 1.0, 1.0)
 
         assumeNonVolatile = false

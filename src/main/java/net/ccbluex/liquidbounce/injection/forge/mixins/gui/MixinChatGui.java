@@ -39,7 +39,7 @@ public abstract class MixinChatGui {
     /**
      * Modifies the message limit constant in the setChatLine method based on the Chat module.
      */
-    @ModifyConstant(method = "setChatLine", constant = @Constant(intValue = 100))
+    @ModifyConstant(method = "getVisibleLineCount", constant = @Constant(intValue = 100))
     private int fixMsgLimit(int constant) {
         final Chat chat = Chat.INSTANCE;
 

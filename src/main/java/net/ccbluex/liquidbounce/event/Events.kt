@@ -92,7 +92,7 @@ class SneakSlowDownEvent(var strafe: Float, var forward: Float) : Event()
  *
  * @param originalInput the movement input after the update
  */
-class MovementInputEvent(var originalInput: MovementInput) : Event()
+class InputEvent(var originalInput: Input) : Event()
 
 /**
  * Called in "onLivingUpdate" after when the player's sprint states are updated
@@ -225,7 +225,7 @@ internal val ALL_EVENT_CLASSES = arrayOf(
     PlayerTickEvent::class.java,
     StepConfirmEvent::class.java,
     SessionUpdateEvent::class.java,
-    MovementInputEvent::class.java,
+    InputEvent::class.java,
     GameLoopEvent::class.java,
     Render2DEvent::class.java,
     ClickWindowEvent::class.java,

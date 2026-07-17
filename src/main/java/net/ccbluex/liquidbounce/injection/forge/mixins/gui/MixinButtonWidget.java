@@ -11,7 +11,7 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resource.Identifier;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.spongepowered.asm.mixin.*;
@@ -53,7 +53,7 @@ public abstract class MixinButtonWidget extends Gui {
 
     @Shadow
     @Final
-    protected static ResourceLocation buttonTextures;
+    protected static Identifier buttonTextures;
 
     @Shadow
     public int id;

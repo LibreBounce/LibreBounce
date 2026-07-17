@@ -7,12 +7,12 @@ package net.ccbluex.liquidbounce.utils.inventory
 
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.minecraft.enchantment.Enchantment
-import net.minecraft.entity.item.EntityItem
+import net.minecraft.entity.ItemEntity
 import net.minecraft.item.ItemArmor
 import net.minecraft.item.ItemStack
 
 object ArmorComparator: MinecraftInstance {
-	fun getBestArmorSet(stacks: List<ItemStack?>, entityStacksMap: Map<ItemStack, EntityItem>? = null): ArmorSet? {
+	fun getBestArmorSet(stacks: List<ItemStack?>, entityStacksMap: Map<ItemStack, ItemEntity>? = null): ArmorSet? {
 		val player = mc.thePlayer ?: return null
 
 		// Consider armor pieces dropped on ground

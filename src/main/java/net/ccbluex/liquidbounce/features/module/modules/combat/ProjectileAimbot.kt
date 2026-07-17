@@ -162,7 +162,7 @@ object ProjectileAimbot : Module("ProjectileAimbot", Category.COMBAT) {
 
         return mc.theWorld.loadedEntityList
             .asSequence()
-            .filterIsInstance<EntityLivingBase>()
+            .filterIsInstance<LivingEntity>()
             .filter {
                 val distance = player.getDistanceToEntityBox(it)
 

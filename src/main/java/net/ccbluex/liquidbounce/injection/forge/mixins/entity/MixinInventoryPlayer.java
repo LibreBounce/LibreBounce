@@ -6,7 +6,7 @@
 package net.ccbluex.liquidbounce.injection.forge.mixins.entity;
 
 import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar;
-import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.entity.living.player.PlayerInventory;
 import org.spongepowered.asm.lib.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -14,11 +14,11 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 
 import static net.ccbluex.liquidbounce.utils.client.MinecraftInstance.mc;
 
-@Mixin(InventoryPlayer.class)
-public class MixinInventoryPlayer {
+@Mixin(PlayerInventory.class)
+public class MixinPlayerInventory {
 
-    @Redirect(method = {"getCurrentItem", "decrementAnimations", "getStrVsBlock", "canHeldItemHarvest"}, at = @At(value = "FIELD", target = "Lnet/minecraft/entity/player/InventoryPlayer;currentItem:I", opcode = Opcodes.GETFIELD))
-    private int hookSilentHotbar(InventoryPlayer instance) {
+    @Redirect(method = {"getCurrentItem", "decrementAnimations", "getStrVsBlock", "canHeldItemHarvest"}, at = @At(value = "FIELD", target = "Lnet/minecraft/entity/living/player/PlayerInventory;currentItem:I", opcode = Opcodes.GETFIELD))
+    private int hookSilentHotbar(PlayerInventory instance) {
         if (instance == null || instance.player == null || mc.thePlayer == null)
             return instance != null ? instance.currentItem : 0;
 

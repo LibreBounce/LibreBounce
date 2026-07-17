@@ -27,12 +27,12 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.resetCaps
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.isEntityHeightVisible
 import net.minecraft.client.entity.living.player.LocalClientPlayerEntity
 import net.minecraft.client.render.platform.GlStateManager.*
-import net.minecraft.client.renderer.RenderHelper
+import net.minecraft.client.render.platform.Lighting
 import net.minecraft.entity.Entity
 import net.minecraft.entity.living.LivingEntity
 import net.minecraft.entity.living.player.PlayerEntity
 import net.minecraft.potion.Potion
-import net.minecraft.util.ResourceLocation
+import net.minecraft.resource.Identifier
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 import java.text.DecimalFormat
@@ -85,10 +85,10 @@ object NameTags : Module("NameTags", Category.RENDER) {
             field = if (value <= 0.0) maxRenderDistance.toDouble().pow(2.0) else value
         }
 
-    private val inventoryBackground = ResourceLocation("textures/gui/container/inventory.png")
+    private val inventoryBackground = Identifier("textures/gui/container/inventory.png")
     private val decimalFormat = DecimalFormat("##0.00", DecimalFormatSymbols(Locale.ENGLISH))
 
-    private val entities by EntityLookup<EntityLivingBase>()
+    private val entities by EntityLookup<LivingEntity>()
         .filter { bot || !isBot(it) }
         .filter { !onLook || isLookingOnEntities(it, maxAngleDifference.toDouble()) }
         .filter { thruBlocks || isEntityHeightVisible(it) }
@@ -146,7 +146,7 @@ object NameTags : Module("NameTags", Category.RENDER) {
         glColor4f(1F, 1F, 1F, 1F)
     }
 
-    private fun renderNameTag(entity: EntityLivingBase, isRenderingSelf: Boolean, name: String) {
+    private fun renderNameTag(entity: LivingEntity, isRenderingSelf: Boolean, name: String) {
         val player = mc.thePlayer ?: return
 
         // Set fontrenderer local
@@ -289,7 +289,8 @@ object NameTags : Module("NameTags", Category.RENDER) {
         }
 
         if (armor && entity is PlayerEntity) {
-            RenderHelper.enableGUIStandardItemLighting()
+            Lighting.turnOnGui()
+
             for (index in 0..4) {
                 val itemStack = entity.getEquipmentInSlot(index) ?: continue
 
@@ -298,7 +299,8 @@ object NameTags : Module("NameTags", Category.RENDER) {
                     itemStack, -50 + index * 20, if (potion && foundPotion) -42 else -22
                 )
             }
-            RenderHelper.disableStandardItemLighting()
+
+            Lighting.turnOff()
 
             enableAlpha()
             disableBlend()
@@ -316,7 +318,7 @@ object NameTags : Module("NameTags", Category.RENDER) {
         glPopMatrix()
     }
 
-    private fun getHealthString(entity: EntityLivingBase): String {
+    private fun getHealthString(entity: LivingEntity): String {
         val prefix = if (healthPrefix) healthPrefixText else ""
         val suffix = if (healthSuffix) healthSuffixText else ""
 
@@ -335,7 +337,7 @@ object NameTags : Module("NameTags", Category.RENDER) {
     }
 
     fun shouldRenderNameTags(entity: Entity) =
-        handleEvents() && entity is EntityLivingBase && (ESP.handleEvents() && ESP.renderNameTags || isSelected(
+        handleEvents() && entity is LivingEntity && (ESP.handleEvents() && ESP.renderNameTags || isSelected(
             entity,
             false
         ) && (bot || !isBot(entity)))

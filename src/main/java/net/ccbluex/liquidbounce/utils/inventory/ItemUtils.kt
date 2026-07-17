@@ -13,7 +13,7 @@ import net.minecraft.inventory.Container
 import net.minecraft.inventory.Slot
 import net.minecraft.item.*
 import net.minecraft.nbt.JsonToNBT
-import net.minecraft.util.ResourceLocation
+import net.minecraft.resource.Identifier
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 import kotlin.math.roundToInt
@@ -32,7 +32,7 @@ object ItemUtils : MinecraftInstance {
             val amount = args.getOrNull(1)?.toIntOrNull() ?: 1
             val meta = args.getOrNull(2)?.toIntOrNull() ?: 0
 
-            val resourceLocation = ResourceLocation(args[0])
+            val resourceLocation = Identifier(args[0])
             val item = Item.itemRegistry.getObject(resourceLocation) ?: return null
 
             val itemStack = ItemStack(item, amount, meta)

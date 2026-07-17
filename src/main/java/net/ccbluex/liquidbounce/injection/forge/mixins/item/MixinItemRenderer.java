@@ -13,14 +13,14 @@ import net.ccbluex.liquidbounce.features.module.modules.render.AntiBlind;
 import net.ccbluex.liquidbounce.features.module.modules.render.SilentHotbarModule;
 import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.AbstractClientPlayer;
+import net.minecraft.client.entity.living.player.ClientPlayerEntity;
 import net.minecraft.client.entity.living.player.LocalClientPlayerEntity;
 import net.minecraft.client.render.platform.GlStateManager;
-import net.minecraft.client.renderer.ItemRenderer;
-import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.render.ItemInHandRenderer;
+import net.minecraft.client.render.platform.Lighting;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.entity.living.LivingEntity;
-import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.entity.living.player.PlayerInventory;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemMap;
 import net.minecraft.item.ItemStack;
@@ -36,9 +36,9 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 
 import static net.minecraft.client.render.platform.GlStateManager.*;
 
-@Mixin(ItemRenderer.class)
+@Mixin(ItemInHandRenderer.class)
 @SideOnly(Side.CLIENT)
-public abstract class MixinItemRenderer {
+public abstract class MixinItemInHandRenderer {
 
     @Shadow
     private float prevEquippedProgress;
@@ -56,31 +56,31 @@ public abstract class MixinItemRenderer {
     protected abstract void rotateArroundXAndY(float angle, float angleY);
 
     @Shadow
-    protected abstract void setLightMapFromPlayer(AbstractClientPlayer clientPlayer);
+    protected abstract void setLightMapFromPlayer(ClientPlayerEntity clientPlayer);
 
     @Shadow
     protected abstract void rotateWithPlayerRotations(LocalClientPlayerEntity entityplayerspIn, float partialTicks);
 
     @Shadow
-    protected abstract void renderItemMap(AbstractClientPlayer clientPlayer, float pitch, float equipmentProgress, float swingProgress);
+    protected abstract void renderItemMap(ClientPlayerEntity clientPlayer, float pitch, float equipmentProgress, float swingProgress);
 
     @Shadow
     protected abstract void transformFirstPersonItem(float equipProgress, float swingProgress);
 
     @Shadow
-    protected abstract void performDrinking(AbstractClientPlayer clientPlayer, float partialTicks);
+    protected abstract void performDrinking(ClientPlayerEntity clientPlayer, float partialTicks);
 
     @Shadow
-    protected abstract void doBowTransformations(float partialTicks, AbstractClientPlayer clientPlayer);
+    protected abstract void doBowTransformations(float partialTicks, ClientPlayerEntity clientPlayer);
 
     @Shadow
     protected abstract void doItemUsedTransformations(float swingProgress);
 
     @Shadow
-    public abstract void renderItem(EntityLivingBase entityIn, ItemStack heldStack, ItemCameraTransforms.TransformType transform);
+    public abstract void renderItem(LivingEntity entityIn, ItemStack heldStack, ItemCameraTransforms.TransformType transform);
 
     @Shadow
-    protected abstract void renderPlayerArm(AbstractClientPlayer clientPlayer, float equipProgress, float swingProgress);
+    protected abstract void renderPlayerArm(ClientPlayerEntity clientPlayer, float equipProgress, float swingProgress);
 
     /**
      * @author CCBlueX
@@ -168,7 +168,7 @@ public abstract class MixinItemRenderer {
 
         popMatrix();
         disableRescaleNormal();
-        RenderHelper.disableStandardItemLighting();
+        Lighting.turnOff();
     }
 
     @Redirect(method = "renderFireInFirstPerson", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GlStateManager;color(FFFF)V"))
@@ -181,8 +181,8 @@ public abstract class MixinItemRenderer {
         }
     }
 
-    @Redirect(method = "updateEquippedItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/InventoryPlayer;getCurrentItem()Lnet/minecraft/item/ItemStack;"))
-    private ItemStack hookSilentHotbar(InventoryPlayer instance) {
+    @Redirect(method = "updateEquippedItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/living/player/PlayerInventory;getCurrentItem()Lnet/minecraft/item/ItemStack;"))
+    private ItemStack hookSilentHotbar(PlayerInventory instance) {
         SilentHotbarModule module = SilentHotbarModule.INSTANCE;
 
         int slot = SilentHotbar.INSTANCE.renderSlot(module.handleEvents() && module.getKeepItemInHandInFirstPerson());

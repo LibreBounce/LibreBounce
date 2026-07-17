@@ -10,10 +10,10 @@ import net.ccbluex.liquidbounce.features.module.modules.render.Chams;
 import net.ccbluex.liquidbounce.features.module.modules.render.ItemPhysics;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.entity.Render;
-import net.minecraft.client.renderer.entity.RenderEntityItem;
+import net.minecraft.client.renderer.entity.RenderItemEntity;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.resources.model.IBakedModel;
-import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import org.lwjgl.opengl.GL11;
@@ -27,9 +27,9 @@ import static net.minecraft.client.render.platform.GlStateManager.*;
 import static net.minecraft.util.math.MathHelper.sin;
 import static org.lwjgl.opengl.GL11.*;
 
-@Mixin(RenderEntityItem.class)
-public abstract class MixinRenderEntityItem extends Render<EntityItem> {
-    protected MixinRenderEntityItem(final RenderManager p_i46179_1_) {
+@Mixin(RenderItemEntity.class)
+public abstract class MixinRenderItemEntity extends Render<ItemEntity> {
+    protected MixinRenderItemEntity(final RenderManager p_i46179_1_) {
         super(p_i46179_1_);
     }
 
@@ -58,16 +58,16 @@ public abstract class MixinRenderEntityItem extends Render<EntityItem> {
      *
      * @reason
      * Original simplified code by FDPClient & Modified by Eclipses:
-     * https://github.com/SkidderMC/FDPClient/blob/main/src/main/java/net/ccbluex/liquidbounce/injection/forge/mixins/render/MixinRenderEntityItem.java
+     * https://github.com/SkidderMC/FDPClient/blob/main/src/main/java/net/ccbluex/liquidbounce/injection/forge/mixins/render/MixinRenderItemEntity.java
      *
      * Original code from:
      * https://github.com/CreativeMD/ItemPhysic/blob/1.8.9/src/main/java/com/creativemd/itemphysic/physics/ClientPhysic.java
      */
     @Overwrite
-    private int func_177077_a(EntityItem itemIn, double x, double y, double z, float p_177077_8_, IBakedModel ibakedmodel) {
+    private int func_177077_a(ItemEntity itemIn, double x, double y, double z, float p_177077_8_, IBakedModel ibakedmodel) {
         final ItemPhysics itemPhysics = ItemPhysics.INSTANCE;
 
-        ItemStack itemStack = itemIn.getEntityItem();
+        ItemStack itemStack = itemIn.getItemEntity();
         Item item = itemStack.getItem();
 
         if (item == null || itemStack == null) {

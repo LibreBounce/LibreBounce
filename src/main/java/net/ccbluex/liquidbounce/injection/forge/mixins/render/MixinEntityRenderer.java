@@ -22,7 +22,7 @@ import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.living.LivingEntity;
-import net.minecraft.entity.item.EntityItemFrame;
+import net.minecraft.entity.ItemEntityFrame;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.*;
 import net.minecraft.world.World;
@@ -76,7 +76,7 @@ public abstract class MixinEntityRenderer {
     private boolean lightmapUpdateNeeded;
 
     @Shadow
-    protected abstract float getNightVisionBrightness(EntityLivingBase p_getNightVisionBrightness_1_, float p_getNightVisionBrightness_2_);
+    protected abstract float getNightVisionBrightness(LivingEntity p_getNightVisionBrightness_1_, float p_getNightVisionBrightness_2_);
 
     protected MixinEntityRenderer(int[] lightmapColors, DynamicTexture lightmapTexture, float torchFlickerX, float bossColorModifier, float bossColorModifierPrev, Minecraft mc, float thirdPersonDistanceTemp, float thirdPersonDistance) {
         this.lightmapColors = lightmapColors;
@@ -222,7 +222,7 @@ public abstract class MixinEntityRenderer {
 
             if (pointedEntity != null && (d2 < d1 || mc.objectMouseOver == null)) {
                 mc.objectMouseOver = new MovingObjectPosition(pointedEntity, vec33);
-                if (pointedEntity instanceof EntityLivingBase || pointedEntity instanceof EntityItemFrame) {
+                if (pointedEntity instanceof LivingEntity || pointedEntity instanceof ItemEntityFrame) {
                     mc.pointedEntity = pointedEntity;
                 }
             }
@@ -368,8 +368,8 @@ public abstract class MixinEntityRenderer {
         return (!module.handleEvents() || !module.getConfusionEffect()) && instance.isPotionActive(potion);
     }
 
-    @Redirect(method = {"setupFog", "updateFogColor"}, at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/EntityLivingBase;isPotionActive(Lnet/minecraft/potion/Potion;)Z"))
-    private boolean injectAntiBlindB(EntityLivingBase instance, Potion potion) {
+    @Redirect(method = {"setupFog", "updateFogColor"}, at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;isPotionActive(Lnet/minecraft/potion/Potion;)Z"))
+    private boolean injectAntiBlindB(LivingEntity instance, Potion potion) {
         if (instance != mc.thePlayer) {
             return instance.isPotionActive(potion);
         }

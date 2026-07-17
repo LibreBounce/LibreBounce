@@ -71,7 +71,7 @@ object ESP : Module("ESP", Category.RENDER) {
 
     var renderNameTags = true
 
-    private val entities by EntityLookup<EntityLivingBase>().filter { shouldRender(it) }
+    private val entities by EntityLookup<LivingEntity>().filter { shouldRender(it) }
 
     val onRender3D = handler<Render3DEvent> {
         if (entities.isEmpty())
@@ -193,7 +193,7 @@ object ESP : Module("ESP", Category.RENDER) {
         get() = mode
 
     fun getColor(entity: Entity? = null): Color {
-        if (entity != null && entity is EntityLivingBase) {
+        if (entity != null && entity is LivingEntity) {
             if (entity.hurtTime > 0)
                 return Color.RED
 
@@ -210,7 +210,7 @@ object ESP : Module("ESP", Category.RENDER) {
         return espColor.color()
     }
 
-    fun shouldRender(entity: EntityLivingBase): Boolean {
+    fun shouldRender(entity: LivingEntity): Boolean {
         val player = mc.thePlayer ?: return false
 
         return (player.getDistanceSqToEntity(entity) <= maxRenderDistanceSq

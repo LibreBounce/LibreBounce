@@ -31,7 +31,7 @@ import net.minecraft.block.BlockFalling
 import net.minecraft.block.BlockWorkbench
 import net.minecraft.client.gui.screen.inventory.menu.SurvivalInventoryScreen
 import net.minecraft.enchantment.Enchantment
-import net.minecraft.entity.item.EntityItem
+import net.minecraft.entity.ItemEntity
 import net.minecraft.init.Blocks.*
 import net.minecraft.item.Items
 import net.minecraft.item.*
@@ -459,7 +459,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
 
     // TODO: Simplify all is useful checks by a single getBetterAlternativeCount and checking if it is above 0, above stack limit, ...
     fun isStackUseful(
-        stack: ItemStack?, stacks: List<ItemStack?>, entityStacksMap: Map<ItemStack, EntityItem>? = null,
+        stack: ItemStack?, stacks: List<ItemStack?>, entityStacksMap: Map<ItemStack, ItemEntity>? = null,
         noLimits: Boolean = false, strictlyBest: Boolean = false,
     ): Boolean {
         val item = stack?.item ?: return false
@@ -494,7 +494,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
 
     private fun isUsefulEquipment(
         stack: ItemStack?, stacks: List<ItemStack?>,
-        entityStacksMap: Map<ItemStack, EntityItem>? = null,
+        entityStacksMap: Map<ItemStack, ItemEntity>? = null,
     ): Boolean {
         val item = stack?.item ?: return false
 
@@ -558,7 +558,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
 
     private fun isUsefulLighter(
         stack: ItemStack?, stacks: List<ItemStack?>,
-        entityStacksMap: Map<ItemStack, EntityItem>? = null,
+        entityStacksMap: Map<ItemStack, ItemEntity>? = null,
     ): Boolean {
         val item = stack?.item ?: return false
 
@@ -593,9 +593,9 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
 
             // Only when both items are dropped on ground
             if (index == otherIndex) {
-                val otherEntityItem = entityStacksMap?.get(otherStack) ?: return@none false
+                val otherItemEntity = entityStacksMap?.get(otherStack) ?: return@none false
 
-                return distanceSqToItem > mc.thePlayer.getDistanceSqToEntity(otherEntityItem)
+                return distanceSqToItem > mc.thePlayer.getDistanceSqToEntity(otherItemEntity)
             }
 
             canBeSortedTo(otherIndex, otherItem, stacks.size)
@@ -604,7 +604,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
     }
 
     private fun isUsefulFood(
-        stack: ItemStack?, stacks: List<ItemStack?>, entityStacksMap: Map<ItemStack, EntityItem>?,
+        stack: ItemStack?, stacks: List<ItemStack?>, entityStacksMap: Map<ItemStack, ItemEntity>?,
         ignoreLimits: Boolean, strictlyBest: Boolean,
     ): Boolean {
         val item = stack?.item ?: return false
@@ -655,10 +655,10 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
                 0 -> {
                     // Only true when both items are dropped on ground
                     if (index == otherIndex) {
-                        val otherEntityItem = entityStacksMap?.get(otherStack) ?: return@count false
+                        val otherItemEntity = entityStacksMap?.get(otherStack) ?: return@count false
 
                         // If other item is closer, count it as better
-                        distanceSqToItem > mc.thePlayer.getDistanceSqToEntity(otherEntityItem)
+                        distanceSqToItem > mc.thePlayer.getDistanceSqToEntity(otherItemEntity)
                     } else {
                         val isOtherSorted = canBeSortedTo(otherIndex, otherItem, stacks.size)
 
@@ -676,7 +676,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
     }
 
     private fun isUsefulBlock(
-        stack: ItemStack?, stacks: List<ItemStack?>, entityStacksMap: Map<ItemStack, EntityItem>?,
+        stack: ItemStack?, stacks: List<ItemStack?>, entityStacksMap: Map<ItemStack, ItemEntity>?,
         ignoreLimits: Boolean, strictlyBest: Boolean,
     ): Boolean {
         if (!isSuitableBlock(stack)) return false
@@ -716,10 +716,10 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
                 0 -> {
                     // Only true when both items are dropped on ground
                     if (index == otherIndex) {
-                        val otherEntityItem = entityStacksMap?.get(otherStack) ?: return@count false
+                        val otherItemEntity = entityStacksMap?.get(otherStack) ?: return@count false
 
                         // If other item is closer, count it as better
-                        distanceSqToItem > mc.thePlayer.getDistanceSqToEntity(otherEntityItem)
+                        distanceSqToItem > mc.thePlayer.getDistanceSqToEntity(otherItemEntity)
                     } else {
                         val isOtherSorted = canBeSortedTo(otherIndex, otherStack.item, stacks.size)
 
@@ -738,7 +738,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
 
     private fun isUsefulThrowable(
         stack: ItemStack?, stacks: List<ItemStack?>,
-        entityStacksMap: Map<ItemStack, EntityItem>?, ignoreLimits: Boolean, strictlyBest: Boolean,
+        entityStacksMap: Map<ItemStack, ItemEntity>?, ignoreLimits: Boolean, strictlyBest: Boolean,
     ): Boolean {
         val item = stack?.item ?: return false
 
@@ -783,10 +783,10 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
                 0 -> {
                     // Only true when both items are dropped on ground
                     if (index == otherIndex) {
-                        val otherEntityItem = entityStacksMap?.get(otherStack) ?: return@count false
+                        val otherItemEntity = entityStacksMap?.get(otherStack) ?: return@count false
 
                         // If other item is closer, count it as better
-                        distanceSqToItem > mc.thePlayer.getDistanceSqToEntity(otherEntityItem)
+                        distanceSqToItem > mc.thePlayer.getDistanceSqToEntity(otherItemEntity)
                     } else {
                         val isOtherSorted = canBeSortedTo(otherIndex, otherStack.item, stacks.size)
 
@@ -806,7 +806,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
     // Limit buckets to max 1 per type
     private fun isUsefulBucket(
         stack: ItemStack?, stacks: List<ItemStack?>,
-        entityStacksMap: Map<ItemStack, EntityItem>?,
+        entityStacksMap: Map<ItemStack, ItemEntity>?,
     ): Boolean {
         val item = stack?.item ?: return false
 
@@ -841,9 +841,9 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
 
             // Only when both items are dropped on ground
             if (index == otherIndex) {
-                val otherEntityItem = entityStacksMap?.get(otherStack) ?: return@none false
+                val otherItemEntity = entityStacksMap?.get(otherStack) ?: return@none false
 
-                return distanceSqToItem > mc.thePlayer.getDistanceSqToEntity(otherEntityItem)
+                return distanceSqToItem > mc.thePlayer.getDistanceSqToEntity(otherItemEntity)
             }
 
             canBeSortedTo(otherIndex, otherItem, stacks.size) || otherIndex > index
@@ -852,7 +852,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
 
     private fun hasBestParameters(
         stack: ItemStack?, stacks: List<ItemStack?>,
-        entityStacksMap: Map<ItemStack, EntityItem>? = null, parameters: (ItemStack) -> Float,
+        entityStacksMap: Map<ItemStack, ItemEntity>? = null, parameters: (ItemStack) -> Float,
     ): Boolean {
         val item = stack?.item ?: return false
 
@@ -899,8 +899,8 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
                         0 -> {
                             // Only true when both items are dropped on ground, if other item is closer, compared one isn't the best
                             if (index == otherIndex) {
-                                val otherEntityItem = entityStacksMap?.get(otherStack) ?: return@forEachIndexed
-                                when (distanceSqToItem.compareTo(mc.thePlayer.getDistanceSqToEntity(otherEntityItem))) {
+                                val otherItemEntity = entityStacksMap?.get(otherStack) ?: return@forEachIndexed
+                                when (distanceSqToItem.compareTo(mc.thePlayer.getDistanceSqToEntity(otherItemEntity))) {
                                     1 -> return false
                                     // Both items are exactly far, pretty much impossible
                                     0 -> return true

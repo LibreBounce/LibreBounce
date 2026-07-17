@@ -107,7 +107,7 @@ object AutoRod : Module("AutoRod", Category.COMBAT) {
                         // Check if the enemy's health is below the threshold
                         if (ignoreOnEnemyLowHealth) {
                             if (getHealth(
-                                    facingEntity as EntityLivingBase,
+                                    facingEntity as LivingEntity,
                                     healthFromScoreboard,
                                     absorption
                                 ) >= enemyHealthThreshold

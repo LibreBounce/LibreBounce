@@ -13,7 +13,7 @@ import net.ccbluex.liquidbounce.ui.client.clickgui.Panel
 import net.ccbluex.liquidbounce.ui.client.clickgui.elements.ButtonElement
 import net.ccbluex.liquidbounce.ui.client.clickgui.elements.ModuleElement
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
-import net.ccbluex.liquidbounce.utils.client.asResourceLocation
+import net.ccbluex.liquidbounce.utils.client.asIdentifier
 import net.ccbluex.liquidbounce.utils.client.playSound
 import net.ccbluex.liquidbounce.utils.extensions.decimalPlaces
 import net.ccbluex.liquidbounce.utils.timing.WaitTickUtils
@@ -53,11 +53,11 @@ abstract class Style : MinecraftInstance {
     ): Boolean
 
     fun clickSound() {
-        mc.playSound("gui.button.press".asResourceLocation())
+        mc.playSound("gui.button.press".asIdentifier())
     }
 
     fun showSettingsSound() {
-        mc.playSound("random.bow".asResourceLocation())
+        mc.playSound("random.bow".asIdentifier())
     }
 
     protected fun round(v: Float): Float {

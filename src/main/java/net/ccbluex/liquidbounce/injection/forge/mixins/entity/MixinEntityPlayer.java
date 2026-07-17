@@ -14,7 +14,7 @@ import net.ccbluex.liquidbounce.utils.client.ClassUtils;
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.living.player.PlayerEntity;
-import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.entity.living.player.PlayerInventory;
 import net.minecraft.entity.player.PlayerCapabilities;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
@@ -29,7 +29,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import static net.ccbluex.liquidbounce.utils.client.MinecraftInstance.mc;
 
 @Mixin(PlayerEntity.class)
-public abstract class MixinPlayerEntity extends MixinEntityLivingBase {
+public abstract class MixinPlayerEntity extends MixinLivingEntity {
 
     @Shadow
     public abstract ItemStack getHeldItem();
@@ -62,7 +62,7 @@ public abstract class MixinPlayerEntity extends MixinEntityLivingBase {
     public abstract boolean isUsingItem();
 
     @Shadow
-    public InventoryPlayer inventory;
+    public PlayerInventory inventory;
     @Shadow public ItemStack itemInUse;
     @Shadow public int itemInUseCount;
     private ItemStack cooldownStack;

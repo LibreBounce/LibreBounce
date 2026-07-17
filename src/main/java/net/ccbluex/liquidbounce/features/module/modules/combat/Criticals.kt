@@ -50,7 +50,7 @@ object Criticals : Module("Criticals", Category.COMBAT) {
     }
 
     val onAttack = handler<AttackEvent> { event ->
-        if (event.targetEntity is EntityLivingBase) {
+        if (event.targetEntity is LivingEntity) {
             val player = mc.thePlayer ?: return@handler
             val entity = event.targetEntity
 
@@ -111,7 +111,7 @@ object Criticals : Module("Criticals", Category.COMBAT) {
                 "Jump" -> player.motionY = 0.42
                 "LowJump" -> player.motionY = 0.3425
                 "CustomMotion" -> player.motionY = customMotionY.toDouble()
-                "Visual" -> player.onCriticalHit(entity)
+                "Visual" -> player.addCritParticles(entity)
             }
 
             msTimer.reset()
