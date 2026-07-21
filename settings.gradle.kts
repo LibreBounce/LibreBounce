@@ -20,6 +20,19 @@ pluginManagement {
         gradlePluginPortal()
     }
 
+    resolutionStrategy {
+        eachPlugin {
+            switch (requested.id.id) {
+                case "net.minecraftforge.gradle.forge":
+                    useModule("com.github.ccbluex:ForgeGradle:${forgegradle_version}")
+                    break
+                case "org.spongepowered.mixin":
+                    useModule("com.github.xcfrg:mixingradle:${mixingradle_version}")
+                    break
+            }
+        }
+    }
+
     plugins {
         id("fabric-loom") version providers.gradleProperty("loom_version")
         id("ploceus") version providers.gradleProperty("ploceus_version")
