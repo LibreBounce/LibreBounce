@@ -306,15 +306,15 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
             var dif = 0.5
             val blockPos = BlockPos(player).down()
 
-            for (side in EnumFacing.entries) {
-                if (side.axis == EnumFacing.Axis.Y) {
+            for (side in Direction.entries) {
+                if (side.axis == Direction.Axis.Y) {
                     continue
                 }
 
                 val neighbor = blockPos.offset(side)
 
                 if (neighbor.isReplaceable) {
-                    val calcDif = (if (side.axis == EnumFacing.Axis.Z) {
+                    val calcDif = (if (side.axis == Direction.Axis.Z) {
                         abs(neighbor.z + 0.5 - player.posZ)
                     } else {
                         abs(neighbor.x + 0.5 - player.posX)
@@ -686,7 +686,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
         val block = stack.item as BlockItem
 
         val canPlaceOnUpperFace = block.canPlaceBlockOnSide(
-            world, raytrace.blockPos, EnumFacing.UP, player, stack
+            world, raytrace.blockPos, Direction.UP, player, stack
         )
 
         val shouldPlace = if (placementAttempt == "Fail") {
@@ -697,7 +697,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
             } else if (shouldPlaceHorizontally) {
                 !canPlaceOnUpperFace
             } else {
-                raytrace.blockPos.y <= player.posY.toInt() - 1 && !(raytrace.blockPos.y == player.posY.toInt() - 1 && canPlaceOnUpperFace && raytrace.sideHit == EnumFacing.UP)
+                raytrace.blockPos.y <= player.posY.toInt() - 1 && !(raytrace.blockPos.y == player.posY.toInt() - 1 && canPlaceOnUpperFace && raytrace.sideHit == Direction.UP)
             }
         }
 
@@ -847,8 +847,8 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
         var currPlaceRotation: PlaceRotation?
 
-        for (side in EnumFacing.entries) {
-            if (horizontalOnly && side.axis == EnumFacing.Axis.Y) {
+        for (side in Direction.entries) {
+            if (horizontalOnly && side.axis == Direction.Axis.Y) {
                 continue
             }
 
@@ -903,7 +903,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
     /**
      * For expand scaffold, fixes vector values that should match according to direction vector
      */
-    private fun modifyVec(original: Vec3d, direction: EnumFacing, pos:Vec3d3, shouldModify: Boolean)Vec3dc3 {
+    private fun modifyVec(original: Vec3d, direction: Direction, pos:Vec3d3, shouldModify: Boolean)Vec3dc3 {
         if (!shouldModify) {
             return original
         }
@@ -915,15 +915,15 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
         val side = direction.opposite
 
         return when (side.axis ?: return original) {
-            EnumFacing.Axis.Y -> Vec3d(x, pos.yCoord + side.directionVec.y.coerceAtLeast(0), z)
-            EnumFacing.Axis.X -> Vec3d(pos.xCoord + side.directionVec.x.coerceAtLeast(0), y, z)
-            EnumFacing.Axis.Z -> Vec3d(x, y, pos.zCoord + side.directionVec.z.coerceAtLeast(0))
+            Direction.Axis.Y -> Vec3d(x, pos.yCoord + side.directionVec.y.coerceAtLeast(0), z)
+            Direction.Axis.X -> Vec3d(pos.xCoord + side.directionVec.x.coerceAtLeast(0), y, z)
+            Direction.Axis.Z -> Vec3d(x, y, pos.zCoord + side.directionVec.z.coerceAtLeast(0))
         }
 
     }
 
     private fun findTargetPlace(
-        pos: BlockPos, offsetPos: BlockPos, vec3: Vec3d, side: EnumFacing, eyes:Vec3d3, maxReach: Float, raycast: Boolean,
+        pos: BlockPos, offsetPos: BlockPos, vec3: Vec3d, side: Direction, eyes:Vec3d3, maxReach: Float, raycast: Boolean,
     ): PlaceRotation? {
         val world = mc.world ?: return null
 
@@ -939,8 +939,8 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
         val diff = vec - eyes
 
-        if (side.axis != EnumFacing.Axis.Y) {
-            val dist = abs(if (side.axis == EnumFacing.Axis.Z) diff.zCoord else diff.xCoord)
+        if (side.axis != Direction.Axis.Y) {
+            val dist = abs(if (side.axis == Direction.Axis.Z) diff.zCoord else diff.xCoord)
 
             if (dist < minDist && scaffoldMode != "Telly") {
                 return null
@@ -1039,7 +1039,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
     }
 
     private fun tryToPlaceBlock(
-        stack: ItemStack, clickPos: BlockPos, side: EnumFacing, hitVec: Vec3d, attempt: Boolean = false,
+        stack: ItemStack, clickPos: BlockPos, side: Direction, hitVec: Vec3d, attempt: Boolean = false,
         onSuccess: () -> Unit = { }
     ): Boolean {
         val player = mc.player ?: return false
@@ -1195,7 +1195,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
                 ) != floor(player.posZ)
 
                 val posInDirection =
-                    BlockPos(player.positionVector.offset(EnumFacing.fromAngle(movingYaw.toDouble()), 0.6))
+                    BlockPos(player.positionVector.offset(Direction.fromAngle(movingYaw.toDouble()), 0.6))
 
                 val isLeaningOffBlock = player.position.down().block == air
                 val nextBlockIsAir = posInDirection.down().block == air

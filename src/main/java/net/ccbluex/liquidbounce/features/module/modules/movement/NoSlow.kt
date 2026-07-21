@@ -28,7 +28,7 @@ import net.minecraft.network.packet.c2s.query.ServerStatusC2SPacket
 import net.minecraft.network.packet.c2s.query.PingC2SPacket
 import net.minecraft.network.packet.s2c.query.PingS2CPacket
 import net.minecraft.util.BlockPos
-import net.minecraft.util.EnumFacing
+import net.minecraft.util.math.Direction
 
 object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
 
@@ -127,7 +127,7 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
 
                     "Intave" -> {
                         if (event.eventState == EventState.PRE) {
-                            sendPacket(PlayerHandActionC2SPacket(RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.UP))
+                            sendPacket(PlayerHandActionC2SPacket(RELEASE_USE_ITEM, BlockPos.ORIGIN, Direction.UP))
                         }
                     }
                 }
@@ -167,7 +167,7 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
                 "NCP" ->
                     when (event.eventState) {
                         EventState.PRE -> sendPacket(
-                            PlayerHandActionC2SPacket(RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN)
+                            PlayerHandActionC2SPacket(RELEASE_USE_ITEM, BlockPos.ORIGIN, Direction.DOWN)
                         )
 
                         EventState.POST -> sendPacket(
@@ -231,7 +231,7 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
             }
 
             if (isUsingItem && !hasDropped) {
-                sendPacket(PlayerHandActionC2SPacket(DROP_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN))
+                sendPacket(PlayerHandActionC2SPacket(DROP_ITEM, BlockPos.ORIGIN, Direction.DOWN))
                 shouldNoSlow = false
                 hasDropped = true
             } else if (packet is InventoryMenuSlotContentS2CPacket && player.isUsingItem) {

@@ -17,7 +17,7 @@ import net.minecraft.block.BlockLadder
 import net.minecraft.block.BlockVine
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.Position
 import net.minecraft.util.BlockPos
-import net.minecraft.util.EnumFacing
+import net.minecraft.util.math.Direction
 
 object FastClimb : Module("FastClimb", Category.MOVEMENT) {
 
@@ -52,10 +52,10 @@ object FastClimb : Module("FastClimb", Category.MOVEMENT) {
                     var z = 0.0
 
                     when (horizontalFacing) {
-                        EnumFacing.NORTH -> z = -0.99
-                        EnumFacing.EAST -> x = 0.99
-                        EnumFacing.SOUTH -> z = 0.99
-                        EnumFacing.WEST -> x = -0.99
+                        Direction.NORTH -> z = -0.99
+                        Direction.EAST -> x = 0.99
+                        Direction.SOUTH -> z = 0.99
+                        Direction.WEST -> x = -0.99
                         else -> {}
                     }
 
@@ -89,10 +89,10 @@ object FastClimb : Module("FastClimb", Category.MOVEMENT) {
                             var z = 0.0
 
                             when (horizontalFacing) {
-                                EnumFacing.NORTH -> z = -1.0
-                                EnumFacing.EAST -> x = 1.0
-                                EnumFacing.SOUTH -> z = 1.0
-                                EnumFacing.WEST -> x = -1.0
+                                Direction.NORTH -> z = -1.0
+                                Direction.EAST -> x = 1.0
+                                Direction.SOUTH -> z = 1.0
+                                Direction.WEST -> x = -1.0
                                 else -> {}
                             }
 

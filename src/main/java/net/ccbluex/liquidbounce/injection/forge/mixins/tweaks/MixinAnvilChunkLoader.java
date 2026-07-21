@@ -5,9 +5,9 @@
  */
 package net.ccbluex.liquidbounce.injection.forge.mixins.tweaks;
 
-import net.minecraft.nbt.CompressedStreamTools;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.chunk.storage.AnvilChunkLoader;
+import net.minecraft.nbt.NbtIo;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.world.chunk.storage.AnvilChunkStorage;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -15,8 +15,8 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import java.io.DataInputStream;
 import java.io.IOException;
 
-@Mixin(AnvilChunkLoader.class)
-public class MixinAnvilChunkLoader {
+@Mixin(AnvilChunkStorage.class)
+public class MixinAnvilChunkStorage {
 
     /**
      * Due to limitations with local variable capture in Mixins,
@@ -26,13 +26,13 @@ public class MixinAnvilChunkLoader {
             method = "loadChunk__Async",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/nbt/CompressedStreamTools;read(Ljava/io/DataInputStream;)Lnet/minecraft/nbt/NBTTagCompound;"
+                    target = "Lnet/minecraft/nbt/NbtIo;read(Ljava/io/DataInputStream;)Lnet/minecraft/nbt/NbtCompound;"
             )
     )
 
-    private NBTTagCompound redirectReadChunkData(DataInputStream inputStream) throws IOException {
+    private NbtCompound redirectReadChunkData(DataInputStream inputStream) throws IOException {
         try (DataInputStream stream = inputStream) {
-            return CompressedStreamTools.read(stream);
+            return NbtIo.read(stream);
         }
     }
 }

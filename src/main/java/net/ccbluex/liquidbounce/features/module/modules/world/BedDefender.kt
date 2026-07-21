@@ -34,7 +34,7 @@ import net.minecraft.item.ItemStack
 import net.minecraft.network.packet.c2s.play.ArmSwingC2SPacket
 import net.minecraft.network.packet.c2s.play.PlayerMovementActionC2SPacket
 import net.minecraft.util.BlockPos
-import net.minecraft.util.EnumFacing
+import net.minecraft.util.math.Direction
 import net.minecraft.util.MovingObjectPosition
 import net.minecraft.util.math.Vec3d
 import net.minecraftforge.event.ForgeEventFactory
@@ -178,7 +178,7 @@ object BedDefender : Module("BedDefender", Category.WORLD) {
         }
     }
 
-    private fun placeBlock(blockPos: BlockPos, side: EnumFacing, hitVec: Vec3d) {
+    private fun placeBlock(blockPos: BlockPos, side: Direction, hitVec: Vec3d) {
         val player = mc.player ?: return
 
         var stack = player.inventorySlot(SilentHotbar.currentSlot + 36).stack ?: return
@@ -217,7 +217,7 @@ object BedDefender : Module("BedDefender", Category.WORLD) {
     private fun tryToPlaceBlock(
         stack: ItemStack,
         clickPos: BlockPos,
-        side: EnumFacing,
+        side: Direction,
         hitVec: Vec3d,
     ): Boolean {
         val player = mc.player ?: return false
@@ -256,7 +256,7 @@ object BedDefender : Module("BedDefender", Category.WORLD) {
                 movingObjectPosition != null && movingObjectPosition.blockPos == pos
             }
 
-            "Around" -> EnumFacing.entries.any { !isBlockBBValid(pos.offset(it)) }
+            "Around" -> Direction.entries.any { !isBlockBBValid(pos.offset(it)) }
 
             else -> true
         }

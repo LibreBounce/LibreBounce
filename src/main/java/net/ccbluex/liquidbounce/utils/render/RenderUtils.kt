@@ -16,7 +16,7 @@ import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.io.flipSafely
 import net.ccbluex.liquidbounce.utils.render.animation.AnimationUtil
-import net.minecraft.client.gui.FontRenderer
+import net.minecraft.client.render.TextRenderer
 import net.minecraft.client.render.Window
 import net.minecraft.client.render.platform.GlStateManager.*
 import net.minecraft.client.render.vertex.Tesselator
@@ -149,7 +149,7 @@ object RenderUtils : MinecraftInstance {
     @JvmStatic
     fun BlockPos.drawBlockDamageText(
         currentDamage: Float,
-        font: FontRenderer,
+        font: TextRenderer,
         fontShadow: Boolean,
         color: Int,
         scale: Float,
@@ -1387,7 +1387,7 @@ object RenderUtils : MinecraftInstance {
 
     fun draw2D(blockPos: BlockPos, color: Int, backgroundColor: Int) {
         val renderManager = mc.renderManager
-        val (x, y, z) = blockPos.center.offset(EnumFacing.DOWN, 0.5) - renderManager.renderPos
+        val (x, y, z) = blockPos.center.offset(Direction.DOWN, 0.5) - renderManager.renderPos
         glPushMatrix()
         glTranslated(x, y, z)
         glRotated(-renderManager.playerViewY.toDouble(), 0.0, 1.0, 0.0)

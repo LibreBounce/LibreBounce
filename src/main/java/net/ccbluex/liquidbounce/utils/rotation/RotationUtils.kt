@@ -121,7 +121,7 @@ object RotationUtils : MinecraftInstance, Listenable {
 
                     val currentRotation = currentRotation ?: player.rotation
 
-                    if (raycast != null && raycast.blockPos == blockPos && (!targetUpperFace || raycast.sideHit == EnumFacing.UP)) {
+                    if (raycast != null && raycast.blockPos == blockPos && (!targetUpperFace || raycast.sideHit == Direction.UP)) {
                         if (visibleVec == null || rotationDifference(
                                 currentVec.rotation, currentRotation
                             ) < rotationDifference(visibleVec.rotation, currentRotation)

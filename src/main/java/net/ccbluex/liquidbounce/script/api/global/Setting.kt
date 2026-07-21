@@ -10,7 +10,7 @@ import jdk.nashorn.api.scripting.ScriptObjectMirror
 import jdk.nashorn.api.scripting.ScriptUtils
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.config.*
-import net.minecraft.client.gui.FontRenderer
+import net.minecraft.client.render.TextRenderer
 
 /**
  * Object used by the script API to provide an idiomatic way of creating module values.
@@ -172,7 +172,7 @@ object Setting : Configurable("ScriptSetting") {
     @JvmStatic
     fun font(settingInfo: JSObject): FontValue {
         val name = settingInfo["name"] as String
-        val default = settingInfo["default"] as? FontRenderer ?: Fonts.minecraftFont
+        val default = settingInfo["default"] as? TextRenderer ?: Fonts.minecraftFont
 
         val isSupportedCallback = settingInfo["isSupported"] as? ScriptObjectMirror
         val onChangeCallback = settingInfo["onChange"] as? ScriptObjectMirror
@@ -181,7 +181,7 @@ object Setting : Configurable("ScriptSetting") {
         return font(name, default) {
             isSupportedCallback?.call(null) as? Boolean ?: true
         }.onChange { old, new ->
-            onChangeCallback?.call(null, old, new) as? FontRenderer ?: new
+            onChangeCallback?.call(null, old, new) as? TextRenderer ?: new
         }.onChanged { new ->
             onChangedCallback?.call(null, new)
         } as FontValue

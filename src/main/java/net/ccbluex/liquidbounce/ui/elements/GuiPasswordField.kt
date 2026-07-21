@@ -6,12 +6,12 @@
 
 package net.ccbluex.liquidbounce.ui.elements
 
-import net.minecraft.client.gui.FontRenderer
+import net.minecraft.client.render.TextRenderer
 import net.minecraft.client.gui.widget.TextFieldWidget
 
 class GuiPasswordField(
     componentId: Int,
-    fontrendererObj: FontRenderer,
+    fontrendererObj: TextRenderer,
     x: Int,
     y: Int,
     width: Int,

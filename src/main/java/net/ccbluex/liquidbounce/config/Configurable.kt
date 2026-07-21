@@ -8,7 +8,7 @@ package net.ccbluex.liquidbounce.config
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import net.ccbluex.liquidbounce.utils.io.json
-import net.minecraft.client.gui.FontRenderer
+import net.minecraft.client.render.TextRenderer
 import java.awt.Color
 
 /**
@@ -97,7 +97,7 @@ open class Configurable(
     }
 
     fun font(
-        name: String, value: FontRenderer, isSupported: (() -> Boolean)? = null
+        name: String, value: TextRenderer, isSupported: (() -> Boolean)? = null
     ) = +FontValue(name, value).apply {
         if (isSupported != null) setSupport { isSupported.invoke() }
     }

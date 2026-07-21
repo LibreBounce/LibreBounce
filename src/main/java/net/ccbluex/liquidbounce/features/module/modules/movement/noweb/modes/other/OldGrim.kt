@@ -11,7 +11,7 @@ import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.minecraft.init.Blocks.web
 import net.minecraft.network.packet.c2s.play.PlayerHandActionC2SPacket
 import net.minecraft.network.packet.c2s.play.PlayerHandActionC2SPacket.Action
-import net.minecraft.util.EnumFacing
+import net.minecraft.util.math.Direction
 
 object OldGrim : NoWebMode("OldGrim") {
     override fun onUpdate() {
@@ -19,7 +19,7 @@ object OldGrim : NoWebMode("OldGrim") {
         mc.player.isInWeb = false
         for (block in searchBlocks) {
             val blockpos = block.key
-            sendPacket(PlayerHandActionC2SPacket(Action.STOP_DESTROY_BLOCK, blockpos, EnumFacing.DOWN))
+            sendPacket(PlayerHandActionC2SPacket(Action.STOP_DESTROY_BLOCK, blockpos, Direction.DOWN))
         }
     }
 }

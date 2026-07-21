@@ -13,7 +13,7 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
 import net.ccbluex.liquidbounce.ui.client.hud.element.Side
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts
-import net.ccbluex.liquidbounce.ui.font.GameFontRenderer
+import net.ccbluex.liquidbounce.ui.font.GameTextRenderer
 import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.extensions.lerpWith
 import net.ccbluex.liquidbounce.utils.kotlin.removeEach
@@ -62,7 +62,7 @@ class ScoreboardElement(
      */
     override fun drawElement(): Border? {
         assumeNonVolatile {
-            val (fontRenderer, fontHeight) = font to ((font as? GameFontRenderer)?.height ?: font.FONT_HEIGHT)
+            val (fontRenderer, fontHeight) = font to ((font as? GameTextRenderer)?.height ?: font.FONT_HEIGHT)
             val textColor = textColor.rgb
             val backColor = backgroundColor.rgb
 

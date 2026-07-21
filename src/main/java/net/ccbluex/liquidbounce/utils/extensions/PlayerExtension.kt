@@ -37,7 +37,7 @@ import net.minecraft.network.packet.c2s.play.ArmSwingC2SPacket
 import net.minecraft.network.packet.c2s.play.PlayerUseC2SPacket
 import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.BlockPos
-import net.minecraft.util.EnumFacing
+import net.minecraft.util.math.Direction
 import net.minecraft.util.math.Vec3d
 import net.minecraftforge.event.ForgeEventFactory
 
@@ -219,7 +219,7 @@ infix fun LivingEntity.setSprintSafely(new: Boolean) {
 
 // Modified mc.playerController.onPlayerRightClick() that sends correct stack in its C08
 fun LocalClientPlayerEntity.onPlayerRightClick(
-    clickPos: BlockPos, side: EnumFacing, clickVec: Vec3d,
+    clickPos: BlockPos, side: Direction, clickVec: Vec3d,
     stack: ItemStack? = inventory.mainInventory[SilentHotbar.currentSlot],
 ): Boolean {
     val controller = mc.playerController ?: return false

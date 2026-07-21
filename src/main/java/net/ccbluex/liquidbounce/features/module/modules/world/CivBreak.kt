@@ -23,7 +23,7 @@ import net.minecraft.network.packet.c2s.play.PlayerHandActionC2SPacket
 import net.minecraft.network.packet.c2s.play.PlayerHandActionC2SPacket.Action.START_DESTROY_BLOCK
 import net.minecraft.network.packet.c2s.play.PlayerHandActionC2SPacket.Action.STOP_DESTROY_BLOCK
 import net.minecraft.util.BlockPos
-import net.minecraft.util.EnumFacing
+import net.minecraft.util.math.Direction
 import java.awt.Color
 
 object CivBreak : Module("CivBreak", Category.WORLD) {
@@ -34,7 +34,7 @@ object CivBreak : Module("CivBreak", Category.WORLD) {
     private val options = RotationSettings(this).withoutKeepRotation()
 
     private var blockPos: BlockPos? = null
-    private var enumFacing: EnumFacing? = null
+    private var enumFacing: Direction? = null
 
     val onBlockClick = handler<ClickBlockEvent> { event ->
         blockPos = event.clickedBlock?.takeIf { it.block != bedrock } ?: return@handler

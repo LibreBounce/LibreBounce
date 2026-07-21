@@ -15,15 +15,15 @@ import net.ccbluex.liquidbounce.features.module.modules.world.NoSlowBreak;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.BlockState;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.state.BlockState;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.living.LivingEntity;
 import net.minecraft.entity.living.player.PlayerEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.world.IBlockAccess;
+import net.minecraft.util.math.Direction;
+import net.minecraft.world.WorldView;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -46,14 +46,14 @@ public abstract class MixinBlock {
     protected BlockState blockState;
 
     @Shadow
-    public abstract AxisAlignedBB getCollisionBoundingBox(World worldIn, BlockPos pos, IBlockState state);
+    public abstract AxisAlignedBB getCollisionBoundingBox(World worldIn, BlockPos pos, BlockState state);
 
     @Shadow
     public abstract void setBlockBounds(float minX, float minY, float minZ, float maxX, float maxY, float maxZ);
 
     // Has to be implemented since a non-virtual call on an abstract method is illegal
     @Shadow
-    public IBlockState onBlockPlaced(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, LivingEntity placer) {
+    public BlockState onBlockPlaced(World worldIn, BlockPos pos, Direction facing, float hitX, float hitY, float hitZ, int meta, LivingEntity placer) {
         return null;
     }
 
@@ -61,7 +61,7 @@ public abstract class MixinBlock {
      * @author CCBlueX
      */
     @Overwrite
-    public void addCollisionBoxesToList(World worldIn, BlockPos pos, IBlockState state, AxisAlignedBB mask, List<AxisAlignedBB> list, Entity collidingEntity) {
+    public void addCollisionBoxesToList(World worldIn, BlockPos pos, BlockState state, AxisAlignedBB mask, List<AxisAlignedBB> list, Entity collidingEntity) {
         AxisAlignedBB axisalignedbb = getCollisionBoundingBox(worldIn, pos, state);
         BlockBBEvent blockBBEvent = new BlockBBEvent(pos, blockState.getBlock(), axisalignedbb);
         EventManager.INSTANCE.call(blockBBEvent);
@@ -72,7 +72,7 @@ public abstract class MixinBlock {
     }
 
     @Inject(method = "shouldSideBeRendered", at = @At("HEAD"), cancellable = true)
-    private void shouldSideBeRendered(IBlockAccess p_shouldSideBeRendered_1_, BlockPos p_shouldSideBeRendered_2_, EnumFacing p_shouldSideBeRendered_3_, CallbackInfoReturnable<Boolean> cir) {
+    private void shouldSideBeRendered(WorldView p_shouldSideBeRendered_1_, BlockPos p_shouldSideBeRendered_2_, Direction p_shouldSideBeRendered_3_, CallbackInfoReturnable<Boolean> cir) {
         if (XRay.INSTANCE.handleEvents()) {
             cir.setReturnValue(XRay.INSTANCE.getXrayBlocks().contains((Block) (Object) this));
         }

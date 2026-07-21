@@ -19,16 +19,16 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(KeyboardInput.class)
 public class MixinKeyboardInput extends MixinInput {
 
-    @Inject(method = "updatePlayerMoveState", at = @At(value = "FIELD", target = "Lnet/minecraft/client/entity/living/player/KeyboardInput;jump:Z"))
+    @Inject(method = "tick", at = @At(value = "FIELD", target = "Lnet/minecraft/client/entity/living/player/KeyboardInput;jump:Z"))
     private void hookSuperKnockbackInputBlock(CallbackInfo ci) {
         SuperKnockback module = SuperKnockback.INSTANCE;
 
         if (module.shouldBlockInput()) {
             if (module.getOnlyMove()) {
-                this.forwardSpeed = 0f;
+                this.movementForward = 0f;
 
                 if (!module.getOnlyMoveForward()) {
-                    this.moveStrafe = 0f;
+                    this.movementSideways = 0f;
                 }
             }
         }
@@ -36,7 +36,7 @@ public class MixinKeyboardInput extends MixinInput {
         Scaffold.INSTANCE.handleMovementOptions(((Input) (Object) this));
     }
 
-    @Inject(method = "updatePlayerMoveState", at = @At(value = "FIELD", target = "Lnet/minecraft/client/entity/living/player/KeyboardInput;sneak:Z", ordinal = 1))
+    @Inject(method = "tick", at = @At(value = "FIELD", target = "Lnet/minecraft/client/entity/living/player/KeyboardInput;sneak:Z", ordinal = 1))
     private void injectInputEvent(CallbackInfo ci) {
         EventManager.INSTANCE.call(new InputEvent((Input) (Object) this));
     }

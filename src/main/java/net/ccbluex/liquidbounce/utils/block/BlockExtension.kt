@@ -11,13 +11,13 @@ import net.ccbluex.liquidbounce.utils.extensions.ceilInt
 import net.ccbluex.liquidbounce.utils.extensions.floorInt
 import net.minecraft.block.*
 import net.minecraft.block.material.Material
-import net.minecraft.block.state.IBlockState
+import net.minecraft.block.state.BlockState
 import net.minecraft.entity.item.EntityFallingBlock
 import net.minecraft.util.BlockPos
 import net.minecraft.util.math.Vec3d
 import net.minecraft.util.math.Vec3di
 
-val BlockPos.state: IBlockState?
+val BlockPos.state: BlockState?
     get() = mc.world?.getBlockState(this)
 
 val BlockPos.block: Block?

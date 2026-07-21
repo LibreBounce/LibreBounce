@@ -41,7 +41,7 @@ class AWTFontRenderer(
         var assumeNonVolatile: Boolean = false
 
         /** All active font renderers (for GC tasks). */
-        private val activeFontRenderers = mutableListOf<AWTFontRenderer>()
+        private val activeTextRenderers = mutableListOf<AWTFontRenderer>()
 
         /**
          * Runs a block with [assumeNonVolatile] = true, then restores it.
@@ -68,7 +68,7 @@ class AWTFontRenderer(
          */
         private val onRender2D = handler<Render2DEvent>(priority = Byte.MIN_VALUE) {
             if (++gcTicks > GC_TICKS) {
-                activeFontRenderers.forEach { it.collectGarbage() }
+                activeTextRenderers.forEach { it.collectGarbage() }
                 gcTicks = 0
             }
         }
@@ -124,7 +124,7 @@ class AWTFontRenderer(
         renderBitmap(startChar, stopChar)
 
         // Register for GC tasks
-        activeFontRenderers += this
+        activeTextRenderers += this
     }
 
     /**
@@ -246,7 +246,7 @@ class AWTFontRenderer(
             glDeleteTextures(textureID)
             textureID = -1
         }
-        activeFontRenderers.remove(this)
+        activeTextRenderers.remove(this)
     }
 
     /** If the user forgets to call [dispose], still free resources. */

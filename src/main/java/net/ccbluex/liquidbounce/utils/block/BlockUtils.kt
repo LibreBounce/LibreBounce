@@ -9,9 +9,9 @@ import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.extensions.immutableCopy
 import net.minecraft.block.Block
 import net.minecraft.block.BlockGlass
-import net.minecraft.block.BlockSoulSand
+import net.minecraft.block.SoulSandBlock
 import net.minecraft.block.BlockStainedGlass
-import net.minecraft.block.state.IBlockState
+import net.minecraft.block.state.BlockState
 import net.minecraft.init.Blocks.*
 import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.BlockPos
@@ -31,7 +31,7 @@ object BlockUtils : MinecraftInstance {
      */
     fun isBlockBBValid(
         blockPos: BlockPos,
-        blockState: IBlockState? = null,
+        blockState: BlockState? = null,
         supportSlabs: Boolean = false,
         supportPartialBlocks: Boolean = false
     ): Boolean {
@@ -51,7 +51,7 @@ object BlockUtils : MinecraftInstance {
     fun isFullBlock(block: Block): Boolean {
         when (block) {
             // Soul Sand is considered as full block?!
-            is BlockSoulSand -> return false
+            is SoulSandBlock -> return false
 
             // Glass isn't considered as full block?!
             is BlockGlass, is BlockStainedGlass -> return true

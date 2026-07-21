@@ -4,7 +4,7 @@ import net.ccbluex.liquidbounce.config.ColorValue
 import net.ccbluex.liquidbounce.config.TextValue
 import net.ccbluex.liquidbounce.config.Value
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
-import net.minecraft.client.gui.FontRenderer
+import net.minecraft.client.render.TextRenderer
 import net.minecraft.client.gui.widget.ButtonWidget
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.gui.screen.Screen.getClipboardString
@@ -37,7 +37,7 @@ abstract class AbstractScreen : Screen() {
 
     protected inline fun textField(
         id: Int,
-        fontRenderer: FontRenderer,
+        fontRenderer: TextRenderer,
         x: Int,
         y: Int,
         width: Int,

@@ -34,7 +34,7 @@ import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket
 import net.minecraft.network.packet.s2c.play.InventoryMenuConfirmS2CPacket
 import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.BlockPos
-import net.minecraft.util.EnumFacing.DOWN
+import net.minecraft.util.math.Direction.DOWN
 import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.collections.set

@@ -94,7 +94,7 @@ object MLG : NoFallMode("MLG") {
                                     performBlockRaytrace(toRotation(center), reach)
                                 }
 
-                                if (raytrace?.let { it.blockPos == neighbor && it.sideHit == EnumFacing.UP } == true) {
+                                if (raytrace?.let { it.blockPos == neighbor && it.sideHit == Direction.UP } == true) {
                                     val distance = BlockPos(sim.pos).distanceSq(neighbor)
 
                                     if (distance <= minDistance) {
@@ -163,7 +163,7 @@ object MLG : NoFallMode("MLG") {
 
         if (wasWaterBucket || (item as? BlockItem)?.block == web) {
             performBlockRaytrace(currRotation, reach)?.let {
-                if (it.blockPos != target || it.sideHit != EnumFacing.UP) {
+                if (it.blockPos != target || it.sideHit != Direction.UP) {
                     return@let
                 }
 
@@ -210,7 +210,7 @@ object MLG : NoFallMode("MLG") {
                         if (player.fallDistance == 0F) {
                             val raytrace = performBlockRaytrace(currRotation, reach)
                             // Did the user decide to look somewhere else?
-                            if (raytrace == null || raytrace.blockPos != target || raytrace.sideHit != EnumFacing.UP) {
+                            if (raytrace == null || raytrace.blockPos != target || raytrace.sideHit != Direction.UP) {
                                 // Reset the rotation if it took more than the max retrieval waiting time to retrieve
                                 reset(elapsedTicks >= maxRetrievalWaitingTime)
                                 return@conditionalSchedule null
@@ -247,7 +247,7 @@ object MLG : NoFallMode("MLG") {
 
     private inline fun placeBlock(
         blockPos: BlockPos,
-        side: EnumFacing,
+        side: Direction,
         hitVec: Vec3d,
         stack: ItemStack,
         finalStage: Boolean = true,
@@ -261,7 +261,7 @@ object MLG : NoFallMode("MLG") {
     }
 
     private inline fun tryToPlaceBlock(
-        stack: ItemStack, clickPos: BlockPos, side: EnumFacing, hitVec: Vec3d, onSuccess: () -> Unit
+        stack: ItemStack, clickPos: BlockPos, side: Direction, hitVec: Vec3d, onSuccess: () -> Unit
     ): Boolean {
         val player = mc.player ?: return false
 

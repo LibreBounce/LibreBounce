@@ -6,7 +6,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.movement.longjump.modes.aac
 
 import net.ccbluex.liquidbounce.features.module.modules.movement.longjump.modes.LongJumpMode
-import net.minecraft.util.EnumFacing
+import net.minecraft.util.math.Direction
 
 object AACv3 : LongJumpMode("AACv3") {
     var teleported = false
@@ -20,10 +20,10 @@ object AACv3 : LongJumpMode("AACv3") {
                 var z = 0.0
 
                 when (horizontalFacing) {
-                    EnumFacing.NORTH -> z = -value
-                    EnumFacing.EAST -> x = value
-                    EnumFacing.SOUTH -> z = value
-                    EnumFacing.WEST -> x = -value
+                    Direction.NORTH -> z = -value
+                    Direction.EAST -> x = value
+                    Direction.SOUTH -> z = value
+                    Direction.WEST -> x = -value
                     else -> {}
                 }
 

@@ -15,7 +15,7 @@ import net.ccbluex.liquidbounce.utils.render.ColorUtils.withAlpha
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBorder
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedRect2
-import net.minecraft.client.gui.FontRenderer
+import net.minecraft.client.render.TextRenderer
 import net.minecraft.client.render.platform.GlStateManager.*
 import net.minecraft.client.render.platform.Lighting.turnOff
 import net.minecraft.client.render.platform.Lighting.turnOnGui
@@ -88,7 +88,7 @@ class Inventory : Element("Inventory", 300.0, 50.0) {
      * render single line of inventory
      * @param endSlot slot+9
      */
-    private fun renderInv(slot: Int, endSlot: Int, x: Int, y: Int, font: FontRenderer) {
+    private fun renderInv(slot: Int, endSlot: Int, x: Int, y: Int, font: TextRenderer) {
         var xOffset = x
 
         for (i in slot..endSlot) {

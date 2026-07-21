@@ -9,7 +9,7 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 import net.ccbluex.liquidbounce.ui.font.Fonts;
 import net.ccbluex.liquidbounce.utils.render.RenderUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.render.TextRenderer;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.client.config.ButtonWidgetExt;
@@ -49,7 +49,7 @@ public abstract class MixinButtonWidgetExt extends ButtonWidget {
      */
     @Overwrite
     public void drawButton(Minecraft mc, int mouseX, int mouseY) {
-        final FontRenderer fontRenderer = mc.getLanguageManager().isCurrentLocaleUnicode() ? mc.fontRendererObj : Fonts.font35;
+        final TextRenderer fontRenderer = mc.getLanguageManager().isCurrentLocaleUnicode() ? mc.fontRendererObj : Fonts.font35;
 
         hovered = mouseX >= xPosition && mouseY >= yPosition && mouseX < xPosition + width && mouseY < yPosition + height;
 

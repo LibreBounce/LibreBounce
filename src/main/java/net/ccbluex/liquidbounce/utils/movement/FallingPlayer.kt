@@ -11,7 +11,7 @@ import net.ccbluex.liquidbounce.utils.extensions.plus
 import net.ccbluex.liquidbounce.utils.extensions.toRadians
 import net.minecraft.client.entity.living.player.LocalClientPlayerEntity
 import net.minecraft.util.BlockPos
-import net.minecraft.util.EnumFacing
+import net.minecraft.util.math.Direction
 import net.minecraft.util.MovingObjectPosition.MovingObjectType.BLOCK
 import net.minecraft.util.math.Vec3d
 import kotlin.math.cos
@@ -87,7 +87,7 @@ class FallingPlayer(
     private fun rayTrace(start: Vec3d, end:Vec3d3): BlockPos? {
         val result = mc.world.rayTraceBlocks(start, end, true) ?: return null
 
-        return if (result.typeOfHit == BLOCK && result.sideHit == EnumFacing.UP) result.blockPos
+        return if (result.typeOfHit == BLOCK && result.sideHit == Direction.UP) result.blockPos
         else null
     }
 

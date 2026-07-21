@@ -35,7 +35,7 @@ import net.minecraft.network.packet.c2s.play.PlayerHandActionC2SPacket
 import net.minecraft.network.packet.c2s.play.PlayerHandActionC2SPacket.Action.*
 import net.minecraft.network.packet.s2c.play.PlayerMoveS2CPacket
 import net.minecraft.util.BlockPos
-import net.minecraft.util.EnumFacing
+import net.minecraft.util.math.Direction
 import net.minecraft.util.math.Vec3d
 import java.awt.Color
 
@@ -89,7 +89,7 @@ object Fucker : Module("Fucker", Category.WORLD) {
 
     override fun onToggle(state: Boolean) {
         if (pos != null && !mc.player.capabilities.isCreativeMode) {
-            sendPacket(PlayerHandActionC2SPacket(ABORT_DESTROY_BLOCK, pos, EnumFacing.DOWN))
+            sendPacket(PlayerHandActionC2SPacket(ABORT_DESTROY_BLOCK, pos, Direction.DOWN))
         }
 
         currentDamage = 0F
@@ -346,7 +346,7 @@ object Fucker : Module("Fucker", Category.WORLD) {
                 val movingObjectPosition = mc.world.rayTraceBlocks(eyesPos, blockPos.center, false, true, false)
                 movingObjectPosition != null && movingObjectPosition.blockPos == blockPos
             }
-            "Around" -> EnumFacing.entries.any { !isBlockBBValid(blockPos.offset(it)) }
+            "Around" -> Direction.entries.any { !isBlockBBValid(blockPos.offset(it)) }
             else -> true
         }
     }

@@ -12,7 +12,7 @@ import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.io.*
 import net.ccbluex.liquidbounce.utils.io.Downloader
-import net.minecraft.client.gui.FontRenderer
+import net.minecraft.client.render.TextRenderer
 import java.awt.Font
 import java.io.File
 import kotlin.system.measureTimeMillis
@@ -21,7 +21,7 @@ data class FontInfo(val name: String, val size: Int = -1, val isCustom: Boolean 
 
 data class CustomFontInfo(val name: String, val fontFile: String, val fontSize: Int)
 
-private val FONT_REGISTRY = LinkedHashMap<FontInfo, FontRenderer>()
+private val FONT_REGISTRY = LinkedHashMap<FontInfo, TextRenderer>()
 
 object Fonts : MinecraftInstance {
 
@@ -54,26 +54,26 @@ object Fonts : MinecraftInstance {
         set(value) = configFile.writeJson(value)
 
     val minecraftFontInfo = FontInfo(name = "Minecraft Font")
-    val minecraftFont: FontRenderer by lazy {
+    val minecraftFont: TextRenderer by lazy {
         mc.fontRendererObj
     }
 
-    lateinit var font30: GameFontRenderer
-    lateinit var font35: GameFontRenderer
-    lateinit var font40: GameFontRenderer
-    lateinit var fontBold180: GameFontRenderer
+    lateinit var font30: GameTextRenderer
+    lateinit var font35: GameTextRenderer
+    lateinit var font40: GameTextRenderer
+    lateinit var fontBold180: GameTextRenderer
 
-    private fun <T : FontRenderer> register(fontInfo: FontInfo, fontRenderer: T): T {
+    private fun <T : TextRenderer> register(fontInfo: FontInfo, fontRenderer: T): T {
         FONT_REGISTRY[fontInfo] = fontRenderer
         return fontRenderer
     }
 
-    fun registerCustomAWTFont(customFontInfo: CustomFontInfo, save: Boolean = true): GameFontRenderer? {
+    fun registerCustomAWTFont(customFontInfo: CustomFontInfo, save: Boolean = true): GameTextRenderer? {
         val font = getFontFromFileOrNull(customFontInfo.fontFile, customFontInfo.fontSize) ?: return null
 
         val result = register(
             FontInfo(customFontInfo.name, customFontInfo.fontSize, isCustom = true),
-            font.asGameFontRenderer()
+            font.asGameTextRenderer()
         )
 
         if (save) {
@@ -92,22 +92,22 @@ object Fonts : MinecraftInstance {
 
             font30 = register(
                 FontInfo(name = "Roboto Medium", size = 30),
-                getFontFromFile("Roboto-Medium.ttf", 30).asGameFontRenderer()
+                getFontFromFile("Roboto-Medium.ttf", 30).asGameTextRenderer()
             )
 
             font35 = register(
                 FontInfo(name = "Roboto Medium", size = 35),
-                getFontFromFile("Roboto-Medium.ttf", 35).asGameFontRenderer()
+                getFontFromFile("Roboto-Medium.ttf", 35).asGameTextRenderer()
             )
 
             font40 = register(
                 FontInfo(name = "Roboto Medium", size = 40),
-                getFontFromFile("Roboto-Medium.ttf", 40).asGameFontRenderer()
+                getFontFromFile("Roboto-Medium.ttf", 40).asGameTextRenderer()
             )
 
             fontBold180 = register(
                 FontInfo(name = "Roboto Bold", size = 180),
-                getFontFromFile("Roboto-Bold.ttf", 180).asGameFontRenderer()
+                getFontFromFile("Roboto-Bold.ttf", 180).asGameTextRenderer()
             )
 
             loadCustomFonts()
@@ -134,20 +134,20 @@ object Fonts : MinecraftInstance {
         }
     }
 
-    fun getFontRenderer(name: String, size: Int): FontRenderer {
+    fun getTextRenderer(name: String, size: Int): TextRenderer {
         return FONT_REGISTRY.entries.firstOrNull { (fontInfo, _) ->
             fontInfo.size == size && fontInfo.name.equals(name, true)
         }?.value ?: minecraftFont
     }
 
-    fun getFontDetails(fontRenderer: FontRenderer): FontInfo? {
+    fun getFontDetails(fontRenderer: TextRenderer): FontInfo? {
         return FONT_REGISTRY.keys.firstOrNull { FONT_REGISTRY[it] == fontRenderer }
     }
 
-    val fonts: List<FontRenderer>
+    val fonts: List<TextRenderer>
         get() = FONT_REGISTRY.values.toList()
 
-    val customFonts: Map<FontInfo, FontRenderer>
+    val customFonts: Map<FontInfo, TextRenderer>
         get() = FONT_REGISTRY.filterKeys { it.isCustom }
 
     fun removeCustomFont(fontInfo: FontInfo): CustomFontInfo? {
@@ -175,8 +175,8 @@ object Fonts : MinecraftInstance {
     private fun getFontFromFile(file: String, size: Int): Font =
         getFontFromFileOrNull(file, size) ?: Font("default", Font.PLAIN, size)
 
-    private fun Font.asGameFontRenderer(): GameFontRenderer {
-        return GameFontRenderer(this@asGameFontRenderer)
+    private fun Font.asGameTextRenderer(): GameTextRenderer {
+        return GameTextRenderer(this@asGameTextRenderer)
     }
 
 }

@@ -9,7 +9,7 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
 import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
 import net.ccbluex.liquidbounce.ui.font.Fonts
-import net.ccbluex.liquidbounce.ui.font.GameFontRenderer
+import net.ccbluex.liquidbounce.ui.font.GameTextRenderer
 import net.ccbluex.liquidbounce.utils.extensions.lerpWith
 import net.ccbluex.liquidbounce.utils.extensions.safeDiv
 import net.ccbluex.liquidbounce.utils.render.ColorSettingsInteger
@@ -104,7 +104,7 @@ class Keystrokes : Element("Keystrokes", 2.0, 34.0) {
 
         val padding = 3F
 
-        val fontHeight = (font as? GameFontRenderer)?.height ?: font.FONT_HEIGHT
+        val fontHeight = (font as? GameTextRenderer)?.height ?: font.FONT_HEIGHT
         val maxCharWidth = gridLayout.maxOf { it.textWidth }
 
         val boxSize = maxOf(fontHeight, maxCharWidth)

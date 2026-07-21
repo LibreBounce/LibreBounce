@@ -12,7 +12,7 @@ import net.ccbluex.liquidbounce.utils.render.ColorUtils.randomMagicText
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawLine
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.GradientFontShader
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowFontShader
-import net.minecraft.client.gui.FontRenderer
+import net.minecraft.client.render.TextRenderer
 import net.minecraft.client.render.platform.GlStateManager.*
 import net.minecraft.resource.Identifier
 import org.lwjgl.opengl.GL11.*
@@ -20,7 +20,7 @@ import org.lwjgl.opengl.GL20.glUseProgram
 import java.awt.Color
 import java.awt.Font
 
-fun FontRenderer.drawCenteredString(
+fun TextRenderer.drawCenteredString(
     text: String?, x: Float, y: Float, color: Int, shadow: Boolean
 ) {
     val drawX = x - getStringWidth(text) / 2f
@@ -31,7 +31,7 @@ fun FontRenderer.drawCenteredString(
     }
 }
 
-fun FontRenderer.drawCenteredString(
+fun TextRenderer.drawCenteredString(
     text: String?, x: Float, y: Float, color: Int
 ) {
     val drawX = x - getStringWidth(text) / 2f
@@ -39,13 +39,13 @@ fun FontRenderer.drawCenteredString(
 }
 
 /**
- * Extends Minecraft's [FontRenderer] for potential fallback usage.
+ * Extends Minecraft's [TextRenderer] for potential fallback usage.
  *
  * @author opZywl
  */
-class GameFontRenderer(
+class GameTextRenderer(
     font: Font
-) : FontRenderer(
+) : TextRenderer(
     mc.gameSettings, Identifier("textures/font/ascii.png"), mc.textureManager, false
 ) {
 

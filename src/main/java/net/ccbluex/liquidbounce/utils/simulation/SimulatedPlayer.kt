@@ -13,7 +13,7 @@ import net.ccbluex.liquidbounce.utils.client.MinecraftInstance.Companion.mc
 import net.ccbluex.liquidbounce.utils.extensions.toRadians
 import net.minecraft.block.*
 import net.minecraft.block.material.Material
-import net.minecraft.block.state.IBlockState
+import net.minecraft.block.state.BlockState
 import net.minecraft.client.entity.living.player.LocalClientPlayerEntity
 import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.enchantment.EnchantmentProtection
@@ -29,7 +29,7 @@ import net.minecraft.entity.item.EntityMinecart
 import net.minecraft.entity.player.PlayerCapabilities
 import net.minecraft.init.Blocks.stone
 import net.minecraft.init.Blocks.ladder
-import net.minecraft.nbt.NBTTagCompound
+import net.minecraft.nbt.NbtCompound
 import net.minecraft.potion.Potion
 import net.minecraft.potion.PotionEffect
 import net.minecraft.util.*
@@ -220,7 +220,7 @@ class SimulatedPlayer(
         }*/
 
         private fun createFoodStatsCopy(player: LocalClientPlayerEntity): FoodStats {
-            val foodStatsNBT = NBTTagCompound()
+            val foodStatsNBT = NbtCompound()
             val foodStats = FoodStats()
 
             player.foodStats.writeNBT(foodStatsNBT)
@@ -229,7 +229,7 @@ class SimulatedPlayer(
         }
 
         private fun createCapabilitiesCopy(player: LocalClientPlayerEntity): PlayerCapabilities {
-            val capabilitiesNBT = NBTTagCompound()
+            val capabilitiesNBT = NbtCompound()
             val capabilities = PlayerCapabilities()
 
             player.capabilities.writeCapabilitiesToNBT(capabilitiesNBT)
@@ -844,7 +844,7 @@ class SimulatedPlayer(
                             // We don't want things to negatively interact back to us (cactus, tripwire, tnt or whatever)
                             if (block is BlockWeb) {
                                 isInWeb = true
-                            } else if (block is BlockSoulSand) {
+                            } else if (block is SoulSandBlock) {
                                 motionX *= 0.4
                                 motionZ *= 0.4
                             }
@@ -1128,7 +1128,7 @@ class SimulatedPlayer(
         return list
     }
 
-    fun getBlockState(blockPos: BlockPos): IBlockState? {
+    fun getBlockState(blockPos: BlockPos): BlockState? {
         return worldObj.getBlockState(blockPos)
     }
 

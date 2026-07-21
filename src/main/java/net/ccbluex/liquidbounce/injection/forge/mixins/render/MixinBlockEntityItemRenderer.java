@@ -13,13 +13,13 @@ import net.minecraft.client.renderer.tileentity.TileEntitySkullRenderer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Items;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NBTUtil;
 import net.minecraft.tileentity.TileEntityBanner;
 import net.minecraft.tileentity.TileEntityChest;
 import net.minecraft.tileentity.TileEntityEnderChest;
 import net.minecraft.tileentity.TileEntitySkull;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.Direction;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.spongepowered.asm.mixin.Mixin;
@@ -56,7 +56,7 @@ public class MixinBlockEntityItemRenderer {
             GameProfile gameprofile = null;
 
             if (itemStackIn.hasTagCompound()) {
-                NBTTagCompound nbttagcompound = itemStackIn.getTagCompound();
+                NbtCompound nbttagcompound = itemStackIn.getTagCompound();
 
                 try {
                     if (nbttagcompound.hasKey("SkullOwner", 10)) {
@@ -65,7 +65,7 @@ public class MixinBlockEntityItemRenderer {
                         GameProfile lvt_2_2_ = new GameProfile(null, nbttagcompound.getString("SkullOwner"));
                         gameprofile = TileEntitySkull.updateGameprofile(lvt_2_2_);
                         nbttagcompound.removeTag("SkullOwner");
-                        nbttagcompound.setTag("SkullOwner", NBTUtil.writeGameProfile(new NBTTagCompound(), gameprofile));
+                        nbttagcompound.setTag("SkullOwner", NBTUtil.writeGameProfile(new NbtCompound(), gameprofile));
                     }
                 } catch(Exception ignored) {
                 }
@@ -76,7 +76,7 @@ public class MixinBlockEntityItemRenderer {
                 translate(-0.5F, 0f, -0.5F);
                 scale(2f, 2f, 2f);
                 disableCull();
-                TileEntitySkullRenderer.instance.renderSkull(0f, 0f, 0f, EnumFacing.UP, 0f, itemStackIn.getMetadata(), gameprofile, -1);
+                TileEntitySkullRenderer.instance.renderSkull(0f, 0f, 0f, Direction.UP, 0f, itemStackIn.getMetadata(), gameprofile, -1);
                 enableCull();
                 popMatrix();
             }

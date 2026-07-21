@@ -22,7 +22,7 @@ import net.minecraft.item.Items
 import net.minecraft.network.packet.c2s.play.PlayerHandActionC2SPacket
 import net.minecraft.network.packet.c2s.play.PlayerHandActionC2SPacket.Action.DROP_ITEM
 import net.minecraft.util.BlockPos
-import net.minecraft.util.EnumFacing
+import net.minecraft.util.math.Direction
 
 object AutoSoup : Module("AutoSoup", Category.COMBAT) {
 
@@ -75,7 +75,7 @@ object AutoSoup : Module("AutoSoup", Category.COMBAT) {
                         SilentHotbar.selectSlotSilently(this, soupInHotbar, 0, true)
                     }
 
-                    sendPacket(PlayerHandActionC2SPacket(DROP_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN))
+                    sendPacket(PlayerHandActionC2SPacket(DROP_ITEM, BlockPos.ORIGIN, Direction.DOWN))
                 }
 
                 SilentHotbar.resetSlot(this)

@@ -7,7 +7,7 @@ package net.ccbluex.liquidbounce.features.command.commands
 
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
-import net.ccbluex.liquidbounce.utils.extensions.NBTTagCompound
+import net.ccbluex.liquidbounce.utils.extensions.NbtCompound
 import net.ccbluex.liquidbounce.utils.extensions.NBTTagList
 import net.ccbluex.liquidbounce.utils.extensions.set
 import net.ccbluex.liquidbounce.utils.kotlin.StringUtils
@@ -35,8 +35,8 @@ object HoloStandCommand : Command("holostand") {
 
                 val itemStack = ItemStack(Items.armor_stand)
 
-                itemStack.tagCompound = NBTTagCompound {
-                    this["EntityTag"] = NBTTagCompound {
+                itemStack.tagCompound = NbtCompound {
+                    this["EntityTag"] = NbtCompound {
                         this["Invisible"] = 1
                         this["CustomName"] = message
                         this["CustomNameVisible"] = 1

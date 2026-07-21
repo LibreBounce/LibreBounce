@@ -8,7 +8,7 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 import net.ccbluex.liquidbounce.features.module.modules.render.Chat;
 import net.ccbluex.liquidbounce.ui.font.Fonts;
 import net.ccbluex.liquidbounce.utils.render.RenderUtils;
-import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.render.TextRenderer;
 import net.minecraft.client.gui.chat.ChatGui;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -19,20 +19,20 @@ import org.spongepowered.asm.mixin.injection.ModifyConstant;
 @Mixin(ChatGui.class)
 public abstract class MixinChatGui {
 
-    @Redirect(method = {"getChatComponent", "drawChat"}, at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/FontRenderer;FONT_HEIGHT:I"))
-    private int injectFontChat(FontRenderer instance) {
+    @Redirect(method = {"getChatComponent", "drawChat"}, at = @At(value = "FIELD", target = "Lnet/minecraft/client/render/TextRenderer;FONT_HEIGHT:I"))
+    private int injectFontChat(TextRenderer instance) {
         return Chat.INSTANCE.handleEvents() ? Chat.INSTANCE.getFont().FONT_HEIGHT : instance.FONT_HEIGHT;
     }
 
-    @Redirect(method = "drawChat", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/FontRenderer;drawStringWithShadow(Ljava/lang/String;FFI)I"))
-    private int injectFontChatB(FontRenderer instance, String text, float x, float y, int color) {
+    @Redirect(method = "drawChat", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/TextRenderer;drawStringWithShadow(Ljava/lang/String;FFI)I"))
+    private int injectFontChatB(TextRenderer instance, String text, float x, float y, int color) {
         final Chat chat = Chat.INSTANCE;
 
         return chat.handleEvents() ? chat.getFont().drawString(text, x, y, color, chat.getTextShadow()) : instance.drawStringWithShadow(text, x, y, color);
     }
 
-    @Redirect(method = "getChatComponent", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/FontRenderer;getStringWidth(Ljava/lang/String;)I"))
-    private int injectFontChatC(FontRenderer instance, String text) {
+    @Redirect(method = "getChatComponent", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/TextRenderer;getStringWidth(Ljava/lang/String;)I"))
+    private int injectFontChatC(TextRenderer instance, String text) {
         return Chat.INSTANCE.handleEvents() ? Chat.INSTANCE.getFont().getStringWidth(text) : instance.getStringWidth(text);
     }
 

@@ -21,7 +21,7 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.Side.Horizontal
 import net.ccbluex.liquidbounce.ui.client.hud.element.Side.Vertical
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts
-import net.ccbluex.liquidbounce.ui.font.GameFontRenderer
+import net.ccbluex.liquidbounce.ui.font.GameTextRenderer
 import net.ccbluex.liquidbounce.utils.attack.CPSCounter
 import net.ccbluex.liquidbounce.utils.client.PPSCounter
 import net.ccbluex.liquidbounce.utils.client.ServerUtils
@@ -274,7 +274,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1f, side: Side = S
         val shouldRender = showBlock && stack?.item is BlockItem
         val blockScale = if (shouldRender) 2.5F else 1F
         val fontRenderer = font.get()
-        val fontHeight = ((fontRenderer as? GameFontRenderer)?.height ?: fontRenderer.FONT_HEIGHT) + 2
+        val fontHeight = ((fontRenderer as? GameTextRenderer)?.height ?: fontRenderer.FONT_HEIGHT) + 2
         val underscore = if (editMode && mc.currentScreen is GuiHudDesigner && editTicks <= 40) "_" else ""
 
         // Calculate width only once

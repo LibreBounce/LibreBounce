@@ -25,7 +25,7 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.withClipping
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowShader
 import net.ccbluex.liquidbounce.utils.extensions.addSpaces
 import net.ccbluex.liquidbounce.utils.extensions.capitalize
-import net.minecraft.client.gui.FontRenderer
+import net.minecraft.client.render.TextRenderer
 import org.lwjgl.input.Keyboard
 import org.lwjgl.opengl.GL11.glColor4f
 import java.awt.Color
@@ -372,7 +372,7 @@ class TabGUI(x: Double = 5.0, y: Double = 25.0) : Element("TabGUI", x = x, y = y
             backgroundColor: Int,
             borderColor: Int,
             borderStrength: Float,
-            fontRenderer: FontRenderer,
+            fontRenderer: TextRenderer,
             borderRainbow: Boolean,
             rectRainbow: Boolean
         ) {

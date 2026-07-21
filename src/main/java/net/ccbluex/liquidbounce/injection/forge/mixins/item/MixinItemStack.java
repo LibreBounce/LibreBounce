@@ -23,12 +23,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import static net.ccbluex.liquidbounce.utils.client.MinecraftInstance.mc;
 
 @Mixin(ItemStack.class)
-public class MixinMixinItemStack implements IMixinItemStack {
+public class MixinItemStack implements IMixinItemStack {
 
     @Shadow private Item item;
     private long itemDelay;
 
-    @Inject(method = "<init>(Lnet/minecraft/item/Item;IILnet/minecraft/nbt/NBTTagCompound;)V", at = @At("RETURN"))
+    @Inject(method = "<init>(Lnet/minecraft/item/Item;IILnet/minecraft/nbt/NbtCompound;)V", at = @At("RETURN"))
     private void init(final CallbackInfo callbackInfo) {
         itemDelay = System.currentTimeMillis();
     }

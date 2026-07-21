@@ -238,15 +238,15 @@ class GuiFontManager(private val prevGui: Screen) : AbstractScreen() {
                 }
             }
 
-        private val defaultEntry = object : Map.Entry<FontInfo, FontRenderer> {
+        private val defaultEntry = object : Map.Entry<FontInfo, TextRenderer> {
             override val key: FontInfo
                 get() = Fonts.minecraftFontInfo
 
-            override val value: FontRenderer
+            override val value: TextRenderer
                 get() = mc.fontRendererObj
         }
 
-        val selectedEntry: Map.Entry<FontInfo, FontRenderer>
+        val selectedEntry: Map.Entry<FontInfo, TextRenderer>
             get() = Fonts.customFonts.entries.elementAtOrElse(selectedSlot) { defaultEntry }
 
         public override fun elementClicked(clickedElement: Int, doubleClick: Boolean, var3: Int, var4: Int) {

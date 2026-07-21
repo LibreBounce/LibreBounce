@@ -11,7 +11,7 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
 import net.ccbluex.liquidbounce.ui.client.hud.element.Side
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts
-import net.ccbluex.liquidbounce.ui.font.GameFontRenderer
+import net.ccbluex.liquidbounce.ui.font.GameTextRenderer
 import net.minecraft.client.resources.I18n
 import net.minecraft.potion.Potion
 
@@ -38,7 +38,7 @@ class Effects(
         var y = 0F
         var width = 0F
 
-        val height = ((font as? GameFontRenderer)?.height ?: font.FONT_HEIGHT).toFloat()
+        val height = ((font as? GameTextRenderer)?.height ?: font.FONT_HEIGHT).toFloat()
 
         assumeNonVolatile {
             for (effect in mc.player.activePotionEffects) {

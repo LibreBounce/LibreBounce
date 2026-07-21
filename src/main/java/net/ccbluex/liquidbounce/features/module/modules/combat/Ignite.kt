@@ -28,7 +28,7 @@ import net.minecraft.item.Items.lava_bucket
 import net.minecraft.item.Items.flint_and_steel
 import net.minecraft.item.ItemBucket
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.Angles
-import net.minecraft.util.EnumFacing
+import net.minecraft.util.math.Direction
 import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Vec3d
 import kotlin.math.atan2
@@ -87,7 +87,7 @@ object Ignite : Module("Ignite", Category.COMBAT) {
 
                     player.sendUseItem(itemStack)
                 } else {
-                    for (side in EnumFacing.entries) {
+                    for (side in Direction.entries) {
                         val neighbor = blockPos.offset(side)
 
                         if (!neighbor.canBeClicked())

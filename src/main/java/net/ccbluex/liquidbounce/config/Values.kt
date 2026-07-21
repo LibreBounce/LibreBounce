@@ -10,7 +10,7 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
 import net.ccbluex.liquidbounce.ui.font.Fonts
-import net.ccbluex.liquidbounce.ui.font.GameFontRenderer
+import net.ccbluex.liquidbounce.ui.font.GameTextRenderer
 import net.ccbluex.liquidbounce.utils.io.json
 import net.ccbluex.liquidbounce.utils.io.jsonArray
 import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.nextFloat
@@ -18,7 +18,7 @@ import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.nextInt
 import net.ccbluex.liquidbounce.utils.kotlin.coerceIn
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.withAlpha
-import net.minecraft.client.gui.FontRenderer
+import net.minecraft.client.render.TextRenderer
 import org.lwjgl.input.Mouse
 import java.awt.Color
 import javax.vecmath.Vector2f
@@ -228,8 +228,8 @@ class TextValue(
  */
 class FontValue(
     name: String,
-    value: FontRenderer,
-) : Value<FontRenderer>(name, value) {
+    value: TextRenderer,
+) : Value<TextRenderer>(name, value) {
 
     override fun toJson(): JsonElement? {
         val fontDetails = Fonts.getFontDetails(value) ?: return null
@@ -241,7 +241,7 @@ class FontValue(
 
     override fun fromJsonF(element: JsonElement) =
         when {
-            element is JsonObject -> Fonts.getFontRenderer(element["fontName"].asString, element["fontSize"].asInt)
+            element is JsonObject -> Fonts.getTextRenderer(element["fontName"].asString, element["fontSize"].asInt)
             else -> null
         }
 
@@ -249,14 +249,14 @@ class FontValue(
         return displayName
     }
 
-    override fun fromTextF(text: String): FontRenderer? {
+    override fun fromTextF(text: String): TextRenderer? {
         // Font values are always excluded from Text configs
         return null
     }
 
     val displayName
         get() = "Font: " + when (val cur = value) {
-            is GameFontRenderer -> "${cur.defaultFont.font.name} - ${cur.defaultFont.font.size}"
+            is GameTextRenderer -> "${cur.defaultFont.font.name} - ${cur.defaultFont.font.size}"
             Fonts.minecraftFont -> "Minecraft"
             else -> {
                 val fontInfo = Fonts.getFontDetails(cur)

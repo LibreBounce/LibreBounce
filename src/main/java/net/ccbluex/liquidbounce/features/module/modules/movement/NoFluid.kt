@@ -10,7 +10,7 @@ import net.minecraft.init.Blocks.lava
 import net.minecraft.init.Blocks.water
 import net.minecraft.network.packet.c2s.play.PlayerHandActionC2SPacket
 import net.minecraft.network.packet.c2s.play.PlayerHandActionC2SPacket.Action
-import net.minecraft.util.EnumFacing
+import net.minecraft.util.math.Direction
 
 object NoFluid : Module("NoFluid", Category.MOVEMENT) {
 
@@ -22,7 +22,7 @@ object NoFluid : Module("NoFluid", Category.MOVEMENT) {
         if ((waterValue || lavaValue) && oldGrim) {
             BlockUtils.searchBlocks(2, setOf(water, lava)).keys.forEach {
                 // TODO: Only do this for blocks the player has touched
-                sendPacket(PlayerHandActionC2SPacket(Action.STOP_DESTROY_BLOCK, it, EnumFacing.DOWN))
+                sendPacket(PlayerHandActionC2SPacket(Action.STOP_DESTROY_BLOCK, it, Direction.DOWN))
             }
         }
     }

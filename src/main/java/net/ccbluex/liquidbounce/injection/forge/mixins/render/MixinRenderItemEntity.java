@@ -11,8 +11,8 @@ import net.ccbluex.liquidbounce.features.module.modules.render.ItemPhysics;
 import net.minecraft.client.render.model.block.ModelTransformations;
 import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.RenderItemEntity;
-import net.minecraft.client.render.entity.RenderManager;
-import net.minecraft.client.resources.model.IBakedModel;
+import net.minecraft.client.render.entity.EntityRenderDispatcher;
+import net.minecraft.client.resource.model.BakedModel;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -29,7 +29,7 @@ import static org.lwjgl.opengl.GL11.*;
 
 @Mixin(RenderItemEntity.class)
 public abstract class MixinRenderItemEntity extends Render<ItemEntity> {
-    protected MixinRenderItemEntity(final RenderManager p_i46179_1_) {
+    protected MixinRenderItemEntity(final EntityRenderDispatcher p_i46179_1_) {
         super(p_i46179_1_);
     }
 
@@ -64,7 +64,7 @@ public abstract class MixinRenderItemEntity extends Render<ItemEntity> {
      * https://github.com/CreativeMD/ItemPhysic/blob/1.8.9/src/main/java/com/creativemd/itemphysic/physics/ClientPhysic.java
      */
     @Overwrite
-    private int func_177077_a(ItemEntity itemIn, double x, double y, double z, float p_177077_8_, IBakedModel ibakedmodel) {
+    private int func_177077_a(ItemEntity itemIn, double x, double y, double z, float p_177077_8_, BakedModel ibakedmodel) {
         final ItemPhysics itemPhysics = ItemPhysics.INSTANCE;
 
         ItemStack itemStack = itemIn.getItemEntity();

@@ -270,12 +270,12 @@ object Projectiles : Module("Projectiles", Category.RENDER, gameDetecting = fals
             if (landingPosition != null) {
                 // Accurate landing position checking
                 when (landingPosition.sideHit!!) {
-                    EnumFacing.DOWN -> glRotatef(90F, 0F, 1F, 0F)
-                    EnumFacing.UP -> glRotatef(-90F, 0F, 1F, 0F)
-                    EnumFacing.NORTH -> glRotatef(-90F, 1F, 0F, 0F)
-                    EnumFacing.SOUTH -> glRotatef(90F, 1F, 0F, 0F)
-                    EnumFacing.WEST -> glRotatef(-90F, 0F, 0F, 1F)
-                    EnumFacing.EAST -> glRotatef(90F, 0F, 0F, 1F)
+                    Direction.DOWN -> glRotatef(90F, 0F, 1F, 0F)
+                    Direction.UP -> glRotatef(-90F, 0F, 1F, 0F)
+                    Direction.NORTH -> glRotatef(-90F, 1F, 0F, 0F)
+                    Direction.SOUTH -> glRotatef(90F, 1F, 0F, 0F)
+                    Direction.WEST -> glRotatef(-90F, 0F, 0F, 1F)
+                    Direction.EAST -> glRotatef(90F, 0F, 0F, 1F)
                     else -> glRotatef(90F, 0F, 0F, 1F)
                 }
 

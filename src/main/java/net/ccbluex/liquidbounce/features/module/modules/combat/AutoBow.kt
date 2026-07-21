@@ -14,7 +14,7 @@ import net.minecraft.item.ItemBow
 import net.minecraft.network.packet.c2s.play.PlayerHandActionC2SPacket
 import net.minecraft.network.packet.c2s.play.PlayerHandActionC2SPacket.Action.RELEASE_USE_ITEM
 import net.minecraft.util.BlockPos
-import net.minecraft.util.EnumFacing
+import net.minecraft.util.math.Direction
 
 object AutoBow : Module("AutoBow", Category.COMBAT, subjective = true) {
 
@@ -26,7 +26,7 @@ object AutoBow : Module("AutoBow", Category.COMBAT, subjective = true) {
                 && (!waitForBowAimbot || !ProjectileAimbot.handleEvents() || ProjectileAimbot.hasTarget())
             ) {
                 stopUsingItem()
-                sendPacket(PlayerHandActionC2SPacket(RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN))
+                sendPacket(PlayerHandActionC2SPacket(RELEASE_USE_ITEM, BlockPos.ORIGIN, Direction.DOWN))
             }
         }
     }

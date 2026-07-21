@@ -18,7 +18,7 @@ import net.minecraft.network.packet.c2s.play.PlayerHandActionC2SPacket
 import net.minecraft.network.packet.c2s.play.PlayerHandActionC2SPacket.Action.RELEASE_USE_ITEM
 import net.minecraft.network.packet.c2s.play.PlayerUseC2SPacket
 import net.minecraft.util.BlockPos
-import net.minecraft.util.EnumFacing
+import net.minecraft.util.math.Direction
 
 object FastBow : Module("FastBow", Category.COMBAT) {
 
@@ -49,7 +49,7 @@ object FastBow : Module("FastBow", Category.COMBAT) {
                     sendPacket(Angles(yaw, pitch, true))
                 }
 
-                sendPacket(PlayerHandActionC2SPacket(RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN))
+                sendPacket(PlayerHandActionC2SPacket(RELEASE_USE_ITEM, BlockPos.ORIGIN, Direction.DOWN))
                 itemInUseCount = currentItem.maxItemUseDuration - 1
             }
         }
