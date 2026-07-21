@@ -31,7 +31,7 @@ import net.minecraft.entity.passive.EntityBat
 import net.minecraft.entity.passive.EntitySquid
 import net.minecraft.entity.passive.EntityVillager
 import net.minecraft.entity.living.player.PlayerEntity
-import net.minecraft.item.ItemBlock
+import net.minecraft.item.BlockItem
 import net.minecraft.item.ItemStack
 import net.minecraft.network.packet.c2s.play.ArmSwingC2SPacket
 import net.minecraft.network.packet.c2s.play.PlayerUseC2SPacket
@@ -262,7 +262,7 @@ fun LocalClientPlayerEntity.onPlayerRightClick(
     )
         return sendClick()
 
-    if (item is ItemBlock && !item.canPlaceBlockOnSide(worldObj, clickPos, side, this, stack))
+    if (item is BlockItem && !item.canPlaceBlockOnSide(worldObj, clickPos, side, this, stack))
         return false
 
     sendClick()

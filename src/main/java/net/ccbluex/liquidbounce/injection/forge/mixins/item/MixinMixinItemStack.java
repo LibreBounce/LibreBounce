@@ -12,7 +12,7 @@ import net.ccbluex.liquidbounce.utils.client.ClassUtils;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemSword;
+import net.minecraft.item.SwordItem;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -44,7 +44,7 @@ public class MixinMixinItemStack implements IMixinItemStack {
         final NoSlow noSlow = NoSlow.INSTANCE;
 
         if ((Object) this == mc.getItemInHandRenderer().itemToRender) {
-            boolean isForceBlocking = (item instanceof ItemSword && !killAura.getAutoBlock().equals("Off") &&
+            boolean isForceBlocking = (item instanceof SwordItem && !killAura.getAutoBlock().equals("Off") &&
                     (killAura.getRenderBlocking() || killAura.getTarget() != null && killAura.getForceBlockRender())
                     || noSlow.isUNCPBlocking()) && ClassUtils.INSTANCE.hasClass("com.orangemarshall.animations.BlockhitAnimation");
 

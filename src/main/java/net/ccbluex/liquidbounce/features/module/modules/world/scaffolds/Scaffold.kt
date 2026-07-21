@@ -36,7 +36,7 @@ import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomClickDelay
 import net.minecraft.block.BlockBush
 import net.minecraft.client.options.GameOptions
 import net.minecraft.init.Blocks.air
-import net.minecraft.item.ItemBlock
+import net.minecraft.item.BlockItem
 import net.minecraft.item.ItemStack
 import net.minecraft.network.packet.c2s.play.PlayerMovementActionC2SPacket
 import net.minecraft.util.*
@@ -544,7 +544,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
     fun update() {
         val player = mc.player ?: return
-        val holdingItem = player.displayItemInHand?.item is ItemBlock
+        val holdingItem = player.displayItemInHand?.item is BlockItem
 
         if (!holdingItem && (autoBlock == "Off" || InventoryUtils.findBlockInHotbar() == null)) {
             return
@@ -634,7 +634,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
         var stack = player.hotBarSlot(currentSlot).stack
 
         // TODO: blacklist more blocks than only bushes
-        if (stack == null || stack.item !is ItemBlock || (stack.item as ItemBlock).block is BlockBush || stack.stackSize <= 0 || sortByHighestAmount || earlySwitch) {
+        if (stack == null || stack.item !is BlockItem || (stack.item as BlockItem).block is BlockBush || stack.stackSize <= 0 || sortByHighestAmount || earlySwitch) {
             val blockSlot = if (sortByHighestAmount) {
                 InventoryUtils.findLargestBlockStackInHotbar() ?: return
             } else if (earlySwitch) {
@@ -647,7 +647,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
             stack = player.hotBarSlot(blockSlot).stack
 
             // Check if block is placeable on target side before switching slots
-            if ((stack.item as? ItemBlock)?.canPlaceBlockOnSide(
+            if ((stack.item as? BlockItem)?.canPlaceBlockOnSide(
                     world, placeInfo.blockPos, placeInfo.enumFacing, player, stack
                 ) == false
             ) {
@@ -677,13 +677,13 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
         val stack = player.hotBarSlot(SilentHotbar.currentSlot).stack ?: return
 
-        if (stack.item !is ItemBlock || InventoryUtils.BLOCK_BLACKLIST.contains((stack.item as ItemBlock).block)) {
+        if (stack.item !is BlockItem || InventoryUtils.BLOCK_BLACKLIST.contains((stack.item as BlockItem).block)) {
             return
         }
 
         raytrace ?: return
 
-        val block = stack.item as ItemBlock
+        val block = stack.item as BlockItem
 
         val canPlaceOnUpperFace = block.canPlaceBlockOnSide(
             world, raytrace.blockPos, EnumFacing.UP, player, stack

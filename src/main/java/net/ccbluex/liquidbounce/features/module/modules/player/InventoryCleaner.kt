@@ -470,9 +470,9 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
             is ItemEnderPearl, is ItemEnchantedBook, is ItemBed -> true
 
             is ItemFood -> isUsefulFood(stack, stacks, entityStacksMap, noLimits, strictlyBest)
-            is ItemBlock -> isUsefulBlock(stack, stacks, entityStacksMap, noLimits, strictlyBest)
+            is BlockItem -> isUsefulBlock(stack, stacks, entityStacksMap, noLimits, strictlyBest)
 
-            is ItemArmor, is ItemTool, is ItemSword, is ItemBow, is ItemFishingRod, is ItemShears -> isUsefulEquipment(
+            is ItemArmor, is ItemTool, is SwordItem, is ItemBow, is ItemFishingRod, is ItemShears -> isUsefulEquipment(
                 stack,
                 stacks,
                 entityStacksMap
@@ -530,7 +530,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
 
             // TODO: Knockback and Fire Aspect are also great
             // For instance, a Sharpness + Knockback/Fire Aspect Diamond Sword is better than a Sharpness 2 Iron Sword
-            is ItemSword ->
+            is SwordItem ->
                 hasBestParameters(stack, stacks, entityStacksMap) {
                     it.attackDamage.toFloat()
                 }
@@ -920,7 +920,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
     private fun isSuitableBlock(stack: ItemStack?): Boolean {
         val item = stack?.item ?: return false
 
-        if (item is ItemBlock) {
+        if (item is BlockItem) {
             val block = item.block
 
             return isFullBlock(block) && !block.hasTileEntity()
@@ -1000,13 +1000,13 @@ val NEGATIVE_EFFECT_IDS = intArrayOf(
 )
 
 private val SORTING_TARGETS: Map<String, ((Item?) -> Boolean)?> = mapOf(
-    "Sword" to { it is ItemSword },
+    "Sword" to { it is SwordItem },
     "Bow" to { it is ItemBow },
     "Pickaxe" to { it is ItemPickaxe },
     "Axe" to { it is ItemAxe },
     "Shovel" to { it is ItemSpade },
     "Food" to { it is ItemFood },
-    "Block" to { it is ItemBlock },
+    "Block" to { it is BlockItem },
     "Water" to { it == Items.water_bucket || it == Items.bucket },
     "Fire" to { it is ItemFlintAndSteel || it == Items.lava_bucket || it == Items.bucket },
     "Gapple" to { it is ItemAppleGold },

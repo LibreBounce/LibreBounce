@@ -7,8 +7,8 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.render;
 
 import com.mojang.authlib.GameProfile;
 import net.minecraft.block.Block;
-import net.minecraft.client.renderer.tileentity.TileItemEntityStackRenderer;
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
+import net.minecraft.client.render.entity.BlockEntityItemRenderer;
+import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
 import net.minecraft.client.renderer.tileentity.TileEntitySkullRenderer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Items;
@@ -28,9 +28,9 @@ import org.spongepowered.asm.mixin.Shadow;
 
 import static net.minecraft.client.render.platform.GlStateManager.*;
 
-@Mixin(TileItemEntityStackRenderer.class)
+@Mixin(BlockEntityItemRenderer.class)
 @SideOnly(Side.CLIENT)
-public class MixinTileItemEntityStackRenderer {
+public class MixinBlockEntityItemRenderer {
 
     @Shadow
     private TileEntityBanner banner;
@@ -51,7 +51,7 @@ public class MixinTileItemEntityStackRenderer {
     public void renderByItem(ItemStack itemStackIn) {
         if (itemStackIn.getItem() == Items.banner) {
             banner.setItemValues(itemStackIn);
-            TileEntityRendererDispatcher.instance.renderTileEntityAt(banner, 0, 0, 0, 0f);
+            BlockEntityRenderDispatcher.instance.renderTileEntityAt(banner, 0, 0, 0, 0f);
         } else if (itemStackIn.getItem() == Items.skull) {
             GameProfile gameprofile = null;
 
@@ -84,13 +84,13 @@ public class MixinTileItemEntityStackRenderer {
             Block block = Block.getBlockFromItem(itemStackIn.getItem());
 
             if (block == Blocks.ender_chest) {
-                TileEntityRendererDispatcher.instance.renderTileEntityAt(enderChest, 0, 0, 0, 0f);
+                BlockEntityRenderDispatcher.instance.renderTileEntityAt(enderChest, 0, 0, 0, 0f);
             } else if (block == Blocks.trapped_chest) {
-                TileEntityRendererDispatcher.instance.renderTileEntityAt(field_147718_c, 0, 0, 0, 0f);
+                BlockEntityRenderDispatcher.instance.renderTileEntityAt(field_147718_c, 0, 0, 0, 0f);
             } else if (block != Blocks.chest)
                 net.minecraftforge.client.ForgeHooksClient.renderTileItem(itemStackIn.getItem(), itemStackIn.getMetadata());
             else {
-                TileEntityRendererDispatcher.instance.renderTileEntityAt(field_147717_b, 0, 0, 0, 0f);
+                BlockEntityRenderDispatcher.instance.renderTileEntityAt(field_147717_b, 0, 0, 0, 0f);
             }
         }
     }

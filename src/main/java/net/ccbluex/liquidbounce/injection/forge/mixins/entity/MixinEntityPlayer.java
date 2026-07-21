@@ -17,7 +17,7 @@ import net.minecraft.entity.living.player.PlayerEntity;
 import net.minecraft.entity.living.player.PlayerInventory;
 import net.minecraft.entity.player.PlayerCapabilities;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemSword;
+import net.minecraft.item.SwordItem;
 import net.minecraft.util.FoodStats;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -127,7 +127,7 @@ public abstract class MixinPlayerEntity extends MixinLivingEntity {
                 return;
             }
 
-            boolean isForceBlocking = (stack.getItem() instanceof ItemSword && !killAura.getAutoBlock().equals("Off") &&
+            boolean isForceBlocking = (stack.getItem() instanceof SwordItem && !killAura.getAutoBlock().equals("Off") &&
                     (killAura.getRenderBlocking() || killAura.getTarget() != null && killAura.getForceBlockRender())
                     || noSlow.isUNCPBlocking());
 

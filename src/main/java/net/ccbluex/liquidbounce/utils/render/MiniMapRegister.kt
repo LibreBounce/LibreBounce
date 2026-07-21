@@ -9,7 +9,7 @@ import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.Render2DEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
-import net.minecraft.client.renderer.texture.DynamicTexture
+import net.minecraft.client.render.texture.DynamicTexture
 import net.minecraft.util.BlockPos
 import net.minecraft.world.chunk.Chunk
 import java.util.concurrent.locks.ReentrantReadWriteLock

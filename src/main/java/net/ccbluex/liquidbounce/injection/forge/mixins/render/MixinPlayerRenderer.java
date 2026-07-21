@@ -12,17 +12,17 @@ import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar;
 import net.minecraft.client.entity.living.player.ClientPlayerEntity;
 import net.minecraft.client.entity.living.player.LocalClientPlayerEntity;
 import net.minecraft.client.model.ModelPlayer;
-import net.minecraft.client.renderer.entity.RenderPlayer;
+import net.minecraft.client.render.entity.PlayerRenderer;
 import net.minecraft.entity.player.EnumPlayerModelParts;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemSword;
+import net.minecraft.item.SwordItem;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
-@Mixin(RenderPlayer.class)
-public abstract class MixinRenderPlayer {
+@Mixin(PlayerRenderer.class)
+public abstract class MixinPlayerRenderer {
 
 
     @Shadow
@@ -59,7 +59,7 @@ public abstract class MixinRenderPlayer {
                 modelplayer.displayItemInHandRight = 0;
             } else {
                 modelplayer.displayItemInHandRight = 1;
-                boolean isForceBlocking = entity instanceof LocalClientPlayerEntity && ((itemstack.getItem() instanceof ItemSword && KillAura.INSTANCE.getRenderBlocking()) || NoSlow.INSTANCE.isUNCPBlocking());
+                boolean isForceBlocking = entity instanceof LocalClientPlayerEntity && ((itemstack.getItem() instanceof SwordItem && KillAura.INSTANCE.getRenderBlocking()) || NoSlow.INSTANCE.isUNCPBlocking());
                 if (entity.getItemInUseCount() > 0 || isForceBlocking) {
                     EnumAction enumaction = isForceBlocking? EnumAction.BLOCK : itemstack.getItemUseAction();
                     if (enumaction == EnumAction.BLOCK) {

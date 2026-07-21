@@ -26,7 +26,7 @@ import net.minecraft.block.Block
 import net.minecraft.block.BlockLiquid
 import net.minecraft.init.Blocks.air
 import net.minecraft.init.Blocks.bedrock
-import net.minecraft.item.ItemSword
+import net.minecraft.item.SwordItem
 import net.minecraft.network.packet.c2s.play.PlayerHandActionC2SPacket
 import net.minecraft.network.packet.c2s.play.PlayerHandActionC2SPacket.Action.START_DESTROY_BLOCK
 import net.minecraft.network.packet.c2s.play.PlayerHandActionC2SPacket.Action.STOP_DESTROY_BLOCK
@@ -193,7 +193,7 @@ object Nuker : Module("Nuker", Category.WORLD, gameDetecting = false) {
             // Fast creative mode nuker (CreativeStorm option)
 
             // Unable to break with swords in creative mode
-            if (player.displayItemInHand?.item is ItemSword) return@handler
+            if (player.displayItemInHand?.item is SwordItem) return@handler
 
             searchBlocks(radius.roundToInt() + 1, null) { pos, block ->
                 if (getCenterDistance(pos) <= radius && validBlock(block)) {

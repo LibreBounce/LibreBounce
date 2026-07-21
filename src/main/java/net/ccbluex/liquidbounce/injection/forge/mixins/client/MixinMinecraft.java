@@ -33,7 +33,7 @@ import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.options.GameOptions;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.entity.living.player.PlayerInventory;
-import net.minecraft.item.ItemBlock;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.MovingObjectPosition;
@@ -246,7 +246,7 @@ public abstract class MixinMinecraft {
         if (!fastPlace.handleEvents()) return;
 
         // Don't spam-click when the player isn't holding blocks
-        if (fastPlace.getOnlyBlocks() && (player.getDisplayItemInHand() == null || !(player.getDisplayItemInHand().getItem() instanceof ItemBlock)))
+        if (fastPlace.getOnlyBlocks() && (player.getDisplayItemInHand() == null || !(player.getDisplayItemInHand().getItem() instanceof BlockItem)))
             return;
 
         if (objectMouseOver != null && objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {

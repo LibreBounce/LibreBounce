@@ -13,7 +13,7 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar
 import net.ccbluex.liquidbounce.utils.inventory.attackDamage
-import net.minecraft.item.ItemSword
+import net.minecraft.item.SwordItem
 import net.minecraft.item.ItemTool
 import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket
 import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket.Action.ATTACK
@@ -41,8 +41,8 @@ object AutoWeapon : Module("AutoWeapon", Category.COMBAT, subjective = true) {
             val (slot, _) = (0..8)
                 .map { it to player.inventory.getStackInSlot(it) }
                 .filter {
-                    it.second != null && ((onlySword && it.second.item is ItemSword)
-                            || (!onlySword && (it.second.item is ItemSword || it.second.item is ItemTool)))
+                    it.second != null && ((onlySword && it.second.item is SwordItem)
+                            || (!onlySword && (it.second.item is SwordItem || it.second.item is ItemTool)))
                 }
                 .maxByOrNull { it.second.attackDamage } ?: return@handler
 

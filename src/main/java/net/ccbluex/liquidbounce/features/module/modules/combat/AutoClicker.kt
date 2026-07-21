@@ -25,7 +25,7 @@ import net.minecraft.client.settings.KeyBinding
 import net.minecraft.entity.Entity
 import net.minecraft.entity.living.LivingEntity
 import net.minecraft.item.EnumAction
-import net.minecraft.item.ItemBlock
+import net.minecraft.item.BlockItem
 import kotlin.random.Random.Default.nextBoolean
 
 object AutoClicker : Module("AutoClicker", Category.COMBAT) {
@@ -84,7 +84,7 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT) {
             }
 
             if (right && mc.gameSettings.keyBindUseItem.isKeyDown && time - rightLastSwing >= rightDelay) {
-                if (!onlyBlocks || player.displayItemInHand?.item is ItemBlock) {
+                if (!onlyBlocks || player.displayItemInHand?.item is BlockItem) {
                     handleRightClick(time, doubleClick)
                 }
             }

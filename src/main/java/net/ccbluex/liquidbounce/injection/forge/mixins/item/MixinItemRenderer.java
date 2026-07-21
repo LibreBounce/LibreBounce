@@ -18,13 +18,13 @@ import net.minecraft.client.entity.living.player.LocalClientPlayerEntity;
 import net.minecraft.client.render.platform.GlStateManager;
 import net.minecraft.client.render.ItemInHandRenderer;
 import net.minecraft.client.render.platform.Lighting;
-import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
+import net.minecraft.client.render.model.block.ModelTransformations;
 import net.minecraft.entity.living.LivingEntity;
 import net.minecraft.entity.living.player.PlayerInventory;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemMap;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemSword;
+import net.minecraft.item.SwordItem;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.spongepowered.asm.mixin.Final;
@@ -77,7 +77,7 @@ public abstract class MixinItemInHandRenderer {
     protected abstract void doItemUsedTransformations(float attackAnimationProgress);
 
     @Shadow
-    public abstract void renderItem(LivingEntity entityIn, ItemStack heldStack, ItemCameraTransforms.TransformType transform);
+    public abstract void renderItem(LivingEntity entityIn, ItemStack heldStack, ModelTransformations.TransformType transform);
 
     @Shadow
     protected abstract void renderPlayerArm(ClientPlayerEntity clientPlayer, float equipProgress, float attackAnimationProgress);
@@ -117,7 +117,7 @@ public abstract class MixinItemInHandRenderer {
         }
 
         if (itemToRender != null) {
-            boolean isForceBlocking = (itemToRender.getItem() instanceof ItemSword && !killAura.getAutoBlock().equals("Off") &&
+            boolean isForceBlocking = (itemToRender.getItem() instanceof SwordItem && !killAura.getAutoBlock().equals("Off") &&
                     (killAura.getRenderBlocking() || killAura.getTarget() != null && killAura.getForceBlockRender())
                     || noSlow.isUNCPBlocking());
 
@@ -161,7 +161,7 @@ public abstract class MixinItemInHandRenderer {
                 transformFirstPersonItem(f, f1);
             }
 
-            renderItem(abstractclientplayer, itemToRender, ItemCameraTransforms.TransformType.FIRST_PERSON);
+            renderItem(abstractclientplayer, itemToRender, ModelTransformations.TransformType.FIRST_PERSON);
         } else if (!abstractclientplayer.isInvisible()) {
             renderPlayerArm(abstractclientplayer, f, f1);
         }

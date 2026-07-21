@@ -49,8 +49,8 @@ import net.minecraft.client.gui.screen.inventory.menu.SurvivalInventoryScreen
 import net.minecraft.client.render.platform.GlStateManager.*
 import net.minecraft.client.render.platform.Lighting.turnOff
 import net.minecraft.client.render.platform.Lighting.turnOnGui
-import net.minecraft.item.ItemBlock
-import net.minecraft.item.ItemSword
+import net.minecraft.item.BlockItem
+import net.minecraft.item.SwordItem
 import org.lwjgl.input.Keyboard
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
@@ -203,7 +203,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1f, side: Side = S
                 "food" -> return foodStats.foodLevel
                 "onground" -> return onGround
                 "moving" -> return isMoving
-                "block", "blocking" -> return (displayItemInHand?.item is ItemSword && (blockStatus || isUsingItem || isBlocking))
+                "block", "blocking" -> return (displayItemInHand?.item is SwordItem && (blockStatus || isUsingItem || isBlocking))
                 "sneak", "sneaking" -> return (isSneaking || mc.gameSettings.keyBindSneak.isKeyDown)
                 "sprint", "sprinting" -> return (serverSprintState || isSprinting || mc.gameSettings.keyBindSprint.isKeyDown)
                 "inventory", "inv" -> return mc.currentScreen is SurvivalInventoryScreen || mc.currentScreen is InventoryMenuScreen
@@ -271,7 +271,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1f, side: Side = S
     @Suppress("UnclearPrecedenceOfBinaryExpression")
     override fun drawElement(): Border {
         val stack = mc.player?.inventory?.getStackInSlot(SilentHotbar.currentSlot)
-        val shouldRender = showBlock && stack?.item is ItemBlock
+        val shouldRender = showBlock && stack?.item is BlockItem
         val blockScale = if (shouldRender) 2.5F else 1F
         val fontRenderer = font.get()
         val fontHeight = ((fontRenderer as? GameFontRenderer)?.height ?: fontRenderer.FONT_HEIGHT) + 2

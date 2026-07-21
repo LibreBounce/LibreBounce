@@ -37,7 +37,7 @@ import net.minecraft.crash.CrashReport;
 import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
-import net.minecraft.item.ItemSword;
+import net.minecraft.item.SwordItem;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.network.packet.c2s.play.ArmSwingC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerMovementActionC2SPacket;
@@ -386,7 +386,7 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
         final NoSlow noSlow = NoSlow.INSTANCE;
         final KillAura killAura = KillAura.INSTANCE;
 
-        boolean isUsingItem = getDisplayItemInHand() != null && (isUsingItem() || (getDisplayItemInHand().getItem() instanceof ItemSword && killAura.getBlockStatus()) || NoSlow.INSTANCE.isUNCPBlocking());
+        boolean isUsingItem = getDisplayItemInHand() != null && (isUsingItem() || (getDisplayItemInHand().getItem() instanceof SwordItem && killAura.getBlockStatus()) || NoSlow.INSTANCE.isUNCPBlocking());
 
         if (isUsingItem && !isRiding()) {
             final SlowDownEvent slowDownEvent = new SlowDownEvent(0.2F, 0.2F);

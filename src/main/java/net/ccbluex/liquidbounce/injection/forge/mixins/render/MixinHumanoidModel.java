@@ -6,7 +6,7 @@
 package net.ccbluex.liquidbounce.injection.forge.mixins.render;
 
 import net.ccbluex.liquidbounce.features.module.modules.render.Rotations;
-import net.minecraft.client.model.ModelBiped;
+import net.minecraft.client.render.model.entity.HumanoidModel;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.living.player.PlayerEntity;
@@ -20,9 +20,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import static net.ccbluex.liquidbounce.utils.client.MinecraftInstance.mc;
 
-@Mixin(ModelBiped.class)
+@Mixin(HumanoidModel.class)
 @SideOnly(Side.CLIENT)
-public class MixinModelBiped {
+public class MixinHumanoidModel {
 
     @Shadow
     public ModelRenderer bipedRightArm;
@@ -33,7 +33,7 @@ public class MixinModelBiped {
     @Shadow
     public ModelRenderer bipedHead;
 
-    @Inject(method = "setRotationAngles", at = @At(value = "FIELD", target = "Lnet/minecraft/client/model/ModelBiped;attackAnimationProgress:F"))
+    @Inject(method = "setRotationAngles", at = @At(value = "FIELD", target = "Lnet/minecraft/client/render/model/entity/HumanoidModel;attackAnimationProgress:F"))
     private void revertSwordAnimation(float p_setRotationAngles_1_, float p_setRotationAngles_2_, float p_setRotationAngles_3_, float p_setRotationAngles_4_, float p_setRotationAngles_5_, float p_setRotationAngles_6_, Entity p_setRotationAngles_7_, CallbackInfo callbackInfo) {
         if (displayItemInHandRight == 3) bipedRightArm.rotateAngleY = 0F;
 

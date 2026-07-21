@@ -14,7 +14,7 @@ import net.ccbluex.liquidbounce.utils.rotation.Rotation
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.getFixedAngleDelta
 import net.minecraft.block.Block
 import net.minecraft.client.render.Window
-import net.minecraft.client.renderer.entity.RenderManager
+import net.minecraft.client.render.entity.RenderManager
 import net.minecraft.entity.Entity
 import net.minecraft.util.*
 import javax.vecmath.Vector2f

@@ -18,7 +18,7 @@ import net.ccbluex.liquidbounce.utils.timing.WaitTickUtils
 import net.minecraft.block.BlockBush
 import net.minecraft.init.Blocks.*
 import net.minecraft.item.Item
-import net.minecraft.item.ItemBlock
+import net.minecraft.item.BlockItem
 import net.minecraft.network.packet.c2s.play.PlayerUseC2SPacket
 import net.minecraft.network.packet.c2s.play.CloseInventoryMenuC2SPacket
 import net.minecraft.network.packet.c2s.play.InventoryMenuClickSlotC2SPacket
@@ -113,10 +113,10 @@ object InventoryUtils : MinecraftInstance, Listenable {
 
         return (36..44).filter {
             val stack = inventory.getSlot(it).stack ?: return@filter false
-            val block = if (stack.item is ItemBlock) (stack.item as ItemBlock).block else return@filter false
+            val block = if (stack.item is BlockItem) (stack.item as BlockItem).block else return@filter false
 
-            stack.item is ItemBlock && stack.stackSize > 0 && block !in BLOCK_BLACKLIST && block !is BlockBush
-        }.minByOrNull { (inventory.getSlot(it).stack.item as ItemBlock).block.isFullCube }?.minus(36)
+            stack.item is BlockItem && stack.stackSize > 0 && block !in BLOCK_BLACKLIST && block !is BlockBush
+        }.minByOrNull { (inventory.getSlot(it).stack.item as BlockItem).block.isFullCube }?.minus(36)
     }
 
     fun findLargestBlockStackInHotbar(): Int? {
@@ -125,9 +125,9 @@ object InventoryUtils : MinecraftInstance, Listenable {
 
         return (36..44).filter {
             val stack = inventory.getSlot(it).stack ?: return@filter false
-            val block = if (stack.item is ItemBlock) (stack.item as ItemBlock).block else return@filter false
+            val block = if (stack.item is BlockItem) (stack.item as BlockItem).block else return@filter false
 
-            stack.item is ItemBlock && stack.stackSize > 0 && block.isFullCube && block !in BLOCK_BLACKLIST && block !is BlockBush
+            stack.item is BlockItem && stack.stackSize > 0 && block.isFullCube && block !in BLOCK_BLACKLIST && block !is BlockBush
         }.maxByOrNull { inventory.getSlot(it).stack.stackSize }?.minus(36)
     }
 
@@ -137,10 +137,10 @@ object InventoryUtils : MinecraftInstance, Listenable {
 
         return (36..44).filter {
             val stack = inventory.getSlot(it).stack ?: return@filter false
-            val block = if (stack.item is ItemBlock) (stack.item as ItemBlock).block else return@filter false
+            val block = if (stack.item is BlockItem) (stack.item as BlockItem).block else return@filter false
 
-            stack.item is ItemBlock && stack.stackSize > amount && block.isFullCube && block !in BLOCK_BLACKLIST && block !is BlockBush
-        }.minByOrNull { (inventory.getSlot(it).stack.item as ItemBlock).block.isFullCube }?.minus(36)
+            stack.item is BlockItem && stack.stackSize > amount && block.isFullCube && block !in BLOCK_BLACKLIST && block !is BlockBush
+        }.minByOrNull { (inventory.getSlot(it).stack.item as BlockItem).block.isFullCube }?.minus(36)
     }
 
     // Converts container slot to hotbar slot id, else returns null
@@ -157,7 +157,7 @@ object InventoryUtils : MinecraftInstance, Listenable {
         for (i in 36..44) {
             val stack = player.inventorySlot(i).stack ?: continue
             val item = stack.item
-            if (item is ItemBlock) {
+            if (item is BlockItem) {
                 val block = item.block
                 val displayItemInHand = player.displayItemInHand
                 if (displayItemInHand != null && displayItemInHand == stack || block !in BLOCK_BLACKLIST && block !is BlockBush) {

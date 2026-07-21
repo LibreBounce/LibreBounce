@@ -62,7 +62,7 @@ import net.minecraft.entity.living.LivingEntity
 import net.minecraft.entity.item.EntityArmorStand
 import net.minecraft.entity.living.player.PlayerEntity
 import net.minecraft.item.ItemAxe
-import net.minecraft.item.ItemSword
+import net.minecraft.item.SwordItem
 import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket
 import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket.Action.*
 import net.minecraft.network.packet.c2s.play.PlayerHandActionC2SPacket
@@ -406,7 +406,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     val onTick = handler<GameTickEvent>(priority = 2) {
         val player = mc.player ?: return@handler
 
-        if (blockStatus && player.displayItemInHand?.item !is ItemSword) {
+        if (blockStatus && player.displayItemInHand?.item !is SwordItem) {
             blockStatus = false
             renderBlocking = false
             return@handler
@@ -994,7 +994,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         val targetToCheck = chosenEntity ?: this.target ?: return
 
         // If player is inside entity, automatic yes because the intercept below cannot check for that
-        // Minecraft does the same, see #EntityRenderer line 353
+        // Minecraft does the same, see #GameRenderer line 353
         if (targetToCheck.hitBox.isVecInside(eyes)) {
             return
         }
@@ -1265,7 +1265,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         get() {
             val player = mc.player ?: return false
 
-            if (target != null && player.displayItemInHand?.item is ItemSword) {
+            if (target != null && player.displayItemInHand?.item is SwordItem) {
                 val distance = player.getDistanceToEntityBox(target!!)
                 val targetDistance = target!!.getDistanceToEntityBox(player)
 
@@ -1293,7 +1293,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
                     when {
                         !player.isMoving && forceBlock -> return true
-                        checkWeapon && target!!.displayItemInHand?.item !is ItemSword && target!!.displayItemInHand?.item !is ItemAxe -> return false
+                        checkWeapon && target!!.displayItemInHand?.item !is SwordItem && target!!.displayItemInHand?.item !is ItemAxe -> return false
                         checkSprinting && !target!!.isSprinting && distance > 2.8f && rotationDifference > 60f / distance -> return false
                         !playerAllowed || !targetAllowed -> return false
                         rotationDifference > maxDirectionDiff -> return false

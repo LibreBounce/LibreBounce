@@ -57,7 +57,7 @@ object Notifier : Module("Notifier", Category.MISC) {
                     recentlyWarned[entity.uuid.toString()] = currentTime
                 }
 
-                onHeldExplosive && (displayItemInHand is ItemFireball || displayItemInHand is ItemBlock && displayItemInHand.block is BlockTNT) -> {
+                onHeldExplosive && (displayItemInHand is ItemFireball || displayItemInHand is BlockItem && displayItemInHand.block is BlockTNT) -> {
                     chat("§7${entity.name} is holding a §eFireball §a(${entityDistance}m)")
                     recentlyWarned[entity.uuid.toString()] = currentTime
                 }
@@ -67,7 +67,7 @@ object Notifier : Module("Notifier", Category.MISC) {
                     recentlyWarned[entity.uuid.toString()] = currentTime
                 }
 
-                onPlayerWeapon && (displayItemInHand is ItemSword || displayItemInHand is ItemBow) -> {
+                onPlayerWeapon && (displayItemInHand is SwordItem || displayItemInHand is ItemBow) -> {
                     chat("§7${entity.name} is holding a §b${entity.displayItemInHand?.displayName} §a(${entityDistance}m)")
                     recentlyWarned[entity.uuid.toString()] = currentTime
                 }

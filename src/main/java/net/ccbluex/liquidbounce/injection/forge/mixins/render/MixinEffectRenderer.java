@@ -5,8 +5,8 @@
  */
 package net.ccbluex.liquidbounce.injection.forge.mixins.render;
 
-import net.minecraft.client.particle.EffectRenderer;
-import net.minecraft.client.particle.EntityParticleEmitter;
+import net.minecraft.client.ParticleManager;
+import net.minecraft.client.entity.particle.EmitterParticle;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.spongepowered.asm.mixin.Mixin;
@@ -17,15 +17,15 @@ import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.List;
 
-@Mixin(EffectRenderer.class)
+@Mixin(ParticleManager.class)
 @SideOnly(Side.CLIENT)
-public abstract class MixinEffectRenderer {
+public abstract class MixinParticleManager {
 
     @Shadow
     protected abstract void updateEffectLayer(int layer);
 
     @Shadow
-    private List<EntityParticleEmitter> particleEmitters;
+    private List<EmitterParticle> particleEmitters;
 
     /**
      * @author Mojang
@@ -37,8 +37,8 @@ public abstract class MixinEffectRenderer {
             for (int i = 0; i < 4; ++i)
                 updateEffectLayer(i);
 
-            for (final Iterator<EntityParticleEmitter> it = particleEmitters.iterator(); it.hasNext(); ) {
-                final EntityParticleEmitter entityParticleEmitter = it.next();
+            for (final Iterator<EmitterParticle> it = particleEmitters.iterator(); it.hasNext(); ) {
+                final EmitterParticle entityParticleEmitter = it.next();
 
                 entityParticleEmitter.onUpdate();
 

@@ -10,7 +10,7 @@ import net.ccbluex.liquidbounce.injection.implementations.IMixinEntity;
 import net.ccbluex.liquidbounce.utils.client.PacketUtilsKt;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.culling.ICamera;
-import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.client.render.entity.RenderManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.living.LivingEntity;
 import org.spongepowered.asm.mixin.Mixin;

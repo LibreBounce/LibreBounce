@@ -13,7 +13,7 @@ import net.ccbluex.liquidbounce.utils.io.MiscUtils
 import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.randomNumber
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.withAlpha
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawImage
-import net.minecraft.client.renderer.texture.DynamicTexture
+import net.minecraft.client.render.texture.DynamicTexture
 import net.minecraft.resource.Identifier
 import java.awt.Color
 import java.io.File

@@ -11,17 +11,17 @@ import net.ccbluex.liquidbounce.features.module.modules.render.SilentHotbarModul
 import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar;
 import net.minecraft.block.Block;
 import net.minecraft.client.entity.living.player.LocalClientPlayerEntity;
-import net.minecraft.client.model.ModelBiped;
-import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.entity.RendererLivingEntity;
-import net.minecraft.client.renderer.entity.layers.LayerHeldItem;
+import net.minecraft.client.render.model.entity.HumanoidModel;
+import net.minecraft.client.render.model.block.ModelTransformations;
+import net.minecraft.client.render.entity.LivingEntityRenderer;
+import net.minecraft.client.render.entity.layer.ItemInHandLayer;
 import net.minecraft.entity.living.LivingEntity;
 import net.minecraft.entity.living.player.PlayerEntity;
 import net.minecraft.item.Items;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemSword;
+import net.minecraft.item.SwordItem;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.spongepowered.asm.mixin.Final;
@@ -34,13 +34,13 @@ import java.util.UUID;
 import static net.ccbluex.liquidbounce.utils.client.MinecraftInstance.mc;
 import static net.minecraft.client.render.platform.GlStateManager.*;
 
-@Mixin(LayerHeldItem.class)
+@Mixin(ItemInHandLayer.class)
 @SideOnly(Side.CLIENT)
-public class MixinLayerHeldItem {
+public class MixinItemInHandLayer {
 
     @Shadow
     @Final
-    private RendererLivingEntity<?> livingEntityRenderer;
+    private LivingEntityRenderer<?> livingEntityRenderer;
 
     /**
      * @author CCBlueX
@@ -66,18 +66,18 @@ public class MixinLayerHeldItem {
             final UUID uuid = entity.getUuid();
             final PlayerEntity entityplayer = mc.world.getPlayerEntityByUUID(uuid);
 
-            if (entityplayer != null && (entityplayer.isBlocking() || entityplayer instanceof LocalClientPlayerEntity && ((itemstack.getItem() instanceof ItemSword && KillAura.INSTANCE.getRenderBlocking()) || NoSlow.INSTANCE.isUNCPBlocking()))) {
+            if (entityplayer != null && (entityplayer.isBlocking() || entityplayer instanceof LocalClientPlayerEntity && ((itemstack.getItem() instanceof SwordItem && KillAura.INSTANCE.getRenderBlocking()) || NoSlow.INSTANCE.isUNCPBlocking()))) {
                 if (entity.isSneaking()) {
-                    ((ModelBiped) livingEntityRenderer.getMainModel()).postRenderArm(0.0325F);
+                    ((HumanoidModel) livingEntityRenderer.getMainModel()).postRenderArm(0.0325F);
                     translate(-0.58F, 0.3F, -0.2F);
                     rotate(-24390f, 137290f, -2009900f, -2054900f);
                 } else {
-                    ((ModelBiped) livingEntityRenderer.getMainModel()).postRenderArm(0.0325F);
+                    ((HumanoidModel) livingEntityRenderer.getMainModel()).postRenderArm(0.0325F);
                     translate(-0.48F, 0.2F, -0.2F);
                     rotate(-24390f, 137290f, -2009900f, -2054900f);
                 }
             } else {
-                ((ModelBiped) livingEntityRenderer.getMainModel()).postRenderArm(0.0625F);
+                ((HumanoidModel) livingEntityRenderer.getMainModel()).postRenderArm(0.0625F);
             }
 
             translate(-0.0625F, 0.4375F, 0.0625F);
@@ -88,7 +88,7 @@ public class MixinLayerHeldItem {
 
             Item item = itemstack.getItem();
 
-            if (item instanceof ItemBlock && Block.getBlockFromItem(item).getRenderType() == 2) {
+            if (item instanceof BlockItem && Block.getBlockFromItem(item).getRenderType() == 2) {
                 translate(0f, 0.1875F, -0.3125F);
                 rotate(20f, 1f, 0f, 0f);
                 rotate(45f, 0f, 1f, 0f);
@@ -100,7 +100,7 @@ public class MixinLayerHeldItem {
                 translate(0f, 0.203125F, 0f);
             }
 
-            mc.getItemInHandRenderer().renderItem(entity, itemstack, ItemCameraTransforms.TransformType.THIRD_PERSON);
+            mc.getItemInHandRenderer().renderItem(entity, itemstack, ModelTransformations.TransformType.THIRD_PERSON);
             popMatrix();
         }
     }

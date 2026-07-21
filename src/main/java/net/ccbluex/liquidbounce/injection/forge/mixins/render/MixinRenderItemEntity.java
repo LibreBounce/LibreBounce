@@ -8,10 +8,10 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.render;
 import net.ccbluex.liquidbounce.LiquidBounce;
 import net.ccbluex.liquidbounce.features.module.modules.render.Chams;
 import net.ccbluex.liquidbounce.features.module.modules.render.ItemPhysics;
-import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.entity.Render;
-import net.minecraft.client.renderer.entity.RenderItemEntity;
-import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.client.render.model.block.ModelTransformations;
+import net.minecraft.client.render.entity.EntityRenderer;
+import net.minecraft.client.render.entity.RenderItemEntity;
+import net.minecraft.client.render.entity.RenderManager;
 import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.Item;
@@ -87,11 +87,8 @@ public abstract class MixinRenderItemEntity extends Render<ItemEntity> {
         boolean isRealistic = itemPhysics.getRealistic();
         float weight = isPhysicsState ? itemPhysics.getWeight() : 0.0f;
 
-        float sinValue = sin((age / 10.0F + hoverStart)) * 0.1F + 0.1F;
-        if (isPhysicsState) {
-            sinValue = 0.0f;
-        }
-        float scaleY = ibakedmodel.getItemCameraTransforms().getTransform(ItemCameraTransforms.TransformType.GROUND).scale.y;
+        float sinValue = isPhysicsState ? sin((age / 10.0F + hoverStart)) * 0.1F + 0.1F : 0.0f;
+        float scaleY = ibakedmodel.getModelTransformations().getTransform(ModelTransformations.TransformType.GROUND).scale.y;
 
         if (isPhysicsState) {
             translate((float)x, (float)y, (float)z);
@@ -99,11 +96,7 @@ public abstract class MixinRenderItemEntity extends Render<ItemEntity> {
             translate((float) x, (float) y + sinValue + yOffset * scaleY, (float) z);
         }
 
-        if (isGui3d) {
-            translate(0, 0, -0.08);
-        } else {
-            translate(0, 0, -0.04);
-        }
+        translate(0, 0, isGui3d ? -0.08 : -0.04);
 
         if (isGui3d || this.renderManager.options != null) {
             float rotationYaw = (age / 20.0F + hoverStart) * (180F / (float) Math.PI);

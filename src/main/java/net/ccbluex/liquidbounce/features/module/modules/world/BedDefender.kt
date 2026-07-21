@@ -29,7 +29,7 @@ import net.ccbluex.liquidbounce.utils.timing.TickedActions.nextTick
 import net.minecraft.block.BlockBush
 import net.minecraft.client.options.GameOptions
 import net.minecraft.init.Blocks.bed
-import net.minecraft.item.ItemBlock
+import net.minecraft.item.BlockItem
 import net.minecraft.item.ItemStack
 import net.minecraft.network.packet.c2s.play.ArmSwingC2SPacket
 import net.minecraft.network.packet.c2s.play.PlayerMovementActionC2SPacket
@@ -183,8 +183,8 @@ object BedDefender : Module("BedDefender", Category.WORLD) {
 
         var stack = player.inventorySlot(SilentHotbar.currentSlot + 36).stack ?: return
 
-        if (stack.item !is ItemBlock || (stack.item as ItemBlock).block is BlockBush
-            || InventoryUtils.BLOCK_BLACKLIST.contains((stack.item as ItemBlock).block) || stack.stackSize <= 0
+        if (stack.item !is BlockItem || (stack.item as BlockItem).block is BlockBush
+            || InventoryUtils.BLOCK_BLACKLIST.contains((stack.item as BlockItem).block) || stack.stackSize <= 0
         ) {
             val blockSlot = InventoryUtils.findBlockInHotbar() ?: return
 

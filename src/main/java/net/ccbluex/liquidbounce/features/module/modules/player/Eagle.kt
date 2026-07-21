@@ -13,7 +13,7 @@ import net.ccbluex.liquidbounce.utils.block.block
 import net.ccbluex.liquidbounce.utils.timing.TickDelayTimer
 import net.minecraft.client.options.GameOptions
 import net.minecraft.init.Blocks.air
-import net.minecraft.item.ItemBlock
+import net.minecraft.item.BlockItem
 import net.minecraft.util.BlockPos
 
 object Eagle : Module("Eagle", Category.PLAYER) {
@@ -32,7 +32,7 @@ object Eagle : Module("Eagle", Category.PLAYER) {
         if (GameOptions.isKeyDown(mc.gameSettings.keyBindSneak)) return@handler
 
         if (player.onGround && BlockPos(player).down().block == air) {
-            val shouldSneak = (!onlyWhenLookingDown || player.rotationPitch >= lookDownThreshold) && (!onlyBlocks || player.displayItemInHand?.item is ItemBlock) && (!notOnForward || !GameOptions.isKeyDown(mc.gameSettings.keyBindForward))
+            val shouldSneak = (!onlyWhenLookingDown || player.rotationPitch >= lookDownThreshold) && (!onlyBlocks || player.displayItemInHand?.item is BlockItem) && (!notOnForward || !GameOptions.isKeyDown(mc.gameSettings.keyBindForward))
 
             mc.gameSettings.keyBindSneak.pressed = shouldSneak && !GameOptions.isKeyDown(mc.gameSettings.keyBindSneak)
         } else if (sneakTimer.resetIfPassed()) {

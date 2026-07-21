@@ -97,7 +97,7 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
             return@handler
 
         if (isUsingItem || shouldSwap) {
-            if (displayItemInHand.item !is ItemSword && displayItemInHand.item !is ItemBow && (consumeFoodOnly && displayItemInHand.item is ItemFood ||
+            if (displayItemInHand.item !is SwordItem && displayItemInHand.item !is ItemBow && (consumeFoodOnly && displayItemInHand.item is ItemFood ||
                         consumeDrinkOnly && (displayItemInHand.item is ItemPotion || displayItemInHand.item is ItemBucketMilk))
             ) {
                 when (consumeMode) {
@@ -162,7 +162,7 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
             }
         }
 
-        if (displayItemInHand.item is ItemSword && isUsingItem) {
+        if (displayItemInHand.item is SwordItem && isUsingItem) {
             when (swordMode) {
                 "NCP" ->
                     when (event.eventState) {
@@ -280,7 +280,7 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
 
                 is PlayerMoveC2SPacket -> {
                     if (player.isMoving) {
-                        if (player.displayItemInHand?.item is ItemSword && usingItemFunc()) {
+                        if (player.displayItemInHand?.item is SwordItem && usingItemFunc()) {
                             if (shouldBlink)
                                 BlinkUtils.blink(packet, event)
                         } else {
@@ -311,7 +311,7 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
     val onSlowDown = handler<SlowDownEvent> { event ->
         val displayItemInHand = mc.player.displayItemInHand?.item
 
-        if (displayItemInHand !is ItemSword) {
+        if (displayItemInHand !is SwordItem) {
             if (!consumeFoodOnly && displayItemInHand is ItemFood ||
                 !consumeDrinkOnly && (displayItemInHand is ItemPotion || displayItemInHand is ItemBucketMilk)
             ) {
@@ -329,7 +329,7 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
     private fun getMultiplier(item: Item?, isForward: Boolean) = when (item) {
         is ItemFood, is ItemPotion, is ItemBucketMilk -> if (isForward) consumeForwardMultiplier else consumeStrafeMultiplier
 
-        is ItemSword -> if (isForward) blockForwardMultiplier else blockStrafeMultiplier
+        is SwordItem -> if (isForward) blockForwardMultiplier else blockStrafeMultiplier
 
         is ItemBow -> if (isForward) bowForwardMultiplier else bowStrafeMultiplier
 
@@ -337,10 +337,10 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
     }
 
     fun isUNCPBlocking() =
-        swordMode == "UpdatedNCP" && mc.gameSettings.keyBindUseItem.isKeyDown && (mc.player.displayItemInHand?.item is ItemSword)
+        swordMode == "UpdatedNCP" && mc.gameSettings.keyBindUseItem.isKeyDown && (mc.player.displayItemInHand?.item is SwordItem)
 
     fun usingItemFunc() =
-        mc.player?.displayItemInHand != null && (mc.player.isUsingItem || (mc.player.displayItemInHand?.item is ItemSword && KillAura.blockStatus) || isUNCPBlocking())
+        mc.player?.displayItemInHand != null && (mc.player.isUsingItem || (mc.player.displayItemInHand?.item is SwordItem && KillAura.blockStatus) || isUNCPBlocking())
 
     private fun updateSlot() {
         SilentHotbar.selectSlotSilently(this, (SilentHotbar.currentSlot + 1) % 9, immediate = true)

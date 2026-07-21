@@ -12,7 +12,7 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.client.EntityLookup
 import net.minecraft.client.options.GameOptions
 import net.minecraft.entity.item.EntityTNTPrimed
-import net.minecraft.item.ItemSword
+import net.minecraft.item.SwordItem
 
 object TNTBlock : Module("TNTBlock", Category.COMBAT) {
 
@@ -38,8 +38,8 @@ object TNTBlock : Module("TNTBlock", Category.COMBAT) {
                 for (i in 0..8) {
                     val itemStack = player.inventory.getStackInSlot(i)
 
-                    if (itemStack?.item is ItemSword) {
-                        val itemDamage = (itemStack.item as ItemSword).damageVsEntity + 4F
+                    if (itemStack?.item is SwordItem) {
+                        val itemDamage = (itemStack.item as SwordItem).damageVsEntity + 4F
 
                         if (itemDamage > bestDamage) {
                             bestDamage = itemDamage
@@ -54,7 +54,7 @@ object TNTBlock : Module("TNTBlock", Category.COMBAT) {
                 }
             }
 
-            if (player.displayItemInHand?.item is ItemSword) {
+            if (player.displayItemInHand?.item is SwordItem) {
                 mc.gameSettings.keyBindUseItem.pressed = true
                 blocked = true
             }

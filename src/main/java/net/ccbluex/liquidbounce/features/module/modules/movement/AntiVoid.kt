@@ -26,7 +26,7 @@ import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
 import net.ccbluex.liquidbounce.utils.timing.WaitTickUtils
 import net.minecraft.block.BlockAir
 import net.minecraft.client.render.platform.GlStateManager.resetColor
-import net.minecraft.item.ItemBlock
+import net.minecraft.item.BlockItem
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.Position
 import net.minecraft.network.packet.c2s.play.PlayerUseC2SPacket
@@ -182,7 +182,7 @@ object AntiVoid : Module("AntiVoid", Category.MOVEMENT) {
         if (!onScaffold && mode == "Blink") {
             // Check for block placement
             if (packet is PlayerUseC2SPacket) {
-                if (packet.stack?.item is ItemBlock) {
+                if (packet.stack?.item is BlockItem) {
 
                     if (BlinkUtils.isBlinking && player.fallDistance < 1.5f) BlinkUtils.unblink()
                     if (pauseTicks < ticksToDelay) pauseTicks = ticksToDelay

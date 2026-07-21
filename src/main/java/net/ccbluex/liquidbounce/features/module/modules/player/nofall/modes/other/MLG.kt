@@ -33,7 +33,7 @@ import net.ccbluex.liquidbounce.utils.timing.WaitTickUtils
 import net.minecraft.init.Blocks.web
 import net.minecraft.init.Blocks.water
 import net.minecraft.item.Items
-import net.minecraft.item.ItemBlock
+import net.minecraft.item.BlockItem
 import net.minecraft.item.ItemStack
 import net.minecraft.util.*
 import net.minecraftforge.event.ForgeEventFactory
@@ -161,7 +161,7 @@ object MLG : NoFallMode("MLG") {
 
         val wasWaterBucket = item == Items.water_bucket
 
-        if (wasWaterBucket || (item as? ItemBlock)?.block == web) {
+        if (wasWaterBucket || (item as? BlockItem)?.block == web) {
             performBlockRaytrace(currRotation, reach)?.let {
                 if (it.blockPos != target || it.sideHit != EnumFacing.UP) {
                     return@let
@@ -318,7 +318,7 @@ object MLG : NoFallMode("MLG") {
 
         player.hotBarSlot(SilentHotbar.currentSlot).stack?.item.let {
             // Already have required item? Why change slot?
-            if (it == bucket || (it as? ItemBlock)?.block in arrayOf(web)) {
+            if (it == bucket || (it as? BlockItem)?.block in arrayOf(web)) {
                 return SilentHotbar.currentSlot
             }
         }
@@ -326,7 +326,7 @@ object MLG : NoFallMode("MLG") {
         for (i in 36..44) {
             val item = player.inventorySlot(i).stack?.item ?: continue
 
-            if (item == bucket || !onlyBucket && (item as? ItemBlock)?.block in arrayOf(web)) {
+            if (item == bucket || !onlyBucket && (item as? BlockItem)?.block in arrayOf(web)) {
                 return i - 36
             }
         }

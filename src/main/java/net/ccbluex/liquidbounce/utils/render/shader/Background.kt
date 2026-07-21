@@ -12,7 +12,7 @@ import net.ccbluex.liquidbounce.utils.render.drawWithTesselatorWorldRenderer
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.BackgroundShader
 import net.minecraft.client.gui.GuiElement
 import net.minecraft.client.render.platform.GlStateManager.color
-import net.minecraft.client.renderer.texture.DynamicTexture
+import net.minecraft.client.render.texture.DynamicTexture
 import net.minecraft.client.render.vertex.DefaultVertexFormat
 import net.minecraft.resource.Identifier
 import java.io.File

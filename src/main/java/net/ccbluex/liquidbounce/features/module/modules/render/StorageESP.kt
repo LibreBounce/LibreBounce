@@ -24,7 +24,7 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawEntityBox
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.GlowShader
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.isEntityHeightVisible
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher
+import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher
 import net.minecraft.entity.item.EntityMinecartChest
 import net.minecraft.tileentity.*
 import org.lwjgl.opengl.GL11.*
@@ -140,13 +140,13 @@ object StorageESP : Module("StorageESP", Category.RENDER) {
                         "Outline" -> {
                             glColor(color)
                             OutlineUtils.renderOne(3F)
-                            TileEntityRendererDispatcher.instance.renderTileEntity(tileEntity, event.partialTicks, -1)
+                            BlockEntityRenderDispatcher.instance.renderTileEntity(tileEntity, event.partialTicks, -1)
                             OutlineUtils.renderTwo()
-                            TileEntityRendererDispatcher.instance.renderTileEntity(tileEntity, event.partialTicks, -1)
+                            BlockEntityRenderDispatcher.instance.renderTileEntity(tileEntity, event.partialTicks, -1)
                             OutlineUtils.renderThree()
-                            TileEntityRendererDispatcher.instance.renderTileEntity(tileEntity, event.partialTicks, -1)
+                            BlockEntityRenderDispatcher.instance.renderTileEntity(tileEntity, event.partialTicks, -1)
                             OutlineUtils.renderFour(color)
-                            TileEntityRendererDispatcher.instance.renderTileEntity(tileEntity, event.partialTicks, -1)
+                            BlockEntityRenderDispatcher.instance.renderTileEntity(tileEntity, event.partialTicks, -1)
                             OutlineUtils.renderFive()
                             OutlineUtils.setColor(Color.WHITE)
                         }
@@ -163,9 +163,9 @@ object StorageESP : Module("StorageESP", Category.RENDER) {
                             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
                             glLineWidth(1.5f)
                             glColor(color)
-                            TileEntityRendererDispatcher.instance.renderTileEntity(tileEntity, event.partialTicks, -1)
+                            BlockEntityRenderDispatcher.instance.renderTileEntity(tileEntity, event.partialTicks, -1)
                             glColor(color)
-                            TileEntityRendererDispatcher.instance.renderTileEntity(tileEntity, event.partialTicks, -1)
+                            BlockEntityRenderDispatcher.instance.renderTileEntity(tileEntity, event.partialTicks, -1)
                             glPopAttrib()
                             glPopMatrix()
                         }
@@ -272,7 +272,7 @@ object StorageESP : Module("StorageESP", Category.RENDER) {
 
                         val (x, y, z) = pos - renderManager.renderPos
 
-                        TileEntityRendererDispatcher.instance.renderTileEntityAt(entity, x, y, z, event.partialTicks)
+                        BlockEntityRenderDispatcher.instance.renderTileEntityAt(entity, x, y, z, event.partialTicks)
                     }
 
                     GlowShader.stopDraw(color, glowRadius, glowFade, glowTargetAlpha)
