@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.ui.client.altmanager
 
-import com.thealtening.AltService
+//import com.thealtening.AltService
 import kotlinx.coroutines.launch
 import me.liuli.elixir.account.CrackedAccount
 import me.liuli.elixir.account.MicrosoftAccount
@@ -22,7 +22,7 @@ import net.ccbluex.liquidbounce.lang.translationText
 import net.ccbluex.liquidbounce.ui.client.altmanager.menus.GuiDonatorCape
 import net.ccbluex.liquidbounce.ui.client.altmanager.menus.GuiLoginIntoAccount
 import net.ccbluex.liquidbounce.ui.client.altmanager.menus.GuiSessionLogin
-import net.ccbluex.liquidbounce.ui.client.altmanager.menus.altgenerator.GuiTheAltening
+//import net.ccbluex.liquidbounce.ui.client.altmanager.menus.altgenerator.GuiTheAltening
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
@@ -87,9 +87,9 @@ class GuiAltManager(private val prevGui: Screen) : AbstractScreen() {
         +ButtonWidget(6, 5, startPositionY + 24 * 4, 90, 20, translationButton("altManager.directLogin"))
         +ButtonWidget(10, 5, startPositionY + 24 * 5, 90, 20, translationButton("altManager.sessionLogin"))
 
-        if (activeGenerators.getOrDefault("thealtening", true)) {
+        /*if (activeGenerators.getOrDefault("thealtening", true)) {
             +ButtonWidget(9, 5, startPositionY + 24 * 6, 90, 20, translationButton("altManager.theAltening"))
-        }
+        }*/
 
         +ButtonWidget(11, 5, startPositionY + 24 * 7, 90, 20, translationButton("altManager.cape"))
     }
@@ -111,10 +111,12 @@ class GuiAltManager(private val prevGui: Screen) : AbstractScreen() {
             )
             Fonts.font35.drawStringWithShadow(
                 "§7Type: §a${
-                    if (altService.currentService == AltService.EnumAltService.THEALTENING) "TheAltening" else if (isValidTokenOffline(
+                    /*if (altService.currentService == AltService.EnumAltService.THEALTENING) "TheAltening" else if (isValidTokenOffline(
                             mc.getSession().token
                         )
-                    ) "Premium" else "Cracked"
+                    ) "Premium" else "Cracked"*/
+                    if (isValidTokenOffline(mc.getSession().token)) "Premium"
+                    else "Cracked"
                 }", 6f, 15f, 0xffffff
             )
             searchField.drawTextBox()

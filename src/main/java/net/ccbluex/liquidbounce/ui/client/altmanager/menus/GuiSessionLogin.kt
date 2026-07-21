@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.ui.client.altmanager.menus
 
-import com.thealtening.AltService
+//import com.thealtening.AltService
 import kotlinx.coroutines.launch
 import net.ccbluex.liquidbounce.lang.translationButton
 import net.ccbluex.liquidbounce.ui.client.altmanager.GuiAltManager
@@ -93,7 +93,7 @@ class GuiSessionLogin(private val prevGui: GuiAltManager) : AbstractScreen() {
 
                     status = when (loginResult) {
                         LoginUtils.LoginResult.LOGGED -> {
-                            if (GuiAltManager.altService.currentService != AltService.EnumAltService.MOJANG) {
+                            /*if (GuiAltManager.altService.currentService != AltService.EnumAltService.MOJANG) {
                                 try {
                                     GuiAltManager.altService.switchService(AltService.EnumAltService.MOJANG)
                                 } catch (e: NoSuchFieldException) {
@@ -101,7 +101,7 @@ class GuiSessionLogin(private val prevGui: GuiAltManager) : AbstractScreen() {
                                 } catch (e: IllegalAccessException) {
                                     LOGGER.error("Something went wrong while trying to switch alt service.", e)
                                 }
-                            }
+                            }*/
 
                             "§aLogged into §f§l${mc.session.username}§a."
                         }

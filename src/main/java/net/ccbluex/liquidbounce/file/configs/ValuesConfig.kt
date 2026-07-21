@@ -18,7 +18,7 @@ import net.ccbluex.liquidbounce.file.FileManager
 import net.ccbluex.liquidbounce.file.FileManager.PRETTY_GSON
 import net.ccbluex.liquidbounce.file.configs.models.ClientConfiguration
 import net.ccbluex.liquidbounce.ui.client.TitleScreen
-import net.ccbluex.liquidbounce.ui.client.altmanager.menus.altgenerator.GuiTheAltening.Companion.apiKey
+//import net.ccbluex.liquidbounce.ui.client.altmanager.menus.altgenerator.GuiTheAltening.Companion.apiKey
 import net.ccbluex.liquidbounce.utils.attack.EntityUtils.Targets
 import net.ccbluex.liquidbounce.utils.io.readJson
 import java.io.*
@@ -59,10 +59,10 @@ class ValuesConfig(file: File) : FileConfig(file) {
                     ClientFixes.fromJson(value)
                 }
 
-                key.equals("thealtening", true) -> {
+                /*key.equals("thealtening", true) -> {
                     val jsonValue = value as JsonObject
                     if (jsonValue.has("API-Key")) apiKey = jsonValue["API-Key"].asString
-                }
+                }/
 
                 key.equals("liquidchat", true) -> {
                     val jsonValue = value as JsonObject
@@ -125,9 +125,9 @@ class ValuesConfig(file: File) : FileConfig(file) {
 
         jsonObject.add(ClientFixes.name, ClientFixes.toJson())
 
-        val theAlteningObject = JsonObject()
+        /*val theAlteningObject = JsonObject()
         theAlteningObject.addProperty("API-Key", apiKey)
-        jsonObject.add("thealtening", theAlteningObject)
+        jsonObject.add("thealtening", theAlteningObject)*/
 
         val liquidChatObject = JsonObject()
         liquidChatObject.addProperty("token", jwtToken)

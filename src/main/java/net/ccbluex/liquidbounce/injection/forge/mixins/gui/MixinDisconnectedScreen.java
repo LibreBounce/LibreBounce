@@ -8,9 +8,9 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 import com.mojang.authlib.Agent;
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import com.mojang.authlib.yggdrasil.YggdrasilUserAuthentication;
-import com.thealtening.AltService;
+/*import com.thealtening.AltService;
 import com.thealtening.api.TheAltening;
-import com.thealtening.api.data.AccountData;
+import com.thealtening.api.data.AccountData;*/
 import me.liuli.elixir.account.MinecraftAccount;
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.SessionUpdateEvent;
@@ -61,7 +61,8 @@ public abstract class MixinDisconnectedScreen extends MixinScreen {
 
         drawReconnectDelaySlider();
 
-        buttonList.add(new ButtonWidget(3, width / 2 - 100, height / 2 + field_175353_i / 2 + fontRendererObj.FONT_HEIGHT + 44, 98, 20, GuiTheAltening.Companion.getApiKey().isEmpty() ? "Random alt" : "New TheAltening alt"));
+        //buttonList.add(new ButtonWidget(3, width / 2 - 100, height / 2 + field_175353_i / 2 + fontRendererObj.FONT_HEIGHT + 44, 98, 20, GuiTheAltening.Companion.getApiKey().isEmpty() ? "Random alt" : "New TheAltening alt"));
+        buttonList.add(new ButtonWidget(3, width / 2 - 100, height / 2 + field_175353_i / 2 + fontRendererObj.FONT_HEIGHT + 44, 98, 20, "Random alt"));
         buttonList.add(new ButtonWidget(4, width / 2 + 2, height / 2 + field_175353_i / 2 + fontRendererObj.FONT_HEIGHT + 44, 98, 20, "Random username"));
         buttonList.add(forgeBypassButton = new ButtonWidget(5, width / 2 - 100, height / 2 + field_175353_i / 2 + fontRendererObj.FONT_HEIGHT + 66, "Bypass AntiForge: " + (ClientFixes.INSTANCE.getFmlFixesEnabled() ? "On" : "Off")));
 
@@ -75,7 +76,7 @@ public abstract class MixinDisconnectedScreen extends MixinScreen {
                 ServerUtils.INSTANCE.connectToLastServer();
                 break;
             case 3:
-                if (!GuiTheAltening.Companion.getApiKey().isEmpty()) {
+                /*if (!GuiTheAltening.Companion.getApiKey().isEmpty()) {
                     final String apiKey = GuiTheAltening.Companion.getApiKey();
                     final TheAltening theAltening = new TheAltening(apiKey);
 
@@ -95,7 +96,7 @@ public abstract class MixinDisconnectedScreen extends MixinScreen {
                     } catch (final Throwable throwable) {
                         ClientUtils.INSTANCE.getLOGGER().error("Failed to login into random account from TheAltening.", throwable);
                     }
-                }
+                }*/
 
                 final List<MinecraftAccount> accounts = FileManager.INSTANCE.getAccountsConfig().getAccounts();
                 if (accounts.isEmpty())
