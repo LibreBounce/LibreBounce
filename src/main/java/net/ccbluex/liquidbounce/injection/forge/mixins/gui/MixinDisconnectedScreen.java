@@ -103,7 +103,7 @@ public abstract class MixinDisconnectedScreen extends MixinScreen {
                     break;
                 final MinecraftAccount minecraftAccount = accounts.get(new Random().nextInt(accounts.size()));
 
-                mc.displayScreen(new GuiLoginProgress(minecraftAccount, () -> {
+                mc.openScreen(new GuiLoginProgress(minecraftAccount, () -> {
                     mc.addScheduledTask(() -> {
                         EventManager.INSTANCE.call(SessionUpdateEvent.INSTANCE);
                         ServerUtils.INSTANCE.connectToLastServer();
@@ -111,7 +111,7 @@ public abstract class MixinDisconnectedScreen extends MixinScreen {
                     return null;
                 }, e -> {
                     mc.addScheduledTask(() -> {
-                        mc.displayScreen(new DisconnectedScreen(new MultiplayerScreen(new TitleScreen()), e.getMessage(), new LiteralText(e.getMessage())));
+                        mc.openScreen(new DisconnectedScreen(new MultiplayerScreen(new TitleScreen()), e.getMessage(), new LiteralText(e.getMessage())));
                     });
                     return null;
                 }, () -> null));

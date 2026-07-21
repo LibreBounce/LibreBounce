@@ -118,7 +118,7 @@ class GuiDonatorCape(private val prevGui: GuiAltManager) : AbstractScreen() {
         }
 
         when (button.id) {
-            0 -> mc.displayScreen(prevGui)
+            0 -> mc.openScreen(prevGui)
             1 -> {
                 if (loggedIntoAccount) {
                     upperButton.enabled = false
@@ -175,7 +175,7 @@ class GuiDonatorCape(private val prevGui: GuiAltManager) : AbstractScreen() {
             // Check if user want to escape from screen
             Keyboard.KEY_ESCAPE -> {
                 // Send back to prev screen
-                mc.displayScreen(prevGui)
+                mc.openScreen(prevGui)
                 return
             }
 

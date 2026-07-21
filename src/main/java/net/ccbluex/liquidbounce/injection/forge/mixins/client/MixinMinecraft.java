@@ -93,7 +93,7 @@ public abstract class MixinMinecraft {
     public GameOptions gameOptions;
 
     @Shadow
-    public abstract void displayScreen(Screen guiScreenIn);
+    public abstract void openScreen(Screen guiScreenIn);
 
     @Unique
     private Future<?> liquidBounce$preloadFuture;
@@ -141,7 +141,7 @@ public abstract class MixinMinecraft {
         }
     }
 
-    @Inject(method = "displayScreen", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;currentScreen:Lnet/minecraft/client/gui/Screen;", shift = At.Shift.AFTER))
+    @Inject(method = "openScreen", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;currentScreen:Lnet/minecraft/client/gui/Screen;", shift = At.Shift.AFTER))
     private void handleDisplayScreen(CallbackInfo callbackInfo) {
         if (currentScreen instanceof net.minecraft.client.gui.screen.TitleScreen || (currentScreen != null && currentScreen.getClass().getName().startsWith("net.labymod") && currentScreen.getClass().getSimpleName().equals("ModTitleScreen"))) {
             currentScreen = new TitleScreen();

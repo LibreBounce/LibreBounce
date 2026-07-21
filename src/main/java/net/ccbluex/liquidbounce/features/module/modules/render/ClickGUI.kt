@@ -50,9 +50,9 @@ object ClickGUI : Module("ClickGUI", Category.RENDER, Keyboard.KEY_RSHIFT, canBe
         updateStyle()
 
         if (style == "Panel")
-            mc.displayScreen(panelGui)
+            mc.openScreen(panelGui)
         else
-            mc.displayScreen(clickGui)
+            mc.openScreen(clickGui)
 
         Keyboard.enableRepeatEvents(true)
     }

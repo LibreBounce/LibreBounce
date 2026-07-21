@@ -114,7 +114,7 @@ class GuiPortScanner(private val prevGui: Screen) : AbstractScreen() {
 
     override fun actionPerformed(button: ButtonWidget) {
         when (button.id) {
-            0 -> mc.displayScreen(prevGui)
+            0 -> mc.openScreen(prevGui)
             1 -> togglePortScanning()
             2 -> exportPorts()
         }
@@ -201,7 +201,7 @@ class GuiPortScanner(private val prevGui: Screen) : AbstractScreen() {
 
     override fun keyTyped(typedChar: Char, keyCode: Int) {
         if (keyCode == Keyboard.KEY_ESCAPE) {
-            mc.displayScreen(prevGui)
+            mc.openScreen(prevGui)
             return
         }
 

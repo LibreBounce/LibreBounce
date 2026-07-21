@@ -119,7 +119,7 @@ class GuiTheAltening(private val prevGui: GuiAltManager) : AbstractScreen() {
         if (!button.enabled) return
 
         when (button.id) {
-            0 -> mc.displayScreen(prevGui)
+            0 -> mc.openScreen(prevGui)
             1 -> {
                 loginButton.enabled = false
                 generateButton.enabled = false
@@ -158,7 +158,7 @@ class GuiTheAltening(private val prevGui: GuiAltManager) : AbstractScreen() {
 
                             prevGui.status =
                                 "§aYour name is now §b§l${yggdrasilUserAuthentication.selectedProfile.name}§c."
-                            mc.displayScreen(prevGui)
+                            mc.openScreen(prevGui)
                             ""
                         } catch (e: AuthenticationException) {
                             GuiAltManager.altService.switchService(AltService.EnumAltService.MOJANG)
@@ -212,7 +212,7 @@ class GuiTheAltening(private val prevGui: GuiAltManager) : AbstractScreen() {
 
                             prevGui.status =
                                 "§aYour name is now §b§l${yggdrasilUserAuthentication.selectedProfile.name}§c."
-                            mc.displayScreen(prevGui)
+                            mc.openScreen(prevGui)
                             "§aYour name is now §b§l${yggdrasilUserAuthentication.selectedProfile.name}§c."
                         } catch (e: AuthenticationException) {
                             GuiAltManager.altService.switchService(AltService.EnumAltService.MOJANG)
@@ -242,7 +242,7 @@ class GuiTheAltening(private val prevGui: GuiAltManager) : AbstractScreen() {
             // Check if user want to escape from screen
             Keyboard.KEY_ESCAPE -> {
                 // Send back to prev screen
-                mc.displayScreen(prevGui)
+                mc.openScreen(prevGui)
                 return
             }
 

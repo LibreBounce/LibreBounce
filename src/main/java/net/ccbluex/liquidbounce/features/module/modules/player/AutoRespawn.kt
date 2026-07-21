@@ -23,7 +23,7 @@ object AutoRespawn : Module("AutoRespawn", Category.PLAYER, gameDetecting = fals
 
             if (if (instant) health == 0F || isDead else mc.currentScreen is DeathScreen && (mc.currentScreen as DeathScreen).enableButtonsTimer >= 20) {
                 respawnPlayer()
-                mc.displayScreen(null)
+                mc.openScreen(null)
             }
         }
     }

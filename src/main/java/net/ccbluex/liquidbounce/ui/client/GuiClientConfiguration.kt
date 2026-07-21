@@ -215,7 +215,7 @@ class GuiClientConfiguration(val prevGui: Screen) : AbstractScreen() {
                 languageButton.displayString = "Language (${overrideLanguage.ifBlank { "Game" }})"
             }
 
-            8 -> mc.displayScreen(prevGui)
+            8 -> mc.openScreen(prevGui)
         }
     }
 
@@ -259,7 +259,7 @@ class GuiClientConfiguration(val prevGui: Screen) : AbstractScreen() {
 
     override fun keyTyped(typedChar: Char, keyCode: Int) {
         if (Keyboard.KEY_ESCAPE == keyCode) {
-            mc.displayScreen(prevGui)
+            mc.openScreen(prevGui)
             return
         }
 

@@ -133,8 +133,8 @@ class GuiAltManager(private val prevGui: Screen) : AbstractScreen() {
         if (!button.enabled) return
 
         when (button.id) {
-            0 -> mc.displayScreen(prevGui)
-            1 -> mc.displayScreen(GuiLoginIntoAccount(this))
+            0 -> mc.openScreen(prevGui)
+            1 -> mc.openScreen(GuiLoginIntoAccount(this))
             2 -> { // Delete button
                 status = if (altsList.selectedSlot != -1 && altsList.selectedSlot < altsList.size) {
                     accountsConfig.removeAccount(altsList.accounts[altsList.selectedSlot])
@@ -191,7 +191,7 @@ class GuiAltManager(private val prevGui: Screen) : AbstractScreen() {
             }
 
             6 -> { // Direct login button
-                mc.displayScreen(GuiLoginIntoAccount(this, directLogin = true))
+                mc.openScreen(GuiLoginIntoAccount(this, directLogin = true))
             }
 
             7 -> { // Import button
@@ -268,15 +268,15 @@ class GuiAltManager(private val prevGui: Screen) : AbstractScreen() {
             }
 
             9 -> { // Altening Button
-                mc.displayScreen(GuiTheAltening(this))
+                mc.openScreen(GuiTheAltening(this))
             }
 
             10 -> { // Session Login Button
-                mc.displayScreen(GuiSessionLogin(this))
+                mc.openScreen(GuiSessionLogin(this))
             }
 
             11 -> { // Donator Cape Button
-                mc.displayScreen(GuiDonatorCape(this))
+                mc.openScreen(GuiDonatorCape(this))
             }
 
             13 -> { // Move Up Button
@@ -332,7 +332,7 @@ class GuiAltManager(private val prevGui: Screen) : AbstractScreen() {
 
         when (keyCode) {
             // Go back
-            Keyboard.KEY_ESCAPE -> mc.displayScreen(prevGui)
+            Keyboard.KEY_ESCAPE -> mc.openScreen(prevGui)
 
             // Go one up in account list
             Keyboard.KEY_UP -> altsList.selectedSlot--

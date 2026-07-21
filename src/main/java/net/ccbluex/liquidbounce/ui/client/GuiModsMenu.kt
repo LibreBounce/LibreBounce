@@ -54,10 +54,10 @@ class GuiModsMenu(private val prevGui: Screen) : AbstractScreen() {
     override fun actionPerformed(button: ButtonWidget) {
         when (val id = button.id) {
             // Forge Mods
-            0 -> mc.displayScreen(GuiModList(this))
+            0 -> mc.openScreen(GuiModList(this))
 
             // Scripts
-            1 -> mc.displayScreen(GuiScripts(this))
+            1 -> mc.openScreen(GuiScripts(this))
 
             // Toggle
             2 -> {
@@ -129,7 +129,7 @@ class GuiModsMenu(private val prevGui: Screen) : AbstractScreen() {
             }
 
             // Back
-            5 -> mc.displayScreen(prevGui)
+            5 -> mc.openScreen(prevGui)
         }
     }
 
@@ -170,7 +170,7 @@ class GuiModsMenu(private val prevGui: Screen) : AbstractScreen() {
 
     override fun keyTyped(typedChar: Char, keyCode: Int) {
         if (Keyboard.KEY_ESCAPE == keyCode) {
-            mc.displayScreen(prevGui)
+            mc.openScreen(prevGui)
             return
         }
 

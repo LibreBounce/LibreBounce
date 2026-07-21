@@ -236,7 +236,7 @@ object ClickGui : Screen() {
 
     public override fun mouseClicked(x: Int, y: Int, mouseButton: Int) {
         if (mouseButton == 0 && x in 5..50 && y in height - 50..height - 5) {
-            mc.displayScreen(GuiHudDesigner())
+            mc.openScreen(GuiHudDesigner())
             return
         }
 
@@ -303,7 +303,7 @@ object ClickGui : Screen() {
                 if (ignoreClosing) {
                     ignoreClosing = false
                 } else {
-                    mc.displayScreen(null)
+                    mc.openScreen(null)
                 }
 
                 return

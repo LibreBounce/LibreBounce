@@ -304,7 +304,7 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
 
         if (inPortal) {
             if (mc.currentScreen != null && !mc.currentScreen.doesGuiPauseGame() && !PortalMenu.INSTANCE.handleEvents()) {
-                mc.displayScreen(null);
+                mc.openScreen(null);
             }
 
             if (timeInPortal == 0f) {

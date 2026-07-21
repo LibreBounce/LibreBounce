@@ -56,7 +56,7 @@ object ServerUtils : MinecraftInstance {
                     HelloC2SPacket(mc.session.profile)
                 )
             }
-        } else mc.displayScreen(ConnectScreen(MultiplayerScreen(TitleScreen()), mc, serverData))
+        } else mc.openScreen(ConnectScreen(MultiplayerScreen(TitleScreen()), mc, serverData))
     }
 
     /**

@@ -103,12 +103,12 @@ class GuiServerStatus(private val prevGui: Screen) : AbstractScreen() {
     }
 
     override fun actionPerformed(button: ButtonWidget) {
-        if (button.id == 1) mc.displayScreen(prevGui)
+        if (button.id == 1) mc.openScreen(prevGui)
     }
 
     override fun keyTyped(typedChar: Char, keyCode: Int) {
         if (Keyboard.KEY_ESCAPE == keyCode) {
-            mc.displayScreen(prevGui)
+            mc.openScreen(prevGui)
             return
         }
 

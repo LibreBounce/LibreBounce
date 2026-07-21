@@ -152,13 +152,13 @@ class GuiContributors(private val prevGui: Screen) : AbstractScreen() {
 
     override fun actionPerformed(button: ButtonWidget) {
         if (button.id == 1) {
-            mc.displayScreen(prevGui)
+            mc.openScreen(prevGui)
         }
     }
 
     override fun keyTyped(typedChar: Char, keyCode: Int) {
         when (keyCode) {
-            Keyboard.KEY_ESCAPE -> mc.displayScreen(prevGui)
+            Keyboard.KEY_ESCAPE -> mc.openScreen(prevGui)
             Keyboard.KEY_UP -> list.selectedSlot--
             Keyboard.KEY_DOWN -> list.selectedSlot++
             Keyboard.KEY_TAB ->

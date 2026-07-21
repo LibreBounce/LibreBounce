@@ -89,7 +89,7 @@ class GuiFontManager(private val prevGui: Screen) : AbstractScreen() {
 
         when (keyCode) {
             // Go back
-            Keyboard.KEY_ESCAPE -> mc.displayScreen(prevGui)
+            Keyboard.KEY_ESCAPE -> mc.openScreen(prevGui)
 
             // Go one up in account list
             Keyboard.KEY_UP -> fontListView.selectedSlot--
@@ -194,7 +194,7 @@ class GuiFontManager(private val prevGui: Screen) : AbstractScreen() {
         if (!button.enabled) return
 
         when (button.id) {
-            BACK_BTN_ID -> mc.displayScreen(prevGui)
+            BACK_BTN_ID -> mc.openScreen(prevGui)
             ADD_BTN_ID -> {
                 val file = MiscUtils.openFileChooser(FileFilters.FONT, acceptAll = false)?.takeIf { it.isFile } ?: run {
                     status = Status.FAILED_TO_LOAD

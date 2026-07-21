@@ -200,7 +200,7 @@ object PanelStyle : Screen() {
 
         elements.toList().forEach { element -> element.handleClick(mouseX.toFloat(), mouseY.toFloat(), mouseButton) }
         if (mouseButton == 0 && x in 5..50 && y in height - 50..height - 5) {
-            mc.displayScreen(GuiHudDesigner())
+            mc.openScreen(GuiHudDesigner())
             return
         }
 
@@ -225,7 +225,7 @@ object PanelStyle : Screen() {
         // Close ClickGUI by using its keybind
         if (keyCode == ClickGUI.keyBind) {
             if (ignoreClosing) ignoreClosing = false
-            else mc.displayScreen(null)
+            else mc.openScreen(null)
 
             return
         }

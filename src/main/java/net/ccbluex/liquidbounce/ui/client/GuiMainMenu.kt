@@ -251,16 +251,16 @@ class TitleScreen : AbstractScreen() {
         }
 
         when (button.id) {
-            0 -> mc.displayScreen(OptionsScreen(this, mc.gameOptions))
-            1 -> mc.displayScreen(SelectWorldScreen(this))
-            2 -> mc.displayScreen(MultiplayerScreen(this))
+            0 -> mc.openScreen(OptionsScreen(this, mc.gameOptions))
+            1 -> mc.openScreen(SelectWorldScreen(this))
+            2 -> mc.openScreen(MultiplayerScreen(this))
             4 -> mc.shutdown()
-            100 -> mc.displayScreen(GuiAltManager(this))
-            101 -> mc.displayScreen(GuiServerStatus(this))
-            102 -> mc.displayScreen(GuiClientConfiguration(this))
-            103 -> mc.displayScreen(GuiModsMenu(this))
-            108 -> mc.displayScreen(GuiContributors(this))
-            109 -> mc.displayScreen(GuiFontManager(this))
+            100 -> mc.openScreen(GuiAltManager(this))
+            101 -> mc.openScreen(GuiServerStatus(this))
+            102 -> mc.openScreen(GuiClientConfiguration(this))
+            103 -> mc.openScreen(GuiModsMenu(this))
+            108 -> mc.openScreen(GuiContributors(this))
+            109 -> mc.openScreen(GuiFontManager(this))
         }
     }
 
