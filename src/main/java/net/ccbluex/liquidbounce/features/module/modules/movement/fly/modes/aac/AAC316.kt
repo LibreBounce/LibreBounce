@@ -15,7 +15,7 @@ object AAC316 : FlyMode("AAC3.1.6-Gomme") {
 
     override fun onUpdate() {
         mc.player?.run {
-            capabilities.isFlying = true
+            abilities.flying = true
 
             if (tick == 2) {
                 motionY += 0.05

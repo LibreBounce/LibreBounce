@@ -20,7 +20,7 @@ object MineSecure : FlyMode("MineSecure") {
 
     override fun onUpdate() {
         mc.player?.run {
-            capabilities.isFlying = false
+            abilities.flying = false
 
             motionY = if (mc.gameOptions.sneakKey.isKeyDown) 0.0
                 else -0.01

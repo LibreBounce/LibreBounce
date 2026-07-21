@@ -178,7 +178,7 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT) {
 
             if (wall) {
                 when (wallMode) {
-                    "Old" -> if (player.isCollidedVertically && isNearBlock || BlockPos(player).up(2).block != air) {
+                    "Old" -> if (player.collidingVertically && isNearBlock || BlockPos(player).up(2).block != air) {
                         boost(wallBoost)
                         return@handler
                     }

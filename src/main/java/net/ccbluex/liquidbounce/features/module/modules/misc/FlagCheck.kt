@@ -108,7 +108,7 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true) {
         if (player.ticksExisted <= 100)
             return@handler
 
-        if (player.isDead || (player.capabilities.isFlying && player.capabilities.disableDamage && !player.onGround))
+        if (player.isDead || (player.abilities.flying && player.abilities.invulnerable && !player.onGround))
             return@handler
 
         when (val packet = event.packet) {
@@ -216,7 +216,7 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true) {
         }
 
         // Rubberband Checks
-        if (!rubberbandCheck || (player.capabilities.isFlying && player.capabilities.disableDamage && !player.onGround))
+        if (!rubberbandCheck || (player.abilities.flying && player.abilities.invulnerable && !player.onGround))
             return@handler
 
         val motionX = player.motionX
@@ -236,7 +236,7 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true) {
         }
 
         if (abs(motionX) > rubberbandThreshold || abs(motionY) > rubberbandThreshold || abs(motionZ) > rubberbandThreshold) {
-            if (!player.isCollided && !player.onGround) {
+            if (!player.colliding && !player.onGround) {
                 rubberbandReason.add("Invalid Motion")
             }
         }

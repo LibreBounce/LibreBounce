@@ -409,7 +409,7 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
 
         final Sprint sprint = Sprint.INSTANCE;
 
-        boolean flag3 = (float) getFoodStats().getFoodLevel() > 6F || capabilities.allowFlying;
+        boolean flag3 = (float) getFoodStats().getFoodLevel() > 6F || abilities.canFly;
         if (onGround && !flag1 && !flag2 && input.forwardSpeed >= f && !isSprinting() && flag3 && !isUsingItem() && !hasStatusEffect(Potion.blindness)) {
             if (sprintToggleTimer <= 0 && !mc.gameOptions.keyBindSprint.isKeyDown()) {
                 sprintToggleTimer = 7;
@@ -422,7 +422,7 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
             setSprinting(true);
         }
 
-        if (isSprinting() && (input.forwardSpeed < f || isCollidedHorizontally || !flag3)) {
+        if (isSprinting() && (input.forwardSpeed < f || collidingHorizontally || !flag3)) {
             setSprinting(false);
         }
 
@@ -430,30 +430,30 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
 
         sprint.correctSprintState(modifiedInput, isUsingItem);
 
-        if (capabilities.allowFlying) {
+        if (abilities.canFly) {
             if (mc.playerController.isSpectatorMode()) {
-                if (!capabilities.isFlying) {
-                    capabilities.isFlying = true;
+                if (!abilities.flying) {
+                    abilities.flying = true;
                     sendPlayerAbilities();
                 }
             } else if (!flag && input.jump) {
                 if (flyToggleTimer == 0) {
                     flyToggleTimer = 7;
                 } else {
-                    capabilities.isFlying = !capabilities.isFlying;
+                    abilities.flying = !abilities.flying;
                     sendPlayerAbilities();
                     flyToggleTimer = 0;
                 }
             }
         }
 
-        if (capabilities.isFlying && isCurrentViewEntity()) {
+        if (abilities.flying && isCurrentViewEntity()) {
             if (input.sneak) {
-                motionY -= capabilities.getFlySpeed() * 3f;
+                motionY -= abilities.getFlySpeed() * 3f;
             }
 
             if (input.jump) {
-                motionY += capabilities.getFlySpeed() * 3f;
+                motionY += abilities.getFlySpeed() * 3f;
             }
         }
 
@@ -487,8 +487,8 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
 
         super.onLivingUpdate();
 
-        if (onGround && capabilities.isFlying && !mc.playerController.isSpectatorMode()) {
-            capabilities.isFlying = false;
+        if (onGround && abilities.flying && !mc.playerController.isSpectatorMode()) {
+            abilities.flying = false;
             sendPlayerAbilities();
         }
     }
@@ -692,13 +692,13 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
             posX = (getShape().minX + getShape().maxX) / 2;
             posY = getShape().minY;
             posZ = (getShape().minZ + getShape().maxZ) / 2;
-            isCollidedHorizontally = d3 != x || d5 != z;
-            isCollidedVertically = d4 != y;
-            onGround = isCollidedVertically && d4 < 0;
-            isCollided = isCollidedHorizontally || isCollidedVertically;
-            int i = MathHelper.floor_double(posX);
-            int j = MathHelper.floor_double(posY - 0.20000000298023224);
-            int k = MathHelper.floor_double(posZ);
+            collidingHorizontally = d3 != x || d5 != z;
+            collidingVertically = d4 != y;
+            onGround = collidingVertically && d4 < 0;
+            colliding = collidingHorizontally || collidingVertically;
+            int i = MathHelper.floor(posX);
+            int j = MathHelper.floor(posY - 0.20000000298023224);
+            int k = MathHelper.floor(posZ);
             BlockPos blockpos = new BlockPos(i, j, k);
             Block block1 = worldObj.getBlockState(blockpos).getBlock();
 

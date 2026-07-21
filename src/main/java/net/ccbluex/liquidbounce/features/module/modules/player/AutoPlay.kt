@@ -99,9 +99,9 @@ object AutoPlay : Module("AutoPlay", Category.PLAYER, gameDetecting = false) {
         val player = mc.player ?: return false
 
         return player.ticksExisted >= 20
-                && (player.capabilities.isFlying
-                || player.capabilities.allowFlying
-                || player.capabilities.disableDamage)
+                && (player.abilities.flying
+                || player.abilities.canFly
+                || player.abilities.invulnerable)
     }
 
     override val tag

@@ -36,7 +36,7 @@ object AntiBot : Module("AntiBot", Category.MISC) {
     private val livingTime by boolean("LivingTime", false)
     private val livingTimeTicks by int("LivingTimeTicks", 40, 1..200) { livingTime }
 
-    private val capabilities by boolean("Capabilities", true)
+    private val abilities by boolean("Capabilities", true)
     private val ground by boolean("Ground", true)
     private val air by boolean("Air", false)
     private val invalidGround by boolean("InvalidGround", true)
@@ -138,8 +138,8 @@ object AntiBot : Module("AntiBot", Category.MISC) {
             return true
         }
 
-        if (capabilities && (entity.isSpectator || entity.capabilities.isFlying || entity.capabilities.allowFlying
-                    || entity.capabilities.disableDamage || entity.capabilities.isCreativeMode)
+        if (abilities && (entity.isSpectator || entity.abilities.flying || entity.abilities.canFly
+                    || entity.abilities.invulnerable || entity.abilities.creativeMode)
         )
             return true
 
@@ -252,7 +252,7 @@ object AntiBot : Module("AntiBot", Category.MISC) {
                     airList += entity.entityId
 
                 if (entity.onGround) {
-                    if (entity.fallDistance > 0.0 || entity.posY == entity.prevPosY || !entity.isCollidedVertically) {
+                    if (entity.fallDistance > 0.0 || entity.posY == entity.prevPosY || !entity.collidingVertically) {
                         invalidGroundList.putIfAbsent(
                             entity.entityId,
                             invalidGroundList.getOrDefault(entity.entityId, 0) + 1

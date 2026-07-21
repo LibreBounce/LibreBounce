@@ -15,7 +15,7 @@ import net.ccbluex.liquidbounce.utils.movement.MovementUtils;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.living.player.PlayerEntity;
 import net.minecraft.entity.living.player.PlayerInventory;
-import net.minecraft.entity.player.PlayerCapabilities;
+import net.minecraft.entity.living.player.PlayerAbilities;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.SwordItem;
 import net.minecraft.util.FoodStats;
@@ -50,7 +50,7 @@ public abstract class MixinPlayerEntity extends MixinLivingEntity {
     protected int flyToggleTimer;
 
     @Shadow
-    public PlayerCapabilities capabilities;
+    public PlayerAbilities abilities;
 
     @Shadow
     public abstract int getItemInUseDuration();

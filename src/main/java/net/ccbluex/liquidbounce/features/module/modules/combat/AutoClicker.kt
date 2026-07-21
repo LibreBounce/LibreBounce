@@ -57,7 +57,7 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT) {
     private var lastBlocking = 0L
 
     private val shouldAutoClick
-        get() = mc.player.capabilities.isCreativeMode || (!breakBlocks || !mc.objectMouseOver.typeOfHit.isBlock)
+        get() = mc.player.abilities.creativeMode || (!breakBlocks || !mc.objectMouseOver.typeOfHit.isBlock)
 
     private var target: LivingEntity? = null
 

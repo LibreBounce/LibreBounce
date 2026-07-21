@@ -98,7 +98,7 @@ object Sprint : Module("Sprint", Category.MOVEMENT, gameDetecting = false) {
             return true
         }
 
-        if (player.isCollidedHorizontally) {
+        if (player.collidingHorizontally) {
             return true
         }
 
@@ -106,7 +106,7 @@ object Sprint : Module("Sprint", Category.MOVEMENT, gameDetecting = false) {
             return true
         }
 
-        if ((food || isLegitModeActive) && !(player.foodStats.foodLevel > 6f || player.capabilities.allowFlying)) {
+        if ((food || isLegitModeActive) && !(player.foodStats.foodLevel > 6f || player.abilities.canFly)) {
             return true
         }
 

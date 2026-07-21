@@ -95,7 +95,7 @@ object TickBase : Module("TickBase", Category.COMBAT) {
                 val tickDistance = tick.position.distanceTo(nearbyEnemy.positionVector)
 
                 (index to tick).takeIf {
-                    tickDistance < currentDistance && tickDistance in rangeToAttack && !tick.isCollidedHorizontally && (!onlyGround || tick.onGround)
+                    tickDistance < currentDistance && tickDistance in rangeToAttack && !tick.collidingHorizontally && (!onlyGround || tick.onGround)
                 }
             }
 
@@ -176,7 +176,7 @@ object TickBase : Module("TickBase", Category.COMBAT) {
                 simPlayer.motionY,
                 simPlayer.motionZ,
                 simPlayer.onGround,
-                simPlayer.isCollidedHorizontally
+                simPlayer.collidingHorizontally
             )
         }
     }
@@ -236,7 +236,7 @@ object TickBase : Module("TickBase", Category.COMBAT) {
         val motionY: Double,
         val motionZ: Double,
         val onGround: Boolean,
-        val isCollidedHorizontally: Boolean,
+        val collidingHorizontally: Boolean,
     )
 
     private fun getNearestEntityInRange(): LivingEntity? {

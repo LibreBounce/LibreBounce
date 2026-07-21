@@ -26,7 +26,7 @@ object NCPBHop : SpeedMode("NCPBHop") {
         level = if (mc.world.getCollidingBoundingBoxes(
                 mc.player,
                 mc.player.shape.offset(0.0, mc.player.motionY, 0.0)
-            ).size > 0 || mc.player.isCollidedVertically
+            ).size > 0 || mc.player.collidingVertically
         ) 1 else 4
     }
 
@@ -86,7 +86,7 @@ object NCPBHop : SpeedMode("NCPBHop") {
             if (mc.world.getCollidingBoundingBoxes(
                     player,
                     player.shape.offset(0.0, player.motionY, 0.0)
-                ).isNotEmpty() || player.isCollidedVertically
+                ).isNotEmpty() || player.collidingVertically
             ) level = 1
             moveSpeed = lastDist - lastDist / 159.0
         }

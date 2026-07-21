@@ -13,7 +13,7 @@ object IntaveOld : NoWebMode("IntaveOld") {
             if (!inCobweb)
                 return
 
-            if (input.moveStrafe == 0.0F && mc.gameOptions.forwardKey.isKeyDown && isCollidedVertically) {
+            if (input.moveStrafe == 0.0F && mc.gameOptions.forwardKey.isKeyDown && collidingVertically) {
                 flyingSpeed = 0.74F
             } else {
                 flyingSpeed = 0.2F

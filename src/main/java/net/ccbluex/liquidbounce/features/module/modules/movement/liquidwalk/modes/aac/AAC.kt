@@ -21,7 +21,7 @@ object AAC : LiquidWalkMode("AAC") {
                 motionY *= 0.0
                 motionZ *= 0.99999
 
-                if (isCollidedHorizontally) motionY =
+                if (collidingHorizontally) motionY =
                     ((posY - (posY - 1).toInt()).toInt() / 8f).toDouble()
 
                 if (fallDistance >= 4) motionY =

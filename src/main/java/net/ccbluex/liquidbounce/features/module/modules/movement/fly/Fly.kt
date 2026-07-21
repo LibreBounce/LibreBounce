@@ -193,7 +193,7 @@ object Fly : Module("Fly", Category.MOVEMENT, Keyboard.KEY_F) {
 
         startY = player.posY
         jumpY = player.posY
-        wasFlying = player.capabilities.isFlying
+        wasFlying = player.abilities.flying
 
         modeModule.onEnable()
     }
@@ -211,7 +211,7 @@ object Fly : Module("Fly", Category.MOVEMENT, Keyboard.KEY_F) {
 
             wasFired = false
             firePosition = null
-            capabilities.isFlying = wasFlying
+            abilities.flying = wasFlying
             mc.timer.timerSpeed = 1f
             speedInAir = 0.02f
 

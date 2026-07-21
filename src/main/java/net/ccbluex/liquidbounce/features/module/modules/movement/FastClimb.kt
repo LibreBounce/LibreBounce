@@ -47,7 +47,7 @@ object FastClimb : Module("FastClimb", Category.MOVEMENT) {
     val onMove = handler<MoveEvent> { event ->
         mc.player?.run {
             when {
-                mode == "AAC3.0.0" && isCollidedHorizontally -> {
+                mode == "AAC3.0.0" && collidingHorizontally -> {
                     var x = 0.0
                     var z = 0.0
 
@@ -105,7 +105,7 @@ object FastClimb : Module("FastClimb", Category.MOVEMENT) {
                 }
             }
 
-            if (isCollidedHorizontally && isOnLadder) {
+            if (collidingHorizontally && isOnLadder) {
                 when (mode) {
                     "Vanilla" -> {
                         event.y = speed.toDouble()

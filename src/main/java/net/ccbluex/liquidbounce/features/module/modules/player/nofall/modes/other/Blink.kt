@@ -77,7 +77,7 @@ object Blink : NoFallMode("Blink") {
             simPlayer.tick()
         }
 
-        if (simPlayer.isOnLadder() || simPlayer.inWater || simPlayer.isInLava() || simPlayer.inCobweb || simPlayer.isCollided)
+        if (simPlayer.isOnLadder() || simPlayer.inWater || simPlayer.isInLava() || simPlayer.inCobweb || simPlayer.colliding)
             return
 
         if (player.motionY > 0 && blinked)

@@ -52,7 +52,7 @@ object LongJump : Module("LongJump", Category.MOVEMENT) {
     val onUpdate = handler<UpdateEvent> {
         mc.player?.run {
             if (jumped) {
-                if (onGround || capabilities.isFlying) {
+                if (onGround || abilities.flying) {
                     jumped = false
 
                     if (mode == "NCP") {

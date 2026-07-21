@@ -78,13 +78,13 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
         // Motion steps
         when (mode) {
             "Jump" ->
-                if (player.isCollidedHorizontally && player.onGround && !mc.gameOptions.jumpKey.isKeyDown) {
+                if (player.collidingHorizontally && player.onGround && !mc.gameOptions.jumpKey.isKeyDown) {
                     fakeJump()
                     player.motionY = jumpHeight.toDouble()
                 }
 
             "BlocksMCTimer" ->
-                if (player.onGround && player.isCollidedHorizontally) {
+                if (player.onGround && player.collidingHorizontally) {
                     val chest = BlockUtils.searchBlocks(2, setOf(chest, ender_chest, trapped_chest))
 
                     if (!couldStep() || chest.isNotEmpty()) {
@@ -107,7 +107,7 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
                 }
 
             "LAAC" ->
-                if (player.isCollidedHorizontally) {
+                if (player.collidingHorizontally) {
                     if (player.onGround && timer.hasTimePassed(delay)) {
                         isStep = true
 
@@ -123,7 +123,7 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
                 } else isStep = false
 
             "AAC3.3.4" ->
-                if (player.isCollidedHorizontally && player.isMoving) {
+                if (player.collidingHorizontally && player.isMoving) {
                     if (player.onGround && couldStep()) {
                         player.motionX *= 1.26
                         player.motionZ *= 1.26
@@ -144,7 +144,7 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
     val onMove = handler<MoveEvent> { event ->
         val player = mc.player ?: return@handler
 
-        if (mode != "MotionNCP" || !player.isCollidedHorizontally || mc.gameOptions.jumpKey.isKeyDown)
+        if (mode != "MotionNCP" || !player.collidingHorizontally || mc.gameOptions.jumpKey.isKeyDown)
             return@handler
 
         // Motion steps

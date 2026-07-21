@@ -88,7 +88,7 @@ object Fucker : Module("Fucker", Category.WORLD) {
     private var areSurroundings = false
 
     override fun onToggle(state: Boolean) {
-        if (pos != null && !mc.player.capabilities.isCreativeMode) {
+        if (pos != null && !mc.player.abilities.creativeMode) {
             sendPacket(PlayerHandActionC2SPacket(ABORT_DESTROY_BLOCK, pos, Direction.DOWN))
         }
 
@@ -259,7 +259,7 @@ object Fucker : Module("Fucker", Category.WORLD) {
                     nextTick {
                         sendPacket(PlayerHandActionC2SPacket(START_DESTROY_BLOCK, currentPos, raytrace.sideHit))
                     }
-                    if (player.capabilities.isCreativeMode ||
+                    if (player.abilities.creativeMode ||
                         block.getPlayerRelativeBlockHardness(player, world, currentPos) >= 1f
                     ) {
                         if (swing) player.swingItem()

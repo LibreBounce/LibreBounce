@@ -678,7 +678,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
                 "AACPush" -> {
                     jump = true
 
-                    if (!isCollidedVertically)
+                    if (!collidingVertically)
                         event.cancelEvent()
                 }
 

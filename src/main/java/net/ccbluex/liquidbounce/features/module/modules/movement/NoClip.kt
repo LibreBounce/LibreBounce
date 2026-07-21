@@ -25,7 +25,7 @@ object NoClip : Module("NoClip", Category.MOVEMENT) {
             noClip = true
             onGround = false
 
-            capabilities.isFlying = false
+            abilities.flying = false
 
             var ySpeed = 0.0
 

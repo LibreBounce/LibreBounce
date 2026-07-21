@@ -25,7 +25,7 @@ object SafeWalk : Module("SafeWalk", Category.MOVEMENT) {
     val onMove = handler<MoveEvent> { event ->
         val player = mc.player ?: return@handler
 
-        if (player.capabilities.allowFlying || player.capabilities.isFlying
+        if (player.abilities.canFly || player.abilities.flying
             || !mc.playerController.gameIsSurvivalOrAdventure()
         ) return@handler
 

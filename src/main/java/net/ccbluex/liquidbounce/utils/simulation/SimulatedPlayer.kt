@@ -16,17 +16,17 @@ import net.minecraft.block.material.Material
 import net.minecraft.block.state.BlockState
 import net.minecraft.client.entity.living.player.LocalClientPlayerEntity
 import net.minecraft.enchantment.EnchantmentHelper
-import net.minecraft.enchantment.EnchantmentProtection
+import net.minecraft.enchantment.ProtectionEnchantment
 import net.minecraft.entity.Entity
 import net.minecraft.entity.living.LivingEntity
-import net.minecraft.entity.SharedMonsterAttributes
+import net.minecraft.entity.living.attribute.EntityAttributes
 import net.minecraft.entity.ai.attributes.BaseAttributeMap
 import net.minecraft.entity.ai.attributes.IAttribute
 import net.minecraft.entity.ai.attributes.IAttributeInstance
 import net.minecraft.entity.ai.attributes.ServersideAttributeMap
 import net.minecraft.entity.item.EntityBoat
 import net.minecraft.entity.item.EntityMinecart
-import net.minecraft.entity.player.PlayerCapabilities
+import net.minecraft.entity.living.player.PlayerAbilities
 import net.minecraft.init.Blocks.stone
 import net.minecraft.init.Blocks.ladder
 import net.minecraft.nbt.NbtCompound
@@ -69,12 +69,12 @@ class SimulatedPlayer(
     var posX: Double,
     var posY: Double,
     var posZ: Double,
-    private val capabilities: PlayerCapabilities,
+    private val abilities: PlayerAbilities,
     private val ridingEntity: Entity?,
     private var flyingSpeed: Float,
     private val worldObj: World,
-    var isCollidedHorizontally: Boolean,
-    var isCollidedVertically: Boolean,
+    var collidingHorizontally: Boolean,
+    var collidingVertically: Boolean,
     private val worldBorder: WorldBorder,
     private val chunkProvider: IChunkProvider,
     private var isOutsideBorder: Boolean,
@@ -83,7 +83,7 @@ class SimulatedPlayer(
     private val isSpectator: Boolean,
     var fallDistance: Float,
     private val stepHeight: Float,
-    var isCollided: Boolean,
+    var colliding: Boolean,
     private var fire: Int,
     private var distanceWalkedModified: Float,
     private var distanceWalkedOnStepModified: Float,
@@ -112,7 +112,7 @@ class SimulatedPlayer(
         fun fromClientPlayer(input: Input): SimulatedPlayer {
             val player = mc.player
 
-            val capabilities = createCapabilitiesCopy(player)
+            val abilities = createCapabilitiesCopy(player)
             val foodStats = createFoodStatsCopy(player)
 
             val input = Input().apply {
@@ -136,12 +136,12 @@ class SimulatedPlayer(
                 player.posX,
                 player.posY,
                 player.posZ,
-                capabilities,
+                abilities,
                 player.ridingEntity,
                 player.flyingSpeed,
                 player.worldObj,
-                player.isCollidedHorizontally,
-                player.isCollidedVertically,
+                player.collidingHorizontally,
+                player.collidingVertically,
                 player.worldObj.worldBorder,
                 player.worldObj.chunkProvider,
                 player.isOutsideBorder,
@@ -150,7 +150,7 @@ class SimulatedPlayer(
                 player.isSpectator,
                 player.fallDistance,
                 player.stepHeight,
-                player.isCollided,
+                player.colliding,
                 player.fire,
                 player.distanceWalkedModified,
                 player.distanceWalkedOnStepModified,
@@ -166,7 +166,7 @@ class SimulatedPlayer(
         }
 
         /*fun fromOtherPlayer(player: LocalClientPlayerEntity, input: Input): SimulatedPlayer {
-            val capabilities = createCapabilitiesCopy(player)
+            val abilities = createCapabilitiesCopy(player)
             val foodStats = createFoodStatsCopy(player)
 
             val input = Input().apply {
@@ -190,12 +190,12 @@ class SimulatedPlayer(
                 player.posX,
                 player.posY,
                 player.posZ,
-                capabilities,
+                abilities,
                 player.ridingEntity,
                 player.flyingSpeed,
                 player.worldObj,
-                player.isCollidedHorizontally,
-                player.isCollidedVertically,
+                player.collidingHorizontally,
+                player.collidingVertically,
                 player.worldObj.worldBorder,
                 player.worldObj.chunkProvider,
                 player.isOutsideBorder,
@@ -204,7 +204,7 @@ class SimulatedPlayer(
                 player.isSpectator,
                 player.fallDistance,
                 player.stepHeight,
-                player.isCollided,
+                player.colliding,
                 player.fire,
                 player.distanceWalkedModified,
                 player.distanceWalkedOnStepModified,
@@ -228,14 +228,14 @@ class SimulatedPlayer(
             return foodStats
         }
 
-        private fun createCapabilitiesCopy(player: LocalClientPlayerEntity): PlayerCapabilities {
-            val capabilitiesNBT = NbtCompound()
-            val capabilities = PlayerCapabilities()
+        private fun createCapabilitiesCopy(player: LocalClientPlayerEntity): PlayerAbilities {
+            val abilitiesNBT = NbtCompound()
+            val abilities = PlayerAbilities()
 
-            player.capabilities.writeCapabilitiesToNBT(capabilitiesNBT)
-            capabilities.readCapabilitiesFromNBT(capabilitiesNBT)
+            player.abilities.writeNbt(abilitiesNBT)
+            abilities.readNbt(abilitiesNBT)
 
-            return capabilities
+            return abilities
         }
     }
 
@@ -267,7 +267,7 @@ class SimulatedPlayer(
             posZ + width.toDouble() * 0.35
         )
 
-        val flag3 = this.foodStats.foodLevel.toFloat() > 6.0f || capabilities.allowFlying
+        val flag3 = this.foodStats.foodLevel.toFloat() > 6.0f || abilities.canFly
         val f = 0.8
 
         val shouldSprint = player.isSprinting
@@ -286,19 +286,19 @@ class SimulatedPlayer(
             setSprinting(false)
         }
 
-        if (isSprinting() && (input.forwardSpeed < 0.8 || isCollidedHorizontally || !flag3)) {
+        if (isSprinting() && (input.forwardSpeed < 0.8 || collidingHorizontally || !flag3)) {
             setSprinting(false)
         }
 
-        if (capabilities.allowFlying && mc.playerController.isSpectatorMode)
-            capabilities.isFlying = true
+        if (abilities.canFly && mc.playerController.isSpectatorMode)
+            abilities.flying = true
 
-        if (capabilities.isFlying) {
+        if (abilities.flying) {
             if (input.sneak)
-                motionY -= (capabilities.flySpeed * 3.0f).toDouble()
+                motionY -= (abilities.flySpeed * 3.0f).toDouble()
 
             if (input.jump)
-                motionY += (capabilities.flySpeed * 3.0f).toDouble()
+                motionY += (abilities.flySpeed * 3.0f).toDouble()
         }
 
         livingEntityUpdate()
@@ -360,8 +360,8 @@ class SimulatedPlayer(
             flyingSpeed = (flyingSpeed.toDouble() + SPEED_IN_AIR.toDouble() * 0.3).toFloat()
 
         // LocalClientPlayerEntity post onLivingUpdate
-        if (this.onGround && this.capabilities.isFlying && !isSpectator) {
-            this.capabilities.isFlying = false
+        if (this.onGround && this.abilities.flying && !isSpectator) {
+            this.abilities.flying = false
         }
     }
 
@@ -371,13 +371,13 @@ class SimulatedPlayer(
         if (worldObj.isRemote) {
             fire = 0
         } else if (fire > 0) {
-            /*if (this.isImmuneToFire()) {
+            if (this.isImmuneToFire()) {
                 fire -= 4
 
                 fire.coerceAtLeast(0)
-            } else {*/
-            --fire
-            //}
+            } else {
+                --fire
+            }
         }
 
         if (isInLava()) {
@@ -474,10 +474,10 @@ class SimulatedPlayer(
     }
 
     private fun playerSideMoveEntityWithHeading(sidewaysSpeed: Float, forwardSpeed: Float) {
-        if (capabilities.isFlying && ridingEntity == null) {
+        if (abilities.flying && ridingEntity == null) {
             val d3 = motionY
             val f = flyingSpeed
-            flyingSpeed = capabilities.flySpeed * (if (isSprinting()) 2 else 1).toFloat()
+            flyingSpeed = abilities.flySpeed * (if (isSprinting()) 2 else 1).toFloat()
             livingEntitySideMoveEntityWithHeading(sidewaysSpeed, forwardSpeed)
             motionY = d3 * 0.6
             flyingSpeed = f
@@ -492,8 +492,8 @@ class SimulatedPlayer(
             var f5: Float
             var f6: Float
 
-            if (!inWater() || this.capabilities.isFlying) {
-                if (isInLava() && !this.capabilities.isFlying) {
+            if (!inWater() || this.abilities.flying) {
+                if (isInLava() && !this.abilities.flying) {
                     d0 = posY
                     updateVelocity(strafing, forwards, 0.02f)
                     move(motionX, motionY, motionZ)
@@ -501,7 +501,7 @@ class SimulatedPlayer(
                     motionY *= 0.5
                     motionZ *= 0.5
                     motionY -= 0.02
-                    if (isCollidedHorizontally && isOffsetPositionInLiquid(motionX,
+                    if (collidingHorizontally && isOffsetPositionInLiquid(motionX,
                             motionY + 0.6000000238418579 - posY + d0,
                             motionZ
                         )) {
@@ -510,10 +510,11 @@ class SimulatedPlayer(
 
                 } else {
                     var f4 = 0.91f
+
                     if (onGround) {
-                        f4 = worldObj.getBlockState(BlockPos(MathHelper.floor_double(posX),
-                            MathHelper.floor_double(this.getShape().minY) - 1,
-                            MathHelper.floor_double(posZ)
+                        f4 = worldObj.getBlockState(BlockPos(MathHelper.floor(posX),
+                            MathHelper.floor(this.getShape().minY) - 1,
+                            MathHelper.floor(posZ)
                         )).block.slipperiness * 0.91f
                     }
 
@@ -523,12 +524,13 @@ class SimulatedPlayer(
                     else flyingSpeed
 
                     updateVelocity(strafing, forwards, f5)
+
                     f4 = 0.91f
 
                     if (onGround) {
-                        f4 = worldObj.getBlockState(BlockPos(MathHelper.floor_double(posX),
-                            MathHelper.floor_double(this.getShape().minY) - 1,
-                            MathHelper.floor_double(posZ)
+                        f4 = worldObj.getBlockState(BlockPos(MathHelper.floor(posX),
+                            MathHelper.floor(this.getShape().minY) - 1,
+                            MathHelper.floor(posZ)
                         )).block.slipperiness * 0.91f
                     }
 
@@ -545,7 +547,7 @@ class SimulatedPlayer(
 
                     move(motionX, motionY, motionZ)
 
-                    if (isCollidedHorizontally && isOnLadder())
+                    if (collidingHorizontally && isOnLadder())
                         motionY = 0.2
 
                     if (worldObj.isRemote && (!worldObj.isBlockLoaded(BlockPos(posX.toInt(),
@@ -565,7 +567,7 @@ class SimulatedPlayer(
                 d0 = posY
                 f5 = 0.8f
                 f6 = 0.02f
-                f3 = EnchantmentHelper.getDepthStriderModifier(player).toFloat().coerceAtMost(3.0f)
+                f3 = EnchantmentHelper.getDepthStriderLevel(player).toFloat().coerceAtMost(3.0f)
 
                 if (!onGround) f3 *= 0.5f
 
@@ -581,7 +583,7 @@ class SimulatedPlayer(
                 motionZ *= f5.toDouble()
                 motionY -= 0.02
 
-                if (isCollidedHorizontally && isOffsetPositionInLiquid(motionX,
+                if (collidingHorizontally && isOffsetPositionInLiquid(motionX,
                         motionY + 0.6000000238418579 - posY + d0,
                         motionZ
                     )) {
@@ -739,13 +741,13 @@ class SimulatedPlayer(
             }
 
             resetPositionToBB()
-            isCollidedHorizontally = d3 != velocityX || d5 != velocityZ
-            isCollidedVertically = d4 != velocityY
-            onGround = isCollidedVertically && d4 < 0.0
-            isCollided = isCollidedHorizontally || isCollidedVertically
-            val i = MathHelper.floor_double(posX)
-            val j = MathHelper.floor_double(posY - 0.20000000298023224)
-            val k = MathHelper.floor_double(posZ)
+            collidingHorizontally = d3 != velocityX || d5 != velocityZ
+            collidingVertically = d4 != velocityY
+            onGround = collidingVertically && d4 < 0.0
+            colliding = collidingHorizontally || collidingVertically
+            val i = MathHelper.floor(posX)
+            val j = MathHelper.floor(posY - 0.20000000298023224)
+            val k = MathHelper.floor(posZ)
             val blockPos = BlockPos(i, j, k)
             var block1 = worldObj.getBlockState(blockPos).block
 
@@ -810,7 +812,7 @@ class SimulatedPlayer(
     }
 
     private fun setOnFire(seconds: Int = 15) {
-        val ticks = EnchantmentProtection.getFireTimeForEntity(player, seconds * 20)
+        val ticks = ProtectionEnchantment.getFireTimeForEntity(player, seconds * 20)
 
         fire.coerceAtLeast(ticks)
     }
@@ -881,12 +883,12 @@ class SimulatedPlayer(
     }
 
     private fun handleMaterialAcceleration(boundingBox: Box, material: Material): Boolean {
-        val i = MathHelper.floor_double(boundingBox.minX)
-        val j = MathHelper.floor_double(boundingBox.maxX + 1.0)
-        val k = MathHelper.floor_double(boundingBox.minY)
-        val l = MathHelper.floor_double(boundingBox.maxY + 1.0)
-        val i1 = MathHelper.floor_double(boundingBox.minZ)
-        val j1 = MathHelper.floor_double(boundingBox.maxZ + 1.0)
+        val i = MathHelper.floor(boundingBox.minX)
+        val j = MathHelper.floor(boundingBox.maxX + 1.0)
+        val k = MathHelper.floor(boundingBox.minY)
+        val l = MathHelper.floor(boundingBox.maxY + 1.0)
+        val i1 = MathHelper.floor(boundingBox.minZ)
+        val j1 = MathHelper.floor(boundingBox.maxZ + 1.0)
 
         return if (!isAreaLoaded(i, k, i1, j, l, j1, true)) {
             false
@@ -966,13 +968,13 @@ class SimulatedPlayer(
     }
 
     private fun canTriggerWalking(): Boolean {
-        return !capabilities.isFlying
+        return !abilities.flying
     }
 
     fun isOnLadder(): Boolean {
-        val blockX = MathHelper.floor_double(posX)
-        val blockY = MathHelper.floor_double(box.minY)
-        val blockZ = MathHelper.floor_double(posZ)
+        val blockX = MathHelper.floor(posX)
+        val blockY = MathHelper.floor(box.minY)
+        val blockZ = MathHelper.floor(posZ)
 
         val block = worldObj.getBlockState(BlockPos(blockX, blockY, blockZ)).block
         return isLivingOnLadder(block, worldObj, BlockPos(blockX, blockY, blockZ), player)
@@ -1071,12 +1073,12 @@ class SimulatedPlayer(
 
     fun getCollidingBoundingBoxes(box: Box): List<Box> {
         val list: MutableList<Box> = Lists.newArrayList()
-        val i = MathHelper.floor_double(box.minX)
-        val j = MathHelper.floor_double(box.maxX + 1.0)
-        val k = MathHelper.floor_double(box.minY)
-        val l = MathHelper.floor_double(box.maxY + 1.0)
-        val i1 = MathHelper.floor_double(box.minZ)
-        val j1 = MathHelper.floor_double(box.maxZ + 1.0)
+        val i = MathHelper.floor(box.minX)
+        val j = MathHelper.floor(box.maxX + 1.0)
+        val k = MathHelper.floor(box.minY)
+        val l = MathHelper.floor(box.maxY + 1.0)
+        val i1 = MathHelper.floor(box.minZ)
+        val j1 = MathHelper.floor(box.maxZ + 1.0)
         val worldborder: WorldBorder = this.getWorldBorder()
         val flag = this.isOutsideBorder
         val flag1 = isInsideBorder(worldborder, flag)
@@ -1195,10 +1197,10 @@ class SimulatedPlayer(
         entity: Entity, bb: Box, predicate: Predicate<in Entity?>?,
     ): List<Entity> {
         val list: List<Entity> = Lists.newArrayList()
-        val i = MathHelper.floor_double((bb.minX - World.MAX_ENTITY_RADIUS) / 16.0)
-        val j = MathHelper.floor_double((bb.maxX + World.MAX_ENTITY_RADIUS) / 16.0)
-        val k = MathHelper.floor_double((bb.minZ - World.MAX_ENTITY_RADIUS) / 16.0)
-        val l = MathHelper.floor_double((bb.maxZ + World.MAX_ENTITY_RADIUS) / 16.0)
+        val i = MathHelper.floor((bb.minX - World.MAX_ENTITY_RADIUS) / 16.0)
+        val j = MathHelper.floor((bb.maxX + World.MAX_ENTITY_RADIUS) / 16.0)
+        val k = MathHelper.floor((bb.minZ - World.MAX_ENTITY_RADIUS) / 16.0)
+        val l = MathHelper.floor((bb.maxZ + World.MAX_ENTITY_RADIUS) / 16.0)
         for (i1 in i..j) {
             for (j1 in k..l) {
                 if (isChunkLoaded(i1, j1, true)) {
@@ -1218,7 +1220,7 @@ class SimulatedPlayer(
     }
 
     private fun getAIMoveSpeed(): Float {
-        return this.getEntityAttribute(SharedMonsterAttributes.movementSpeed).attributeValue.toFloat()
+        return this.getEntityAttribute(EntityAttributes.movementSpeed).attributeValue.toFloat()
     }
 
     private fun getEntityAttribute(iAttribute: IAttribute?): IAttributeInstance {
@@ -1241,9 +1243,9 @@ class SimulatedPlayer(
             block != null && block.isLadder(world, pos, entity)
         } else {
             val bb = this.box
-            val mX = MathHelper.floor_double(bb.minX)
-            val mY = MathHelper.floor_double(bb.minY)
-            val mZ = MathHelper.floor_double(bb.minZ)
+            val mX = MathHelper.floor(bb.minX)
+            val mY = MathHelper.floor(bb.minY)
+            val mZ = MathHelper.floor(bb.minZ)
             var y2 = mY
 
             while (y2.toDouble() < bb.maxY) {
@@ -1300,7 +1302,7 @@ class SimulatedPlayer(
     }
 
     private fun hasLiquidCollision(): Boolean {
-        return !capabilities.isFlying
+        return !abilities.flying
     }
 
     /*class SimulatedPlayerInput(

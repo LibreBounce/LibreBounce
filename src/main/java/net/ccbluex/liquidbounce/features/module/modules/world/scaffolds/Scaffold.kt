@@ -1098,7 +1098,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
             "Off" -> return
 
             "Smooth" -> {
-                val notOnGround = !player.onGround || !player.isCollidedVertically
+                val notOnGround = !player.onGround || !player.collidingVertically
 
                 if (player.onGround) {
                     input.sneak = eagleSneaking || GameOptions.isKeyDown(mc.gameOptions.sneakKey)

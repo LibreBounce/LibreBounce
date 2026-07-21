@@ -111,7 +111,7 @@ fun Vec3d.toFloatArray() = floatArrayOf(xCoord.toFloat(), yCoord.toFloat(), zCoo
 fun Vec3d.toDoubleArray() = doubleArrayOf(xCoord, yCoord, zCoord)
 
 fun Float.ceilInt() = MathHelper.ceiling_float_int(this)
-fun Float.floorInt() = MathHelper.floor_float(this)
+fun Float.floorInt() = MathHelper.floor(this)
 fun Float.toRadians() = this * 0.017453292f
 fun Float.toRadiansD() = toRadians().toDouble()
 fun Float.toDegrees() = this * 57.29578f
@@ -129,7 +129,7 @@ infix fun Int.ceilDiv(b: Int): Int = ceil(this / b.toDouble()).toInt()
 infix fun Float.safeDiv(b: Float) = if (b == 0f) 0f else this / b
 
 fun Double.ceilInt() = MathHelper.ceiling_double_int(this)
-fun Double.floorInt() = MathHelper.floor_double(this)
+fun Double.floorInt() = MathHelper.floor(this)
 fun Double.toRadians() = this * 0.017453292
 fun Double.toRadiansF() = toRadians().toFloat()
 fun Double.toDegrees() = this * 57.295779513

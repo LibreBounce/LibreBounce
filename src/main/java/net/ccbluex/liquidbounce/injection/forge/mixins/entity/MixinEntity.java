@@ -141,13 +141,13 @@ public abstract class MixinEntity implements IMixinEntity {
     public float stepHeight;
 
     @Shadow
-    public boolean isCollidedHorizontally;
+    public boolean collidingHorizontally;
 
     @Shadow
-    public boolean isCollidedVertically;
+    public boolean collidingVertically;
 
     @Shadow
-    public boolean isCollided;
+    public boolean colliding;
 
     @Shadow
     public float distanceWalkedModified;

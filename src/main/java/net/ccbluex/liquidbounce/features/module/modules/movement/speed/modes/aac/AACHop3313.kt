@@ -23,7 +23,7 @@ object AACHop3313 : SpeedMode("AACHop3.3.13") {
         mc.player?.run {
             if (!isMoving || isInLiquid || isOnLadder || isRiding || damagedTimer > 0) return
 
-            if (onGround && isCollidedVertically) {
+            if (onGround && collidingVertically) {
                 val yawRad = rotationYaw.toRadians()
                 motionX -= sin(yawRad) * 0.202f
                 motionZ += cos(yawRad) * 0.202f
@@ -40,7 +40,7 @@ object AACHop3313 : SpeedMode("AACHop3.3.13") {
                 motionZ *= 1.001
 
                 // Motion Y
-                if (!isCollidedHorizontally) motionY -= 0.014999993f
+                if (!collidingHorizontally) motionY -= 0.014999993f
             } else {
                 flyingSpeed = 0.02f
             }

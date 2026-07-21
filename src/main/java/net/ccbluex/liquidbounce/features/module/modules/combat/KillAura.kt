@@ -851,7 +851,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             player.attackEntityWithModifiedSprint(entity, affectSprint) { if (swing) player.swingItem() }
 
             // Apply enchantment critical effect if FakeSharp is enabled
-            if (EnchantmentHelper.getModifierForCreature(
+            if (EnchantmentHelper.modifyDamage(
                     player.displayItemInHand, entity.creatureAttribute
                 ) <= 0F && fakeSharp
             ) {

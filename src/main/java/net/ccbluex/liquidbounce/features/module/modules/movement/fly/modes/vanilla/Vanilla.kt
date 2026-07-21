@@ -25,7 +25,7 @@ object Vanilla : FlyMode("Vanilla") {
             onGround = false
             inCobweb = false
 
-            capabilities.isFlying = false
+            abilities.flying = false
 
             val ySpeed = when {
                 mc.gameOptions.jumpKey.isKeyDown -> vanillaSpeed.toDouble()

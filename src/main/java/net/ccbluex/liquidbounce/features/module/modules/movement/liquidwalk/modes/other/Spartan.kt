@@ -16,7 +16,7 @@ object Spartan : LiquidWalkMode("Spartan") {
             if (isSneaking) return
 
             if (inWater) {
-                if (isCollidedHorizontally) {
+                if (collidingHorizontally) {
                     motionY += 0.15
                     return
                 }

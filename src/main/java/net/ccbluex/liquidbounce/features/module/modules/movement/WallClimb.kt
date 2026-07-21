@@ -30,7 +30,7 @@ object WallClimb : Module("WallClimb", Category.MOVEMENT) {
 
     val onMove = handler<MoveEvent> { event ->
         mc.player?.run {
-            if (!isCollidedHorizontally || isOnLadder || isInLiquid)
+            if (!collidingHorizontally || isOnLadder || isInLiquid)
                 return@handler
 
             if (mode == "Simple") {
@@ -47,7 +47,7 @@ object WallClimb : Module("WallClimb", Category.MOVEMENT) {
                     if (motionY < 0)
                         glitch = true
 
-                    if (isCollidedHorizontally) {
+                    if (collidingHorizontally) {
                         when (clipMode) {
                             "Jump" -> if (onGround)
                                 tryJump()
@@ -70,7 +70,7 @@ object WallClimb : Module("WallClimb", Category.MOVEMENT) {
                         motionY = motion.toDouble()
                 }
 
-                "AAC3.3.12" -> if (isCollidedHorizontally && !isOnLadder) {
+                "AAC3.3.12" -> if (collidingHorizontally && !isOnLadder) {
                     when (++waited) {
                         1, 12, 23 -> motionY = 0.43
                         29 -> setPosition(posX, posY + 0.5, posZ)
@@ -78,7 +78,7 @@ object WallClimb : Module("WallClimb", Category.MOVEMENT) {
                     }
                 } else if (onGround) waited = 0
 
-                "AACGlide" -> if (isCollidedHorizontally && !isOnLadder) motionY = -0.19
+                "AACGlide" -> if (collidingHorizontally && !isOnLadder) motionY = -0.19
             }
         }
     }
@@ -101,7 +101,7 @@ object WallClimb : Module("WallClimb", Category.MOVEMENT) {
                 "CheckerClimb" -> if (event.y > posY) event.boundingBox = null
 
                 "Clip" ->
-                    if (event.block == Blocks.air && event.y < posY && isCollidedHorizontally
+                    if (event.block == Blocks.air && event.y < posY && collidingHorizontally
                         && !isOnLadder && !isInLiquid
                     )
                         event.boundingBox = Box.fromBounds(0.0, 0.0, 0.0, 1.0, 1.0, 1.0)

@@ -101,7 +101,7 @@ public abstract class MixinBlock {
         // NoSlowBreak
         final NoSlowBreak noSlowBreak = NoSlowBreak.INSTANCE;
         if (noSlowBreak.handleEvents()) {
-            if (noSlowBreak.getWater() && playerIn.isInsideOfMaterial(Material.water) && !EnchantmentHelper.getAquaAffinityModifier(playerIn)) {
+            if (noSlowBreak.getWater() && playerIn.isInsideOfMaterial(Material.water) && !EnchantmentHelper.getAquaAffinityLevel(playerIn)) {
                 f *= 5f;
             }
 
