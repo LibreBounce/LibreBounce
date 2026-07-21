@@ -16,7 +16,7 @@ import net.ccbluex.liquidbounce.utils.extensions.tryJump
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils.direction
 import net.minecraft.init.Blocks
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
-import net.minecraft.util.AxisAlignedBB
+import net.minecraft.util.math.Box
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -104,7 +104,7 @@ object WallClimb : Module("WallClimb", Category.MOVEMENT) {
                     if (event.block == Blocks.air && event.y < posY && isCollidedHorizontally
                         && !isOnLadder && !isInLiquid
                     )
-                        event.boundingBox = AxisAlignedBB.fromBounds(0.0, 0.0, 0.0, 1.0, 1.0, 1.0)
+                        event.boundingBox = Box.fromBounds(0.0, 0.0, 0.0, 1.0, 1.0, 1.0)
                             .offset(posX, posY.toInt() - 1.0, posZ)
             }
         }

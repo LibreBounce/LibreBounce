@@ -94,14 +94,14 @@ object MovementUtils : MinecraftInstance, Listenable {
             var yaw = rotationYaw
             var forward = 1f
 
-            if (movementInput.forwardSpeed < 0f) {
+            if (input.forwardSpeed < 0f) {
                 yaw += 180f
                 forward = -0.5f
-            } else if (movementInput.forwardSpeed > 0f) {
+            } else if (input.forwardSpeed > 0f) {
                 forward = 0.5f
             }
 
-            yaw -= (sign(movementInput.moveStrafe) * 90f) * forward
+            yaw -= (sign(input.moveStrafe) * 90f) * forward
 
             yaw.toRadiansD()
         } ?: 0.0

@@ -15,8 +15,8 @@ object TrueSight : Module("TrueSight", Category.RENDER) {
     val entities by boolean("Entities", true)
 
     val onUpdate = handler<UpdateEvent> {
-        if (barriers && mc.gameSettings.particleSetting == 2) {
-            mc.gameSettings.particleSetting = 1
+        if (barriers && mc.gameOptions.particleSetting == 2) {
+            mc.gameOptions.particleSetting = 1
         }
     }
 }

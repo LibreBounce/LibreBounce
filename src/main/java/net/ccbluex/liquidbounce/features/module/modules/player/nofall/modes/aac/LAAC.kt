@@ -18,7 +18,7 @@ object LAAC : NoFallMode("LAAC") {
 
             if (motionY > 0) jumped = true
 
-            if (!jumped && onGround && !isOnLadder && !isInWater && !isInWeb)
+            if (!jumped && onGround && !isOnLadder && !inWater && !inCobweb)
                 motionY = -6.0
         }
     }
@@ -29,7 +29,7 @@ object LAAC : NoFallMode("LAAC") {
 
     override fun onMove(event: MoveEvent) {
         mc.player?.run {
-            if (!jumped && !onGround && !isOnLadder && !isInWater && !isInWeb && motionY < 0.0)
+            if (!jumped && !onGround && !isOnLadder && !inWater && !inCobweb && motionY < 0.0)
                 event.zeroXZ()
         }
     }

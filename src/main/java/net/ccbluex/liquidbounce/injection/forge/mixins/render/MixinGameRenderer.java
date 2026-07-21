@@ -168,7 +168,7 @@ public abstract class MixinGameRenderer {
             if (reach.handleEvents()) {
                 double p_rayTrace_1_2 = reach.getBuildReach();
                 Vec3d vec322 = vec3.addVector(vec31.xCoord * p_rayTrace_1_2, vec31.yCoord * p_rayTrace_1_2, vec31.zCoord * p_rayTrace_1_2);
-                final MovingObjectPosition movingObjectPosition = entity.worldObj.rayTraceBlocks(vec3, vec322, false, false, true);
+                final HitResult movingObjectPosition = entity.worldObj.rayTraceBlocks(vec3, vec322, false, false, true);
 
                 if (movingObjectPosition != null) d1 = movingObjectPosition.hitVec.distanceTo(vec3);
             }
@@ -181,7 +181,7 @@ public abstract class MixinGameRenderer {
             for (Entity entity1 : list) {
                 float f1 = entity1.getCollisionBorderSize();
 
-                final ArrayList<AxisAlignedBB> boxes = new ArrayList<>();
+                final ArrayList<Box> boxes = new ArrayList<>();
                 boxes.add(entity1.getShape().expand(f1, f1, f1));
 
                 ForwardTrack.INSTANCE.includeEntityTruePos(entity1, () -> {
@@ -189,8 +189,8 @@ public abstract class MixinGameRenderer {
                     return null;
                 });
 
-                for (final AxisAlignedBB axisalignedbb : boxes) {
-                    MovingObjectPosition movingobjectposition = axisalignedbb.calculateIntercept(vec3, vec32);
+                for (final Box axisalignedbb : boxes) {
+                    HitResult movingobjectposition = axisalignedbb.calculateIntercept(vec3, vec32);
                     if (axisalignedbb.isVecInside(vec3)) {
                         if (d2 >= 0) {
                             pointedEntity = entity1;
@@ -217,11 +217,11 @@ public abstract class MixinGameRenderer {
 
             if (pointedEntity != null && flag && vec3.distanceTo(vec33) > (reach.handleEvents() ? reach.getCombatReach() : 3)) {
                 pointedEntity = null;
-                mc.objectMouseOver = new MovingObjectPosition(MovingObjectPosition.MovingObjectType.MISS, Objects.requireNonNull(vec33), null, new BlockPos(vec33));
+                mc.objectMouseOver = new HitResult(HitResult.Type.MISS, Objects.requireNonNull(vec33), null, new BlockPos(vec33));
             }
 
             if (pointedEntity != null && (d2 < d1 || mc.objectMouseOver == null)) {
-                mc.objectMouseOver = new MovingObjectPosition(pointedEntity, vec33);
+                mc.objectMouseOver = new HitResult(pointedEntity, vec33);
                 if (pointedEntity instanceof LivingEntity || pointedEntity instanceof ItemEntityFrame) {
                     mc.pointedEntity = pointedEntity;
                 }
@@ -305,7 +305,7 @@ public abstract class MixinGameRenderer {
                         f10 = 1.0F;
                     }
 
-                    float f16 = this.mc.gameSettings.gammaSetting;
+                    float f16 = this.mc.gameOptions.gammaSetting;
                     float f17 = 1.0F - f8;
                     float f13 = 1.0F - f9;
                     float f14 = 1.0F - f10;

@@ -11,7 +11,7 @@ import net.ccbluex.liquidbounce.utils.extensions.tryJump
 object Rewi : NoWebMode("Rewi") {
     override fun onUpdate() {
         mc.player?.run {
-            if (!isInWeb)
+            if (!inCobweb)
                 return
 
             flyingSpeed = 0.42f

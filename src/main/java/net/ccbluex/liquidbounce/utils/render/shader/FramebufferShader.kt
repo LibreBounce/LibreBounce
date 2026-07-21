@@ -10,7 +10,7 @@ import net.minecraft.client.render.platform.GlStateManager.*
 import net.minecraft.client.render.platform.Lighting
 import net.minecraft.client.render.vertex.Tesselator
 import net.minecraft.client.render.vertex.DefaultVertexFormat
-import net.minecraft.client.shader.Framebuffer
+import net.minecraft.client.render.pipeline.RenderTarget
 import org.lwjgl.opengl.GL11.*
 import org.lwjgl.opengl.GL20.glUseProgram
 import java.awt.Color
@@ -46,13 +46,13 @@ abstract class FramebufferShader(fragmentShader: String) : Shader(fragmentShader
         framebuffer!!.framebufferClear()
         framebuffer!!.bindFramebuffer(true)
         
-        entityShadows = mc.gameSettings.entityShadows
-        mc.gameSettings.entityShadows = false
+        entityShadows = mc.gameOptions.entityShadows
+        mc.gameOptions.entityShadows = false
         mc.entityRenderer.setupCameraTransform(partialTicks, 0)
     }
 
     fun stopDraw(color: Color, radius: Int, fade: Int, targetAlpha: Float) {
-        mc.gameSettings.entityShadows = entityShadows
+        mc.gameOptions.entityShadows = entityShadows
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         mc.framebuffer.bindFramebuffer(true)
@@ -82,16 +82,16 @@ abstract class FramebufferShader(fragmentShader: String) : Shader(fragmentShader
     /**
      * @author TheSlowly, Navex
      */
-    fun setupFrameBuffer(frameBuffer: Framebuffer?, renderScale: Float): Framebuffer {
+    fun setupFrameBuffer(frameBuffer: RenderTarget?, renderScale: Float): Framebuffer {
         frameBuffer?.deleteFramebuffer()
         
-        return Framebuffer((mc.displayWidth * renderScale).roundToInt(), (mc.displayHeight * renderScale).roundToInt(), true)
+        return RenderTarget((mc.displayWidth * renderScale).roundToInt(), (mc.displayHeight * renderScale).roundToInt(), true)
     }
 
     /**
      * @author Navex
      */
-    fun drawFramebuffer(framebuffer: Framebuffer) {
+    fun drawFramebuffer(framebuffer: RenderTarget) {
         val scaledResolution = Window(mc)
         val scaledWidth = scaledResolution.scaledWidth_double
         val scaledHeight = scaledResolution.scaledHeight_double

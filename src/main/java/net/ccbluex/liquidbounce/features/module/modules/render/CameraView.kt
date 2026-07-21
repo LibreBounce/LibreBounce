@@ -48,7 +48,7 @@ object CameraView : Module("CameraView", Category.RENDER, gameDetecting = false)
             val shouldOperate = (onFly && Fly.handleEvents()) || (onLongJump && LongJump.handleEvents()) || (onScaffold && Scaffold.handleEvents())
 
             if (!shouldOperate) return@handler
-            if (onF5 && mc.gameSettings.thirdPersonView == 0) return@handler
+            if (onF5 && mc.gameOptions.perspective == 0) return@handler
 
             event.withY(currentLaunchY + customY)
         }

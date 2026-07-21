@@ -15,7 +15,7 @@ object Spartan : LiquidWalkMode("Spartan") {
         mc.player?.run {
             if (isSneaking) return
 
-            if (isInWater) {
+            if (inWater) {
                 if (isCollidedHorizontally) {
                     motionY += 0.15
                     return

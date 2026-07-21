@@ -28,7 +28,7 @@ object AACHop4 : SpeedMode("AACHop4") {
                 }
             }
 
-            isSprinting = movementInput.forwardSpeed > 0.8
+            isSprinting = input.forwardSpeed > 0.8
         }
     }
 }

@@ -35,7 +35,7 @@ import net.minecraft.network.packet.c2s.play.ArmSwingC2SPacket
 import net.minecraft.network.packet.c2s.play.PlayerMovementActionC2SPacket
 import net.minecraft.util.BlockPos
 import net.minecraft.util.math.Direction
-import net.minecraft.util.MovingObjectPosition
+import net.minecraft.world.HitResult
 import net.minecraft.util.math.Vec3d
 import net.minecraftforge.event.ForgeEventFactory
 import java.awt.Color
@@ -69,8 +69,8 @@ object BedDefender : Module("BedDefender", Category.WORLD) {
     override fun onDisable() {
         val player = mc.player ?: return
 
-        if (!GameOptions.isKeyDown(mc.gameSettings.keyBindSneak)) {
-            mc.gameSettings.keyBindSneak.pressed = false
+        if (!GameOptions.isKeyDown(mc.gameOptions.sneakKey)) {
+            mc.gameOptions.sneakKey.pressed = false
             if (player.isSneaking) player.isSneaking = false
         }
 
@@ -84,7 +84,7 @@ object BedDefender : Module("BedDefender", Category.WORLD) {
         val player = mc.player ?: return@handler
         val world = mc.world ?: return@handler
 
-        if (onSneakOnly && !mc.gameSettings.keyBindSneak.isKeyDown) {
+        if (onSneakOnly && !mc.gameOptions.sneakKey.isKeyDown) {
             return@handler
         }
 
@@ -137,7 +137,7 @@ object BedDefender : Module("BedDefender", Category.WORLD) {
                 if (!isPlaceablePos(blockPos)) return@handler
 
                 when (autoSneak) {
-                    "Normal" -> mc.gameSettings.keyBindSneak.pressed = false
+                    "Normal" -> mc.gameOptions.sneakKey.pressed = false
                     "Packet" -> sendPacket(PlayerMovementActionC2SPacket(player, PlayerMovementActionC2SPacket.Action.START_SNEAKING))
                 }
 
@@ -145,7 +145,7 @@ object BedDefender : Module("BedDefender", Category.WORLD) {
                 timerCounter.reset()
             } else {
                 when (autoSneak) {
-                    "Normal" -> mc.gameSettings.keyBindSneak.pressed = true
+                    "Normal" -> mc.gameOptions.sneakKey.pressed = true
                     "Packet" -> sendPacket(PlayerMovementActionC2SPacket(player, PlayerMovementActionC2SPacket.Action.STOP_SNEAKING))
                 }
             }
@@ -281,7 +281,7 @@ object BedDefender : Module("BedDefender", Category.WORLD) {
         }
     }
 
-    private fun performBlockRaytrace(rotation: Rotation, maxReach: Float): MovingObjectPosition? {
+    private fun performBlockRaytrace(rotation: Rotation, maxReach: Float): HitResult? {
         val player = mc.player ?: return null
         val world = mc.world ?: return null
 

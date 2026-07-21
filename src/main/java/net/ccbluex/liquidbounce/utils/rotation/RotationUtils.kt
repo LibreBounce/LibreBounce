@@ -228,7 +228,7 @@ object RotationUtils : MinecraftInstance, Listenable {
      * @return center
      */
     fun searchCenter(
-        bb: AxisAlignedBB, distanceBasedSpot: Boolean = false, outborder: Boolean,
+        bb: Box, distanceBasedSpot: Boolean = false, outborder: Boolean,
         randomization: RandomizationSettings? = null, predict: Boolean,
         lookRange: Float, attackRange: Float, throughWallsRange: Float = 0f,
         bodyPoints: List<String> = listOf("Head", "Feet"), horizontalSearch: ClosedFloatingPointRange<Float> = 0f..1f,
@@ -594,7 +594,7 @@ object RotationUtils : MinecraftInstance, Listenable {
     /**
      * Returns the smallest angle difference possible with a specific sensitivity ("gcd")
      */
-    fun getFixedAngleDelta(sensitivity: Float = mc.gameSettings.mouseSensitivity) =
+    fun getFixedAngleDelta(sensitivity: Float = mc.gameOptions.mouseSensitivity) =
         (sensitivity * 0.6f + 0.2f).pow(3) * 1.2f
 
     /**
@@ -610,7 +610,7 @@ object RotationUtils : MinecraftInstance, Listenable {
         blockPos: BlockPos,
         rotation: Rotation,
         reach: Float = mc.playerController.blockReachDistance,
-    ): MovingObjectPosition? {
+    ): HitResult? {
         val world = mc.world ?: return null
         val player = mc.player ?: return null
 

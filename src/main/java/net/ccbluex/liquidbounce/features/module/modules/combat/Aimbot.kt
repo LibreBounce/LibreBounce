@@ -20,7 +20,7 @@ import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.inventory.ItemUtils.isConsumingItem
 import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.withAlpha
-import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawAxisAlignedBB
+import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBox
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawCircle
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawEntityBox
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawPlatform
@@ -173,7 +173,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
         target = null
         prevTargetEntities.clear()
 
-        if (autoF5) mc.gameSettings.thirdPersonView = 0
+        if (autoF5) mc.gameOptions.perspective = 0
     }
 
     val onRotationUpdate = handler<RotationUpdateEvent> {
@@ -187,8 +187,8 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
         updateTarget()
 
         if (autoF5) {
-            if (mc.gameSettings.thirdPersonView != 1 && target != null) {
-                mc.gameSettings.thirdPersonView = 1
+            if (mc.gameOptions.perspective != 1 && target != null) {
+                mc.gameOptions.perspective = 1
             }
         }
     }
@@ -210,7 +210,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
         }
 
         // Clicking delay
-        if (mc.gameSettings.keyBindAttack.isKeyDown) clickTimer.reset()
+        if (mc.gameOptions.attackKey.isKeyDown) clickTimer.reset()
     }
 
     /**
@@ -322,9 +322,9 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
                     entity.getActivePotionEffect(Potion.regeneration).amplifier.toDouble()
                 } else -1.0
 
-                "InWeb" -> if (entity.isInWeb) -1.0 else Double.MAX_VALUE
+                "InWeb" -> if (entity.inCobweb) -1.0 else Double.MAX_VALUE
                 "OnLadder" -> if (entity.isOnLadder) -1.0 else Double.MAX_VALUE
-                "InLiquid" -> if (entity.isInWater || entity.isInLava) -1.0 else Double.MAX_VALUE
+                "InLiquid" -> if (entity.inWater || entity.isInLava) -1.0 else Double.MAX_VALUE
                 else -> null
             } ?: continue
 
@@ -353,7 +353,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
     private fun updateRotations(entity: Entity): Boolean {
         val player = mc.player ?: return false
 
-        if (clickOnly && (clickTimer.hasTimePassed(clickDelay) || !mc.gameSettings.keyBindAttack.isKeyDown && AutoClicker.handleEvents())) {
+        if (clickOnly && (clickTimer.hasTimePassed(clickDelay) || !mc.gameOptions.attackKey.isKeyDown && AutoClicker.handleEvents())) {
             return false
         }
 
@@ -444,7 +444,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
 
         val f = aimPointBoxSize.toDouble()
 
-        val box = AxisAlignedBB(0.0, 0.0, 0.0, f, f, f)
+        val box = Box(0.0, 0.0, 0.0, f, f, f)
 
         val renderManager = mc.renderManager
 
@@ -456,7 +456,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
 
                 val offSetBox = box.offset(rotationVec - renderManager.renderPos)
 
-                drawAxisAlignedBB(offSetBox, aimPointBoxColor)
+                drawBox(offSetBox, aimPointBoxColor)
             }
         }
     }

@@ -204,8 +204,8 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1f, side: Side = S
                 "onground" -> return onGround
                 "moving" -> return isMoving
                 "block", "blocking" -> return (displayItemInHand?.item is SwordItem && (blockStatus || isUsingItem || isBlocking))
-                "sneak", "sneaking" -> return (isSneaking || mc.gameSettings.keyBindSneak.isKeyDown)
-                "sprint", "sprinting" -> return (serverSprintState || isSprinting || mc.gameSettings.keyBindSprint.isKeyDown)
+                "sneak", "sneaking" -> return (isSneaking || mc.gameOptions.sneakKey.isKeyDown)
+                "sprint", "sprinting" -> return (serverSprintState || isSprinting || mc.gameOptions.keyBindSprint.isKeyDown)
                 "inventory", "inv" -> return mc.currentScreen is SurvivalInventoryScreen || mc.currentScreen is InventoryMenuScreen
                 "serverslot" -> return SilentHotbar.currentSlot
                 "clientslot" -> return inventory?.currentItem

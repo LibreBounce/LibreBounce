@@ -20,7 +20,7 @@ object Parkour : Module("Parkour", Category.MOVEMENT, subjective = true, gameDet
 
             simPlayer.tick()
 
-            if (isMoving && onGround && !isUsingItem && !isSneaking && !mc.gameSettings.keyBindSneak.isKeyDown && !simPlayer.onGround) {
+            if (isMoving && onGround && !isUsingItem && !isSneaking && !mc.gameOptions.sneakKey.isKeyDown && !simPlayer.onGround) {
                 event.originalInput.jump = true
             }
         }

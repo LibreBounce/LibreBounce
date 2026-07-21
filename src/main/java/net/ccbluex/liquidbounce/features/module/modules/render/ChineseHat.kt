@@ -60,7 +60,7 @@ object ChineseHat : Module("ChineseHat", Category.RENDER) {
         drawConesForEntities {
             for (entity in entityLookup) {
                 val isRenderingSelf =
-                    entity == mc.player && (mc.gameSettings.thirdPersonView != 0 || FreeCam.handleEvents())
+                    entity == mc.player && (mc.gameOptions.perspective != 0 || FreeCam.handleEvents())
 
                 if (!isRenderingSelf || !renderSelf) {
                     if (!isSelected(entity, false)) continue

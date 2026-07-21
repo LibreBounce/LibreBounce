@@ -12,7 +12,7 @@ import net.minecraft.client.gui.screen.inventory.menu.SignEditScreen;
 import net.minecraft.event.ClickEvent;
 import net.minecraft.tileentity.TileEntitySign;
 import net.minecraft.util.ChatAllowedCharacters;
-import net.minecraft.util.ChatComponentText;
+import net.minecraft.text.LiteralText;
 import net.minecraft.util.ChatStyle;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -131,7 +131,7 @@ public class MixinSignEditScreen extends Screen {
             s = s + typedChar;
         }
 
-        tileSign.signText[editLine] = new ChatComponentText(s);
+        tileSign.signText[editLine] = new LiteralText(s);
         if (keyCode == 1) {
             actionPerformed(doneBtn);
         }

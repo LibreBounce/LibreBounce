@@ -14,7 +14,7 @@ object OnGround : SpeedMode("OnGround") {
 
     override fun onMotion() {
         mc.player?.run {
-            if (isInWater || isOnLadder || isCollidedHorizontally)
+            if (inWater || isOnLadder || isCollidedHorizontally)
                 return
 
             if (!isMoving || fallDistance > 3.994) return

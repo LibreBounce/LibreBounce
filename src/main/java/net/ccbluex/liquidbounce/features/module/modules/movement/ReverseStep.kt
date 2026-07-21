@@ -12,7 +12,7 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.collideBlock
 import net.minecraft.block.BlockLiquid
-import net.minecraft.util.AxisAlignedBB
+import net.minecraft.util.math.Box
 
 object ReverseStep : Module("ReverseStep", Category.MOVEMENT) {
 
@@ -32,7 +32,7 @@ object ReverseStep : Module("ReverseStep", Category.MOVEMENT) {
 
             if (collideBlock(shape) { it is BlockLiquid } ||
                 collideBlock(
-                    AxisAlignedBB.fromBounds(
+                    Box.fromBounds(
                         shape.maxX,
                         shape.maxY,
                         shape.maxZ,
@@ -44,7 +44,7 @@ object ReverseStep : Module("ReverseStep", Category.MOVEMENT) {
                     it is BlockLiquid
                 }) return@handler
 
-            if (!mc.gameSettings.keyBindJump.isKeyDown && !onGround && !movementInput.jump && motionY <= 0.0 && fallDistance <= 1f && !jumped)
+            if (!mc.gameOptions.jumpKey.isKeyDown && !onGround && !input.jump && motionY <= 0.0 && fallDistance <= 1f && !jumped)
                 motionY = -motion.toDouble()
         }
     }

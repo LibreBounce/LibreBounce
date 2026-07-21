@@ -17,13 +17,13 @@ object VerusGlide : FlyMode("VerusGlide") {
 
     override fun onUpdate() {
         mc.player?.run {
-            if (isInLiquid || isInWeb || isOnLadder) return
+            if (isInLiquid || inCobweb || isOnLadder) return
 
             if (!onGround && fallDistance > 1) {
                 // Good job, Verus
                 motionY = -0.09800000190734863
 
-                if (movementInput.forwardSpeed != 0f && sidewaysSpeed != 0f) strafe(0.334f)
+                if (input.forwardSpeed != 0f && sidewaysSpeed != 0f) strafe(0.334f)
                 else strafe(0.3345f)
             }
         }

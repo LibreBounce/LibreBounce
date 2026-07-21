@@ -15,7 +15,7 @@ object Flag : FlyMode("Flag") {
             sendPackets(
                 Position(
                     posX + motionX * 999,
-                    posY + (if (mc.gameSettings.keyBindJump.isKeyDown) 1.5624 else 0.00000001) - if (mc.gameSettings.keyBindSneak.isKeyDown) 0.0624 else 0.00000002,
+                    posY + (if (mc.gameOptions.jumpKey.isKeyDown) 1.5624 else 0.00000001) - if (mc.gameOptions.sneakKey.isKeyDown) 0.0624 else 0.00000002,
                     posZ + motionZ * 999,
                     true
                 ),

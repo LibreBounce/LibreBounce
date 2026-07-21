@@ -106,9 +106,9 @@ object StorageESP : Module("StorageESP", Category.RENDER) {
                 OutlineUtils.checkSetupFBO()
             }
 
-            val gamma = mc.gameSettings.gammaSetting
+            val gamma = mc.gameOptions.gammaSetting
 
-            mc.gameSettings.gammaSetting = 100000f
+            mc.gameOptions.gammaSetting = 100000f
 
             for (tileEntity in mc.world.loadedTileEntityList) {
                 val color = getColor(tileEntity) ?: continue
@@ -195,8 +195,8 @@ object StorageESP : Module("StorageESP", Category.RENDER) {
                             "2D" -> draw2D(entity.position, Color(0, 66, 255).rgb, Color.BLACK.rgb)
 
                             "Outline" -> {
-                                val entityShadow = mc.gameSettings.entityShadows
-                                mc.gameSettings.entityShadows = false
+                                val entityShadow = mc.gameOptions.entityShadows
+                                mc.gameOptions.entityShadows = false
                                 glColor(Color(0, 66, 255))
                                 OutlineUtils.renderOne(3f)
                                 mc.renderManager.renderEntityStatic(entity, mc.timer.renderPartialTicks, true)
@@ -208,12 +208,12 @@ object StorageESP : Module("StorageESP", Category.RENDER) {
                                 mc.renderManager.renderEntityStatic(entity, mc.timer.renderPartialTicks, true)
                                 OutlineUtils.renderFive()
                                 OutlineUtils.setColor(Color.WHITE)
-                                mc.gameSettings.entityShadows = entityShadow
+                                mc.gameOptions.entityShadows = entityShadow
                             }
 
                             "Wireframe" -> {
-                                val entityShadow = mc.gameSettings.entityShadows
-                                mc.gameSettings.entityShadows = false
+                                val entityShadow = mc.gameOptions.entityShadows
+                                mc.gameOptions.entityShadows = false
                                 glPushMatrix()
                                 glPushAttrib(GL_ALL_ATTRIB_BITS)
                                 glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
@@ -230,7 +230,7 @@ object StorageESP : Module("StorageESP", Category.RENDER) {
                                 mc.renderManager.renderEntityStatic(entity, mc.timer.renderPartialTicks, true)
                                 glPopAttrib()
                                 glPopMatrix()
-                                mc.gameSettings.entityShadows = entityShadow
+                                mc.gameOptions.entityShadows = entityShadow
                             }
                         }
                     }
@@ -238,7 +238,7 @@ object StorageESP : Module("StorageESP", Category.RENDER) {
             }
 
             glColor(Color(255, 255, 255, 255))
-            mc.gameSettings.gammaSetting = gamma
+            mc.gameOptions.gammaSetting = gamma
         } catch (_: Exception) {
         }
     }

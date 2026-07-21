@@ -25,7 +25,7 @@ import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.setTargetRotation
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.utils.timing.TickedActions.nextTick
 import net.minecraft.client.gui.screen.inventory.menu.SurvivalInventoryScreen
-import net.minecraft.item.ItemPotion
+import net.minecraft.item.PotionItem
 import net.minecraft.potion.Potion
 import net.minecraft.potion.Potion.*
 
@@ -138,9 +138,9 @@ object AutoPot : Module("AutoPot", Category.COMBAT) {
         for (i in startSlot..endSlot) {
             val stack = player.inventorySlot(i).stack
 
-            if (stack == null || stack.item !is ItemPotion || !stack.isSplashPotion()) continue
+            if (stack == null || stack.item !is PotionItem || !stack.isSplashPotion()) continue
 
-            val effects = (stack.item as ItemPotion).getEffects(stack)
+            val effects = (stack.item as PotionItem).getEffects(stack)
             if (effects.isEmpty()) continue
 
             fun hasPotionEffect(id: Int) = effects.any { it.potionID == id }

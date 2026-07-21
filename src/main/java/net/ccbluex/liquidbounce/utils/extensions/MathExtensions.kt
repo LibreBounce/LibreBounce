@@ -174,18 +174,18 @@ fun ClosedFloatingPointRange<Float>.random(): Float {
  */
 fun <T> Iterable<T>.shuffled(shuffle: Boolean) = toMutableList().apply { if (shuffle) shuffle() }
 
-fun AxisAlignedBB.lerpWith(x: Double, y: Double, z: Double) =
+fun Box.lerpWith(x: Double, y: Double, z: Double) =
     Vec3d(minX + (maxX - minX) * x, minY + (maxY - minY) * y, minZ + (maxZ - minZ) * z)
 
-fun AxisAlignedBB.lerpWith(point: Vec3d) = lerpWith(point.xCoord, point.yCoord, point.zCoord)
-fun AxisAlignedBB.lerpWith(value: Double) = lerpWith(value, value, value)
-fun AxisAlignedBB.offset(other: Vec3d) = offset(other.xCoord, other.yCoord, other.zCoord)
-fun AxisAlignedBB.offset(other: BlockPos) = offset(other.toVec())
+fun Box.lerpWith(point: Vec3d) = lerpWith(point.xCoord, point.yCoord, point.zCoord)
+fun Box.lerpWith(value: Double) = lerpWith(value, value, value)
+fun Box.offset(other: Vec3d) = offset(other.xCoord, other.yCoord, other.zCoord)
+fun Box.offset(other: BlockPos) = offset(other.toVec())
 
-val AxisAlignedBB.center
+val Box.center
     get() = lerpWith(0.5)
 
-fun AxisAlignedBB.getPointSequence(step: Double): Sequence<Vec3d> {
+fun Box.getPointSequence(step: Double): Sequence<Vec3d> {
     require(step in 0.0..1.0)
 
     return sequence {

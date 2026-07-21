@@ -10,7 +10,7 @@ import net.ccbluex.liquidbounce.event.EventManager.call
 import net.ccbluex.liquidbounce.event.SessionUpdateEvent
 import net.ccbluex.liquidbounce.file.configs.models.ClientConfiguration
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance.Companion.mc
-import net.minecraft.util.Session
+import net.minecraft.client.Session
 import kotlin.random.Random
 
 object RandomUtils {

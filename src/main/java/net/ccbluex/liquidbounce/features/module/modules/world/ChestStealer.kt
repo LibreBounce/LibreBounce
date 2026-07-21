@@ -41,7 +41,7 @@ import net.minecraft.client.gui.screen.inventory.menu.ChestScreen
 import net.minecraft.inventory.Slot
 import net.minecraft.entity.EntityLiving.getArmorPosition
 import net.minecraft.init.Blocks.chest
-import net.minecraft.item.ItemArmor
+import net.minecraft.item.ArmorItem
 import net.minecraft.item.ItemStack
 import net.minecraft.network.packet.c2s.play.CloseInventoryMenuC2SPacket
 import net.minecraft.network.packet.s2c.play.OpenInventoryMenuS2CPacket
@@ -124,7 +124,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
             if (!handleEvents())
                 return false
 
-            if (mc.playerController?.currentGameType?.isSurvivalOrAdventure != true)
+            if (mc.playerController?.currentGameMode?.isSurvivalOrAdventure != true)
                 return false
 
             if (mc.currentScreen !is ChestScreen)
@@ -224,7 +224,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
                         val item = stack.item
 
-                        if (item !is ItemArmor || player.inventory.armorInventory[getArmorPosition(stack) - 1] != null)
+                        if (item !is ArmorItem || player.inventory.armorInventory[getArmorPosition(stack) - 1] != null)
                             return@clickNextTick
 
                         // TODO: should the stealing be suspended until the armor gets equipped and some delay on top of that, maybe toggleable?
@@ -362,14 +362,14 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
                 when (sorting) {
                     "Normal" -> {
                         // Prioritise armor pieces with lower priority, so that as many pieces can get equipped from hotbar after chest gets closed
-                        it.sortByDescending { it.stack.item is ItemArmor }
+                        it.sortByDescending { it.stack.item is ArmorItem }
 
                         // Prioritize items that can be sorted
                         it.sortByDescending { it.sortableToSlot != null }
 
                         // Fully prioritise armor pieces when it is possible to equip armor while in chest
                         if (AutoArmor.canEquipFromChest())
-                            it.sortByDescending { it.stack.item is ItemArmor }
+                            it.sortByDescending { it.stack.item is ArmorItem }
                     }
 
                     "Random" -> it.shuffle()

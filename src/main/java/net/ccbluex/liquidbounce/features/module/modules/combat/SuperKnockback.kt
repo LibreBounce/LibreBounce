@@ -99,8 +99,8 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
         if (event.targetEntity.damagedTimer !in damagedTimer ||
             !timer.hasTimePassed(delay) ||
             onlyGround && !player.onGround ||
-            (onlyMove && (!player.isMoving || onlyMoveForward && player.movementInput.moveStrafe != 0f)) ||
-            !onWeb && player.isInWeb ||
+            (onlyMove && (!player.isMoving || onlyMoveForward && player.input.moveStrafe != 0f)) ||
+            !onWeb && player.inCobweb ||
             !onLiquid && player.isInLiquid ||
             !withinChance(chance)
         ) return@handler
@@ -167,14 +167,14 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
 
             "STap" -> {
                 if (player.isSprinting && player.serverSprintState) {
-                    mc.gameSettings.keyBindForward.pressed = false
-                    mc.gameSettings.keyBindBack.pressed = true
+                    mc.gameOptions.forwardKey.pressed = false
+                    mc.gameOptions.backKey.pressed = true
                 }
             }
 
             "Sneak" -> {
-                if (player.isSprinting && player.serverSprintState && !GameOptions.isKeyDown(mc.gameSettings.keyBindSneak) && !mc.gameSettings.keyBindSneak.pressed) {
-                    mc.gameSettings.keyBindSneak.pressed = true
+                if (player.isSprinting && player.serverSprintState && !GameOptions.isKeyDown(mc.gameOptions.sneakKey) && !mc.gameOptions.sneakKey.pressed) {
+                    mc.gameOptions.sneakKey.pressed = true
                 }
             }
         }
@@ -195,7 +195,7 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
             }
 
             1 -> {
-                if (player.movementInput.forwardSpeed > 0.8)
+                if (player.input.forwardSpeed > 0.8)
                     player.isSprinting = true
 
                 forceSprintState = 1
@@ -229,16 +229,16 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
             }
 
             "STap" -> {
-                if (mc.gameSettings.keyBindBack.pressed && !GameOptions.isKeyDown(mc.gameSettings.keyBindBack) &&
+                if (mc.gameOptions.backKey.pressed && !GameOptions.isKeyDown(mc.gameOptions.backKey) &&
                     sTapTimer.resetIfPassed()
                 )
-                    mc.gameSettings.keyBindBack.pressed = false
-                    mc.gameSettings.keyBindForward.pressed = true
+                    mc.gameOptions.backKey.pressed = false
+                    mc.gameOptions.forwardKey.pressed = true
             }
 
             "Sneak" -> {
-                if (mc.gameSettings.keyBindSneak.pressed && !GameOptions.isKeyDown(mc.gameSettings.keyBindSneak) && sneakTimer.resetIfPassed())
-                    mc.gameSettings.keyBindSneak.pressed = false
+                if (mc.gameOptions.sneakKey.pressed && !GameOptions.isKeyDown(mc.gameOptions.sneakKey) && sneakTimer.resetIfPassed())
+                    mc.gameOptions.sneakKey.pressed = false
             }
         }
     }

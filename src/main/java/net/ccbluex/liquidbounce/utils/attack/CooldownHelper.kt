@@ -25,15 +25,15 @@ object CooldownHelper {
     fun updateGenericAttackSpeed(itemStack: ItemStack?) {
         genericAttackSpeed = when (itemStack?.item) {
             is SwordItem -> 1.6
-            is ItemAxe -> {
-                val axe = itemStack.item as ItemAxe
+            is AxeItem -> {
+                val axe = itemStack.item as AxeItem
                 when (axe.toolMaterial) {
                     Item.ToolMaterial.IRON -> 0.9
                     Item.ToolMaterial.WOOD, Item.ToolMaterial.STONE -> 0.8
                     else -> 1.0
                 }
             }
-            is ItemPickaxe -> 1.2
+            is PickaxeItem -> 1.2
             is ItemSpade -> 1.0
             is ItemHoe -> {
                 val hoe = itemStack.item as ItemHoe

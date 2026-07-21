@@ -30,8 +30,8 @@ object FreeLook : Module("FreeLook", Category.RENDER) {
 
     override fun onEnable() {
         mc.player?.run {
-            if (autoF5 && mc.gameSettings.thirdPersonView != 1) {
-                mc.gameSettings.thirdPersonView = 1
+            if (autoF5 && mc.gameOptions.perspective != 1) {
+                mc.gameOptions.perspective = 1
             }
 
             currRotation = rotation
@@ -40,11 +40,11 @@ object FreeLook : Module("FreeLook", Category.RENDER) {
     }
 
     override fun onDisable() {
-        if (autoF5) mc.gameSettings.thirdPersonView = 0
+        if (autoF5) mc.gameOptions.perspective = 0
     }
 
     val onRotationSet = handler<RotationSetEvent> { event ->
-        if (mc.gameSettings.thirdPersonView != 0) {
+        if (mc.gameOptions.perspective != 0) {
             event.cancelEvent()
         } else {
             currRotation = mc.player.rotation
@@ -60,7 +60,7 @@ object FreeLook : Module("FreeLook", Category.RENDER) {
     fun useModifiedRotation() {
         val player = mc.player ?: return
 
-        if (mc.gameSettings.thirdPersonView == 0)
+        if (mc.gameOptions.perspective == 0)
             return
 
         if (modifySavedRotations) {
@@ -82,7 +82,7 @@ object FreeLook : Module("FreeLook", Category.RENDER) {
     fun restoreOriginalRotation() {
         val player = mc.player ?: return
 
-        if (!handleEvents() || mc.gameSettings.thirdPersonView == 0)
+        if (!handleEvents() || mc.gameOptions.perspective == 0)
             return
 
         player.rotation = savedCurrRotation

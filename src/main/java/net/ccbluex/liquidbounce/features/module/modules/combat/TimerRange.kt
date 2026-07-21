@@ -144,7 +144,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
         val randomTickDelay = tickDelay.random()
         val shouldReturn = Backtrack.runWithNearestTrackedDistance(targetEntity) { !updateDistance(targetEntity) }
 
-        if (shouldReturn || (player.isInWeb && !onWeb) || (player.isInLiquid && !onLiquid)) {
+        if (shouldReturn || (player.inCobweb && !onWeb) || (player.isInLiquid && !onLiquid)) {
             return@handler
         }
 
@@ -185,7 +185,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
 
         val shouldReturn = Backtrack.runWithNearestTrackedDistance(nearbyEntity) { !updateDistance(nearbyEntity) }
 
-        if (shouldReturn || (player.isInWeb && !onWeb) || (player.isInLiquid && !onLiquid)) {
+        if (shouldReturn || (player.inCobweb && !onWeb) || (player.isInLiquid && !onLiquid)) {
             return@handler
         }
 
@@ -225,7 +225,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
         val boundingBox = entity.hitBox.offset(prediction)
         val (currPos, oldPos) = player.currPos to player.prevPos
 
-        val simPlayer = SimulatedPlayer.fromClientPlayer(player.movementInput)
+        val simPlayer = SimulatedPlayer.fromClientPlayer(player.input)
 
         repeat(predictClientMovement + 1) {
             simPlayer.tick()

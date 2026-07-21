@@ -56,7 +56,7 @@ object TNTTimer : Module("TNTTimer", Category.RENDER) {
         val player = mc.player ?: return
 
         val renderManager = mc.renderManager
-        val rotateX = if (mc.gameSettings.thirdPersonView == 2) -1.0f else 1.0f
+        val rotateX = if (mc.gameOptions.perspective == 2) -1.0f else 1.0f
 
         glPushAttrib(GL_ENABLE_BIT)
         glPushMatrix()

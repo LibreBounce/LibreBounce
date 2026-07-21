@@ -15,7 +15,7 @@ object AAC3311 : LiquidWalkMode("AAC3.3.11") {
         mc.player?.run {
             if (isSneaking) return
 
-            if (isInWater) {
+            if (inWater) {
                 motionX *= 1.17
                 motionZ *= 1.17
 

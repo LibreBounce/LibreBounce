@@ -23,7 +23,7 @@ object MatrixHop : SpeedMode("MatrixHop") {
 
     override fun onUpdate() {
         mc.player?.run {
-            if (isInLiquid || isInWeb || isOnLadder) return
+            if (isInLiquid || inCobweb || isOnLadder) return
 
             if (matrixLowHop) flyingSpeed = 0.026f
 

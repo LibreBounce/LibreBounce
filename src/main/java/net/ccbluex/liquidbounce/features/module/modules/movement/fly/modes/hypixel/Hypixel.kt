@@ -17,7 +17,7 @@ import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.utils.timing.TickDelayTimer
 import net.minecraft.init.Blocks.air
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
-import net.minecraft.util.AxisAlignedBB
+import net.minecraft.util.math.Box
 
 object Hypixel : FlyMode("Hypixel") {
     private val tickTimer = TickDelayTimer(2)
@@ -47,7 +47,7 @@ object Hypixel : FlyMode("Hypixel") {
 
     override fun onBB(event: BlockBBEvent) {
         if (event.block == air && event.y < mc.player.posY)
-            event.boundingBox = AxisAlignedBB.fromBounds(
+            event.boundingBox = Box.fromBounds(
                 event.x.toDouble(),
                 event.y.toDouble(),
                 event.z.toDouble(),

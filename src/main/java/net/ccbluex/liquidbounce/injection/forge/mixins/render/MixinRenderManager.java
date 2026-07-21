@@ -9,7 +9,7 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.HitBox;
 import net.ccbluex.liquidbounce.features.module.modules.render.FreeCam;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.math.Box;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.spongepowered.asm.mixin.Mixin;
@@ -32,8 +32,8 @@ public abstract class MixinEntityRenderDispatcher {
     @Shadow
     public double renderPosZ;
 
-    @Redirect(method = "renderDebugBoundingBox", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;getShape()Lnet/minecraft/util/AxisAlignedBB;", ordinal = 0), require = 1, allow = 1)
-    private AxisAlignedBB getShape(Entity entity) {
+    @Redirect(method = "renderDebugBoundingBox", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;getShape()Lnet/minecraft/util/Box;", ordinal = 0), require = 1, allow = 1)
+    private Box getShape(Entity entity) {
         final HitBox hitBox = HitBox.INSTANCE;
 
         if (!hitBox.handleEvents()) {

@@ -46,7 +46,7 @@ fun TextRenderer.drawCenteredString(
 class GameTextRenderer(
     font: Font
 ) : TextRenderer(
-    mc.gameSettings, Identifier("textures/font/ascii.png"), mc.textureManager, false
+    mc.gameOptions, Identifier("textures/font/ascii.png"), mc.textureManager, false
 ) {
 
     val defaultFont = AWTFontRenderer(font)

@@ -11,7 +11,7 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.block.block
 import net.ccbluex.liquidbounce.utils.movement.FallingPlayer
-import net.minecraft.block.BlockAir
+import net.minecraft.block.AirBlock
 import net.minecraft.util.BlockPos
 
 object SafeWalk : Module("SafeWalk", Category.MOVEMENT) {
@@ -29,7 +29,7 @@ object SafeWalk : Module("SafeWalk", Category.MOVEMENT) {
             || !mc.playerController.gameIsSurvivalOrAdventure()
         ) return@handler
 
-        if (!maxFallDistanceValue.isMinimal() && player.onGround && BlockPos(player).down().block !is BlockAir) {
+        if (!maxFallDistanceValue.isMinimal() && player.onGround && BlockPos(player).down().block !is AirBlock) {
             lastGroundY = player.posY
             lastCollisionY = FallingPlayer(player, true).findCollision(60)?.pos?.y
         }

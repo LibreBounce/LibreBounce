@@ -10,10 +10,10 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.noweb.modes.NoW
 object IntaveOld : NoWebMode("IntaveOld") {
     override fun onUpdate() {
         mc.player?.run {
-            if (!isInWeb)
+            if (!inCobweb)
                 return
 
-            if (movementInput.moveStrafe == 0.0F && mc.gameSettings.keyBindForward.isKeyDown && isCollidedVertically) {
+            if (input.moveStrafe == 0.0F && mc.gameOptions.forwardKey.isKeyDown && isCollidedVertically) {
                 flyingSpeed = 0.74F
             } else {
                 flyingSpeed = 0.2F

@@ -22,9 +22,9 @@ import net.ccbluex.liquidbounce.utils.extensions.stopY
 import net.ccbluex.liquidbounce.utils.extensions.tryJump
 import net.ccbluex.liquidbounce.utils.movement.FallingPlayer
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
-import net.minecraft.item.ItemBucketMilk
-import net.minecraft.item.ItemFood
-import net.minecraft.item.ItemPotion
+import net.minecraft.item.BucketItemMilk
+import net.minecraft.item.FoodItem
+import net.minecraft.item.PotionItem
 
 object CustomSpeed : SpeedMode("Custom") {
 
@@ -35,9 +35,9 @@ object CustomSpeed : SpeedMode("Custom") {
             if (notOnVoid && fallingPlayer.findCollision(500) == null
                 || notOnFalling && fallDistance > 2.5f
                 || notOnConsuming && isUsingItem
-                && (displayItemInHand.item is ItemFood
-                        || displayItemInHand.item is ItemPotion
-                        || displayItemInHand.item is ItemBucketMilk)
+                && (displayItemInHand.item is FoodItem
+                        || displayItemInHand.item is PotionItem
+                        || displayItemInHand.item is BucketItemMilk)
             ) {
 
                 if (onGround) tryJump()

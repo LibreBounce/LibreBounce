@@ -12,7 +12,7 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.extensions.rotation
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.currentRotation
-import net.minecraft.item.ItemBow
+import net.minecraft.item.BowItem
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.Angles
 import net.minecraft.network.packet.c2s.play.PlayerHandActionC2SPacket
 import net.minecraft.network.packet.c2s.play.PlayerHandActionC2SPacket.Action.RELEASE_USE_ITEM
@@ -31,7 +31,7 @@ object FastBow : Module("FastBow", Category.COMBAT) {
 
             val currentItem = inventory.getCurrentItem()
 
-            if (currentItem != null && currentItem.item is ItemBow) {
+            if (currentItem != null && currentItem.item is BowItem) {
                 sendPacket(
                     PlayerUseC2SPacket(
                         BlockPos.ORIGIN,

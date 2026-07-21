@@ -8,7 +8,7 @@ package net.ccbluex.liquidbounce.utils.inventory
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.entity.ItemEntity
-import net.minecraft.item.ItemArmor
+import net.minecraft.item.ArmorItem
 import net.minecraft.item.ItemStack
 
 object ArmorComparator: MinecraftInstance {
@@ -52,7 +52,7 @@ object ArmorComparator: MinecraftInstance {
 
 		val armorMap = (droppedStacks + equippedArmorWhenInChest + inventoryStacks)
 			.sortedWith(comparator)
-			.groupBy { (it.second.item as ItemArmor).armorType }
+			.groupBy { (it.second.item as ArmorItem).armorType }
 
 		val helmets = armorMap[0] ?: NULL_LIST
 		val chestplates = armorMap[1] ?: NULL_LIST
@@ -82,12 +82,12 @@ object ArmorComparator: MinecraftInstance {
  *                      By default, it returns the same index.
  *
  * @return A list of pairs. Each pair consists of an index (possibly manipulated by the indexCallback function)
- *         and an ItemStack. Only ItemStacks where the item is an instance of ItemArmor are included in the list.
+ *         and an ItemStack. Only ItemStacks where the item is an instance of ArmorItem are included in the list.
  *         If the iterable is null, an empty list is returned.
  */
 private inline fun Iterable<ItemStack?>?.indexedArmorStacks(indexCallback: (Int) -> Int? = { it }): List<Pair<Int?, ItemStack>> =
 	this?.mapIndexedNotNull { index, stack ->
-		if (stack?.item is ItemArmor) indexCallback(index) to stack
+		if (stack?.item is ArmorItem) indexCallback(index) to stack
 		else null
 	} ?: emptyList()
 
@@ -104,7 +104,7 @@ class ArmorSet(private vararg val armorPairs: Pair<Int?, ItemStack>?) : Iterable
 
 		forEach { pair ->
 			val stack = pair?.second ?: return@forEach
-			val item = stack.item as ItemArmor
+			val item = stack.item as ArmorItem
 			baseDefensePercentage += item.armorMaterial.getDamageReductionAmount(item.armorType) * 4
 
 			val protectionLvl = stack.getEnchantmentLevel(Enchantment.protection)

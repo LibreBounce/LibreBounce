@@ -8,7 +8,7 @@ package net.ccbluex.liquidbounce.features.module.modules.misc
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.minecraft.entity.living.LivingEntity
-import net.minecraft.item.ItemArmor
+import net.minecraft.item.ArmorItem
 
 object Teams : Module("Teams", Category.MISC, gameDetecting = false) {
 
@@ -49,11 +49,11 @@ object Teams : Module("Teams", Category.MISC, gameDetecting = false) {
                 val playerArmor = player.getCurrentArmor(i) ?: continue
                 val entityArmor = entity.getCurrentArmor(i) ?: continue
 
-                val playerItem = playerArmor.item as? ItemArmor ?: continue
-                val entityItem = entityArmor.item as? ItemArmor ?: continue
+                val playerItem = playerArmor.item as? ArmorItem ?: continue
+                val entityItem = entityArmor.item as? ArmorItem ?: continue
 
                 if (playerItem.getColor(playerArmor) == entityItem.getColor(entityArmor) &&
-                    entityItem.armorMaterial == ItemArmor.ArmorMaterial.LEATHER
+                    entityItem.armorMaterial == ArmorItem.ArmorMaterial.LEATHER
                 ) {
                     return true
                 }

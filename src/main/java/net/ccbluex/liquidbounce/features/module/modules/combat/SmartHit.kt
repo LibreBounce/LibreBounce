@@ -207,7 +207,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
     private fun canCritHit(player: PlayerEntity): Boolean =
         player.fallDistance > 0 &&
         !player.isOnLadder &&
-        !player.isInWater &&
+        !player.inWater &&
         !player.hasStatusEffect(blindness) &&
         player.ridingEntity == null
 

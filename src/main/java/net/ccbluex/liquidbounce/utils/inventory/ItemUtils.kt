@@ -79,7 +79,7 @@ object ItemUtils : MinecraftInstance {
     fun isConsumingItem(): Boolean {
         val usingItem = mc.player.itemInUse.item
 
-        return mc.player.isUsingItem && (usingItem is ItemFood || usingItem is ItemBucketMilk || usingItem is ItemPotion)
+        return mc.player.isUsingItem && (usingItem is FoodItem || usingItem is BucketItemMilk || usingItem is PotionItem)
     }
 }
 
@@ -97,7 +97,7 @@ val ItemStack.totalDurability: Int
     get() {
         // See https://minecraft.wiki/w/Unbreaking or https://minecraft.fandom.com/wiki/Unbreaking?oldid=2326887
         val multiplier =
-            if (item is ItemArmor) 1 / (0.6 + (0.4 / (getEnchantmentLevel(Enchantment.unbreaking) + 1)))
+            if (item is ArmorItem) 1 / (0.6 + (0.4 / (getEnchantmentLevel(Enchantment.unbreaking) + 1)))
             else getEnchantmentLevel(Enchantment.unbreaking) + 1.0
 
         return (multiplier * durability).roundToInt()
@@ -146,7 +146,7 @@ val ItemStack.attackDamage
     get() = (attributeModifiers["generic.attackDamage"].firstOrNull()?.amount ?: 1.0) +
         1.25 * getEnchantmentLevel(Enchantment.sharpness)
 
-fun ItemStack.isSplashPotion() = item is ItemPotion && ItemPotion.isSplash(metadata)
+fun ItemStack.isSplashPotion() = item is PotionItem && PotionItem.isSplash(metadata)
 
 operator fun Container.get(range: IntRange): List<Slot> = range.map(::getSlot)
 

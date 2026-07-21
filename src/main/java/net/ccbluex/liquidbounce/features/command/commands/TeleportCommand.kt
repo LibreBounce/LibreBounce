@@ -9,7 +9,7 @@ import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.Position
-import net.minecraft.util.MovingObjectPosition.MovingObjectType.BLOCK
+import net.minecraft.world.HitResult.Type.BLOCK
 import net.minecraft.util.math.Vec3d
 import kotlin.math.ceil
 

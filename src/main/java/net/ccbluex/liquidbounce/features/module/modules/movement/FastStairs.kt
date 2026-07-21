@@ -13,7 +13,7 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.speed.Speed
 import net.ccbluex.liquidbounce.utils.block.block
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.utils.extensions.tryJump
-import net.minecraft.block.BlockStairs
+import net.minecraft.block.StairsBlock
 import net.minecraft.util.BlockPos
 
 object FastStairs : Module("FastStairs", Category.MOVEMENT) {
@@ -41,7 +41,7 @@ object FastStairs : Module("FastStairs", Category.MOVEMENT) {
 
             val blockPos = BlockPos(this)
 
-            if (blockPos.block is BlockStairs && !walkingDown) {
+            if (blockPos.block is StairsBlock && !walkingDown) {
                 setPosition(posX, posY + 0.5, posZ)
 
                 val motion = when (mode) {
@@ -55,7 +55,7 @@ object FastStairs : Module("FastStairs", Category.MOVEMENT) {
                 motionZ *= motion
             }
 
-            if (blockPos.down().block is BlockStairs) {
+            if (blockPos.down().block is StairsBlock) {
                 if (walkingDown) {
                     when (mode) {
                         "NCP" -> motionY = -1.0

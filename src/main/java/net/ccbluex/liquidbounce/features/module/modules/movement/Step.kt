@@ -71,14 +71,14 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
     val onUpdate = loopSequence {
         val player = mc.player ?: return@loopSequence
 
-        if (player.isOnLadder || player.isInLiquid || player.isInWeb) return@loopSequence
+        if (player.isOnLadder || player.isInLiquid || player.inCobweb) return@loopSequence
 
         if (!player.isMoving) return@loopSequence
 
         // Motion steps
         when (mode) {
             "Jump" ->
-                if (player.isCollidedHorizontally && player.onGround && !mc.gameSettings.keyBindJump.isKeyDown) {
+                if (player.isCollidedHorizontally && player.onGround && !mc.gameOptions.jumpKey.isKeyDown) {
                     fakeJump()
                     player.motionY = jumpHeight.toDouble()
                 }
@@ -134,7 +134,7 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
                     if (isAACStep) {
                         player.motionY -= 0.015
 
-                        if (!player.isUsingItem && player.movementInput.moveStrafe == 0F)
+                        if (!player.isUsingItem && player.input.moveStrafe == 0F)
                             player.flyingSpeed = 0.3F
                     }
                 } else isAACStep = false
@@ -144,7 +144,7 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
     val onMove = handler<MoveEvent> { event ->
         val player = mc.player ?: return@handler
 
-        if (mode != "MotionNCP" || !player.isCollidedHorizontally || mc.gameSettings.keyBindJump.isKeyDown)
+        if (mode != "MotionNCP" || !player.isCollidedHorizontally || mc.gameOptions.jumpKey.isKeyDown)
             return@handler
 
         // Motion steps
@@ -296,7 +296,7 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
     private fun couldStep(): Boolean {
         val player = mc.player ?: return false
 
-        if (player.isSneaking || mc.gameSettings.keyBindJump.isKeyDown)
+        if (player.isSneaking || mc.gameOptions.jumpKey.isKeyDown)
             return false
 
         val yaw = direction

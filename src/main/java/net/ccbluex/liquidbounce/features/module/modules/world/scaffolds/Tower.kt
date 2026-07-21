@@ -96,7 +96,7 @@ object Tower : Configurable("Tower"), MinecraftInstance, Listenable {
         isTowering = false
 
         if (towerModeValues.get() == "None" || notOnMoveValues.get() && player.isMoving ||
-            onJumpValues.get() && !mc.gameSettings.keyBindJump.isKeyDown
+            onJumpValues.get() && !mc.gameOptions.jumpKey.isKeyDown
         ) {
             return@handler
         }

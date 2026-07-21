@@ -16,7 +16,7 @@ object SpectreOnGround : SpeedMode("SpectreOnGround") {
     private var speedUp = 0
     override fun onMove(event: MoveEvent) {
         mc.player?.run {
-            if (!isMoving || movementInput.jump) return
+            if (!isMoving || input.jump) return
 
             if (speedUp >= 10) {
                 if (onGround) {
@@ -27,7 +27,7 @@ object SpectreOnGround : SpeedMode("SpectreOnGround") {
                 return
             }
 
-            if (onGround && mc.gameSettings.keyBindForward.isKeyDown) {
+            if (onGround && mc.gameOptions.forwardKey.isKeyDown) {
                 val f = rotationYaw.toRadians()
                 motionX -= sin(f) * 0.145f
                 motionZ += cos(f) * 0.145f

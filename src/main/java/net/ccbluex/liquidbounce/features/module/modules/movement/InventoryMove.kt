@@ -60,12 +60,12 @@ object InventoryMove : Module("InventoryMove", Category.MOVEMENT, gameDetecting 
     private val inventoryMotion by float("InventoryMotion", 1F, 0F..2F)
 
     private val affectedBindings = arrayOf(
-        mc.gameSettings.keyBindForward,
-        mc.gameSettings.keyBindBack,
-        mc.gameSettings.keyBindRight,
-        mc.gameSettings.keyBindLeft,
-        mc.gameSettings.keyBindJump,
-        mc.gameSettings.keyBindSprint
+        mc.gameOptions.forwardKey,
+        mc.gameOptions.backKey,
+        mc.gameOptions.rightKey,
+        mc.gameOptions.leftKey,
+        mc.gameOptions.jumpKey,
+        mc.gameOptions.keyBindSprint
     )
 
     val onUpdate = handler<UpdateEvent>(priority = -1) {
@@ -88,7 +88,7 @@ object InventoryMove : Module("InventoryMove", Category.MOVEMENT, gameDetecting 
 
         for (affectedBinding in affectedBindings)
             affectedBinding.pressed =
-                isButtonPressed(affectedBinding) || affectedBinding == mc.gameSettings.keyBindSprint && Sprint.handleEvents() && Sprint.mode == "Legit" && (!Sprint.onlyOnSprintPress || player.isSprinting) || affectedBinding == mc.gameSettings.keyBindForward && AutoWalk.handleEvents()
+                isButtonPressed(affectedBinding) || affectedBinding == mc.gameOptions.keyBindSprint && Sprint.handleEvents() && Sprint.mode == "Legit" && (!Sprint.onlyOnSprintPress || player.isSprinting) || affectedBinding == mc.gameOptions.forwardKey && AutoWalk.handleEvents()
     }
 
     private fun shouldFreezeInputs(screen: Screen?): Boolean {
@@ -104,7 +104,7 @@ object InventoryMove : Module("InventoryMove", Category.MOVEMENT, gameDetecting 
 
     val onStrafe = handler<StrafeEvent> {
         if (isIntave) {
-            mc.gameSettings.keyBindSneak.pressed = true
+            mc.gameOptions.sneakKey.pressed = true
         }
     }
 

@@ -16,7 +16,7 @@ import net.minecraft.util.math.Direction
 object OldGrim : NoWebMode("OldGrim") {
     override fun onUpdate() {
         val searchBlocks = BlockUtils.searchBlocks(2, setOf(web))
-        mc.player.isInWeb = false
+        mc.player.inCobweb = false
         for (block in searchBlocks) {
             val blockpos = block.key
             sendPacket(PlayerHandActionC2SPacket(Action.STOP_DESTROY_BLOCK, blockpos, Direction.DOWN))

@@ -10,7 +10,7 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
-import net.minecraft.item.ItemFishingRod
+import net.minecraft.item.FishingRodItem
 
 object AutoFish : Module("AutoFish", Category.PLAYER, subjective = true, gameDetecting = false) {
 
@@ -19,7 +19,7 @@ object AutoFish : Module("AutoFish", Category.PLAYER, subjective = true, gameDet
     val onUpdate = handler<UpdateEvent> {
         val player = mc.player
 
-        if (player?.displayItemInHand == null || player.displayItemInHand.item !is ItemFishingRod)
+        if (player?.displayItemInHand == null || player.displayItemInHand.item !is FishingRodItem)
             return@handler
 
         val fishEntity = player.fishEntity

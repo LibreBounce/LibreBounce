@@ -26,7 +26,7 @@ object IntaveHop14 : SpeedMode("IntaveHop14") {
 
     override fun onUpdate() {
         mc.player?.run {
-            if (!isMoving || isInLiquid || isInWeb || isOnLadder) return
+            if (!isMoving || isInLiquid || inCobweb || isOnLadder) return
 
             if (onGround) {
                 motionY = 0.42 - if (intaveLowHop) 1.7E-14 else 0.0

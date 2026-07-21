@@ -23,13 +23,13 @@ object Vanilla : FlyMode("Vanilla") {
             strafe(vanillaSpeed, true, event)
 
             onGround = false
-            isInWeb = false
+            inCobweb = false
 
             capabilities.isFlying = false
 
             val ySpeed = when {
-                mc.gameSettings.keyBindJump.isKeyDown -> vanillaSpeed.toDouble()
-                mc.gameSettings.keyBindSneak.isKeyDown -> -vanillaSpeed.toDouble()
+                mc.gameOptions.jumpKey.isKeyDown -> vanillaSpeed.toDouble()
+                mc.gameOptions.sneakKey.isKeyDown -> -vanillaSpeed.toDouble()
                 else -> 0.0
             }
 

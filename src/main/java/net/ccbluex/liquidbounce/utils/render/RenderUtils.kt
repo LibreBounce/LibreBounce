@@ -196,7 +196,7 @@ object RenderUtils : MinecraftInstance {
 
         val (x, y, z) = blockPos.toVec() - renderManager.renderPos
 
-        var axisAlignedBB = AxisAlignedBB.fromBounds(x, y, z, x + 1.0, y + 1.0, z + 1.0)
+        var axisAlignedBB = Box.fromBounds(x, y, z, x + 1.0, y + 1.0, z + 1.0)
 
         blockPos.block?.let { block ->
             val player = mc.player
@@ -229,7 +229,7 @@ object RenderUtils : MinecraftInstance {
         resetCaps()
     }
 
-    fun drawSelectionBoundingBox(boundingBox: AxisAlignedBB) = drawWithTesselatorWorldRenderer {
+    fun drawSelectionBoundingBox(boundingBox: Box) = drawWithTesselatorWorldRenderer {
         begin(GL_LINE_STRIP, DefaultVertexFormat.POSITION)
 
         // Lower Rectangle
@@ -576,7 +576,7 @@ object RenderUtils : MinecraftInstance {
         val (x, y, z) = entity.interpolatedPosition(entity.lastTickPos) - mc.renderManager.renderPos
         val entityBox = entity.hitBox
 
-        val axisAlignedBB = AxisAlignedBB.fromBounds(
+        val axisAlignedBB = Box.fromBounds(
             entityBox.minX - entity.posX + x - 0.05,
             entityBox.minY - entity.posY + y,
             entityBox.minZ - entity.posZ + z - 0.05,
@@ -602,7 +602,7 @@ object RenderUtils : MinecraftInstance {
     fun drawPosBox(x: Double, y: Double, z: Double, width: Float, height: Float, color: Color, outline: Boolean) {
         val (adjustedX, adjustedY, adjustedZ) = Vec3d(x, y, z) - mc.renderManager.renderPos
 
-        val axisAlignedBB = AxisAlignedBB.fromBounds(
+        val axisAlignedBB = Box.fromBounds(
             adjustedX - width / 2,
             adjustedY,
             adjustedZ - width / 2,
@@ -632,7 +632,7 @@ object RenderUtils : MinecraftInstance {
         resetCaps()
     }
 
-    fun drawBacktrackBox(axisAlignedBB: AxisAlignedBB, color: Color) {
+    fun drawBacktrackBox(axisAlignedBB: Box, color: Color) {
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         glEnable(GL_BLEND)
         glLineWidth(2f)
@@ -648,7 +648,7 @@ object RenderUtils : MinecraftInstance {
         glDisable(GL_BLEND)
     }
 
-    fun drawAxisAlignedBB(axisAlignedBB: AxisAlignedBB, color: Color) {
+    fun drawBox(axisAlignedBB: Box, color: Color) {
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         glEnable(GL_BLEND)
         glLineWidth(2f)
@@ -666,15 +666,15 @@ object RenderUtils : MinecraftInstance {
 
     fun drawPlatform(y: Double, color: Color, size: Double) {
         val renderY = y - mc.renderManager.renderPosY
-        drawAxisAlignedBB(AxisAlignedBB.fromBounds(size, renderY + 0.02, size, -size, renderY, -size), color)
+        drawBox(Box.fromBounds(size, renderY + 0.02, size, -size, renderY, -size), color)
     }
 
     fun drawPlatform(entity: Entity, color: Color) {
         val deltaPos = entity.interpolatedPosition(entity.lastTickPos) - mc.renderManager.renderPos
         val axisAlignedBB = entity.shape.offset(-entity.currPos + deltaPos)
 
-        drawAxisAlignedBB(
-            AxisAlignedBB.fromBounds(
+        drawBox(
+            Box.fromBounds(
                 axisAlignedBB.minX,
                 axisAlignedBB.maxY + 0.2,
                 axisAlignedBB.minZ,
@@ -685,7 +685,7 @@ object RenderUtils : MinecraftInstance {
         )
     }
 
-    fun drawFilledBox(axisAlignedBB: AxisAlignedBB) = drawWithTesselatorWorldRenderer {
+    fun drawFilledBox(axisAlignedBB: Box) = drawWithTesselatorWorldRenderer {
         begin(7, DefaultVertexFormat.POSITION)
         pos(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.minZ).endVertex()
         pos(axisAlignedBB.minX, axisAlignedBB.maxY, axisAlignedBB.minZ).endVertex()

@@ -52,7 +52,7 @@ inline operator fun NbtCompound.set(key: String, value: NbtCompound) {
     setTag(key, value)
 }
 
-inline operator fun NbtCompound.set(key: String, value: NBTTagList) {
+inline operator fun NbtCompound.set(key: String, value: NbtList) {
     setTag(key, value)
 }
 
@@ -60,11 +60,11 @@ inline fun NbtCompound(builderAction: NbtCompound.() -> Unit): NbtCompound {
     return NbtCompound().apply(builderAction)
 }
 
-inline fun NBTTagList(builderAction: NBTTagList.() -> Unit): NBTTagList {
-    return NBTTagList().apply(builderAction)
+inline fun NbtList(builderAction: NbtList.() -> Unit): NbtList {
+    return NbtList().apply(builderAction)
 }
 
-inline fun NBTTagList.appendTag(builderAction: NbtCompound.() -> Unit) {
+inline fun NbtList.appendTag(builderAction: NbtCompound.() -> Unit) {
     appendTag(NbtCompound().apply(builderAction))
 }
 

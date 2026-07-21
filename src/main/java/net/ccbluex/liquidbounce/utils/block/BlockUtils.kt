@@ -13,7 +13,7 @@ import net.minecraft.block.SoulSandBlock
 import net.minecraft.block.BlockStainedGlass
 import net.minecraft.block.state.BlockState
 import net.minecraft.init.Blocks.*
-import net.minecraft.util.AxisAlignedBB
+import net.minecraft.util.math.Box
 import net.minecraft.util.BlockPos
 import net.minecraft.resource.Identifier
 
@@ -111,7 +111,7 @@ object BlockUtils : MinecraftInstance {
     /**
      * Check if [axisAlignedBB] has collidable blocks using custom [collide] check
      */
-    fun collideBlock(axisAlignedBB: AxisAlignedBB, collide: Collidable): Boolean {
+    fun collideBlock(axisAlignedBB: Box, collide: Collidable): Boolean {
         val player = mc.player
 
         val y = axisAlignedBB.minY.toInt()
@@ -132,7 +132,7 @@ object BlockUtils : MinecraftInstance {
     /**
      * Check if [axisAlignedBB] has collidable blocks using custom [collide] check
      */
-    fun collideBlockIntersects(axisAlignedBB: AxisAlignedBB, collide: Collidable): Boolean {
+    fun collideBlockIntersects(axisAlignedBB: Box, collide: Collidable): Boolean {
         val player = mc.player
 
         val y = axisAlignedBB.minY.toInt()

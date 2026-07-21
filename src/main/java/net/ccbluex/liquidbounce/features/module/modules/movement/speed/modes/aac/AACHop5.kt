@@ -31,7 +31,7 @@ object AACHop5 : SpeedMode("AACHop5") {
                 speedInAir = 0.02f
             }
 
-            isSprinting = movementInput.forwardSpeed > 0.8
+            isSprinting = input.forwardSpeed > 0.8
         }
     }
 }

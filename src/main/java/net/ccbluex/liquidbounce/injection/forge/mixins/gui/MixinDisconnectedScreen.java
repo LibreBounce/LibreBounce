@@ -27,8 +27,8 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.screen.DisconnectedScreen;
 import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
-import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.Session;
+import net.minecraft.text.LiteralText;
+import net.minecraft.client.Session;
 import net.minecraftforge.fml.client.config.GeneratorOptionSlider;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -111,7 +111,7 @@ public abstract class MixinDisconnectedScreen extends MixinScreen {
                     return null;
                 }, e -> {
                     mc.addScheduledTask(() -> {
-                        mc.displayScreen(new DisconnectedScreen(new MultiplayerScreen(new TitleScreen()), e.getMessage(), new ChatComponentText(e.getMessage())));
+                        mc.displayScreen(new DisconnectedScreen(new MultiplayerScreen(new TitleScreen()), e.getMessage(), new LiteralText(e.getMessage())));
                     });
                     return null;
                 }, () -> null));

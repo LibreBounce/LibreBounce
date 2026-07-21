@@ -24,9 +24,9 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedRectInt
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.withClipping
-import net.minecraft.scoreboard.ScoreObjective
-import net.minecraft.scoreboard.ScorePlayerTeam
-import net.minecraft.util.EnumChatFormatting
+import net.minecraft.scoreboard.ScoreboardObjective
+import net.minecraft.scoreboard.team.Team
+import net.minecraft.text.Formatting
 import org.lwjgl.opengl.GL11.glColor4f
 import java.awt.Color
 import kotlin.math.abs
@@ -67,7 +67,7 @@ class ScoreboardElement(
             val backColor = backgroundColor.rgb
 
             val worldScoreboard = mc.world.scoreboard ?: return null
-            var currObjective: ScoreObjective? = null
+            var currObjective: ScoreboardObjective? = null
             val playerTeam = worldScoreboard.getPlayersTeam(mc.player.name)
 
             if (playerTeam != null) {
@@ -92,12 +92,12 @@ class ScoreboardElement(
                 val scorePlayerTeam = scoreboard.getPlayersTeam(score.playerName)
                 val width = if (number) {
                     "${
-                        ScorePlayerTeam.formatPlayerName(
+                        Team.formatPlayerName(
                             scorePlayerTeam, score.playerName
                         )
-                    }: ${EnumChatFormatting.RED}${score.scorePoints}"
+                    }: ${Formatting.RED}${score.scorePoints}"
                 } else {
-                    ScorePlayerTeam.formatPlayerName(scorePlayerTeam, score.playerName)
+                    Team.formatPlayerName(scorePlayerTeam, score.playerName)
                 }
                 maxWidth = maxWidth.coerceAtLeast(fontRenderer.getStringWidth(width))
             }
@@ -141,8 +141,8 @@ class ScoreboardElement(
                 scoreCollection.filterNotNull().forEachIndexed { index, score ->
                     val team = scoreboard.getPlayersTeam(score.playerName)
 
-                    var name = ScorePlayerTeam.formatPlayerName(team, score.playerName)
-                    val scorePoints = if (number) "${EnumChatFormatting.RED}${score.scorePoints}" else ""
+                    var name = Team.formatPlayerName(team, score.playerName)
+                    val scorePoints = if (number) "${Formatting.RED}${score.scorePoints}" else ""
 
                     val height = maxHeight - index * fontHeight.toFloat()
 
@@ -150,7 +150,7 @@ class ScoreboardElement(
 
                     if (serverIp != "Normal") {
                         try {
-                            val nameWithoutFormatting = name?.replace(EnumChatFormatting.RESET.toString(), "")
+                            val nameWithoutFormatting = name?.replace(Formatting.RESET.toString(), "")
                                 ?.replace(Regex("[\u00a7&][0-9a-fk-or]"), "")?.trim()
                             val trimmedServerIP = mc.currentServerData?.serverIP?.trim()?.lowercase() ?: ""
 
@@ -197,7 +197,7 @@ class ScoreboardElement(
                         val title = objective.displayName ?: ""
                         val displayName = if (serverIp != "Normal") {
                             try {
-                                val nameWithoutFormatting = title.replace(EnumChatFormatting.RESET.toString(), "")
+                                val nameWithoutFormatting = title.replace(Formatting.RESET.toString(), "")
                                     .replace(Regex("[\u00a7&][0-9a-fk-or]"), "").trim()
                                 val trimmedServerIP = mc.currentServerData?.serverIP?.trim()?.lowercase() ?: ""
 

@@ -34,8 +34,8 @@ object BugSpartan : FlyMode("BugSpartan") {
         mc.player.capabilities.isFlying = false
 
         mc.player.motionY = when {
-            mc.gameSettings.keyBindJump.isKeyDown -> vanillaSpeed.toDouble()
-            mc.gameSettings.keyBindSneak.isKeyDown -> -vanillaSpeed.toDouble()
+            mc.gameOptions.jumpKey.isKeyDown -> vanillaSpeed.toDouble()
+            mc.gameOptions.sneakKey.isKeyDown -> -vanillaSpeed.toDouble()
             else -> 0.0
         }
 

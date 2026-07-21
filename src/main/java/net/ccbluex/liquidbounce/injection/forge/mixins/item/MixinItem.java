@@ -20,7 +20,7 @@ public class MixinItem {
     /**
      * Rotation modification injections. Replaces actual rotation with the current rotation to synchronize placements client-side.
      */
-    @Redirect(method = "getMovingObjectPositionFromPlayer", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/player/PlayerEntity;rotationYaw:F"))
+    @Redirect(method = "getHitResultFromPlayer", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/player/PlayerEntity;rotationYaw:F"))
     private float hookCurrentRotationYaw(PlayerEntity instance) {
         Rotation rotation = RotationUtils.INSTANCE.getCurrentRotation();
 
@@ -31,7 +31,7 @@ public class MixinItem {
         return rotation.getYaw();
     }
 
-    @Redirect(method = "getMovingObjectPositionFromPlayer", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/player/PlayerEntity;rotationPitch:F"))
+    @Redirect(method = "getHitResultFromPlayer", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/player/PlayerEntity;rotationPitch:F"))
     private float hookCurrentRotationPitch(PlayerEntity instance) {
         Rotation rotation = RotationUtils.INSTANCE.getCurrentRotation();
 

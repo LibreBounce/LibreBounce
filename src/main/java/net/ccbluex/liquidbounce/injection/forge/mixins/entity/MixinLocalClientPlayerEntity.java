@@ -25,8 +25,8 @@ import net.ccbluex.liquidbounce.utils.rotation.RotationUtils;
 import net.ccbluex.liquidbounce.utils.extensions.MathExtensionsKt;
 import net.ccbluex.liquidbounce.utils.extensions.PlayerExtensionKt;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockFence;
-import net.minecraft.block.BlockFenceGate;
+import net.minecraft.block.FenceBlock;
+import net.minecraft.block.FenceGateBlock;
 import net.minecraft.block.BlockWall;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
@@ -73,7 +73,7 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
     @Shadow
     public float prevTimeInPortal;
     @Shadow
-    public Input movementInput;
+    public Input input;
     @Shadow
     public float horseJumpPower;
     @Shadow
@@ -338,11 +338,11 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
             --timeUntilPortal;
         }
 
-        boolean flag = movementInput.jump;
-        boolean flag1 = movementInput.sneak;
+        boolean flag = input.jump;
+        boolean flag1 = input.sneak;
         float f = 0.8F;
-        boolean flag2 = movementInput.forwardSpeed >= f;
-        movementInput.updatePlayerMoveState();
+        boolean flag2 = input.forwardSpeed >= f;
+        input.updatePlayerMoveState();
 
         RotationUtils utils = RotationUtils.INSTANCE;
 
@@ -352,11 +352,11 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
         Input modifiedInput = new Input();
 
         // Recreate inputs
-        modifiedInput.forwardSpeed = movementInput.forwardSpeed;
-        modifiedInput.moveStrafe = movementInput.moveStrafe;
+        modifiedInput.forwardSpeed = input.forwardSpeed;
+        modifiedInput.moveStrafe = input.moveStrafe;
 
         // Reverse the effects of sneak and apply them after the input variable calculates the input
-        if (movementInput.sneak) {
+        if (input.sneak) {
             modifiedInput.moveStrafe /= 0.3f;
             modifiedInput.forwardSpeed /= 0.3f;
         }
@@ -368,11 +368,11 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
         modifiedInput.forwardSpeed = forwardSpeed;
         modifiedInput.moveStrafe = moveStrafe;
 
-        if (movementInput.sneak) {
-            final SneakSlowDownEvent sneakSlowDownEvent = new SneakSlowDownEvent(movementInput.moveStrafe, movementInput.forwardSpeed);
+        if (input.sneak) {
+            final SneakSlowDownEvent sneakSlowDownEvent = new SneakSlowDownEvent(input.moveStrafe, input.forwardSpeed);
             EventManager.INSTANCE.call(sneakSlowDownEvent);
-            movementInput.moveStrafe = sneakSlowDownEvent.getStrafe();
-            movementInput.forwardSpeed = sneakSlowDownEvent.getForward();
+            input.moveStrafe = sneakSlowDownEvent.getStrafe();
+            input.forwardSpeed = sneakSlowDownEvent.getForward();
             // Add the sneak effect back
             modifiedInput.forwardSpeed *= 0.3f;
             modifiedInput.moveStrafe *= 0.3f;
@@ -391,8 +391,8 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
         if (isUsingItem && !isRiding()) {
             final SlowDownEvent slowDownEvent = new SlowDownEvent(0.2F, 0.2F);
             EventManager.INSTANCE.call(slowDownEvent);
-            movementInput.moveStrafe *= slowDownEvent.getStrafe();
-            movementInput.forwardSpeed *= slowDownEvent.getForward();
+            input.moveStrafe *= slowDownEvent.getStrafe();
+            input.forwardSpeed *= slowDownEvent.getForward();
             sprintToggleTimer = 0;
             modifiedInput.moveStrafe *= slowDownEvent.getStrafe();
             modifiedInput.forwardSpeed *= slowDownEvent.getForward();
@@ -400,7 +400,7 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
 
         RotationSettings settings = utils.getActiveSettings();
 
-        utils.setModifiedInput(settings != null && !settings.getStrict() ? modifiedInput : movementInput);
+        utils.setModifiedInput(settings != null && !settings.getStrict() ? modifiedInput : input);
 
         pushOutOfBlocks(posX - width * 0.35, getShape().minY + 0.5, posZ + width * 0.35);
         pushOutOfBlocks(posX - width * 0.35, getShape().minY + 0.5, posZ - width * 0.35);
@@ -410,19 +410,19 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
         final Sprint sprint = Sprint.INSTANCE;
 
         boolean flag3 = (float) getFoodStats().getFoodLevel() > 6F || capabilities.allowFlying;
-        if (onGround && !flag1 && !flag2 && movementInput.forwardSpeed >= f && !isSprinting() && flag3 && !isUsingItem() && !hasStatusEffect(Potion.blindness)) {
-            if (sprintToggleTimer <= 0 && !mc.gameSettings.keyBindSprint.isKeyDown()) {
+        if (onGround && !flag1 && !flag2 && input.forwardSpeed >= f && !isSprinting() && flag3 && !isUsingItem() && !hasStatusEffect(Potion.blindness)) {
+            if (sprintToggleTimer <= 0 && !mc.gameOptions.keyBindSprint.isKeyDown()) {
                 sprintToggleTimer = 7;
             } else {
                 setSprinting(true);
             }
         }
 
-        if (!isSprinting() && movementInput.forwardSpeed >= f && flag3 && (noSlow.handleEvents() || !isUsingItem()) && !hasStatusEffect(Potion.blindness) && mc.gameSettings.keyBindSprint.isKeyDown()) {
+        if (!isSprinting() && input.forwardSpeed >= f && flag3 && (noSlow.handleEvents() || !isUsingItem()) && !hasStatusEffect(Potion.blindness) && mc.gameOptions.keyBindSprint.isKeyDown()) {
             setSprinting(true);
         }
 
-        if (isSprinting() && (movementInput.forwardSpeed < f || isCollidedHorizontally || !flag3)) {
+        if (isSprinting() && (input.forwardSpeed < f || isCollidedHorizontally || !flag3)) {
             setSprinting(false);
         }
 
@@ -436,7 +436,7 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
                     capabilities.isFlying = true;
                     sendPlayerAbilities();
                 }
-            } else if (!flag && movementInput.jump) {
+            } else if (!flag && input.jump) {
                 if (flyToggleTimer == 0) {
                     flyToggleTimer = 7;
                 } else {
@@ -448,11 +448,11 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
         }
 
         if (capabilities.isFlying && isCurrentViewEntity()) {
-            if (movementInput.sneak) {
+            if (input.sneak) {
                 motionY -= capabilities.getFlySpeed() * 3f;
             }
 
-            if (movementInput.jump) {
+            if (input.jump) {
                 motionY += capabilities.getFlySpeed() * 3f;
             }
         }
@@ -466,10 +466,10 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
                 }
             }
 
-            if (flag && !movementInput.jump) {
+            if (flag && !input.jump) {
                 horseJumpPowerCounter = -10;
                 sendHorseJump();
-            } else if (!flag && movementInput.jump) {
+            } else if (!flag && input.jump) {
                 horseJumpPowerCounter = 0;
                 horseJumpPower = 0f;
             } else if (flag) {
@@ -515,8 +515,8 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
             double d1 = posY;
             double d2 = posZ;
 
-            if (isInWeb) {
-                isInWeb = false;
+            if (inCobweb) {
+                inCobweb = false;
                 x *= 0.25;
                 y *= 0.05000000074505806;
                 z *= 0.25;
@@ -578,23 +578,23 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
             }
 
             //noinspection ConstantConditions
-            List<AxisAlignedBB> list1 = worldObj.getCollidingBoundingBoxes((Entity) (Object) this, getShape().addCoord(x, y, z));
-            AxisAlignedBB axisalignedbb = getShape();
+            List<Box> list1 = worldObj.getCollidingBoundingBoxes((Entity) (Object) this, getShape().addCoord(x, y, z));
+            Box axisalignedbb = getShape();
 
-            for (AxisAlignedBB axisalignedbb1 : list1) {
+            for (Box axisalignedbb1 : list1) {
                 y = axisalignedbb1.calculateYOffset(getShape(), y);
             }
 
             setShape(getShape().offset(0, y, 0));
             boolean flag1 = onGround || d4 != y && d4 < 0;
 
-            for (AxisAlignedBB axisalignedbb2 : list1) {
+            for (Box axisalignedbb2 : list1) {
                 x = axisalignedbb2.calculateXOffset(getShape(), x);
             }
 
             setShape(getShape().offset(x, 0, 0));
 
-            for (AxisAlignedBB axisalignedbb13 : list1) {
+            for (Box axisalignedbb13 : list1) {
                 z = axisalignedbb13.calculateZOffset(getShape(), z);
             }
 
@@ -606,52 +606,52 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
                 double d11 = x;
                 double d7 = y;
                 double d8 = z;
-                AxisAlignedBB axisalignedbb3 = getShape();
+                Box axisalignedbb3 = getShape();
                 setShape(axisalignedbb);
                 y = stepEvent.getStepHeight();
                 //noinspection ConstantConditions
-                List<AxisAlignedBB> list = worldObj.getCollidingBoundingBoxes((Entity) (Object) this, getShape().addCoord(d3, y, d5));
-                AxisAlignedBB axisalignedbb4 = getShape();
-                AxisAlignedBB axisalignedbb5 = axisalignedbb4.addCoord(d3, 0, d5);
+                List<Box> list = worldObj.getCollidingBoundingBoxes((Entity) (Object) this, getShape().addCoord(d3, y, d5));
+                Box axisalignedbb4 = getShape();
+                Box axisalignedbb5 = axisalignedbb4.addCoord(d3, 0, d5);
                 double d9 = y;
 
-                for (AxisAlignedBB axisalignedbb6 : list) {
+                for (Box axisalignedbb6 : list) {
                     d9 = axisalignedbb6.calculateYOffset(axisalignedbb5, d9);
                 }
 
                 axisalignedbb4 = axisalignedbb4.offset(0, d9, 0);
                 double d15 = d3;
 
-                for (AxisAlignedBB axisalignedbb7 : list) {
+                for (Box axisalignedbb7 : list) {
                     d15 = axisalignedbb7.calculateXOffset(axisalignedbb4, d15);
                 }
 
                 axisalignedbb4 = axisalignedbb4.offset(d15, 0, 0);
                 double d16 = d5;
 
-                for (AxisAlignedBB axisalignedbb8 : list) {
+                for (Box axisalignedbb8 : list) {
                     d16 = axisalignedbb8.calculateZOffset(axisalignedbb4, d16);
                 }
 
                 axisalignedbb4 = axisalignedbb4.offset(0, 0, d16);
-                AxisAlignedBB axisalignedbb14 = getShape();
+                Box axisalignedbb14 = getShape();
                 double d17 = y;
 
-                for (AxisAlignedBB axisalignedbb9 : list) {
+                for (Box axisalignedbb9 : list) {
                     d17 = axisalignedbb9.calculateYOffset(axisalignedbb14, d17);
                 }
 
                 axisalignedbb14 = axisalignedbb14.offset(0, d17, 0);
                 double d18 = d3;
 
-                for (AxisAlignedBB axisalignedbb10 : list) {
+                for (Box axisalignedbb10 : list) {
                     d18 = axisalignedbb10.calculateXOffset(axisalignedbb14, d18);
                 }
 
                 axisalignedbb14 = axisalignedbb14.offset(d18, 0, 0);
                 double d19 = d5;
 
-                for (AxisAlignedBB axisalignedbb11 : list) {
+                for (Box axisalignedbb11 : list) {
                     d19 = axisalignedbb11.calculateZOffset(axisalignedbb14, d19);
                 }
 
@@ -671,7 +671,7 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
                     setShape(axisalignedbb14);
                 }
 
-                for (AxisAlignedBB axisalignedbb12 : list) {
+                for (Box axisalignedbb12 : list) {
                     y = axisalignedbb12.calculateYOffset(getShape(), y);
                 }
 
@@ -705,7 +705,7 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
             if (block1.getMaterial() == Material.air) {
                 Block block = worldObj.getBlockState(blockpos.down()).getBlock();
 
-                if (block instanceof BlockFence || block instanceof BlockWall || block instanceof BlockFenceGate) {
+                if (block instanceof FenceBlock || block instanceof BlockWall || block instanceof FenceGateBlock) {
                     block1 = block;
                     blockpos = blockpos.down();
                 }
@@ -746,7 +746,7 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
                 if (distanceWalkedOnStepModified > (float) getNextStepDistance() && block1.getMaterial() != Material.air) {
                     setNextStepDistance((int) distanceWalkedOnStepModified + 1);
 
-                    if (isInWater()) {
+                    if (inWater()) {
                         float f = MathHelper.sqrt_double(motionX * motionX * 0.20000000298023224 + motionY * motionY + motionZ * motionZ * 0.20000000298023224) * 0.35F;
 
                         if (f > 1f) {

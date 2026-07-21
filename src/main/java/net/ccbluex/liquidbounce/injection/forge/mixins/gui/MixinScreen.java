@@ -21,7 +21,7 @@ import net.minecraft.client.render.vertex.DefaultVertexFormat;
 import net.minecraft.event.ClickEvent;
 import net.minecraft.event.HoverEvent;
 import net.minecraft.util.ChatStyle;
-import net.minecraft.util.IChatComponent;
+import net.minecraft.text.Text;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Mouse;
@@ -62,7 +62,7 @@ public abstract class MixinScreen {
     }
 
     @Shadow
-    public abstract void handleComponentHover(IChatComponent component, int x, int y);
+    public abstract void handleComponentHover(Text component, int x, int y);
 
     @Shadow
     protected abstract void drawHoveringText(List<String> textLines, int x, int y);
@@ -143,7 +143,7 @@ public abstract class MixinScreen {
     }
 
     @Inject(method = "handleComponentHover", at = @At("HEAD"))
-    private void handleHoverOverComponent(IChatComponent component, int x, int y, final CallbackInfo callbackInfo) {
+    private void handleHoverOverComponent(Text component, int x, int y, final CallbackInfo callbackInfo) {
         if (component == null || component.getChatStyle().getChatClickEvent() == null || !ComponentOnHover.INSTANCE.handleEvents())
             return;
 

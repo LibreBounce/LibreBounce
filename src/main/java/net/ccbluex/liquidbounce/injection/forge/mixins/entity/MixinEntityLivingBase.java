@@ -125,7 +125,7 @@ public abstract class MixinLivingEntity extends MixinEntity {
     private void onJumpSection(CallbackInfo callbackInfo) {
         final LiquidWalk liquidWalk = LiquidWalk.INSTANCE;
 
-        if (liquidWalk.handleEvents() && !jumping && !isSneaking() && isInWater() && liquidWalk.getMode().equals("Swim")) {
+        if (liquidWalk.handleEvents() && !jumping && !isSneaking() && inWater() && liquidWalk.getMode().equals("Swim")) {
             jumpInWater();
         }
     }

@@ -23,7 +23,7 @@ import net.minecraft.client.gui.widget.ButtonWidget
 import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen
 import net.minecraft.client.gui.screen.options.OptionsScreen
 import net.minecraft.client.gui.screen.world.SelectWorldScreen
-import net.minecraft.client.resources.I18n
+import net.minecraft.client.resource.language.I18n
 import org.lwjgl.input.Mouse
 import org.semver4j.Semver
 import java.net.HttpURLConnection
@@ -251,7 +251,7 @@ class TitleScreen : AbstractScreen() {
         }
 
         when (button.id) {
-            0 -> mc.displayScreen(OptionsScreen(this, mc.gameSettings))
+            0 -> mc.displayScreen(OptionsScreen(this, mc.gameOptions))
             1 -> mc.displayScreen(SelectWorldScreen(this))
             2 -> mc.displayScreen(MultiplayerScreen(this))
             4 -> mc.shutdown()

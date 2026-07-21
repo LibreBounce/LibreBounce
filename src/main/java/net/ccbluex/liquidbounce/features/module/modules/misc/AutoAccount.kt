@@ -17,8 +17,8 @@ import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.randomAccount
 import net.minecraft.network.packet.s2c.play.ChatMessageS2CPacket
 import net.minecraft.network.packet.s2c.play.DisconnectS2CPacket
 import net.minecraft.network.packet.s2c.play.TitlesS2CPacket
-import net.minecraft.util.ChatComponentText
-import net.minecraft.util.Session
+import net.minecraft.text.LiteralText
+import net.minecraft.client.Session
 
 object AutoAccount :
     Module("AutoAccount", Category.MISC, subjective = true, gameDetecting = false) {
@@ -88,7 +88,7 @@ object AutoAccount :
         // Disconnect from server
         if (mc.currentServerData != null && mc.world != null)
             mc.netHandler.networkManager.closeChannel(
-                ChatComponentText("$info\n\nReconnecting with a random account in ${reconnectDelay}ms")
+                LiteralText("$info\n\nReconnecting with a random account in ${reconnectDelay}ms")
             )
 
         // Log in to account with a random name, optionally save it

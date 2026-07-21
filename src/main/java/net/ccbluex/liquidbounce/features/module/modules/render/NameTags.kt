@@ -111,7 +111,7 @@ object NameTags : Module("NameTags", Category.RENDER) {
 
         for (entity in entities) {
             val isRenderingSelf =
-                entity is LocalClientPlayerEntity && (mc.gameSettings.thirdPersonView != 0 || FreeCam.handleEvents())
+                entity is LocalClientPlayerEntity && (mc.gameOptions.perspective != 0 || FreeCam.handleEvents())
 
             if (!isRenderingSelf || !renderSelf) {
                 if (!isSelected(entity, false)) continue
@@ -157,7 +157,7 @@ object NameTags : Module("NameTags", Category.RENDER) {
 
         // Translate to player position
         val renderManager = mc.renderManager
-        val rotateX = if (mc.gameSettings.thirdPersonView == 2) -1.0f else 1.0f
+        val rotateX = if (mc.gameOptions.perspective == 2) -1.0f else 1.0f
 
         val (x, y, z) = entity.interpolatedPosition(entity.lastTickPos) - renderManager.renderPos
 

@@ -13,7 +13,7 @@ import net.minecraft.client.entity.living.player.ClientPlayerEntity;
 import net.minecraft.client.entity.living.player.LocalClientPlayerEntity;
 import net.minecraft.client.model.ModelPlayer;
 import net.minecraft.client.render.entity.PlayerRenderer;
-import net.minecraft.entity.player.EnumPlayerModelParts;
+import net.minecraft.client.render.model.PlayerModelPart;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.SwordItem;
@@ -46,12 +46,12 @@ public abstract class MixinPlayerRenderer {
             ItemStack itemstack = entity instanceof LocalClientPlayerEntity ? entity.inventory.getStackInSlot(slot) : entity.getDisplayItemInHand();
 
             modelplayer.setInvisible(true);
-            modelplayer.bipedHeadwear.showModel = entity.isWearing(EnumPlayerModelParts.HAT);
-            modelplayer.bipedBodyWear.showModel = entity.isWearing(EnumPlayerModelParts.JACKET);
-            modelplayer.bipedLeftLegwear.showModel = entity.isWearing(EnumPlayerModelParts.LEFT_PANTS_LEG);
-            modelplayer.bipedRightLegwear.showModel = entity.isWearing(EnumPlayerModelParts.RIGHT_PANTS_LEG);
-            modelplayer.bipedLeftArmwear.showModel = entity.isWearing(EnumPlayerModelParts.LEFT_SLEEVE);
-            modelplayer.bipedRightArmwear.showModel = entity.isWearing(EnumPlayerModelParts.RIGHT_SLEEVE);
+            modelplayer.bipedHeadwear.showModel = entity.isWearing(PlayerModelPart.HAT);
+            modelplayer.bipedBodyWear.showModel = entity.isWearing(PlayerModelPart.JACKET);
+            modelplayer.bipedLeftLegwear.showModel = entity.isWearing(PlayerModelPart.LEFT_PANTS_LEG);
+            modelplayer.bipedRightLegwear.showModel = entity.isWearing(PlayerModelPart.RIGHT_PANTS_LEG);
+            modelplayer.bipedLeftArmwear.showModel = entity.isWearing(PlayerModelPart.LEFT_SLEEVE);
+            modelplayer.bipedRightArmwear.showModel = entity.isWearing(PlayerModelPart.RIGHT_SLEEVE);
             modelplayer.displayItemInHandLeft = 0;
             modelplayer.aimedBow = false;
             modelplayer.isSneak = entity.isSneaking();

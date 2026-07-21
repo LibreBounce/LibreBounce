@@ -44,7 +44,7 @@ object VerusDamage : LongJumpMode("VerusDamage") {
 
     override fun onUpdate() {
         mc.player?.run {
-            if (isInLiquid || isInWeb || isOnLadder) {
+            if (isInLiquid || inCobweb || isOnLadder) {
                 LongJump.state = false
                 return
             }

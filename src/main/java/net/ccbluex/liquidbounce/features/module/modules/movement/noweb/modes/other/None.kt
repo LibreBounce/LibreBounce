@@ -9,6 +9,6 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.noweb.modes.NoW
 
 object None : NoWebMode("None") {
     override fun onUpdate() {
-        mc.player.isInWeb = false
+        mc.player.inCobweb = false
     }
 }

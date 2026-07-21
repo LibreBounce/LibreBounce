@@ -299,7 +299,7 @@ object MLG : NoFallMode("MLG") {
         SilentHotbar.selectSlotSilently(this, switchSlot, render = autoMLG == "Pick", resetManually = true)
     }
 
-    private fun performBlockRaytrace(rotation: Rotation, maxReach: Float): MovingObjectPosition? {
+    private fun performBlockRaytrace(rotation: Rotation, maxReach: Float): HitResult? {
         val player = mc.player ?: return null
         mc.world ?: return null
 

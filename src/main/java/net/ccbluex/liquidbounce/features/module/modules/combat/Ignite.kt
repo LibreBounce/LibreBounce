@@ -23,10 +23,10 @@ import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar.selectSlotSilently
 import net.ccbluex.liquidbounce.utils.inventory.hotBarSlot
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.resetTicks
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
-import net.minecraft.block.BlockAir
+import net.minecraft.block.AirBlock
 import net.minecraft.item.Items.lava_bucket
 import net.minecraft.item.Items.flint_and_steel
-import net.minecraft.item.ItemBucket
+import net.minecraft.item.BucketItem
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.Angles
 import net.minecraft.util.math.Direction
 import net.minecraft.util.math.MathHelper
@@ -58,7 +58,7 @@ object Ignite : Module("Ignite", Category.COMBAT) {
             if (isSelected(entity, true) && !entity.isOnFire) {
                 val blockPos = entity.position
 
-                if (player.getSquaredDistanceTo(blockPos) >= 22.3 || !blockPos.isReplaceable || blockPos.block !is BlockAir)
+                if (player.getSquaredDistanceTo(blockPos) >= 22.3 || !blockPos.isReplaceable || blockPos.block !is AirBlock)
                     continue
 
                 resetTicks++
@@ -67,7 +67,7 @@ object Ignite : Module("Ignite", Category.COMBAT) {
 
                 val itemStack = player.hotBarSlot(fireInHotbar).stack
 
-                if (itemStack.item is ItemBucket) {
+                if (itemStack.item is BucketItem) {
                     val diffX = blockPos.x + 0.5 - player.posX
                     val diffY = blockPos.y + 0.5 - (player.shape.minY + player.eyeHeight)
                     val diffZ = blockPos.z + 0.5 - player.posZ

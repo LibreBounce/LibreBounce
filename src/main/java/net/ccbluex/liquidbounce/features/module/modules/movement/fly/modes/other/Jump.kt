@@ -9,9 +9,9 @@ import net.ccbluex.liquidbounce.event.BlockBBEvent
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.Fly.jumpY
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.FlyMode
 import net.ccbluex.liquidbounce.utils.extensions.tryJump
-import net.minecraft.block.BlockLadder
+import net.minecraft.block.LadderBlock
 import net.minecraft.block.material.Material
-import net.minecraft.util.AxisAlignedBB
+import net.minecraft.util.math.Box
 
 object Jump : FlyMode("Jump") {
 
@@ -21,7 +21,7 @@ object Jump : FlyMode("Jump") {
                 tryJump()
 
             if (onGround ||
-                mc.gameSettings.keyBindJump.isKeyDown && !mc.gameSettings.keyBindSneak.isKeyDown
+                mc.gameOptions.jumpKey.isKeyDown && !mc.gameOptions.sneakKey.isKeyDown
             )
                 jumpY = posY
         }
@@ -29,10 +29,10 @@ object Jump : FlyMode("Jump") {
 
     override fun onBB(event: BlockBBEvent) {
         val jumpYCondition =
-            if (!mc.gameSettings.keyBindJump.isKeyDown && mc.gameSettings.keyBindSneak.isKeyDown) event.y.toDouble() < jumpY else event.y.toDouble() <= jumpY
+            if (!mc.gameOptions.jumpKey.isKeyDown && mc.gameOptions.sneakKey.isKeyDown) event.y.toDouble() < jumpY else event.y.toDouble() <= jumpY
 
-        if ((!event.block.material.blocksMovement() && event.block.material != Material.carpet && event.block.material != Material.vine && event.block.material != Material.snow && event.block !is BlockLadder) && jumpYCondition) {
-            event.boundingBox = AxisAlignedBB.fromBounds(
+        if ((!event.block.material.blocksMovement() && event.block.material != Material.carpet && event.block.material != Material.vine && event.block.material != Material.snow && event.block !is LadderBlock) && jumpYCondition) {
+            event.boundingBox = Box.fromBounds(
                 event.x.toDouble(),
                 event.y.toDouble(),
                 event.z.toDouble(),

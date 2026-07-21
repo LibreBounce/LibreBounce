@@ -13,8 +13,8 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.collideBlockIntersects
 import net.ccbluex.liquidbounce.utils.block.block
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
-import net.minecraft.block.BlockLadder
-import net.minecraft.block.BlockVine
+import net.minecraft.block.LadderBlock
+import net.minecraft.block.VineBlock
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.Position
 import net.minecraft.util.BlockPos
 import net.minecraft.util.math.Direction
@@ -37,10 +37,10 @@ object FastClimb : Module("FastClimb", Category.MOVEMENT) {
     private fun playerClimb() {
         mc.player?.run {
             motionY = 0.0
-            isInWeb = true
+            inCobweb = true
             onGround = true
 
-            isInWeb = false
+            inCobweb = false
         }
     }
 
@@ -61,15 +61,15 @@ object FastClimb : Module("FastClimb", Category.MOVEMENT) {
 
                     val block = BlockPos(posX + x, posY, posZ + z).block
 
-                    if (block is BlockLadder || block is BlockVine) {
+                    if (block is LadderBlock || block is VineBlock) {
                         event.y = 0.5
                         motionY = 0.0
                     }
                 }
 
-                mode == "AAC3.0.5" && mc.gameSettings.keyBindForward.isKeyDown &&
+                mode == "AAC3.0.5" && mc.gameOptions.forwardKey.isKeyDown &&
                     collideBlockIntersects(shape) {
-                        it is BlockLadder || it is BlockVine
+                        it is LadderBlock || it is VineBlock
                     } -> {
                     event.x = 0.0
                     event.y = 0.5
@@ -80,11 +80,11 @@ object FastClimb : Module("FastClimb", Category.MOVEMENT) {
                     motionZ = 0.0
                 }
 
-                mode == "Clip" && isOnLadder && mc.gameSettings.keyBindForward.isKeyDown -> {
+                mode == "Clip" && isOnLadder && mc.gameOptions.forwardKey.isKeyDown -> {
                     for (i in posY.toInt()..posY.toInt() + 8) {
                         val block = BlockPos(posX, i.toDouble(), posZ).block
 
-                        if (block !is BlockLadder) {
+                        if (block !is LadderBlock) {
                             var x = 0.0
                             var z = 0.0
 
@@ -143,7 +143,7 @@ object FastClimb : Module("FastClimb", Category.MOVEMENT) {
     }
 
     val onBlockBB = handler<BlockBBEvent> { event ->
-        if (mc.player != null && (event.block is BlockLadder || event.block is BlockVine) &&
+        if (mc.player != null && (event.block is LadderBlock || event.block is VineBlock) &&
             mode == "AAC3.0.5" && mc.player.isOnLadder
         )
             event.boundingBox = null

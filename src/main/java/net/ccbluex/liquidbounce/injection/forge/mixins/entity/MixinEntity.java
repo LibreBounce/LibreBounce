@@ -17,7 +17,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -104,7 +104,7 @@ public abstract class MixinEntity implements IMixinEntity {
     public float rotationYaw;
 
     @Shadow
-    public abstract AxisAlignedBB getShape();
+    public abstract Box getShape();
 
     @Shadow
     public Entity ridingEntity;
@@ -135,7 +135,7 @@ public abstract class MixinEntity implements IMixinEntity {
     }
 
     @Shadow
-    public boolean isInWeb;
+    public boolean inCobweb;
 
     @Shadow
     public float stepHeight;
@@ -156,7 +156,7 @@ public abstract class MixinEntity implements IMixinEntity {
     public float distanceWalkedOnStepModified;
 
     @Shadow
-    public abstract boolean isInWater();
+    public abstract boolean inWater();
 
     @Shadow
     protected Random rand;
@@ -195,7 +195,7 @@ public abstract class MixinEntity implements IMixinEntity {
     protected abstract void playStepSound(BlockPos pos, Block blockIn);
 
     @Shadow
-    public abstract void setShape(AxisAlignedBB bb);
+    public abstract void setShape(Box bb);
 
     @Shadow
     private int nextStepDistance;
@@ -257,8 +257,8 @@ public abstract class MixinEntity implements IMixinEntity {
         if (strafeEvent.isCancelled()) callbackInfo.cancel();
     }
 
-    @Inject(method = "isInWater", at = @At("HEAD"), cancellable = true)
-    private void isInWater(final CallbackInfoReturnable<Boolean> cir) {
+    @Inject(method = "inWater", at = @At("HEAD"), cancellable = true)
+    private void inWater(final CallbackInfoReturnable<Boolean> cir) {
         if (NoFluid.INSTANCE.handleEvents() && NoFluid.INSTANCE.getWaterValue()) {
             cir.setReturnValue(false);
         }

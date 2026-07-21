@@ -18,7 +18,7 @@ object NCPYPort : SpeedMode("NCPYPort") {
 
     override fun onMotion() {
         mc.player?.run {
-            if (isOnLadder || isInLiquid || isInWeb || !isMoving || isInWater) return
+            if (isOnLadder || isInLiquid || inCobweb || !isMoving || inWater) return
 
             if (jumps >= 4 && onGround) jumps = 0
 

@@ -20,9 +20,9 @@ import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.login.UserUtils
 import net.minecraft.event.ClickEvent
-import net.minecraft.util.ChatComponentText
-import net.minecraft.util.EnumChatFormatting
-import net.minecraft.util.IChatComponent
+import net.minecraft.text.LiteralText
+import net.minecraft.text.Formatting
+import net.minecraft.text.Text
 import java.net.URI
 import java.net.URISyntaxException
 import java.util.regex.Pattern
@@ -80,7 +80,7 @@ object LiquidChat : Module(
                         return
                     }
 
-                    val chatComponent = ChatComponentText("§7[§a§lChat§7] §9${packet.user.name}: ")
+                    val chatComponent = LiteralText("§7[§a§lChat§7] §9${packet.user.name}: ")
                     val messageComponent = toChatComponent(packet.content)
                     chatComponent.appendSibling(messageComponent)
 
@@ -209,8 +209,8 @@ object LiquidChat : Module(
         Pattern.CASE_INSENSITIVE
     )
 
-    private fun toChatComponent(string: String): IChatComponent {
-        var component: IChatComponent? = null
+    private fun toChatComponent(string: String): Text {
+        var component: Text? = null
         val matcher = urlPattern.matcher(string)
         var lastEnd = 0
 
@@ -222,8 +222,8 @@ object LiquidChat : Module(
             val part = string.substring(lastEnd, start)
             if (part.isNotEmpty()) {
                 if (component == null) {
-                    component = ChatComponentText(part)
-                    component.chatStyle.color = EnumChatFormatting.GRAY
+                    component = LiteralText(part)
+                    component.chatStyle.color = Formatting.GRAY
                 } else
                     component.appendText(part)
             }
@@ -235,11 +235,11 @@ object LiquidChat : Module(
             try {
                 if (URI(url).scheme != null) {
                     // Set the click event and append the link.
-                    val link: IChatComponent = ChatComponentText(url)
+                    val link: Text = LiteralText(url)
 
                     link.chatStyle.chatClickEvent = ClickEvent(ClickEvent.Action.OPEN_URL, url)
                     link.chatStyle.underlined = true
-                    link.chatStyle.color = EnumChatFormatting.GRAY
+                    link.chatStyle.color = Formatting.GRAY
 
                     if (component == null)
                         component = link
@@ -251,8 +251,8 @@ object LiquidChat : Module(
             }
 
             if (component == null) {
-                component = ChatComponentText(url)
-                component.chatStyle.color = EnumChatFormatting.GRAY
+                component = LiteralText(url)
+                component.chatStyle.color = Formatting.GRAY
             } else
                 component.appendText(url)
         }
@@ -261,8 +261,8 @@ object LiquidChat : Module(
         val end = string.substring(lastEnd)
 
         if (component == null) {
-            component = ChatComponentText(end)
-            component.chatStyle.color = EnumChatFormatting.GRAY
+            component = LiteralText(end)
+            component.chatStyle.color = Formatting.GRAY
         } else if (end.isNotEmpty())
             component.appendText(string.substring(lastEnd))
 

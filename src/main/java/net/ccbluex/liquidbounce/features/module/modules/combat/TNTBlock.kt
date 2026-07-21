@@ -55,15 +55,15 @@ object TNTBlock : Module("TNTBlock", Category.COMBAT) {
             }
 
             if (player.displayItemInHand?.item is SwordItem) {
-                mc.gameSettings.keyBindUseItem.pressed = true
+                mc.gameOptions.useKey.pressed = true
                 blocked = true
             }
 
             return@handler
         }
 
-        if (blocked && !GameOptions.isKeyDown(mc.gameSettings.keyBindUseItem)) {
-            mc.gameSettings.keyBindUseItem.pressed = false
+        if (blocked && !GameOptions.isKeyDown(mc.gameOptions.useKey)) {
+            mc.gameOptions.useKey.pressed = false
             blocked = false
         }
     }

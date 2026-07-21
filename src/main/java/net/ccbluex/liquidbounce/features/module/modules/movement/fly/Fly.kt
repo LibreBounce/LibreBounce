@@ -36,7 +36,7 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawPlatform
 import net.ccbluex.liquidbounce.utils.rotation.RotationSettings
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.Position
-import net.minecraft.util.AxisAlignedBB
+import net.minecraft.util.math.Box
 import net.minecraft.util.BlockPos
 import org.lwjgl.input.Keyboard
 import java.awt.Color
@@ -307,7 +307,7 @@ object Fly : Module("Fly", Category.MOVEMENT, Keyboard.KEY_F) {
         var ground = mc.player.posY
 
         while (ground > 0.0) {
-            val customBox = AxisAlignedBB.fromBounds(
+            val customBox = Box.fromBounds(
                 boundingBox.maxX,
                 ground + blockHeight,
                 boundingBox.maxZ,

@@ -10,7 +10,7 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalk.mode
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.collideBlock
 import net.minecraft.block.BlockLiquid
 import net.minecraft.block.material.Material
-import net.minecraft.util.AxisAlignedBB.fromBounds
+import net.minecraft.util.math.Box.fromBounds
 
 object Vanilla : LiquidWalkMode("Vanilla") {
     override fun onUpdate() {

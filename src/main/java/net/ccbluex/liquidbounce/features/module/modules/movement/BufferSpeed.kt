@@ -17,8 +17,8 @@ import net.ccbluex.liquidbounce.utils.extensions.tryJump
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 import net.minecraft.block.BlockSlab
-import net.minecraft.block.BlockSlime
-import net.minecraft.block.BlockStairs
+import net.minecraft.block.SlimeBlock
+import net.minecraft.block.StairsBlock
 import net.minecraft.init.Blocks.*
 import net.minecraft.network.packet.s2c.play.PlayerMoveS2CPacket
 import net.minecraft.util.BlockPos
@@ -86,7 +86,7 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT) {
             hadFastHop = false
         }
 
-        if (!player.isMoving || player.isSneaking || player.isInWater || mc.gameSettings.keyBindJump.isKeyDown) {
+        if (!player.isMoving || player.isSneaking || player.inWater || mc.gameOptions.jumpKey.isKeyDown) {
             reset()
             return@handler
         }
@@ -94,7 +94,7 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT) {
         if (player.onGround) {
             fastHop = false
 
-            if (slime && (blockPos.down().block is BlockSlime || blockPos.block is BlockSlime)) {
+            if (slime && (blockPos.down().block is SlimeBlock || blockPos.block is SlimeBlock)) {
                 player.tryJump()
 
                 player.motionX = player.motionY * 1.132
@@ -129,7 +129,7 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT) {
                     }
                 }
             }
-            if (stairs && (blockPos.down().block is BlockStairs || blockPos.block is BlockStairs)) {
+            if (stairs && (blockPos.down().block is StairsBlock || blockPos.block is StairsBlock)) {
                 when (stairsMode) {
                     "Old" -> {
                         boost(stairsBoost)
@@ -184,7 +184,7 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT) {
                     }
 
                     "New" ->
-                        if (isNearBlock && !player.movementInput.jump) {
+                        if (isNearBlock && !player.input.jump) {
                             player.tryJump()
                             player.motionY = 0.08
                             player.motionX *= 0.99

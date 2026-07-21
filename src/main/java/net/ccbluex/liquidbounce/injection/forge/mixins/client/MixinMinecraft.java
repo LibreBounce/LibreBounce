@@ -36,7 +36,7 @@ import net.minecraft.entity.living.player.PlayerInventory;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockPos;
-import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.world.HitResult;
 import net.minecraft.util.Util;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -69,7 +69,7 @@ public abstract class MixinMinecraft {
     private int leftClickCounter;
 
     @Shadow
-    public MovingObjectPosition objectMouseOver;
+    public HitResult objectMouseOver;
 
     @Shadow
     public WorldClient theWorld;
@@ -90,7 +90,7 @@ public abstract class MixinMinecraft {
     public int rightClickDelayTimer;
 
     @Shadow
-    public GameOptions gameSettings;
+    public GameOptions gameOptions;
 
     @Shadow
     public abstract void displayScreen(Screen guiScreenIn);
@@ -193,7 +193,7 @@ public abstract class MixinMinecraft {
             EventManager.INSTANCE.call(new KeyEvent(Keyboard.getEventKey() == 0 ? Keyboard.getEventCharacter() + 256 : Keyboard.getEventKey()));
     }
 
-    @Inject(method = "sendClickBlockToController", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/MovingObjectPosition;getBlockPos()Lnet/minecraft/util/BlockPos;"))
+    @Inject(method = "sendClickBlockToController", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/HitResult;getBlockPos()Lnet/minecraft/util/BlockPos;"))
     private void onClickBlock(CallbackInfo callbackInfo) {
         final BlockPos blockPos = objectMouseOver.getBlockPos();
         if (leftClickCounter == 0 && theWorld.getBlockState(blockPos).getBlock().getMaterial() != Material.air) {
@@ -249,7 +249,7 @@ public abstract class MixinMinecraft {
         if (fastPlace.getOnlyBlocks() && (player.getDisplayItemInHand() == null || !(player.getDisplayItemInHand().getItem() instanceof BlockItem)))
             return;
 
-        if (objectMouseOver != null && objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
+        if (objectMouseOver != null && objectMouseOver.typeOfHit == HitResult.Type.BLOCK) {
             BlockPos blockPos = objectMouseOver.getBlockPos();
             BlockState blockState = theWorld.getBlockState(blockPos);
             // Don't spam-click when interacting with a TileEntity (chests, ...)

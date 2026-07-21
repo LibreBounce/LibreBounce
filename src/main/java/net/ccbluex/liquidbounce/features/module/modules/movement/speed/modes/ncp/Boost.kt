@@ -41,7 +41,7 @@ object Boost : SpeedMode("Boost") {
                     offset += 0.5
                 }
 
-                if (isInWater)
+                if (inWater)
                     speed -= 0.1
 
 

@@ -10,7 +10,7 @@ import net.minecraft.client.options.GameOptions
 import net.minecraft.network.Connection
 import net.minecraft.network.packet.c2s.login.KeyC2SPacket
 import net.minecraft.network.packet.s2c.login.HelloS2CPacket
-import net.minecraft.util.ChatComponentText
+import net.minecraft.text.LiteralText
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
 import org.apache.logging.log4j.LogManager
@@ -36,7 +36,7 @@ object ClientUtils : MinecraftInstance {
             if (!it.isAccessible)
                 it.isAccessible = true
 
-            it.setBoolean(mc.gameSettings, false)
+            it.setBoolean(mc.gameOptions, false)
         }
     }
 
@@ -52,7 +52,7 @@ object ClientUtils : MinecraftInstance {
     }
 
     fun displayChatMessage(message: String) {
-        mc.player?.sendMessage(ChatComponentText("§8[§9§l$CLIENT_NAME§8]§r $message"))
+        mc.player?.sendMessage(LiteralText("§8[§9§l$CLIENT_NAME§8]§r $message"))
             ?: LOGGER.info("(MCChat) $message")
     }
 }

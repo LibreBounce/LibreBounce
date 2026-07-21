@@ -162,7 +162,7 @@ object Fucker : Module("Fucker", Category.WORLD) {
                     val rayTraceResultToObstruction = world.rayTraceBlocks(eyes, spotToObstruction.vec, false, false, true)
                     // If a new block is blocking it, reset and re-evaluate next cycle.
                     if (rayTraceResultToObstruction?.blockPos != currentPos &&
-                        rayTraceResultToObstruction?.typeOfHit == net.minecraft.util.MovingObjectPosition.MovingObjectType.BLOCK
+                        rayTraceResultToObstruction?.typeOfHit == net.minecraft.world.HitResult.Type.BLOCK
                     ) {
                         obstructingPos = null
                         return@handler
@@ -171,7 +171,7 @@ object Fucker : Module("Fucker", Category.WORLD) {
                     val rayTraceToBed = world.rayTraceBlocks(eyes, spotToBed.vec, false, false, true)
                     // Target bed if it's open
                     if (rayTraceToBed?.blockPos == pos &&
-                        rayTraceToBed.typeOfHit == net.minecraft.util.MovingObjectPosition.MovingObjectType.BLOCK
+                        rayTraceToBed.typeOfHit == net.minecraft.world.HitResult.Type.BLOCK
                     ) {
                         obstructingPos = null
                         currentPos = pos!!

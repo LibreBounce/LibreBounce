@@ -18,9 +18,9 @@ import net.minecraft.entity.living.LivingEntity
 import net.minecraft.entity.ItemEntityFrame
 import net.minecraft.entity.living.player.PlayerEntity
 import net.minecraft.entity.projectile.EntityLargeFireball
-import net.minecraft.util.AxisAlignedBB
+import net.minecraft.util.math.Box
 import net.minecraft.util.BlockPos
-import net.minecraft.util.MovingObjectPosition
+import net.minecraft.world.HitResult
 import net.minecraft.util.math.Vec3d
 import java.util.*
 
@@ -91,7 +91,7 @@ object RaycastUtils : MinecraftInstance {
         rotation: Rotation,
         range: Double,
         wallRange: Double,
-        action: (MovingObjectPosition) -> Unit
+        action: (HitResult) -> Unit
     ) {
 
         val entity = mc.renderViewEntity
@@ -102,7 +102,7 @@ object RaycastUtils : MinecraftInstance {
         if (entity != null && mc.world != null) {
             mc.pointedEntity = null
 
-            val buildReach = if (mc.playerController.currentGameType.isCreative) 5.0 else 4.5
+            val buildReach = if (mc.playerController.currentGameMode.isCreative) 5.0 else 4.5
 
             val vec3 = entity.eyes
             val vec31 = getRotationVector(rotation)
@@ -134,7 +134,7 @@ object RaycastUtils : MinecraftInstance {
 
             for (entity1 in list) {
                 val f1 = entity1.collisionBorderSize
-                val boxes = ArrayList<AxisAlignedBB>()
+                val boxes = ArrayList<Box>()
 
                 boxes.add(entity1.shape.expand(f1.toDouble(), f1.toDouble(), f1.toDouble()))
 
@@ -180,8 +180,8 @@ object RaycastUtils : MinecraftInstance {
 
             if (pointedEntity != null && flag && vec3.distanceTo(vec33) > range) {
                 pointedEntity = null
-                mc.objectMouseOver = MovingObjectPosition(
-                    MovingObjectPosition.MovingObjectType.MISS,
+                mc.objectMouseOver = HitResult(
+                    HitResult.Type.MISS,
                     Objects.requireNonNull(vec33),
                     null,
                     BlockPos(vec33)
@@ -189,7 +189,7 @@ object RaycastUtils : MinecraftInstance {
             }
 
             if (pointedEntity != null && (d2 < d1 || mc.objectMouseOver == null)) {
-                mc.objectMouseOver = MovingObjectPosition(pointedEntity, vec33)
+                mc.objectMouseOver = HitResult(pointedEntity, vec33)
 
                 if (pointedEntity is LivingEntity || pointedEntity is ItemEntityFrame) {
                     mc.pointedEntity = pointedEntity

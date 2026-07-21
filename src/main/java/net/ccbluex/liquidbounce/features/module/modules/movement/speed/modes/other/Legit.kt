@@ -18,7 +18,7 @@ object Legit : SpeedMode("Legit") {
 
     override fun onUpdate() {
         mc.player?.run {
-            isSprinting = movementInput.forwardSpeed > 0.8
+            isSprinting = input.forwardSpeed > 0.8
         }
     }
 }

@@ -235,16 +235,16 @@ public abstract class MixinClientPlayNetworkHandler {
 
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, (ClientPlayNetworkHandler) (Object) this, gameController);
         gameController.playerController = new ClientPlayerInteractionManager(gameController, (ClientPlayNetworkHandler) (Object) this);
-        clientWorldController = new WorldClient((ClientPlayNetworkHandler) (Object) this, new WorldSettings(0L, packetIn.getGameType(), false, packetIn.isHardcoreMode(), packetIn.getWorldType()), packetIn.getDimension(), packetIn.getDifficulty(), gameController.mcProfiler);
-        gameController.gameSettings.difficulty = packetIn.getDifficulty();
+        clientWorldController = new WorldClient((ClientPlayNetworkHandler) (Object) this, new WorldSettings(0L, packetIn.getGameMode(), false, packetIn.isHardcoreMode(), packetIn.getWorldType()), packetIn.getDimension(), packetIn.getDifficulty(), gameController.mcProfiler);
+        gameController.gameOptions.difficulty = packetIn.getDifficulty();
         gameController.loadWorld(clientWorldController);
         gameController.player.dimension = packetIn.getDimension();
         gameController.displayScreen(new DownloadingTerrainScreen((ClientPlayNetworkHandler) (Object) this));
         gameController.player.setEntityId(packetIn.getEntityId());
         currentServerMaxPlayers = packetIn.getMaxPlayers();
         gameController.player.setReducedDebug(packetIn.isReducedDebugInfo());
-        gameController.playerController.setGameType(packetIn.getGameType());
-        gameController.gameSettings.sendSettingsToServer();
+        gameController.playerController.setGameMode(packetIn.getGameMode());
+        gameController.gameOptions.sendSettingsToServer();
         netManager.sendPacket(new CustomPayloadC2SPacket("MC|Brand", (new PacketBuffer(Unpooled.buffer())).writeString(ClientBrandRetriever.getClientModName())));
         callbackInfo.cancel();
     }

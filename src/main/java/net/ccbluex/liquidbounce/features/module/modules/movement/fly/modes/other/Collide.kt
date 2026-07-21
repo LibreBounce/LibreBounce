@@ -9,16 +9,16 @@ import net.ccbluex.liquidbounce.event.BlockBBEvent
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.FlyMode
 import net.ccbluex.liquidbounce.utils.client.pos
 import net.ccbluex.liquidbounce.utils.extensions.offset
-import net.minecraft.block.BlockLadder
+import net.minecraft.block.LadderBlock
 import net.minecraft.block.material.Material
-import net.minecraft.util.AxisAlignedBB
+import net.minecraft.util.math.Box
 
 object Collide : FlyMode("Collide") {
     override fun onBB(event: BlockBBEvent) {
-        if (!mc.gameSettings.keyBindJump.isKeyDown && mc.gameSettings.keyBindSneak.isKeyDown) return
+        if (!mc.gameOptions.jumpKey.isKeyDown && mc.gameOptions.sneakKey.isKeyDown) return
 
-        if (!event.block.material.blocksMovement() && event.block.material != Material.carpet && event.block.material != Material.vine && event.block.material != Material.snow && event.block !is BlockLadder) {
-            event.boundingBox = AxisAlignedBB(-2.0, -1.0, -2.0, 2.0, 1.0, 2.0).offset(event.pos)
+        if (!event.block.material.blocksMovement() && event.block.material != Material.carpet && event.block.material != Material.vine && event.block.material != Material.snow && event.block !is LadderBlock) {
+            event.boundingBox = Box(-2.0, -1.0, -2.0, 2.0, 1.0, 2.0).offset(event.pos)
         }
     }
 }

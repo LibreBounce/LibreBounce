@@ -61,7 +61,7 @@ import net.minecraft.entity.Entity
 import net.minecraft.entity.living.LivingEntity
 import net.minecraft.entity.item.EntityArmorStand
 import net.minecraft.entity.living.player.PlayerEntity
-import net.minecraft.item.ItemAxe
+import net.minecraft.item.AxeItem
 import net.minecraft.item.SwordItem
 import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket
 import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket.Action.*
@@ -331,7 +331,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     private val attackTimer = MSTimer()
     private var attackDelay = 0
     private var clicks = 0
-    private var attackTickTimes = mutableListOf<Pair<MovingObjectPosition, Int>>()
+    private var attackTickTimes = mutableListOf<Pair<HitResult, Int>>()
 
     // Container Delay
     private var containerOpen = -1L
@@ -364,7 +364,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             blinked = false
         }
 
-        if (autoF5) mc.gameSettings.thirdPersonView = 0
+        if (autoF5) mc.gameOptions.perspective = 0
 
         stopBlocking(true)
 
@@ -384,8 +384,8 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         updateTarget()
 
         if (autoF5) {
-            if (mc.gameSettings.thirdPersonView != 1 && target != null) {
-                mc.gameSettings.thirdPersonView = 1
+            if (mc.gameOptions.perspective != 1 && target != null) {
+                mc.gameOptions.perspective = 1
             }
         }
     }
@@ -418,7 +418,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             return@handler
         }
 
-        if (clickOnly && !mc.gameSettings.keyBindAttack.isKeyDown) {
+        if (clickOnly && !mc.gameOptions.attackKey.isKeyDown) {
             clicks = 0
             return@handler
         }
@@ -631,7 +631,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
                     }
 
                     val shouldEnterBlockBreakProgress =
-                        !shouldDelayClick(it.typeOfHit) || attackTickTimes.lastOrNull()?.first?.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK
+                        !shouldDelayClick(it.typeOfHit) || attackTickTimes.lastOrNull()?.first?.typeOfHit == HitResult.Type.BLOCK
 
                     if (shouldEnterBlockBreakProgress) {
                         // Close inventory when open
@@ -799,9 +799,9 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
                     entity.getActivePotionEffect(Potion.regeneration).amplifier.toDouble()
                 } else -1.0
 
-                "InWeb" -> if (entity.isInWeb) -1.0 else Double.MAX_VALUE
+                "InWeb" -> if (entity.inCobweb) -1.0 else Double.MAX_VALUE
                 "OnLadder" -> if (entity.isOnLadder) -1.0 else Double.MAX_VALUE
-                "InLiquid" -> if (entity.isInWater || entity.isInLava) -1.0 else Double.MAX_VALUE
+                "InLiquid" -> if (entity.inWater || entity.isInLava) -1.0 else Double.MAX_VALUE
                 else -> null
             } ?: continue
 
@@ -841,7 +841,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         }
 
         // The function is only called when we are facing an entity
-        if (shouldDelayClick(MovingObjectPosition.MovingObjectType.ENTITY)) {
+        if (shouldDelayClick(HitResult.Type.ENTITY)) {
             return
         }
 
@@ -1143,7 +1143,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
      * The game requires at least 1 tick of cool-down on raycast object type change (miss, block, entity)
      * We are doing the same thing here but allow more cool-down.
      */
-    private fun shouldDelayClick(currentType: MovingObjectPosition.MovingObjectType): Boolean {
+    private fun shouldDelayClick(currentType: HitResult.Type): Boolean {
         if (!useHitDelay) {
             return false
         }
@@ -1199,7 +1199,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     private fun handleFailedSwings() {
         if (!renderBoxOnSwingFail) return
 
-        val box = AxisAlignedBB(0.0, 0.0, 0.0, 0.05, 0.05, 0.05)
+        val box = Box(0.0, 0.0, 0.0, 0.05, 0.05, 0.05)
 
         synchronized(swingFails) {
             val fadeSeconds = renderBoxFadeSeconds * 1000L
@@ -1213,7 +1213,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
                 val offsetBox = box.offset(it.vec3 - renderManager.renderPos)
 
-                RenderUtils.drawAxisAlignedBB(offsetBox, colorSettings.color(a = transparency.roundToInt()))
+                RenderUtils.drawBox(offsetBox, colorSettings.color(a = transparency.roundToInt()))
 
                 timestamp > fadeSeconds
             }
@@ -1230,7 +1230,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
         val f = aimPointBoxSize.toDouble()
 
-        val box = AxisAlignedBB(0.0, 0.0, 0.0, f, f, f)
+        val box = Box(0.0, 0.0, 0.0, f, f, f)
 
         val renderManager = mc.renderManager
 
@@ -1242,7 +1242,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
                 val offSetBox = box.offset(rotationVec - renderManager.renderPos)
 
-                RenderUtils.drawAxisAlignedBB(offSetBox, aimPointBoxColor)
+                RenderUtils.drawBox(offSetBox, aimPointBoxColor)
             }
         }
     }
@@ -1293,7 +1293,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
                     when {
                         !player.isMoving && forceBlock -> return true
-                        checkWeapon && target!!.displayItemInHand?.item !is SwordItem && target!!.displayItemInHand?.item !is ItemAxe -> return false
+                        checkWeapon && target!!.displayItemInHand?.item !is SwordItem && target!!.displayItemInHand?.item !is AxeItem -> return false
                         checkSprinting && !target!!.isSprinting && distance > 2.8f && rotationDifference > 60f / distance -> return false
                         !playerAllowed || !targetAllowed -> return false
                         rotationDifference > maxDirectionDiff -> return false

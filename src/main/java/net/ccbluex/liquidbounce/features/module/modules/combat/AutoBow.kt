@@ -10,7 +10,7 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
-import net.minecraft.item.ItemBow
+import net.minecraft.item.BowItem
 import net.minecraft.network.packet.c2s.play.PlayerHandActionC2SPacket
 import net.minecraft.network.packet.c2s.play.PlayerHandActionC2SPacket.Action.RELEASE_USE_ITEM
 import net.minecraft.util.BlockPos
@@ -22,7 +22,7 @@ object AutoBow : Module("AutoBow", Category.COMBAT, subjective = true) {
 
     val onUpdate = handler<UpdateEvent> {
         mc.player?.run {
-            if (isUsingItem && displayItemInHand?.item is ItemBow && itemInUseDuration > 20
+            if (isUsingItem && displayItemInHand?.item is BowItem && itemInUseDuration > 20
                 && (!waitForBowAimbot || !ProjectileAimbot.handleEvents() || ProjectileAimbot.hasTarget())
             ) {
                 stopUsingItem()

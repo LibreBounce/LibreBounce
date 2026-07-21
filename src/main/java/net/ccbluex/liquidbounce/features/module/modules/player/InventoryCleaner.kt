@@ -110,7 +110,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
             if (!passedPostInventoryCloseDelay)
                 return false
 
-            if (mc.playerController?.currentGameType?.isSurvivalOrAdventure != true)
+            if (mc.playerController?.currentGameMode?.isSurvivalOrAdventure != true)
                 return false
 
             if (mc.player?.openContainer?.windowId != 0)
@@ -260,7 +260,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
                 val repairedItem = repairedStack.item
 
                 // Handle armor repairs with support for AutoArmor smart-swapping and equipping straight from crafting output
-                if (repairedItem is ItemArmor) {
+                if (repairedItem is ArmorItem) {
                     val armorSlot = repairedItem.armorType + 5
                     var equipAfterCrafting = true
 
@@ -467,24 +467,24 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
         return when (item) {
             in ITEMS_WHITELIST -> true
 
-            is ItemEnderPearl, is ItemEnchantedBook, is ItemBed -> true
+            is EnderPearlItem, is EnchantedBookItem, is BedItem -> true
 
-            is ItemFood -> isUsefulFood(stack, stacks, entityStacksMap, noLimits, strictlyBest)
+            is FoodItem -> isUsefulFood(stack, stacks, entityStacksMap, noLimits, strictlyBest)
             is BlockItem -> isUsefulBlock(stack, stacks, entityStacksMap, noLimits, strictlyBest)
 
-            is ItemArmor, is ItemTool, is SwordItem, is ItemBow, is ItemFishingRod, is ItemShears -> isUsefulEquipment(
+            is ArmorItem, is ToolItem, is SwordItem, is BowItem, is FishingRodItem, is ShearsItem -> isUsefulEquipment(
                 stack,
                 stacks,
                 entityStacksMap
             )
 
-            is ItemBoat, is ItemMinecart -> !ignoreVehicles
+            is BoatItem, is MinecartItem -> !ignoreVehicles
 
-            is ItemPotion -> isUsefulPotion(stack)
+            is PotionItem -> isUsefulPotion(stack)
 
-            is ItemBucket -> isUsefulBucket(stack, stacks, entityStacksMap)
+            is BucketItem -> isUsefulBucket(stack, stacks, entityStacksMap)
 
-            is ItemFlintAndSteel -> isUsefulLighter(stack, stacks, entityStacksMap)
+            is FlintAndSteelItem -> isUsefulLighter(stack, stacks, entityStacksMap)
 
             in THROWABLE_ITEMS -> isUsefulThrowable(stack, stacks, entityStacksMap, noLimits, strictlyBest)
 
@@ -499,12 +499,12 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
         val item = stack?.item ?: return false
 
         return when (item) {
-            is ItemArmor -> stack in getBestArmorSet(stacks, entityStacksMap)
+            is ArmorItem -> stack in getBestArmorSet(stacks, entityStacksMap)
 
-            is ItemTool -> {
+            is ToolItem -> {
                 val blockType = when (item) {
-                    is ItemAxe -> log
-                    is ItemPickaxe -> stone
+                    is AxeItem -> log
+                    is PickaxeItem -> stone
                     else -> dirt
                 }
 
@@ -513,8 +513,8 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
                 }
             }
 
-            is ItemFishingRod -> {
-                val fishingRod = stacks.count { it?.item is ItemFishingRod }
+            is FishingRodItem -> {
+                val fishingRod = stacks.count { it?.item is FishingRodItem }
 
                 if (fishingRod <= maxFishingRodStacks) return true
 
@@ -523,7 +523,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
                 }
             }
 
-            is ItemShears ->
+            is ShearsItem ->
                 hasBestParameters(stack, stacks, entityStacksMap) {
                     it.durability.toFloat() * it.getEnchantmentLevel(Enchantment.efficiency)
                 }
@@ -535,7 +535,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
                     it.attackDamage.toFloat()
                 }
 
-            is ItemBow ->
+            is BowItem ->
                 hasBestParameters(stack, stacks, entityStacksMap) {
                     it.getEnchantmentLevel(Enchantment.power).toFloat()
                 }
@@ -547,7 +547,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
     private fun isUsefulPotion(stack: ItemStack?): Boolean {
         val item = stack?.item ?: return false
 
-        if (item !is ItemPotion) return false
+        if (item !is PotionItem) return false
 
         val isSplash = stack.isSplashPotion()
         val isHarmful = item.getEffects(stack)?.any { it.potionID in NEGATIVE_EFFECT_IDS } ?: return false
@@ -562,7 +562,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
     ): Boolean {
         val item = stack?.item ?: return false
 
-        if (item !is ItemFlintAndSteel) return false
+        if (item !is FlintAndSteelItem) return false
 
         val index = stacks.indexOf(stack)
 
@@ -585,7 +585,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
 
             val otherItem = otherStack?.item ?: return@none false
 
-            if (otherItem !is ItemFlintAndSteel)
+            if (otherItem !is FlintAndSteelItem)
                 return@none false
 
             // Items dropped on ground should have index -1
@@ -609,7 +609,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
     ): Boolean {
         val item = stack?.item ?: return false
 
-        if (item !is ItemFood) return false
+        if (item !is FoodItem) return false
 
         // Skip checks if there is no stack limit set and when you are not strictly searching for best option
         if (ignoreLimits || !limitStackCounts) {
@@ -640,7 +640,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
 
             val otherItem = otherStack?.item ?: return@count false
 
-            if (otherItem !is ItemFood)
+            if (otherItem !is FoodItem)
                 return@count false
 
             // Items dropped on ground should have index -1
@@ -810,7 +810,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
     ): Boolean {
         val item = stack?.item ?: return false
 
-        if (item !is ItemBucket) return false
+        if (item !is BucketItem) return false
 
         val index = stacks.indexOf(stack)
 
@@ -1001,21 +1001,21 @@ val NEGATIVE_EFFECT_IDS = intArrayOf(
 
 private val SORTING_TARGETS: Map<String, ((Item?) -> Boolean)?> = mapOf(
     "Sword" to { it is SwordItem },
-    "Bow" to { it is ItemBow },
-    "Pickaxe" to { it is ItemPickaxe },
-    "Axe" to { it is ItemAxe },
+    "Bow" to { it is BowItem },
+    "Pickaxe" to { it is PickaxeItem },
+    "Axe" to { it is AxeItem },
     "Shovel" to { it is ItemSpade },
-    "Food" to { it is ItemFood },
+    "Food" to { it is FoodItem },
     "Block" to { it is BlockItem },
     "Water" to { it == Items.water_bucket || it == Items.bucket },
-    "Fire" to { it is ItemFlintAndSteel || it == Items.lava_bucket || it == Items.bucket },
+    "Fire" to { it is FlintAndSteelItem || it == Items.lava_bucket || it == Items.bucket },
     "Gapple" to { it is ItemAppleGold },
-    "Pearl" to { it is ItemEnderPearl },
-    "Potion" to { it is ItemPotion },
+    "Pearl" to { it is EnderPearlItem },
+    "Potion" to { it is PotionItem },
     "Throwable" to { it is ItemEgg || it is ItemSnowball },
-    "FishingRod" to { it is ItemFishingRod },
+    "FishingRod" to { it is FishingRodItem },
     "TNT" to { it == Item.getItemFromBlock(tnt) },
-    "Shears" to { it is ItemShears },
+    "Shears" to { it is ShearsItem },
     "Ignore" to null
 )
 

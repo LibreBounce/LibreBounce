@@ -29,10 +29,10 @@ object NoClip : Module("NoClip", Category.MOVEMENT) {
 
             var ySpeed = 0.0
 
-            if (mc.gameSettings.keyBindJump.isKeyDown)
+            if (mc.gameOptions.jumpKey.isKeyDown)
                 ySpeed += speed
 
-            if (mc.gameSettings.keyBindSneak.isKeyDown)
+            if (mc.gameOptions.sneakKey.isKeyDown)
                 ySpeed -= speed
 
             motionY = ySpeed

@@ -24,14 +24,14 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.renderNameTag
 import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
 import net.ccbluex.liquidbounce.utils.timing.WaitTickUtils
-import net.minecraft.block.BlockAir
+import net.minecraft.block.AirBlock
 import net.minecraft.client.render.platform.GlStateManager.resetColor
 import net.minecraft.item.BlockItem
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.Position
 import net.minecraft.network.packet.c2s.play.PlayerUseC2SPacket
 import net.minecraft.network.packet.s2c.play.PlayerMoveS2CPacket
-import net.minecraft.util.AxisAlignedBB
+import net.minecraft.util.math.Box
 import net.minecraft.util.BlockPos
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
@@ -80,14 +80,14 @@ object AntiVoid : Module("AntiVoid", Category.MOVEMENT) {
 
         val player = mc.player ?: return@handler
 
-        if (player.onGround && BlockPos(player).down().block !is BlockAir) {
+        if (player.onGround && BlockPos(player).down().block !is AirBlock) {
             prevX = player.prevPosX
             prevY = player.prevPosY
             prevZ = player.prevPosZ
             shouldSimulateBlock = false
         }
 
-        if (!player.onGround && !player.isOnLadder && !player.isInWater) {
+        if (!player.onGround && !player.isOnLadder && !player.inWater) {
             val fallingPlayer = FallingPlayer(player)
 
             detectedLocation = fallingPlayer.findCollision(60)?.pos
@@ -128,13 +128,13 @@ object AntiVoid : Module("AntiVoid", Category.MOVEMENT) {
         }
 
         if (mode == "Blink") {
-            val simPlayer = SimulatedPlayer.fromClientPlayer(player.movementInput)
+            val simPlayer = SimulatedPlayer.fromClientPlayer(player.input)
 
             repeat(20) {
                 simPlayer.tick()
             }
 
-            if (simPlayer.isOnLadder() || simPlayer.inWater || simPlayer.isInLava() || simPlayer.isInWeb || simPlayer.isSneaking()) {
+            if (simPlayer.isOnLadder() || simPlayer.inWater || simPlayer.isInLava() || simPlayer.inCobweb || simPlayer.isSneaking()) {
                 if (BlinkUtils.isBlinking) BlinkUtils.unblink()
                 return@handler
             }
@@ -153,7 +153,7 @@ object AntiVoid : Module("AntiVoid", Category.MOVEMENT) {
     val onBlockBB = handler<BlockBBEvent> { event ->
         if (mode == "GhostBlock" && shouldSimulateBlock) {
             if (event.y < mc.player.posY.toInt()) {
-                event.boundingBox = AxisAlignedBB(
+                event.boundingBox = Box(
                     event.x.toDouble(),
                     event.y.toDouble(),
                     event.z.toDouble(),
@@ -231,7 +231,7 @@ object AntiVoid : Module("AntiVoid", Category.MOVEMENT) {
 
         glColor(Color(255, 0, 0, 90))
         drawFilledBox(
-            AxisAlignedBB.fromBounds(
+            Box.fromBounds(
                 x - renderManager.renderPosX,
                 y + 1 - renderManager.renderPosY,
                 z - renderManager.renderPosZ,

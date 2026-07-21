@@ -250,7 +250,7 @@ object AutoArmor : Module("AutoArmor", Category.COMBAT) {
             if (!passedPostInventoryCloseDelay)
                 return false
 
-            if (mc.playerController?.currentGameType?.isSurvivalOrAdventure != true)
+            if (mc.playerController?.currentGameMode?.isSurvivalOrAdventure != true)
                 return false
 
             // It is impossible to equip armor when a container is open; only try to equip by right-clicking from hotbar (if NotInContainers is disabled)

@@ -13,7 +13,7 @@ import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 object IntaveNew : NoWebMode("IntaveNew") {
     override fun onUpdate() {
         mc.player?.run {
-            if (!isInWeb)
+            if (!inCobweb)
                 return
 
             if (isMoving && onGround && sidewaysSpeed == 0.0f) {

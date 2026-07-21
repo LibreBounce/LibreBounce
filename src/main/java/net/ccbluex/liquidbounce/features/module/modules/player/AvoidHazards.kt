@@ -5,7 +5,7 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.minecraft.init.Blocks.*
-import net.minecraft.util.AxisAlignedBB
+import net.minecraft.util.math.Box
 
 object AvoidHazards : Module("AvoidHazards", Category.WORLD) {
     private val onFire by boolean("Fire", true)
@@ -30,20 +30,20 @@ object AvoidHazards : Module("AvoidHazards", Category.WORLD) {
 
             water, flowing_water ->
                 // Don't prevent water from cancelling fall damage.
-                if (!onWater || player.fallDistance >= 3.34627 || player.isInWater) return@handler
+                if (!onWater || player.fallDistance >= 3.34627 || player.inWater) return@handler
 
             lava, flowing_lava -> if (!onLava) return@handler
 
             wooden_pressure_plate, stone_pressure_plate, light_weighted_pressure_plate, heavy_weighted_pressure_plate -> {
                 if (plate)
                     e.boundingBox =
-                        AxisAlignedBB(e.x.toDouble(), e.y.toDouble(), e.z.toDouble(), e.x + 1.0, e.y + 0.25, e.z + 1.0)
+                        Box(e.x.toDouble(), e.y.toDouble(), e.z.toDouble(), e.x + 1.0, e.y + 0.25, e.z + 1.0)
                 return@handler
             }
 
             else -> return@handler
         }
 
-        e.boundingBox = AxisAlignedBB(e.x.toDouble(), e.y.toDouble(), e.z.toDouble(), e.x + 1.0, e.y + 1.0, e.z + 1.0)
+        e.boundingBox = Box(e.x.toDouble(), e.y.toDouble(), e.z.toDouble(), e.x + 1.0, e.y + 1.0, e.z + 1.0)
     }
 }

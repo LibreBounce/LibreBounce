@@ -70,7 +70,7 @@ object Projectiles : Module("Projectiles", Category.RENDER, gameDetecting = fals
 
             // Check items
             when (item) {
-                is ItemBow -> {
+                is BowItem -> {
                     isBow = true
                     gravity = 0.05F
                     size = 0.3F
@@ -90,20 +90,20 @@ object Projectiles : Module("Projectiles", Category.RENDER, gameDetecting = fals
                     }
                 }
 
-                is ItemFishingRod -> {
+                is FishingRodItem -> {
                     gravity = 0.04F
                     size = 0.25F
                     motionSlowdown = 0.92F
                 }
 
-                is ItemPotion -> {
+                is PotionItem -> {
                     if (!heldStack.isSplashPotion()) continue
                     gravity = 0.05F
                     size = 0.25F
                     motionFactor = 0.5F
                 }
 
-                is ItemSnowball, is ItemEnderPearl, is ItemEgg -> {
+                is ItemSnowball, is EnderPearlItem, is ItemEgg -> {
                     gravity = 0.03F
                     size = 0.25F
                 }
@@ -126,7 +126,7 @@ object Projectiles : Module("Projectiles", Category.RENDER, gameDetecting = fals
 
             // Motions
             var motionX = -sin(yawRadians) * cos(pitchRadians) * if (isBow) 1.0 else 0.4
-            var motionY = -sin((pitch + if (item is ItemPotion) -20 else 0).toRadians()) * if (isBow) 1.0 else 0.4
+            var motionY = -sin((pitch + if (item is PotionItem) -20 else 0).toRadians()) * if (isBow) 1.0 else 0.4
             var motionZ = cos(yawRadians) * cos(pitchRadians) * if (isBow) 1.0 else 0.4
             val distance = sqrt(motionX * motionX + motionY * motionY + motionZ * motionZ)
 
@@ -138,7 +138,7 @@ object Projectiles : Module("Projectiles", Category.RENDER, gameDetecting = fals
             motionZ *= motionFactor
 
             // Landing
-            var landingPosition: MovingObjectPosition? = null
+            var landingPosition: HitResult? = null
             var hasLanded = false
             var hitEntity = false
 
@@ -185,7 +185,7 @@ object Projectiles : Module("Projectiles", Category.RENDER, gameDetecting = fals
                 }
 
                 // Set arrow box
-                val arrowBox = AxisAlignedBB(
+                val arrowBox = Box(
                     posX - size, posY - size, posZ - size, posX + size,
                     posY + size, posZ + size
                 ).addCoord(motionX, motionY, motionZ).expand(1.0, 1.0, 1.0)

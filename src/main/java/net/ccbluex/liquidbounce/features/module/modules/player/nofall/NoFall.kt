@@ -17,7 +17,7 @@ import net.ccbluex.liquidbounce.features.module.modules.player.nofall.modes.othe
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.collideBlock
 import net.ccbluex.liquidbounce.utils.rotation.AlwaysRotationSettings
 import net.minecraft.block.BlockLiquid
-import net.minecraft.util.AxisAlignedBB.fromBounds
+import net.minecraft.util.math.Box.fromBounds
 import net.minecraft.util.BlockPos
 import net.minecraft.util.math.Vec3d
 import kotlin.math.max

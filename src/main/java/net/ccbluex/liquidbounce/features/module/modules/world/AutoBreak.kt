@@ -20,11 +20,11 @@ object AutoBreak : Module("AutoBreak", Category.WORLD, subjective = true, gameDe
 
         val target = mc.objectMouseOver?.blockPos ?: return@handler
 
-        mc.gameSettings.keyBindAttack.pressed = target.block != air
+        mc.gameOptions.attackKey.pressed = target.block != air
     }
 
     override fun onDisable() {
-        if (!GameOptions.isKeyDown(mc.gameSettings.keyBindAttack))
-            mc.gameSettings.keyBindAttack.pressed = false
+        if (!GameOptions.isKeyDown(mc.gameOptions.attackKey))
+            mc.gameOptions.attackKey.pressed = false
     }
 }

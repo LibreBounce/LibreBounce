@@ -8,7 +8,7 @@ package net.ccbluex.liquidbounce.features.command.commands
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.extensions.NbtCompound
-import net.ccbluex.liquidbounce.utils.extensions.NBTTagList
+import net.ccbluex.liquidbounce.utils.extensions.NbtList
 import net.ccbluex.liquidbounce.utils.extensions.set
 import net.ccbluex.liquidbounce.utils.kotlin.StringUtils
 import net.minecraft.item.Items
@@ -41,7 +41,7 @@ object HoloStandCommand : Command("holostand") {
                         this["CustomName"] = message
                         this["CustomNameVisible"] = 1
                         this["NoGravity"] = 1
-                        this["Pos"] = NBTTagList {
+                        this["Pos"] = NbtList {
                             appendTag(NBTTagDouble(x))
                             appendTag(NBTTagDouble(y))
                             appendTag(NBTTagDouble(z))

@@ -14,7 +14,7 @@ object SpartanYPort : SpeedMode("SpartanYPort") {
 
     override fun onMotion() {
         mc.player?.run {
-            if (mc.gameSettings.keyBindForward.isKeyDown) {
+            if (mc.gameOptions.forwardKey.isKeyDown) {
                 if (onGround) {
                     tryJump()
                     airMoves = 0

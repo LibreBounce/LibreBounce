@@ -23,7 +23,7 @@ import net.ccbluex.liquidbounce.utils.movement.MovementUtils.speed
 import net.ccbluex.liquidbounce.utils.rotation.RaycastUtils.runWithModifiedRaycastResult
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.currentRotation
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
-import net.minecraft.block.BlockAir
+import net.minecraft.block.AirBlock
 import net.minecraft.entity.Entity
 import net.minecraft.network.Packet
 import net.minecraft.network.packet.c2s.play.*
@@ -32,7 +32,7 @@ import net.minecraft.network.packet.c2s.play.PlayerMovementActionC2SPacket.Actio
 import net.minecraft.network.packet.s2c.play.EntityVelocityS2CPacket
 import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket
 import net.minecraft.network.packet.s2c.play.InventoryMenuConfirmS2CPacket
-import net.minecraft.util.AxisAlignedBB
+import net.minecraft.util.math.Box
 import net.minecraft.util.BlockPos
 import net.minecraft.util.math.Direction.DOWN
 import kotlin.collections.component1
@@ -176,7 +176,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
 
     val onUpdate = handler<UpdateEvent> {
         mc.player?.run {
-            if (isInLiquid || isInWeb || isDead)
+            if (isInLiquid || inCobweb || isDead)
                 return@handler
 
             when (mode) {
@@ -671,7 +671,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
 
     val onJump = handler<JumpEvent> { event ->
         mc.player?.run {
-            if (isInLiquid || isInWeb)
+            if (isInLiquid || inCobweb)
                 return@handler
 
             when (mode) {
@@ -715,8 +715,8 @@ object Velocity : Module("Velocity", Category.COMBAT) {
         if (hasReceivedVelocity) {
             if (player.damagedTimer in damagedTimerToAct) {
                 // Check if there is air exactly 1 level above the player's Y position
-                if (event.block is BlockAir && event.y == mc.player.posY.toInt() + 1) {
-                    event.boundingBox = AxisAlignedBB(
+                if (event.block is AirBlock && event.y == mc.player.posY.toInt() + 1) {
+                    event.boundingBox = Box(
                         event.x.toDouble(),
                         event.y.toDouble(),
                         event.z.toDouble(),

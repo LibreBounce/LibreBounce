@@ -94,8 +94,8 @@ object NCPBHop : SpeedMode("NCPBHop") {
         moveSpeed.coerceAtLeast(baseMoveSpeed)
 
         // TODO: Use a proper strafe system
-        var forward = player.movementInput.forwardSpeed
-        var strafe = player.movementInput.moveStrafe
+        var forward = player.input.forwardSpeed
+        var strafe = player.input.moveStrafe
         var yaw = player.rotationYaw
 
         if (forward == 0f && strafe == 0f) {

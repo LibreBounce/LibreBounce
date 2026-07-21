@@ -191,7 +191,7 @@ object BedPlates : Module("BedPlates", Category.RENDER) {
     private fun drawPlate(bedState: BedState) {
         val player = mc.player ?: return
         val renderManager = mc.renderManager ?: return
-        val rotateX = if (mc.gameSettings.thirdPersonView == 2) -1.0f else 1.0f
+        val rotateX = if (mc.gameOptions.perspective == 2) -1.0f else 1.0f
 
         val rainbowOffset = System.currentTimeMillis() % 10000 / 10000F
         val rainbowX = if (rainbowX == 0f) 0f else 1f / rainbowX

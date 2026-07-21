@@ -12,7 +12,7 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalk.mode
 object AACFly : LiquidWalkMode("AACFly") {
     override fun onMove(event: MoveEvent) {
         mc.player?.run {
-            if (isInWater) {
+            if (inWater) {
                 event.y = aacFly.toDouble()
                 motionY = aacFly.toDouble()
             }

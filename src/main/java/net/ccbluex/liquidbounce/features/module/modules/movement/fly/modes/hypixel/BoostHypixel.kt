@@ -19,7 +19,7 @@ import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.Position
 import net.minecraft.network.packet.s2c.play.PlayerMoveS2CPacket
 import net.minecraft.potion.Potion
-import net.minecraft.util.AxisAlignedBB
+import net.minecraft.util.math.Box
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
@@ -135,7 +135,7 @@ object BoostHypixel : FlyMode("BoostHypixel") {
 
     override fun onBB(event: BlockBBEvent) {
         if (event.block == air && event.y < mc.player.posY)
-            event.boundingBox = AxisAlignedBB.fromBounds(
+            event.boundingBox = Box.fromBounds(
                 event.x.toDouble(),
                 event.y.toDouble(),
                 event.z.toDouble(),

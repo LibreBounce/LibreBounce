@@ -475,7 +475,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
     }
 
     private fun shouldBacktrack() =
-        mc.player != null && mc.world != null && target != null && mc.player.health > 0 && (target!!.health > 0 || target!!.health.isNaN()) && mc.playerController.currentGameType != WorldSettings.GameType.SPECTATOR && System.currentTimeMillis() >= delayForNextBacktrack && target?.let {
+        mc.player != null && mc.world != null && target != null && mc.player.health > 0 && (target!!.health > 0 || target!!.health.isNaN()) && mc.playerController.currentGameMode != WorldSettings.GameMode.SPECTATOR && System.currentTimeMillis() >= delayForNextBacktrack && target?.let {
             isSelected(it, true) && (mc.player?.ticksExisted ?: 0) > 20 && !ignoreWholeTick && onAllowedHurtTime()
         } == true
 

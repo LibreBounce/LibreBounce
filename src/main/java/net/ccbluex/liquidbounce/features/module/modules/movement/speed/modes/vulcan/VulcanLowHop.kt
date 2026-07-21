@@ -14,7 +14,7 @@ import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 object VulcanLowHop : SpeedMode("VulcanLowHop") {
     override fun onUpdate() {
         mc.player?.run {
-            if (isInLiquid || isInWeb || isOnLadder) return
+            if (isInLiquid || inCobweb || isOnLadder) return
 
             if (isMoving) {
                 if (!onGround && fallDistance > 1.1) {

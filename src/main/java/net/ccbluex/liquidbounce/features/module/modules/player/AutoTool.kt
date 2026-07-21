@@ -18,7 +18,7 @@ object AutoTool : Module("AutoTool", Category.PLAYER, subjective = true, gameDet
     private val onlySneaking by boolean("OnlySneaking", false)
 
     val onGameTick = handler<GameTickEvent> {
-        if (!switchBack || mc.gameSettings.keyBindAttack.isKeyDown)
+        if (!switchBack || mc.gameOptions.attackKey.isKeyDown)
             return@handler
 
         SilentHotbar.resetSlot(this)

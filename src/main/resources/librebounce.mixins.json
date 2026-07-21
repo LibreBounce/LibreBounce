@@ -73,7 +73,7 @@
     "world.MixinWorldClient"
   ],
   "client": [
-    "block.MixinBlockSlime",
+    "block.MixinSlimeBlock",
     "gui.MixinToastGui",
     "gui.MixinInventoryMenuScreen",
     "gui.MixinTextFieldWidget",

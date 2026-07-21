@@ -11,12 +11,12 @@ import net.ccbluex.liquidbounce.utils.extensions.tryJump
 object LAAC : NoWebMode("LAAC") {
     override fun onUpdate() {
         mc.player?.run {
-            if (!isInWeb)
+            if (!inCobweb)
                 return
 
-            flyingSpeed = if (movementInput.moveStrafe != 0f) 1f else 1.21f
+            flyingSpeed = if (input.moveStrafe != 0f) 1f else 1.21f
 
-            if (!mc.gameSettings.keyBindSneak.isKeyDown)
+            if (!mc.gameOptions.sneakKey.isKeyDown)
                 motionY = 0.0
 
             if (onGround)

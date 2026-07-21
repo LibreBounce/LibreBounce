@@ -313,7 +313,7 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
 
         // A pretty basic model render process. Position and rotation interpolation is applied to look visually appealing to the user.
         // This can be smarter by adding sneak checks, more timed hand swing/body movement, etc.
-        if (mc.gameSettings.thirdPersonView == 0 || !renderModel) return@handler
+        if (mc.gameOptions.perspective == 0 || !renderModel) return@handler
 
         val manager = mc.renderManager
 

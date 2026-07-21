@@ -50,7 +50,7 @@ object Sprint : Module("Sprint", Category.MOVEMENT, gameDetecting = false) {
     override val tag
         get() = mode
 
-    fun correctSprintState(movementInput: Input, isUsingItem: Boolean) {
+    fun correctSprintState(input: Input, isUsingItem: Boolean) {
         val player = mc.player ?: return
 
         if (SuperKnockback.breakSprint()) {
@@ -58,7 +58,7 @@ object Sprint : Module("Sprint", Category.MOVEMENT, gameDetecting = false) {
             return
         }
 
-        if (!handleEvents() || onlyOnSprintPress && !player.isSprinting && !mc.gameSettings.keyBindSprint.isKeyDown && !SuperKnockback.startSprint() && !isSprinting)
+        if (!handleEvents() || onlyOnSprintPress && !player.isSprinting && !mc.gameOptions.keyBindSprint.isKeyDown && !SuperKnockback.startSprint() && !isSprinting)
             return
 
         if (Scaffold.handleEvents()) {
@@ -74,7 +74,7 @@ object Sprint : Module("Sprint", Category.MOVEMENT, gameDetecting = false) {
         }
 
         if (handleEvents() || alwaysCorrect) {
-            player setSprintSafely !shouldStopSprinting(movementInput, isUsingItem)
+            player setSprintSafely !shouldStopSprinting(input, isUsingItem)
             isSprinting = player.isSprinting
 
             if (player.isSprinting && allDirections && mode != "Legit") {
@@ -86,13 +86,13 @@ object Sprint : Module("Sprint", Category.MOVEMENT, gameDetecting = false) {
         }
     }
 
-    private fun shouldStopSprinting(movementInput: Input, isUsingItem: Boolean): Boolean {
+    private fun shouldStopSprinting(input: Input, isUsingItem: Boolean): Boolean {
         val player = mc.player ?: return false
 
         val isLegitModeActive = mode == "Legit"
 
-        val modifiedForward = if (currentRotation != null && activeSettings?.strict == true) player.movementInput.forwardSpeed
-        else movementInput.forwardSpeed
+        val modifiedForward = if (currentRotation != null && activeSettings?.strict == true) player.input.forwardSpeed
+        else input.forwardSpeed
 
         if (!player.isMoving) {
             return true
@@ -127,7 +127,7 @@ object Sprint : Module("Sprint", Category.MOVEMENT, gameDetecting = false) {
         }
 
         val threshold = if ((!usingItem || NoSlow.handleEvents()) && isUsingItem) 0.2 else 0.8
-        val playerForwardInput = player.movementInput.forwardSpeed
+        val playerForwardInput = player.input.forwardSpeed
 
         if (!checkServerSide) {
             return if (currentRotation != null) {

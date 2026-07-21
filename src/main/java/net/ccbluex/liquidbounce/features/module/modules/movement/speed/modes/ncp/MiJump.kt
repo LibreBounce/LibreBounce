@@ -16,7 +16,7 @@ object MiJump : SpeedMode("MiJump") {
         mc.player?.run {
             if (!isMoving) return
 
-            if (onGround && !movementInput.jump) {
+            if (onGround && !input.jump) {
                 val multiplier = 1.8
 
                 motionX *= multiplier

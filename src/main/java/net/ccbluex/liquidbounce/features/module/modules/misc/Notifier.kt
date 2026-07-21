@@ -13,7 +13,7 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.misc.AntiBot.isBot
 import net.ccbluex.liquidbounce.utils.client.chat
-import net.minecraft.block.BlockTNT
+import net.minecraft.block.TNTBlock
 import net.minecraft.item.*
 import net.minecraft.network.packet.s2c.play.PlayerInfoS2CPacket
 import net.minecraft.network.packet.s2c.play.PlayerInfoS2CPacket.Action.ADD_PLAYER
@@ -57,17 +57,17 @@ object Notifier : Module("Notifier", Category.MISC) {
                     recentlyWarned[entity.uuid.toString()] = currentTime
                 }
 
-                onHeldExplosive && (displayItemInHand is ItemFireball || displayItemInHand is BlockItem && displayItemInHand.block is BlockTNT) -> {
+                onHeldExplosive && (displayItemInHand is FireballItem || displayItemInHand is BlockItem && displayItemInHand.block is TNTBlock) -> {
                     chat("§7${entity.name} is holding a §eFireball §a(${entityDistance}m)")
                     recentlyWarned[entity.uuid.toString()] = currentTime
                 }
 
-                onPlayerTool && displayItemInHand is ItemTool -> {
+                onPlayerTool && displayItemInHand is ToolItem -> {
                     chat("§7${entity.name} is holding a §b${entity.displayItemInHand?.displayName} §a(${entityDistance}m)")
                     recentlyWarned[entity.uuid.toString()] = currentTime
                 }
 
-                onPlayerWeapon && (displayItemInHand is SwordItem || displayItemInHand is ItemBow) -> {
+                onPlayerWeapon && (displayItemInHand is SwordItem || displayItemInHand is BowItem) -> {
                     chat("§7${entity.name} is holding a §b${entity.displayItemInHand?.displayName} §a(${entityDistance}m)")
                     recentlyWarned[entity.uuid.toString()] = currentTime
                 }

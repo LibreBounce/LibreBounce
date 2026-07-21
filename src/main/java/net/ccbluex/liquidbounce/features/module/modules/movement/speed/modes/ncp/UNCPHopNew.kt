@@ -34,7 +34,7 @@ object UNCPHopNew : SpeedMode("UNCPHopNew") {
                 return
             }
 
-            if (!isMoving || isInLiquid || isInWeb || isOnLadder) return
+            if (!isMoving || isInLiquid || inCobweb || isOnLadder) return
 
             if (onGround) {
                 if (Speed.lowHop) motionY = 0.4 else tryJump()

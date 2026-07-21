@@ -35,7 +35,7 @@ import net.minecraft.item.BlockItem
 import net.minecraft.item.ItemStack
 import net.minecraft.network.packet.c2s.play.ArmSwingC2SPacket
 import net.minecraft.network.packet.c2s.play.PlayerUseC2SPacket
-import net.minecraft.util.AxisAlignedBB
+import net.minecraft.util.math.Box
 import net.minecraft.util.BlockPos
 import net.minecraft.util.math.Direction
 import net.minecraft.util.math.Vec3d
@@ -46,7 +46,7 @@ import net.minecraftforge.event.ForgeEventFactory
  */
 fun Entity.getDistanceToEntityBox(entity: Entity) = eyes.distanceTo(getNearestPointBB(eyes, entity.hitBox))
 
-fun Entity.getDistanceToBox(box: AxisAlignedBB) = eyes.distanceTo(getNearestPointBB(eyes, box))
+fun Entity.getDistanceToBox(box: Box) = eyes.distanceTo(getNearestPointBB(eyes, box))
 
 fun LocalClientPlayerEntity.isNearEdge(threshold: Float): Boolean {
     val playerPos = Vec3d(posX, posY, posZ)
@@ -68,7 +68,7 @@ fun LocalClientPlayerEntity.isNearEdge(threshold: Float): Boolean {
     return false
 }
 
-fun getNearestPointBB(eye: Vec3d, box: AxisAlignedBB):Vec3d3 {
+fun getNearestPointBB(eye: Vec3d, box: Box):Vec3d3 {
     val origin = doubleArrayOf(eye.xCoord, eye.yCoord, eye.zCoord)
     val destMins = doubleArrayOf(box.minX, box.minY, box.minZ)
     val destMaxs = doubleArrayOf(box.maxX, box.maxY, box.maxZ)
@@ -116,7 +116,7 @@ var Entity?.prevRotation
         }
     }
 
-val Entity.hitBox: AxisAlignedBB
+val Entity.hitBox: Box
     get() {
         val borderSize = collisionBorderSize.toDouble()
         return shape.expand(borderSize, borderSize, borderSize)
@@ -144,7 +144,7 @@ val LocalClientPlayerEntity.groundTicks
     get() = MovementUtils.groundTicks
 
 val Entity.isInLiquid: Boolean
-    get() = isInWater || isInLava
+    get() = inWater || isInLava
 
 fun Entity.setPosAndPrevPos(currPos: Vec3d, prevPos:Vec3d3 = currPos, lastTickPosVec3dc3? = null) {
     setPosition(currPos.xCoord, currPos.yCoord, currPos.zCoord)
@@ -308,7 +308,7 @@ fun LocalClientPlayerEntity.sendUseItem(stack: ItemStack): Boolean {
 }
 
 fun LocalClientPlayerEntity.tryJump() {
-    if (!mc.gameSettings.keyBindJump.isKeyDown) {
+    if (!mc.gameOptions.jumpKey.isKeyDown) {
         jump()
     }
 }

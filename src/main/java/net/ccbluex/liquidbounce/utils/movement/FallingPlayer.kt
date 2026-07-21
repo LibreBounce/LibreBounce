@@ -12,7 +12,7 @@ import net.ccbluex.liquidbounce.utils.extensions.toRadians
 import net.minecraft.client.entity.living.player.LocalClientPlayerEntity
 import net.minecraft.util.BlockPos
 import net.minecraft.util.math.Direction
-import net.minecraft.util.MovingObjectPosition.MovingObjectType.BLOCK
+import net.minecraft.world.HitResult.Type.BLOCK
 import net.minecraft.util.math.Vec3d
 import kotlin.math.cos
 import kotlin.math.sin

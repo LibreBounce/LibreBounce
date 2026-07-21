@@ -3,7 +3,7 @@ package net.ccbluex.liquidbounce.utils.kotlin
 import kotlinx.coroutines.*
 import kotlinx.coroutines.test.setMain
 import net.minecraft.client.Minecraft
-import net.minecraft.util.IThreadListener
+import net.minecraft.util.BlockableEventLoop
 import kotlin.coroutines.CoroutineContext
 
 object SharedScopes {
@@ -30,7 +30,7 @@ object SharedScopes {
  * @author MukjepScarlet
  */
 private object RenderDispatcher : CoroutineDispatcher() {
-    val mc: IThreadListener = Minecraft.getMinecraft()
+    val mc: BlockableEventLoop = Minecraft.getMinecraft()
 
     override fun dispatch(context: CoroutineContext, block: Runnable) {
         try {

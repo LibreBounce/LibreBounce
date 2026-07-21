@@ -4,7 +4,7 @@ import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPackets
 import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils
-import net.minecraft.client.entity.EntityOtherPlayerMP
+import net.minecraft.client.entity.living.player.RemoteClientPlayerEntity
 import net.minecraft.network.Packet
 import net.minecraft.network.packet.c2s.handshake.HandshakeC2SPacket
 import net.minecraft.network.packet.c2s.play.ChatMessageC2SPacket
@@ -20,7 +20,7 @@ object BlinkUtils : MinecraftInstance, Listenable {
     val publicPacket: Packet<*>? = null
     val packets = mutableListOf<Packet<*>>()
     val packetsReceived = mutableListOf<Packet<*>>()
-    private var fakePlayer: EntityOtherPlayerMP? = null
+    private var fakePlayer: RemoteClientPlayerEntity? = null
     val positions = mutableListOf<Vec3d>()
     val isBlinking
         get() = (packets.size + packetsReceived.size) > 0
@@ -196,7 +196,7 @@ object BlinkUtils : MinecraftInstance, Listenable {
         val player = mc.player ?: return
         val world = mc.world ?: return
 
-        val faker = EntityOtherPlayerMP(world, player.gameProfile).apply {
+        val faker = RemoteClientPlayerEntity(world, player.gameProfile).apply {
             copyLocationAndAnglesFrom(player)
             rotationYaw = player.rotationYaw
             rotationPitch = player.rotationPitch

@@ -12,7 +12,7 @@ import net.ccbluex.liquidbounce.utils.block.BlockUtils.collideBlock
 import net.minecraft.block.BlockLiquid
 import net.minecraft.block.material.Material
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
-import net.minecraft.util.AxisAlignedBB.fromBounds
+import net.minecraft.util.math.Box.fromBounds
 
 object NCP : LiquidWalkMode("NCP") {
     private var nextTick = false

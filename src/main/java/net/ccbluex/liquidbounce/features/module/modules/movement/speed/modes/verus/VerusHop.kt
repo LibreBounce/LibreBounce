@@ -17,7 +17,7 @@ object VerusHop : SpeedMode("VerusHop") {
 
     override fun onUpdate() {
         mc.player?.run {
-            if (isInLiquid || isInWeb || isOnLadder) return
+            if (isInLiquid || inCobweb || isOnLadder) return
 
             if (isMoving) {
                 if (onGround) {

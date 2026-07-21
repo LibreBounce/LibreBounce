@@ -10,7 +10,7 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.block.block
-import net.minecraft.block.BlockSlime
+import net.minecraft.block.SlimeBlock
 
 object SlimeJump : Module("SlimeJump", Category.MOVEMENT) {
     private val motion by float("Motion", 0.42f, 0.2f..1f)
@@ -18,7 +18,7 @@ object SlimeJump : Module("SlimeJump", Category.MOVEMENT) {
 
     val onJump = handler<JumpEvent> { event ->
         mc.player?.run {
-            if (mc.world != null && position.down().block is BlockSlime) {
+            if (mc.world != null && position.down().block is SlimeBlock) {
                 event.cancelEvent()
 
                 when (mode) {

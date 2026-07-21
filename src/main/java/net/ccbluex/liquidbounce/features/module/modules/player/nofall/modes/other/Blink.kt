@@ -43,7 +43,7 @@ object Blink : NoFallMode("Blink") {
         if (player.isDead)
             return
 
-        val simPlayer = SimulatedPlayer.fromClientPlayer(player.movementInput)
+        val simPlayer = SimulatedPlayer.fromClientPlayer(player.input)
 
         simPlayer.tick()
 
@@ -77,7 +77,7 @@ object Blink : NoFallMode("Blink") {
             simPlayer.tick()
         }
 
-        if (simPlayer.isOnLadder() || simPlayer.inWater || simPlayer.isInLava() || simPlayer.isInWeb || simPlayer.isCollided)
+        if (simPlayer.isOnLadder() || simPlayer.inWater || simPlayer.isInLava() || simPlayer.inCobweb || simPlayer.isCollided)
             return
 
         if (player.motionY > 0 && blinked)
@@ -115,7 +115,7 @@ object Blink : NoFallMode("Blink") {
 
         val player = mc.player ?: return
 
-        val simPlayer = SimulatedPlayer.fromClientPlayer(player.movementInput)
+        val simPlayer = SimulatedPlayer.fromClientPlayer(player.input)
 
         repeat(4) {
             simPlayer.tick()

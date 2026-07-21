@@ -104,7 +104,7 @@ object ProjectileAimbot : Module("ProjectileAimbot", Category.COMBAT) {
         target = null
 
         val targetRotation = when (val item = player.displayItemInHand?.item) {
-            is ItemBow -> {
+            is BowItem -> {
                 if (!bow || !player.isUsingItem)
                     return@handler
 
@@ -115,7 +115,7 @@ object ProjectileAimbot : Module("ProjectileAimbot", Category.COMBAT) {
 
             is Item -> {
                 if (!otherItems && !player.displayItemInHand.isEmpty() ||
-                    (!egg && item is ItemEgg || !snowball && item is ItemSnowball || !pearl && item is ItemEnderPearl)
+                    (!egg && item is ItemEgg || !snowball && item is ItemSnowball || !pearl && item is EnderPearlItem)
                 )
                     return@handler
 

@@ -97,8 +97,8 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
             return@handler
 
         if (isUsingItem || shouldSwap) {
-            if (displayItemInHand.item !is SwordItem && displayItemInHand.item !is ItemBow && (consumeFoodOnly && displayItemInHand.item is ItemFood ||
-                        consumeDrinkOnly && (displayItemInHand.item is ItemPotion || displayItemInHand.item is ItemBucketMilk))
+            if (displayItemInHand.item !is SwordItem && displayItemInHand.item !is BowItem && (consumeFoodOnly && displayItemInHand.item is FoodItem ||
+                        consumeDrinkOnly && (displayItemInHand.item is PotionItem || displayItemInHand.item is BucketItemMilk))
             ) {
                 when (consumeMode) {
                     "AAC5" ->
@@ -134,7 +134,7 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
             }
         }
 
-        if (displayItemInHand.item is ItemBow && (isUsingItem || shouldSwap)) {
+        if (displayItemInHand.item is BowItem && (isUsingItem || shouldSwap)) {
             when (bowPacket) {
                 "AAC5" ->
                     sendPacket(PlayerUseC2SPacket(BlockPos(-1, -1, -1), 255, displayItemInHand, 0f, 0f, 0f))
@@ -218,7 +218,7 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
         // Credit: @ManInMyVan
         // TODO: Not sure how to fix random grim simulation flag. (Seem to only happen in Loyisa).
         if (consumeMode == "Drop") {
-            if (player.displayItemInHand?.item !is ItemFood || !player.isMoving) {
+            if (player.displayItemInHand?.item !is FoodItem || !player.isMoving) {
                 shouldNoSlow = false
                 return@handler
             }
@@ -296,10 +296,10 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
             is PlayerUseC2SPacket -> {
                 if (packet.stack?.item != null && player.displayItemInHand?.item != null && packet.stack.item == player.displayItemInHand?.item) {
                     if ((consumeMode == "UpdatedNCP" && (
-                                packet.stack.item is ItemFood ||
-                                        packet.stack.item is ItemPotion ||
-                                        packet.stack.item is ItemBucketMilk)) ||
-                        (bowPacket == "UpdatedNCP" && packet.stack.item is ItemBow)
+                                packet.stack.item is FoodItem ||
+                                        packet.stack.item is PotionItem ||
+                                        packet.stack.item is BucketItemMilk)) ||
+                        (bowPacket == "UpdatedNCP" && packet.stack.item is BowItem)
                     ) {
                         shouldSwap = true
                     }
@@ -312,8 +312,8 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
         val displayItemInHand = mc.player.displayItemInHand?.item
 
         if (displayItemInHand !is SwordItem) {
-            if (!consumeFoodOnly && displayItemInHand is ItemFood ||
-                !consumeDrinkOnly && (displayItemInHand is ItemPotion || displayItemInHand is ItemBucketMilk)
+            if (!consumeFoodOnly && displayItemInHand is FoodItem ||
+                !consumeDrinkOnly && (displayItemInHand is PotionItem || displayItemInHand is BucketItemMilk)
             ) {
                 return@handler
             }
@@ -327,17 +327,17 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
     }
 
     private fun getMultiplier(item: Item?, isForward: Boolean) = when (item) {
-        is ItemFood, is ItemPotion, is ItemBucketMilk -> if (isForward) consumeForwardMultiplier else consumeStrafeMultiplier
+        is FoodItem, is PotionItem, is BucketItemMilk -> if (isForward) consumeForwardMultiplier else consumeStrafeMultiplier
 
         is SwordItem -> if (isForward) blockForwardMultiplier else blockStrafeMultiplier
 
-        is ItemBow -> if (isForward) bowForwardMultiplier else bowStrafeMultiplier
+        is BowItem -> if (isForward) bowForwardMultiplier else bowStrafeMultiplier
 
         else -> 0.2F
     }
 
     fun isUNCPBlocking() =
-        swordMode == "UpdatedNCP" && mc.gameSettings.keyBindUseItem.isKeyDown && (mc.player.displayItemInHand?.item is SwordItem)
+        swordMode == "UpdatedNCP" && mc.gameOptions.useKey.isKeyDown && (mc.player.displayItemInHand?.item is SwordItem)
 
     fun usingItemFunc() =
         mc.player?.displayItemInHand != null && (mc.player.isUsingItem || (mc.player.displayItemInHand?.item is SwordItem && KillAura.blockStatus) || isUNCPBlocking())

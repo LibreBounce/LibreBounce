@@ -13,7 +13,7 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils;
 import net.minecraft.client.gui.GuiElement;
 import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.util.IChatComponent;
+import net.minecraft.text.Text;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Mouse;
@@ -134,7 +134,7 @@ public abstract class MixinChatScreen extends MixinScreen {
 
         AWTFontRenderer.Companion.setAssumeNonVolatile(false);
 
-        IChatComponent ichatcomponent =
+        Text ichatcomponent =
                 mc.ingameGUI.getChatGUI().getChatComponent(Mouse.getX(), Mouse.getY());
 
         if (ichatcomponent != null)

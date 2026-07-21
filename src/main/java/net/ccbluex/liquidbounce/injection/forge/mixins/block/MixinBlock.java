@@ -20,7 +20,7 @@ import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.living.LivingEntity;
 import net.minecraft.entity.living.player.PlayerEntity;
-import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.WorldView;
@@ -46,7 +46,7 @@ public abstract class MixinBlock {
     protected BlockState blockState;
 
     @Shadow
-    public abstract AxisAlignedBB getCollisionBoundingBox(World worldIn, BlockPos pos, BlockState state);
+    public abstract Box getCollisionBoundingBox(World worldIn, BlockPos pos, BlockState state);
 
     @Shadow
     public abstract void setBlockBounds(float minX, float minY, float minZ, float maxX, float maxY, float maxZ);
@@ -61,8 +61,8 @@ public abstract class MixinBlock {
      * @author CCBlueX
      */
     @Overwrite
-    public void addCollisionBoxesToList(World worldIn, BlockPos pos, BlockState state, AxisAlignedBB mask, List<AxisAlignedBB> list, Entity collidingEntity) {
-        AxisAlignedBB axisalignedbb = getCollisionBoundingBox(worldIn, pos, state);
+    public void addCollisionBoxesToList(World worldIn, BlockPos pos, BlockState state, Box mask, List<Box> list, Entity collidingEntity) {
+        Box axisalignedbb = getCollisionBoundingBox(worldIn, pos, state);
         BlockBBEvent blockBBEvent = new BlockBBEvent(pos, blockState.getBlock(), axisalignedbb);
         EventManager.INSTANCE.call(blockBBEvent);
 

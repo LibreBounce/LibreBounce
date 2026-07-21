@@ -13,7 +13,7 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.block.block
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
-import net.minecraft.block.BlockPane
+import net.minecraft.block.PaneBlock
 import net.minecraft.util.BlockPos
 
 object HighJump : Module("HighJump", Category.MOVEMENT) {
@@ -24,7 +24,7 @@ object HighJump : Module("HighJump", Category.MOVEMENT) {
 
     val onUpdate = handler<UpdateEvent> {
         mc.player?.run {
-            if (glass && BlockPos(mc.player).block !is BlockPane)
+            if (glass && BlockPos(mc.player).block !is PaneBlock)
                 return@handler
 
             when (mode) {
@@ -38,7 +38,7 @@ object HighJump : Module("HighJump", Category.MOVEMENT) {
 
     val onMove = handler<MoveEvent> {
         mc.player?.run {
-            if (glass && BlockPos(mc.player).block !is BlockPane)
+            if (glass && BlockPos(mc.player).block !is PaneBlock)
                 return@handler
 
             if (mode == "Mineplex" && !onGround)
@@ -49,7 +49,7 @@ object HighJump : Module("HighJump", Category.MOVEMENT) {
     val onJump = handler<JumpEvent> { event ->
         val player = mc.player ?: return@handler
 
-        if (glass && BlockPos(player).block !is BlockPane)
+        if (glass && BlockPos(player).block !is PaneBlock)
             return@handler
 
         when (mode) {

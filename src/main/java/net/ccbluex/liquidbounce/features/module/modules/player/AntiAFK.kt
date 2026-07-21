@@ -42,7 +42,7 @@ object AntiAFK : Module("AntiAFK", Category.PLAYER, gameDetecting = false) {
 
         when (mode) {
             "Old" -> {
-                mc.gameSettings.keyBindForward.pressed = true
+                mc.gameOptions.forwardKey.pressed = true
 
                 if (delayTimer.hasTimePassed(500)) {
                     player.fixedSensitivityYaw += 180F
@@ -95,7 +95,7 @@ object AntiAFK : Module("AntiAFK", Category.PLAYER, gameDetecting = false) {
 
             "Custom" -> {
                 if (move)
-                    mc.gameSettings.keyBindForward.pressed = true
+                    mc.gameOptions.forwardKey.pressed = true
 
                 if (jump && player.onGround)
                     player.tryJump()
@@ -117,15 +117,15 @@ object AntiAFK : Module("AntiAFK", Category.PLAYER, gameDetecting = false) {
 
     private val moveKeyBindings =
         arrayOf(
-            mc.gameSettings.keyBindForward,
-            mc.gameSettings.keyBindLeft,
-            mc.gameSettings.keyBindBack,
-            mc.gameSettings.keyBindRight
+            mc.gameOptions.forwardKey,
+            mc.gameOptions.leftKey,
+            mc.gameOptions.backKey,
+            mc.gameOptions.rightKey
         )
 
     private fun getRandomMoveKeyBind() = moveKeyBindings.random()
 
     override fun onDisable() {
-        mc.gameSettings.keyBindForward.pressed = GameOptions.isKeyDown(mc.gameSettings.keyBindForward)
+        mc.gameOptions.forwardKey.pressed = GameOptions.isKeyDown(mc.gameOptions.forwardKey)
     }
 }

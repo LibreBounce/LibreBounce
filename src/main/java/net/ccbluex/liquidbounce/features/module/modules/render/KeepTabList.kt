@@ -16,10 +16,10 @@ object KeepTabList : Module("KeepTabList", Category.RENDER, gameDetecting = fals
     val onUpdate = handler<UpdateEvent> {
         if (mc.player == null || mc.world == null) return@handler
 
-        mc.gameSettings.keyBindPlayerList.pressed = true
+        mc.gameOptions.keyBindPlayerList.pressed = true
     }
 
     override fun onDisable() {
-        mc.gameSettings.keyBindPlayerList.pressed = GameOptions.isKeyDown(mc.gameSettings.keyBindPlayerList)
+        mc.gameOptions.keyBindPlayerList.pressed = GameOptions.isKeyDown(mc.gameOptions.keyBindPlayerList)
     }
 }
