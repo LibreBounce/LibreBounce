@@ -8,7 +8,7 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalk.mod
 import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalk.modes.LiquidWalkMode
 import net.ccbluex.liquidbounce.utils.block.block
 import net.minecraft.init.Blocks
-import net.minecraft.util.BlockPos
+import net.minecraft.util.math.BlockPos
 
 object AAC3311 : LiquidWalkMode("AAC3.3.11") {
     override fun onUpdate() {

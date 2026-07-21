@@ -16,7 +16,7 @@ import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.minecraft.block.LadderBlock
 import net.minecraft.block.VineBlock
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.Position
-import net.minecraft.util.BlockPos
+import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
 
 object FastClimb : Module("FastClimb", Category.MOVEMENT) {

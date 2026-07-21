@@ -14,7 +14,7 @@ import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.minecraft.init.Blocks
 import net.minecraft.init.Blocks.ice
 import net.minecraft.init.Blocks.packed_ice
-import net.minecraft.util.BlockPos
+import net.minecraft.util.math.BlockPos
 
 object IceSpeed : Module("IceSpeed", Category.MOVEMENT) {
     private val mode by choices("Mode", arrayOf("Vanilla", "NCP", "AAC", "Spartan"), "NCP")

@@ -21,8 +21,9 @@ import net.minecraft.client.entity.living.player.LocalClientPlayerEntity;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.texture.DynamicTexture;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityFilter;
 import net.minecraft.entity.living.LivingEntity;
-import net.minecraft.entity.ItemEntityFrame;
+import net.minecraft.entity.decoration.ItemFrameEntity;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.*;
 import net.minecraft.world.World;
@@ -175,7 +176,7 @@ public abstract class MixinGameRenderer {
 
             pointedEntity = null;
             Vec3d vec33 = null;
-            List<Entity> list = mc.world.getEntities(Entity.class, Predicates.and(EntitySelectors.NOT_SPECTATING, p_apply_1_ -> p_apply_1_ != null && p_apply_1_.canBeCollidedWith() && p_apply_1_ != entity));
+            List<Entity> list = mc.world.getEntities(Entity.class, Predicates.and(EntityFilter.NOT_SPECTATING, p_apply_1_ -> p_apply_1_ != null && p_apply_1_.canBeCollidedWith() && p_apply_1_ != entity));
             double d2 = d1;
 
             for (Entity entity1 : list) {
@@ -222,7 +223,7 @@ public abstract class MixinGameRenderer {
 
             if (pointedEntity != null && (d2 < d1 || mc.objectMouseOver == null)) {
                 mc.objectMouseOver = new HitResult(pointedEntity, vec33);
-                if (pointedEntity instanceof LivingEntity || pointedEntity instanceof ItemEntityFrame) {
+                if (pointedEntity instanceof LivingEntity || pointedEntity instanceof ItemFrameEntity) {
                     mc.pointedEntity = pointedEntity;
                 }
             }

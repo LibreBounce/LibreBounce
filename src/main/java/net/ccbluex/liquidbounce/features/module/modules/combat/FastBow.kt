@@ -17,7 +17,7 @@ import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.Angles
 import net.minecraft.network.packet.c2s.play.PlayerHandActionC2SPacket
 import net.minecraft.network.packet.c2s.play.PlayerHandActionC2SPacket.Action.RELEASE_USE_ITEM
 import net.minecraft.network.packet.c2s.play.PlayerUseC2SPacket
-import net.minecraft.util.BlockPos
+import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
 
 object FastBow : Module("FastBow", Category.COMBAT) {

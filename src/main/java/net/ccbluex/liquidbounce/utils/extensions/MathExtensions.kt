@@ -81,11 +81,11 @@ fun Vec3i.manhattanDistance(another: Vec3i): Int {
 
 fun Vec3i.copy(x: Int = this.x, y: Int = this.y, z: Int = this.z) = Vec3i(x, y, z)
 fun BlockPos.copy(x: Int = this.x, y: Int = this.y, z: Int = this.z) = BlockPos(x, y, z)
-fun BlockPos.MutableBlockPos.copy(x: Int = this.x, y: Int = this.y, z: Int = this.z) = BlockPos.MutableBlockPos(x, y, z)
+fun BlockPos.Mutable.copy(x: Int = this.x, y: Int = this.y, z: Int = this.z) = BlockPos.Mutable(x, y, z)
 fun Vec3d.copy(x: Double = this.xCoord, y: Double = this.yCoord, z: Double = this.zCoord) = Vec3d(x, y, z)
 
 fun BlockPos.immutableCopy() = BlockPos(x, y, z)
-fun BlockPos.mutableCopy() = BlockPos.MutableBlockPos(x, y, z)
+fun BlockPos.mutableCopy() = BlockPos.Mutable(x, y, z)
 
 fun Vec3d.offset(direction: Direction, value: Double): Vec3d {
     val vec3i = direction.directionVec

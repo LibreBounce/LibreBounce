@@ -14,7 +14,7 @@ import net.minecraft.block.BlockStainedGlass
 import net.minecraft.block.state.BlockState
 import net.minecraft.init.Blocks.*
 import net.minecraft.util.math.Box
-import net.minecraft.util.BlockPos
+import net.minecraft.util.math.BlockPos
 import net.minecraft.resource.Identifier
 
 typealias Collidable = (Block?) -> Boolean
@@ -82,7 +82,7 @@ object BlockUtils : MinecraftInstance {
 
         val blocks = mutableMapOf<BlockPos, Block>()
 
-        val mutable = BlockPos.MutableBlockPos(0, 0, 0)
+        val mutable = BlockPos.Mutable(0, 0, 0)
 
         for (x in radius downTo -radius + 1) {
             for (y in radius downTo -radius + 1) {
@@ -115,7 +115,7 @@ object BlockUtils : MinecraftInstance {
         val player = mc.player
 
         val y = axisAlignedBB.minY.toInt()
-        val mutable = BlockPos.MutableBlockPos(0, 0, 0)
+        val mutable = BlockPos.Mutable(0, 0, 0)
         for (x in player.shape.minX.toInt() until player.shape.maxX.toInt() + 1) {
             for (z in player.shape.minZ.toInt() until player.shape.maxZ.toInt() + 1) {
                 val blockPos = mutable.set(x, y, z)
@@ -136,7 +136,7 @@ object BlockUtils : MinecraftInstance {
         val player = mc.player
 
         val y = axisAlignedBB.minY.toInt()
-        val mutable = BlockPos.MutableBlockPos(0, 0, 0)
+        val mutable = BlockPos.Mutable(0, 0, 0)
         for (x in player.shape.minX.toInt() until player.shape.maxX.toInt() + 1) {
             for (z in player.shape.minZ.toInt() until player.shape.maxZ.toInt() + 1) {
                 val blockPos = mutable.set(x, y, z)

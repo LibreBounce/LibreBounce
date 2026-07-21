@@ -25,7 +25,7 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.GlowShader
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.isEntityHeightVisible
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher
-import net.minecraft.entity.item.EntityMinecartChest
+import net.minecraft.entity.vehicle.MinecartChestEntity
 import net.minecraft.tileentity.*
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
@@ -183,7 +183,7 @@ object StorageESP : Module("StorageESP", Category.RENDER) {
                 )
 
                 if (distanceSquared <= maxRenderDistanceSq) {
-                    if (entity is EntityMinecartChest) {
+                    if (entity is MinecartChestEntity) {
                         if (onLook && !isLookingOnEntities(entity, maxAngleDifference.toDouble()))
                             continue
 

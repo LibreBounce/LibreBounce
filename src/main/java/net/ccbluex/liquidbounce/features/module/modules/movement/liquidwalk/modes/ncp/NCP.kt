@@ -9,7 +9,7 @@ import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.BlockBBEvent
 import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalk.modes.LiquidWalkMode
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.collideBlock
-import net.minecraft.block.BlockLiquid
+import net.minecraft.block.LiquidBlock
 import net.minecraft.block.material.Material
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 import net.minecraft.util.math.Box.fromBounds
@@ -19,14 +19,14 @@ object NCP : LiquidWalkMode("NCP") {
 
     override fun onUpdate() {
         mc.player?.run {
-            if (!isSneaking && collideBlock(shape) { it is BlockLiquid } && isInsideOfMaterial(Material.air))
+            if (!isSneaking && collideBlock(shape) { it is LiquidBlock } && isInsideOfMaterial(Material.air))
                 motionY = 0.08
         }
     }
 
     override fun onBB(event: BlockBBEvent) {
         mc.player?.run {
-            if (event.block is BlockLiquid && !collideBlock(shape) { it is BlockLiquid } && !isSneaking) {
+            if (event.block is LiquidBlock && !collideBlock(shape) { it is LiquidBlock } && !isSneaking) {
                 event.boundingBox = fromBounds(
                     event.x.toDouble(),
                     event.y.toDouble(),
@@ -53,7 +53,7 @@ object NCP : LiquidWalkMode("NCP") {
                         shape.minY - 0.01,
                         shape.minZ
                     )
-                ) { it is BlockLiquid }
+                ) { it is LiquidBlock }
             ) {
                 nextTick = !nextTick
                 if (nextTick) event.packet.y -= 0.001

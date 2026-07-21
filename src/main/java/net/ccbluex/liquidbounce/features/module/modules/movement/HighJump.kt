@@ -14,7 +14,7 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.block.block
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 import net.minecraft.block.PaneBlock
-import net.minecraft.util.BlockPos
+import net.minecraft.util.math.BlockPos
 
 object HighJump : Module("HighJump", Category.MOVEMENT) {
     private val mode by choices("Mode", arrayOf("Vanilla", "Damage", "AACv3", "DAC", "Mineplex"), "Vanilla")

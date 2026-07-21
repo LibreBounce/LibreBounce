@@ -11,7 +11,7 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.collideBlock
-import net.minecraft.block.BlockLiquid
+import net.minecraft.block.LiquidBlock
 import net.minecraft.util.math.Box
 
 object ReverseStep : Module("ReverseStep", Category.MOVEMENT) {
@@ -30,7 +30,7 @@ object ReverseStep : Module("ReverseStep", Category.MOVEMENT) {
             if (!handleEvents())
                 return@handler
 
-            if (collideBlock(shape) { it is BlockLiquid } ||
+            if (collideBlock(shape) { it is LiquidBlock } ||
                 collideBlock(
                     Box.fromBounds(
                         shape.maxX,
@@ -41,7 +41,7 @@ object ReverseStep : Module("ReverseStep", Category.MOVEMENT) {
                         shape.minZ
                     )
                 ) {
-                    it is BlockLiquid
+                    it is LiquidBlock
                 }) return@handler
 
             if (!mc.gameOptions.jumpKey.isKeyDown && !onGround && !input.jump && motionY <= 0.0 && fallDistance <= 1f && !jumped)

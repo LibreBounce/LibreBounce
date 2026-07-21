@@ -26,8 +26,8 @@ import net.minecraft.client.entity.living.player.LocalClientPlayerEntity;
 import net.minecraft.entity.living.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
-import net.minecraft.potion.PotionEffect;
-import net.minecraft.util.BlockPos;
+import net.minecraft.entity.living.effect.StatusEffectInstance;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Mixin;
@@ -51,7 +51,7 @@ public abstract class MixinLivingEntity extends MixinEntity {
     protected abstract float getJumpUpwardsMotion();
 
     @Shadow
-    public abstract PotionEffect getActivePotionEffect(Potion potionIn);
+    public abstract StatusEffectInstance getActivePotionEffect(Potion potionIn);
 
     @Shadow
     public abstract boolean hasStatusEffect(Potion potionIn);

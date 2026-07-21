@@ -18,24 +18,26 @@ import net.minecraft.client.entity.living.player.LocalClientPlayerEntity
 import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.enchantment.ProtectionEnchantment
 import net.minecraft.entity.Entity
+import net.minecraft.entity.EntityFilter
 import net.minecraft.entity.living.LivingEntity
 import net.minecraft.entity.living.attribute.EntityAttributes
-import net.minecraft.entity.ai.attributes.BaseAttributeMap
-import net.minecraft.entity.ai.attributes.IAttribute
-import net.minecraft.entity.ai.attributes.IAttributeInstance
-import net.minecraft.entity.ai.attributes.ServersideAttributeMap
-import net.minecraft.entity.item.EntityBoat
-import net.minecraft.entity.item.EntityMinecart
+import net.minecraft.entity.living.attribute.AbstractEntityAttributeContainer
+import net.minecraft.entity.living.attribute.EntityAttribute
+import net.minecraft.entity.living.attribute.EntityAttributeInstance
+import net.minecraft.entity.living.attribute.EntityAttributeContainer
+import net.minecraft.entity.vehicle.BoatEntity
+import net.minecraft.entity.vehicle.MinecartEntity
 import net.minecraft.entity.living.player.PlayerAbilities
 import net.minecraft.init.Blocks.stone
 import net.minecraft.init.Blocks.ladder
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.potion.Potion
-import net.minecraft.potion.PotionEffect
+import net.minecraft.entity.living.effect.StatusEffectInstance
 import net.minecraft.util.*
-import net.minecraft.util.BlockPos.MutableBlockPos
+import net.minecraft.util.math.MathHelper
+import net.minecraft.util.math.BlockPos.Mutable
 import net.minecraft.world.World
-import net.minecraft.world.biome.BiomeGenBase
+import net.minecraft.world.biome.Biome
 import net.minecraft.world.border.WorldBorder
 import net.minecraft.world.chunk.Chunk
 import net.minecraft.world.chunk.IChunkProvider
@@ -79,7 +81,7 @@ class SimulatedPlayer(
     private val chunkProvider: IChunkProvider,
     private var isOutsideBorder: Boolean,
     private var riddenByEntity: Entity?,
-    private var attributeMap: BaseAttributeMap?,
+    private var attributeMap: AbstractEntityAttributeContainer?,
     private val isSpectator: Boolean,
     var fallDistance: Float,
     private val stepHeight: Float,
@@ -895,7 +897,7 @@ class SimulatedPlayer(
         } else {
             var flag = false
             var vec3 = Vec3d(0.0, 0.0, 0.0)
-            val blockPos = MutableBlockPos()
+            val blockPos = Mutable()
             for (k1 in i until j) {
                 for (l1 in k until l) {
                     for (i2 in i1 until j1) {
@@ -905,8 +907,8 @@ class SimulatedPlayer(
                         // val result = null
                         // ^^ block.isEntityInsideMaterial(worldObj, blockPos, state, player, l.toDouble(), material, false) always null
                         if (block.material === material) {
-                            val d0 = ((l1 + 1).toFloat() - BlockLiquid.getLiquidHeightPercent((state.getValue(
-                                BlockLiquid.LEVEL
+                            val d0 = ((l1 + 1).toFloat() - LiquidBlock.getLiquidHeightPercent((state.getValue(
+                                LiquidBlock.LEVEL
                             ) as Int)
                             )).toDouble()
 
@@ -1025,7 +1027,7 @@ class SimulatedPlayer(
         return player.getActivePotionEffect(potion) != null
     }
 
-    fun getActivePotionEffect(potion: Potion): PotionEffect {
+    fun getActivePotionEffect(potion: Potion): StatusEffectInstance {
         return player.getActivePotionEffect(potion)
     }
 
@@ -1083,7 +1085,7 @@ class SimulatedPlayer(
         val flag = this.isOutsideBorder
         val flag1 = isInsideBorder(worldborder, flag)
         val iblockstate = stone.defaultState
-        val blockPos = MutableBlockPos()
+        val blockPos = Mutable()
 
         for (k1 in i until j) {
             for (l1 in i1 until j1) {
@@ -1189,7 +1191,7 @@ class SimulatedPlayer(
     private fun getEntitiesWithinAABBExcludingEntity(entity: Entity, box: Box): List<Entity> {
         return this.getEntitiesInAABBexcluding(entity,
             box,
-            EntitySelectors.NOT_SPECTATING
+            EntityFilter.NOT_SPECTATING
         )
     }
 
@@ -1213,8 +1215,8 @@ class SimulatedPlayer(
 
     private fun getCollisionBox(player: Entity, entity: Entity): Box? {
         return when (entity) {
-            is EntityBoat -> entity.shape
-            is EntityMinecart -> player.getCollisionBox(entity)
+            is BoatEntity -> entity.shape
+            is MinecartEntity -> player.getCollisionBox(entity)
             else -> null
         }
     }
@@ -1223,13 +1225,13 @@ class SimulatedPlayer(
         return this.getEntityAttribute(EntityAttributes.movementSpeed).attributeValue.toFloat()
     }
 
-    private fun getEntityAttribute(iAttribute: IAttribute?): IAttributeInstance {
+    private fun getEntityAttribute(iAttribute: EntityAttribute?): EntityAttributeInstance {
         return this.getAttributeMap().getAttributeInstance(iAttribute)
     }
 
-    private fun getAttributeMap(): BaseAttributeMap {
+    private fun getAttributeMap(): AbstractEntityAttributeContainer {
         if (this.attributeMap == null)
-            this.attributeMap = ServersideAttributeMap()
+            this.attributeMap = EntityAttributeContainer()
 
         return this.attributeMap!!
     }
@@ -1291,7 +1293,7 @@ class SimulatedPlayer(
         } else if (worldObj.getPrecipitationHeight(pos).y > pos.y) {
             false
         } else {
-            val base: BiomeGenBase = worldObj.getBiomeGenForCoords(pos)
+            val base: Biome = worldObj.getBiomeGenForCoords(pos)
 
             if (base.enableSnow) false else if (worldObj.canSnowAt(pos, false)) false else base.canRain()
         }

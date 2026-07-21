@@ -36,7 +36,7 @@ import net.minecraft.item.ItemStack
 import net.minecraft.network.packet.c2s.play.ArmSwingC2SPacket
 import net.minecraft.network.packet.c2s.play.PlayerUseC2SPacket
 import net.minecraft.util.math.Box
-import net.minecraft.util.BlockPos
+import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
 import net.minecraft.util.math.Vec3d
 import net.minecraftforge.event.ForgeEventFactory
@@ -52,7 +52,7 @@ fun LocalClientPlayerEntity.isNearEdge(threshold: Float): Boolean {
     val playerPos = Vec3d(posX, posY, posZ)
     val blockPos = BlockPos(playerPos)
 
-    val mutable = BlockPos.MutableBlockPos()
+    val mutable = BlockPos.Mutable()
     for (x in -3..3) {
         for (z in -3..3) {
             val checkPos = mutable.set(blockPos, x, -1, z)

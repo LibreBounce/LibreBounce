@@ -15,11 +15,11 @@ import net.ccbluex.liquidbounce.utils.extensions.plus
 import net.ccbluex.liquidbounce.utils.extensions.times
 import net.minecraft.entity.Entity
 import net.minecraft.entity.living.LivingEntity
-import net.minecraft.entity.ItemEntityFrame
+import net.minecraft.entity.decoration.ItemFrameEntity
 import net.minecraft.entity.living.player.PlayerEntity
-import net.minecraft.entity.projectile.EntityLargeFireball
+import net.minecraft.entity.projectile.FireballEntity
 import net.minecraft.util.math.Box
-import net.minecraft.util.BlockPos
+import net.minecraft.util.math.BlockPos
 import net.minecraft.world.HitResult
 import net.minecraft.util.math.Vec3d
 import java.util.*
@@ -43,7 +43,7 @@ object RaycastUtils : MinecraftInstance {
         val vec = eyePosition + (entityLook * blockReachDistance)
 
         val entityList = mc.world.getEntities(Entity::class.java) {
-            it != null && (it is LivingEntity || it is EntityLargeFireball) && (it !is PlayerEntity || !it.isSpectator) && it.canBeCollidedWith() && it != renderViewEntity
+            it != null && (it is LivingEntity || it is FireballEntity) && (it !is PlayerEntity || !it.isSpectator) && it.canBeCollidedWith() && it != renderViewEntity
         }
 
         var pointedEntity: Entity? = null
@@ -191,7 +191,7 @@ object RaycastUtils : MinecraftInstance {
             if (pointedEntity != null && (d2 < d1 || mc.objectMouseOver == null)) {
                 mc.objectMouseOver = HitResult(pointedEntity, vec33)
 
-                if (pointedEntity is LivingEntity || pointedEntity is ItemEntityFrame) {
+                if (pointedEntity is LivingEntity || pointedEntity is ItemFrameEntity) {
                     mc.pointedEntity = pointedEntity
                 }
             }

@@ -18,7 +18,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Box;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -241,7 +241,7 @@ public abstract class MixinEntity implements IMixinEntity {
             callbackInfoReturnable.setReturnValue(0.1F + hitBox.determineSize((Entity) (Object) this));
     }
 
-    @Redirect(method = "setAngles", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/MathHelper;clamp_float(FFF)F"))
+    @Redirect(method = "setAngles", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/MathHelper;clamp_float(FFF)F"))
     private float setAngles(float a, float min, float max) {
         return NoPitchLimit.INSTANCE.handleEvents() ? a : MathHelper.clamp_float(a, min, max);
     }

@@ -27,7 +27,7 @@ import net.minecraft.network.packet.s2c.play.InventoryMenuSlotContentS2CPacket
 import net.minecraft.network.packet.c2s.query.ServerStatusC2SPacket
 import net.minecraft.network.packet.c2s.query.PingC2SPacket
 import net.minecraft.network.packet.s2c.query.PingS2CPacket
-import net.minecraft.util.BlockPos
+import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
 
 object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {

@@ -18,7 +18,7 @@ import net.ccbluex.liquidbounce.utils.block.id
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBlockBox
 import net.minecraft.block.Block
 import net.minecraft.init.Blocks.*
-import net.minecraft.util.BlockPos
+import net.minecraft.util.math.BlockPos
 import java.awt.Color
 
 object BedProtectionESP : Module("BedProtectionESP", Category.RENDER) {

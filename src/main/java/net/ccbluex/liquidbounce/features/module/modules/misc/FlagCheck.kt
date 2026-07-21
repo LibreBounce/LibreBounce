@@ -23,7 +23,7 @@ import net.minecraft.network.packet.s2c.login.LoginFailS2CPacket
 import net.minecraft.network.packet.c2s.play.PlayerUseC2SPacket
 import net.minecraft.network.packet.s2c.play.LoginS2CPacket
 import net.minecraft.network.packet.s2c.play.PlayerMoveS2CPacket
-import net.minecraft.util.BlockPos
+import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 import org.lwjgl.opengl.GL11.*
 import kotlin.math.abs

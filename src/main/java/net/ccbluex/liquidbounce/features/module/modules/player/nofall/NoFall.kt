@@ -16,9 +16,9 @@ import net.ccbluex.liquidbounce.features.module.modules.player.nofall.modes.othe
 import net.ccbluex.liquidbounce.features.module.modules.player.nofall.modes.other.Blink
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.collideBlock
 import net.ccbluex.liquidbounce.utils.rotation.AlwaysRotationSettings
-import net.minecraft.block.BlockLiquid
+import net.minecraft.block.LiquidBlock
 import net.minecraft.util.math.Box.fromBounds
-import net.minecraft.util.BlockPos
+import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 import kotlin.math.max
 
@@ -109,7 +109,7 @@ object NoFall : Module("NoFall", Category.PLAYER) {
     val onUpdate = handler<UpdateEvent> {
         val player = mc.player
 
-        if (collideBlock(player.shape) { it is BlockLiquid } || collideBlock(
+        if (collideBlock(player.shape) { it is LiquidBlock } || collideBlock(
                 fromBounds(
                     player.shape.maxX,
                     player.shape.maxY,
@@ -118,7 +118,7 @@ object NoFall : Module("NoFall", Category.PLAYER) {
                     player.shape.minY - 0.01,
                     player.shape.minZ
                 )
-            ) { it is BlockLiquid }
+            ) { it is LiquidBlock }
         ) return@handler
 
         modeModule.onUpdate()
@@ -156,7 +156,7 @@ object NoFall : Module("NoFall", Category.PLAYER) {
     val onMove = handler<MoveEvent> {
         val player = mc.player
 
-        if (collideBlock(player.shape) { it is BlockLiquid }
+        if (collideBlock(player.shape) { it is LiquidBlock }
             || collideBlock(
                 fromBounds(
                     player.shape.maxX,
@@ -166,7 +166,7 @@ object NoFall : Module("NoFall", Category.PLAYER) {
                     player.shape.minY - 0.01,
                     player.shape.minZ
                 )
-            ) { it is BlockLiquid }
+            ) { it is LiquidBlock }
         ) return@handler
 
         modeModule.onMove(it)

@@ -3,7 +3,7 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.block;
 import net.minecraft.block.AnvilBlock;
 import net.minecraft.block.state.BlockState;
 import net.minecraft.entity.living.LivingEntity;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;

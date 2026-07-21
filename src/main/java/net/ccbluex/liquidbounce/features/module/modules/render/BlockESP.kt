@@ -23,7 +23,7 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.draw2D
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBlockBox
 import net.minecraft.block.Block.getBlockById
 import net.minecraft.init.Blocks.air
-import net.minecraft.util.BlockPos
+import net.minecraft.util.math.BlockPos
 import java.awt.Color
 import java.util.concurrent.ConcurrentHashMap
 

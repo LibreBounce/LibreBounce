@@ -38,7 +38,7 @@ import net.minecraft.client.gui.GuiElement
 import net.minecraft.client.render.platform.GlStateManager.resetColor
 import net.minecraft.init.Blocks.bed
 import net.minecraft.item.ItemStack
-import net.minecraft.util.BlockPos
+import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 import org.lwjgl.opengl.GL11.*
 import java.util.*
@@ -127,8 +127,8 @@ object BedPlates : Module("BedPlates", Category.RENDER) {
 
         val maxLayers = maxLayers
 
-        val from = BlockPos.MutableBlockPos()
-        val to = BlockPos.MutableBlockPos()
+        val from = BlockPos.Mutable()
+        val to = BlockPos.Mutable()
 
         searchCenter.getAllInBoxMutable(radius).forEach {
             if (searchCenter.distanceSq(it) > radiusSq)

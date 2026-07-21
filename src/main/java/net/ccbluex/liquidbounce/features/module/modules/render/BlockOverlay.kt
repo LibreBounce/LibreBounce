@@ -23,7 +23,7 @@ import net.minecraft.client.render.platform.GlStateManager.resetColor
 import net.minecraft.init.Blocks.air
 import net.minecraft.init.Blocks.lava
 import net.minecraft.init.Blocks.water
-import net.minecraft.util.BlockPos
+import net.minecraft.util.math.BlockPos
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 

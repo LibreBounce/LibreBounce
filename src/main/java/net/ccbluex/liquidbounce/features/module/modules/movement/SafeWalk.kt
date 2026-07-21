@@ -12,7 +12,7 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.block.block
 import net.ccbluex.liquidbounce.utils.movement.FallingPlayer
 import net.minecraft.block.AirBlock
-import net.minecraft.util.BlockPos
+import net.minecraft.util.math.BlockPos
 
 object SafeWalk : Module("SafeWalk", Category.MOVEMENT) {
 

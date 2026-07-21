@@ -25,7 +25,7 @@ import net.ccbluex.liquidbounce.utils.rotation.Rotation
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils
 import net.ccbluex.liquidbounce.utils.timing.TickedActions.nextTick
 import net.minecraft.item.Items
-import net.minecraft.util.BlockPos
+import net.minecraft.util.math.BlockPos
 
 object Fireball : FlyMode("Fireball") {
 

@@ -20,7 +20,7 @@ import net.minecraft.network.Packet
 import net.minecraft.client.network.handler.ClientPlayPacketHandler
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 import net.minecraft.network.packet.s2c.play.*
-import net.minecraft.util.BlockPos
+import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock

@@ -21,7 +21,7 @@ import net.minecraft.block.SlimeBlock
 import net.minecraft.block.StairsBlock
 import net.minecraft.init.Blocks.*
 import net.minecraft.network.packet.s2c.play.PlayerMoveS2CPacket
-import net.minecraft.util.BlockPos
+import net.minecraft.util.math.BlockPos
 
 object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT) {
     private val speedLimit by boolean("SpeedLimit", true)

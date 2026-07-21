@@ -21,7 +21,7 @@ import net.ccbluex.liquidbounce.utils.timing.TickTimer
 import net.minecraft.init.Blocks.air
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.Position
 import net.minecraft.stats.StatList
-import net.minecraft.util.BlockPos
+import net.minecraft.util.math.BlockPos
 import kotlin.math.truncate
 
 object Tower : Configurable("Tower"), MinecraftInstance, Listenable {

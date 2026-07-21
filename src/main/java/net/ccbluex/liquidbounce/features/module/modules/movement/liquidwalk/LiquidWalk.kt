@@ -16,8 +16,8 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalk.mode
 import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalk.modes.other.Spartan
 import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalk.modes.other.Dolphin
 import net.ccbluex.liquidbounce.utils.block.block
-import net.minecraft.block.BlockLiquid
-import net.minecraft.util.BlockPos
+import net.minecraft.block.LiquidBlock
+import net.minecraft.util.math.BlockPos
 import org.lwjgl.input.Keyboard
 
 object LiquidWalk : Module("LiquidWalk", Category.MOVEMENT, Keyboard.KEY_J) {
@@ -68,7 +68,7 @@ object LiquidWalk : Module("LiquidWalk", Category.MOVEMENT, Keyboard.KEY_J) {
         mc.player?.run {
             val block = BlockPos(posX, posY - 0.01, posZ).block
 
-            if (noJump && block is BlockLiquid)
+            if (noJump && block is LiquidBlock)
                 event.cancelEvent()
         }
     }

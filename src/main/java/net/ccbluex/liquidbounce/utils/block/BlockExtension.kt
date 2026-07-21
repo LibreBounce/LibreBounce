@@ -13,7 +13,7 @@ import net.minecraft.block.*
 import net.minecraft.block.material.Material
 import net.minecraft.block.state.BlockState
 import net.minecraft.entity.item.EntityFallingBlock
-import net.minecraft.util.BlockPos
+import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 import net.minecraft.util.math.Vec3di
 
@@ -60,7 +60,7 @@ val Int.blockById: Block
 val String.blockByName: Block?
     get() = Block.getBlockFromName(this)
 
-fun BlockPos.MutableBlockPos.set(vec3i: Vec3i, xOffset: Int = 0, yOffset: Int = 0, zOffset: Int = 0): BlockPos.MutableBlockPos =
+fun BlockPos.Mutable.set(vec3i: Vec3i, xOffset: Int = 0, yOffset: Int = 0, zOffset: Int = 0): BlockPos.Mutable =
     set(vec3i.x + xOffset, vec3i.y + yOffset, vec3i.z + zOffset)
 
 fun BlockPos.getAllInBoxMutable(radius: Int): Iterable<BlockPos> {

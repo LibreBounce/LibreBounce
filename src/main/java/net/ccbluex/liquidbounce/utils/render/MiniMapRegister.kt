@@ -10,7 +10,7 @@ import net.ccbluex.liquidbounce.event.Render2DEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.minecraft.client.render.texture.DynamicTexture
-import net.minecraft.util.BlockPos
+import net.minecraft.util.math.BlockPos
 import net.minecraft.world.chunk.Chunk
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.concurrent.read
@@ -79,7 +79,7 @@ object MiniMapRegister : MinecraftInstance, Listenable {
         fun updateChunkData(chunk: Chunk) {
             val rgbValues = texture.textureData
 
-            val pos = BlockPos.MutableBlockPos()
+            val pos = BlockPos.Mutable()
             for (x in 0..15) {
                 for (z in 0..15) {
                     val bp = pos.set(x, chunk.getHeightValue(x, z) - 1, z)

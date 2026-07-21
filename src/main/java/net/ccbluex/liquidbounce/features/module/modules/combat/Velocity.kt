@@ -33,7 +33,7 @@ import net.minecraft.network.packet.s2c.play.EntityVelocityS2CPacket
 import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket
 import net.minecraft.network.packet.s2c.play.InventoryMenuConfirmS2CPacket
 import net.minecraft.util.math.Box
-import net.minecraft.util.BlockPos
+import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction.DOWN
 import kotlin.collections.component1
 import kotlin.collections.component2

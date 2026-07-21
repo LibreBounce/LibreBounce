@@ -35,7 +35,7 @@ import net.minecraft.crash.CrashReport;
 import net.minecraft.entity.living.player.PlayerInventory;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.HitResult;
 import net.minecraft.util.Util;
 import net.minecraftforge.fml.relauncher.Side;

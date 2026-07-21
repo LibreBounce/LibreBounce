@@ -11,7 +11,7 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.minecraft.potion.Potion
-import net.minecraft.potion.PotionEffect
+import net.minecraft.entity.living.effect.StatusEffectInstance
 
 object Fullbright : Module("Fullbright", Category.RENDER, gameDetecting = false) {
     private val mode by choices("Mode", arrayOf("Gamma", "NightVision"), "Gamma")

@@ -7,8 +7,8 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalk.mod
 
 import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalk.modes.LiquidWalkMode
 import net.ccbluex.liquidbounce.utils.block.block
-import net.minecraft.block.BlockLiquid
-import net.minecraft.util.BlockPos
+import net.minecraft.block.LiquidBlock
+import net.minecraft.util.math.BlockPos
 
 object Spartan : LiquidWalkMode("Spartan") {
     override fun onUpdate() {
@@ -24,9 +24,9 @@ object Spartan : LiquidWalkMode("Spartan") {
                 val block = BlockPos(this).up().block
                 val blockUp = BlockPos(posX, posY + 1.1, posZ).block
 
-                if (blockUp is BlockLiquid) {
+                if (blockUp is LiquidBlock) {
                     motionY = 0.1
-                } else if (block is BlockLiquid) {
+                } else if (block is LiquidBlock) {
                     motionY = 0.0
                 }
 

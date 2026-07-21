@@ -34,7 +34,7 @@ import net.minecraft.init.Blocks.air
 import net.minecraft.network.packet.c2s.play.PlayerHandActionC2SPacket
 import net.minecraft.network.packet.c2s.play.PlayerHandActionC2SPacket.Action.*
 import net.minecraft.network.packet.s2c.play.PlayerMoveS2CPacket
-import net.minecraft.util.BlockPos
+import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
 import net.minecraft.util.math.Vec3d
 import java.awt.Color
@@ -319,7 +319,7 @@ object Fucker : Module("Fucker", Category.WORLD) {
     private fun find(targetID: Int): BlockPos? {
         val eyes = mc.player?.eyes ?: return null
         var nearestBlockDistanceSq = Double.MAX_VALUE
-        val nearestBlock = BlockPos.MutableBlockPos()
+        val nearestBlock = BlockPos.Mutable()
         val rangeSq = range * range
 
         eyes.getAllInBoxMutable(range + 1.0).forEach {

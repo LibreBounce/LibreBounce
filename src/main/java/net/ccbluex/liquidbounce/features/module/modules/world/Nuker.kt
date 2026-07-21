@@ -23,14 +23,14 @@ import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.faceBlock
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.setTargetRotation
 import net.ccbluex.liquidbounce.utils.timing.TickDelayTimer
 import net.minecraft.block.Block
-import net.minecraft.block.BlockLiquid
+import net.minecraft.block.LiquidBlock
 import net.minecraft.init.Blocks.air
 import net.minecraft.init.Blocks.bedrock
 import net.minecraft.item.SwordItem
 import net.minecraft.network.packet.c2s.play.PlayerHandActionC2SPacket
 import net.minecraft.network.packet.c2s.play.PlayerHandActionC2SPacket.Action.START_DESTROY_BLOCK
 import net.minecraft.network.packet.c2s.play.PlayerHandActionC2SPacket.Action.STOP_DESTROY_BLOCK
-import net.minecraft.util.BlockPos
+import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
 import java.awt.Color
 import kotlin.math.roundToInt
@@ -254,6 +254,6 @@ object Nuker : Module("Nuker", Category.WORLD, gameDetecting = false) {
     /**
      * Check if [block] is a valid block to break
      */
-    private fun validBlock(block: Block) = block != air && block !is BlockLiquid && block != bedrock
+    private fun validBlock(block: Block) = block != air && block !is LiquidBlock && block != bedrock
 
 }

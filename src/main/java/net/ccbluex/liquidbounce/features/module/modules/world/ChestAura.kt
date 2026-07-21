@@ -38,7 +38,7 @@ import net.minecraft.network.packet.s2c.play.TitlesS2CPacket
 import net.minecraft.tileentity.TileEntity
 import net.minecraft.tileentity.TileEntityChest
 import net.minecraft.tileentity.TileEntityEnderChest
-import net.minecraft.util.BlockPos
+import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols

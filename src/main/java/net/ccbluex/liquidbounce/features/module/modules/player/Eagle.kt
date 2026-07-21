@@ -14,7 +14,7 @@ import net.ccbluex.liquidbounce.utils.timing.TickDelayTimer
 import net.minecraft.client.options.GameOptions
 import net.minecraft.init.Blocks.air
 import net.minecraft.item.BlockItem
-import net.minecraft.util.BlockPos
+import net.minecraft.util.math.BlockPos
 
 object Eagle : Module("Eagle", Category.PLAYER) {
 
