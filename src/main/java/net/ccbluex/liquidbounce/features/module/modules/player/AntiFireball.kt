@@ -119,9 +119,9 @@ object AntiFireball : Module("AntiFireball", Category.PLAYER) {
                     GlStateManager.scale(1 / scaleFactor, 1 / scaleFactor, 1 / scaleFactor)
                 }
                 GlStateManager.scale(scaleFactor, scaleFactor, scaleFactor)
-                Fonts.minecraftFont.drawStringWithShadow(
+                Fonts.minecraftFont.drawWithShadow(
                     "$distance" + "m",
-                    (textX / scaleFactor - (Fonts.minecraftFont.getStringWidth("$distance" + "m") / 2)).toFloat(),
+                    (textX / scaleFactor - (Fonts.minecraftFont.getWidth("$distance" + "m") / 2)).toFloat(),
                     (textY / scaleFactor - 4).toFloat(),
                     -1
                 )

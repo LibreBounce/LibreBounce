@@ -53,7 +53,7 @@ private class ImageBackground(backgroundFile: File) : Background(backgroundFile)
     override fun drawBackground(width: Int, height: Int) {
         mc.textureManager.bindTexture(resourceLocation)
         color(1f, 1f, 1f, 1f)
-        Gui.drawScaledCustomSizeModalRect(0, 0, 0f, 0f, width, height, width, height, width.toFloat(), height.toFloat())
+        GuiElement.drawScaledCustomSizeModalRect(0, 0, 0f, 0f, width, height, width, height, width.toFloat(), height.toFloat())
     }
 }
 

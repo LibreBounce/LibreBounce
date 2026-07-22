@@ -22,7 +22,7 @@ import static net.minecraft.client.render.platform.GlStateManager.resetColor;
 
 @Mixin(ButtonWidget.class)
 @SideOnly(Side.CLIENT)
-public abstract class MixinButtonWidget extends Gui {
+public abstract class MixinButtonWidget extends GuiElement {
 
     @Shadow
     public boolean visible;
@@ -120,7 +120,7 @@ public abstract class MixinButtonWidget extends Gui {
             AWTFontRenderer.Companion.setAssumeNonVolatile(true);
 
             final TextRenderer fontRenderer = Fonts.font35;
-            fontRenderer.drawStringWithShadow(displayString, (float) (xPosition + width / 2 - fontRenderer.getStringWidth(displayString) / 2), yPosition + (height - 5) / 2F, 14737632);
+            fontRenderer.drawWithShadow(displayString, (float) (xPosition + width / 2 - fontRenderer.getWidth(displayString) / 2), yPosition + (height - 5) / 2F, 14737632);
 
             AWTFontRenderer.Companion.setAssumeNonVolatile(false);
 

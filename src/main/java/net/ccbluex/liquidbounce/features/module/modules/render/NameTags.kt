@@ -203,8 +203,8 @@ object NameTags : Module("NameTags", Category.RENDER) {
 
         glScalef(-scale, -scale, scale)
 
-        val width = fontRenderer.getStringWidth(text) * 0.5f
-        fontRenderer.drawString(
+        val width = fontRenderer.getWidth(text) * 0.5f
+        fontRenderer.draw(
             text, 1F + -width, if (fontRenderer == Fonts.minecraftFont) 1F else 1.5F, 0xFFFFFF, fontShadow
         )
 
@@ -253,7 +253,7 @@ object NameTags : Module("NameTags", Category.RENDER) {
 
         glEnable(GL_TEXTURE_2D)
 
-        fontRenderer.drawString(
+        fontRenderer.draw(
             text, 1F + -width, if (fontRenderer == Fonts.minecraftFont) 1F else 1.5F, Color.white.rgb, fontShadow
         )
 

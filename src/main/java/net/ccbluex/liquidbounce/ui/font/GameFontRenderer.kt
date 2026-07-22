@@ -23,19 +23,19 @@ import java.awt.Font
 fun TextRenderer.drawCenteredString(
     text: String?, x: Float, y: Float, color: Int, shadow: Boolean
 ) {
-    val drawX = x - getStringWidth(text) / 2f
+    val drawX = x - getWidth(text) / 2f
     if (shadow) {
-        drawStringWithShadow(text, drawX, y, color)
+        drawWithShadow(text, drawX, y, color)
     } else {
-        drawString(text, drawX.toInt(), y.toInt(), color)
+        draw(text, drawX.toInt(), y.toInt(), color)
     }
 }
 
 fun TextRenderer.drawCenteredString(
     text: String?, x: Float, y: Float, color: Int
 ) {
-    val drawX = x - getStringWidth(text) / 2f
-    drawString(text, drawX.toInt(), y.toInt(), color)
+    val drawX = x - getWidth(text) / 2f
+    draw(text, drawX.toInt(), y.toInt(), color)
 }
 
 /**
@@ -72,46 +72,46 @@ class GameTextRenderer(
     /**
      * Regular text draw (no shadow).
      */
-    fun drawString(
+    fun draw(
         text: String?, x: Float, y: Float, color: Int
-    ): Int = drawString(text, x, y, color, shadow = false)
+    ): Int = draw(text, x, y, color, shadow = false)
 
     /**
      * A simple "double-draw" fade effect:
      * - Black behind at +0.7 offset
      * - Main text in [color]
      */
-    fun drawStringFade(
+    fun drawFade(
         text: String?, x: Float, y: Float, color: Color
     ) {
         val blackWithAlpha = Color(0, 0, 0, color.alpha).rgb
-        drawString(text, x + 0.7f, y + 0.7f, blackWithAlpha, shadow = false)
-        drawString(text, x, y, color.rgb, shadow = false)
+        draw(text, x + 0.7f, y + 0.7f, blackWithAlpha, shadow = false)
+        draw(text, x, y, color.rgb, shadow = false)
     }
 
     /**
-     * Overrides vanilla's drawStringWithShadow for compatibility.
+     * Overrides vanilla's drawWithShadow for compatibility.
      */
-    override fun drawStringWithShadow(
+    override fun drawWithShadow(
         text: String?, x: Float, y: Float, color: Int
-    ): Int = drawString(text, x, y, color, shadow = true)
+    ): Int = draw(text, x, y, color, shadow = true)
 
     fun drawCenteredString(
         text: String?, x: Float, y: Float, color: Int, shadow: Boolean
     ) {
-        val drawX = x - getStringWidth(text) / 2f
+        val drawX = x - getWidth(text) / 2f
         if (shadow) {
-            drawStringWithShadow(text, drawX, y, color)
+            drawWithShadow(text, drawX, y, color)
         } else {
-            drawString(text, drawX, y, color, shadow = false)
+            draw(text, drawX, y, color, shadow = false)
         }
     }
 
     fun drawCenteredString(
         text: String?, x: Float, y: Float, color: Int
     ) {
-        val drawX = x - getStringWidth(text) / 2f
-        drawString(text, drawX, y, color)
+        val drawX = x - getWidth(text) / 2f
+        draw(text, drawX, y, color)
     }
 
     /**
@@ -134,7 +134,7 @@ class GameTextRenderer(
      * The main text-draw method. If [shadow] is true, we draw black behind
      * the text. Then we draw the real text with optional rainbow/gradient.
      */
-    override fun drawString(
+    override fun draw(
         text: String?, x: Float, y: Float, color: Int, shadow: Boolean
     ): Int {
         if (text == null) {
@@ -218,8 +218,8 @@ class GameTextRenderer(
                 if (segment.isEmpty()) return@forEachIndexed
                 if (index == 0) {
                     // No color code => normal draw
-                    currFont.drawString(segment, widthSoFar, 0.0, drawColor)
-                    widthSoFar += currFont.getStringWidth(segment)
+                    currFont.draw(segment, widthSoFar, 0.0, drawColor)
+                    widthSoFar += currFont.getWidth(segment)
                 } else {
                     val codeType = segment[0]
                     val remainder = segment.substring(1)
@@ -265,7 +265,7 @@ class GameTextRenderer(
                     // Possibly random-case (magic text)
                     val strToDraw = if (randomCase) randomMagicText(remainder) else remainder
                     // Draw
-                    currFont.drawString(strToDraw, widthSoFar, 0.0, drawColor)
+                    currFont.draw(strToDraw, widthSoFar, 0.0, drawColor)
 
                     // Strikethrough => draw a line
                     if (strikeThrough) {
@@ -273,7 +273,7 @@ class GameTextRenderer(
                         drawLine(
                             widthSoFar / 2.0 + 1,
                             lineY,
-                            (widthSoFar + currFont.getStringWidth(strToDraw)) / 2.0 + 1,
+                            (widthSoFar + currFont.getWidth(strToDraw)) / 2.0 + 1,
                             lineY,
                             (fontHeight / 16f)
                         )
@@ -284,17 +284,17 @@ class GameTextRenderer(
                         drawLine(
                             widthSoFar / 2.0 + 1,
                             lineY,
-                            (widthSoFar + currFont.getStringWidth(strToDraw)) / 2.0 + 1,
+                            (widthSoFar + currFont.getWidth(strToDraw)) / 2.0 + 1,
                             lineY,
                             (fontHeight / 16f)
                         )
                     }
-                    widthSoFar += currFont.getStringWidth(strToDraw)
+                    widthSoFar += currFont.getWidth(strToDraw)
                 }
             }
         } else {
             // No color codes => just default
-            defaultFont.drawString(text, 0.0, 0.0, drawColor)
+            defaultFont.draw(text, 0.0, 0.0, drawColor)
         }
 
         // Cleanup
@@ -302,7 +302,7 @@ class GameTextRenderer(
         glTranslated(-(x - 1.5), -(y + 0.5), 0.0)
         glColor4f(1f, 1f, 1f, 1f)
         resetColor()
-        return (x + getStringWidth(text)).toInt()
+        return (x + getWidth(text)).toInt()
     }
 
     override fun getColorCode(charCode: Char): Int {
@@ -310,7 +310,7 @@ class GameTextRenderer(
         return hexColors[getColorIndex(charCode)]
     }
 
-    override fun getStringWidth(text: String?): Int {
+    override fun getWidth(text: String?): Int {
         if (text == null) {
             return 0
         }
@@ -320,11 +320,11 @@ class GameTextRenderer(
         // If color codes => parse for advanced widths
         return if ('§' in realText) parseColoredWidth(realText) else {
             // Otherwise => just default
-            defaultFont.getStringWidth(realText) / 2
+            defaultFont.getWidth(realText) / 2
         }
     }
 
-    override fun getCharWidth(character: Char): Int = getStringWidth(character.toString())
+    override fun getCharWidth(character: Char): Int = getWidth(character.toString())
 
     /**
      * Parse color codes in [text] to get accurate width.
@@ -339,7 +339,7 @@ class GameTextRenderer(
         segments.forEachIndexed { idx, seg ->
             if (seg.isEmpty()) return@forEachIndexed
             if (idx == 0) {
-                widthPx += currentFont.getStringWidth(seg)
+                widthPx += currentFont.getWidth(seg)
             } else {
                 val codeType = seg[0]
                 val remainder = seg.substring(1)
@@ -363,7 +363,7 @@ class GameTextRenderer(
                     italic -> italicFont
                     else -> defaultFont
                 }
-                widthPx += currentFont.getStringWidth(remainder)
+                widthPx += currentFont.getWidth(remainder)
             }
         }
         return widthPx / 2

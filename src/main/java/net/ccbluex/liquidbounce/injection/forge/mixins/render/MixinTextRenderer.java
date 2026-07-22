@@ -32,7 +32,7 @@ public class MixinTextRenderer {
     private boolean gradientEnabled1 = false;
 
     @Debug(print = true)
-    @Inject(method = "drawString(Ljava/lang/String;FFIZ)I", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/TextRenderer;renderString(Ljava/lang/String;FFIZ)I", ordinal = 0), require = 1, allow = 1)
+    @Inject(method = "draw(Ljava/lang/String;FFIZ)I", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/TextRenderer;renderString(Ljava/lang/String;FFIZ)I", ordinal = 0), require = 1, allow = 1)
     private void injectShadow1(String text, float x, float y, int color, boolean dropShadow, CallbackInfoReturnable<Integer> cir) {
         rainbowEnabled0 = RainbowFontShader.INSTANCE.isInUse();
         gradientEnabled0 = GradientFontShader.INSTANCE.isInUse();
@@ -43,7 +43,7 @@ public class MixinTextRenderer {
     }
 
     @Debug(print = true)
-    @Inject(method = "drawString(Ljava/lang/String;FFIZ)I", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/TextRenderer;renderString(Ljava/lang/String;FFIZ)I", ordinal = 1), require = 1, allow = 1)
+    @Inject(method = "draw(Ljava/lang/String;FFIZ)I", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/TextRenderer;renderString(Ljava/lang/String;FFIZ)I", ordinal = 1), require = 1, allow = 1)
     private void injectShadow2(String text, float x, float y, int color, boolean dropShadow, CallbackInfoReturnable<Integer> cir) {
         if (rainbowEnabled0) {
             glUseProgram(RainbowFontShader.INSTANCE.getProgramId());
@@ -122,8 +122,8 @@ public class MixinTextRenderer {
         return NameProtect.INSTANCE.handleTextMessage(string);
     }
 
-    @ModifyVariable(method = "getStringWidth", at = @At("HEAD"), require = 1, ordinal = 0)
-    private String getStringWidth(final String string) {
+    @ModifyVariable(method = "getWidth", at = @At("HEAD"), require = 1, ordinal = 0)
+    private String getWidth(final String string) {
         if (string == null)
             return null;
 

@@ -12,7 +12,7 @@ import net.ccbluex.liquidbounce.utils.extensions.floorInt
 import net.minecraft.block.*
 import net.minecraft.block.material.Material
 import net.minecraft.block.state.BlockState
-import net.minecraft.entity.item.EntityFallingBlock
+import net.minecraft.entity.FallingBlockEntity
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 import net.minecraft.util.math.Vec3di
@@ -45,8 +45,8 @@ fun BlockPos.canBeClicked(): Boolean {
         block.material.isReplaceable -> false
         block.hasTileEntity(state) -> false
         !isBlockBBValid(this, state, supportSlabs = true, supportPartialBlocks = true) -> false
-        world.loadedEntityList.any { it is EntityFallingBlock && it.position == this } -> false
-        block is BlockContainer || block is BlockWorkbench -> false
+        world.loadedEntityList.any { it is FallingBlockEntity && it.position == this } -> false
+        block is BlockWithBlockEntity || block is CraftingTableBlock -> false
         else -> true
     }
 }

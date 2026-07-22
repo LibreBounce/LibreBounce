@@ -71,7 +71,7 @@ class Notification(private val message: String, private val delay: Long = 60L) {
     enum class FadeState { IN, STAY, OUT, END }
 
     init {
-        textLength = Fonts.font35.getStringWidth(message)
+        textLength = Fonts.font35.getWidth(message)
     }
 
     // TODO: Recode with fade formulas instead
@@ -86,7 +86,7 @@ class Notification(private val message: String, private val delay: Long = 60L) {
         // Draw notification
         drawRect(-x + 8 + textLength, 0F, -x, -20F, Color.BLACK.rgb)
         drawRect(-x, 0F, -x - 5, -20F, Color(0, 160, 255).rgb)
-        Fonts.font35.drawString(message, -x + 4, -14F, Int.MAX_VALUE)
+        Fonts.font35.draw(message, -x + 4, -14F, Int.MAX_VALUE)
 
         // Animation
         val delta = deltaTime

@@ -129,7 +129,7 @@ object PacketUtils : MinecraftInstance, Listenable {
             netManager.dispatchPacket(packet, null)
         } else {
             netManager.readWriteLock.write {
-                netManager.outboundPacketsQueue += Connection.InboundHandlerTuplePacketListener(packet, null)
+                netManager.outboundPacketsQueue += Connection.QueuedPacket(packet, null)
             }
         }
     }

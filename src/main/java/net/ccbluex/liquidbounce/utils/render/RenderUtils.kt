@@ -181,8 +181,8 @@ object RenderUtils : MinecraftInstance {
         glScaled(-renderScale, -renderScale, renderScale)
 
         // Draw text
-        val width = font.getStringWidth(progressText) * 0.5f
-        font.drawString(
+        val width = font.getWidth(progressText) * 0.5f
+        font.draw(
             progressText, -width, if (font == Fonts.minecraftFont) 1F else 1.5F, color, fontShadow
         )
 
@@ -1449,9 +1449,9 @@ object RenderUtils : MinecraftInstance {
         setGlCap(GL_DEPTH_TEST, false)
         setGlCap(GL_BLEND, true)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-        val width = Fonts.font35.getStringWidth(string) / 2
+        val width = Fonts.font35.getWidth(string) / 2
         drawRect(-width - 1, -1, width + 1, Fonts.font35.FONT_HEIGHT, Int.MIN_VALUE)
-        Fonts.font35.drawString(string, -width.toFloat(), 1.5f, Color.WHITE.rgb, true)
+        Fonts.font35.draw(string, -width.toFloat(), 1.5f, Color.WHITE.rgb, true)
         resetCaps()
         resetColor()
         glPopMatrix()

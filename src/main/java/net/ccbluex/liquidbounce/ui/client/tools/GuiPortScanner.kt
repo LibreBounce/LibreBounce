@@ -101,11 +101,11 @@ class GuiPortScanner(private val prevGui: Screen) : AbstractScreen() {
         maxPortField.drawTextBox()
         parallelismField.drawTextBox()
 
-        Fonts.font40.drawString("§c§lPorts:", 2, 2, Color.WHITE.hashCode())
+        Fonts.font40.draw("§c§lPorts:", 2, 2, Color.WHITE.hashCode())
 
         var yOffset = 12
         for (port in ports) {
-            Fonts.minecraftFont.drawString(port.toString(), 2, yOffset, Color.WHITE.hashCode())
+            Fonts.minecraftFont.draw(port.toString(), 2, yOffset, Color.WHITE.hashCode())
             yOffset += Fonts.minecraftFont.FONT_HEIGHT
         }
 

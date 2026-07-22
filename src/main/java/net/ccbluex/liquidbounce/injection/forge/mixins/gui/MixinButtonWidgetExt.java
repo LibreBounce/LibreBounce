@@ -90,7 +90,7 @@ public abstract class MixinButtonWidgetExt extends ButtonWidget {
         mc.getTextureManager().bindTexture(buttonTextures);
         mouseDragged(mc, mouseX, mouseY);
 
-        fontRenderer.drawStringWithShadow(displayString, (float) (xPosition + width / 2 - fontRenderer.getStringWidth(displayString) / 2), yPosition + (height - 5) / 2F, 14737632);
+        fontRenderer.drawWithShadow(displayString, (float) (xPosition + width / 2 - fontRenderer.getWidth(displayString) / 2), yPosition + (height - 5) / 2F, 14737632);
         resetColor();
     }
 }

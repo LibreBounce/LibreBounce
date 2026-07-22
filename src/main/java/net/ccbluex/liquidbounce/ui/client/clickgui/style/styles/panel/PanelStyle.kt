@@ -113,12 +113,12 @@ object PanelStyle : Screen() {
         // Foreground Background
         drawBackground(panelStartX + contentXOffset, panelStartY, widthBg - contentXOffset, heightBg, mainColor2)
 
-        //Fonts.font60.drawString("LiquidBounce", panelStartX + marginLeft - 4, panelStartY + 9, Color.WHITE.rgb)
+        //Fonts.font60.draw("LiquidBounce", panelStartX + marginLeft - 4, panelStartY + 9, Color.WHITE.rgb)
 
         Category.values().forEachIndexed { index, category ->
             val categoryY = panelStartY + 40 + (Fonts.font35.fontHeight + 10) * index
             val categoryColor = if (category == selectedCategory) highlightColor else Color.WHITE.rgb
-            Fonts.font35.drawString(category.displayName, panelStartX + marginLeft, categoryY, categoryColor)
+            Fonts.font35.draw(category.displayName, panelStartX + marginLeft, categoryY, categoryColor)
         }
 
         if (Mouse.hasWheel() || isHoldingMidClick) {

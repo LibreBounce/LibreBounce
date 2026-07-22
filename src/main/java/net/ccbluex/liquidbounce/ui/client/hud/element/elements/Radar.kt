@@ -23,7 +23,7 @@ import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowShader
 import net.minecraft.client.render.platform.GlStateManager.bindTexture
 import net.minecraft.client.render.vertex.Tesselator
 import net.minecraft.client.render.vertex.DefaultVertexFormat
-import net.minecraft.client.renderer.vertex.VertexBuffer
+import net.minecraft.client.render.vertex.VertexBuffer
 import org.lwjgl.opengl.GL11.*
 import org.lwjgl.util.vector.Vector2f
 import java.awt.Color

@@ -15,7 +15,7 @@ import net.ccbluex.liquidbounce.utils.extensions.lerpWith
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.utils.timing.WaitTickUtils
-import net.minecraft.block.BlockBush
+import net.minecraft.block.PlantBlock
 import net.minecraft.init.Blocks.*
 import net.minecraft.item.Item
 import net.minecraft.item.BlockItem
@@ -115,7 +115,7 @@ object InventoryUtils : MinecraftInstance, Listenable {
             val stack = inventory.getSlot(it).stack ?: return@filter false
             val block = if (stack.item is BlockItem) (stack.item as BlockItem).block else return@filter false
 
-            stack.item is BlockItem && stack.stackSize > 0 && block !in BLOCK_BLACKLIST && block !is BlockBush
+            stack.item is BlockItem && stack.stackSize > 0 && block !in BLOCK_BLACKLIST && block !is PlantBlock
         }.minByOrNull { (inventory.getSlot(it).stack.item as BlockItem).block.isFullCube }?.minus(36)
     }
 
@@ -127,7 +127,7 @@ object InventoryUtils : MinecraftInstance, Listenable {
             val stack = inventory.getSlot(it).stack ?: return@filter false
             val block = if (stack.item is BlockItem) (stack.item as BlockItem).block else return@filter false
 
-            stack.item is BlockItem && stack.stackSize > 0 && block.isFullCube && block !in BLOCK_BLACKLIST && block !is BlockBush
+            stack.item is BlockItem && stack.stackSize > 0 && block.isFullCube && block !in BLOCK_BLACKLIST && block !is PlantBlock
         }.maxByOrNull { inventory.getSlot(it).stack.stackSize }?.minus(36)
     }
 
@@ -139,7 +139,7 @@ object InventoryUtils : MinecraftInstance, Listenable {
             val stack = inventory.getSlot(it).stack ?: return@filter false
             val block = if (stack.item is BlockItem) (stack.item as BlockItem).block else return@filter false
 
-            stack.item is BlockItem && stack.stackSize > amount && block.isFullCube && block !in BLOCK_BLACKLIST && block !is BlockBush
+            stack.item is BlockItem && stack.stackSize > amount && block.isFullCube && block !in BLOCK_BLACKLIST && block !is PlantBlock
         }.minByOrNull { (inventory.getSlot(it).stack.item as BlockItem).block.isFullCube }?.minus(36)
     }
 
@@ -160,7 +160,7 @@ object InventoryUtils : MinecraftInstance, Listenable {
             if (item is BlockItem) {
                 val block = item.block
                 val displayItemInHand = player.displayItemInHand
-                if (displayItemInHand != null && displayItemInHand == stack || block !in BLOCK_BLACKLIST && block !is BlockBush) {
+                if (displayItemInHand != null && displayItemInHand == stack || block !in BLOCK_BLACKLIST && block !is PlantBlock) {
                     amount += stack.stackSize
                 }
             }

@@ -121,7 +121,7 @@ public abstract class MixinChatScreen extends MixinScreen {
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         AWTFontRenderer.Companion.setAssumeNonVolatile(true);
 
-        Gui.drawRect(2, height - (int) fade, width - 2, height, Integer.MIN_VALUE);
+        GuiElement.drawRect(2, height - (int) fade, width - 2, height, Integer.MIN_VALUE);
         inputField.drawTextBox();
 
         if (CommandManager.INSTANCE.getLatestAutoComplete().length > 0 && !inputField.getText().isEmpty() && inputField.getText().startsWith(String.valueOf(CommandManager.INSTANCE.getPrefix()))) {
@@ -129,7 +129,7 @@ public abstract class MixinChatScreen extends MixinScreen {
             String[] textArray = inputField.getText().split(" ");
             String trimmedString = latestAutoComplete[0].replaceFirst("(?i)" + textArray[textArray.length - 1], "");
 
-            mc.fontRendererObj.drawStringWithShadow(trimmedString, inputField.xPosition + mc.fontRendererObj.getStringWidth(inputField.getText()), inputField.yPosition, new Color(165, 165, 165).getRGB());
+            mc.fontRendererObj.drawWithShadow(trimmedString, inputField.xPosition + mc.fontRendererObj.getWidth(inputField.getText()), inputField.yPosition, new Color(165, 165, 165).getRGB());
         }
 
         AWTFontRenderer.Companion.setAssumeNonVolatile(false);

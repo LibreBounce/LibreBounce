@@ -229,7 +229,7 @@ object BedPlates : Module("BedPlates", Category.RENDER) {
 
         var offset = (blocks.size * -13) / 2
 
-        val textWidth = textFont.getStringWidth(text)
+        val textWidth = textFont.getWidth(text)
         val textHeight = textFont.FONT_HEIGHT
 
         val rectWidth = max(30.0, textWidth.toDouble() + offset / 2)
@@ -270,7 +270,7 @@ object BedPlates : Module("BedPlates", Category.RENDER) {
             gradientOffset
         ).use {
             RainbowFontShader.begin(textMode == "Rainbow", rainbowX, rainbowY, rainbowOffset).use {
-                textFont.drawString(
+                textFont.draw(
                     text,
                     (-textWidth / 2.15F),
                     (1F - textHeight / 2.15F),
@@ -289,7 +289,7 @@ object BedPlates : Module("BedPlates", Category.RENDER) {
             val texture = getBlockTexture(block)
             mc.textureManager.bindTexture(texture)
 
-            Gui.drawModalRectWithCustomSizedTexture(
+            GuiElement.drawModalRectWithCustomSizedTexture(
                 offset,
                 10,
                 0f, 0f,

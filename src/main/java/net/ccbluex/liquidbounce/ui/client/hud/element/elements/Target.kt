@@ -100,7 +100,7 @@ class Target : Element("Target") {
         val shouldRender = KillAura.handleEvents() && KillAura.target != null || mc.currentScreen is ChatScreen
         val target = KillAura.target ?: if (delayCounter >= vanishDelay) mc.player else lastTarget ?: mc.player
 
-        val stringWidth = (40f + (target.name?.let(titleFont::getStringWidth) ?: 0)).coerceAtLeast(118F)
+        val stringWidth = (40f + (target.name?.let(titleFont::getWidth) ?: 0)).coerceAtLeast(118F)
 
         assumeNonVolatile {
             if (shouldRender) {
@@ -231,10 +231,10 @@ class Target : Element("Target") {
 
                     if (shouldRenderBody) {
                         // Draw title text
-                        target.name?.let { titleFont.drawString(it, 36F, 5F, textCustomColor, textShadow) }
+                        target.name?.let { titleFont.draw(it, 36F, 5F, textCustomColor, textShadow) }
 
                         // Draw body text
-                        bodyFont.drawString(
+                        bodyFont.draw(
                             "Distance: ${decimalFormat.format(mc.player.getDistanceToEntityBox(target))}",
                             36F,
                             15F,
@@ -244,7 +244,7 @@ class Target : Element("Target") {
 
                         // Draw info
                         mc.netHandler?.getPlayerInfo(target.uuid)?.let {
-                            bodyFont.drawString(
+                            bodyFont.draw(
                                 "Ping: ${it.responseTime.coerceAtLeast(0)}", 36F, 24F, textCustomColor, textShadow
                             )
 

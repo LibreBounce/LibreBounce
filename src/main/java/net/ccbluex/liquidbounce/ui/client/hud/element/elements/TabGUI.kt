@@ -118,7 +118,7 @@ class TabGUI(x: Double = 5.0, y: Double = 25.0) : Element("TabGUI", x = x, y = y
         val arrowPadding = if (arrows) 4F else 0F
         val iconPadding = if (displayIcons) 17F else 0F
 
-        val widthWithPadding = maxOf(font.getStringWidth("Movement").toFloat() + arrowPadding, width + arrowPadding)
+        val widthWithPadding = maxOf(font.getWidth("Movement").toFloat() + arrowPadding, width + arrowPadding)
         val xWithPadding = 2F - iconPadding
 
         val iconSideX = if (side.horizontal == Side.Horizontal.RIGHT) {
@@ -180,7 +180,7 @@ class TabGUI(x: Double = 5.0, y: Double = 25.0) : Element("TabGUI", x = x, y = y
                 }
 
                 val textX = if (side.horizontal == Side.Horizontal.RIGHT) {
-                    widthWithPadding - font.getStringWidth(tabName) - tab.textFade - 3
+                    widthWithPadding - font.getWidth(tabName) - tab.textFade - 3
                 } else {
                     tab.textFade + 5
                 }
@@ -189,11 +189,11 @@ class TabGUI(x: Double = 5.0, y: Double = 25.0) : Element("TabGUI", x = x, y = y
 
                 val textColor = if (selectedCategory == index) 0xffffff else Color(210, 210, 210).rgb
 
-                font.drawString(tabName, textX, textY, textColor, textShadow)
+                font.draw(tabName, textX, textY, textColor, textShadow)
 
                 if (arrows) {
                     if (side.horizontal == Side.Horizontal.RIGHT) {
-                        font.drawString(
+                        font.draw(
                             if (!categoryMenu && selectedCategory == index) {
                                 ">"
                             } else {
@@ -201,7 +201,7 @@ class TabGUI(x: Double = 5.0, y: Double = 25.0) : Element("TabGUI", x = x, y = y
                             }, 3F, y + 2F, 0xffffff, textShadow
                         )
                     } else {
-                        font.drawString(
+                        font.draw(
                             if (!categoryMenu && selectedCategory == index) "<" else ">",
                             widthWithPadding - arrowPadding - 2F,
                             y + 2F,
@@ -379,7 +379,7 @@ class TabGUI(x: Double = 5.0, y: Double = 25.0) : Element("TabGUI", x = x, y = y
             var maxWidth = 0
 
             for (module in modules) {
-                val width = fontRenderer.getStringWidth(module.getDisplayName())
+                val width = fontRenderer.getWidth(module.getDisplayName())
                 if (width + 4 > maxWidth) maxWidth = width + 7
             }
 
@@ -413,7 +413,7 @@ class TabGUI(x: Double = 5.0, y: Double = 25.0) : Element("TabGUI", x = x, y = y
             modules.forEachIndexed { index, module ->
                 val moduleColor = if (module.state) 0xffffff else Color(205, 205, 205).rgb
 
-                fontRenderer.drawString(
+                fontRenderer.draw(
                     module.getDisplayName(), x + 2F, y + tabHeight * index + textPositionY, moduleColor, textShadow
                 )
             }

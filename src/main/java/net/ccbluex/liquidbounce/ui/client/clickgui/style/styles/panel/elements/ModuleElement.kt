@@ -64,13 +64,13 @@ class ModuleElement(
             3f
         )
 
-        Fonts.font40.drawString(
+        Fonts.font40.draw(
             module.name.moduleName(),
             startX + margin + 10, startY + 10,
             if (module.state) accentColor else Color.WHITE.rgb
         )
 
-        Fonts.font30.drawString(module.description, startX + margin + 10, startY + Fonts.font40.fontHeight + 15,
+        Fonts.font30.draw(module.description, startX + margin + 10, startY + Fonts.font40.fontHeight + 15,
             referenceColor
         )
 

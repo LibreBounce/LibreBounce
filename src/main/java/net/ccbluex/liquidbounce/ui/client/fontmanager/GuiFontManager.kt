@@ -139,13 +139,13 @@ class GuiFontManager(private val prevGui: Screen) : AbstractScreen() {
             Fonts.font35.drawCenteredString(status.text, width / 2f, 32f, 0xffffff)
 
             this.textFields.forEach { it.drawTextBox() }
-            if (nameField.text.isEmpty() && !nameField.isFocused) Fonts.font40.drawStringWithShadow(
+            if (nameField.text.isEmpty() && !nameField.isFocused) Fonts.font40.drawWithShadow(
                 translationText("fontManager.name") + "...", nameField.xPosition + 4f, nameField.yPosition + 7f, Color.GRAY.rgb
             )
-            if (sizeField.text.isEmpty() && !sizeField.isFocused) Fonts.font40.drawStringWithShadow(
+            if (sizeField.text.isEmpty() && !sizeField.isFocused) Fonts.font40.drawWithShadow(
                 translationText("fontManager.size") + "...", sizeField.xPosition + 4f, sizeField.yPosition + 7f, Color.GRAY.rgb
             )
-            if (textField.text.isEmpty() && !textField.isFocused) Fonts.font40.drawStringWithShadow(
+            if (textField.text.isEmpty() && !textField.isFocused) Fonts.font40.drawWithShadow(
                 translationText("fontManager.preview") + "...", textField.xPosition + 4f, 17f, Color.GRAY.rgb
             ) else {
                 val font = fontListView.selectedEntry.value

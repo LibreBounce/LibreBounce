@@ -83,7 +83,7 @@ public class MixinSignEditScreen extends Screen {
 
     @Inject(method = "drawScreen", at = @At("RETURN"))
     private void drawFields(CallbackInfo callbackInfo) {
-        fontRendererObj.drawString("§c§lCommands §7(§f§l1.8§7)", width / 2 - 100, height - 15 * 5, Color.WHITE.getRGB());
+        fontRendererObj.draw("§c§lCommands §7(§f§l1.8§7)", width / 2 - 100, height - 15 * 5, Color.WHITE.getRGB());
 
         signCommand1.drawTextBox();
         signCommand2.drawTextBox();
@@ -127,7 +127,7 @@ public class MixinSignEditScreen extends Screen {
             s = s.substring(0, s.length() - 1);
         }
 
-        if ((ChatAllowedCharacters.isAllowedCharacter(typedChar) || (enabled && typedChar == '§')) && fontRendererObj.getStringWidth(s + typedChar) <= 90) {
+        if ((ChatAllowedCharacters.isAllowedCharacter(typedChar) || (enabled && typedChar == '§')) && fontRendererObj.getWidth(s + typedChar) <= 90) {
             s = s + typedChar;
         }
 

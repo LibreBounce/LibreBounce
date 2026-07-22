@@ -194,11 +194,11 @@ object SnakeGame : Module("SnakeGame", Category.FUN, gameDetecting = false) {
         }
 
         // Draw score text
-        font35.drawStringWithShadow("Score: §a$score", sx, sy - 14f, Color(220, 220, 220).rgb)
+        font35.drawWithShadow("Score: §a$score", sx, sy - 14f, Color(220, 220, 220).rgb)
 
         // Draw high score box
         val hsText = "High Score: §a$highScore"
-        val hsTextWidth = font35.getStringWidth(hsText)
+        val hsTextWidth = font35.getWidth(hsText)
         val hsTextHeight = font35.FONT_HEIGHT
         val hsX1 = sx.toInt()
         val hsY1 = (sy - 28).toInt()
@@ -206,10 +206,10 @@ object SnakeGame : Module("SnakeGame", Category.FUN, gameDetecting = false) {
         val hsY2 = hsY1 + hsTextHeight + 4
         drawGradientRect(hsX1, hsY1, hsX2, hsY2, Color(0, 0, 0, 120).rgb, Color(0, 0, 0, 120).rgb, 0f)
         drawBorder(hsX1.toFloat(), hsY1.toFloat(), hsX2.toFloat(), hsY2.toFloat(), 1f, Color(6, 70, 255, 120).rgb)
-        font35.drawStringWithShadow(hsText, (hsX1 + 3).toFloat(), (hsY1 + 2).toFloat(), Color(220, 220, 220).rgb)
+        font35.drawWithShadow(hsText, (hsX1 + 3).toFloat(), (hsY1 + 2).toFloat(), Color(220, 220, 220).rgb)
 
         // Draw current mode indicator
-        font35.drawStringWithShadow(
+        font35.drawWithShadow(
             "mode: $mode",
             sx + FIELD_WIDTH - 50,
             sy - 14f,

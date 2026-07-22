@@ -242,7 +242,7 @@ class Arraylist(
         val underscore = if (editMode && mc.currentScreen is GuiHudDesigner && editTicks <= 40) "_" else ""
 
         // Calculate width only once
-        val underscoreWidth = font.getStringWidth(underscore).toFloat()
+        val underscoreWidth = font.getWidth(underscore).toFloat()
 
         assumeNonVolatile {
             // Slide animation - update every render
@@ -256,7 +256,7 @@ class Arraylist(
                 if (!shouldShow && module.slide <= 0f) continue
 
                 val displayString = getDisplayString(module)
-                val width = font.getStringWidth(displayString) + padding
+                val width = font.getWidth(displayString) + padding
 
                 when (animation) {
                     "Slide" -> {
@@ -312,7 +312,7 @@ class Arraylist(
                 val markAsInactive = inactiveStyle == "Color" && !module.isActive
 
                 val displayString = getDisplayString(module)
-                val width = font.getStringWidth(displayString)
+                val width = font.getWidth(displayString)
 
                 when (side.horizontal) {
                     Horizontal.RIGHT, Horizontal.MIDDLE -> {
@@ -360,7 +360,7 @@ class Arraylist(
                             RainbowFontShader.begin(
                                 !markAsInactive && textColorMode == "Rainbow", rainbowX, rainbowY, rainbowOffset
                             ).use {
-                                font.drawString(
+                                font.draw(
                                     displayString,
                                     xPos + 1 - if (rectMode == "Right") 3 else 0,
                                     yPos + textY,
@@ -376,7 +376,7 @@ class Arraylist(
                                 )
 
                                 if (editMode && mc.currentScreen is GuiHudDesigner && editTicks <= 40) {
-                                    font.drawString(
+                                    font.draw(
                                         "_",
                                         width - underscoreWidth,
                                         0F,
@@ -514,7 +514,7 @@ class Arraylist(
                             RainbowFontShader.begin(
                                 !markAsInactive && textColorMode == "Rainbow", rainbowX, rainbowY, rainbowOffset
                             ).use {
-                                font.drawString(
+                                font.draw(
                                     displayString, xPos - 1, yPos + textY, if (markAsInactive) inactiveColor
                                     else when (textColorMode) {
                                         "Gradient" -> 0
@@ -526,7 +526,7 @@ class Arraylist(
                                 )
 
                                 if (editMode && mc.currentScreen is GuiHudDesigner && editTicks <= 40) {
-                                    font.drawString(
+                                    font.draw(
                                         "_", 
                                         width - underscoreWidth, 
                                         0F, 
@@ -708,7 +708,7 @@ class Arraylist(
         displayText = if (editMode) displayString else display
 
         modules = moduleManager.filter { it.slide > 0 && !it.isHidden }
-            .sortedBy { -font.getStringWidth(getDisplayString(it)) }
+            .sortedBy { -font.getWidth(getDisplayString(it)) }
     }
 
     override fun handleMouseClick(x: Double, y: Double, mouseButton: Int) {

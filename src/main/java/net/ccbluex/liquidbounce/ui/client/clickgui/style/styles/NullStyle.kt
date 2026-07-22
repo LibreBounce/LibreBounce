@@ -32,7 +32,7 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawTexture
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.updateTextureCache
 import net.ccbluex.liquidbounce.utils.ui.EditableText
 import net.minecraft.client.render.Window
-import net.minecraft.util.StringUtils
+import net.minecraft.text.StringUtils
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
 import java.awt.Color
@@ -71,14 +71,14 @@ object NullStyle : Style() {
             panel.x, panel.y + 19, panel.x + panel.width, panel.y + 19 + panel.fade, 1, Int.MIN_VALUE, Int.MIN_VALUE
         )
 
-        val xPos = panel.x - (font35.getStringWidth("§f" + StringUtils.stripControlCodes(panel.name)) - 100) / 2
-        font35.drawString(panel.name, xPos, panel.y + 6, getTextColor())
+        val xPos = panel.x - (font35.getWidth("§f" + StringUtils.stripControlCodes(panel.name)) - 100) / 2
+        font35.draw(panel.name, xPos, panel.y + 6, getTextColor())
     }
 
     override fun drawHoverText(mouseX: Int, mouseY: Int, text: String) {
         val lines = text.lines()
 
-        val width = lines.maxOfOrNull { font35.getStringWidth(it) + 14 }
+        val width = lines.maxOfOrNull { font35.getWidth(it) + 14 }
             ?: return // Makes no sense to render empty lines
         val height = (font35.fontHeight * lines.size) + 3
 
@@ -89,20 +89,20 @@ object NullStyle : Style() {
 
         drawRect(x + 9, y, x + width, y + height, guiColor)
         lines.forEachIndexed { index, text ->
-            font35.drawString(text, x + 12, y + 3 + (font35.fontHeight) * index, getTextColor())
+            font35.draw(text, x + 12, y + 3 + (font35.fontHeight) * index, getTextColor())
         }
     }
 
     override fun drawButtonElement(mouseX: Int, mouseY: Int, buttonElement: ButtonElement) {
-        val xPos = buttonElement.x - (font35.getStringWidth(buttonElement.displayName) - 100) / 2
-        font35.drawString(buttonElement.displayName, xPos, buttonElement.y + 6, buttonElement.color)
+        val xPos = buttonElement.x - (font35.getWidth(buttonElement.displayName) - 100) / 2
+        font35.draw(buttonElement.displayName, xPos, buttonElement.y + 6, buttonElement.color)
     }
 
     override fun drawModuleElementAndClick(
         mouseX: Int, mouseY: Int, moduleElement: ModuleElement, mouseButton: Int?
     ): Boolean {
-        val xPos = moduleElement.x - (font35.getStringWidth(moduleElement.displayName) - 100) / 2
-        font35.drawString(
+        val xPos = moduleElement.x - (font35.getWidth(moduleElement.displayName) - 100) / 2
+        font35.draw(
             moduleElement.displayName, xPos, moduleElement.y + 6, if (moduleElement.module.state) {
                 if (moduleElement.module.isActive) guiColor
                 // Make inactive modules have alpha set to 100
@@ -113,7 +113,7 @@ object NullStyle : Style() {
         val moduleValues = moduleElement.module.values.filter { it.shouldRender() }
 
         if (moduleValues.isNotEmpty()) {
-            font35.drawString(
+            font35.draw(
                 if (moduleElement.showSettings) "-" else "+",
                 moduleElement.x + moduleElement.width - 8,
                 moduleElement.y + moduleElement.height / 2,
@@ -138,7 +138,7 @@ object NullStyle : Style() {
 
                     when (value) {
                         is BoolValue -> {
-                            moduleElement.settingsWidth = font35.getStringWidth(text) + 8
+                            moduleElement.settingsWidth = font35.getWidth(text) + 8
 
                             if (mouseButton == 0 && mouseX in minX..maxX && mouseY in yPos + 2..yPos + 14) {
                                 value.toggle()
@@ -146,7 +146,7 @@ object NullStyle : Style() {
                                 return true
                             }
 
-                            font35.drawString(
+                            font35.draw(
                                 text, minX + 2, yPos + 4, if (value.get()) guiColor else Int.MAX_VALUE
                             )
 
@@ -154,7 +154,7 @@ object NullStyle : Style() {
                         }
 
                         is ListValue -> {
-                            moduleElement.settingsWidth = font35.getStringWidth(text) + 16
+                            moduleElement.settingsWidth = font35.getWidth(text) + 16
 
                             if (mouseButton == 0 && mouseX in minX..maxX && mouseY in yPos + 2..yPos + 14) {
                                 value.openList = !value.openList
@@ -162,8 +162,8 @@ object NullStyle : Style() {
                                 return true
                             }
 
-                            font35.drawString("§c$text", minX + 2, yPos + 4, Color.WHITE.rgb)
-                            font35.drawString(
+                            font35.draw("§c$text", minX + 2, yPos + 4, Color.WHITE.rgb)
+                            font35.draw(
                                 if (value.openList) "-" else "+",
                                 (maxX - if (value.openList) 5 else 6),
                                 yPos + 4,
@@ -175,7 +175,7 @@ object NullStyle : Style() {
                             for (valueOfList in value.values) {
                                 val valueName = valueOfList.valueName()
 
-                                moduleElement.settingsWidth = font35.getStringWidth(valueName) + 16
+                                moduleElement.settingsWidth = font35.getWidth(valueName) + 16
 
                                 if (value.openList) {
                                     if (mouseButton == 0 && mouseX in minX..maxX && mouseY in yPos + 2..yPos + 14) {
@@ -184,13 +184,13 @@ object NullStyle : Style() {
                                         return true
                                     }
 
-                                    font35.drawString(
+                                    font35.draw(
                                         ">",
                                         minX + 2,
                                         yPos + 4,
                                         if (value.get() == valueOfList) guiColor else Int.MAX_VALUE
                                     )
-                                    font35.drawString(
+                                    font35.draw(
                                         valueName,
                                         minX + 10,
                                         yPos + 4,
@@ -203,7 +203,7 @@ object NullStyle : Style() {
                         }
 
                         is MultiSelectValue -> {
-                            moduleElement.settingsWidth = font35.getStringWidth(text) + 16
+                            moduleElement.settingsWidth = font35.getWidth(text) + 16
 
                             if (mouseButton == 0 && mouseX in minX..maxX && mouseY in yPos..yPos + font35.fontHeight) {
                                 value.openList = !value.openList
@@ -211,8 +211,8 @@ object NullStyle : Style() {
                                 return true
                             }
 
-                            font35.drawString("§c$text", minX + 2, yPos + 4, Color.WHITE.rgb)
-                            font35.drawString(
+                            font35.draw("§c$text", minX + 2, yPos + 4, Color.WHITE.rgb)
+                            font35.draw(
                                 if (value.openList) "-" else "+",
                                 (maxX - if (value.openList) 5 else 6),
                                 yPos + 2,
@@ -224,7 +224,7 @@ object NullStyle : Style() {
                             value.choices.forEachIndexed { index, choice ->
                                 val valueName = choice.valueName()
 
-                                moduleElement.settingsWidth = font35.getStringWidth("> $valueName") + 12
+                                moduleElement.settingsWidth = font35.getWidth("> $valueName") + 12
 
                                 if (value.openList) {
                                     if (mouseButton == 0 && mouseX in minX..maxX && mouseY in yPos..yPos + 9) {
@@ -233,14 +233,14 @@ object NullStyle : Style() {
                                         return true
                                     }
 
-                                    font35.drawString(
+                                    font35.draw(
                                         ">",
                                         minX + 2,
                                         yPos + 4,
                                         if (value.isSelected(choice)) guiColor else Int.MAX_VALUE
                                     )
 
-                                    font35.drawString(
+                                    font35.draw(
                                         "$valueName",
                                         minX + 10,
                                         yPos + 4,
@@ -258,7 +258,7 @@ object NullStyle : Style() {
                         is FloatValue -> {
                             val floatText = text + "§f: §c" + round(value.get()) + " §8${suffix}§c"
 
-                            moduleElement.settingsWidth = font35.getStringWidth(floatText) + 8
+                            moduleElement.settingsWidth = font35.getWidth(floatText) + 8
 
                             if (mouseButton == 0 && mouseX in minX..maxX && mouseY in yPos + 15..yPos + 21 || sliderValueHeld == value) {
                                 val percentage = (mouseX - minX - 4) / (maxX - minX - 8).toFloat()
@@ -278,7 +278,7 @@ object NullStyle : Style() {
                                 (moduleElement.x + moduleElement.width + (moduleElement.settingsWidth - 12) * (displayValue - value.minimum) / (value.maximum - value.minimum)).roundToInt()
                             drawRect(8 + sliderValue, yPos + 15, sliderValue + 11, yPos + 21, guiColor)
 
-                            font35.drawString(floatText, minX + 2, yPos + 4, Color.WHITE.rgb)
+                            font35.draw(floatText, minX + 2, yPos + 4, Color.WHITE.rgb)
 
                             yPos += 22
                         }
@@ -287,7 +287,7 @@ object NullStyle : Style() {
                             val blockText =
                                 text + "§f: §c" + getBlockName(value.get()) + " (" + value.get() + ")" + " §8${suffix}"
 
-                            moduleElement.settingsWidth = font35.getStringWidth(blockText) + 8
+                            moduleElement.settingsWidth = font35.getWidth(blockText) + 8
 
                             if (mouseButton == 0 && mouseX in minX..maxX && mouseY in yPos + 15..yPos + 21 || sliderValueHeld == value) {
                                 val percentage = (mouseX - minX - 4) / (maxX - minX - 8).toFloat()
@@ -309,7 +309,7 @@ object NullStyle : Style() {
                                 moduleElement.x + moduleElement.width + (moduleElement.settingsWidth - 12) * (displayValue - value.minimum) / (value.maximum - value.minimum)
                             drawRect(8 + sliderValue, yPos + 15, sliderValue + 11, yPos + 21, guiColor)
 
-                            font35.drawString(blockText, minX + 2, yPos + 4, Color.WHITE.rgb)
+                            font35.draw(blockText, minX + 2, yPos + 4, Color.WHITE.rgb)
 
                             yPos += 22
                         }
@@ -317,7 +317,7 @@ object NullStyle : Style() {
                         is IntValue -> {
                             val intText = text + "§f: §c" + value.get() + " §8${suffix}"
 
-                            moduleElement.settingsWidth = font35.getStringWidth(intText) + 8
+                            moduleElement.settingsWidth = font35.getWidth(intText) + 8
 
                             if (mouseButton == 0 && mouseX in minX..maxX && mouseY in yPos + 15..yPos + 21 || sliderValueHeld == value) {
                                 val percentage = (mouseX - minX - 4) / (maxX - minX - 8).toFloat()
@@ -337,7 +337,7 @@ object NullStyle : Style() {
                                 moduleElement.x + moduleElement.width + (moduleElement.settingsWidth - 12) * (displayValue - value.minimum) / (value.maximum - value.minimum)
                             drawRect(8 + sliderValue, yPos + 15, sliderValue + 11, yPos + 21, guiColor)
 
-                            font35.drawString(intText, minX + 2, yPos + 4, Color.WHITE.rgb)
+                            font35.draw(intText, minX + 2, yPos + 4, Color.WHITE.rgb)
 
                             yPos += 22
                         }
@@ -347,7 +347,7 @@ object NullStyle : Style() {
                             val slider2 = value.get().last
 
                             val intRangeText = "${text}§f: §c$slider1 §f- §c$slider2 §8${suffix}"
-                            moduleElement.settingsWidth = font35.getStringWidth(intRangeText) + 8
+                            moduleElement.settingsWidth = font35.getWidth(intRangeText) + 8
 
                             val startX = minX + 4
                             val startY = yPos + 14
@@ -418,7 +418,7 @@ object NullStyle : Style() {
                             drawRect(8 + sliderValue1, yPos + 15, sliderValue1 + 11, yPos + 21, guiColor)
                             drawRect(8 + sliderValue2, yPos + 15, sliderValue2 + 11, yPos + 21, guiColor)
 
-                            font35.drawString(intRangeText, minX + 2, yPos + 4, Color.WHITE.rgb)
+                            font35.draw(intRangeText, minX + 2, yPos + 4, Color.WHITE.rgb)
 
                             yPos += 22
                         }
@@ -428,7 +428,7 @@ object NullStyle : Style() {
                             val slider2 = value.get().endInclusive
 
                             val floatRangeText = "${text}§f: §c${round(slider1)} §f- §c${round(slider2)} §8${suffix}"
-                            moduleElement.settingsWidth = font35.getStringWidth(text) + 8
+                            moduleElement.settingsWidth = font35.getWidth(text) + 8
 
                             val startX = minX + 4
                             val startY = yPos + 14
@@ -499,14 +499,14 @@ object NullStyle : Style() {
                             drawRect(8f + sliderValue1, yPos + 15f, sliderValue1 + 11f, yPos + 21f, guiColor)
                             drawRect(8f + sliderValue2, yPos + 15f, sliderValue2 + 11f, yPos + 21f, guiColor)
 
-                            font35.drawString(floatRangeText, minX + 2, yPos + 4, Color.WHITE.rgb)
+                            font35.draw(floatRangeText, minX + 2, yPos + 4, Color.WHITE.rgb)
 
                             yPos += 22
                         }
 
                         is FontValue -> {
                             val displayString = value.displayName
-                            moduleElement.settingsWidth = font35.getStringWidth(displayString) + 8
+                            moduleElement.settingsWidth = font35.getWidth(displayString) + 8
 
                             if (mouseButton != null && mouseX in minX..maxX && mouseY in yPos + 4..yPos + 12) {
                                 // Cycle to next font when left-clicked, previous when right-clicked.
@@ -516,7 +516,7 @@ object NullStyle : Style() {
                                 return true
                             }
 
-                            font35.drawString(displayString, minX + 2, yPos + 4, Color.WHITE.rgb)
+                            font35.draw(displayString, minX + 2, yPos + 4, Color.WHITE.rgb)
 
                             yPos += 11
                         }
@@ -596,11 +596,11 @@ object NullStyle : Style() {
                             val combinedText = startText + valueText
 
                             val combinedWidth = opacityEndX - colorPickerStartX
-                            val optimalWidth = maxOf(font35.getStringWidth(combinedText), combinedWidth)
+                            val optimalWidth = maxOf(font35.getWidth(combinedText), combinedWidth)
                             moduleElement.settingsWidth = optimalWidth + spacing * 4
 
-                            val valueX = startX + font35.getStringWidth(startText)
-                            val valueWidth = font35.getStringWidth(valueText)
+                            val valueX = startX + font35.getWidth(startText)
+                            val valueWidth = font35.getWidth(valueText)
 
                             if (mouseButton == 1 && mouseX in valueX..valueX + valueWidth && mouseY.toFloat() in textY - 2..textY + font35.height - 3F) {
                                 value.showOptions = !value.showOptions
@@ -610,7 +610,7 @@ object NullStyle : Style() {
                                 }
                             }
 
-                            val widestLabel = rgbaLabels.maxOf { font35.getStringWidth(it) }
+                            val widestLabel = rgbaLabels.maxOf { font35.getWidth(it) }
 
                             var highlightCursor = {}
 
@@ -624,9 +624,9 @@ object NullStyle : Style() {
 
                                 if (it.selectionActive()) {
                                     val start =
-                                        startValueX + font35.getStringWidth(it.string.take(it.selectionStart!!))
+                                        startValueX + font35.getWidth(it.string.take(it.selectionStart!!))
                                     val end =
-                                        startValueX + font35.getStringWidth(it.string.take(it.selectionEnd!!))
+                                        startValueX + font35.getWidth(it.string.take(it.selectionEnd!!))
                                     drawRect(
                                         start,
                                         cursorY - 3f,
@@ -637,7 +637,7 @@ object NullStyle : Style() {
                                 }
 
                                 highlightCursor = {
-                                    val cursorX = startValueX + font35.getStringWidth(it.cursorString)
+                                    val cursorX = startValueX + font35.getWidth(it.cursorString)
                                     drawRect(
                                         cursorX,
                                         cursorY - 3F,
@@ -655,7 +655,7 @@ object NullStyle : Style() {
 
                                 var noClickAmount = 0
 
-                                val maxWidth = font35.getStringWidth("255")
+                                val maxWidth = font35.getWidth("255")
 
                                 rgbaLabels.forEachIndexed { index, label ->
                                     val rgbaValueText = "${rgbaValues[index]}"
@@ -671,8 +671,8 @@ object NullStyle : Style() {
                                     val defaultColor = if (isEmpty) Color.LIGHT_GRAY else minecraftRed
                                     val defaultText = if (isEmpty) "($rgbaValueText)" else rgbaValueText
 
-                                    font35.drawString(label, textX, yPosition, Color.WHITE.rgb)
-                                    font35.drawString(defaultText, finalX, yPosition, defaultColor.rgb)
+                                    font35.draw(label, textX, yPosition, Color.WHITE.rgb)
+                                    font35.draw(defaultText, finalX, yPosition, defaultColor.rgb)
 
                                     if (mouseButton == 0) {
                                         if (mouseX.toFloat() in finalX..finalX + maxWidth && mouseY.toFloat() in yPosition - 2..yPosition + 6) {
@@ -689,7 +689,7 @@ object NullStyle : Style() {
                                 }
                             }
 
-                            font35.drawString(combinedText, textX, textY, Color.WHITE.rgb)
+                            font35.draw(combinedText, textX, textY, Color.WHITE.rgb)
 
                             highlightCursor()
 
@@ -913,13 +913,13 @@ object NullStyle : Style() {
                             val startText = text + "§f: "
                             var valueText = "${value.get()}"
 
-                            val combinedWidth = font35.getStringWidth(startText + valueText)
+                            val combinedWidth = font35.getWidth(startText + valueText)
 
                             moduleElement.settingsWidth = combinedWidth + 8
 
                             val textY = yPos + 4
                             val startX = minX + 2
-                            var textX = startX + font35.getStringWidth(startText)
+                            var textX = startX + font35.getWidth(startText)
 
                             if (mouseButton == 0) {
                                 chosenText =
@@ -944,8 +944,8 @@ object NullStyle : Style() {
 
                                 if (it.selectionActive()) {
                                     val start =
-                                        textX - 1 + font35.getStringWidth(input.take(it.selectionStart!!))
-                                    val end = textX - 1 + font35.getStringWidth(input.take(it.selectionEnd!!))
+                                        textX - 1 + font35.getWidth(input.take(it.selectionStart!!))
+                                    val end = textX - 1 + font35.getWidth(input.take(it.selectionEnd!!))
                                     drawRect(
                                         start,
                                         textY - 3,
@@ -956,7 +956,7 @@ object NullStyle : Style() {
                                 }
 
                                 highlightCursor = { textX ->
-                                    val cursorX = textX + font35.getStringWidth(input.take(it.cursorIndex))
+                                    val cursorX = textX + font35.getWidth(input.take(it.cursorIndex))
                                     drawRect(
                                         cursorX,
                                         textY - 3,
@@ -967,7 +967,7 @@ object NullStyle : Style() {
                                 }
                             }
 
-                            font35.drawString(startText, startX, textY, Color.WHITE.rgb)
+                            font35.draw(startText, startX, textY, Color.WHITE.rgb)
 
                             val defaultColor = if (shouldPushToRight) Color.LIGHT_GRAY else minecraftRed
                             val originalX = textX - 1
@@ -975,13 +975,13 @@ object NullStyle : Style() {
                             // This usually happens when a value rejects a change and auto-sets it to a default value.
                             if (shouldPushToRight) {
                                 valueText = "($valueText)"
-                                val valueWidth = font35.getStringWidth(valueText)
+                                val valueWidth = font35.getWidth(valueText)
                                 moduleElement.settingsWidth = combinedWidth + valueWidth + 12
-                                font35.drawString(chosenText!!.string, textX, textY, minecraftRed.rgb)
+                                font35.draw(chosenText!!.string, textX, textY, minecraftRed.rgb)
                                 textX += valueWidth + 4
                             }
 
-                            font35.drawString(valueText, textX, textY, defaultColor.rgb)
+                            font35.draw(valueText, textX, textY, defaultColor.rgb)
 
                             highlightCursor(originalX)
 

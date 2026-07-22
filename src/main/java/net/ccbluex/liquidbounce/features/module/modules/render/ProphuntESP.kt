@@ -17,7 +17,7 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBlockBox
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawEntityBox
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.GlowShader
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.isEntityHeightVisible
-import net.minecraft.entity.item.EntityFallingBlock
+import net.minecraft.entity.FallingBlockEntity
 import net.minecraft.util.math.BlockPos
 import java.awt.Color
 import java.util.concurrent.ConcurrentHashMap
@@ -48,7 +48,7 @@ object ProphuntESP : Module("ProphuntESP", Category.RENDER, gameDetecting = fals
 
     private val blocks = ConcurrentHashMap<BlockPos, Long>()
 
-    private val entities by EntityLookup<EntityFallingBlock>()
+    private val entities by EntityLookup<FallingBlockEntity>()
         .filter { !onLook || isLookingOnEntities(it, maxAngleDifference.toDouble()) }
         .filter { thruBlocks || isEntityHeightVisible(it) }
         .filter { mc.player.getSquaredDistanceToToEntity(it) <= maxRenderDistanceSq }

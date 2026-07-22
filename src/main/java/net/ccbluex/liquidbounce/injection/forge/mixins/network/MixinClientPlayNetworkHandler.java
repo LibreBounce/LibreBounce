@@ -74,9 +74,9 @@ public abstract class MixinClientPlayNetworkHandler {
         double motionZ = packetExplosion.func_149147_e();
 
         if (module.handleEvents() && module.getCancelExplosionMotion()) {
-            double x = MathHelper.clamp_double(motionX, -50.0, 50.0);
-            double y = MathHelper.clamp_double(motionY, -50.0, 50.0);
-            double z = MathHelper.clamp_double(motionZ, -50.0, 50.0);
+            double x = MathHelper.clamp(motionX, -50.0, 50.0);
+            double y = MathHelper.clamp(motionY, -50.0, 50.0);
+            double z = MathHelper.clamp(motionZ, -50.0, 50.0);
 
             if (x != motionX || y != motionY || z != motionZ) {
                 if (module.getWarn().equals("Chat")) {

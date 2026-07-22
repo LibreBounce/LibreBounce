@@ -33,7 +33,7 @@ import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.toRotation
 import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
 import net.ccbluex.liquidbounce.utils.timing.*
 import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomClickDelay
-import net.minecraft.block.BlockBush
+import net.minecraft.block.PlantBlock
 import net.minecraft.client.options.GameOptions
 import net.minecraft.init.Blocks.air
 import net.minecraft.item.BlockItem
@@ -634,7 +634,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
         var stack = player.hotBarSlot(currentSlot).stack
 
         // TODO: blacklist more blocks than only bushes
-        if (stack == null || stack.item !is BlockItem || (stack.item as BlockItem).block is BlockBush || stack.stackSize <= 0 || sortByHighestAmount || earlySwitch) {
+        if (stack == null || stack.item !is BlockItem || (stack.item as BlockItem).block is PlantBlock || stack.stackSize <= 0 || sortByHighestAmount || earlySwitch) {
             val blockSlot = if (sortByHighestAmount) {
                 InventoryUtils.findLargestBlockStackInHotbar() ?: return
             } else if (earlySwitch) {

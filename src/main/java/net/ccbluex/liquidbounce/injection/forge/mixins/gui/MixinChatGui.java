@@ -24,16 +24,16 @@ public abstract class MixinChatGui {
         return Chat.INSTANCE.handleEvents() ? Chat.INSTANCE.getFont().FONT_HEIGHT : instance.FONT_HEIGHT;
     }
 
-    @Redirect(method = "drawChat", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/TextRenderer;drawStringWithShadow(Ljava/lang/String;FFI)I"))
+    @Redirect(method = "drawChat", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/TextRenderer;drawWithShadow(Ljava/lang/String;FFI)I"))
     private int injectFontChatB(TextRenderer instance, String text, float x, float y, int color) {
         final Chat chat = Chat.INSTANCE;
 
-        return chat.handleEvents() ? chat.getFont().drawString(text, x, y, color, chat.getTextShadow()) : instance.drawStringWithShadow(text, x, y, color);
+        return chat.handleEvents() ? chat.getFont().draw(text, x, y, color, chat.getTextShadow()) : instance.drawWithShadow(text, x, y, color);
     }
 
-    @Redirect(method = "getChatComponent", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/TextRenderer;getStringWidth(Ljava/lang/String;)I"))
+    @Redirect(method = "getChatComponent", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/TextRenderer;getWidth(Ljava/lang/String;)I"))
     private int injectFontChatC(TextRenderer instance, String text) {
-        return Chat.INSTANCE.handleEvents() ? Chat.INSTANCE.getFont().getStringWidth(text) : instance.getStringWidth(text);
+        return Chat.INSTANCE.handleEvents() ? Chat.INSTANCE.getFont().getWidth(text) : instance.getWidth(text);
     }
 
     /**

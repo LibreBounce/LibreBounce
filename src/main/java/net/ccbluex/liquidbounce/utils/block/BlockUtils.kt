@@ -8,9 +8,9 @@ package net.ccbluex.liquidbounce.utils.block
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.extensions.immutableCopy
 import net.minecraft.block.Block
-import net.minecraft.block.BlockGlass
+import net.minecraft.block.GlassBlock
 import net.minecraft.block.SoulSandBlock
-import net.minecraft.block.BlockStainedGlass
+import net.minecraft.block.StainedGlassBlock
 import net.minecraft.block.state.BlockState
 import net.minecraft.init.Blocks.*
 import net.minecraft.util.math.Box
@@ -54,7 +54,7 @@ object BlockUtils : MinecraftInstance {
             is SoulSandBlock -> return false
 
             // Glass isn't considered as full block?!
-            is BlockGlass, is BlockStainedGlass -> return true
+            is GlassBlock, is StainedGlassBlock -> return true
         }
 
         // Many translucent or non-full blocks have blockBounds set to 1.0

@@ -40,7 +40,7 @@ import net.minecraft.world.World
 import net.minecraft.world.biome.Biome
 import net.minecraft.world.border.WorldBorder
 import net.minecraft.world.chunk.Chunk
-import net.minecraft.world.chunk.IChunkProvider
+import net.minecraft.world.chunk.ChunkSource
 import net.minecraftforge.common.ForgeModContainer
 import kotlin.math.abs
 import kotlin.math.ceil
@@ -78,7 +78,7 @@ class SimulatedPlayer(
     var collidingHorizontally: Boolean,
     var collidingVertically: Boolean,
     private val worldBorder: WorldBorder,
-    private val chunkProvider: IChunkProvider,
+    private val chunkProvider: ChunkSource,
     private var isOutsideBorder: Boolean,
     private var riddenByEntity: Entity?,
     private var attributeMap: AbstractEntityAttributeContainer?,
@@ -392,8 +392,8 @@ class SimulatedPlayer(
 
     private fun clampPositionFromPlayerEntity() {
         // Post PlayerEntity onUpdate
-        val d3 = MathHelper.clamp_double(posX, -2.9999999E7, 2.9999999E7)
-        val d4 = MathHelper.clamp_double(posZ, -2.9999999E7, 2.9999999E7)
+        val d3 = MathHelper.clamp(posX, -2.9999999E7, 2.9999999E7)
+        val d4 = MathHelper.clamp(posZ, -2.9999999E7, 2.9999999E7)
 
         if (d3 != posX || d4 != posZ) {
             setPosition(d3, posY, d4)
@@ -539,8 +539,8 @@ class SimulatedPlayer(
                     if (isOnLadder()) {
                         f6 = 0.15f
 
-                        motionX = MathHelper.clamp_double(motionX, (-f6).toDouble(), f6.toDouble())
-                        motionZ = MathHelper.clamp_double(motionZ, (-f6).toDouble(), f6.toDouble())
+                        motionX = MathHelper.clamp(motionX, (-f6).toDouble(), f6.toDouble())
+                        motionZ = MathHelper.clamp(motionZ, (-f6).toDouble(), f6.toDouble())
 
                         fallDistance = 0.0f
 
@@ -774,9 +774,9 @@ class SimulatedPlayer(
                 if (block1 !== ladder) d13 = 0.0
                 if (block1 != null && onGround) onEntityCollidedWithBlock(block1)
 
-                distanceWalkedModified = (distanceWalkedModified.toDouble() + MathHelper.sqrt_double(d12 * d12 + d14 * d14)
+                distanceWalkedModified = (distanceWalkedModified.toDouble() + MathHelper.sqrt(d12 * d12 + d14 * d14)
                     .toDouble() * 0.6).toFloat()
-                distanceWalkedOnStepModified = (distanceWalkedOnStepModified.toDouble() + MathHelper.sqrt_double(d12 * d12 + d13 * d13 + d14 * d14)
+                distanceWalkedOnStepModified = (distanceWalkedOnStepModified.toDouble() + MathHelper.sqrt(d12 * d12 + d13 * d13 + d14 * d14)
                     .toDouble() * 0.6).toFloat()
 
                 if (distanceWalkedOnStepModified > nextStepDistance.toFloat() && block1.material !== Material.air)
@@ -846,7 +846,7 @@ class SimulatedPlayer(
                             val block = state.block
 
                             // We don't want things to negatively interact back to us (cactus, tripwire, tnt or whatever)
-                            if (block is BlockWeb) {
+                            if (block is CobwebBlock) {
                                 inCobweb = true
                             } else if (block is SoulSandBlock) {
                                 motionX *= 0.4

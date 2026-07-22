@@ -98,7 +98,7 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
 
         if (isUsingItem || shouldSwap) {
             if (displayItemInHand.item !is SwordItem && displayItemInHand.item !is BowItem && (consumeFoodOnly && displayItemInHand.item is FoodItem ||
-                        consumeDrinkOnly && (displayItemInHand.item is PotionItem || displayItemInHand.item is BucketItemMilk))
+                        consumeDrinkOnly && (displayItemInHand.item is PotionItem || displayItemInHand.item is MilkBucketItem))
             ) {
                 when (consumeMode) {
                     "AAC5" ->
@@ -298,7 +298,7 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
                     if ((consumeMode == "UpdatedNCP" && (
                                 packet.stack.item is FoodItem ||
                                         packet.stack.item is PotionItem ||
-                                        packet.stack.item is BucketItemMilk)) ||
+                                        packet.stack.item is MilkBucketItem)) ||
                         (bowPacket == "UpdatedNCP" && packet.stack.item is BowItem)
                     ) {
                         shouldSwap = true
@@ -313,7 +313,7 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
 
         if (displayItemInHand !is SwordItem) {
             if (!consumeFoodOnly && displayItemInHand is FoodItem ||
-                !consumeDrinkOnly && (displayItemInHand is PotionItem || displayItemInHand is BucketItemMilk)
+                !consumeDrinkOnly && (displayItemInHand is PotionItem || displayItemInHand is MilkBucketItem)
             ) {
                 return@handler
             }
@@ -327,7 +327,7 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
     }
 
     private fun getMultiplier(item: Item?, isForward: Boolean) = when (item) {
-        is FoodItem, is PotionItem, is BucketItemMilk -> if (isForward) consumeForwardMultiplier else consumeStrafeMultiplier
+        is FoodItem, is PotionItem, is MilkBucketItem -> if (isForward) consumeForwardMultiplier else consumeStrafeMultiplier
 
         is SwordItem -> if (isForward) blockForwardMultiplier else blockStrafeMultiplier
 

@@ -26,7 +26,7 @@ import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.getRotationVector
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.setTargetRotation
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.utils.timing.TickedActions.nextTick
-import net.minecraft.block.BlockBush
+import net.minecraft.block.PlantBlock
 import net.minecraft.client.options.GameOptions
 import net.minecraft.init.Blocks.bed
 import net.minecraft.item.BlockItem
@@ -183,7 +183,7 @@ object BedDefender : Module("BedDefender", Category.WORLD) {
 
         var stack = player.inventorySlot(SilentHotbar.currentSlot + 36).stack ?: return
 
-        if (stack.item !is BlockItem || (stack.item as BlockItem).block is BlockBush
+        if (stack.item !is BlockItem || (stack.item as BlockItem).block is PlantBlock
             || InventoryUtils.BLOCK_BLACKLIST.contains((stack.item as BlockItem).block) || stack.stackSize <= 0
         ) {
             val blockSlot = InventoryUtils.findBlockInHotbar() ?: return

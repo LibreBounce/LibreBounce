@@ -153,8 +153,8 @@ public abstract class MixinListWidget implements IMixinListWidget {
 
             // ClientCode
             Window scaledResolution = new Window(mc);
-            Gui.drawRect(0, 0, scaledResolution.getScaledWidth(), top, Integer.MIN_VALUE);
-            Gui.drawRect(0, bottom, scaledResolution.getScaledWidth(), height, Integer.MIN_VALUE);
+            GuiElement.drawRect(0, 0, scaledResolution.getScaledWidth(), top, Integer.MIN_VALUE);
+            GuiElement.drawRect(0, bottom, scaledResolution.getScaledWidth(), height, Integer.MIN_VALUE);
 
             glEnable(GL_BLEND);
             tryBlendFuncSeparate(770, 771, 0, 1);

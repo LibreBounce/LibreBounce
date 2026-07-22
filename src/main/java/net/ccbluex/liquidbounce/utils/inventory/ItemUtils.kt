@@ -9,10 +9,10 @@ import net.ccbluex.liquidbounce.injection.implementations.IMixinItemStack
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.entity.living.player.PlayerEntity
-import net.minecraft.inventory.Container
-import net.minecraft.inventory.Slot
+import net.minecraft.inventory.menu.InventoryMenu
+import net.minecraft.inventory.slot.InventorySlot
 import net.minecraft.item.*
-import net.minecraft.nbt.JsonToNBT
+import net.minecraft.nbt.SnbtParser
 import net.minecraft.resource.Identifier
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
@@ -40,7 +40,7 @@ object ItemUtils : MinecraftInstance {
             if (args.size >= 4) {
                 val nbt = args.drop(3).joinToString(" ")
 
-                itemStack.tagCompound = JsonToNBT.getTagFromJson(nbt)
+                itemStack.tagCompound = SnbtParser.parseNbtEntry(nbt)
             }
 
             itemStack
@@ -79,7 +79,7 @@ object ItemUtils : MinecraftInstance {
     fun isConsumingItem(): Boolean {
         val usingItem = mc.player.itemInUse.item
 
-        return mc.player.isUsingItem && (usingItem is FoodItem || usingItem is BucketItemMilk || usingItem is PotionItem)
+        return mc.player.isUsingItem && (usingItem is FoodItem || usingItem is MilkBucketItem || usingItem is PotionItem)
     }
 }
 
@@ -148,7 +148,7 @@ val ItemStack.attackDamage
 
 fun ItemStack.isSplashPotion() = item is PotionItem && PotionItem.isSplash(metadata)
 
-operator fun Container.get(range: IntRange): List<Slot> = range.map(::getSlot)
+operator fun InventoryMenu.get(range: IntRange): List<Slot> = range.map(::getSlot)
 
 fun PlayerEntity.inventorySlot(slot: Int) = inventoryContainer.getSlot(slot)!!
 fun PlayerEntity.hotBarSlot(slot: Int) = inventorySlot(slot + 36)

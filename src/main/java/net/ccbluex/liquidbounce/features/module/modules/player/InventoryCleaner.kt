@@ -26,9 +26,9 @@ import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.toHotbarIndex
 import net.ccbluex.liquidbounce.utils.timing.TickedActions.awaitTicked
 import net.ccbluex.liquidbounce.utils.timing.TickedActions.clickNextTick
 import net.ccbluex.liquidbounce.utils.timing.TickedActions.isTicked
-import net.minecraft.block.BlockContainer
+import net.minecraft.block.BlockWithBlockEntity
 import net.minecraft.block.BlockFalling
-import net.minecraft.block.BlockWorkbench
+import net.minecraft.block.CraftingTableBlock
 import net.minecraft.client.gui.screen.inventory.menu.SurvivalInventoryScreen
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.entity.ItemEntity
@@ -352,7 +352,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
 
             // Search for best item to sort
             suspend fun searchAndSort(strictlyBest: Boolean = false): Boolean {
-                // Slot is already sorted
+                // InventorySlot is already sorted
                 if (isRightType(item) && isStackUseful(stack, stacks, strictlyBest = strictlyBest))
                     return true
 
@@ -924,7 +924,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
             val block = item.block
 
             return isFullBlock(block) && !block.hasTileEntity()
-                    && block !is BlockWorkbench && block !is BlockContainer && block !is BlockFalling
+                    && block !is CraftingTableBlock && block !is BlockWithBlockEntity && block !is BlockFalling
         }
 
         return false

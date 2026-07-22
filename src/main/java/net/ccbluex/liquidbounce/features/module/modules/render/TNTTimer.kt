@@ -83,8 +83,8 @@ object TNTTimer : Module("TNTTimer", Category.RENDER) {
         glScalef(-scale, -scale, scale)
 
         // Draw text
-        val width = fontRenderer.getStringWidth(text) * 0.5f
-        fontRenderer.drawString(
+        val width = fontRenderer.getWidth(text) * 0.5f
+        fontRenderer.draw(
             text, 1F + -width, if (fontRenderer == Fonts.minecraftFont) 1F else 1.5F, color.rgb, fontShadow
         )
 

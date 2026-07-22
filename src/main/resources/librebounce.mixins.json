@@ -48,7 +48,7 @@
     "item.MixinMixinItemStack",
     "network.MixinClientPlayNetworkHandler",
     "network.MixinConnection",
-    "network.MixinNetworkPlayerInfo",
+    "network.MixinPlayerInfo",
     "packets.MixinHandshakeC2SPacket",
     "render.MixinParticleManager",
     "render.MixinGameRenderer",

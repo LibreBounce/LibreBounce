@@ -38,7 +38,7 @@ import net.ccbluex.liquidbounce.utils.timing.TickedActions.nextTick
 import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomDelay
 import net.minecraft.client.render.Window
 import net.minecraft.client.gui.screen.inventory.menu.ChestScreen
-import net.minecraft.inventory.Slot
+import net.minecraft.inventory.slot.InventorySlot
 import net.minecraft.entity.EntityLiving.getArmorPosition
 import net.minecraft.init.Blocks.chest
 import net.minecraft.item.ArmorItem
@@ -380,7 +380,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
         return itemsToSteal
     }
  
-    private fun performMissClick(screen: ChestScreen, targetSlot: Slot) {
+    private fun performMissClick(screen: ChestScreen, targetSlot: InventorySlot) {
         val closestEmptySlot = screen.inventorySlots.inventorySlots
             .filter { it.stack == null || it.stack.stackSize == 0 }
             .minByOrNull { otherSlot ->

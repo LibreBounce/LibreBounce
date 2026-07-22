@@ -292,8 +292,8 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true) {
         glScaled(-scale, -scale, scale)
 
         // Draw text
-        val width = fontRenderer.getStringWidth(text) * 0.5f
-        fontRenderer.drawString(
+        val width = fontRenderer.getWidth(text) * 0.5f
+        fontRenderer.draw(
             text, -width, if (fontRenderer == Fonts.minecraftFont) 1F else 1.5F, colors.color().rgb, fontShadow
         )
 

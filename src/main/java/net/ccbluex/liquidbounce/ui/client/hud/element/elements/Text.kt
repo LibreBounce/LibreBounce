@@ -278,8 +278,8 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1f, side: Side = S
         val underscore = if (editMode && mc.currentScreen is GuiHudDesigner && editTicks <= 40) "_" else ""
 
         // Calculate width only once
-        val underscoreWidth = fontRenderer.getStringWidth(underscore).toFloat()
-        val width = fontRenderer.getStringWidth(displayText) + underscoreWidth
+        val underscoreWidth = fontRenderer.getWidth(underscore).toFloat()
+        val width = fontRenderer.getWidth(displayText) + underscoreWidth
         val heightPadding = if (fontRenderer == mc.fontRendererObj) 1F else 0F
 
         val bgScale = max(backgroundScale, 1F)
@@ -374,10 +374,10 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1f, side: Side = S
                     gradientOffset
                 ).use {
                     RainbowFontShader.begin(rainbow, rainbowX, rainbowY, rainbowOffset).use {
-                        fontRenderer.drawString(displayText, 0F, 2 - heightPadding, colorToUse, shadow)
+                        fontRenderer.draw(displayText, 0F, 2 - heightPadding, colorToUse, shadow)
 
                         if (editMode && mc.currentScreen is GuiHudDesigner && editTicks <= 40) {
-                            fontRenderer.drawString("_", width - underscoreWidth, 0F, colorToUse, shadow)
+                            fontRenderer.draw("_", width - underscoreWidth, 0F, colorToUse, shadow)
                         }
                     }
                 }

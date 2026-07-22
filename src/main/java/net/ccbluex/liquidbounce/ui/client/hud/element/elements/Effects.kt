@@ -60,11 +60,11 @@ class Effects(
                 }
 
                 val name = "${I18n.format(potion.name)} $number§f: §7${Potion.getDurationString(effect)}"
-                val stringWidth = font.getStringWidth(name).toFloat()
+                val stringWidth = font.getWidth(name).toFloat()
 
                 width = width.coerceAtLeast(stringWidth)
 
-                font.drawString(name, -stringWidth, y, potion.liquidColor, shadow)
+                font.draw(name, -stringWidth, y, potion.liquidColor, shadow)
                 y -= height
             }
         }

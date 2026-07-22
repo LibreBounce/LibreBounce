@@ -87,7 +87,7 @@ class PopupScreen(
 
             for (word in words) {
                 val tempLine = if (currentLine.isEmpty()) word else "$currentLine $word"
-                val width = Fonts.font35.getStringWidth(tempLine)
+                val width = Fonts.font35.getWidth(tempLine)
 
                 if (width > maxWidth && currentLine.isNotEmpty()) {
                     lines.add(currentLine)
@@ -109,7 +109,7 @@ class PopupScreen(
         x = (screenWidth - popupWidth) / 2
         y = (screenHeight - popupHeight) / 2
 
-        Gui.drawRect(0, 0, screenWidth, screenHeight, Color(0, 0, 0, 200).rgb)
+        GuiElement.drawRect(0, 0, screenWidth, screenHeight, Color(0, 0, 0, 200).rgb)
 
         RenderUtils.drawRoundedBorderRect(
             x.toFloat(), y.toFloat(), (x + popupWidth).toFloat(), (y + popupHeight).toFloat(),
@@ -133,7 +133,7 @@ class PopupScreen(
         var messageY = y + messageYOffset + scrollOffset
 
         for (line in messageLines) {
-            Fonts.font35.drawString(
+            Fonts.font35.draw(
                 line,
                 (x + 10).toFloat(),
                 messageY.toFloat(),
@@ -258,7 +258,7 @@ class PopupScreen(
             val scrollbarStartY = y + messageYOffset + (availableSpace - scrollbarLength) * scrollbarPositionRatio
 
             val scrollbarWidth = 3f
-            Gui.drawRect(
+            GuiElement.drawRect(
                 x + popupWidth - 7,
                 scrollbarStartY.toInt(),
                 (x + popupWidth - 7 + scrollbarWidth).toInt(),

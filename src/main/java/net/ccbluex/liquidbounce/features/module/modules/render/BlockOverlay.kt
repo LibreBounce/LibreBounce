@@ -102,12 +102,12 @@ object BlockOverlay : Module("BlockOverlay", Category.RENDER, gameDetecting = fa
         drawBorderedRect(
             width / 2 - 2F,
             height / 2 + 5F,
-            width / 2 + font40.getStringWidth(info) + 2F,
+            width / 2 + font40.getWidth(info) + 2F,
             height / 2 + 16F,
             3F, Color.BLACK.rgb, Color.BLACK.rgb
         )
 
         resetColor()
-        font40.drawString(info, width / 2f, height / 2f + 7f, Color.WHITE.rgb, false)
+        font40.draw(info, width / 2f, height / 2f + 7f, Color.WHITE.rgb, false)
     }
 }

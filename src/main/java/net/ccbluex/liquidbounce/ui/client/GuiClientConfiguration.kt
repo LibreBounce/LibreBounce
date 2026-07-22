@@ -225,14 +225,14 @@ class GuiClientConfiguration(val prevGui: Screen) : AbstractScreen() {
             translationMenu("configuration"), width / 2F, height / 8F + 5F, 4673984, true
         )
 
-        Fonts.font40.drawString(
+        Fonts.font40.draw(
             "Window", width / 2F - 98F, height / 4F + 15F, 0xFFFFFF, true
         )
 
-        Fonts.font40.drawString(
+        Fonts.font40.draw(
             "Background", width / 2F - 98F, height / 4F + 90F, 0xFFFFFF, true
         )
-        Fonts.font35.drawString(
+        Fonts.font35.draw(
             "Supported background types: (.png, .frag, .glsl)",
             width / 2F - 98F,
             height / 4F + 100 + 25 * 3,
@@ -240,13 +240,13 @@ class GuiClientConfiguration(val prevGui: Screen) : AbstractScreen() {
             true
         )
 
-        Fonts.font40.drawString(
+        Fonts.font40.draw(
             translationMenu("altManager"), width / 2F - 98F, height / 4F + 200F, 0xFFFFFF, true
         )
 
         altPrefixField.drawTextBox()
         if (altPrefixField.text.isEmpty() && !altPrefixField.isFocused) {
-            Fonts.font35.drawStringWithShadow(
+            Fonts.font35.drawWithShadow(
                 altsPrefix.ifEmpty { translationMenu("altManager.typeCustomPrefix") },
                 altPrefixField.xPosition + 4f,
                 altPrefixField.yPosition + (altPrefixField.height - Fonts.font35.FONT_HEIGHT) / 2F,

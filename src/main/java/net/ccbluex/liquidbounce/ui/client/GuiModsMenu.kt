@@ -152,7 +152,7 @@ class GuiModsMenu(private val prevGui: Screen) : AbstractScreen() {
 
         customTextField.drawTextBox()
         if (customTextField.text.isEmpty() && !customTextField.isFocused) {
-            Fonts.font35.drawStringWithShadow(
+            Fonts.font35.drawWithShadow(
                 clientRichPresence.customRPCText.ifEmpty { translationMenu("discordRPC.typeBox") },
                 customTextField.xPosition + 4f,
                 customTextField.yPosition + (customTextField.height - Fonts.font35.FONT_HEIGHT) / 2F,

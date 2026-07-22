@@ -60,11 +60,11 @@ class Inventory : Element("Inventory", 300.0, 50.0) {
 
         val textLocation = when (title) {
             "Left" -> padding
-            "Right" -> width - padding - font.getStringWidth(invDisplayName)
-            else -> width / 2 - font.getStringWidth(invDisplayName) / 2F
+            "Right" -> width - padding - font.getWidth(invDisplayName)
+            else -> width / 2 - font.getWidth(invDisplayName) / 2F
         }
 
-        font.drawString(
+        font.draw(
             invDisplayName,
             textLocation,
             -(font.FONT_HEIGHT).toFloat(),

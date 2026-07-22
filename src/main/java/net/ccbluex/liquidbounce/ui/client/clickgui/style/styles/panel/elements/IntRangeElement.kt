@@ -28,7 +28,7 @@ class IntRangeElement(
     override var margin: Float = 5f
 
     override var height: Float = font35.fontHeight.toFloat() + margin
-    override var width: Float = font35.getStringWidth(valueName).toFloat()
+    override var width: Float = font35.getWidth(valueName).toFloat()
 
     private var hitboxX = 0f..0f
     private var hitboxY = 0f..0f
@@ -44,7 +44,7 @@ class IntRangeElement(
     override fun drawElement(mouseX: Float, mouseY: Float, partialTicks: Float) {
         updateElement()
 
-        font35.drawString(
+        font35.draw(
             valueName,
             startX,
             startY,
@@ -84,7 +84,7 @@ class IntRangeElement(
 
         drawCircle(lastCircleX, circleY, 2f, highlightColor)
 
-        font35.drawString(
+        font35.draw(
             "$first - $last" + " " + (value.suffix ?: ""),
             startX + width + 120f,
             circleY - font35.fontHeight / 4f,

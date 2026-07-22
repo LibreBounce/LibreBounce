@@ -13,7 +13,7 @@ import net.ccbluex.liquidbounce.utils.kotlin.LruCache
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.minecraft.client.render.platform.GlStateManager
 import net.minecraft.client.render.platform.GlStateManager.bindTexture
-import net.minecraft.client.renderer.texture.TextureUtil
+import net.minecraft.client.render.texture.TextureUtil
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
 import org.lwjgl.opengl.GL11.*
@@ -130,7 +130,7 @@ class AWTFontRenderer(
     /**
      * Draw [text] at ([x], [y]) with [color]. Scales by 0.25 => typical UI text size.
      */
-    fun drawString(text: String, x: Double, y: Double, color: Int) {
+    fun draw(text: String, x: Double, y: Double, color: Int) {
         // Scale down => 0.25 => then everything is "2 * x" in real coords
         glPushMatrix()
         glScaled(0.25, 0.25, 0.25)
@@ -220,7 +220,7 @@ class AWTFontRenderer(
      * Returns the pixel-width of [text]. If a character is not in [charLocations],
      * we fallback to MC's font (approx).
      */
-    fun getStringWidth(text: String): Int = cachedStringWidths.getOrPut(text) {
+    fun getWidth(text: String): Int = cachedStringWidths.getOrPut(text) {
         var myWidth = 0
         var fallbackWidth = 0f
         val fallbackScale = font.size / 32f
@@ -358,7 +358,7 @@ class AWTFontRenderer(
         g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON)
         g2d.font = font
         g2d.color = Color.WHITE
-        g2d.drawString(c.toString(), 3, 1 + fm.ascent)
+        g2d.draw(c.toString(), 3, 1 + fm.ascent)
         return charImg
     }
 

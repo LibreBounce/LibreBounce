@@ -45,7 +45,7 @@ import static org.lwjgl.opengl.GL11.*;
 
 @Mixin(GameGui.class)
 @SideOnly(Side.CLIENT)
-public abstract class MixinGuiInGame extends Gui {
+public abstract class MixinGuiInGame extends GuiElement {
 
     @Shadow
     protected abstract void renderHotbarItem(int index, int xPos, int yPos, float partialTicks, PlayerEntity player);

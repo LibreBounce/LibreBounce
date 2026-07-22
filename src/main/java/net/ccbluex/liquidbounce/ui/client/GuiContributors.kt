@@ -109,8 +109,8 @@ class GuiContributors(private val prevGui: Screen) : AbstractScreen() {
 
                 y += imageSize
 
-                Fonts.font40.drawString("@" + credit.name, x + infoOffset + 5f, 48f, Color.WHITE.rgb, true)
-                Fonts.font40.drawString(
+                Fonts.font40.draw("@" + credit.name, x + infoOffset + 5f, 48f, Color.WHITE.rgb, true)
+                Fonts.font40.draw(
                     "${credit.commits} commits §a${DECIMAL_FORMAT.format(credit.additions)}++ §4${
                         DECIMAL_FORMAT.format(
                             credit.deletions
@@ -130,7 +130,7 @@ class GuiContributors(private val prevGui: Screen) : AbstractScreen() {
 
                     glEnd()
 
-                    Fonts.font40.drawString(s, (x + 5f), y.toFloat(), Color.WHITE.rgb, true)
+                    Fonts.font40.draw(s, (x + 5f), y.toFloat(), Color.WHITE.rgb, true)
                 }
             }
 

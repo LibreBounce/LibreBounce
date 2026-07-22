@@ -21,7 +21,7 @@ class ListElement(
 
     override var margin: Float = 5f
     override var height: Float = font35.fontHeight.toFloat() + margin
-    override var width: Float = font35.getStringWidth(string).toFloat()
+    override var width: Float = font35.getWidth(string).toFloat()
 
     private var hitboxX = 0f..0f
     private var hitboxY = 0f..0f
@@ -38,7 +38,7 @@ class ListElement(
     override fun drawElement(mouseX: Float, mouseY: Float, partialTicks: Float) {
         updateElement()
 
-        font35.drawString(
+        font35.draw(
             string,
             startX,
             startY,

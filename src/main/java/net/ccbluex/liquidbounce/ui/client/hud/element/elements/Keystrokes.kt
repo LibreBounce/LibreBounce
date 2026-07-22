@@ -80,7 +80,7 @@ class Keystrokes : Element("Keystrokes", 2.0, 34.0) {
     }
 
     private val GridKey.textWidth: Int
-        get() = font.getStringWidth(this.text)
+        get() = font.getWidth(this.text)
 
     // row -> column -> key
     private val gridLayout = arrayOf(
@@ -177,10 +177,10 @@ class Keystrokes : Element("Keystrokes", 2.0, 34.0) {
                 )
             }
 
-            val textX = (adjustedStartX + adjustedEndX) / 2 - (font.getStringWidth(key) / 2)
+            val textX = (adjustedStartX + adjustedEndX) / 2 - (font.getWidth(key) / 2)
             val textY = adjustedY + (scaledBoxSize / 2) - (fontHeight / 2)
 
-            font.drawString(key, textX, textY + if (font == mc.fontRendererObj) 0 else 2, textColor.rgb, textShadow)
+            font.draw(key, textX, textY + if (font == mc.fontRendererObj) 0 else 2, textColor.rgb, textShadow)
         }
 
         return Border(0F, boxSize + padding, boxSize * 3 + padding * 2, boxSize * 4 + padding * 3)

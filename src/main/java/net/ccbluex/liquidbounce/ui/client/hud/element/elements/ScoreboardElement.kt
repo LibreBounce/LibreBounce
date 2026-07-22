@@ -86,7 +86,7 @@ class ScoreboardElement(
                 scores.drop(scoreCollection.size - 15)
             } else scores
 
-            var maxWidth = fontRenderer.getStringWidth(objective.displayName)
+            var maxWidth = fontRenderer.getWidth(objective.displayName)
 
             for (score in scoreCollection) {
                 val scorePlayerTeam = scoreboard.getPlayersTeam(score.playerName)
@@ -99,7 +99,7 @@ class ScoreboardElement(
                 } else {
                     Team.formatPlayerName(scorePlayerTeam, score.playerName)
                 }
-                maxWidth = maxWidth.coerceAtLeast(fontRenderer.getStringWidth(width))
+                maxWidth = maxWidth.coerceAtLeast(fontRenderer.getWidth(width))
             }
 
             val maxHeight = scoreCollection.size * fontHeight
@@ -182,11 +182,11 @@ class ScoreboardElement(
                         minX + 4
                     }.toFloat()
 
-                    fontRenderer.drawString(name, textX, height, textColor, shadow)
+                    fontRenderer.draw(name, textX, height, textColor, shadow)
                     if (number) {
-                        fontRenderer.drawString(
+                        fontRenderer.draw(
                             scorePoints,
-                            (numberX - font.getStringWidth(scorePoints)).toFloat(),
+                            (numberX - font.getWidth(scorePoints)).toFloat(),
                             height,
                             textColor,
                             shadow
@@ -227,9 +227,9 @@ class ScoreboardElement(
 
                         glColor4f(1f, 1f, 1f, 1f)
 
-                        fontRenderer.drawString(
+                        fontRenderer.draw(
                             displayName,
-                            (minX..maxX).lerpWith(0.5F) - fontRenderer.getStringWidth(displayName) / 2,
+                            (minX..maxX).lerpWith(0.5F) - fontRenderer.getWidth(displayName) / 2,
                             height - fontHeight - inc,
                             textColor,
                             shadow

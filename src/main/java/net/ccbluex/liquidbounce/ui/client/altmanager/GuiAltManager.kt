@@ -106,10 +106,10 @@ class GuiAltManager(private val prevGui: Screen) : AbstractScreen() {
                 0xffffff
             )
             Fonts.font35.drawCenteredString(status, width / 2f, 32f, 0xffffff)
-            Fonts.font35.drawStringWithShadow(
+            Fonts.font35.drawWithShadow(
                 "§7User: §a${mc.getSession().username}", 6f, 6f, 0xffffff
             )
-            Fonts.font35.drawStringWithShadow(
+            Fonts.font35.drawWithShadow(
                 "§7Type: §a${
                     /*if (altService.currentService == AltService.EnumAltService.THEALTENING) "TheAltening" else if (isValidTokenOffline(
                             mc.getSession().token
@@ -120,7 +120,7 @@ class GuiAltManager(private val prevGui: Screen) : AbstractScreen() {
                 }", 6f, 15f, 0xffffff
             )
             searchField.drawTextBox()
-            if (searchField.text.isEmpty() && !searchField.isFocused) Fonts.font40.drawStringWithShadow(
+            if (searchField.text.isEmpty() && !searchField.isFocused) Fonts.font40.drawWithShadow(
                 translationText("Search"), searchField.xPosition + 4f, 17f, 0xffffff
             )
         }
@@ -267,9 +267,9 @@ class GuiAltManager(private val prevGui: Screen) : AbstractScreen() {
                 }
             }
 
-            9 -> { // Altening Button
+            /*9 -> { // Altening Button
                 mc.openScreen(GuiTheAltening(this))
-            }
+            }*/
 
             10 -> { // Session Login Button
                 mc.openScreen(GuiSessionLogin(this))

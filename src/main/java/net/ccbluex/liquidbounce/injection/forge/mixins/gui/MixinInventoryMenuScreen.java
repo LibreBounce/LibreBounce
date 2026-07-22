@@ -10,7 +10,7 @@ import net.ccbluex.liquidbounce.utils.timing.TickTimer;
 import net.minecraft.client.gui.screen.inventory.menu.ChestScreen;
 import net.minecraft.client.gui.screen.inventory.menu.InventoryMenuScreen;
 import net.minecraft.client.gui.screen.inventory.menu.SurvivalInventoryScreen;
-import net.minecraft.inventory.Slot;
+import net.minecraft.inventory.slot.InventorySlot;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
@@ -65,7 +65,7 @@ public abstract class MixinInventoryMenuScreen extends MixinScreen {
         final AutoArmor autoArmor = AutoArmor.INSTANCE;
         final RenderUtils renderUtils = RenderUtils.INSTANCE;
 
-        // Slot X/Y
+        // InventorySlot X/Y
         int x = slot.xDisplayPosition;
         int y = slot.yDisplayPosition;
 
