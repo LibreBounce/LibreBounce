@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "id": "librebounce",
+  "version": "${version}",
+  "name": "LibreBounce",
+  "description": "This is an example description! Tell everyone what your mod is about!",
+  "authors": [
+    "CCBlueX Team",
+    "CzechHek",
+    "mems01",
+    "EclipsesDev",
+    "thatonecoder"
+  ],
+  "contact": {
+    "homepage": "https://librebounce.codeberg.page",
+    "sources": "https://github.com/LibreBounce/LibreBounce"
+  },
+  "license": "GPL-3.0",
+  "icon": "assets/template-mod/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "init": [
+      {
+        "value": "net.ccbluex.liquidbounce.LiquidBounce",
+        "adapter": "kotlin"
+      }
+    ]
+  },
+  "mixins": [
+    "librebounce.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.14.21",
+    "minecraft": "1.8.9",
+    "osl-entrypoints": ">=0.4.0",
+    "fabric-language-kotlin": ">=1.13.12+kotlin.2.4.0"
+  }
+}
