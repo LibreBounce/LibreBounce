@@ -46,7 +46,7 @@ object ServerUtils : MinecraftInstance {
                     serverAddress.port,
                     mc.options.isUsingNativeTransport
                 )
-                networkManager.netHandler = NetHandlerLoginClient(networkManager, mc, TitleScreen())
+                networkManager.networkHandler = NetHandlerLoginClient(networkManager, mc, TitleScreen())
 
                 networkManager.sendPacket(
                     HandshakeC2SPacket(47, serverAddress.ip, serverAddress.port, NetworkProtocol.LOGIN, true)

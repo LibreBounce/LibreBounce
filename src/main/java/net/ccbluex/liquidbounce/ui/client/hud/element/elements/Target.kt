@@ -243,7 +243,7 @@ class Target : Element("Target") {
                         )
 
                         // Draw info
-                        mc.netHandler?.getPlayerInfo(target.uuid)?.let {
+                        mc.networkHandler?.getOnlinePlayer(target.uuid)?.let {
                             bodyFont.draw(
                                 "Ping: ${it.responseTime.coerceAtLeast(0)}", 36F, 24F, textCustomColor, textShadow
                             )

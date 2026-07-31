@@ -55,7 +55,7 @@ object GameDetector : Module("GameDetector", Category.MISC, gameDetecting = fals
 
         val player = mc.player ?: return@handler
         val world = mc.world ?: return@handler
-        val netHandler = mc.netHandler ?: return@handler
+        val networkHandler = mc.networkHandler ?: return@handler
         val abilities = player.abilities
 
         val slots = slot - 1
@@ -69,7 +69,7 @@ object GameDetector : Module("GameDetector", Category.MISC, gameDetecting = fals
         )
             return@handler
 
-        if (tabList && netHandler.playerInfoMap.size <= 1)
+        if (tabList && networkHandler.onlinePlayers.size <= 1)
             return@handler
 
         if (teams && player.team?.allowFriendlyFire == false && world.scoreboard.teams.size == 1)

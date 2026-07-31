@@ -158,6 +158,7 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true) {
 
         if (delta > 180) delta -= 360
         if (delta < -180) delta += 360
+
         return abs(delta)
     }
 

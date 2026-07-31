@@ -117,11 +117,11 @@ object PacketUtils : MinecraftInstance, Listenable {
     @JvmStatic
     fun sendPacket(packet: Packet<*>, triggerEvent: Boolean = true) {
         if (triggerEvent) {
-            mc.netHandler?.addToSendQueue(packet)
+            mc.networkHandler?.addToSendQueue(packet)
             return
         }
 
-        val netManager = mc.netHandler?.networkManager ?: return
+        val netManager = mc.networkHandler?.networkManager ?: return
 
         PPSCounter.registerType(PPSCounter.PacketType.SEND)
         if (netManager.isChannelOpen) {
@@ -144,7 +144,7 @@ object PacketUtils : MinecraftInstance, Listenable {
 
     @JvmStatic
     private fun handlePacket(packet: Packet<*>?) {
-        runCatching { (packet as Packet<ClientPlayPacketHandler>).processPacket(mc.netHandler) }.onSuccess {
+        runCatching { (packet as Packet<ClientPlayPacketHandler>).processPacket(mc.networkHandler) }.onSuccess {
             PPSCounter.registerType(PPSCounter.PacketType.RECEIVED)
         }
     }

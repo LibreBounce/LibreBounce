@@ -87,7 +87,7 @@ object AutoAccount :
     private fun relog(info: String = "") {
         // Disconnect from server
         if (mc.currentServerData != null && mc.world != null)
-            mc.netHandler.networkManager.closeChannel(
+            mc.networkHandler.networkManager.closeChannel(
                 LiteralText("$info\n\nReconnecting with a random account in ${reconnectDelay}ms")
             )
 

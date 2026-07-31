@@ -66,14 +66,14 @@ object NameProtect : Module("NameProtect", Category.MISC, subjective = true, gam
 
         // Check for new players
         if (event.packet is LoginS2CPacket) {
-            for (playerInfo in mc.netHandler.playerInfoMap) {
+            for (playerInfo in mc.networkHandler.onlinePlayers) {
                 handleNewPlayer(playerInfo.gameProfile.id)
             }
         }
 
         // Check if player in game leave
         if (event.packet is DisconnectS2CPacket) {
-            for (playerInfo in mc.netHandler.playerInfoMap) {
+            for (playerInfo in mc.networkHandler.onlinePlayers) {
                 handlePlayerLeave(playerInfo.gameProfile.id)
             }
         }
@@ -86,7 +86,7 @@ object NameProtect : Module("NameProtect", Category.MISC, subjective = true, gam
         playerRandomNames.clear()
 
         if (randomNames) {
-            for (playerInfo in mc.netHandler.playerInfoMap) {
+            for (playerInfo in mc.networkHandler.onlinePlayers) {
                 val playerUUID = playerInfo.gameProfile.id
                 val randomizeName = (1..nameLength).joinToString("") { characters.random().toString() }
                 playerRandomNames[playerUUID] = randomizeName to nameLength
@@ -94,7 +94,7 @@ object NameProtect : Module("NameProtect", Category.MISC, subjective = true, gam
         }
 
         if (randomNameLength) {
-            for (playerInfo in mc.netHandler.playerInfoMap) {
+            for (playerInfo in mc.networkHandler.onlinePlayers) {
                 val playerUUID = playerInfo.gameProfile.id
 
                 val randomLength = nameLengthRange.random()
@@ -132,7 +132,7 @@ object NameProtect : Module("NameProtect", Category.MISC, subjective = true, gam
         newText = newText.replace(p.name, translateAlternateColorCodes(fakeName) + "§f")
 
         // Replace all other player names with "Protected User" or Random Characters
-        for (playerInfo in mc.netHandler.playerInfoMap) {
+        for (playerInfo in mc.networkHandler.onlinePlayers) {
             val playerUUID = playerInfo.gameProfile.id
 
             if (allPlayers) {

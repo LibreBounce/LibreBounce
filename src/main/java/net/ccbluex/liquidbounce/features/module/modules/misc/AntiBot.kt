@@ -134,7 +134,7 @@ object AntiBot : Module("AntiBot", Category.MISC) {
             if (entity.getPing() == 0) return true
         }
 
-        if (invalidUUID && mc.netHandler.getPlayerInfo(entity.uuid) == null) {
+        if (invalidUUID && mc.networkHandler.getOnlinePlayer(entity.uuid) == null) {
             return true
         }
 
@@ -159,7 +159,7 @@ object AntiBot : Module("AntiBot", Category.MISC) {
             return true
 
         if (duplicateProfile) {
-            return mc.netHandler.playerInfoMap.count {
+            return mc.networkHandler.onlinePlayers.count {
                 it.gameProfile.name == entity.gameProfile.name
                         && it.gameProfile.id != entity.gameProfile.id
             } == 1
@@ -182,7 +182,7 @@ object AntiBot : Module("AntiBot", Category.MISC) {
         }
 
         if (duplicateInTab) {
-            for (networkPlayerInfo in mc.netHandler.playerInfoMap.filterNotNull()) {
+            for (networkPlayerInfo in mc.networkHandler.onlinePlayers.filterNotNull()) {
                 val playerName = stripColor(networkPlayerInfo.getFullName())
 
                 if (tabPlayerNames.contains(playerName)) {
@@ -193,7 +193,7 @@ object AntiBot : Module("AntiBot", Category.MISC) {
             }
 
             if (tabDuplicateNames.isNotEmpty()) {
-                return mc.netHandler.playerInfoMap.count { stripColor(it.getFullName()) in tabDuplicateNames } > 1
+                return mc.networkHandler.onlinePlayers.count { stripColor(it.getFullName()) in tabDuplicateNames } > 1
             }
         }
 
@@ -201,7 +201,7 @@ object AntiBot : Module("AntiBot", Category.MISC) {
             val equals = tabMode == "Equals"
             val targetName = stripColor(entity.displayName.formattedText)
 
-            val shouldReturn = mc.netHandler.playerInfoMap.any { networkPlayerInfo ->
+            val shouldReturn = mc.networkHandler.onlinePlayers.any { networkPlayerInfo ->
                 val networkName = stripColor(networkPlayerInfo.getFullName())
                 if (equals) {
                     targetName == networkName

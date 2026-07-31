@@ -107,7 +107,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
     }
 
     private fun checkedStaffRemoved() {
-        mc.netHandler?.playerInfoMap?.mapNotNullTo(hashSetOf()) { it?.gameProfile?.name }?.let(checkedStaff::retainAll)
+        mc.networkHandler?.onlinePlayers?.mapNotNullTo(hashSetOf()) { it?.gameProfile?.name }?.let(checkedStaff::retainAll)
     }
 
     val onPacket = handler<PacketEvent> { event ->
@@ -225,10 +225,10 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
             return
         }
 
-        val playerInfoMap = mc.netHandler?.playerInfoMap ?: return
+        val onlinePlayers = mc.networkHandler?.onlinePlayers ?: return
 
-        val playerInfos = synchronized(playerInfoMap) {
-            playerInfoMap.mapNotNull { playerInfo ->
+        val playerInfos = synchronized(onlinePlayers) {
+            onlinePlayers.mapNotNull { playerInfo ->
                 playerInfo?.gameProfile?.name?.let { playerName ->
                     playerName to playerInfo.responseTime
                 }
@@ -273,7 +273,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
 
         val condition = when (staff) {
             is PlayerEntity -> {
-                val responseTime = mc.netHandler?.getPlayerInfo(staff.uuid)?.responseTime ?: 0
+                val responseTime = mc.networkHandler?.getOnlinePlayer(staff.uuid)?.responseTime ?: 0
                 when {
                     responseTime > 0 -> "§e(${responseTime}ms)"
                     responseTime == 0 -> "§a(Joined)"
@@ -323,7 +323,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
         if (!vanish) return
 
         if (action == UPDATE_LATENCY) {
-            val playerListSize = mc.netHandler?.playerInfoMap?.size ?: 0
+            val playerListSize = mc.networkHandler?.onlinePlayers?.size ?: 0
 
             if (entries.size != playerListSize) {
                 if (warn == "Chat") chat("§aA player might be vanished.")

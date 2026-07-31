@@ -78,7 +78,7 @@ fun getNearestPointBB(eye: Vec3d, box: Box):Vec3d3 {
     return Vec3d(origin[0], origin[1], origin[2])
 }
 
-fun PlayerEntity.getPing() = mc.netHandler.getPlayerInfo(uuid)?.responseTime ?: 0
+fun PlayerEntity.getPing() = mc.networkHandler.getOnlinePlayer(uuid)?.responseTime ?: 0
 
 fun Entity.isAnimal() =
     this is EntityAnimal

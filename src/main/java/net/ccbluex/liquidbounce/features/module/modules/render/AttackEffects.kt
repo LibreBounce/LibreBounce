@@ -78,7 +78,7 @@ object AttackEffects : Module("AttackEffects", Category.RENDER) {
     }
 
     private fun spawnLightning(target: LivingEntity) {
-        mc.netHandler.handleSpawnGlobalEntity(
+        mc.networkHandler.handleSpawnGlobalEntity(
             AddGlobalEntityS2CPacket(
                 EntityLightningBolt(mc.world, target.posX, target.posY, target.posZ)
             )
