@@ -52,7 +52,7 @@ object HUD : Module("HUD", Category.RENDER, gameDetecting = false, defaultState 
     private val blur by boolean("Blur", false)
 
     val onRender2D = handler<Render2DEvent> {
-        if (mc.currentScreen is GuiHudDesigner)
+        if (mc.screen is GuiHudDesigner)
             return@handler
 
         hud.render(false)
@@ -68,8 +68,8 @@ object HUD : Module("HUD", Category.RENDER, gameDetecting = false, defaultState 
 
     val onScreen = handler<ScreenEvent>(always = true) { event ->
         if (mc.world == null || mc.player == null) return@handler
-        if (state && blur && !mc.entityRenderer.isShaderActive && event.guiScreen != null &&
-            !(event.guiScreen is ChatScreen || event.guiScreen is GuiHudDesigner)
+        if (state && blur && !mc.entityRenderer.isShaderActive && event.screen != null &&
+            !(event.screen is ChatScreen || event.screen is GuiHudDesigner)
         ) mc.entityRenderer.loadShader(
             Identifier(CLIENT_NAME.lowercase() + "/blur.json")
         ) else if (mc.entityRenderer.shaderGroup != null &&

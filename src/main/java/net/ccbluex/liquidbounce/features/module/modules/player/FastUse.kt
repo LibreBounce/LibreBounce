@@ -33,7 +33,7 @@ object FastUse : Module("FastUse", Category.PLAYER) {
         val player = mc.player ?: return@handler
 
         if (usedTimer) {
-            mc.timer.timerSpeed = 1F
+            mc.timer.tpsScale = 1F
             usedTimer = false
         }
 
@@ -48,7 +48,7 @@ object FastUse : Module("FastUse", Category.PLAYER) {
                     sendPacket(PlayerMoveC2SPacket(serverOnGround))
                 }
 
-                mc.playerController.onStoppedUsingItem(player)
+                mc.interactionManager.onStoppedUsingItem(player)
             }
 
             "NCP" -> if (player.itemInUseDuration > 14) {
@@ -56,16 +56,16 @@ object FastUse : Module("FastUse", Category.PLAYER) {
                     sendPacket(PlayerMoveC2SPacket(serverOnGround))
                 }
 
-                mc.playerController.onStoppedUsingItem(player)
+                mc.interactionManager.onStoppedUsingItem(player)
             }
 
             "AAC" -> {
-                mc.timer.timerSpeed = 1.22F
+                mc.timer.tpsScale = 1.22F
                 usedTimer = true
             }
 
             "Custom" -> {
-                mc.timer.timerSpeed = customTimer
+                mc.timer.tpsScale = customTimer
                 usedTimer = true
 
                 if (!msTimer.hasTimePassed(delay))
@@ -91,7 +91,7 @@ object FastUse : Module("FastUse", Category.PLAYER) {
 
     override fun onDisable() {
         if (usedTimer) {
-            mc.timer.timerSpeed = 1F
+            mc.timer.tpsScale = 1F
             usedTimer = false
         }
     }

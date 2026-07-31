@@ -18,7 +18,7 @@ object VulcanLowHop : SpeedMode("VulcanLowHop") {
 
             if (isMoving) {
                 if (!onGround && fallDistance > 1.1) {
-                    mc.timer.timerSpeed = 1f
+                    mc.timer.tpsScale = 1f
                     motionY = -0.25
                     return
                 }
@@ -26,15 +26,15 @@ object VulcanLowHop : SpeedMode("VulcanLowHop") {
                 if (onGround) {
                     tryJump()
                     strafe(0.4815f)
-                    mc.timer.timerSpeed = 1.263f
-                } else if (ticksExisted % 4 == 0) {
-                    motionY = if (ticksExisted % 3 == 0) -0.01 / motionY
+                    mc.timer.tpsScale = 1.263f
+                } else if (ticks % 4 == 0) {
+                    motionY = if (ticks % 3 == 0) -0.01 / motionY
                     else -motionY / posY
 
-                    mc.timer.timerSpeed = 0.8985f
+                    mc.timer.tpsScale = 0.8985f
                 }
 
-            } else mc.timer.timerSpeed = 1f
+            } else mc.timer.tpsScale = 1f
         }
     }
 }

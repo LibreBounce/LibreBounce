@@ -241,7 +241,7 @@ object Speed : Module("Speed", Category.MOVEMENT) {
         if (mc.player == null)
             return
 
-        mc.timer.timerSpeed = 1f
+        mc.timer.tpsScale = 1f
 
         modeModule.onEnable()
     }
@@ -250,7 +250,7 @@ object Speed : Module("Speed", Category.MOVEMENT) {
         if (mc.player == null)
             return
 
-        mc.timer.timerSpeed = 1f
+        mc.timer.tpsScale = 1f
         mc.player.speedInAir = 0.02f
 
         modeModule.onDisable()

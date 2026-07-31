@@ -128,10 +128,10 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
                 )
 
                 player.isSprinting = true
-                player.serverSprintState = true
+                player.sentSprinting = true
             }
 
-            "SprintTap", "Silent" -> if (player.isSprinting && player.serverSprintState) ticks = 2
+            "SprintTap", "Silent" -> if (player.isSprinting && player.sentSprinting) ticks = 2
 
             "Packet" -> {
                 sendPackets(
@@ -151,7 +151,7 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
 
             "WTap" -> {
                 // We want the player to be sprinting before we block inputs
-                if (player.isSprinting && player.serverSprintState && !blockInput && !startWaiting) {
+                if (player.isSprinting && player.sentSprinting && !blockInput && !startWaiting) {
                     val delayMultiplier = if (useDelayMultiplier) 1.0 / (abs(targetDistance - distance) + 1.0) else 1.0
 
                     blockInputTicks = (ticksUntilBlock.random().toDouble() * delayMultiplier).toInt()
@@ -166,15 +166,15 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
             }
 
             "STap" -> {
-                if (player.isSprinting && player.serverSprintState) {
-                    mc.gameOptions.forwardKey.pressed = false
-                    mc.gameOptions.backKey.pressed = true
+                if (player.isSprinting && player.sentSprinting) {
+                    mc.options.forwardKey.pressed = false
+                    mc.options.backKey.pressed = true
                 }
             }
 
             "Sneak" -> {
-                if (player.isSprinting && player.serverSprintState && !GameOptions.isKeyDown(mc.gameOptions.sneakKey) && !mc.gameOptions.sneakKey.pressed) {
-                    mc.gameOptions.sneakKey.pressed = true
+                if (player.isSprinting && player.sentSprinting && !GameOptions.isKeyDown(mc.options.sneakKey) && !mc.options.sneakKey.pressed) {
+                    mc.options.sneakKey.pressed = true
                 }
             }
         }
@@ -229,16 +229,16 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
             }
 
             "STap" -> {
-                if (mc.gameOptions.backKey.pressed && !GameOptions.isKeyDown(mc.gameOptions.backKey) &&
+                if (mc.options.backKey.pressed && !GameOptions.isKeyDown(mc.options.backKey) &&
                     sTapTimer.resetIfPassed()
                 )
-                    mc.gameOptions.backKey.pressed = false
-                    mc.gameOptions.forwardKey.pressed = true
+                    mc.options.backKey.pressed = false
+                    mc.options.forwardKey.pressed = true
             }
 
             "Sneak" -> {
-                if (mc.gameOptions.sneakKey.pressed && !GameOptions.isKeyDown(mc.gameOptions.sneakKey) && sneakTimer.resetIfPassed())
-                    mc.gameOptions.sneakKey.pressed = false
+                if (mc.options.sneakKey.pressed && !GameOptions.isKeyDown(mc.options.sneakKey) && sneakTimer.resetIfPassed())
+                    mc.options.sneakKey.pressed = false
             }
         }
     }

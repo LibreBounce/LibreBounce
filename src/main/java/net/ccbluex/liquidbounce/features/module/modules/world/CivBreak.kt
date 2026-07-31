@@ -75,7 +75,7 @@ object CivBreak : Module("CivBreak", Category.WORLD) {
             PlayerHandActionC2SPacket(STOP_DESTROY_BLOCK, blockPos, enumFacing)
         )
 
-        mc.playerController.clickBlock(blockPos, enumFacing)
+        mc.interactionManager.clickBlock(blockPos, enumFacing)
     }
 
     val onRender3D = handler<Render3DEvent> {

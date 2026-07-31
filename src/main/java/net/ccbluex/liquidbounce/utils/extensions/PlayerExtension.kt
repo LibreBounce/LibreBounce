@@ -217,12 +217,12 @@ infix fun LivingEntity.setSprintSafely(new: Boolean) {
     isSprinting = new
 }
 
-// Modified mc.playerController.onPlayerRightClick() that sends correct stack in its C08
+// Modified mc.interactionManager.onPlayerRightClick() that sends correct stack in its C08
 fun LocalClientPlayerEntity.onPlayerRightClick(
     clickPos: BlockPos, side: Direction, clickVec: Vec3d,
     stack: ItemStack? = inventory.mainInventory[SilentHotbar.currentSlot],
 ): Boolean {
-    val controller = mc.playerController ?: return false
+    val controller = mc.interactionManager ?: return false
 
     controller.syncCurrentPlayItem()
 
@@ -283,12 +283,12 @@ fun LocalClientPlayerEntity.onPlayerRightClick(
     }
 }
 
-// Modified mc.playerController.sendUseItem() that sends correct stack in its C08
+// Modified mc.interactionManager.sendUseItem() that sends correct stack in its C08
 fun LocalClientPlayerEntity.sendUseItem(stack: ItemStack): Boolean {
-    if (mc.playerController.isSpectator)
+    if (mc.interactionManager.isSpectator)
         return false
 
-    mc.playerController?.syncCurrentPlayItem()
+    mc.interactionManager?.syncCurrentPlayItem()
 
     sendPacket(PlayerUseC2SPacket(stack))
 
@@ -308,7 +308,7 @@ fun LocalClientPlayerEntity.sendUseItem(stack: ItemStack): Boolean {
 }
 
 fun LocalClientPlayerEntity.tryJump() {
-    if (!mc.gameOptions.jumpKey.isKeyDown) {
+    if (!mc.options.jumpKey.isKeyDown) {
         jump()
     }
 }
@@ -325,7 +325,7 @@ inline fun LocalClientPlayerEntity.attackEntityWithModifiedSprint(
     MovementUtils.affectSprintOnAttack = affectMovementBySprint
 
     try {
-        mc.playerController?.attackEntity(this, entity)
+        mc.interactionManager?.attackEntity(this, entity)
     } catch (any: Exception) {
         // Unlikely to happen, but if it does, we just want to make sure affectSprintOnAttack is null.
         any.printStackTrace()

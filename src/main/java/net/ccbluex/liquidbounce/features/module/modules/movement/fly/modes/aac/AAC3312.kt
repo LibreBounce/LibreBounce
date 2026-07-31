@@ -18,10 +18,10 @@ object AAC3312 : FlyMode("AAC3.3.12") {
             if (posY < -70)
                 motionY = aacMotion.toDouble()
 
-            mc.timer.timerSpeed = 1f
+            mc.timer.tpsScale = 1f
 
             if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL)) {
-                mc.timer.timerSpeed = 0.2f
+                mc.timer.tpsScale = 0.2f
                 mc.rightClickDelayTimer = 0
             }
         }

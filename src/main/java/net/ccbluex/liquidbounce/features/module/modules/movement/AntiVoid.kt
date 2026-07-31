@@ -198,7 +198,7 @@ object AntiVoid : Module("AntiVoid", Category.MOVEMENT) {
 
         if (mode != "Blink" || !shouldBlink) return@handler
 
-        if (player.isDead || player.ticksExisted < 20) {
+        if (player.isDead || player.ticks < 20) {
             BlinkUtils.unblink()
             return@handler
         }

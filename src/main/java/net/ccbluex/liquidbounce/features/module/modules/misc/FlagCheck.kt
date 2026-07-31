@@ -105,7 +105,7 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true) {
     val onPacket = handler<PacketEvent> { event ->
         val player = mc.player ?: return@handler
 
-        if (player.ticksExisted <= 100)
+        if (player.ticks <= 100)
             return@handler
 
         if (player.isDead || (player.abilities.flying && player.abilities.invulnerable && !player.onGround))
@@ -137,7 +137,7 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true) {
                     chat("§dDetected §3Lagback §b(§c${flagCount}x§b)")
                 }
 
-                if (player.ticksExisted % 3 == 0) {
+                if (player.ticks % 3 == 0) {
                     lagbackDetected = false
                 }
 
@@ -168,7 +168,7 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true) {
         val player = mc.player ?: return@handler
         val world = mc.world ?: return@handler
 
-        if (player.isDead || mc.currentScreen is DeathScreen || player.ticksExisted <= 100) {
+        if (player.isDead || mc.screen is DeathScreen || player.ticks <= 100) {
             return@handler
         }
 
@@ -321,7 +321,7 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true) {
             return@handler
         }
 
-        if (mc.player.ticksExisted > 100) {
+        if (mc.player.ticks > 100) {
             resetTicks++
         }
     }

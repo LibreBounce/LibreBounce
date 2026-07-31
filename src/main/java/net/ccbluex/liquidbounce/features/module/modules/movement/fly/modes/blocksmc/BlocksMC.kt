@@ -71,8 +71,8 @@ object BlocksMC : FlyMode("BlocksMC"), Listenable {
             if (isTeleported) {
                 if (stable) player.motionY = 0.0
 
-                mc.timer.timerSpeed = if (!player.onGround && timerSlowed) {
-                    if (player.ticksExisted % 7 == 0) 0.415f else 0.35f
+                mc.timer.tpsScale = if (!player.onGround && timerSlowed) {
+                    if (player.ticks % 7 == 0) 0.415f else 0.35f
                 } else 1.0f
 
                 when (player.airTicks) {

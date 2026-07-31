@@ -12,7 +12,7 @@ import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 
 object NCPFHop : SpeedMode("NCPFHop") {
     override fun onEnable() {
-        mc.timer.timerSpeed = 1.0866f
+        mc.timer.tpsScale = 1.0866f
         super.onEnable()
     }
 

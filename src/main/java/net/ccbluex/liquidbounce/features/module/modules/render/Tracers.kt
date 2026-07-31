@@ -61,10 +61,10 @@ object Tracers : Module("Tracers", Category.RENDER) {
     val onRender3D = handler<Render3DEvent>(priority = -5) {
         mc.player ?: return@handler
 
-        val originalViewBobbing = mc.gameOptions.viewBobbing
+        val originalViewBobbing = mc.options.viewBobbing
 
         // Temporarily disable view bobbing and re-apply camera transformation
-        mc.gameOptions.viewBobbing = false
+        mc.options.viewBobbing = false
         mc.entityRenderer.setupCameraTransform(mc.timer.renderPartialTicks, 0)
 
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
@@ -93,7 +93,7 @@ object Tracers : Module("Tracers", Category.RENDER) {
 
         glEnd()
 
-        mc.gameOptions.viewBobbing = originalViewBobbing
+        mc.options.viewBobbing = originalViewBobbing
 
         glEnable(GL_TEXTURE_2D)
         glDisable(GL_LINE_SMOOTH)

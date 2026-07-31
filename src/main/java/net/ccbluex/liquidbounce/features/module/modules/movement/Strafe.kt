@@ -38,9 +38,9 @@ object Strafe : Module("Strafe", Category.MOVEMENT, gameDetecting = false) {
 
     val onUpdate = handler<UpdateEvent> {
         mc.player?.run {
-            if (onGround && mc.gameOptions.jumpKey.isKeyDown && allDirectionsJump && isMoving && !(isInLiquid || isOnLadder || inCobweb)) {
-                if (mc.gameOptions.jumpKey.isKeyDown) {
-                    mc.gameOptions.jumpKey.pressed = false
+            if (onGround && mc.options.jumpKey.isKeyDown && allDirectionsJump && isMoving && !(isInLiquid || isOnLadder || inCobweb)) {
+                if (mc.options.jumpKey.isKeyDown) {
+                    mc.options.jumpKey.pressed = false
                     wasDown = true
                 }
 
@@ -52,7 +52,7 @@ object Strafe : Module("Strafe", Category.MOVEMENT, gameDetecting = false) {
                 jump = true
 
                 if (wasDown) {
-                    mc.gameOptions.jumpKey.pressed = true
+                    mc.options.jumpKey.pressed = true
                     wasDown = false
                 }
             } else {

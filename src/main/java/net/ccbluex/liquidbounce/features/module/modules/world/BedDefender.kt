@@ -69,8 +69,8 @@ object BedDefender : Module("BedDefender", Category.WORLD) {
     override fun onDisable() {
         val player = mc.player ?: return
 
-        if (!GameOptions.isKeyDown(mc.gameOptions.sneakKey)) {
-            mc.gameOptions.sneakKey.pressed = false
+        if (!GameOptions.isKeyDown(mc.options.sneakKey)) {
+            mc.options.sneakKey.pressed = false
             if (player.isSneaking) player.isSneaking = false
         }
 
@@ -84,7 +84,7 @@ object BedDefender : Module("BedDefender", Category.WORLD) {
         val player = mc.player ?: return@handler
         val world = mc.world ?: return@handler
 
-        if (onSneakOnly && !mc.gameOptions.sneakKey.isKeyDown) {
+        if (onSneakOnly && !mc.options.sneakKey.isKeyDown) {
             return@handler
         }
 
@@ -125,7 +125,7 @@ object BedDefender : Module("BedDefender", Category.WORLD) {
                 ?: return@handler else defenceBlocks.random()
             val blockPos = BlockPos(pos.x.toDouble(), pos.y - player.eyeHeight + 1.5, pos.z.toDouble())
             val rotation = RotationUtils.toRotation(blockPos.center, false, player)
-            val raytrace = performBlockRaytrace(rotation, mc.playerController.blockReachDistance) ?: return@handler
+            val raytrace = performBlockRaytrace(rotation, mc.interactionManager.blockReachDistance) ?: return@handler
 
             if (options.rotationsActive) {
                 setTargetRotation(rotation, options, if (options.keepRotation) options.resetTicks else 1)
@@ -137,7 +137,7 @@ object BedDefender : Module("BedDefender", Category.WORLD) {
                 if (!isPlaceablePos(blockPos)) return@handler
 
                 when (autoSneak) {
-                    "Normal" -> mc.gameOptions.sneakKey.pressed = false
+                    "Normal" -> mc.options.sneakKey.pressed = false
                     "Packet" -> sendPacket(PlayerMovementActionC2SPacket(player, PlayerMovementActionC2SPacket.Action.START_SNEAKING))
                 }
 
@@ -145,7 +145,7 @@ object BedDefender : Module("BedDefender", Category.WORLD) {
                 timerCounter.reset()
             } else {
                 when (autoSneak) {
-                    "Normal" -> mc.gameOptions.sneakKey.pressed = true
+                    "Normal" -> mc.options.sneakKey.pressed = true
                     "Packet" -> sendPacket(PlayerMovementActionC2SPacket(player, PlayerMovementActionC2SPacket.Action.STOP_SNEAKING))
                 }
             }
@@ -232,7 +232,7 @@ object BedDefender : Module("BedDefender", Category.WORLD) {
             if (stack.stackSize <= 0) {
                 player.inventory.mainInventory[SilentHotbar.currentSlot] = null
                 ForgeEventFactory.onPlayerDestroyItem(player, stack)
-            } else if (stack.stackSize != prevSize || mc.playerController.isInCreativeMode)
+            } else if (stack.stackSize != prevSize || mc.interactionManager.isInCreativeMode)
                 mc.entityRenderer.itemRenderer.resetEquippedProgress()
 
             blockPosition = null

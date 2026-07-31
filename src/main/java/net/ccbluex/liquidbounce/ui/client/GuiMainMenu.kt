@@ -251,7 +251,7 @@ class TitleScreen : AbstractScreen() {
         }
 
         when (button.id) {
-            0 -> mc.openScreen(OptionsScreen(this, mc.gameOptions))
+            0 -> mc.openScreen(OptionsScreen(this, mc.options))
             1 -> mc.openScreen(SelectWorldScreen(this))
             2 -> mc.openScreen(MultiplayerScreen(this))
             4 -> mc.shutdown()

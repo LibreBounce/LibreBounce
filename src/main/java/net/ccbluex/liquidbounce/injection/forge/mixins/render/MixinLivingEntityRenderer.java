@@ -98,11 +98,11 @@ public abstract class MixinLivingEntityRenderer extends MixinRender {
             }
 
             if (esp.handleEvents() && esp.shouldRender(p_renderModel_1_)) {
-                boolean fancyGraphics = mc.gameOptions.fancyGraphics;
-                mc.gameOptions.fancyGraphics = false;
+                boolean fancyGraphics = mc.options.fancyGraphics;
+                mc.options.fancyGraphics = false;
 
-                float gamma = mc.gameOptions.gammaSetting;
-                mc.gameOptions.gammaSetting = 100000F;
+                float gamma = mc.options.gammaSetting;
+                mc.options.gammaSetting = 100000F;
 
                 switch (esp.getMode().toLowerCase()) {
                     case "wireframe":
@@ -142,8 +142,8 @@ public abstract class MixinLivingEntityRenderer extends MixinRender {
                         OutlineUtils.renderFive();
                         OutlineUtils.setColor(Color.WHITE);
                 }
-                mc.gameOptions.fancyGraphics = fancyGraphics;
-                mc.gameOptions.gammaSetting = gamma;
+                mc.options.fancyGraphics = fancyGraphics;
+                mc.options.gammaSetting = gamma;
             }
 
             mainModel.render(p_renderModel_1_, p_renderModel_2_, p_renderModel_3_, p_renderModel_4_, p_renderModel_5_, p_renderModel_6_, p_renderModel_7_);

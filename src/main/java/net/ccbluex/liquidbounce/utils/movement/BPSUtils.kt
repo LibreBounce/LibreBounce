@@ -18,7 +18,7 @@ object BPSUtils : MinecraftInstance, Listenable {
     fun getBPS(): Double {
         val player = mc.player ?: return 0.0
 
-        if (player.ticksExisted < 1 || mc.world == null) {
+        if (player.ticks < 1 || mc.world == null) {
             return 0.0
         }
 

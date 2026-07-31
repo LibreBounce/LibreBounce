@@ -18,14 +18,14 @@ object Fullbright : Module("Fullbright", Category.RENDER, gameDetecting = false)
     private var prevGamma = -1f
 
     override fun onEnable() {
-        prevGamma = mc.gameOptions.gammaSetting
+        prevGamma = mc.options.gammaSetting
     }
 
     override fun onDisable() {
         if (prevGamma == -1f)
             return
 
-        mc.gameOptions.gammaSetting = prevGamma
+        mc.options.gammaSetting = prevGamma
         prevGamma = -1f
 
         mc.player?.removePotionEffectClient(Potion.nightVision.id)
@@ -35,13 +35,13 @@ object Fullbright : Module("Fullbright", Category.RENDER, gameDetecting = false)
         if (state || XRay.handleEvents()) {
             when (mode) {
                 "Gamma" -> when {
-                    mc.gameOptions.gammaSetting <= 100f -> mc.gameOptions.gammaSetting++
+                    mc.options.gammaSetting <= 100f -> mc.options.gammaSetting++
                 }
 
                 "NightVision" -> mc.player?.addPotionEffect(PotionEffect(Potion.nightVision.id, 1337, 1))
             }
         } else if (prevGamma != -1f) {
-            mc.gameOptions.gammaSetting = prevGamma
+            mc.options.gammaSetting = prevGamma
             prevGamma = -1f
         }
     }

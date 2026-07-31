@@ -30,7 +30,7 @@ object UNCPHopNew : SpeedMode("UNCPHopNew") {
     override fun onUpdate() {
         mc.player?.run {
             if (fallDistance > 2) {
-                mc.timer.timerSpeed = 1f
+                mc.timer.tpsScale = 1f
                 return
             }
 
@@ -60,8 +60,8 @@ object UNCPHopNew : SpeedMode("UNCPHopNew") {
             }
 
             if (Speed.timerBoost) {
-                mc.timer.timerSpeed = if (damagedTimer <= 1) {
-                    when (ticksExisted % 5) {
+                mc.timer.tpsScale = if (damagedTimer <= 1) {
+                    when (ticks % 5) {
                         0, 1 -> 1.025f
                         2, 3 -> 1.08f
                         else -> 1f

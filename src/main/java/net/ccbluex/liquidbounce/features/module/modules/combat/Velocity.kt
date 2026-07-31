@@ -597,12 +597,12 @@ object Velocity : Module("Velocity", Category.COMBAT) {
             return@handler
 
         // Timer Abuse (https://github.com/CCBlueX/LiquidBounce/issues/2519)
-        if (timerTicks > 0 && mc.timer.timerSpeed <= 1) {
+        if (timerTicks > 0 && mc.timer.tpsScale <= 1) {
             val timerSpeed = 0.8f + (0.2f * (20 - timerTicks) / 20)
-            mc.timer.timerSpeed = timerSpeed.coerceAtMost(1f)
+            mc.timer.tpsScale = timerSpeed.coerceAtMost(1f)
             --timerTicks
         } else {
-            mc.timer.timerSpeed.coerceAtLeast(1f)
+            mc.timer.tpsScale.coerceAtLeast(1f)
         }
 
         if (hasReceivedVelocity) {

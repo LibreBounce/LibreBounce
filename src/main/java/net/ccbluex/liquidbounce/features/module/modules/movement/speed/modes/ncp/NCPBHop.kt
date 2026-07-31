@@ -21,7 +21,7 @@ object NCPBHop : SpeedMode("NCPBHop") {
     private var timerDelay = 0
 
     override fun onEnable() {
-        mc.timer.timerSpeed = 1f
+        mc.timer.tpsScale = 1f
 
         level = if (mc.world.getCollidingBoundingBoxes(
                 mc.player,
@@ -31,7 +31,7 @@ object NCPBHop : SpeedMode("NCPBHop") {
     }
 
     override fun onDisable() {
-        mc.timer.timerSpeed = 1f
+        mc.timer.tpsScale = 1f
 
         moveSpeed = baseMoveSpeed
         level = 0
@@ -52,11 +52,11 @@ object NCPBHop : SpeedMode("NCPBHop") {
         timerDelay %= 5
 
         if (timerDelay != 0) {
-            mc.timer.timerSpeed = 1f
+            mc.timer.tpsScale = 1f
         } else {
-            // WTF if (player.isMoving) mc.timer.timerSpeed = 32767f
+            // WTF if (player.isMoving) mc.timer.tpsScale = 32767f
             if (player.isMoving) {
-                mc.timer.timerSpeed = 1.3f
+                mc.timer.tpsScale = 1.3f
                 player.motionX *= 1.0199999809265137
                 player.motionZ *= 1.0199999809265137
             }

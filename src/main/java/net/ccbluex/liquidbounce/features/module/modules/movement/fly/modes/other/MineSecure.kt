@@ -22,12 +22,12 @@ object MineSecure : FlyMode("MineSecure") {
         mc.player?.run {
             abilities.flying = false
 
-            motionY = if (mc.gameOptions.sneakKey.isKeyDown) 0.0
+            motionY = if (mc.options.sneakKey.isKeyDown) 0.0
                 else -0.01
 
             strafe(vanillaSpeed, true)
 
-            if (!timer.hasTimePassed(150) || !mc.gameOptions.jumpKey.isKeyDown)
+            if (!timer.hasTimePassed(150) || !mc.options.jumpKey.isKeyDown)
                 return
 
             sendPackets(

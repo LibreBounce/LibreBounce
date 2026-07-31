@@ -594,7 +594,7 @@ object RotationUtils : MinecraftInstance, Listenable {
     /**
      * Returns the smallest angle difference possible with a specific sensitivity ("gcd")
      */
-    fun getFixedAngleDelta(sensitivity: Float = mc.gameOptions.mouseSensitivity) =
+    fun getFixedAngleDelta(sensitivity: Float = mc.options.mouseSensitivity) =
         (sensitivity * 0.6f + 0.2f).pow(3) * 1.2f
 
     /**
@@ -609,7 +609,7 @@ object RotationUtils : MinecraftInstance, Listenable {
     fun performRaytrace(
         blockPos: BlockPos,
         rotation: Rotation,
-        reach: Float = mc.playerController.blockReachDistance,
+        reach: Float = mc.interactionManager.blockReachDistance,
     ): HitResult? {
         val world = mc.world ?: return null
         val player = mc.player ?: return null

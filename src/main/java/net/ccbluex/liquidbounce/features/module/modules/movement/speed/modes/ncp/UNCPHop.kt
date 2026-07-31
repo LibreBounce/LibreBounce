@@ -32,25 +32,25 @@ object UNCPHop : SpeedMode("UNCPHop") {
                 }
 
                 if (isAirBorne && fallDistance > 2) {
-                    mc.timer.timerSpeed = 1f
+                    mc.timer.tpsScale = 1f
                     return
                 }
 
                 strafe(speed, false)
 
                 if (!onGround && ++tick % 3 == 0) {
-                    mc.timer.timerSpeed = 1.0815f
+                    mc.timer.tpsScale = 1.0815f
                     tick = 0
                 } else {
-                    mc.timer.timerSpeed = 0.9598f
+                    mc.timer.tpsScale = 0.9598f
                 }
             } else {
-                mc.timer.timerSpeed = 1f
+                mc.timer.tpsScale = 1f
             }
         }
     }
 
     override fun onDisable() {
-        mc.timer.timerSpeed = 1f
+        mc.timer.tpsScale = 1f
     }
 }

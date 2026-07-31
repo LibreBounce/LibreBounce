@@ -21,14 +21,14 @@ object SNCPBHop : SpeedMode("SNCPBHop") {
     private var timerDelay = 0
 
     override fun onEnable() {
-        mc.timer.timerSpeed = 1f
+        mc.timer.tpsScale = 1f
         lastDist = 0.0
         moveSpeed = 0.0
         level = 4
     }
 
     override fun onDisable() {
-        mc.timer.timerSpeed = 1f
+        mc.timer.tpsScale = 1f
         moveSpeed = baseMoveSpeed
         level = 0
     }
@@ -49,10 +49,10 @@ object SNCPBHop : SpeedMode("SNCPBHop") {
         timerDelay %= 5
 
         if (timerDelay != 0) {
-            mc.timer.timerSpeed = 1f
+            mc.timer.tpsScale = 1f
         } else {
             if (player.isMoving) {
-                mc.timer.timerSpeed = 1.3f
+                mc.timer.tpsScale = 1.3f
                 player.motionX *= 1.0199999809265137
                 player.motionZ *= 1.0199999809265137
             }

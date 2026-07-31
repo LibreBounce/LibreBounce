@@ -154,7 +154,7 @@ class Render3DEvent(val partialTicks: Float) : Event()
 /**
  * Called when the screen changes
  */
-class ScreenEvent(val guiScreen: Screen?) : Event()
+class ScreenEvent(val screen: Screen?) : Event()
 
 /**
  * Called when the session changes

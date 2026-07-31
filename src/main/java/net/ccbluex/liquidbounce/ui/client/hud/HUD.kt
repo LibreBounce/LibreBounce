@@ -120,7 +120,7 @@ object HUD : MinecraftInstance {
 
     /** Handle mouse move */
     fun handleMouseMove(mouseX: Int, mouseY: Int) {
-        if (mc.currentScreen !is GuiHudDesigner) return
+        if (mc.screen !is GuiHudDesigner) return
 
         val (scaledWidth, scaledHeight) = Window(mc)
 

@@ -15,7 +15,7 @@ object AAC : NoWebMode("AAC") {
 
         mc.player.flyingSpeed = 0.59f
 
-        if (!mc.gameOptions.sneakKey.isKeyDown)
+        if (!mc.options.sneakKey.isKeyDown)
             mc.player.motionY = 0.0
     }
 }

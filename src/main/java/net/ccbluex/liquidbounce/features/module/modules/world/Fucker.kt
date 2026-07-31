@@ -216,7 +216,7 @@ object Fucker : Module("Fucker", Category.WORLD) {
     val onUpdate = handler<UpdateEvent> {
         val player = mc.player ?: return@handler
         val world = mc.world ?: return@handler
-        val controller = mc.playerController ?: return@handler
+        val controller = mc.interactionManager ?: return@handler
 
         var currentPos = pos ?: return@handler
         if (obstructingPos != null) {

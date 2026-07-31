@@ -79,7 +79,7 @@ object Notifier : Module("Notifier", Category.MISC) {
         val player = mc.player ?: return@handler
         mc.world ?: return@handler
 
-        if (player.ticksExisted < 50) return@handler
+        if (player.ticks < 50) return@handler
 
         when (val packet = event.packet) {
             is PlayerInfoS2CPacket -> {

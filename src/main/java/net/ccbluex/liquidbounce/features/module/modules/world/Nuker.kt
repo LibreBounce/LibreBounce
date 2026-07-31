@@ -99,7 +99,7 @@ object Nuker : Module("Nuker", Category.WORLD, gameDetecting = false) {
 
         val eyes = player.eyes
 
-        if (!mc.playerController.isInCreativeMode) {
+        if (!mc.interactionManager.isInCreativeMode) {
             val validBlocks = searchBlocks(radius.roundToInt() + 1, null) { pos, block ->
                 if (getCenterDistance(pos) <= radius && validBlock(block)) {
                     if (!allBlocks && Block.getIdFromBlock(block) != blocks) {
@@ -166,7 +166,7 @@ object Nuker : Module("Nuker", Category.WORLD, gameDetecting = false) {
                     if (block.getPlayerRelativeBlockHardness(player, world, blockPos) >= 1F) {
                         currentDamage = 0F
                         player.swingItem()
-                        mc.playerController.onPlayerDestroyBlock(blockPos, Direction.DOWN)
+                        mc.interactionManager.onPlayerDestroyBlock(blockPos, Direction.DOWN)
                         blockHitDelay = hitDelay
                         validBlocks -= blockPos
                         nukedCount++
@@ -182,7 +182,7 @@ object Nuker : Module("Nuker", Category.WORLD, gameDetecting = false) {
                 // End of breaking block
                 if (currentDamage >= 1F) {
                     sendPacket(PlayerHandActionC2SPacket(STOP_DESTROY_BLOCK, blockPos, Direction.DOWN))
-                    mc.playerController.onPlayerDestroyBlock(blockPos, Direction.DOWN)
+                    mc.interactionManager.onPlayerDestroyBlock(blockPos, Direction.DOWN)
                     blockHitDelay = hitDelay
                     currentDamage = 0F
                 }

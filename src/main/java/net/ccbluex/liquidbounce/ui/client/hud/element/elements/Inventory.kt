@@ -97,12 +97,12 @@ class Inventory : Element("Inventory", 300.0, 50.0) {
             val stack = mc.player.inventorySlot(i).stack ?: continue
 
             // Prevent overlapping while editing
-            if (mc.currentScreen is GuiHudDesigner) glDisable(GL_DEPTH_TEST)
+            if (mc.screen is GuiHudDesigner) glDisable(GL_DEPTH_TEST)
 
             mc.renderItem.renderItemAndEffectIntoGUI(stack, xOffset - 18, y)
             mc.renderItem.renderItemOverlays(font, stack, xOffset - 18, y)
 
-            if (mc.currentScreen is GuiHudDesigner) glEnable(GL_DEPTH_TEST)
+            if (mc.screen is GuiHudDesigner) glEnable(GL_DEPTH_TEST)
         }
     }
 }

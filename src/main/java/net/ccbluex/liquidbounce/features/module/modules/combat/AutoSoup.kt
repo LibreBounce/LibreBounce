@@ -88,7 +88,7 @@ object AutoSoup : Module("AutoSoup", Category.COMBAT) {
         val bowlInHotbar = InventoryUtils.findItem(36, 44, Items.bowl)
 
         if (bowl == "Move" && bowlInHotbar != null) {
-            if (openInventory && mc.currentScreen !is SurvivalInventoryScreen)
+            if (openInventory && mc.screen !is SurvivalInventoryScreen)
                 return@handler
 
             var bowlMovable = false
@@ -106,7 +106,7 @@ object AutoSoup : Module("AutoSoup", Category.COMBAT) {
                 if (simulateInventory)
                     serverOpenInventory = true
 
-                mc.playerController.windowClick(0, bowlInHotbar, 0, 1, player)
+                mc.interactionManager.windowClick(0, bowlInHotbar, 0, 1, player)
             }
         }
 
@@ -115,18 +115,18 @@ object AutoSoup : Module("AutoSoup", Category.COMBAT) {
         if (soupInInventory != null && InventoryUtils.hasSpaceInHotbar()) {
             if (isFirstInventoryClick && !startTimer.hasTimePassed(randomizedStartDelay)) {
                 // SurvivalInventoryScreen checks have to be put separately due to problems with resetting timer.
-                if (mc.currentScreen is SurvivalInventoryScreen)
+                if (mc.screen is SurvivalInventoryScreen)
                     return@handler
             } else {
                 // SurvivalInventoryScreen checks have to be put separately due to problems with resetting timer.
-                if (mc.currentScreen is SurvivalInventoryScreen)
+                if (mc.screen is SurvivalInventoryScreen)
                     isFirstInventoryClick = false
 
                 startTimer.reset()
                 randomizedStartDelay = startDelay.random()
             }
 
-            if (openInventory && mc.currentScreen !is SurvivalInventoryScreen)
+            if (openInventory && mc.screen !is SurvivalInventoryScreen)
                 return@handler
 
             canCloseInventory = false
@@ -134,9 +134,9 @@ object AutoSoup : Module("AutoSoup", Category.COMBAT) {
             if (simulateInventory)
                 serverOpenInventory = true
 
-            mc.playerController.windowClick(0, soupInInventory, 0, 1, player)
+            mc.interactionManager.windowClick(0, soupInInventory, 0, 1, player)
 
-            if (simulateInventory && mc.currentScreen !is SurvivalInventoryScreen)
+            if (simulateInventory && mc.screen !is SurvivalInventoryScreen)
                 serverOpenInventory = false
 
             timer.reset()
@@ -148,7 +148,7 @@ object AutoSoup : Module("AutoSoup", Category.COMBAT) {
         if (autoClose && canCloseInventory && closeTimer.hasTimePassed(randomizedCloseDelay)) {
             if (!autoCloseNoSoup && soupInInventory == null) return@handler
 
-            if (mc.currentScreen is SurvivalInventoryScreen) {
+            if (mc.screen is SurvivalInventoryScreen) {
                 player?.closeScreen()
             }
 

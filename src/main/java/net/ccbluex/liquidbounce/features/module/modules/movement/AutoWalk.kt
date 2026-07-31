@@ -13,10 +13,10 @@ import net.minecraft.client.options.GameOptions
 
 object AutoWalk : Module("AutoWalk", Category.MOVEMENT, subjective = true, gameDetecting = false) {
     val onUpdate = handler<UpdateEvent> {
-        mc.gameOptions.forwardKey.pressed = true
+        mc.options.forwardKey.pressed = true
     }
 
     override fun onDisable() {
-        mc.gameOptions.forwardKey.pressed = GameOptions.isKeyDown(mc.gameOptions.forwardKey)
+        mc.options.forwardKey.pressed = GameOptions.isKeyDown(mc.options.forwardKey)
     }
 }

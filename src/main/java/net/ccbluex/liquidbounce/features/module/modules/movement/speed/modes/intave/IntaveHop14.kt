@@ -33,9 +33,9 @@ object IntaveHop14 : SpeedMode("IntaveHop14") {
 
                 if (isSprinting) strafe(strength = strafeStrength.toDouble())
 
-                mc.timer.timerSpeed = groundTimer
+                mc.timer.tpsScale = groundTimer
             } else {
-                mc.timer.timerSpeed = airTimer
+                mc.timer.tpsScale = airTimer
             }
 
             if (boost && motionY > 0.003 && isSprinting) {

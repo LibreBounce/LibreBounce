@@ -41,7 +41,7 @@ object CustomSpeed : SpeedMode("Custom") {
             ) {
 
                 if (onGround) tryJump()
-                mc.timer.timerSpeed = 1f
+                mc.timer.tpsScale = 1f
                 return
             }
 
@@ -49,12 +49,12 @@ object CustomSpeed : SpeedMode("Custom") {
                 if (onGround) {
                     if (customGroundStrafe > 0) strafe(customGroundStrafe)
 
-                    mc.timer.timerSpeed = customGroundTimer
+                    mc.timer.tpsScale = customGroundTimer
                     motionY = customY.toDouble()
                 } else {
                     if (customAirStrafe > 0) strafe(customAirStrafe)
 
-                    mc.timer.timerSpeed = if (ticksExisted % customAirTimerTick == 0) customAirTimer
+                    mc.timer.tpsScale = if (ticks % customAirTimerTick == 0) customAirTimer
                     else 1f
                 }
             }

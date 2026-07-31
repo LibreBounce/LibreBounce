@@ -67,7 +67,7 @@ object FastClimb : Module("FastClimb", Category.MOVEMENT) {
                     }
                 }
 
-                mode == "AAC3.0.5" && mc.gameOptions.forwardKey.isKeyDown &&
+                mode == "AAC3.0.5" && mc.options.forwardKey.isKeyDown &&
                     collideBlockIntersects(shape) {
                         it is LadderBlock || it is VineBlock
                     } -> {
@@ -80,7 +80,7 @@ object FastClimb : Module("FastClimb", Category.MOVEMENT) {
                     motionZ = 0.0
                 }
 
-                mode == "Clip" && isOnLadder && mc.gameOptions.forwardKey.isKeyDown -> {
+                mode == "Clip" && isOnLadder && mc.options.forwardKey.isKeyDown -> {
                     for (i in posY.toInt()..posY.toInt() + 8) {
                         val block = BlockPos(posX, i.toDouble(), posZ).block
 

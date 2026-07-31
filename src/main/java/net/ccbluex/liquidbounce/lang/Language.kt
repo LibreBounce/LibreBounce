@@ -19,7 +19,7 @@ object LanguageManager : MinecraftInstance {
 
     // Current language
     private val language: String
-        get() = overrideLanguage.ifBlank { mc.gameOptions.language }
+        get() = overrideLanguage.ifBlank { mc.options.language }
 
     // Common language
     private const val COMMON_UNDERSTOOD_LANGUAGE = "en_US"

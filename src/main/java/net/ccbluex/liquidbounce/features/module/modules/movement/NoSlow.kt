@@ -119,7 +119,7 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
                     "InvalidC08" -> {
                         if (event.eventState == EventState.PRE) {
                             if (InventoryUtils.hasSpaceInInventory()) {
-                                if (player.ticksExisted % 3 == 0)
+                                if (player.ticks % 3 == 0)
                                     sendPacket(PlayerUseC2SPacket(BlockPos(-1, -1, -1), 1, null, 0f, 0f, 0f))
                             }
                         }
@@ -154,7 +154,7 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
                 "InvalidC08" -> {
                     if (event.eventState == EventState.PRE) {
                         if (InventoryUtils.hasSpaceInInventory()) {
-                            if (player.ticksExisted % 3 == 0)
+                            if (player.ticks % 3 == 0)
                                 sendPacket(PlayerUseC2SPacket(BlockPos(-1, -1, -1), 1, null, 0f, 0f, 0f))
                         }
                     }
@@ -199,7 +199,7 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
                 "InvalidC08" -> {
                     if (event.eventState == EventState.PRE) {
                         if (InventoryUtils.hasSpaceInInventory()) {
-                            if (player.ticksExisted % 3 == 0)
+                            if (player.ticks % 3 == 0)
                                 sendPacket(PlayerUseC2SPacket(BlockPos(-1, -1, -1), 1, null, 0f, 0f, 0f))
                         }
                     }
@@ -337,7 +337,7 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
     }
 
     fun isUNCPBlocking() =
-        swordMode == "UpdatedNCP" && mc.gameOptions.useKey.isKeyDown && (mc.player.displayItemInHand?.item is SwordItem)
+        swordMode == "UpdatedNCP" && mc.options.useKey.isKeyDown && (mc.player.displayItemInHand?.item is SwordItem)
 
     fun usingItemFunc() =
         mc.player?.displayItemInHand != null && (mc.player.isUsingItem || (mc.player.displayItemInHand?.item is SwordItem && KillAura.blockStatus) || isUNCPBlocking())

@@ -250,7 +250,7 @@ object AutoArmor : Module("AutoArmor", Category.COMBAT) {
             if (!passedPostInventoryCloseDelay)
                 return false
 
-            if (mc.playerController?.currentGameMode?.isSurvivalOrAdventure != true)
+            if (mc.interactionManager?.currentGameMode?.isSurvivalOrAdventure != true)
                 return false
 
             // It is impossible to equip armor when a container is open; only try to equip by right-clicking from hotbar (if NotInContainers is disabled)
@@ -261,7 +261,7 @@ object AutoArmor : Module("AutoArmor", Category.COMBAT) {
             if (onlyHotbar)
                 return hotbar
 
-            if (invOpen && mc.currentScreen !is SurvivalInventoryScreen)
+            if (invOpen && mc.screen !is SurvivalInventoryScreen)
                 return false
 
             // Wait till NoMove check isn't violated

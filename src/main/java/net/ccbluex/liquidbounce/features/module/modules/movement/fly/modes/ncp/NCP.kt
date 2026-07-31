@@ -36,7 +36,7 @@ object NCP : FlyMode("NCP") {
 
     override fun onUpdate() {
         mc.player.motionY =
-            if (mc.gameOptions.sneakKey.isKeyDown) -0.5
+            if (mc.options.sneakKey.isKeyDown) -0.5
             else -ncpMotion.toDouble()
 
         strafe()

@@ -146,7 +146,7 @@ public abstract class MixinGameRenderer {
 
             final Reach reach = Reach.INSTANCE;
 
-            double d0 = reach.handleEvents() ? reach.getMaxRange() : mc.playerController.getBlockReachDistance();
+            double d0 = reach.handleEvents() ? reach.getMaxRange() : mc.interactionManager.getBlockReachDistance();
             Vec3d vec3 = entity.getEyePosition(p_getMouseOver_1_);
             Rotation rotation = new Rotation(mc.player.rotationYaw, mc.player.rotationPitch);
             Vec3d vec31 = RotationUtils.INSTANCE.getRotationVector(RotationUtils.INSTANCE.getCurrentRotation() != null && OverrideRaycast.INSTANCE.shouldOverride() ? RotationUtils.INSTANCE.getCurrentRotation() : rotation);
@@ -155,7 +155,7 @@ public abstract class MixinGameRenderer {
             mc.objectMouseOver = entity.worldObj.rayTraceBlocks(vec3, vec32, false, false, true);
             double d1 = d0;
             boolean flag = false;
-            if (mc.playerController.extendedReach()) {
+            if (mc.interactionManager.extendedReach()) {
                 // d0 = 6;
                 d1 = 6;
             } else if (d0 > 3) {
@@ -306,7 +306,7 @@ public abstract class MixinGameRenderer {
                         f10 = 1.0F;
                     }
 
-                    float f16 = this.mc.gameOptions.gammaSetting;
+                    float f16 = this.mc.options.gammaSetting;
                     float f17 = 1.0F - f8;
                     float f13 = 1.0F - f9;
                     float f14 = 1.0F - f10;

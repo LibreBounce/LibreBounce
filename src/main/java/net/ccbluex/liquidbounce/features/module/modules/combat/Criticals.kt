@@ -86,7 +86,7 @@ object Criticals : Module("Criticals", Category.COMBAT) {
                 }
 
                 "BlocksMC2" -> {
-                    if (player.ticksExisted % 4 == 0) {
+                    if (player.ticks % 4 == 0) {
                         sendPackets(
                             Position(x, y + 0.0011, z, true),
                             Position(x, y, z, false)

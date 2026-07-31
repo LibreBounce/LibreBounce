@@ -21,7 +21,7 @@ object Timer : Module("Timer", Category.WORLD, gameDetecting = false) {
     override fun onDisable() {
         mc.player ?: return
 
-        mc.timer.timerSpeed = 1f
+        mc.timer.tpsScale = 1f
     }
 
     val onUpdate = handler<UpdateEvent> {
@@ -33,7 +33,7 @@ object Timer : Module("Timer", Category.WORLD, gameDetecting = false) {
             else -> true
         }
 
-        mc.timer.timerSpeed = when {
+        mc.timer.tpsScale = when {
             shouldTimer -> speed
             else -> 1f
         }

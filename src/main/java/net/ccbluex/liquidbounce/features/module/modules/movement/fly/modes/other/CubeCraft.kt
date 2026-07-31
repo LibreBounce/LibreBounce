@@ -16,7 +16,7 @@ object CubeCraft : FlyMode("CubeCraft") {
     private val tickTimer = TickTimer()
 
     override fun onUpdate() {
-        mc.timer.timerSpeed = 0.6f
+        mc.timer.tpsScale = 0.6f
         tickTimer.update()
     }
 

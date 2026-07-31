@@ -29,7 +29,7 @@ object NoRotateSet : Module("NoRotateSet", Category.MISC, gameDetecting = false)
         resetTicksValue.excludeWithState(1)
     }
 
-    fun shouldModify(player: PlayerEntity) = handleEvents() && (!ignoreOnSpawn || player.ticksExisted != 0)
+    fun shouldModify(player: PlayerEntity) = handleEvents() && (!ignoreOnSpawn || player.ticks != 0)
 
     fun rotateBackToPlayerRotation() {
         val player = mc.player ?: return

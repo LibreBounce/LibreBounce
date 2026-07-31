@@ -96,7 +96,7 @@ object Tower : Configurable("Tower"), MinecraftInstance, Listenable {
         isTowering = false
 
         if (towerModeValues.get() == "None" || notOnMoveValues.get() && player.isMoving ||
-            onJumpValues.get() && !mc.gameOptions.jumpKey.isKeyDown
+            onJumpValues.get() && !mc.options.jumpKey.isKeyDown
         ) {
             return@handler
         }
@@ -246,7 +246,7 @@ object Tower : Configurable("Tower"), MinecraftInstance, Listenable {
 
                 // Credit: @localpthebest / Nextgen
                 "Vulcan2.9.0" -> {
-                    if (ticksExisted % 10 == 0) {
+                    if (ticks % 10 == 0) {
                         // Prevent Flight Flag
                         motionY = -0.1
                         return
@@ -254,7 +254,7 @@ object Tower : Configurable("Tower"), MinecraftInstance, Listenable {
 
                     fakeJump()
 
-                    if (ticksExisted % 2 == 0) {
+                    if (ticks % 2 == 0) {
                         motionY = 0.7
                     } else {
                         motionY = if (isMoving) 0.42 else 0.6
@@ -267,18 +267,18 @@ object Tower : Configurable("Tower"), MinecraftInstance, Listenable {
                         motionY = 0.4001
                     }
 
-                    mc.timer.timerSpeed = 1f
+                    mc.timer.tpsScale = 1f
 
                     if (motionY < 0) {
                         motionY -= 0.00000945
-                        mc.timer.timerSpeed = 1.6f
+                        mc.timer.tpsScale = 1.6f
                     }
                 }
 
-                "AAC3.6.4" -> if (ticksExisted % 4 == 1) {
+                "AAC3.6.4" -> if (ticks % 4 == 1) {
                     motionY = 0.4195464
                     setPosition(posX - 0.035, posY, posZ)
-                } else if (ticksExisted % 4 == 0) {
+                } else if (ticks % 4 == 0) {
                     motionY = -0.5
                     setPosition(posX + 0.035, posY, posZ)
                 }
@@ -292,7 +292,7 @@ object Tower : Configurable("Tower"), MinecraftInstance, Listenable {
         val packet = event.packet
 
         if (towerModeValues.get() == "Vulcan2.9.0" && packet is Position &&
-            !player.isMoving && player.ticksExisted % 2 == 0
+            !player.isMoving && player.ticks % 2 == 0
         ) {
             packet.x += 0.1
             packet.z += 0.1

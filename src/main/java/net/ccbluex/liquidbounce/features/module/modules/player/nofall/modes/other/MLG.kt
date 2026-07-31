@@ -67,7 +67,7 @@ object MLG : NoFallMode("MLG") {
 
         currentMlgBlock = null
 
-        val reach = mc.playerController.blockReachDistance
+        val reach = mc.interactionManager.blockReachDistance
 
         if (player.fallDistance >= NoFall.minFallDistance) {
             SimulatedPlayer.fromClientPlayer(RotationUtils.modifiedInput).let { sim ->
@@ -147,7 +147,7 @@ object MLG : NoFallMode("MLG") {
             return
         }
 
-        val reach = mc.playerController.blockReachDistance
+        val reach = mc.interactionManager.blockReachDistance
 
         val stack = mlgSlot?.let {
             if (retrievingPos != null) return@let null
@@ -275,7 +275,7 @@ object MLG : NoFallMode("MLG") {
             if (stack.stackSize <= 0) {
                 player.inventory.mainInventory[SilentHotbar.currentSlot] = null
                 ForgeEventFactory.onPlayerDestroyItem(player, stack)
-            } else if (stack.stackSize != prevSize || mc.playerController.isInCreativeMode) {
+            } else if (stack.stackSize != prevSize || mc.interactionManager.isInCreativeMode) {
                 mc.entityRenderer.itemRenderer.resetEquippedProgress()
             }
 

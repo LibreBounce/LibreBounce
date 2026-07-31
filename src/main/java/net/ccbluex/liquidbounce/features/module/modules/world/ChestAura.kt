@@ -281,7 +281,7 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
         if (distance <= range) {
             val pos = target.entity.pos
 
-            val rotationVec = getRotationVector(rotationToUse) * mc.playerController.blockReachDistance.toDouble()
+            val rotationVec = getRotationVector(rotationToUse) * mc.interactionManager.blockReachDistance.toDouble()
 
             val visibleResult = performRayTrace(pos, rotationVec)?.takeIf { it.blockPos == pos }
             val invisibleResult = performRaytrace(pos, rotationToUse)?.takeIf { it.blockPos == pos }

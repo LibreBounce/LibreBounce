@@ -30,6 +30,7 @@ object AnticheatDetector : Module("AnticheatDetector", Category.MISC) {
             is InventoryMenuConfirmS2CPacket -> {
                 if (check) handleTransaction(event.packet.actionNumber.toInt())
             }
+
             is LoginS2CPacket -> reset().also { check = true }
         }
     }
@@ -43,6 +44,7 @@ object AnticheatDetector : Module("AnticheatDetector", Category.MISC) {
     private fun handleTransaction(action: Int) {
         actionNumbers.add(action).also { if (debug) chat("ID: $action") }
         ticksPassed = 0
+
         if (actionNumbers.size >= 5) analyzeActionNumbers()
     }
 

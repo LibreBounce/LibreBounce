@@ -58,7 +58,7 @@ object AutoPot : Module("AutoPot", Category.COMBAT) {
     private var potion = -1
 
     val onRotationUpdate = handler<RotationUpdateEvent> {
-        if (!msTimer.hasTimePassed(delay) || mc.playerController.isInCreativeMode)
+        if (!msTimer.hasTimePassed(delay) || mc.interactionManager.isInCreativeMode)
             return@handler
 
         val player = mc.player ?: return@handler
@@ -112,16 +112,16 @@ object AutoPot : Module("AutoPot", Category.COMBAT) {
         val potionInInventory = findPotion(9, 36) ?: return@handler
 
         if (hasSpaceInHotbar()) {
-            if (openInventory && mc.currentScreen !is SurvivalInventoryScreen)
+            if (openInventory && mc.screen !is SurvivalInventoryScreen)
                 return@handler
 
             nextTick {
                 if (simulateInventory)
                     serverOpenInventory = true
 
-                mc.playerController.windowClick(0, potionInInventory, 0, 1, player)
+                mc.interactionManager.windowClick(0, potionInInventory, 0, 1, player)
 
-                if (simulateInventory && mc.currentScreen !is SurvivalInventoryScreen)
+                if (simulateInventory && mc.screen !is SurvivalInventoryScreen)
                     serverOpenInventory = false
 
                 msTimer.reset()

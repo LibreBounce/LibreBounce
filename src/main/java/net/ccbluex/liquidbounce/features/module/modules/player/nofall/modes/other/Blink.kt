@@ -62,7 +62,7 @@ object Blink : NoFallMode("Blink") {
             if (blinked && player.fallDistance > fallDist.start) {
                 if (player.fallDistance < fallDist.endInclusive) {
                     if (blinked)
-                        packet.onGround = player.ticksExisted % 2 == 0
+                        packet.onGround = player.ticks % 2 == 0
                 } else {
                     chat("rewriting ground")
                     BlinkUtils.unblink()

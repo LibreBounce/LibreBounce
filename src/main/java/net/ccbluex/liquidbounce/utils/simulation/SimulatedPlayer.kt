@@ -292,7 +292,7 @@ class SimulatedPlayer(
             setSprinting(false)
         }
 
-        if (abilities.canFly && mc.playerController.isSpectatorMode)
+        if (abilities.canFly && mc.interactionManager.isSpectatorMode)
             abilities.flying = true
 
         if (abilities.flying) {

@@ -173,7 +173,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
         target = null
         prevTargetEntities.clear()
 
-        if (autoF5) mc.gameOptions.perspective = 0
+        if (autoF5) mc.options.perspective = 0
     }
 
     val onRotationUpdate = handler<RotationUpdateEvent> {
@@ -187,8 +187,8 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
         updateTarget()
 
         if (autoF5) {
-            if (mc.gameOptions.perspective != 1 && target != null) {
-                mc.gameOptions.perspective = 1
+            if (mc.options.perspective != 1 && target != null) {
+                mc.options.perspective = 1
             }
         }
     }
@@ -210,7 +210,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
         }
 
         // Clicking delay
-        if (mc.gameOptions.attackKey.isKeyDown) clickTimer.reset()
+        if (mc.options.attackKey.isKeyDown) clickTimer.reset()
     }
 
     /**
@@ -313,7 +313,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
                 "Distance" -> distance
                 "Direction" -> entityFov.toDouble()
                 "Health" -> entity.health.toDouble()
-                "LivingTime" -> -entity.ticksExisted.toDouble()
+                "LivingTime" -> -entity.ticks.toDouble()
                 "Armor" -> entity.totalArmorValue.toDouble()
                 "HurtResistance" -> entity.hurtResistantTime.toDouble()
                 "HurtTime" -> entity.damagedTimer.toDouble()
@@ -353,7 +353,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
     private fun updateRotations(entity: Entity): Boolean {
         val player = mc.player ?: return false
 
-        if (clickOnly && (clickTimer.hasTimePassed(clickDelay) || !mc.gameOptions.attackKey.isKeyDown && AutoClicker.handleEvents())) {
+        if (clickOnly && (clickTimer.hasTimePassed(clickDelay) || !mc.options.attackKey.isKeyDown && AutoClicker.handleEvents())) {
             return false
         }
 

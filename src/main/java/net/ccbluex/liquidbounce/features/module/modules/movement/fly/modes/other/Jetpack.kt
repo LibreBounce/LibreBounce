@@ -11,7 +11,7 @@ import net.minecraft.util.EnumParticleTypes
 object Jetpack : FlyMode("Jetpack") {
     override fun onUpdate() {
         mc.player?.run {
-            if (!mc.gameOptions.jumpKey.isKeyDown)
+            if (!mc.options.jumpKey.isKeyDown)
                 return
 
             // Let's bring back the particles, this mode is useless anyway

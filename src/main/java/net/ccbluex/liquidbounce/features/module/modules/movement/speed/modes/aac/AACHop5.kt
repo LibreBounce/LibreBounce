@@ -18,14 +18,14 @@ object AACHop5 : SpeedMode("AACHop5") {
 
             if (onGround) {
                 tryJump()
-                mc.timer.timerSpeed = 0.9385f
+                mc.timer.tpsScale = 0.9385f
                 speedInAir = 0.0201f
             }
 
             if (fallDistance < 2.5) {
                 if (fallDistance > 0.7) {
-                    if (ticksExisted % 3 == 0) mc.timer.timerSpeed = 1.925f
-                    else if (fallDistance < 1.25) mc.timer.timerSpeed = 1.7975f
+                    if (ticks % 3 == 0) mc.timer.tpsScale = 1.925f
+                    else if (fallDistance < 1.25) mc.timer.tpsScale = 1.7975f
                 }
 
                 speedInAir = 0.02f

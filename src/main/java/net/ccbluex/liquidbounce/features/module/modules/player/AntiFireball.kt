@@ -66,7 +66,7 @@ object AntiFireball : Module("AntiFireball", Category.PLAYER) {
             }
 
             // Skip if the fireball entity tick exist is lower than minFireballTick
-            if (fireballTickCheck && entity.ticksExisted <= minFireballTick) {
+            if (fireballTickCheck && entity.ticks <= minFireballTick) {
                 continue
             }
 

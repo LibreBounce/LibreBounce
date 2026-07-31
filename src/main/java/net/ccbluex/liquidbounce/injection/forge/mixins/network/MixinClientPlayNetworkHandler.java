@@ -280,7 +280,7 @@ public abstract class MixinClientPlayNetworkHandler {
 
         int sign = RandomUtils.INSTANCE.nextBoolean() ? 1 : -1;
 
-        Rotation rotation = player.ticksExisted == 0 ? RotationUtils.INSTANCE.getServerRotation() : module.getSavedRotation();
+        Rotation rotation = player.ticks == 0 ? RotationUtils.INSTANCE.getServerRotation() : module.getSavedRotation();
 
         if (module.getAffectRotation()) {
             NoRotateSet.INSTANCE.rotateBackToPlayerRotation();

@@ -33,7 +33,7 @@ class Taco(x: Double = 2.0, y: Double = 441.0) : Element("Taco", x = x, y = y) {
     override fun drawElement(): Border {
         val player = mc.player ?: return Border(0F, 0F, 0F, 0F)
 
-        if (tacoToggle || player.ticksExisted < 20)
+        if (tacoToggle || player.ticks < 20)
             return Border(0F, 0F, 0F, 0F)
 
         val currentTime = System.currentTimeMillis()

@@ -23,7 +23,7 @@ object OnGround : SpeedMode("OnGround") {
             motionY = -1000.0
             tilt = 0.3f
             distanceWalkedModified = 44f
-            mc.timer.timerSpeed = 1f
+            mc.timer.tpsScale = 1f
 
             if (onGround) {
                 posY += vertical
@@ -32,7 +32,7 @@ object OnGround : SpeedMode("OnGround") {
                 motionX *= horizontal
                 motionZ *= horizontal
                 tilt = 0f
-                mc.timer.timerSpeed = 1.199f
+                mc.timer.tpsScale = 1.199f
             }
         }
     }

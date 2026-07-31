@@ -204,9 +204,9 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1f, side: Side = S
                 "onground" -> return onGround
                 "moving" -> return isMoving
                 "block", "blocking" -> return (displayItemInHand?.item is SwordItem && (blockStatus || isUsingItem || isBlocking))
-                "sneak", "sneaking" -> return (isSneaking || mc.gameOptions.sneakKey.isKeyDown)
-                "sprint", "sprinting" -> return (serverSprintState || isSprinting || mc.gameOptions.keyBindSprint.isKeyDown)
-                "inventory", "inv" -> return mc.currentScreen is SurvivalInventoryScreen || mc.currentScreen is InventoryMenuScreen
+                "sneak", "sneaking" -> return (isSneaking || mc.options.sneakKey.isKeyDown)
+                "sprint", "sprinting" -> return (sentSprinting || isSprinting || mc.options.keyBindSprint.isKeyDown)
+                "inventory", "inv" -> return mc.screen is SurvivalInventoryScreen || mc.screen is InventoryMenuScreen
                 "serverslot" -> return SilentHotbar.currentSlot
                 "clientslot" -> return inventory?.currentItem
                 "bps", "blockpersecond" -> return DECIMAL_FORMAT.format(BPSUtils.getBPS())
@@ -275,7 +275,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1f, side: Side = S
         val blockScale = if (shouldRender) 2.5F else 1F
         val fontRenderer = font.get()
         val fontHeight = ((fontRenderer as? GameTextRenderer)?.height ?: fontRenderer.FONT_HEIGHT) + 2
-        val underscore = if (editMode && mc.currentScreen is GuiHudDesigner && editTicks <= 40) "_" else ""
+        val underscore = if (editMode && mc.screen is GuiHudDesigner && editTicks <= 40) "_" else ""
 
         // Calculate width only once
         val underscoreWidth = fontRenderer.getWidth(underscore).toFloat()
@@ -297,7 +297,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1f, side: Side = S
         )
 
         assumeNonVolatile {
-            if ((Scaffold.handleEvents() && onScaffold) || !onScaffold || mc.currentScreen is GuiHudDesigner) {
+            if ((Scaffold.handleEvents() && onScaffold) || !onScaffold || mc.screen is GuiHudDesigner) {
                 val rainbow = textColorMode == "Rainbow"
                 val gradient = textColorMode == "Gradient"
 
@@ -347,7 +347,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1f, side: Side = S
                     turnOnGui()
 
                     // Prevent overlapping while editing
-                    if (mc.currentScreen is GuiHudDesigner) glDisable(GL_DEPTH_TEST)
+                    if (mc.screen is GuiHudDesigner) glDisable(GL_DEPTH_TEST)
 
                     if (shouldRender) {
                         mc.renderItem.renderItemAndEffectIntoGUI(stack, -18, -3)
@@ -358,7 +358,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1f, side: Side = S
                     disableBlend()
                     disableLighting()
 
-                    if (mc.currentScreen is GuiHudDesigner) glEnable(GL_DEPTH_TEST)
+                    if (mc.screen is GuiHudDesigner) glEnable(GL_DEPTH_TEST)
 
                     glPopMatrix()
                 }
@@ -376,14 +376,14 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1f, side: Side = S
                     RainbowFontShader.begin(rainbow, rainbowX, rainbowY, rainbowOffset).use {
                         fontRenderer.draw(displayText, 0F, 2 - heightPadding, colorToUse, shadow)
 
-                        if (editMode && mc.currentScreen is GuiHudDesigner && editTicks <= 40) {
+                        if (editMode && mc.screen is GuiHudDesigner && editTicks <= 40) {
                             fontRenderer.draw("_", width - underscoreWidth, 0F, colorToUse, shadow)
                         }
                     }
                 }
             }
 
-            if (editMode && mc.currentScreen !is GuiHudDesigner) {
+            if (editMode && mc.screen !is GuiHudDesigner) {
                 editMode = false
                 updateElement()
             }
@@ -411,7 +411,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1f, side: Side = S
     }
 
     override fun handleKey(c: Char, keyCode: Int) {
-        if (editMode && mc.currentScreen is GuiHudDesigner) {
+        if (editMode && mc.screen is GuiHudDesigner) {
             if (keyCode == Keyboard.KEY_BACK) {
                 if (displayString.isNotEmpty())
                     displayString = displayString.dropLast(1)

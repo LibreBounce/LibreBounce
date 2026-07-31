@@ -30,7 +30,7 @@ object Hypixel : FlyMode("Hypixel") {
 
     override fun onUpdate() {
         mc.player?.run {
-            mc.timer.timerSpeed =
+            mc.timer.tpsScale =
                 if (hypixelBoost && !msTimer.hasTimePassed(hypixelBoostDelay))
                     1f + hypixelBoostTimer * (msTimer.hasTimeLeft(hypixelBoostDelay) / hypixelBoostDelay.toFloat())
                 else 1f

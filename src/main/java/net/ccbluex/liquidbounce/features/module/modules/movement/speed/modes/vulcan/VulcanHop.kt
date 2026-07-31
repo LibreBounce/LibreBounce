@@ -18,7 +18,7 @@ object VulcanHop : SpeedMode("VulcanHop") {
 
             if (isMoving) {
                 if (isAirBorne && fallDistance > 2) {
-                    mc.timer.timerSpeed = 1f
+                    mc.timer.tpsScale = 1f
                     return
                 }
 
@@ -26,11 +26,11 @@ object VulcanHop : SpeedMode("VulcanHop") {
                     tryJump()
 
                     if (motionY > 0) 
-                        mc.timer.timerSpeed = 1.1453f
+                        mc.timer.tpsScale = 1.1453f
 
                     strafe(0.4815f)
-                } else if (motionY < 0) mc.timer.timerSpeed = 0.9185f
-            } else mc.timer.timerSpeed = 1f
+                } else if (motionY < 0) mc.timer.tpsScale = 0.9185f
+            } else mc.timer.tpsScale = 1f
         }
     }
 }

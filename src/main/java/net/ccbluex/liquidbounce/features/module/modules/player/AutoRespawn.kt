@@ -21,7 +21,7 @@ object AutoRespawn : Module("AutoRespawn", Category.PLAYER, gameDetecting = fals
             if (Ghost.handleEvents())
                 return@handler
 
-            if (if (instant) health == 0F || isDead else mc.currentScreen is DeathScreen && (mc.currentScreen as DeathScreen).enableButtonsTimer >= 20) {
+            if (if (instant) health == 0F || isDead else mc.screen is DeathScreen && (mc.screen as DeathScreen).enableButtonsTimer >= 20) {
                 respawnPlayer()
                 mc.openScreen(null)
             }

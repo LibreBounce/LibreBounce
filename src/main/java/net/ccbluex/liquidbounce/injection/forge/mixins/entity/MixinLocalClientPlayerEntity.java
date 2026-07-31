@@ -65,7 +65,7 @@ import static net.minecraft.network.packet.c2s.play.PlayerMovementActionC2SPacke
 public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEntity {
 
     @Shadow
-    public boolean serverSprintState;
+    public boolean sentSprinting;
     @Shadow
     public int sprintingTicksLeft;
     @Shadow
@@ -150,12 +150,12 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
 
         boolean sprinting = isSprinting() && !fakeSprint;
 
-        if (sprinting != serverSprintState) {
+        if (sprinting != sentSprinting) {
             if (sprinting)
                 sendQueue.addToSendQueue(new PlayerMovementActionC2SPacket((LocalClientPlayerEntity) (Object) this, START_SPRINTING));
             else sendQueue.addToSendQueue(new PlayerMovementActionC2SPacket((LocalClientPlayerEntity) (Object) this, STOP_SPRINTING));
 
-            serverSprintState = sprinting;
+            sentSprinting = sprinting;
         }
 
         boolean sneaking = isSneaking();
@@ -244,7 +244,7 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
         ci.cancel();
     }
 
-    @ModifyVariable(method = "sendChatMessage", at = @At("HEAD"), ordinal = 0, argsOnly = true)
+    @ModifyVariable(method = "sendMessage", at = @At("HEAD"), ordinal = 0, argsOnly = true)
     private String handleSendMessage(String content) {
         if (Disabler.INSTANCE.handleEvents() && Disabler.INSTANCE.getSpigotSpam()) {
             return Disabler.INSTANCE.getMessage() + " " + content;
@@ -303,7 +303,7 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
         prevTimeInPortal = timeInPortal;
 
         if (inPortal) {
-            if (mc.currentScreen != null && !mc.currentScreen.doesGuiPauseGame() && !PortalMenu.INSTANCE.handleEvents()) {
+            if (mc.screen != null && !mc.screen.doesGuiPauseGame() && !PortalMenu.INSTANCE.handleEvents()) {
                 mc.openScreen(null);
             }
 
@@ -411,14 +411,14 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
 
         boolean flag3 = (float) getFoodStats().getFoodLevel() > 6F || abilities.canFly;
         if (onGround && !flag1 && !flag2 && input.forwardSpeed >= f && !isSprinting() && flag3 && !isUsingItem() && !hasStatusEffect(Potion.blindness)) {
-            if (sprintToggleTimer <= 0 && !mc.gameOptions.keyBindSprint.isKeyDown()) {
+            if (sprintToggleTimer <= 0 && !mc.options.keyBindSprint.isKeyDown()) {
                 sprintToggleTimer = 7;
             } else {
                 setSprinting(true);
             }
         }
 
-        if (!isSprinting() && input.forwardSpeed >= f && flag3 && (noSlow.handleEvents() || !isUsingItem()) && !hasStatusEffect(Potion.blindness) && mc.gameOptions.keyBindSprint.isKeyDown()) {
+        if (!isSprinting() && input.forwardSpeed >= f && flag3 && (noSlow.handleEvents() || !isUsingItem()) && !hasStatusEffect(Potion.blindness) && mc.options.keyBindSprint.isKeyDown()) {
             setSprinting(true);
         }
 
@@ -431,7 +431,7 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
         sprint.correctSprintState(modifiedInput, isUsingItem);
 
         if (abilities.canFly) {
-            if (mc.playerController.isSpectatorMode()) {
+            if (mc.interactionManager.isSpectatorMode()) {
                 if (!abilities.flying) {
                     abilities.flying = true;
                     sendPlayerAbilities();
@@ -487,7 +487,7 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
 
         super.onLivingUpdate();
 
-        if (onGround && abilities.flying && !mc.playerController.isSpectatorMode()) {
+        if (onGround && abilities.flying && !mc.interactionManager.isSpectatorMode()) {
             abilities.flying = false;
             sendPlayerAbilities();
         }

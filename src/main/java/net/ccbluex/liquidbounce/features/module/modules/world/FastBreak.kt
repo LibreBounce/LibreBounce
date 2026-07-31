@@ -16,10 +16,10 @@ object FastBreak : Module("FastBreak", Category.WORLD) {
     private val breakDamage by float("BreakDamage", 0.8F, 0.1F..1F)
 
     val onUpdate = handler<UpdateEvent> {
-        mc.playerController.blockHitDelay = 0
+        mc.interactionManager.blockHitDelay = 0
 
-        if (mc.playerController.curBlockDamageMP > breakDamage)
-            mc.playerController.curBlockDamageMP = 1F
+        if (mc.interactionManager.curBlockDamageMP > breakDamage)
+            mc.interactionManager.curBlockDamageMP = 1F
 
         if (Fucker.currentDamage > breakDamage)
             Fucker.currentDamage = 1F

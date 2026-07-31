@@ -294,7 +294,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
         val speedAdjustment = if (playerSpeed >= 0) playerSpeed else 1f + ticksValue - playerTicks
         val adjustedTimerSpeed = maxOf(speedAdjustment, 0f)
 
-        mc.timer.timerSpeed = adjustedTimerSpeed
+        mc.timer.tpsScale = adjustedTimerSpeed
 
         playerTicks--
     }
@@ -341,15 +341,15 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
 
         if (nearestEntity == null || nearestEntity.isDead) {
             if (!shouldReset) {
-                mc.timer.timerSpeed = 1f
+                mc.timer.tpsScale = 1f
                 shouldReset = true
             }
         } else {
-            // mc.timer.timerSpeed = 1f
+            // mc.timer.tpsScale = 1f
             // shouldReset = !shouldReset
             // TODO: Maybe replace this mess with the code above?
-            if (!shouldReset && mc.timer.timerSpeed != 1f) {
-                mc.timer.timerSpeed = 1f
+            if (!shouldReset && mc.timer.tpsScale != 1f) {
+                mc.timer.tpsScale = 1f
                 shouldReset = true
             } else {
                 shouldReset = false

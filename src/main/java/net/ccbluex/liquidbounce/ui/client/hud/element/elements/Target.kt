@@ -97,7 +97,7 @@ class Target : Element("Target") {
         val smoothMode = animation == "Smooth"
         val fadeMode = animation == "Fade"
 
-        val shouldRender = KillAura.handleEvents() && KillAura.target != null || mc.currentScreen is ChatScreen
+        val shouldRender = KillAura.handleEvents() && KillAura.target != null || mc.screen is ChatScreen
         val target = KillAura.target ?: if (delayCounter >= vanishDelay) mc.player else lastTarget ?: mc.player
 
         val stringWidth = (40f + (target.name?.let(titleFont::getWidth) ?: 0)).coerceAtLeast(118F)

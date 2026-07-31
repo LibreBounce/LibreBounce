@@ -92,7 +92,7 @@ object InventoryManager : Configurable("InventoryManager"), MinecraftInstance, L
 
         // TODO: This could be at start of each action?
         // Don't wait for NoMove not to be violated, check if there is anything to equip from hotbar and such by looping again
-        if (!canClickInventory() || (invOpenValue.get() && mc.currentScreen !is SurvivalInventoryScreen)) {
+        if (!canClickInventory() || (invOpenValue.get() && mc.screen !is SurvivalInventoryScreen)) {
             delay(50)
             return@loopSequence
         }
@@ -142,11 +142,11 @@ object InventoryManager : Configurable("InventoryManager"), MinecraftInstance, L
             mc.player?.openContainer?.windowId != 0 -> null
 
             // Check if open inventory should be closed
-            mc.currentScreen is SurvivalInventoryScreen && invOpenValue.get() && autoCloseValue.get() ->
+            mc.screen is SurvivalInventoryScreen && invOpenValue.get() && autoCloseValue.get() ->
                 Runnable { mc.player?.closeScreen() }
 
             // Check if simulated inventory should be closed
-            mc.currentScreen !is SurvivalInventoryScreen && simulateInventoryValue.get() && serverOpenInventory ->
+            mc.screen !is SurvivalInventoryScreen && simulateInventoryValue.get() && serverOpenInventory ->
                 Runnable { serverOpenInventory = false }
 
             else -> null

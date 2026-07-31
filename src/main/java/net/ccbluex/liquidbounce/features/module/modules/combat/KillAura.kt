@@ -364,7 +364,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             blinked = false
         }
 
-        if (autoF5) mc.gameOptions.perspective = 0
+        if (autoF5) mc.options.perspective = 0
 
         stopBlocking(true)
 
@@ -378,14 +378,14 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
     }
 
     fun update() {
-        if (cancelRun || (noInventoryAttack && (mc.currentScreen is InventoryMenuScreen || System.currentTimeMillis() - containerOpen < noInventoryDelay))) return
+        if (cancelRun || (noInventoryAttack && (mc.screen is InventoryMenuScreen || System.currentTimeMillis() - containerOpen < noInventoryDelay))) return
 
         // Update target
         updateTarget()
 
         if (autoF5) {
-            if (mc.gameOptions.perspective != 1 && target != null) {
-                mc.gameOptions.perspective = 1
+            if (mc.options.perspective != 1 && target != null) {
+                mc.options.perspective = 1
             }
         }
     }
@@ -418,7 +418,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             return@handler
         }
 
-        if (clickOnly && !mc.gameOptions.attackKey.isKeyDown) {
+        if (clickOnly && !mc.options.attackKey.isKeyDown) {
             clicks = 0
             return@handler
         }
@@ -436,10 +436,10 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             return@handler
         }
 
-        if (noInventoryAttack && (mc.currentScreen is InventoryMenuScreen || System.currentTimeMillis() - containerOpen < noInventoryDelay)) {
+        if (noInventoryAttack && (mc.screen is InventoryMenuScreen || System.currentTimeMillis() - containerOpen < noInventoryDelay)) {
             target = null
             hittable = false
-            if (mc.currentScreen is InventoryMenuScreen) containerOpen = System.currentTimeMillis()
+            if (mc.screen is InventoryMenuScreen) containerOpen = System.currentTimeMillis()
             return@handler
         }
 
@@ -454,7 +454,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         }
 
         if (blinkAutoBlock) {
-            when (player.ticksExisted % (blinkBlockTicks + 1)) {
+            when (player.ticks % (blinkBlockTicks + 1)) {
                 0 -> {
                     if (blockStatus && !blinked && !BlinkUtils.isBlinking) {
                         blinked = true
@@ -538,10 +538,10 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             return@handler
         }
 
-        if (noInventoryAttack && (mc.currentScreen is InventoryMenuScreen || System.currentTimeMillis() - containerOpen < noInventoryDelay)) {
+        if (noInventoryAttack && (mc.screen is InventoryMenuScreen || System.currentTimeMillis() - containerOpen < noInventoryDelay)) {
             target = null
             hittable = false
-            if (mc.currentScreen is InventoryMenuScreen) containerOpen = System.currentTimeMillis()
+            if (mc.screen is InventoryMenuScreen) containerOpen = System.currentTimeMillis()
             return@handler
         }
 
@@ -641,7 +641,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
                     val prevCooldown = mc.leftClickCounter
 
                     // Is any GUI coming from our client?
-                    val isAnyClientGuiActive = mc.currentScreen?.javaClass?.`package`?.name?.contains(
+                    val isAnyClientGuiActive = mc.screen?.javaClass?.`package`?.name?.contains(
                         LiquidBounce.CLIENT_NAME, ignoreCase = true
                     ) == true
 
@@ -790,7 +790,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
                 "Distance" -> distance
                 "Direction" -> entityFov.toDouble()
                 "Health" -> entity.health.toDouble()
-                "LivingTime" -> -entity.ticksExisted.toDouble()
+                "LivingTime" -> -entity.ticks.toDouble()
                 "Armor" -> entity.totalArmorValue.toDouble()
                 "HurtResistance" -> entity.hurtResistantTime.toDouble()
                 "HurtTime" -> entity.damagedTimer.toDouble()
@@ -1124,7 +1124,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
         if (autoBlock == "Off" || !blinkAutoBlock || !blinked) return@handler
 
-        if (player.isDead || player.ticksExisted < 20) {
+        if (player.isDead || player.ticks < 20) {
             BlinkUtils.unblink()
             return@handler
         }

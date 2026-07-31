@@ -34,7 +34,7 @@ object AutoLeave : Module("AutoLeave", Category.COMBAT, subjective = true) {
                     )
                 )
                 "SelfHurt" -> sendPacket(PlayerInteractEntityC2SPacket(player, ATTACK))
-                "IllegalChat" -> player.sendChatMessage(nextInt().toString() + "§§§" + nextInt())
+                "IllegalChat" -> player.sendMessage(nextInt().toString() + "§§§" + nextInt())
             }
 
             state = false

@@ -24,7 +24,7 @@ object Teams : Module("Teams", Category.MISC, gameDetecting = false) {
         val player = mc.player ?: return false
 
         if (scoreboard && player.team != null && entity.team != null &&
-            player.team.isSameTeam(entity.team)
+            player.team.isAlliedTo(entity.team)
         )
             return true
 

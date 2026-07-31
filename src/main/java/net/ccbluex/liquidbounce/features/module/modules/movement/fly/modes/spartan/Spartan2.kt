@@ -15,7 +15,7 @@ object Spartan2 : FlyMode("Spartan2") {
         mc.player?.run {
             strafe(0.264f)
 
-            if (ticksExisted % 8 == 0)
+            if (ticks % 8 == 0)
                 sendPacket(Position(posX, posY + 10, posZ, true))
         }
     }

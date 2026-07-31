@@ -58,7 +58,7 @@ object Sprint : Module("Sprint", Category.MOVEMENT, gameDetecting = false) {
             return
         }
 
-        if (!handleEvents() || onlyOnSprintPress && !player.isSprinting && !mc.gameOptions.keyBindSprint.isKeyDown && !SuperKnockback.startSprint() && !isSprinting)
+        if (!handleEvents() || onlyOnSprintPress && !player.isSprinting && !mc.options.keyBindSprint.isKeyDown && !SuperKnockback.startSprint() && !isSprinting)
             return
 
         if (Scaffold.handleEvents()) {

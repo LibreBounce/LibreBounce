@@ -70,7 +70,7 @@ object AutoRod : Module("AutoRod", Category.COMBAT) {
                 if (switchBack != -1 && player.inventory.currentItem != switchBack) {
                     // Switch back to previous item
                     player.inventory.currentItem = switchBack
-                    mc.playerController.syncCurrentPlayItem()
+                    mc.interactionManager.syncCurrentPlayItem()
                 } else {
                     // Stop using rod
                     player.stopUsingItem()
@@ -142,7 +142,7 @@ object AutoRod : Module("AutoRod", Category.COMBAT) {
                     switchBack = player.inventory.currentItem
 
                     player.inventory.currentItem = rod
-                    mc.playerController.syncCurrentPlayItem()
+                    mc.interactionManager.syncCurrentPlayItem()
                 }
 
                 rod()
@@ -156,7 +156,7 @@ object AutoRod : Module("AutoRod", Category.COMBAT) {
         mc.player.inventory.currentItem = rod
         // We do not need to send our own packet, because sendUseItem will handle it for us
         // TODO: Use SilentHotbar, instead
-        mc.playerController.sendUseItem(mc.player, mc.world, mc.player.hotBarSlot(rod).stack)
+        mc.interactionManager.sendUseItem(mc.player, mc.world, mc.player.hotBarSlot(rod).stack)
 
         rodInUse = true
         rodPullTimer.reset()

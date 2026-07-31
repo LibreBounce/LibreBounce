@@ -74,7 +74,7 @@ object ClickGUI : Module("ClickGUI", Category.RENDER, Keyboard.KEY_RSHIFT, canBe
         this.addSpaces(spacedValues).capitalize(valueCase)
 
     val onPacket = handler<PacketEvent>(always = true) { event ->
-        if (event.packet is CloseInventoryMenuS2CPacket && mc.currentScreen is ClickGui)
+        if (event.packet is CloseInventoryMenuS2CPacket && mc.screen is ClickGui)
             event.cancelEvent()
     }
 }

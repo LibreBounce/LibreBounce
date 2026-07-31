@@ -20,7 +20,7 @@ object MidClick : Module("MidClick", Category.MISC, subjective = true, gameDetec
     private var wasDown = false
 
     val onRender = handler<Render2DEvent> {
-        if (mc.currentScreen != null)
+        if (mc.screen != null)
             return@handler
 
         if (!wasDown && Mouse.isButtonDown(2)) {

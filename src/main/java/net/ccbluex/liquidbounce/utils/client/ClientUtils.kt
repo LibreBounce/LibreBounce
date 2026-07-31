@@ -36,7 +36,7 @@ object ClientUtils : MinecraftInstance {
             if (!it.isAccessible)
                 it.isAccessible = true
 
-            it.setBoolean(mc.gameOptions, false)
+            it.setBoolean(mc.options, false)
         }
     }
 

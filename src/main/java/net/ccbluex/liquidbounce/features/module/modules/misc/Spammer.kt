@@ -21,7 +21,7 @@ object Spammer : Module("Spammer", Category.MISC, subjective = true) {
     private val custom by boolean("Custom", false)
 
     val onUpdate = loopSequence {
-        mc.player?.sendChatMessage(
+        mc.player?.sendMessage(
             if (custom) replace(message)
             else message + " >" + randomString(nextInt(5, 11)) + "<"
         )

@@ -96,7 +96,7 @@ object AntiBot : Module("AntiBot", Category.MISC) {
         if (color && "§" !in entity.displayName.formattedText.replace("§r", ""))
             return true
 
-        if (livingTime && entity.ticksExisted < livingTimeTicks)
+        if (livingTime && entity.ticks < livingTimeTicks)
             return true
 
         if (ground && entity.entityId !in groundList)

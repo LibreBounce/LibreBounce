@@ -16,7 +16,7 @@ object LAAC : NoWebMode("LAAC") {
 
             flyingSpeed = if (input.moveStrafe != 0f) 1f else 1.21f
 
-            if (!mc.gameOptions.sneakKey.isKeyDown)
+            if (!mc.options.sneakKey.isKeyDown)
                 motionY = 0.0
 
             if (onGround)

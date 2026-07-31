@@ -199,7 +199,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
     private var launchY = -999
 
     val shouldJumpOnInput
-        get() = !jumpOnUserInput || !mc.gameOptions.jumpKey.isKeyDown && mc.player.posY >= launchY && !mc.player.onGround
+        get() = !jumpOnUserInput || !mc.options.jumpKey.isKeyDown && mc.player.posY >= launchY && !mc.player.onGround
 
     private val shouldKeepLaunchPosition
         get() = sameY && shouldJumpOnInput && scaffoldMode != "GodBridge"
@@ -224,7 +224,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
         get() = eagle != "Off" && !shouldGoDown && scaffoldMode != "GodBridge"
 
     val shouldGoDown
-        get() = down && !sameY && GameOptions.isKeyDown(mc.gameOptions.sneakKey) && scaffoldMode !in arrayOf(
+        get() = down && !sameY && GameOptions.isKeyDown(mc.options.sneakKey) && scaffoldMode !in arrayOf(
             "GodBridge", "Telly"
         ) && blocksAmount() > 1
 
@@ -257,7 +257,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
             val isYawDiagonal = yaw % 90 != 0f
             val isMovingDiagonal = player.input.forwardSpeed != 0f && player.input.moveStrafe == 0f
-            val isStrafing = mc.gameOptions.rightKey.isKeyDown || mc.gameOptions.leftKey.isKeyDown
+            val isStrafing = mc.options.rightKey.isKeyDown || mc.options.leftKey.isKeyDown
 
             return isYawDiagonal && (isMovingDiagonal || isStrafing)
         }
@@ -284,15 +284,15 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
     val onUpdate = loopSequence {
         val player = mc.player ?: return@loopSequence
 
-        if (mc.playerController.currentGameMode == WorldSettings.GameMode.SPECTATOR) return@loopSequence
+        if (mc.interactionManager.currentGameMode == WorldSettings.GameMode.SPECTATOR) return@loopSequence
 
-        mc.timer.timerSpeed = timer
+        mc.timer.tpsScale = timer
 
         // Telly
         if (player.onGround) ticksUntilJump++
 
         if (shouldGoDown)
-            mc.gameOptions.sneakKey.pressed = false
+            mc.options.sneakKey.pressed = false
 
         if (slow) {
             if (!slowGround || slowGround && player.onGround) {
@@ -329,7 +329,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
             val blockSneaking = WaitTickUtils.hasScheduled("block")
             val alreadySneaking = WaitTickUtils.hasScheduled("sneak")
 
-            val options = mc.gameOptions
+            val options = mc.options
 
             run {
                 if (placedBlocksWithoutEagle < blocksToEagle.random() && !alreadySneaking && !blockSneaking && !eagleSneaking && !requestedStopSneak) {
@@ -423,7 +423,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
     val onRotationUpdate = handler<RotationUpdateEvent> {
         val player = mc.player ?: return@handler
 
-        if (player.ticksExisted == 1)
+        if (player.ticks == 1)
             launchY = player.posY.roundToInt()
 
         val rotation = RotationUtils.currentRotation
@@ -467,7 +467,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
          *
          * @see net.minecraft.client.Minecraft.runTick Line 1345
          */
-        val raycast = performBlockRaytrace(currRotation, mc.playerController.blockReachDistance)
+        val raycast = performBlockRaytrace(currRotation, mc.interactionManager.blockReachDistance)
 
         var alreadyPlaced = false
 
@@ -721,8 +721,8 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
     override fun onDisable() {
         val player = mc.player ?: return
 
-        if (!GameOptions.isKeyDown(mc.gameOptions.sneakKey)) {
-            mc.gameOptions.sneakKey.pressed = false
+        if (!GameOptions.isKeyDown(mc.options.sneakKey)) {
+            mc.options.sneakKey.pressed = false
             if (eagleSneaking && player.isSneaking) {
                 //sendPacket(PlayerMovementActionC2SPacket(player, PlayerMovementActionC2SPacket.Action.STOP_SNEAKING))
 
@@ -733,19 +733,19 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
             }
         }
 
-        if (!GameOptions.isKeyDown(mc.gameOptions.rightKey)) {
-            mc.gameOptions.rightKey.pressed = false
+        if (!GameOptions.isKeyDown(mc.options.rightKey)) {
+            mc.options.rightKey.pressed = false
         }
-        if (!GameOptions.isKeyDown(mc.gameOptions.leftKey)) {
-            mc.gameOptions.leftKey.pressed = false
+        if (!GameOptions.isKeyDown(mc.options.leftKey)) {
+            mc.options.leftKey.pressed = false
         }
 
         if (autoF5) {
-            mc.gameOptions.perspective = 0
+            mc.options.perspective = 0
         }
 
         placeRotation = null
-        mc.timer.timerSpeed = 1f
+        mc.timer.tpsScale = 1f
 
         SilentHotbar.resetSlot(this)
 
@@ -780,7 +780,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
         if (shouldBother) {
             currRotation.let {
-                performBlockRaytrace(it, mc.playerController.blockReachDistance)?.let { raytrace ->
+                performBlockRaytrace(it, mc.interactionManager.blockReachDistance)?.let { raytrace ->
                     val timePassed = System.currentTimeMillis() - extraClick.lastClick >= extraClick.delay
 
                     if (raytrace.typeOfHit.isBlock && timePassed) {
@@ -834,13 +834,13 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
         options.instant = false
 
         if (!blockPosition.isReplaceable) {
-            if (autoF5) mc.gameOptions.perspective = 0
+            if (autoF5) mc.options.perspective = 0
             return false
         } else {
-            if (autoF5 && mc.gameOptions.perspective != 1) mc.gameOptions.perspective = 1
+            if (autoF5 && mc.options.perspective != 1) mc.options.perspective = 1
         }
 
-        val maxReach = mc.playerController.blockReachDistance
+        val maxReach = mc.interactionManager.blockReachDistance
 
         val eyes = player.eyes
         var placeRotation: PlaceRotation? = null
@@ -1067,7 +1067,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
             if (stack.stackSize <= 0) {
                 player.inventory.mainInventory[SilentHotbar.currentSlot] = null
                 ForgeEventFactory.onPlayerDestroyItem(player, stack)
-            } else if (stack.stackSize != prevSize || mc.playerController.isInCreativeMode) mc.entityRenderer.itemRenderer.resetEquippedProgress()
+            } else if (stack.stackSize != prevSize || mc.interactionManager.isInCreativeMode) mc.entityRenderer.itemRenderer.resetEquippedProgress()
 
             placeRotation = null
 
@@ -1101,10 +1101,10 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
                 val notOnGround = !player.onGround || !player.collidingVertically
 
                 if (player.onGround) {
-                    input.sneak = eagleSneaking || GameOptions.isKeyDown(mc.gameOptions.sneakKey)
+                    input.sneak = eagleSneaking || GameOptions.isKeyDown(mc.options.sneakKey)
                 }
 
-                if (input.jump || mc.gameOptions.jumpKey.isKeyDown || notOnGround) {
+                if (input.jump || mc.options.jumpKey.isKeyDown || notOnGround) {
                     zitterTimer.reset()
 
                     if (useSneakMidAir) {
@@ -1121,11 +1121,11 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
                     zitterDirection = !zitterDirection
 
                     // Recreate input in case the user was indeed pressing inputs
-                    if (mc.gameOptions.leftKey.isKeyDown) {
+                    if (mc.options.leftKey.isKeyDown) {
                         input.moveStrafe++
                     }
 
-                    if (mc.gameOptions.rightKey.isKeyDown) {
+                    if (mc.options.rightKey.isKeyDown) {
                         input.moveStrafe--
                     }
 

@@ -24,10 +24,10 @@ object AAC1910 : FlyMode("AAC1.9.10") {
 
     override fun onUpdate() {
         mc.player?.run {
-            if (mc.gameOptions.jumpKey.isKeyDown)
+            if (mc.options.jumpKey.isKeyDown)
                 jump += 0.2
 
-            if (mc.gameOptions.sneakKey.isKeyDown)
+            if (mc.options.sneakKey.isKeyDown)
                 jump -= 0.2
 
             if (startY + jump > posY) {

@@ -46,13 +46,13 @@ abstract class FramebufferShader(fragmentShader: String) : Shader(fragmentShader
         framebuffer!!.framebufferClear()
         framebuffer!!.bindFramebuffer(true)
         
-        entityShadows = mc.gameOptions.entityShadows
-        mc.gameOptions.entityShadows = false
+        entityShadows = mc.options.entityShadows
+        mc.options.entityShadows = false
         mc.entityRenderer.setupCameraTransform(partialTicks, 0)
     }
 
     fun stopDraw(color: Color, radius: Int, fade: Int, targetAlpha: Float) {
-        mc.gameOptions.entityShadows = entityShadows
+        mc.options.entityShadows = entityShadows
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         mc.framebuffer.bindFramebuffer(true)

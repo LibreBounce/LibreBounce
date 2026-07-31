@@ -43,8 +43,8 @@ class SpeedGraph(
 
             val player = mc.player
 
-            if (lastTick != player.ticksExisted) {
-                lastTick = player.ticksExisted
+            if (lastTick != player.ticks) {
+                lastTick = player.ticks
 
                 val xDelta = player.posX - player.prevPosX
                 val zDelta = player.posZ - player.prevPosZ

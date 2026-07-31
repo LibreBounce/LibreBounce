@@ -92,7 +92,7 @@ class Keystrokes : Element("Keystrokes", 2.0, 34.0) {
     )
 
     override fun drawElement(): Border {
-        val options = mc.gameOptions
+        val options = mc.options
 
         val movementKeys = mapOf(
             "Space" to options.jumpKey,

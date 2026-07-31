@@ -42,7 +42,7 @@ object AntiAFK : Module("AntiAFK", Category.PLAYER, gameDetecting = false) {
 
         when (mode) {
             "Old" -> {
-                mc.gameOptions.forwardKey.pressed = true
+                mc.options.forwardKey.pressed = true
 
                 if (delayTimer.hasTimePassed(500)) {
                     player.fixedSensitivityYaw += 180F
@@ -77,7 +77,7 @@ object AntiAFK : Module("AntiAFK", Category.PLAYER, gameDetecting = false) {
 
                     3 -> {
                         player.inventory.currentItem = nextInt(0, 9)
-                        mc.playerController.syncCurrentPlayItem()
+                        mc.interactionManager.syncCurrentPlayItem()
                         delayTimer.reset()
                     }
 
@@ -95,7 +95,7 @@ object AntiAFK : Module("AntiAFK", Category.PLAYER, gameDetecting = false) {
 
             "Custom" -> {
                 if (move)
-                    mc.gameOptions.forwardKey.pressed = true
+                    mc.options.forwardKey.pressed = true
 
                 if (jump && player.onGround)
                     player.tryJump()
@@ -117,15 +117,15 @@ object AntiAFK : Module("AntiAFK", Category.PLAYER, gameDetecting = false) {
 
     private val moveKeyBindings =
         arrayOf(
-            mc.gameOptions.forwardKey,
-            mc.gameOptions.leftKey,
-            mc.gameOptions.backKey,
-            mc.gameOptions.rightKey
+            mc.options.forwardKey,
+            mc.options.leftKey,
+            mc.options.backKey,
+            mc.options.rightKey
         )
 
     private fun getRandomMoveKeyBind() = moveKeyBindings.random()
 
     override fun onDisable() {
-        mc.gameOptions.forwardKey.pressed = GameOptions.isKeyDown(mc.gameOptions.forwardKey)
+        mc.options.forwardKey.pressed = GameOptions.isKeyDown(mc.options.forwardKey)
     }
 }

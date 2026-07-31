@@ -37,7 +37,7 @@ object InventoryMove : Module("InventoryMove", Category.MOVEMENT, gameDetecting 
     private val saveC0E by boolean("SaveC0E", false)
     private val noSprintWhenClosed by boolean("NoSprintWhenClosed", false) { saveC0E }
 
-    private val isIntave = (mc.currentScreen is SurvivalInventoryScreen || mc.currentScreen is ChestScreen) && intave
+    private val isIntave = (mc.screen is SurvivalInventoryScreen || mc.screen is ChestScreen) && intave
     private val clickWindowList = ArrayDeque<InventoryMenuClickSlotC2SPacket>()
 
     private val noMove by +InventoryManager.noMoveValue
@@ -60,17 +60,17 @@ object InventoryMove : Module("InventoryMove", Category.MOVEMENT, gameDetecting 
     private val inventoryMotion by float("InventoryMotion", 1F, 0F..2F)
 
     private val affectedBindings = arrayOf(
-        mc.gameOptions.forwardKey,
-        mc.gameOptions.backKey,
-        mc.gameOptions.rightKey,
-        mc.gameOptions.leftKey,
-        mc.gameOptions.jumpKey,
-        mc.gameOptions.keyBindSprint
+        mc.options.forwardKey,
+        mc.options.backKey,
+        mc.options.rightKey,
+        mc.options.leftKey,
+        mc.options.jumpKey,
+        mc.options.keyBindSprint
     )
 
     val onUpdate = handler<UpdateEvent>(priority = -1) {
         val player = mc.player ?: return@handler
-        val screen = mc.currentScreen
+        val screen = mc.screen
 
         if (shouldFreezeInputs(screen)) {
             unPressKeys()
@@ -88,7 +88,7 @@ object InventoryMove : Module("InventoryMove", Category.MOVEMENT, gameDetecting 
 
         for (affectedBinding in affectedBindings)
             affectedBinding.pressed =
-                isButtonPressed(affectedBinding) || affectedBinding == mc.gameOptions.keyBindSprint && Sprint.handleEvents() && Sprint.mode == "Legit" && (!Sprint.onlyOnSprintPress || player.isSprinting) || affectedBinding == mc.gameOptions.forwardKey && AutoWalk.handleEvents()
+                isButtonPressed(affectedBinding) || affectedBinding == mc.options.keyBindSprint && Sprint.handleEvents() && Sprint.mode == "Legit" && (!Sprint.onlyOnSprintPress || player.isSprinting) || affectedBinding == mc.options.forwardKey && AutoWalk.handleEvents()
     }
 
     private fun shouldFreezeInputs(screen: Screen?): Boolean {
@@ -104,7 +104,7 @@ object InventoryMove : Module("InventoryMove", Category.MOVEMENT, gameDetecting 
 
     val onStrafe = handler<StrafeEvent> {
         if (isIntave) {
-            mc.gameOptions.sneakKey.pressed = true
+            mc.options.sneakKey.pressed = true
         }
     }
 
@@ -133,7 +133,7 @@ object InventoryMove : Module("InventoryMove", Category.MOVEMENT, gameDetecting 
             if (packet is CloseInventoryMenuC2SPacket) {
                 event.cancelEvent()
                 player.isSprinting = false
-                if (!player.serverSprintState) PacketUtils.sendPacket(CloseInventoryMenuC2SPacket(), false)
+                if (!player.sentSprinting) PacketUtils.sendPacket(CloseInventoryMenuC2SPacket(), false)
             }
         }
 

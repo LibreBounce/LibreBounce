@@ -78,7 +78,7 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
         // Motion steps
         when (mode) {
             "Jump" ->
-                if (player.collidingHorizontally && player.onGround && !mc.gameOptions.jumpKey.isKeyDown) {
+                if (player.collidingHorizontally && player.onGround && !mc.options.jumpKey.isKeyDown) {
                     fakeJump()
                     player.motionY = jumpHeight.toDouble()
                 }
@@ -88,7 +88,7 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
                     val chest = BlockUtils.searchBlocks(2, setOf(chest, ender_chest, trapped_chest))
 
                     if (!couldStep() || chest.isNotEmpty()) {
-                        mc.timer.timerSpeed = 1f
+                        mc.timer.tpsScale = 1f
                         return@loopSequence
                     }
 
@@ -96,14 +96,14 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
                     player.tryJump()
 
                     // TODO: Improve Timer Balancing
-                    mc.timer.timerSpeed = 5f
+                    mc.timer.tpsScale = 5f
                     waitTicks(1)
-                    mc.timer.timerSpeed = 0.2f
+                    mc.timer.tpsScale = 0.2f
                     waitTicks(1)
-                    mc.timer.timerSpeed = 4f
+                    mc.timer.tpsScale = 4f
                     waitTicks(1)
                     strafe(0.27F)
-                    mc.timer.timerSpeed = 1f
+                    mc.timer.tpsScale = 1f
                 }
 
             "LAAC" ->
@@ -144,7 +144,7 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
     val onMove = handler<MoveEvent> { event ->
         val player = mc.player ?: return@handler
 
-        if (mode != "MotionNCP" || !player.collidingHorizontally || mc.gameOptions.jumpKey.isKeyDown)
+        if (mode != "MotionNCP" || !player.collidingHorizontally || mc.options.jumpKey.isKeyDown)
             return@handler
 
         // Motion steps
@@ -296,7 +296,7 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
     private fun couldStep(): Boolean {
         val player = mc.player ?: return false
 
-        if (player.isSneaking || mc.gameOptions.jumpKey.isKeyDown)
+        if (player.isSneaking || mc.options.jumpKey.isKeyDown)
             return false
 
         val yaw = direction

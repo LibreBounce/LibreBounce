@@ -21,12 +21,12 @@ object OldMatrixHop : SpeedMode("OldMatrixHop") {
                 if (onGround) {
                     tryJump()
                     speedInAir = 0.02098f
-                    mc.timer.timerSpeed = 1.055f
+                    mc.timer.tpsScale = 1.055f
                 } else {
                     strafe()
                 }
             } else {
-                mc.timer.timerSpeed = 1f
+                mc.timer.tpsScale = 1f
             }
         }
     }

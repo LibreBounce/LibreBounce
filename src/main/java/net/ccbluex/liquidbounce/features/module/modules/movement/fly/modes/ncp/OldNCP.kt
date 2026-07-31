@@ -34,10 +34,10 @@ object OldNCP : FlyMode("OldNCP") {
             if (startY > posY)
                 motionY = -0.000000000000000000000000000000001
 
-            if (mc.gameOptions.sneakKey.isKeyDown)
+            if (mc.options.sneakKey.isKeyDown)
                 motionY = -0.2
 
-            if (mc.gameOptions.jumpKey.isKeyDown && posY < startY - 0.1)
+            if (mc.options.jumpKey.isKeyDown && posY < startY - 0.1)
                 motionY = 0.2
 
             strafe()

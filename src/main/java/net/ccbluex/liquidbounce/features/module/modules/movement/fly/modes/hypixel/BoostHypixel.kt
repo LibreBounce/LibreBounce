@@ -114,7 +114,7 @@ object BoostHypixel : FlyMode("BoostHypixel") {
 
                 3 -> {
                     moveSpeed =
-                        lastDistance - (if (ticksExisted % 2 == 0) 0.0103 else 0.0123) * (lastDistance - baseSpeed)
+                        lastDistance - (if (ticks % 2 == 0) 0.0103 else 0.0123) * (lastDistance - baseSpeed)
                     state++
                 }
 

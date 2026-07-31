@@ -26,31 +26,31 @@ object SkinDerp : Module("SkinDerp", Category.FUN, subjective = true) {
     private var prevModelParts = emptySet<PlayerModelPart>()
 
     override fun onEnable() {
-        prevModelParts = mc.gameOptions.modelParts
+        prevModelParts = mc.options.modelParts
 
         super.onEnable()
     }
 
     override fun onDisable() {
         // Disable all current model parts
-        for (modelPart in mc.gameOptions.modelParts)
-            mc.gameOptions.setModelPartEnabled(modelPart, false)
+        for (modelPart in mc.options.modelParts)
+            mc.options.setModelPartEnabled(modelPart, false)
 
         // Enable all old model parts
         for (modelPart in prevModelParts)
-            mc.gameOptions.setModelPartEnabled(modelPart, true)
+            mc.options.setModelPartEnabled(modelPart, true)
 
         super.onDisable()
     }
 
     val onUpdate = loopSequence {
         when {
-            hat -> mc.gameOptions.setModelPartEnabled(HAT, nextBoolean())
-            jacket -> mc.gameOptions.setModelPartEnabled(JACKET, nextBoolean())
-            leftPants -> mc.gameOptions.setModelPartEnabled(LEFT_PANTS_LEG, nextBoolean())
-            rightPants -> mc.gameOptions.setModelPartEnabled(RIGHT_PANTS_LEG, nextBoolean())
-            leftSleeve -> mc.gameOptions.setModelPartEnabled(LEFT_SLEEVE, nextBoolean())
-            rightSleeve -> mc.gameOptions.setModelPartEnabled(RIGHT_SLEEVE, nextBoolean())
+            hat -> mc.options.setModelPartEnabled(HAT, nextBoolean())
+            jacket -> mc.options.setModelPartEnabled(JACKET, nextBoolean())
+            leftPants -> mc.options.setModelPartEnabled(LEFT_PANTS_LEG, nextBoolean())
+            rightPants -> mc.options.setModelPartEnabled(RIGHT_PANTS_LEG, nextBoolean())
+            leftSleeve -> mc.options.setModelPartEnabled(LEFT_SLEEVE, nextBoolean())
+            rightSleeve -> mc.options.setModelPartEnabled(RIGHT_SLEEVE, nextBoolean())
         }
 
         delay(delay.toLong())

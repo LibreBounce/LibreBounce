@@ -129,7 +129,7 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
             return@handler
         }
 
-        if (pauseOnChest && mc.currentScreen is InventoryMenuScreen) {
+        if (pauseOnChest && mc.screen is InventoryMenuScreen) {
             blink()
             return@handler
         }
@@ -313,7 +313,7 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
 
         // A pretty basic model render process. Position and rotation interpolation is applied to look visually appealing to the user.
         // This can be smarter by adding sneak checks, more timed hand swing/body movement, etc.
-        if (mc.gameOptions.perspective == 0 || !renderModel) return@handler
+        if (mc.options.perspective == 0 || !renderModel) return@handler
 
         val manager = mc.renderManager
 

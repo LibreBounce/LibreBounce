@@ -65,7 +65,7 @@ object BlinkUtils : MinecraftInstance, Listenable {
         }
 
         if (receive == true && sent == false) {
-            if (event.eventType == EventState.RECEIVE && player.ticksExisted > 10) {
+            if (event.eventType == EventState.RECEIVE && player.ticks > 10) {
                 event.cancelEvent()
                 synchronized(packetsReceived) {
                     packetsReceived += packet
@@ -86,7 +86,7 @@ object BlinkUtils : MinecraftInstance, Listenable {
         }
 
         if (sent == true && receive == true) {
-            if (event.eventType == EventState.RECEIVE && player.ticksExisted > 10) {
+            if (event.eventType == EventState.RECEIVE && player.ticks > 10) {
                 event.cancelEvent()
                 synchronized(packetsReceived) {
                     packetsReceived += packet

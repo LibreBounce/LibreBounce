@@ -29,7 +29,7 @@ object KeepAlive : Module("KeepAlive", Category.PLAYER) {
             if (runOnce) return@handler
 
             when (mode) {
-                "/heal" -> player.sendChatMessage("/heal")
+                "/heal" -> player.sendMessage("/heal")
                 "Soup" -> {
                     val soupInHotbar = findItem(36, 44, mushroom_stew)
 

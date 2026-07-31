@@ -41,7 +41,7 @@ class Notifications(
     override fun drawElement(): Border? {
         HUD.notifications.firstOrNull()?.drawNotification()
 
-        if (mc.currentScreen is GuiHudDesigner) {
+        if (mc.screen is GuiHudDesigner) {
             if (exampleNotification !in HUD.notifications)
                 addNotification(exampleNotification)
 

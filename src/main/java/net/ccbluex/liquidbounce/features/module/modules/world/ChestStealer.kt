@@ -124,10 +124,10 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
             if (!handleEvents())
                 return false
 
-            if (mc.playerController?.currentGameMode?.isSurvivalOrAdventure != true)
+            if (mc.interactionManager?.currentGameMode?.isSurvivalOrAdventure != true)
                 return false
 
-            if (mc.currentScreen !is ChestScreen)
+            if (mc.screen !is ChestScreen)
                 return false
 
             if (mc.player?.openContainer?.windowId != receivedId)
@@ -148,7 +148,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
             return
 
         val player = mc.player ?: return
-        val screen = mc.currentScreen ?: return
+        val screen = mc.screen ?: return
 
         if (screen !is ChestScreen)
             return
@@ -425,7 +425,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
     // Progress bar
     val onRender2D = handler<Render2DEvent> { event ->
-        if (!progressBar || mc.currentScreen !is ChestScreen)
+        if (!progressBar || mc.screen !is ChestScreen)
             return@handler
 
         val progress = progress ?: return@handler

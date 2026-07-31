@@ -25,13 +25,13 @@ object HypixelTimer : NoFallMode("HypixelTimer") {
 
             if (event.packet is PlayerMoveC2SPacket) {
                 if (fallingPlayer.findCollision(500) != null && fallDistance - motionY >= 3.3) {
-                    mc.timer.timerSpeed = 0.5f
+                    mc.timer.tpsScale = 0.5f
 
                     event.packet.onGround = true
                     fallDistance = 0f
 
                     NoFall.nextTick {
-                        mc.timer.timerSpeed = 1f
+                        mc.timer.tpsScale = 1f
                     }
                 }
             }

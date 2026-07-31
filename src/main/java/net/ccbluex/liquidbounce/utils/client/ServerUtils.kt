@@ -44,7 +44,7 @@ object ServerUtils : MinecraftInstance {
                 val networkManager = Connection.createConnectionAndConnect(
                     inetAddress,
                     serverAddress.port,
-                    mc.gameOptions.isUsingNativeTransport
+                    mc.options.isUsingNativeTransport
                 )
                 networkManager.netHandler = NetHandlerLoginClient(networkManager, mc, TitleScreen())
 

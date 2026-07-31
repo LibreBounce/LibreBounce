@@ -50,20 +50,20 @@ object TNTBlock : Module("TNTBlock", Category.COMBAT) {
 
                 if (slot != -1 && slot != player.inventory.currentItem) {
                     player.inventory.currentItem = slot
-                    mc.playerController.syncCurrentPlayItem()
+                    mc.interactionManager.syncCurrentPlayItem()
                 }
             }
 
             if (player.displayItemInHand?.item is SwordItem) {
-                mc.gameOptions.useKey.pressed = true
+                mc.options.useKey.pressed = true
                 blocked = true
             }
 
             return@handler
         }
 
-        if (blocked && !GameOptions.isKeyDown(mc.gameOptions.useKey)) {
-            mc.gameOptions.useKey.pressed = false
+        if (blocked && !GameOptions.isKeyDown(mc.options.useKey)) {
+            mc.options.useKey.pressed = false
             blocked = false
         }
     }

@@ -102,7 +102,7 @@ object RaycastUtils : MinecraftInstance {
         if (entity != null && mc.world != null) {
             mc.pointedEntity = null
 
-            val buildReach = if (mc.playerController.currentGameMode.isCreative) 5.0 else 4.5
+            val buildReach = if (mc.interactionManager.currentGameMode.isCreative) 5.0 else 4.5
 
             val vec3 = entity.eyes
             val vec31 = getRotationVector(rotation)
@@ -113,7 +113,7 @@ object RaycastUtils : MinecraftInstance {
             var d1 = buildReach
             var flag = false
 
-            if (mc.playerController.extendedReach()) {
+            if (mc.interactionManager.extendedReach()) {
                 d1 = 6.0
             } else if (buildReach > 3) {
                 flag = true

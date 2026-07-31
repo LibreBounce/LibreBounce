@@ -175,7 +175,7 @@ public abstract class MixinLivingEntity extends MixinEntity {
     @ModifyConstant(method = "getArmSwingAnimationEnd", constant = @Constant(intValue = 6))
     private int injectAnimationsModule(int constant) {
         Animations module = Animations.INSTANCE;
-        int swingSpeed = module.getNormalizeSwingSpeed() ? (int) (module.getSwingSpeed() / Minecraft.getMinecraft().timer.timerSpeed) : module.getSwingSpeed();
+        int swingSpeed = module.getNormalizeSwingSpeed() ? (int) (module.getSwingSpeed() / Minecraft.getMinecraft().timer.tpsScale) : module.getSwingSpeed();
 
         return module.handleEvents() ? (22 - swingSpeed) : constant;
     }

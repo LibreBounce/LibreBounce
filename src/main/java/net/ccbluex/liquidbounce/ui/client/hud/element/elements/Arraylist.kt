@@ -239,7 +239,7 @@ class Arraylist(
 
 
     override fun drawElement(): Border? {
-        val underscore = if (editMode && mc.currentScreen is GuiHudDesigner && editTicks <= 40) "_" else ""
+        val underscore = if (editMode && mc.screen is GuiHudDesigner && editTicks <= 40) "_" else ""
 
         // Calculate width only once
         val underscoreWidth = font.getWidth(underscore).toFloat()
@@ -375,7 +375,7 @@ class Arraylist(
                                     textShadow,
                                 )
 
-                                if (editMode && mc.currentScreen is GuiHudDesigner && editTicks <= 40) {
+                                if (editMode && mc.screen is GuiHudDesigner && editTicks <= 40) {
                                     font.draw(
                                         "_",
                                         width - underscoreWidth,
@@ -525,7 +525,7 @@ class Arraylist(
                                     }, textShadow
                                 )
 
-                                if (editMode && mc.currentScreen is GuiHudDesigner && editTicks <= 40) {
+                                if (editMode && mc.screen is GuiHudDesigner && editTicks <= 40) {
                                     font.draw(
                                         "_", 
                                         width - underscoreWidth, 
@@ -664,7 +664,7 @@ class Arraylist(
             }
 
             // Draw border
-            if (mc.currentScreen is GuiHudDesigner) {
+            if (mc.screen is GuiHudDesigner) {
                 x2 = Int.MIN_VALUE
 
                 if (modules.isEmpty()) {
@@ -691,7 +691,7 @@ class Arraylist(
                 return Border(0F, 0F, x2 - 7F, y2 - if (side.vertical == Vertical.DOWN) 1F else 0F)
             }
 
-            if (editMode && mc.currentScreen !is GuiHudDesigner) {
+            if (editMode && mc.screen !is GuiHudDesigner) {
                 editMode = false
                 updateElement()
             }
@@ -723,7 +723,7 @@ class Arraylist(
     }
 
     override fun handleKey(c: Char, keyCode: Int) {
-        if (editMode && mc.currentScreen is GuiHudDesigner) {
+        if (editMode && mc.screen is GuiHudDesigner) {
             if (keyCode == Keyboard.KEY_BACK) {
                 if (displayString.isNotEmpty())
                     displayString = displayString.dropLast(1)

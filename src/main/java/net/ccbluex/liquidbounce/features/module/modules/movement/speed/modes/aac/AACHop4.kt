@@ -13,7 +13,7 @@ import net.ccbluex.liquidbounce.utils.extensions.tryJump
 object AACHop4 : SpeedMode("AACHop4") {
     override fun onUpdate() {
         mc.player?.run {
-            mc.timer.timerSpeed = 1f
+            mc.timer.tpsScale = 1f
 
             if (!isMoving || isInLiquid || isOnLadder || isRiding)
                 return
@@ -21,7 +21,7 @@ object AACHop4 : SpeedMode("AACHop4") {
             if (onGround) {
                 tryJump()
             } else {
-                mc.timer.timerSpeed = when {
+                mc.timer.tpsScale = when {
                     fallDistance <= 0.1 -> 1.5f
                     fallDistance < 1.3 -> 0.7f
                     else -> 1f

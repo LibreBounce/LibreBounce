@@ -93,7 +93,7 @@ public abstract class MixinMinecraft {
     public GameOptions gameOptions;
 
     @Shadow
-    public abstract void openScreen(Screen guiScreenIn);
+    public abstract void openScreen(Screen screenIn);
 
     @Unique
     private Future<?> liquidBounce$preloadFuture;

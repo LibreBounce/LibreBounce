@@ -73,8 +73,8 @@ object BlocksMC2 : FlyMode("BlocksMC2"), Listenable {
             if (isBlinked) {
                 if (stable) player.motionY = 0.0
 
-                mc.timer.timerSpeed = if (!player.onGround && timerSlowed) {
-                    if (player.ticksExisted % 4 == 0) 0.45f else 0.4f
+                mc.timer.tpsScale = if (!player.onGround && timerSlowed) {
+                    if (player.ticks % 4 == 0) 0.45f else 0.4f
                 } else 1.0f
 
                 when (player.airTicks) {
@@ -164,7 +164,7 @@ object BlocksMC2 : FlyMode("BlocksMC2"), Listenable {
 
             if (debugFly) chat("blinked.. fly now!")
 
-            if (event.eventType == EventState.RECEIVE && mc.player.ticksExisted > 10) {
+            if (event.eventType == EventState.RECEIVE && mc.player.ticks > 10) {
                 event.cancelEvent()
                 synchronized(packetsReceived) {
                     packetsReceived += event.packet
@@ -183,7 +183,7 @@ object BlocksMC2 : FlyMode("BlocksMC2"), Listenable {
     override fun onMotion(event: MotionEvent) {
         val player = mc.player ?: return
 
-        if (player.isDead || player.ticksExisted <= 10) {
+        if (player.isDead || player.ticks <= 10) {
             blink()
         }
 

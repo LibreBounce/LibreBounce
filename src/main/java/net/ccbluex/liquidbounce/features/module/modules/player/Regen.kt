@@ -33,12 +33,12 @@ object Regen : Module("Regen", Category.PLAYER) {
     private var resetTimer = false
 
     val onUpdate = handler<UpdateEvent> {
-        if (resetTimer) mc.timer.timerSpeed = 1F
+        if (resetTimer) mc.timer.tpsScale = 1F
         else resetTimer = false
 
         mc.player?.run {
             if (
-                !mc.playerController.gameIsSurvivalOrAdventure()
+                !mc.interactionManager.gameIsSurvivalOrAdventure()
                 || noAir && !serverOnGround
                 || foodStats.foodLevel <= food
                 || !isEntityAlive
@@ -60,7 +60,7 @@ object Regen : Module("Regen", Category.PLAYER) {
                             sendPacket(PlayerMoveC2SPacket(serverOnGround))
                         }
 
-                        mc.timer.timerSpeed = 0.45F
+                        mc.timer.tpsScale = 0.45F
                         resetTimer = true
                     }
                 }

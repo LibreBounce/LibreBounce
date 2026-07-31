@@ -63,7 +63,7 @@ object AutoPlay : Module("AutoPlay", Category.PLAYER, gameDetecting = false) {
                 selectSlotSilently(this, paperSlot, immediate = true, resetManually = true)
 
                 if (delayTick >= delay) {
-                    mc.playerController.sendUseItem(player, mc.world, player.hotBarSlot(paperSlot).stack)
+                    mc.interactionManager.sendUseItem(player, mc.world, player.hotBarSlot(paperSlot).stack)
                     delayTick = 0
                 }
             }
@@ -72,15 +72,15 @@ object AutoPlay : Module("AutoPlay", Category.PLAYER, gameDetecting = false) {
                 if (delayTick >= delay) {
                     when (hypixelMode) {
                         "Skywars" -> when (skywarsMode) {
-                            "SoloNormal" -> player.sendChatMessage("/play solo_normal")
-                            "SoloInsane" -> player.sendChatMessage("/play solo_insane")
+                            "SoloNormal" -> player.sendMessage("/play solo_normal")
+                            "SoloInsane" -> player.sendMessage("/play solo_insane")
                         }
 
                         "Bedwars" -> when (bedwarsMode) {
-                            "Solo" -> player.sendChatMessage("/play bedwars_eight_one")
-                            "Double" -> player.sendChatMessage("/play bedwars_eight_two")
-                            "Trio" -> player.sendChatMessage("/play bedwars_four_three")
-                            "Quad" -> player.sendChatMessage("/play bedwars_four_four")
+                            "Solo" -> player.sendMessage("/play bedwars_eight_one")
+                            "Double" -> player.sendMessage("/play bedwars_eight_two")
+                            "Trio" -> player.sendMessage("/play bedwars_four_three")
+                            "Quad" -> player.sendMessage("/play bedwars_four_four")
                         }
                     }
 
@@ -98,7 +98,7 @@ object AutoPlay : Module("AutoPlay", Category.PLAYER, gameDetecting = false) {
         // Isn't the null check already covered on the game tick event above?
         val player = mc.player ?: return false
 
-        return player.ticksExisted >= 20
+        return player.ticks >= 20
                 && (player.abilities.flying
                 || player.abilities.canFly
                 || player.abilities.invulnerable)

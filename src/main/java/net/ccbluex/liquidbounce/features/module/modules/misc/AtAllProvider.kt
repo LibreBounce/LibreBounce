@@ -44,7 +44,7 @@ object AtAllProvider :
                     sendQueue += retryQueue
             }
 
-            mc.player.sendChatMessage(sendQueue.removeFirst())
+            mc.player.sendMessage(sendQueue.removeFirst())
         }
 
         delay(delay.random().toLong())

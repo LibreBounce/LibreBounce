@@ -110,13 +110,13 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
             if (!passedPostInventoryCloseDelay)
                 return false
 
-            if (mc.playerController?.currentGameMode?.isSurvivalOrAdventure != true)
+            if (mc.interactionManager?.currentGameMode?.isSurvivalOrAdventure != true)
                 return false
 
             if (mc.player?.openContainer?.windowId != 0)
                 return false
 
-            if (invOpen && mc.currentScreen !is SurvivalInventoryScreen)
+            if (invOpen && mc.screen !is SurvivalInventoryScreen)
                 return false
 
             // Wait till NoMove check isn't violated

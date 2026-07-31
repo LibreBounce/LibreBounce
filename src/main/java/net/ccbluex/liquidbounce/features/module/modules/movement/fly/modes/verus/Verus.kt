@@ -60,7 +60,7 @@ object Verus : FlyMode("Verus") {
 
         if (boostTicks > 0) {
             mc.player?.stopXZ()
-            mc.timer.timerSpeed = 1f
+            mc.timer.tpsScale = 1f
         }
     }
 
@@ -76,7 +76,7 @@ object Verus : FlyMode("Verus") {
             boostTicks--
 
             if (timerSlow) {
-                mc.timer.timerSpeed = if (ticksExisted % 3 == 0) 0.15f
+                mc.timer.tpsScale = if (ticks % 3 == 0) 0.15f
                 else 0.08f
             }
 

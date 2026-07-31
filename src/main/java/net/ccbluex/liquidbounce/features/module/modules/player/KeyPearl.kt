@@ -77,8 +77,8 @@ object KeyPearl : Module("KeyPearl", Category.PLAYER, subjective = true, gameDet
             hasThrown = false
         }
 
-        if (mc.currentScreen != null || mc.playerController.currentGameMode == WorldSettings.GameMode.SPECTATOR
-            || mc.playerController.currentGameMode == WorldSettings.GameMode.CREATIVE
+        if (mc.screen != null || mc.interactionManager.currentGameMode == WorldSettings.GameMode.SPECTATOR
+            || mc.interactionManager.currentGameMode == WorldSettings.GameMode.CREATIVE
         ) return@handler
 
         val isMouseDown = Mouse.isButtonDown(mouseButtonValue.values.indexOf(mouseButtonValue.get()))

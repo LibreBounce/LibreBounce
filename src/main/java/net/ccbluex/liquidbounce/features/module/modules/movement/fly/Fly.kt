@@ -212,7 +212,7 @@ object Fly : Module("Fly", Category.MOVEMENT, Keyboard.KEY_F) {
             wasFired = false
             firePosition = null
             abilities.flying = wasFlying
-            mc.timer.timerSpeed = 1f
+            mc.timer.tpsScale = 1f
             speedInAir = 0.02f
 
             modeModule.onDisable()

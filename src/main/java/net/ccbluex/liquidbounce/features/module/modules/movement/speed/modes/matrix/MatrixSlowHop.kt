@@ -26,22 +26,22 @@ object MatrixSlowHop : SpeedMode("MatrixSlowHop") {
 
             if (isMoving) {
                 if (fallDistance > 2) {
-                    mc.timer.timerSpeed = 1f
+                    mc.timer.tpsScale = 1f
                     return
                 }
 
                 if (onGround) {
                     motionY = 0.42 - if (matrixLowHop) 3.48E-3 else 0.0
-                    mc.timer.timerSpeed = 0.5195f
+                    mc.timer.tpsScale = 0.5195f
                     strafe(speed + extraGroundBoost)
                 } else {
-                    mc.timer.timerSpeed = 1.0973f
+                    mc.timer.tpsScale = 1.0973f
                 }
 
                 speedInAir = if (fallDistance <= 0.4 && sidewaysSpeed == 0f)
                     0.02035f else 0.02f
             } else {
-                mc.timer.timerSpeed = 1f
+                mc.timer.tpsScale = 1f
             }
         }
     }

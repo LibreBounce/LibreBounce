@@ -26,7 +26,7 @@ object SafeWalk : Module("SafeWalk", Category.MOVEMENT) {
         val player = mc.player ?: return@handler
 
         if (player.abilities.canFly || player.abilities.flying
-            || !mc.playerController.gameIsSurvivalOrAdventure()
+            || !mc.interactionManager.gameIsSurvivalOrAdventure()
         ) return@handler
 
         if (!maxFallDistanceValue.isMinimal() && player.onGround && BlockPos(player).down().block !is AirBlock) {

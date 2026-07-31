@@ -51,7 +51,7 @@ object SilentHotbar : Listenable, MinecraftInstance {
         ticksSinceLastUpdate = 0
 
         if (immediate) {
-            mc.playerController?.syncCurrentPlayItem()
+            mc.interactionManager?.syncCurrentPlayItem()
         }
     }
 
@@ -63,7 +63,7 @@ object SilentHotbar : Listenable, MinecraftInstance {
             originalSlot = null
 
             if (requester != null && immediate) {
-                mc.playerController?.syncCurrentPlayItem()
+                mc.interactionManager?.syncCurrentPlayItem()
             }
         }
     }

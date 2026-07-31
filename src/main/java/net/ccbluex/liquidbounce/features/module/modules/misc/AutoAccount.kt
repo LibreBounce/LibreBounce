@@ -106,7 +106,7 @@ object AutoAccount :
             addNotification(Notification("Trying to register."))
             launchSequence(Dispatchers.IO) {
                 delay(sendDelay.random().toLong())
-                mc.player.sendChatMessage("/register $password $password")
+                mc.player.sendMessage("/register $password $password")
             }
             true
         }
@@ -115,7 +115,7 @@ object AutoAccount :
             addNotification(Notification("Trying to log in."))
             launchSequence(Dispatchers.IO) {
                 delay(sendDelay.random().toLong())
-                mc.player.sendChatMessage("/login $password")
+                mc.player.sendMessage("/login $password")
             }
             true
         }

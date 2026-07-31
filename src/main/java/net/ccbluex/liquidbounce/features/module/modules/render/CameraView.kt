@@ -36,7 +36,7 @@ object CameraView : Module("CameraView", Category.RENDER, gameDetecting = false)
         if (event.eventState != EventState.POST) return@handler
 
         mc.player?.run {
-            if (!saveLastGroundY || (onGround || ticksExisted == 1)) {
+            if (!saveLastGroundY || (onGround || ticks == 1)) {
                 launchY = posY
             }
         }
@@ -48,7 +48,7 @@ object CameraView : Module("CameraView", Category.RENDER, gameDetecting = false)
             val shouldOperate = (onFly && Fly.handleEvents()) || (onLongJump && LongJump.handleEvents()) || (onScaffold && Scaffold.handleEvents())
 
             if (!shouldOperate) return@handler
-            if (onF5 && mc.gameOptions.perspective == 0) return@handler
+            if (onF5 && mc.options.perspective == 0) return@handler
 
             event.withY(currentLaunchY + customY)
         }

@@ -86,7 +86,7 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT) {
             hadFastHop = false
         }
 
-        if (!player.isMoving || player.isSneaking || player.inWater || mc.gameOptions.jumpKey.isKeyDown) {
+        if (!player.isMoving || player.isSneaking || player.inWater || mc.options.jumpKey.isKeyDown) {
             reset()
             return@handler
         }

@@ -41,7 +41,7 @@ public abstract class MixinInventoryMenuScreen extends MixinScreen {
     @Inject(method = "initGui", at = @At("RETURN"), cancellable = true)
     private void init(CallbackInfo ci) {
         if (shouldSilentGUI()) {
-            if (mc.currentScreen instanceof ChestScreen) {
+            if (mc.screen instanceof ChestScreen) {
                 ci.cancel();
             }
         }
@@ -50,7 +50,7 @@ public abstract class MixinInventoryMenuScreen extends MixinScreen {
     @Inject(method = "drawScreen", at = @At("HEAD"), cancellable = true)
     private void drawScreen(int mouseX, int mouseY, float partialTicks, CallbackInfo ci) {
         if (shouldSilentGUI()) {
-            if (mc.currentScreen instanceof ChestScreen) {
+            if (mc.screen instanceof ChestScreen) {
                 ci.cancel();
             }
         }
@@ -89,7 +89,7 @@ public abstract class MixinInventoryMenuScreen extends MixinScreen {
         GL11.glPushAttrib(GL11.GL_ENABLE_BIT);
         GL11.glDisable(GL11.GL_LIGHTING);
 
-        if (mc.currentScreen instanceof ChestScreen) {
+        if (mc.screen instanceof ChestScreen) {
             if (chestStealer.handleEvents() && !chestStealer.getSilentGUI() && chestStealer.getHighlightSlot()) {
                 if (slot.slotNumber == currentSlotChestStealer && currentSlotChestStealer != -1 && currentSlotChestStealer != inventoryManager.getChestStealerLastSlot()) {
                     renderUtils.drawBorderedRect(x, y, x + 16, y + 16, chestStealer.getBorderStrength(), chestStealerBorderColor, chestStealerBackgroundColor);
@@ -105,7 +105,7 @@ public abstract class MixinInventoryMenuScreen extends MixinScreen {
             }
         }
 
-        if (mc.currentScreen instanceof SurvivalInventoryScreen) {
+        if (mc.screen instanceof SurvivalInventoryScreen) {
             if (inventoryManager.getHighlightSlotValue().get()) {
                 if (inventoryCleaner.handleEvents()) {
                     if (slot.slotNumber == currentSlotInvCleaner && currentSlotInvCleaner != -1 && currentSlotInvCleaner != inventoryManager.getInvCleanerLastSlot()) {
