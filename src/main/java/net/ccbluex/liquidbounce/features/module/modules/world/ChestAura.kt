@@ -35,9 +35,9 @@ import net.minecraft.network.packet.s2c.play.AddEntityS2CPacket
 import net.minecraft.network.packet.s2c.play.BlockEventS2CPacket
 import net.minecraft.network.packet.s2c.play.SoundEventS2CPacket
 import net.minecraft.network.packet.s2c.play.TitlesS2CPacket
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.tileentity.TileEntityChest
-import net.minecraft.tileentity.TileEntityEnderChest
+import net.minecraft.block.entity.BlockEntity
+import net.minecraft.block.entity.ChestBlockEntity
+import net.minecraft.block.entity.EnderChestBlockEntity
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 import java.text.DecimalFormat
@@ -88,7 +88,7 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
     private var wallsRangeSq = 0f
     private var minDistanceFromOpponentSq = 0f
 
-    val clickedTileEntities = mutableSetOf<TileEntity>()
+    val clickedTileEntities = mutableSetOf<BlockEntity>()
     private val chestOpenMap = mutableMapOf<BlockPos, Pair<Int, Long>>()
 
     // Substrings that indicate that chests have been refilled, broadcasted via title packet
@@ -97,7 +97,7 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
 
     data class TileTarget(
         val clickPoint: Vec3d,
-        val entity: TileEntity,
+        val entity: BlockEntity,
         val distanceSq: Double
     )
 
@@ -125,7 +125,7 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
             .asSequence()
             // Check if tile entity is correct type, not already clicked, not blocked by a block and in range
             .filter {
-                shouldClickTileEntity(it) && it.pos.distanceSqToCenter(eyeX, eyeY, eyeZ) <= searchRadiusSq
+                shouldClickBlockEntity(it) && it.pos.distanceSqToCenter(eyeX, eyeY, eyeZ) <= searchRadiusSq
             }.flatMap { entity ->
                 val box = entity.blockType.getSelectedBoundingBox(mc.world, entity.pos)
 
@@ -173,7 +173,7 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
                 if (packet.soundName != "random.chestopen")
                     return@handler
 
-                val entity = mc.world.getTileEntity(BlockPos(packet.x, packet.y, packet.z)) ?: return@handler
+                val entity = mc.world.getBlockEntity(BlockPos(packet.x, packet.y, packet.z)) ?: return@handler
 
                 clickedTileEntities += entity
             }
@@ -185,7 +185,7 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
 
                 val packetBlockPos = packet.blockPosition
 
-                clickedTileEntities += mc.world.getTileEntity(packetBlockPos)
+                clickedTileEntities += mc.world.getBlockEntity(packetBlockPos)
 
                 if (openInfo != "Off") {
                     val (prevState, prevTime) = chestOpenMap[packetBlockPos] ?: (null to null)
@@ -216,7 +216,7 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
                             player.rayTrace(5.0, 1f)?.blockPos == packetBlockPos
                         } ?: nearPlayers.first()).first
 
-                        val entity = mc.world.getTileEntity(packetBlockPos)
+                        val entity = mc.world.getBlockEntity(packetBlockPos)
                         val box = entity.blockType.getSelectedBoundingBox(mc.world, packetBlockPos)
                         distance = decimalFormat.format(player.getDistanceToBox(box))
                     } else {
@@ -255,11 +255,11 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
             // Whenever an armor stand spawns, blacklist chest that it might be inside
             is AddEntityS2CPacket -> {
                 if (ignoreLooted && packet.type == 78) {
-                    val entity = mc.world.getTileEntity(
+                    val entity = mc.world.getBlockEntity(
                         BlockPos(packet.realX, packet.realY + 2.0, packet.realZ)
                     )
 
-                    if (entity !is TileEntityChest && entity !is TileEntityEnderChest)
+                    if (entity !is ChestBlockEntity && entity !is EnderChestBlockEntity)
                         return@handler
 
                     clickedTileEntities += entity
@@ -296,13 +296,13 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
         }
     }
 
-    private fun shouldClickTileEntity(entity: TileEntity): Boolean {
+    private fun shouldClickBlockEntity(entity: BlockEntity): Boolean {
         // Check if entity hasn't been clicked already
         if (entity in clickedTileEntities) return false
 
         // Check if entity is of correct type
         return when (entity) {
-            is TileEntityChest -> {
+            is ChestBlockEntity -> {
                 if (!chest) return false
 
                 val block = entity.pos.block
@@ -313,7 +313,7 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
                 block.getLockableContainer(mc.world, entity.pos) != null
             }
 
-            is TileEntityEnderChest ->
+            is EnderChestBlockEntity ->
                 enderChest && entity.pos.up().block?.isNormalCube != true
 
             else -> return false

@@ -923,7 +923,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
         if (item is BlockItem) {
             val block = item.block
 
-            return isFullBlock(block) && !block.hasTileEntity()
+            return isFullBlock(block) && !block.hasBlockEntity()
                     && block !is CraftingTableBlock && block !is BlockWithBlockEntity && block !is BlockFalling
         }
 

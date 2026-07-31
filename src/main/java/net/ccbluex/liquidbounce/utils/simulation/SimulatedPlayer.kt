@@ -35,6 +35,8 @@ import net.minecraft.potion.Potion
 import net.minecraft.entity.living.effect.StatusEffectInstance
 import net.minecraft.util.*
 import net.minecraft.util.math.MathHelper
+import net.minecraft.util.math.MathHelper.floor
+import net.minecraft.util.math.MathHelper.clamp
 import net.minecraft.util.math.BlockPos.Mutable
 import net.minecraft.world.World
 import net.minecraft.world.biome.Biome
@@ -392,8 +394,8 @@ class SimulatedPlayer(
 
     private fun clampPositionFromPlayerEntity() {
         // Post PlayerEntity onUpdate
-        val d3 = MathHelper.clamp(posX, -2.9999999E7, 2.9999999E7)
-        val d4 = MathHelper.clamp(posZ, -2.9999999E7, 2.9999999E7)
+        val d3 = clamp(posX, -2.9999999E7, 2.9999999E7)
+        val d4 = clamp(posZ, -2.9999999E7, 2.9999999E7)
 
         if (d3 != posX || d4 != posZ) {
             setPosition(d3, posY, d4)
@@ -514,9 +516,9 @@ class SimulatedPlayer(
                     var f4 = 0.91f
 
                     if (onGround) {
-                        f4 = worldObj.getBlockState(BlockPos(MathHelper.floor(posX),
-                            MathHelper.floor(this.getShape().minY) - 1,
-                            MathHelper.floor(posZ)
+                        f4 = worldObj.getBlockState(BlockPos(floor(posX),
+                            floor(this.getShape().minY) - 1,
+                            floor(posZ)
                         )).block.slipperiness * 0.91f
                     }
 
@@ -530,17 +532,17 @@ class SimulatedPlayer(
                     f4 = 0.91f
 
                     if (onGround) {
-                        f4 = worldObj.getBlockState(BlockPos(MathHelper.floor(posX),
-                            MathHelper.floor(this.getShape().minY) - 1,
-                            MathHelper.floor(posZ)
+                        f4 = worldObj.getBlockState(BlockPos(floor(posX),
+                            floor(this.getShape().minY) - 1,
+                            floor(posZ)
                         )).block.slipperiness * 0.91f
                     }
 
                     if (isOnLadder()) {
                         f6 = 0.15f
 
-                        motionX = MathHelper.clamp(motionX, (-f6).toDouble(), f6.toDouble())
-                        motionZ = MathHelper.clamp(motionZ, (-f6).toDouble(), f6.toDouble())
+                        motionX = clamp(motionX, (-f6).toDouble(), f6.toDouble())
+                        motionZ = clamp(motionZ, (-f6).toDouble(), f6.toDouble())
 
                         fallDistance = 0.0f
 
@@ -747,9 +749,9 @@ class SimulatedPlayer(
             collidingVertically = d4 != velocityY
             onGround = collidingVertically && d4 < 0.0
             colliding = collidingHorizontally || collidingVertically
-            val i = MathHelper.floor(posX)
-            val j = MathHelper.floor(posY - 0.20000000298023224)
-            val k = MathHelper.floor(posZ)
+            val i = floor(posX)
+            val j = floor(posY - 0.20000000298023224)
+            val k = floor(posZ)
             val blockPos = BlockPos(i, j, k)
             var block1 = worldObj.getBlockState(blockPos).block
 
@@ -885,12 +887,12 @@ class SimulatedPlayer(
     }
 
     private fun handleMaterialAcceleration(boundingBox: Box, material: Material): Boolean {
-        val i = MathHelper.floor(boundingBox.minX)
-        val j = MathHelper.floor(boundingBox.maxX + 1.0)
-        val k = MathHelper.floor(boundingBox.minY)
-        val l = MathHelper.floor(boundingBox.maxY + 1.0)
-        val i1 = MathHelper.floor(boundingBox.minZ)
-        val j1 = MathHelper.floor(boundingBox.maxZ + 1.0)
+        val i = floor(boundingBox.minX)
+        val j = floor(boundingBox.maxX + 1.0)
+        val k = floor(boundingBox.minY)
+        val l = floor(boundingBox.maxY + 1.0)
+        val i1 = floor(boundingBox.minZ)
+        val j1 = floor(boundingBox.maxZ + 1.0)
 
         return if (!isAreaLoaded(i, k, i1, j, l, j1, true)) {
             false
@@ -974,9 +976,9 @@ class SimulatedPlayer(
     }
 
     fun isOnLadder(): Boolean {
-        val blockX = MathHelper.floor(posX)
-        val blockY = MathHelper.floor(box.minY)
-        val blockZ = MathHelper.floor(posZ)
+        val blockX = floor(posX)
+        val blockY = floor(box.minY)
+        val blockZ = floor(posZ)
 
         val block = worldObj.getBlockState(BlockPos(blockX, blockY, blockZ)).block
         return isLivingOnLadder(block, worldObj, BlockPos(blockX, blockY, blockZ), player)
@@ -1075,12 +1077,12 @@ class SimulatedPlayer(
 
     fun getCollidingBoundingBoxes(box: Box): List<Box> {
         val list: MutableList<Box> = Lists.newArrayList()
-        val i = MathHelper.floor(box.minX)
-        val j = MathHelper.floor(box.maxX + 1.0)
-        val k = MathHelper.floor(box.minY)
-        val l = MathHelper.floor(box.maxY + 1.0)
-        val i1 = MathHelper.floor(box.minZ)
-        val j1 = MathHelper.floor(box.maxZ + 1.0)
+        val i = floor(box.minX)
+        val j = floor(box.maxX + 1.0)
+        val k = floor(box.minY)
+        val l = floor(box.maxY + 1.0)
+        val i1 = floor(box.minZ)
+        val j1 = floor(box.maxZ + 1.0)
         val worldborder: WorldBorder = this.getWorldBorder()
         val flag = this.isOutsideBorder
         val flag1 = isInsideBorder(worldborder, flag)
@@ -1199,10 +1201,10 @@ class SimulatedPlayer(
         entity: Entity, bb: Box, predicate: Predicate<in Entity?>?,
     ): List<Entity> {
         val list: List<Entity> = Lists.newArrayList()
-        val i = MathHelper.floor((bb.minX - World.MAX_ENTITY_RADIUS) / 16.0)
-        val j = MathHelper.floor((bb.maxX + World.MAX_ENTITY_RADIUS) / 16.0)
-        val k = MathHelper.floor((bb.minZ - World.MAX_ENTITY_RADIUS) / 16.0)
-        val l = MathHelper.floor((bb.maxZ + World.MAX_ENTITY_RADIUS) / 16.0)
+        val i = floor((bb.minX - World.MAX_ENTITY_RADIUS) / 16.0)
+        val j = floor((bb.maxX + World.MAX_ENTITY_RADIUS) / 16.0)
+        val k = floor((bb.minZ - World.MAX_ENTITY_RADIUS) / 16.0)
+        val l = floor((bb.maxZ + World.MAX_ENTITY_RADIUS) / 16.0)
         for (i1 in i..j) {
             for (j1 in k..l) {
                 if (isChunkLoaded(i1, j1, true)) {

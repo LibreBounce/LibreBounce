@@ -17,7 +17,7 @@ import static org.lwjgl.opengl.GL11.*;
 @Mixin(ChestRenderer.class)
 public class MixinChestRenderer {
 
-    @Inject(method = "renderTileEntityAt", at = @At("HEAD"))
+    @Inject(method = "renderBlockEntityAt", at = @At("HEAD"))
     private void injectChamsPre(CallbackInfo callbackInfo) {
         final Chams chams = Chams.INSTANCE;
 
@@ -27,7 +27,7 @@ public class MixinChestRenderer {
         }
     }
 
-    @Inject(method = "renderTileEntityAt", at = @At("RETURN"))
+    @Inject(method = "renderBlockEntityAt", at = @At("RETURN"))
     private void injectChamsPost(CallbackInfo callbackInfo) {
         final Chams chams = Chams.INSTANCE;
 

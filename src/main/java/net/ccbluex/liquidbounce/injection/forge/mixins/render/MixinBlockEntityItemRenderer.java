@@ -9,16 +9,16 @@ import com.mojang.authlib.GameProfile;
 import net.minecraft.block.Block;
 import net.minecraft.client.render.entity.BlockEntityItemRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
-import net.minecraft.client.renderer.tileentity.TileEntitySkullRenderer;
+import net.minecraft.client.renderer.tileentity.BlockEntitySkullRenderer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NBTUtil;
-import net.minecraft.tileentity.TileEntityBanner;
-import net.minecraft.tileentity.TileEntityChest;
-import net.minecraft.tileentity.TileEntityEnderChest;
-import net.minecraft.tileentity.TileEntitySkull;
+import net.minecraft.block.entity.BlockEntityBanner;
+import net.minecraft.block.entity.ChestBlockEntity;
+import net.minecraft.block.entity.EnderChestBlockEntity;
+import net.minecraft.block.entity.BlockEntitySkull;
 import net.minecraft.util.math.Direction;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -33,16 +33,16 @@ import static net.minecraft.client.render.platform.GlStateManager.*;
 public class MixinBlockEntityItemRenderer {
 
     @Shadow
-    private TileEntityBanner banner;
+    private BlockEntityBanner banner;
 
     @Shadow
-    private TileEntityEnderChest enderChest;
+    private EnderChestBlockEntity enderChest;
 
     @Shadow
-    private TileEntityChest field_147718_c;
+    private ChestBlockEntity field_147718_c;
 
     @Shadow
-    private TileEntityChest field_147717_b;
+    private ChestBlockEntity field_147717_b;
 
     /**
      * @author CCBlueX
@@ -51,7 +51,7 @@ public class MixinBlockEntityItemRenderer {
     public void renderByItem(ItemStack itemStackIn) {
         if (itemStackIn.getItem() == Items.banner) {
             banner.setItemValues(itemStackIn);
-            BlockEntityRenderDispatcher.instance.renderTileEntityAt(banner, 0, 0, 0, 0f);
+            BlockEntityRenderDispatcher.instance.renderBlockEntityAt(banner, 0, 0, 0, 0f);
         } else if (itemStackIn.getItem() == Items.skull) {
             GameProfile gameprofile = null;
 
@@ -63,7 +63,7 @@ public class MixinBlockEntityItemRenderer {
                         gameprofile = NBTUtil.readGameProfileFromNBT(nbttagcompound.getCompoundTag("SkullOwner"));
                     } else if (nbttagcompound.hasKey("SkullOwner", 8) && nbttagcompound.getString("SkullOwner").length() > 0) {
                         GameProfile lvt_2_2_ = new GameProfile(null, nbttagcompound.getString("SkullOwner"));
-                        gameprofile = TileEntitySkull.updateGameprofile(lvt_2_2_);
+                        gameprofile = BlockEntitySkull.updateGameprofile(lvt_2_2_);
                         nbttagcompound.removeTag("SkullOwner");
                         nbttagcompound.setTag("SkullOwner", NBTUtil.writeGameProfile(new NbtCompound(), gameprofile));
                     }
@@ -71,12 +71,12 @@ public class MixinBlockEntityItemRenderer {
                 }
             }
 
-            if (TileEntitySkullRenderer.instance != null) {
+            if (BlockEntitySkullRenderer.instance != null) {
                 pushMatrix();
                 translate(-0.5F, 0f, -0.5F);
                 scale(2f, 2f, 2f);
                 disableCull();
-                TileEntitySkullRenderer.instance.renderSkull(0f, 0f, 0f, Direction.UP, 0f, itemStackIn.getMetadata(), gameprofile, -1);
+                BlockEntitySkullRenderer.instance.renderSkull(0f, 0f, 0f, Direction.UP, 0f, itemStackIn.getMetadata(), gameprofile, -1);
                 enableCull();
                 popMatrix();
             }
@@ -84,13 +84,13 @@ public class MixinBlockEntityItemRenderer {
             Block block = Block.getBlockFromItem(itemStackIn.getItem());
 
             if (block == Blocks.ender_chest) {
-                BlockEntityRenderDispatcher.instance.renderTileEntityAt(enderChest, 0, 0, 0, 0f);
+                BlockEntityRenderDispatcher.instance.renderBlockEntityAt(enderChest, 0, 0, 0, 0f);
             } else if (block == Blocks.trapped_chest) {
-                BlockEntityRenderDispatcher.instance.renderTileEntityAt(field_147718_c, 0, 0, 0, 0f);
+                BlockEntityRenderDispatcher.instance.renderBlockEntityAt(field_147718_c, 0, 0, 0, 0f);
             } else if (block != Blocks.chest)
                 net.minecraftforge.client.ForgeHooksClient.renderTileItem(itemStackIn.getItem(), itemStackIn.getMetadata());
             else {
-                BlockEntityRenderDispatcher.instance.renderTileEntityAt(field_147717_b, 0, 0, 0, 0f);
+                BlockEntityRenderDispatcher.instance.renderBlockEntityAt(field_147717_b, 0, 0, 0, 0f);
             }
         }
     }

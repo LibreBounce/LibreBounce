@@ -67,33 +67,33 @@ object StorageESP : Module("StorageESP", Category.RENDER) {
     private val brewingStand by boolean("BrewingStand", false)
     private val sign by boolean("Sign", false)
 
-    private fun getColor(tileEntity: TileEntity): Color? {
+    private fun getColor(tileEntity: BlockEntity): Color? {
         return if (espColorMode == "Custom") {
             when {
-                chest && tileEntity is TileEntityChest && tileEntity !in clickedTileEntities ->
+                chest && tileEntity is ChestBlockEntity && tileEntity !in clickedTileEntities ->
                     Color(espColor.color().rgb)
 
-                enderChest && tileEntity is TileEntityEnderChest && tileEntity !in clickedTileEntities ->
+                enderChest && tileEntity is EnderChestBlockEntity && tileEntity !in clickedTileEntities ->
                     Color(espColor.color().rgb)
 
-                furnace && tileEntity is TileEntityFurnace -> Color(espColor.color().rgb)
-                dispenser && tileEntity is TileEntityDispenser -> Color(espColor.color().rgb)
-                hopper && tileEntity is TileEntityHopper -> Color(espColor.color().rgb)
-                enchantmentTable && tileEntity is TileEntityEnchantmentTable -> Color(espColor.color().rgb)
-                brewingStand && tileEntity is TileEntityBrewingStand -> Color(espColor.color().rgb)
-                sign && tileEntity is TileEntitySign -> Color(espColor.color().rgb)
+                furnace && tileEntity is FurnaceBlockEntity -> Color(espColor.color().rgb)
+                dispenser && tileEntity is DispenserBlockEntity -> Color(espColor.color().rgb)
+                hopper && tileEntity is HopperBlockEntity -> Color(espColor.color().rgb)
+                enchantmentTable && tileEntity is EnchantingTableBlockEntity -> Color(espColor.color().rgb)
+                brewingStand && tileEntity is BrewingStandBlockEntity -> Color(espColor.color().rgb)
+                sign && tileEntity is SignBlockEntity -> Color(espColor.color().rgb)
                 else -> null
             }
         } else {
             when {
-                chest && tileEntity is TileEntityChest && tileEntity !in clickedTileEntities -> Color(0, 66, 255)
-                enderChest && tileEntity is TileEntityEnderChest && tileEntity !in clickedTileEntities -> Color.MAGENTA
-                furnace && tileEntity is TileEntityFurnace -> Color.BLACK
-                dispenser && tileEntity is TileEntityDispenser -> Color.BLACK
-                hopper && tileEntity is TileEntityHopper -> Color.GRAY
-                enchantmentTable && tileEntity is TileEntityEnchantmentTable -> Color(166, 202, 240) // Light blue
-                brewingStand && tileEntity is TileEntityBrewingStand -> Color.ORANGE
-                sign && tileEntity is TileEntitySign -> Color.RED
+                chest && tileEntity is ChestBlockEntity && tileEntity !in clickedTileEntities -> Color(0, 66, 255)
+                enderChest && tileEntity is EnderChestBlockEntity && tileEntity !in clickedTileEntities -> Color.MAGENTA
+                furnace && tileEntity is FurnaceBlockEntity -> Color.BLACK
+                dispenser && tileEntity is DispenserBlockEntity -> Color.BLACK
+                hopper && tileEntity is HopperBlockEntity -> Color.GRAY
+                enchantmentTable && tileEntity is EnchantingTableBlockEntity -> Color(166, 202, 240) // Light blue
+                brewingStand && tileEntity is BrewingStandBlockEntity -> Color.ORANGE
+                sign && tileEntity is SignBlockEntity -> Color.RED
                 else -> null
             }
         }
@@ -110,7 +110,7 @@ object StorageESP : Module("StorageESP", Category.RENDER) {
 
             mc.options.gammaSetting = 100000f
 
-            for (tileEntity in mc.world.loadedTileEntityList) {
+            for (tileEntity in mc.world.loadedBlockEntityList) {
                 val color = getColor(tileEntity) ?: continue
 
                 val tileEntityPos = tileEntity.pos
@@ -122,10 +122,10 @@ object StorageESP : Module("StorageESP", Category.RENDER) {
                 )
 
                 if (distanceSquared <= maxRenderDistanceSq) {
-                    if (!(tileEntity is TileEntityChest || tileEntity is TileEntityEnderChest)) {
+                    if (!(tileEntity is ChestBlockEntity || tileEntity is EnderChestBlockEntity)) {
                         drawBlockBox(tileEntity.pos, color, mode != "OtherBox")
 
-                        if (tileEntity !is TileEntityEnchantmentTable)
+                        if (tileEntity !is EnchantingTableBlockEntity)
                             continue
                     }
 
@@ -140,13 +140,13 @@ object StorageESP : Module("StorageESP", Category.RENDER) {
                         "Outline" -> {
                             glColor(color)
                             OutlineUtils.renderOne(3F)
-                            BlockEntityRenderDispatcher.instance.renderTileEntity(tileEntity, event.partialTicks, -1)
+                            BlockEntityRenderDispatcher.instance.renderBlockEntity(tileEntity, event.partialTicks, -1)
                             OutlineUtils.renderTwo()
-                            BlockEntityRenderDispatcher.instance.renderTileEntity(tileEntity, event.partialTicks, -1)
+                            BlockEntityRenderDispatcher.instance.renderBlockEntity(tileEntity, event.partialTicks, -1)
                             OutlineUtils.renderThree()
-                            BlockEntityRenderDispatcher.instance.renderTileEntity(tileEntity, event.partialTicks, -1)
+                            BlockEntityRenderDispatcher.instance.renderBlockEntity(tileEntity, event.partialTicks, -1)
                             OutlineUtils.renderFour(color)
-                            BlockEntityRenderDispatcher.instance.renderTileEntity(tileEntity, event.partialTicks, -1)
+                            BlockEntityRenderDispatcher.instance.renderBlockEntity(tileEntity, event.partialTicks, -1)
                             OutlineUtils.renderFive()
                             OutlineUtils.setColor(Color.WHITE)
                         }
@@ -163,9 +163,9 @@ object StorageESP : Module("StorageESP", Category.RENDER) {
                             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
                             glLineWidth(1.5f)
                             glColor(color)
-                            BlockEntityRenderDispatcher.instance.renderTileEntity(tileEntity, event.partialTicks, -1)
+                            BlockEntityRenderDispatcher.instance.renderBlockEntity(tileEntity, event.partialTicks, -1)
                             glColor(color)
-                            BlockEntityRenderDispatcher.instance.renderTileEntity(tileEntity, event.partialTicks, -1)
+                            BlockEntityRenderDispatcher.instance.renderBlockEntity(tileEntity, event.partialTicks, -1)
                             glPopAttrib()
                             glPopMatrix()
                         }
@@ -250,7 +250,7 @@ object StorageESP : Module("StorageESP", Category.RENDER) {
         val renderManager = mc.renderManager
 
         try {
-            mc.world.loadedTileEntityList
+            mc.world.loadedBlockEntityList
                 .groupBy { getColor(it) }
                 .forEach { (color, tileEntities) ->
                     color ?: return@forEach
@@ -272,7 +272,7 @@ object StorageESP : Module("StorageESP", Category.RENDER) {
 
                         val (x, y, z) = pos - renderManager.renderPos
 
-                        BlockEntityRenderDispatcher.instance.renderTileEntityAt(entity, x, y, z, event.partialTicks)
+                        BlockEntityRenderDispatcher.instance.renderBlockEntityAt(entity, x, y, z, event.partialTicks)
                     }
 
                     GlowShader.stopDraw(color, glowRadius, glowFade, glowTargetAlpha)

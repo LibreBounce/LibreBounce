@@ -252,9 +252,9 @@ public abstract class MixinMinecraft {
         if (objectMouseOver != null && objectMouseOver.typeOfHit == HitResult.Type.BLOCK) {
             BlockPos blockPos = objectMouseOver.getBlockPos();
             BlockState blockState = theWorld.getBlockState(blockPos);
-            // Don't spam-click when interacting with a TileEntity (chests, ...)
+            // Don't spam-click when interacting with a BlockEntity (chests, ...)
             // Doesn't prevent spam-clicking anvils, crafting tables, ... (couldn't figure out a non-hacky way)
-            if (blockState.getBlock().hasTileEntity(blockState)) return;
+            if (blockState.getBlock().hasBlockEntity(blockState)) return;
             // Return if not facing a block
         } else if (fastPlace.getFacingBlocks()) return;
 

@@ -12,7 +12,7 @@ import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen
 import net.minecraft.client.gui.screen.ConnectScreen
 import net.minecraft.client.network.ServerAddress
 import net.minecraft.client.options.ServerListEntry
-import net.minecraft.client.network.NetHandlerLoginClient
+import net.minecraft.client.network.handler.ClientLoginNetworkHandler
 import net.minecraft.network.NetworkProtocol
 import net.minecraft.network.Connection
 import net.minecraft.network.packet.c2s.handshake.HandshakeC2SPacket
@@ -46,7 +46,7 @@ object ServerUtils : MinecraftInstance {
                     serverAddress.port,
                     mc.options.isUsingNativeTransport
                 )
-                networkManager.networkHandler = NetHandlerLoginClient(networkManager, mc, TitleScreen())
+                networkManager.networkHandler = ClientLoginNetworkHandler(networkManager, mc, TitleScreen())
 
                 networkManager.sendPacket(
                     HandshakeC2SPacket(47, serverAddress.ip, serverAddress.port, NetworkProtocol.LOGIN, true)

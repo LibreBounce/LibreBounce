@@ -10,7 +10,7 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.screen.inventory.menu.SignEditScreen;
 import net.minecraft.event.ClickEvent;
-import net.minecraft.tileentity.TileEntitySign;
+import net.minecraft.block.entity.SignBlockEntity;
 import net.minecraft.util.ChatAllowedCharacters;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.ChatStyle;
@@ -32,7 +32,7 @@ public class MixinSignEditScreen extends Screen {
     @Shadow
     private int editLine;
     @Shadow
-    private TileEntitySign tileSign;
+    private SignBlockEntity tileSign;
     @Shadow
     private ButtonWidget doneBtn;
     private boolean enabled;

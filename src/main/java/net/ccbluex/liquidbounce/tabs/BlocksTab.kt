@@ -5,13 +5,13 @@
  */
 package net.ccbluex.liquidbounce.tabs
 
-import net.minecraft.creativetab.CreativeTabs
+import net.minecraft.item.group.ItemGroup
 import net.minecraft.init.Blocks.*
 import net.minecraft.item.Items
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 
-class BlocksTab : CreativeTabs("Special blocks") {
+class BlocksTab : ItemGroup("Special blocks") {
 
     private val itemStacks by lazy(LazyThreadSafetyMode.NONE) {
         arrayOf(

@@ -21,7 +21,7 @@ import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.minecraft.entity.Entity
 import net.minecraft.entity.living.LivingEntity
 import net.minecraft.entity.living.player.PlayerEntity
-import net.minecraft.tileentity.TileEntity
+import net.minecraft.block.entity.BlockEntity
 import net.minecraft.util.math.Vec3d
 import java.awt.Color
 import kotlin.math.cos
@@ -83,7 +83,7 @@ object EntityUtils : MinecraftInstance {
 
         val entityPos = when (entity) {
             is Entity -> entity.positionVector.addVector(0.0, entity.eyeHeight.toDouble(), 0.0)
-            is TileEntity -> Vec3d(
+            is BlockEntity -> Vec3d(
                 entity.pos.x.toDouble(),
                 entity.pos.y.toDouble(),
                 entity.pos.z.toDouble()

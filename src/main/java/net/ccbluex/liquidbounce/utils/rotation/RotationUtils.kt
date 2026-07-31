@@ -21,7 +21,7 @@ import net.ccbluex.liquidbounce.utils.rotation.RaycastUtils.raycastEntity
 import net.ccbluex.liquidbounce.utils.timing.WaitTickUtils
 import net.minecraft.entity.Entity
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
-import net.minecraft.tileentity.TileEntity
+import net.minecraft.block.entity.BlockEntity
 import net.minecraft.util.*
 import javax.vecmath.Vector2f
 import kotlin.math.*
@@ -539,7 +539,7 @@ object RotationUtils : MinecraftInstance, Listenable {
         entity.hitBox.center.withY(entity.hitBox.maxY), entity.hitBox.center.withY(entity.hitBox.minY)
     ).any { isVisible(it) }
 
-    fun isEntityHeightVisible(entity: TileEntity) = arrayOf(
+    fun isEntityHeightVisible(entity: BlockEntity) = arrayOf(
         entity.renderBoundingBox.center.withY(entity.renderBoundingBox.maxY),
         entity.renderBoundingBox.center.withY(entity.renderBoundingBox.minY)
     ).any { isVisible(it) }
