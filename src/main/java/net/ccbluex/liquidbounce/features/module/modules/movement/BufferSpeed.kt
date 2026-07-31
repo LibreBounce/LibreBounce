@@ -16,7 +16,7 @@ import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.utils.extensions.tryJump
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
-import net.minecraft.block.BlockSlab
+import net.minecraft.block.SlabBlock
 import net.minecraft.block.SlimeBlock
 import net.minecraft.block.StairsBlock
 import net.minecraft.init.Blocks.*
@@ -104,7 +104,7 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT) {
                 down = true
                 return@handler
             }
-            if (slabs && blockPos.block is BlockSlab) {
+            if (slabs && blockPos.block is SlabBlock) {
                 when (slabsMode) {
                     "Old" -> {
                         boost(slabsBoost)
@@ -259,7 +259,7 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT) {
                 if ((collisionBoundingBox == null || collisionBoundingBox.maxX ==
                             collisionBoundingBox.minY + 1) &&
                     !blockState.block.isTranslucent && blockState.block == water &&
-                    blockState.block !is BlockSlab || blockState.block == barrier
+                    blockState.block !is SlabBlock || blockState.block == barrier
                 ) return true
             }
             return false

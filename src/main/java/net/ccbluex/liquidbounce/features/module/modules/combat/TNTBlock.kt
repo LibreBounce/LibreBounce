@@ -11,7 +11,7 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.client.EntityLookup
 import net.minecraft.client.options.GameOptions
-import net.minecraft.entity.item.EntityTNTPrimed
+import net.minecraft.entity.PrimedTntEntity
 import net.minecraft.item.SwordItem
 
 object TNTBlock : Module("TNTBlock", Category.COMBAT) {
@@ -22,7 +22,7 @@ object TNTBlock : Module("TNTBlock", Category.COMBAT) {
     private val autoSword by boolean("AutoSword", true)
     private var blocked = false
 
-    private val entities by EntityLookup<EntityTNTPrimed>()
+    private val entities by EntityLookup<PrimedTntEntity>()
         .filter { it.fuse <= fuse }
         .filter { mc.player.getSquaredDistanceToToEntity(it) <= range * range }
 

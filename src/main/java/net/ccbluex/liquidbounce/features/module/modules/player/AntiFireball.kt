@@ -23,7 +23,7 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.minecraft.client.render.Window
 import net.minecraft.client.render.platform.GlStateManager
 import net.minecraft.entity.Entity
-import net.minecraft.entity.projectile.EntityFireball
+import net.minecraft.entity.projectile.ProjectileEntity
 import net.minecraft.resource.Identifier
 import kotlin.math.atan2
 import kotlin.math.cos
@@ -52,7 +52,7 @@ object AntiFireball : Module("AntiFireball", Category.PLAYER) {
 
         target = null
 
-        for (entity in mc.world.loadedEntityList.filterIsInstance<EntityFireball>()
+        for (entity in mc.world.loadedEntityList.filterIsInstance<ProjectileEntity>()
             .sortedBy { player.getDistanceToBox(it.hitBox) }) {
             val nearestPoint = getNearestPointBB(player.eyes, entity.hitBox)
             val entityPrediction = entity.currPos - entity.prevPos

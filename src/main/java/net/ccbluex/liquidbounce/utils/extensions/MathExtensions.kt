@@ -69,11 +69,11 @@ operator fun Window.component2() = this.scaledHeight
  * Provides:
  * `vec + othervec`, `vec - othervec`, `vec * number`, `vec / number`, `-vec`
  * */
-operator fun Vec3d.plus(vec:Vec3d3)Vec3dc3 = add(vec)
-operator fun Vec3d.minus(vec:Vec3d3)Vec3dc3 = subtract(vec)
-operator fun Vec3d.times(number: Double) =Vec3d3(xCoord * number, yCoord * number, zCoord * number)
+operator fun Vec3d.plus(vec:Vec3d)Vec3dc3 = add(vec)
+operator fun Vec3d.minus(vec:Vec3d)Vec3dc3 = subtract(vec)
+operator fun Vec3d.times(number: Double) =Vec3d(xCoord * number, yCoord * number, zCoord * number)
 operator fun Vec3d.div(number: Double) = times(1 / number)
-operator fun Vec3d.unaryMinus():Vec3d3 = times(-1.0)
+operator fun Vec3d.unaryMinus():Vec3d = times(-1.0)
 
 fun Vec3i.manhattanDistance(another: Vec3i): Int {
     return abs(x - another.x) + abs(y - another.y) + abs(z - another.z)
@@ -211,7 +211,7 @@ fun Block.lerpWith(x: Double, y: Double, z: Double) = Vec3d(
     blockBoundsMinZ + (blockBoundsMaxZ - blockBoundsMinZ) * z
 )
 
-fun Vec3d.lerpWith(other:Vec3d3, tickDelta: Double) = Vec3d(
+fun Vec3d.lerpWith(other:Vec3d, tickDelta: Double) = Vec3d(
     xCoord + (other.xCoord - xCoord) * tickDelta,
     yCoord + (other.yCoord - yCoord) * tickDelta,
     zCoord + (other.zCoord - zCoord) * tickDelta
@@ -220,7 +220,7 @@ fun Vec3d.lerpWith(other:Vec3d3, tickDelta: Double) = Vec3d(
 fun Rotation.lerpWith(other: Rotation, tickDelta: Number) =
     Rotation((yaw..other.yaw).lerpWith(tickDelta), (pitch..other.pitch).lerpWith(tickDelta))
 
-fun Vec3d.lerpWith(other:Vec3d3, tickDelta: Float) = lerpWith(other, tickDelta.toDouble())
+fun Vec3d.lerpWith(other:Vec3d, tickDelta: Float) = lerpWith(other, tickDelta.toDouble())
 
 fun ClosedFloatingPointRange<Double>.lerpWith(t: Number) = start + (endInclusive - start) * t.toDouble()
 

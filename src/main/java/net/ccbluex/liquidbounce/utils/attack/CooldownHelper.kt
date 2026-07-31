@@ -34,7 +34,7 @@ object CooldownHelper {
                 }
             }
             is PickaxeItem -> 1.2
-            is ItemSpade -> 1.0
+            is ShovelItem -> 1.0
             is ItemHoe -> {
                 val hoe = itemStack.item as ItemHoe
                 when (hoe.materialName) {

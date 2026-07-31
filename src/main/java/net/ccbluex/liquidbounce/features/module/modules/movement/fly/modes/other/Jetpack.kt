@@ -6,7 +6,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.other
 
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.FlyMode
-import net.minecraft.util.EnumParticleTypes
+import net.minecraft.entity.particle.ParticleType
 
 object Jetpack : FlyMode("Jetpack") {
     override fun onUpdate() {
@@ -16,7 +16,7 @@ object Jetpack : FlyMode("Jetpack") {
 
             // Let's bring back the particles, this mode is useless anyway
             mc.effectRenderer.spawnEffectParticle(
-                EnumParticleTypes.FLAME.particleID,
+                ParticleType.FLAME.particleID,
                 posX,
                 posY + 0.2,
                 posZ,

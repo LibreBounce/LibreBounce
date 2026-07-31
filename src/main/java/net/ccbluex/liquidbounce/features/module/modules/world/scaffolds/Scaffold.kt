@@ -903,7 +903,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
     /**
      * For expand scaffold, fixes vector values that should match according to direction vector
      */
-    private fun modifyVec(original: Vec3d, direction: Direction, pos:Vec3d3, shouldModify: Boolean)Vec3dc3 {
+    private fun modifyVec(original: Vec3d, direction: Direction, pos:Vec3d, shouldModify: Boolean)Vec3dc3 {
         if (!shouldModify) {
             return original
         }
@@ -923,7 +923,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
     }
 
     private fun findTargetPlace(
-        pos: BlockPos, offsetPos: BlockPos, vec3: Vec3d, side: Direction, eyes:Vec3d3, maxReach: Float, raycast: Boolean,
+        pos: BlockPos, offsetPos: BlockPos, vec3: Vec3d, side: Direction, eyes:Vec3d, maxReach: Float, raycast: Boolean,
     ): PlaceRotation? {
         val world = mc.world ?: return null
 

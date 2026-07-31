@@ -14,7 +14,7 @@ import net.ccbluex.liquidbounce.utils.extensions.isInLiquid
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.utils.extensions.toRadians
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
-import net.minecraft.block.BlockCarpet
+import net.minecraft.block.CarpetBlock
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -31,7 +31,7 @@ object AACHop3313 : SpeedMode("AACHop3.3.13") {
                 call(JumpEvent(0.405f, EventState.PRE))
                 strafe()
             } else if (fallDistance < 0.31f) {
-                if (position.block is BlockCarpet) // why?
+                if (position.block is CarpetBlock) // why?
                     return
 
                 // Motion XZ

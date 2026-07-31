@@ -68,7 +68,7 @@ fun LocalClientPlayerEntity.isNearEdge(threshold: Float): Boolean {
     return false
 }
 
-fun getNearestPointBB(eye: Vec3d, box: Box):Vec3d3 {
+fun getNearestPointBB(eye: Vec3d, box: Box):Vec3d {
     val origin = doubleArrayOf(eye.xCoord, eye.yCoord, eye.zCoord)
     val destMins = doubleArrayOf(box.minX, box.minY, box.minZ)
     val destMaxs = doubleArrayOf(box.maxX, box.maxY, box.maxZ)
@@ -146,7 +146,7 @@ val LocalClientPlayerEntity.groundTicks
 val Entity.isInLiquid: Boolean
     get() = inWater || isInLava
 
-fun Entity.setPosAndPrevPos(currPos: Vec3d, prevPos:Vec3d3 = currPos, lastTickPosVec3dc3? = null) {
+fun Entity.setPosAndPrevPos(currPos: Vec3d, prevPos:Vec3d = currPos, lastTickPosVec3dc3? = null) {
     setPosition(currPos.xCoord, currPos.yCoord, currPos.zCoord)
     prevPosX = prevPos.xCoord
     prevPosY = prevPos.yCoord
@@ -186,7 +186,7 @@ operator fun LocalClientPlayerEntity.plusAssign(value: Float) {
     fixedSensitivityPitch += value
 }
 
-fun Entity.interpolatedPosition(start: Vec3d, extraHeight: Float? = null) =Vec3d3(
+fun Entity.interpolatedPosition(start: Vec3d, extraHeight: Float? = null) =Vec3d(
     start.xCoord + (posX - start.xCoord) * mc.timer.renderPartialTicks,
     start.yCoord + (posY - start.yCoord) * mc.timer.renderPartialTicks + (extraHeight ?: 0f),
     start.zCoord + (posZ - start.zCoord) * mc.timer.renderPartialTicks

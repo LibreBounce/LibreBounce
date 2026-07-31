@@ -21,7 +21,7 @@ object FreeCam : Module("FreeCam", Category.RENDER, gameDetecting = false) {
     private val allowCameraInteract by boolean("AllowCameraInteract", true)
     private val allowRotationChange by boolean("AllowRotationChange", true)
 
-    data class PositionPair(var pos: Vec3d, var lastPos:Vec3d3, var extraPos:Vec3d3 = lastPos) {
+    data class PositionPair(var pos: Vec3d, var lastPos:Vec3d, var extraPos:Vec3d = lastPos) {
         operator fun plusAssign(velocity: Vec3d) {
             extraPos = pos
             lastPos = pos
@@ -101,7 +101,7 @@ object FreeCam : Module("FreeCam", Category.RENDER, gameDetecting = false) {
     fun renderPlayerFromAllPerspectives(entity: LivingEntity) =
         handleEvents() && entity == mc.player || entity.isPlayerSleeping
 
-    fun modifyRaycast(original: Vec3d, entity: Entity, tickDelta: Float):Vec3d3 {
+    fun modifyRaycast(original: Vec3d, entity: Entity, tickDelta: Float):Vec3d {
         if (!handleEvents() || entity != mc.player || !allowCameraInteract) {
             return original
         }

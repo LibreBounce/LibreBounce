@@ -33,7 +33,7 @@ import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowFontShader
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowShader
 import net.ccbluex.liquidbounce.utils.render.toColorArray
 import net.minecraft.block.Block
-import net.minecraft.block.BlockBed
+import net.minecraft.block.BedBlock
 import net.minecraft.client.gui.GuiElement
 import net.minecraft.client.render.platform.GlStateManager.resetColor
 import net.minecraft.init.Blocks.bed
@@ -135,10 +135,10 @@ object BedPlates : Module("BedPlates", Category.RENDER) {
                 return@forEach
 
             val blockState = world.getBlockState(it)
-            if (blockState.block != bed || blockState.getValue(BlockBed.PART) != BlockBed.EnumPartType.FOOT)
+            if (blockState.block != bed || blockState.getValue(BedBlock.PART) != BedBlock.EnumPartType.FOOT)
                 return@forEach
 
-            val facing = blockState.getValue(BlockBed.FACING)
+            val facing = blockState.getValue(BedBlock.FACING)
             val headPos = it.offset(facing)
 
             // Invalid Bed

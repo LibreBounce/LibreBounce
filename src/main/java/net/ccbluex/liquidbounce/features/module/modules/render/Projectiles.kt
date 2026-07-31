@@ -26,8 +26,8 @@ import net.minecraft.client.render.vertex.Tesselator
 import net.minecraft.client.render.vertex.DefaultVertexFormat
 import net.minecraft.entity.Entity
 import net.minecraft.entity.living.LivingEntity
-import net.minecraft.entity.item.EntityEnderPearl
-import net.minecraft.entity.item.EntityExpBottle
+import net.minecraft.entity.thrown.EnderPearlEntity
+import net.minecraft.entity.thrown.ExperienceBottleEntity
 import net.minecraft.entity.living.player.PlayerEntity
 import net.minecraft.entity.projectile.*
 import net.minecraft.item.*
@@ -103,7 +103,7 @@ object Projectiles : Module("Projectiles", Category.RENDER, gameDetecting = fals
                     motionFactor = 0.5F
                 }
 
-                is ItemSnowball, is EnderPearlItem, is ItemEgg -> {
+                is SnowballItem, is EnderPearlItem, is EggItem -> {
                     gravity = 0.03F
                     size = 0.25F
                 }
@@ -320,11 +320,11 @@ object Projectiles : Module("Projectiles", Category.RENDER, gameDetecting = fals
                     val interpolatePos = pos - renderManager.renderPos
 
                     val color = when (entity) {
-                        is EntityArrow -> Color(255, 0, 0)
-                        is EntityPotion -> Color(200, 150, 0)
-                        is EntityEnderPearl -> Color(200, 0, 200)
-                        is EntityFireball -> Color(255, 255, 0)
-                        is EntityEgg, is EntitySnowball -> Color(200, 255, 200)
+                        is ArrowEntity -> Color(255, 0, 0)
+                        is PotionEntity -> Color(200, 150, 0)
+                        is EnderPearlEntity -> Color(200, 0, 200)
+                        is ProjectileEntity -> Color(255, 255, 0)
+                        is EggEntity, is SnowballEntity -> Color(200, 255, 200)
                         else -> Color(255, 255, 255)
                     }
 
@@ -357,8 +357,8 @@ object Projectiles : Module("Projectiles", Category.RENDER, gameDetecting = fals
             }
 
             when (entity) {
-                is EntitySnowball, is EntityEnderPearl, is EntityEgg,
-                is EntityArrow, is EntityPotion, is EntityExpBottle, is EntityFireball -> {
+                is SnowballEntity, is EnderPearlEntity, is EggEntity,
+                is ArrowEntity, is PotionEntity, is ExperienceBottleEntity, is ProjectileEntity -> {
                     val positions = trailPositions.getOrPut(entity, ::ArrayDeque)
 
                     positions.removeIf { (timestamp, _, alpha) ->

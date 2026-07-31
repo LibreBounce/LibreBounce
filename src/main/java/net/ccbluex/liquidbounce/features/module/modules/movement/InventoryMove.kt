@@ -23,7 +23,7 @@ import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.gui.screen.inventory.menu.ChestScreen
 import net.minecraft.client.gui.screen.inventory.menu.SurvivalInventoryScreen
 import net.minecraft.client.options.GameOptions
-import net.minecraft.client.settings.KeyBinding
+import net.minecraft.client.options.KeyBinding
 import net.minecraft.network.packet.c2s.play.CloseInventoryMenuC2SPacket
 import net.minecraft.network.packet.c2s.play.InventoryMenuClickSlotC2SPacket
 import org.lwjgl.input.Mouse

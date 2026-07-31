@@ -16,7 +16,7 @@ import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.disableGlCap
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.enableGlCap
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.resetCaps
-import net.minecraft.entity.item.EntityTNTPrimed
+import net.minecraft.entity.PrimedTntEntity
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 import kotlin.math.pow
@@ -41,7 +41,7 @@ object TNTTimer : Module("TNTTimer", Category.RENDER) {
             field = if (value <= 0.0) maxRenderDistance.toDouble().pow(2) else value
         }
 
-    private val tntEntities by EntityLookup<EntityTNTPrimed>()
+    private val tntEntities by EntityLookup<PrimedTntEntity>()
         .filter { it.fuse > 0 }
         .filter { mc.player.getSquaredDistanceToToEntity(it) <= maxRenderDistanceSq }
         .filter { !onLook || isLookingOnEntities(it, maxAngleDifference.toDouble()) }
@@ -52,7 +52,7 @@ object TNTTimer : Module("TNTTimer", Category.RENDER) {
         }
     }
 
-    private fun renderTNTTimer(tnt: EntityTNTPrimed, timeRemaining: Int) {
+    private fun renderTNTTimer(tnt: PrimedTntEntity, timeRemaining: Int) {
         val player = mc.player ?: return
 
         val renderManager = mc.renderManager

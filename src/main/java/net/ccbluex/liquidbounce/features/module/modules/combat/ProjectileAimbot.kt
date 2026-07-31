@@ -115,7 +115,7 @@ object ProjectileAimbot : Module("ProjectileAimbot", Category.COMBAT) {
 
             is Item -> {
                 if (!otherItems && !player.displayItemInHand.isEmpty() ||
-                    (!egg && item is ItemEgg || !snowball && item is ItemSnowball || !pearl && item is EnderPearlItem)
+                    (!egg && item is EggItem || !snowball && item is SnowballItem || !pearl && item is EnderPearlItem)
                 )
                     return@handler
 

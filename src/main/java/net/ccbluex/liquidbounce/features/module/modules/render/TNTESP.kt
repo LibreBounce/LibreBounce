@@ -14,7 +14,7 @@ import net.ccbluex.liquidbounce.utils.extensions.prevPos
 import net.ccbluex.liquidbounce.utils.render.ColorSettingsInteger
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawDome
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawEntityBox
-import net.minecraft.entity.item.EntityTNTPrimed
+import net.minecraft.entity.PrimedTntEntity
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 
@@ -34,7 +34,7 @@ object TNTESP : Module("TNTESP", Category.RENDER) {
         val width = lineWidth.takeIf { mode == "Lines" }
 
         mc.world.loadedEntityList.forEach {
-            if (it !is EntityTNTPrimed) return@forEach
+            if (it !is PrimedTntEntity) return@forEach
 
             if (dangerZoneDome) {
                 drawDome(it.interpolatedPosition(it.prevPos), 8.0, 8.0, width, color, renderMode)

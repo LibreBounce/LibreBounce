@@ -621,7 +621,7 @@ object RotationUtils : MinecraftInstance, Listenable {
         )
     }
 
-    fun performRayTrace(blockPos: BlockPos, vec: Vec3d, eyes:Vec3d3 = mc.player.eyes) =
+    fun performRayTrace(blockPos: BlockPos, vec: Vec3d, eyes:Vec3d = mc.player.eyes) =
         mc.world?.let { blockPos.block?.collisionRayTrace(it, blockPos, eyes, vec) }
 
     fun syncRotations() {

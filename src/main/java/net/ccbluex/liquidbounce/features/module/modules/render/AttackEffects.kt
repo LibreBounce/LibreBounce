@@ -9,7 +9,7 @@ import net.minecraft.entity.living.LivingEntity
 import net.minecraft.entity.effect.EntityLightningBolt
 import net.minecraft.init.Blocks.redstone_block
 import net.minecraft.network.packet.s2c.play.AddGlobalEntityS2CPacket
-import net.minecraft.util.EnumParticleTypes
+import net.minecraft.entity.particle.ParticleType
 
 object AttackEffects : Module("AttackEffects", Category.RENDER) {
 
@@ -49,18 +49,18 @@ object AttackEffects : Module("AttackEffects", Category.RENDER) {
 
     private fun doEffect(target: LivingEntity) {
         when (particle) {
-            "Blood" -> spawnBloodParticle(EnumParticleTypes.BLOCK_CRACK, target)
-            "Crits" -> spawnEffectParticle(EnumParticleTypes.CRIT, target)
-            "Magic" -> spawnEffectParticle(EnumParticleTypes.CRIT_MAGIC, target)
+            "Blood" -> spawnBloodParticle(ParticleType.BLOCK_CRACK, target)
+            "Crits" -> spawnEffectParticle(ParticleType.CRIT, target)
+            "Magic" -> spawnEffectParticle(ParticleType.CRIT_MAGIC, target)
             "Lighting" -> spawnLightning(target)
-            "Smoke" -> spawnEffectParticle(EnumParticleTypes.SMOKE_NORMAL, target)
-            "Water" -> spawnEffectParticle(EnumParticleTypes.WATER_DROP, target)
-            "Heart" -> spawnEffectParticle(EnumParticleTypes.HEART, target)
-            "Fire" -> spawnEffectParticle(EnumParticleTypes.LAVA, target)
+            "Smoke" -> spawnEffectParticle(ParticleType.SMOKE_NORMAL, target)
+            "Water" -> spawnEffectParticle(ParticleType.WATER_DROP, target)
+            "Heart" -> spawnEffectParticle(ParticleType.HEART, target)
+            "Fire" -> spawnEffectParticle(ParticleType.LAVA, target)
         }
     }
 
-    private fun spawnBloodParticle(particleType: EnumParticleTypes, target: LivingEntity) {
+    private fun spawnBloodParticle(particleType: ParticleType, target: LivingEntity) {
         mc.world.spawnParticle(
             particleType,
             target.posX, target.posY + target.height - 0.75, target.posZ,
@@ -69,7 +69,7 @@ object AttackEffects : Module("AttackEffects", Category.RENDER) {
         )
     }
 
-    private fun spawnEffectParticle(particleType: EnumParticleTypes, target: LivingEntity) {
+    private fun spawnEffectParticle(particleType: ParticleType, target: LivingEntity) {
         mc.effectRenderer.spawnEffectParticle(
             particleType.particleID,
             target.posX, target.posY, target.posZ,

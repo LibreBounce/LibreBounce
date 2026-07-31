@@ -30,7 +30,7 @@ import net.minecraft.client.network.handler.ClientPlayNetworkHandler;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.Connection;
 import net.minecraft.network.Packet;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.PacketThreadUtil;
 import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
 import net.minecraft.network.packet.c2s.play.ResourcePackC2SPacket;
@@ -245,7 +245,7 @@ public abstract class MixinClientPlayNetworkHandler {
         gameController.player.setReducedDebug(packetIn.isReducedDebugInfo());
         gameController.playerController.setGameMode(packetIn.getGameMode());
         gameController.gameOptions.sendSettingsToServer();
-        netManager.sendPacket(new CustomPayloadC2SPacket("MC|Brand", (new PacketBuffer(Unpooled.buffer())).writeString(ClientBrandRetriever.getClientModName())));
+        netManager.sendPacket(new CustomPayloadC2SPacket("MC|Brand", (new PacketByteBuf(Unpooled.buffer())).writeString(ClientBrandRetriever.getClientModName())));
         callbackInfo.cancel();
     }
 

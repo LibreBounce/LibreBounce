@@ -28,8 +28,8 @@ import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.performRaytrace
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.setTargetRotation
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.toRotation
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
-import net.minecraft.block.BlockChest
-import net.minecraft.block.BlockEnderChest
+import net.minecraft.block.ChestBlock
+import net.minecraft.block.EnderChestBlock
 import net.minecraft.entity.living.player.PlayerEntity
 import net.minecraft.network.packet.s2c.play.AddEntityS2CPacket
 import net.minecraft.network.packet.s2c.play.BlockEventS2CPacket
@@ -180,7 +180,7 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
 
             // Detect already looted chests by having their lid open or closed
             is BlockEventS2CPacket -> {
-                if (!ignoreLooted || (packet.blockType !is BlockChest && packet.blockType !is BlockEnderChest))
+                if (!ignoreLooted || (packet.blockType !is ChestBlock && packet.blockType !is EnderChestBlock))
                     return@handler
 
                 val packetBlockPos = packet.blockPosition
@@ -307,7 +307,7 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
 
                 val block = entity.pos.block
 
-                if (block !is BlockChest) return false
+                if (block !is ChestBlock) return false
 
                 // Check if there isn't a block above the chest (works even for double chests)
                 block.getLockableContainer(mc.world, entity.pos) != null
