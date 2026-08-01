@@ -87,7 +87,7 @@ public abstract class MixinMinecraft {
     public int displayHeight;
 
     @Shadow
-    public int rightClickDelayTimer;
+    public int useKeyCooldown;
 
     @Shadow
     public GameOptions gameOptions;
@@ -238,7 +238,7 @@ public abstract class MixinMinecraft {
         CPSCounter.INSTANCE.registerClick(CPSCounter.MouseButton.MIDDLE);
     }
 
-    @Inject(method = "rightClickMouse", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;rightClickDelayTimer:I", shift = At.Shift.AFTER))
+    @Inject(method = "rightClickMouse", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;useKeyCooldown:I", shift = At.Shift.AFTER))
     private void rightClickMouse(final CallbackInfo callbackInfo) {
         CPSCounter.INSTANCE.registerClick(CPSCounter.MouseButton.RIGHT);
 
@@ -258,7 +258,7 @@ public abstract class MixinMinecraft {
             // Return if not facing a block
         } else if (fastPlace.getFacingBlocks()) return;
 
-        rightClickDelayTimer = fastPlace.getSpeed();
+        useKeyCooldown = fastPlace.getSpeed();
     }
 
     @Inject(method = "loadWorld(Lnet/minecraft/client/multiplayer/WorldClient;Ljava/lang/String;)V", at = @At("HEAD"))
@@ -273,11 +273,11 @@ public abstract class MixinMinecraft {
 
     @Redirect(method = "sendClickBlockToController", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/entity/LocalClientPlayerEntity;isUsingItem()Z"))
     private boolean injectMultiActions(LocalClientPlayerEntity instance) {
-        ItemStack itemStack = instance.itemInUse;
+        ItemStack cursorItem = instance.itemInUse;
 
-        if (MultiActions.INSTANCE.handleEvents()) itemStack = null;
+        if (MultiActions.INSTANCE.handleEvents()) cursorItem = null;
 
-        return itemStack != null;
+        return cursorItem != null;
     }
 
     @Redirect(method = "sendClickBlockToController", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/ClientPlayerInteractionManager;resetBlockRemoving()V"))
@@ -292,7 +292,7 @@ public abstract class MixinMinecraft {
         return TickBase.INSTANCE.getDuringTickModification() || instance.isEmpty();
     }
 
-    @Redirect(method = {"middleClickMouse", "rightClickMouse"}, at = @At(value = "FIELD", target = "Lnet/minecraft/entity/living/player/PlayerInventory;currentItem:I"))
+    @Redirect(method = {"middleClickMouse", "rightClickMouse"}, at = @At(value = "FIELD", target = "Lnet/minecraft/entity/living/player/PlayerInventory;selectedSlot:I"))
     private int injectSilentHotbar(PlayerInventory instance) {
         return SilentHotbar.INSTANCE.getCurrentSlot();
     }

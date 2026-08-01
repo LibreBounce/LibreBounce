@@ -36,10 +36,10 @@ object TNTBlock : Module("TNTBlock", Category.COMBAT) {
                 var bestDamage = 1f
 
                 for (i in 0..8) {
-                    val itemStack = player.inventory.getStackInSlot(i)
+                    val cursorItem = player.inventory.getStackInSlot(i)
 
-                    if (itemStack?.item is SwordItem) {
-                        val itemDamage = (itemStack.item as SwordItem).damageVsEntity + 4F
+                    if (cursorItem?.item is SwordItem) {
+                        val itemDamage = (cursorItem.item as SwordItem).damageVsEntity + 4F
 
                         if (itemDamage > bestDamage) {
                             bestDamage = itemDamage
@@ -48,8 +48,8 @@ object TNTBlock : Module("TNTBlock", Category.COMBAT) {
                     }
                 }
 
-                if (slot != -1 && slot != player.inventory.currentItem) {
-                    player.inventory.currentItem = slot
+                if (slot != -1 && slot != player.inventory.selectedSlot) {
+                    player.inventory.selectedSlot = slot
                     mc.interactionManager.syncCurrentPlayItem()
                 }
             }

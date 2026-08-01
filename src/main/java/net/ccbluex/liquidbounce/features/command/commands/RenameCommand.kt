@@ -30,7 +30,7 @@ object RenameCommand : Command("rename") {
             }
 
             item.setStackDisplayName(translateAlternateColorCodes(toCompleteString(args, 1)))
-            sendPacket(CreativeMenuSlotC2SPacket(36 + mc.player.inventory.currentItem, item))
+            sendPacket(CreativeMenuSlotC2SPacket(36 + mc.player.inventory.selectedSlot, item))
             chat("§3Item renamed to '${item.displayName}§3'")
             return
         }

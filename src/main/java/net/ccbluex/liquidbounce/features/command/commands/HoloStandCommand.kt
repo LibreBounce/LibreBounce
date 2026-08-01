@@ -33,9 +33,9 @@ object HoloStandCommand : Command("holostand") {
                 val z = args[3].toDouble()
                 val message = StringUtils.toCompleteString(args, 4)
 
-                val itemStack = ItemStack(Items.armor_stand)
+                val cursorItem = ItemStack(Items.armor_stand)
 
-                itemStack.tagCompound = NbtCompound {
+                cursorItem.tagCompound = NbtCompound {
                     this["EntityTag"] = NbtCompound {
                         this["Invisible"] = 1
                         this["CustomName"] = message
@@ -49,9 +49,9 @@ object HoloStandCommand : Command("holostand") {
                     }
                 }
 
-                itemStack.setStackDisplayName("§c§lHolo§eStand")
+                cursorItem.setStackDisplayName("§c§lHolo§eStand")
 
-                sendPacket(CreativeMenuSlotC2SPacket(36, itemStack))
+                sendPacket(CreativeMenuSlotC2SPacket(36, cursorItem))
 
                 chat("The HoloStand was successfully added to your inventory.")
             } catch (exception: NumberFormatException) {

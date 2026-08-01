@@ -40,14 +40,14 @@ object TeleportCommand : Command("tp", "teleport") {
             return
         }
 
-        val moveVec = Vec3d(x, y, z) - mc.player.positionVector
+        val moveVec = Vec3d(x, y, z) - mc.player.commandSourcePos
 
         val packetsNeeded = ceil(moveVec.lengthVector() / maxDistancePerPacket).toInt()
 
         repeat(packetsNeeded) {
             val ratio = it / packetsNeeded.toDouble()
 
-            val vec = mc.player.positionVector + moveVec * ratio
+            val vec = mc.player.commandSourcePos + moveVec * ratio
 
             val (pathX, pathY, pathZ) = vec
 

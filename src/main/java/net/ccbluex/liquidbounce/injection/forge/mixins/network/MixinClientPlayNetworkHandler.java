@@ -69,7 +69,7 @@ public abstract class MixinClientPlayNetworkHandler {
     private void cancelExplosionMotion(ExplosionS2CPacket packetExplosion, CallbackInfo ci) {
         AntiExploit module = AntiExploit.INSTANCE;
 
-        double velocityX = packetExplosion.field_149159_h;
+        double velocityX = packetExplosion.playerVelocityZ;
         double velocityY = packetExplosion.func_149144_d();
         double velocityZ = packetExplosion.func_149147_e();
 

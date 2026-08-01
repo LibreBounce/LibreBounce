@@ -32,7 +32,7 @@ object Jump : FlyMode("Jump") {
             if (!mc.options.jumpKey.isPressed && mc.options.sneakKey.isPressed) event.y.toDouble() < jumpY else event.y.toDouble() <= jumpY
 
         if ((!event.block.material.blocksMovement() && event.block.material != Material.carpet && event.block.material != Material.vine && event.block.material != Material.snow && event.block !is LadderBlock) && jumpYCondition) {
-            event.boundingBox = Box.fromBounds(
+            event.shape = Box.of(
                 event.x.toDouble(),
                 event.y.toDouble(),
                 event.z.toDouble(),

@@ -46,17 +46,17 @@ object Refill : Module("Refill", Category.PLAYER) {
 
         for (slot in 36..44) {
             val stack = mc.player.inventorySlot(slot).stack ?: continue
-            if (stack.stackSize == stack.maxStackSize || !stack.hasItemAgePassed(minItemAge)) continue
+            if (stack.size == stack.maxStackSize || !stack.hasItemAgePassed(minItemAge)) continue
 
             when (mode) {
                 "Swap" -> {
                     val bestOption = mc.player.inventoryContainer.inventory.withIndex()
                         .filter { (index, searchStack) ->
-                            index < 36 && searchStack != null && searchStack.stackSize > stack.stackSize
+                            index < 36 && searchStack != null && searchStack.size > stack.size
                                     && (ItemStack.areItemsEqual(stack, searchStack)
                                     || searchStack.item.javaClass.isAssignableFrom(stack.item.javaClass)
                                     || stack.item.javaClass.isAssignableFrom(searchStack.item.javaClass))
-                        }.maxByOrNull { it.value.stackSize }
+                        }.maxByOrNull { it.value.size }
 
                     if (bestOption != null) {
                         val (index, betterStack) = bestOption
@@ -70,7 +70,7 @@ object Refill : Module("Refill", Category.PLAYER) {
                     val bestOption = mc.player.inventoryContainer.inventory.withIndex()
                         .filter { (index, searchStack) ->
                             index < 36 && searchStack != null && ItemStack.areItemsEqual(stack, searchStack)
-                        }.minByOrNull { it.value.stackSize }
+                        }.minByOrNull { it.value.size }
 
                     if (bestOption != null) {
                         val (otherSlot, otherStack) = bestOption
@@ -79,7 +79,7 @@ object Refill : Module("Refill", Category.PLAYER) {
                         click(slot, 0, 0, stack)
 
                         // Return items that couldn't fit into hotbar slot
-                        if (stack.stackSize + otherStack.stackSize > stack.maxStackSize)
+                        if (stack.size + otherStack.size > stack.maxStackSize)
                             click(otherSlot, 0, 0, otherStack)
 
                         break

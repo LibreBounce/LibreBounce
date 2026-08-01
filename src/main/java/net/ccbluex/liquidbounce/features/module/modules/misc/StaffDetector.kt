@@ -300,7 +300,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
     }
 
     private fun autoLeave() {
-        val firstSlotItemStack = mc.player.inventory.mainInventory[0] ?: return
+        val firstSlotItemStack = mc.player.inventory.items[0] ?: return
 
         if (inGame && (firstSlotItemStack.item == Items.compass || firstSlotItemStack.item == Items.bow)) {
             return

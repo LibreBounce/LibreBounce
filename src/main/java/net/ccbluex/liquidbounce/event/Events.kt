@@ -26,9 +26,9 @@ class AttackEvent(val targetEntity: Entity?) : Event()
  *
  * @param blockPos block position of block
  * @param block block itself
- * @param boundingBox vanilla bounding box
+ * @param shape vanilla bounding box
  */
-class BlockBBEvent(blockPos: BlockPos, val block: Block, var boundingBox: Box?) : Event() {
+class BlockBBEvent(blockPos: BlockPos, val block: Block, var shape: Box?) : Event() {
     val x = blockPos.x
     val y = blockPos.y
     val z = blockPos.z

@@ -10,7 +10,7 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.liquidwalk.mode
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.collideBlock
 import net.minecraft.block.LiquidBlock
 import net.minecraft.block.material.Material
-import net.minecraft.util.math.Box.fromBounds
+import net.minecraft.util.math.Box.of
 
 object Vanilla : LiquidWalkMode("Vanilla") {
     override fun onUpdate() {
@@ -23,7 +23,7 @@ object Vanilla : LiquidWalkMode("Vanilla") {
     override fun onBB(event: BlockBBEvent) {
         mc.player?.run {
             if (event.block is LiquidBlock && !collideBlock(shape) { it is LiquidBlock } && !isSneaking) {
-                event.boundingBox = fromBounds(
+                event.shape = of(
                     event.x.toDouble(),
                     event.y.toDouble(),
                     event.z.toDouble(),

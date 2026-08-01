@@ -17,7 +17,7 @@ object NCPHop : SpeedMode("NCPHop") {
     }
 
     override fun onDisable() {
-        mc.player.speedInAir = 0.02f
+        mc.player.flyingSpeed = 0.02f
         mc.timer.tpsScale = 1f
         super.onDisable()
     }
@@ -27,7 +27,7 @@ object NCPHop : SpeedMode("NCPHop") {
             if (isMoving) {
                 if (onGround) {
                     tryJump()
-                    speedInAir = 0.0223f
+                    flyingSpeed = 0.0223f
                 }
 
                 strafe()

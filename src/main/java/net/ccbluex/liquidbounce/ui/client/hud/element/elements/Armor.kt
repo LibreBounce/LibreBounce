@@ -44,7 +44,7 @@ class Armor(
             glColor4f(1F, 1F, 1F, 1F)
 
             for (index in 3 downTo 0) {
-                val stack = mc.player.inventory.armorInventory[index] ?: continue
+                val stack = mc.player.inventory.armor[index] ?: continue
 
                 glPushMatrix()
                 glEnable(GL_BLEND)

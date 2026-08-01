@@ -292,11 +292,11 @@ object NameTags : Module("NameTags", Category.RENDER) {
             Lighting.turnOnGui()
 
             for (index in 0..4) {
-                val itemStack = entity.getEquipmentInSlot(index) ?: continue
+                val cursorItem = entity.getEquipmentInSlot(index) ?: continue
 
                 mc.renderItem.zLevel = -147F
                 mc.renderItem.renderItemAndEffectIntoGUI(
-                    itemStack, -50 + index * 20, if (potion && foundPotion) -42 else -22
+                    cursorItem, -50 + index * 20, if (potion && foundPotion) -42 else -22
                 )
             }
 

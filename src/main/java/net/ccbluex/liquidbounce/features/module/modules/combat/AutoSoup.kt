@@ -66,7 +66,7 @@ object AutoSoup : Module("AutoSoup", Category.COMBAT) {
         if (player.health <= health && soupInHotbar != null) {
             SilentHotbar.selectSlotSilently(this, soupInHotbar, 1, true)
 
-            player.sendUseItem(player.inventory.mainInventory[SilentHotbar.currentSlot])
+            player.sendUseItem(player.inventory.items[SilentHotbar.currentSlot])
 
             // Schedule slot switch the next tick as we violate vanilla logic if we do it now.
             nextTick {
@@ -94,9 +94,9 @@ object AutoSoup : Module("AutoSoup", Category.COMBAT) {
             var bowlMovable = false
 
             for (i in 9..36) {
-                val itemStack = player.inventory.getStackInSlot(i)
+                val cursorItem = player.inventory.getStackInSlot(i)
 
-                if (itemStack == null || (itemStack.item == Items.bowl && itemStack.stackSize < 64)) {
+                if (cursorItem == null || (cursorItem.item == Items.bowl && cursorItem.size < 64)) {
                     bowlMovable = true
                     break
                 }

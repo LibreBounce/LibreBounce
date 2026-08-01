@@ -256,7 +256,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
             val yaw = round(abs(MathHelper.wrapAngleTo180_float(directionDegree)) / 45f) * 45f
 
             val isYawDiagonal = yaw % 90 != 0f
-            val isMovingDiagonal = player.input.forwardSpeed != 0f && player.input.moveStrafe == 0f
+            val isMovingDiagonal = player.input.forwardSpeed != 0f && player.input.movementSideways == 0f
             val isStrafing = mc.options.rightKey.isPressed || mc.options.leftKey.isPressed
 
             return isYawDiagonal && (isMovingDiagonal || isStrafing)
@@ -634,7 +634,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
         var stack = player.hotBarSlot(currentSlot).stack
 
         // TODO: blacklist more blocks than only bushes
-        if (stack == null || stack.item !is BlockItem || (stack.item as BlockItem).block is PlantBlock || stack.stackSize <= 0 || sortByHighestAmount || earlySwitch) {
+        if (stack == null || stack.item !is BlockItem || (stack.item as BlockItem).block is PlantBlock || stack.size <= 0 || sortByHighestAmount || earlySwitch) {
             val blockSlot = if (sortByHighestAmount) {
                 InventoryUtils.findLargestBlockStackInHotbar() ?: return
             } else if (earlySwitch) {
@@ -1014,7 +1014,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
         val switchAmount = if (earlySwitch) amountBeforeSwitch else 0
 
-        if (stack.stackSize > switchAmount) return
+        if (stack.size > switchAmount) return
 
         val switchSlot = if (earlySwitch) {
             InventoryUtils.findBlockStackInHotbarGreaterThan(amountBeforeSwitch) ?: InventoryUtils.findBlockInHotbar()
@@ -1044,7 +1044,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
     ): Boolean {
         val player = mc.player ?: return false
 
-        val prevSize = stack.stackSize
+        val prevSize = stack.size
 
         val clickedSuccessfully = player.onPlayerRightClick(clickPos, side, hitVec, stack)
 
@@ -1064,10 +1064,10 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
             updatePlacedBlocksForTelly()
 
-            if (stack.stackSize <= 0) {
-                player.inventory.mainInventory[SilentHotbar.currentSlot] = null
+            if (stack.size <= 0) {
+                player.inventory.items[SilentHotbar.currentSlot] = null
                 ForgeEventFactory.onPlayerDestroyItem(player, stack)
-            } else if (stack.stackSize != prevSize || mc.interactionManager.isInCreativeMode) mc.entityRenderer.itemRenderer.resetEquippedProgress()
+            } else if (stack.size != prevSize || mc.interactionManager.isInCreativeMode) mc.entityRenderer.itemRenderer.resetEquippedProgress()
 
             placeRotation = null
 
@@ -1089,7 +1089,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
         }
 
         if (!slow && speedLimiter && MovementUtils.speed > speedLimit) {
-            input.moveStrafe = 0f
+            input.movementSideways = 0f
             input.forwardSpeed = 0f
             return
         }
@@ -1101,32 +1101,32 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
                 val notOnGround = !player.onGround || !player.collidingVertically
 
                 if (player.onGround) {
-                    input.sneak = eagleSneaking || GameOptions.isPressed(mc.options.sneakKey)
+                    input.sneaking = eagleSneaking || GameOptions.isPressed(mc.options.sneakKey)
                 }
 
-                if (input.jump || mc.options.jumpKey.isPressed || notOnGround) {
+                if (input.jumping || mc.options.jumpKey.isPressed || notOnGround) {
                     zitterTimer.reset()
 
                     if (useSneakMidAir) {
-                        input.sneak = true
+                        input.sneaking = true
                     }
 
-                    if (!notOnGround && !input.jump) {
+                    if (!notOnGround && !input.jumping) {
                         // Attempt to move against the direction
-                        input.moveStrafe = if (zitterDirection) 1f else -1f
+                        input.movementSideways = if (zitterDirection) 1f else -1f
                     } else {
-                        input.moveStrafe = 0f
+                        input.movementSideways = 0f
                     }
 
                     zitterDirection = !zitterDirection
 
                     // Recreate input in case the user was indeed pressing inputs
                     if (mc.options.leftKey.isPressed) {
-                        input.moveStrafe++
+                        input.movementSideways++
                     }
 
                     if (mc.options.rightKey.isPressed) {
-                        input.moveStrafe--
+                        input.movementSideways--
                     }
 
                     return
@@ -1136,7 +1136,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
                     zitterDirection = !zitterDirection
                 }
 
-                input.moveStrafe = if (zitterDirection) -1f else 1f
+                input.movementSideways = if (zitterDirection) -1f else 1f
             }
 
             "Teleport" -> {
@@ -1195,7 +1195,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
                 ) != floor(player.z)
 
                 val posInDirection =
-                    BlockPos(player.positionVector.offset(Direction.fromAngle(movingYaw.toDouble()), 0.6))
+                    BlockPos(player.commandSourcePos.offset(Direction.fromAngle(movingYaw.toDouble()), 0.6))
 
                 val isLeaningOffBlock = player.position.down().block == air
                 val nextBlockIsAir = posInDirection.down().block == air

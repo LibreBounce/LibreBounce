@@ -134,7 +134,7 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
                     if (isAACStep) {
                         player.velocityY -= 0.015
 
-                        if (!player.isUsingItem && player.input.moveStrafe == 0F)
+                        if (!player.isUsingItem && player.input.movementSideways == 0F)
                             player.flyingSpeed = 0.3F
                     }
                 } else isAACStep = false

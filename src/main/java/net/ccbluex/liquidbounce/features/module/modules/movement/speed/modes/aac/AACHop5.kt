@@ -19,7 +19,7 @@ object AACHop5 : SpeedMode("AACHop5") {
             if (onGround) {
                 tryJump()
                 mc.timer.tpsScale = 0.9385f
-                speedInAir = 0.0201f
+                flyingSpeed = 0.0201f
             }
 
             if (fallDistance < 2.5) {
@@ -28,7 +28,7 @@ object AACHop5 : SpeedMode("AACHop5") {
                     else if (fallDistance < 1.25) mc.timer.tpsScale = 1.7975f
                 }
 
-                speedInAir = 0.02f
+                flyingSpeed = 0.02f
             }
 
             isSprinting = input.forwardSpeed > 0.8

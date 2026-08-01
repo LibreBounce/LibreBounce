@@ -99,14 +99,14 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
         if (event.targetEntity.damagedTimer !in damagedTimer ||
             !timer.hasTimePassed(delay) ||
             onlyGround && !player.onGround ||
-            (onlyMove && (!player.isMoving || onlyMoveForward && player.input.moveStrafe != 0f)) ||
+            (onlyMove && (!player.isMoving || onlyMoveForward && player.input.movementSideways != 0f)) ||
             !onWeb && player.inCobweb ||
             !onLiquid && player.isInLiquid ||
             !withinChance(chance)
         ) return@handler
 
         // Is the enemy facing their back on us?
-        if (angleDifferenceToPlayer > minEnemyRotDiffToIgnore && !target.hitBox.isVecInside(player.eyes)) return@handler
+        if (angleDifferenceToPlayer > minEnemyRotDiffToIgnore && !target.hitBox.contains(player.eyes)) return@handler
 
         val pos = target.currPos - target.lastTickPos
         val distanceBasedOnMotion = player.getDistanceToBox(target.hitBox.offset(pos))

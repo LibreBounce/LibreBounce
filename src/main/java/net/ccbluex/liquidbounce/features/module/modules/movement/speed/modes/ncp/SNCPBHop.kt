@@ -108,7 +108,7 @@ object SNCPBHop : SpeedMode("SNCPBHop") {
         moveSpeed.coerceAtLeast(baseMoveSpeed)
 
         var forward = player.input.forwardSpeed
-        var strafe = player.input.moveStrafe
+        var strafe = player.input.movementSideways
         var yaw = player.yaw
 
         if (forward == 0f && strafe == 0f) {

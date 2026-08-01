@@ -143,10 +143,10 @@ object BlockUtils : MinecraftInstance {
                 val block = blockPos.block
 
                 if (collide(block)) {
-                    val boundingBox = blockPos.state?.let { block?.getCollisionBoundingBox(mc.world, blockPos, it) }
+                    val shape = blockPos.state?.let { block?.getCollisionBoundingBox(mc.world, blockPos, it) }
                         ?: continue
 
-                    if (player.shape.intersectsWith(boundingBox))
+                    if (player.shape.intersectsWith(shape))
                         return true
                 }
             }

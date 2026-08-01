@@ -242,7 +242,7 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
 
                 player.itemInUse = packet.func_149174_e()
                 if (!player.isUsingItem) player.itemInUseCount = 0
-                player.inventory.mainInventory[SilentHotbar.currentSlot] = packet.func_149174_e()
+                player.inventory.items[SilentHotbar.currentSlot] = packet.func_149174_e()
             }
         }
 
@@ -272,7 +272,7 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
 
                 // Flush on explosion
                 is ExplosionS2CPacket -> {
-                    if (packet.field_149153_g != 0f || packet.field_149152_f != 0f || packet.field_149159_h != 0f) {
+                    if (packet.playerVelocityY != 0f || packet.playerVelocityX != 0f || packet.playerVelocityZ != 0f) {
                         BlinkUtils.unblink()
                         return@handler
                     }

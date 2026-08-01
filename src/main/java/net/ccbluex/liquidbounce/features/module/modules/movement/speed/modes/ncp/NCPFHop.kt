@@ -23,7 +23,7 @@ object NCPFHop : SpeedMode("NCPFHop") {
                     tryJump()
                     velocityX *= 1.01
                     velocityZ *= 1.01
-                    speedInAir = 0.0223f
+                    flyingSpeed = 0.0223f
                 }
 
                 velocityY -= 0.00099999

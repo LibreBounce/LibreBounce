@@ -35,15 +35,15 @@ object ItemUtils : MinecraftInstance {
             val resourceLocation = Identifier(args[0])
             val item = Item.itemRegistry.getObject(resourceLocation) ?: return null
 
-            val itemStack = ItemStack(item, amount, meta)
+            val cursorItem = ItemStack(item, amount, meta)
 
             if (args.size >= 4) {
                 val nbt = args.drop(3).joinToString(" ")
 
-                itemStack.tagCompound = SnbtParser.parseNbtEntry(nbt)
+                cursorItem.tagCompound = SnbtParser.parseNbtEntry(nbt)
             }
 
-            itemStack
+            cursorItem
         } catch (exception: Exception) {
             exception.printStackTrace()
             null
@@ -57,16 +57,16 @@ object ItemUtils : MinecraftInstance {
         val items = mutableMapOf<Int, ItemStack>()
 
         for (i in startInclusive..endInclusive) {
-            val itemStack = mc.player.inventorySlot(i).stack ?: continue
+            val cursorItem = mc.player.inventorySlot(i).stack ?: continue
 
-            if (itemStack.isEmpty())
+            if (cursorItem.isEmpty())
                 continue
 
-            if (itemDelay != null && !itemStack.hasItemAgePassed(itemDelay))
+            if (itemDelay != null && !cursorItem.hasItemAgePassed(itemDelay))
                 continue
 
-            if (filter?.invoke(itemStack, i) != false)
-                items[i] = itemStack
+            if (filter?.invoke(cursorItem, i) != false)
+                items[i] = cursorItem
         }
 
         return items

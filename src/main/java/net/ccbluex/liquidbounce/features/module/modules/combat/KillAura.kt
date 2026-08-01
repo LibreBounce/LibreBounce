@@ -883,7 +883,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         }
 
         val prediction = entity.currPos.subtract(entity.prevPos).times(2 + predictEnemyPosition.toDouble())
-        val boundingBox = entity.hitBox.offset(prediction)
+        val shape = entity.hitBox.offset(prediction)
         val (currPos, oldPos) = player.currPos to player.prevPos
 
         val simPlayer = SimulatedPlayer.fromClientPlayer(RotationUtils.modifiedInput)
@@ -918,7 +918,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         player.setPosAndPrevPos(pos)
 
         val rotation = searchCenter(
-            boundingBox,
+            shape,
             generateSpotBasedOnDistance,
             outBorder && !attackTimer.hasTimePassed(attackDelay / 2),
             randomization,
@@ -995,7 +995,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
         // If player is inside entity, automatic yes because the intercept below cannot check for that
         // Minecraft does the same, see #GameRenderer line 353
-        if (targetToCheck.hitBox.isVecInside(eyes)) {
+        if (targetToCheck.hitBox.contains(eyes)) {
             return
         }
 
@@ -1045,7 +1045,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             if (interact) {
                 val positionEye = player.eyes
 
-                val boundingBox = interactEntity.hitBox
+                val shape = interactEntity.hitBox
 
                 val (yaw, pitch) = currentRotation ?: player.rotation
 
@@ -1053,11 +1053,11 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
                 val lookAt = positionEye.add(vec * maxRange.toDouble())
 
-                val movingObject = boundingBox.calculateIntercept(positionEye, lookAt) ?: return
+                val movingObject = shape.calculateIntercept(positionEye, lookAt) ?: return
                 val hitVec = movingObject.hitVec
 
                 sendPackets(
-                    PlayerInteractEntityC2SPacket(interactEntity, hitVec - interactEntity.positionVector),
+                    PlayerInteractEntityC2SPacket(interactEntity, hitVec - interactEntity.commandSourcePos),
                     PlayerInteractEntityC2SPacket(interactEntity, INTERACT)
                 )
 
@@ -1157,7 +1157,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         targetToCheck: Entity, currentRotation: Rotation, eyes: Vec3d, onSuccess: () -> Unit,
         onFail: () -> Unit = { },
     ) {
-        if (targetToCheck.hitBox.isVecInside(eyes)) {
+        if (targetToCheck.hitBox.contains(eyes)) {
             onSuccess()
             return
         }

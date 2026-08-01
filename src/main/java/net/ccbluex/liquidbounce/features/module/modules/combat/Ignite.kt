@@ -65,9 +65,9 @@ object Ignite : Module("Ignite", Category.COMBAT) {
 
                 selectSlotSilently(this, fireInHotbar, 0, immediate = true, render = false)
 
-                val itemStack = player.hotBarSlot(fireInHotbar).stack
+                val cursorItem = player.hotBarSlot(fireInHotbar).stack
 
-                if (itemStack.item is BucketItem) {
+                if (cursorItem.item is BucketItem) {
                     val diffX = blockPos.x + 0.5 - player.x
                     val diffY = blockPos.y + 0.5 - (player.shape.minY + player.eyeHeight)
                     val diffZ = blockPos.z + 0.5 - player.z
@@ -85,7 +85,7 @@ object Ignite : Module("Ignite", Category.COMBAT) {
                         )
                     )
 
-                    player.sendUseItem(itemStack)
+                    player.sendUseItem(cursorItem)
                 } else {
                     for (side in Direction.entries) {
                         val neighbor = blockPos.offset(side)
@@ -110,7 +110,7 @@ object Ignite : Module("Ignite", Category.COMBAT) {
                             )
                         )
 
-                        if (player.onPlayerRightClick(neighbor, side.opposite, Vec3d(side.directionVec), itemStack)) {
+                        if (player.onPlayerRightClick(neighbor, side.opposite, Vec3d(side.directionVec), cursorItem)) {
                             player.swingItem()
                             break
                         }
@@ -119,7 +119,7 @@ object Ignite : Module("Ignite", Category.COMBAT) {
 
                 selectSlotSilently(
                     this,
-                    player.inventory.currentItem,
+                    player.inventory.selectedSlot,
                     immediate = true,
                     render = false,
                     resetManually = true

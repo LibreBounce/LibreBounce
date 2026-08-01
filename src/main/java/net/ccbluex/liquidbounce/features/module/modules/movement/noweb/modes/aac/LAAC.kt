@@ -14,7 +14,7 @@ object LAAC : NoWebMode("LAAC") {
             if (!inCobweb)
                 return
 
-            flyingSpeed = if (input.moveStrafe != 0f) 1f else 1.21f
+            flyingSpeed = if (input.movementSideways != 0f) 1f else 1.21f
 
             if (!mc.options.sneakKey.isPressed)
                 velocityY = 0.0

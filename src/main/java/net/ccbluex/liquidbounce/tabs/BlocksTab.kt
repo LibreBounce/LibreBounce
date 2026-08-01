@@ -13,7 +13,7 @@ import net.minecraft.item.ItemStack
 
 class BlocksTab : ItemGroup("Special blocks") {
 
-    private val itemStacks by lazy(LazyThreadSafetyMode.NONE) {
+    private val cursorItems by lazy(LazyThreadSafetyMode.NONE) {
         arrayOf(
             ItemStack(command_block),
             ItemStack(Items.command_block_minecart),
@@ -40,7 +40,7 @@ class BlocksTab : ItemGroup("Special blocks") {
      * @param itemList list of tab items
      */
     override fun displayAllReleventItems(itemList: MutableList<ItemStack>) {
-        itemList += itemStacks
+        itemList += cursorItems
     }
 
     /**

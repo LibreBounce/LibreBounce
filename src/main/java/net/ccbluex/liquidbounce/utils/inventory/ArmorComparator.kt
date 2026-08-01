@@ -24,7 +24,7 @@ object ArmorComparator: MinecraftInstance {
 		val equippedArmorWhenInChest =
 			if (player.openContainer.windowId != 0)
 				// Filter out any non armor items player could be equipped (skull / pumpkin)
-				player.inventory.armorInventory.asIterable().indexedArmorStacks { null }
+				player.inventory.armor.asIterable().indexedArmorStacks { null }
 			else emptyList()
 
 		val inventoryStacks = stacks.indexedArmorStacks()
@@ -36,10 +36,10 @@ object ArmorComparator: MinecraftInstance {
 			else -1.0
 		}.thenComparingInt { (index, stack) ->
 			// Prioritise sets that are in lower parts of inventory (not in chest) or equipped, prevents stealing multiple armor duplicates.
-			if (stack in player.inventory.armorInventory) Int.MIN_VALUE
+			if (stack in player.inventory.armor) Int.MIN_VALUE
 			else index?.inv() ?: Int.MIN_VALUE
 		}.thenComparingInt {
-			if (it.second in player.inventory.armorInventory) Int.MAX_VALUE
+			if (it.second in player.inventory.armor) Int.MAX_VALUE
 			else it.first ?: Int.MAX_VALUE
 		}.thenComparingInt {
 			// Prioritise sets with more durability, enchantments

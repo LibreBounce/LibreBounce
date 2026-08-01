@@ -100,7 +100,7 @@ object BedPlates : Module("BedPlates", Category.RENDER) {
         val count: Int,
         val layer: Int,
     ) : Comparable<SurroundingBlock> {
-        val itemStack = ItemStack(block, count)
+        val cursorItem = ItemStack(block, count)
 
         override fun compareTo(other: SurroundingBlock): Int = compareValuesBy(
             this, other,
@@ -201,7 +201,7 @@ object BedPlates : Module("BedPlates", Category.RENDER) {
         val gradientX = if (gradientX == 0f) 0f else 1f / gradientX
         val gradientY = if (gradientY == 0f) 0f else 1f / gradientY
 
-        val distance = bedState.pos.distanceTo(player.positionVector)
+        val distance = bedState.pos.distanceTo(player.commandSourcePos)
         val scale = ((distance / 4F).coerceAtLeast(1.0) / 150F) * scale
 
         glPushMatrix()

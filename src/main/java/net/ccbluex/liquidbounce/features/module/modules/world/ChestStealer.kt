@@ -224,13 +224,13 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
                         val item = stack.item
 
-                        if (item !is ArmorItem || player.inventory.armorInventory[getArmorPosition(stack) - 1] != null)
+                        if (item !is ArmorItem || player.inventory.armor[getArmorPosition(stack) - 1] != null)
                             return@clickNextTick
 
                         // TODO: should the stealing be suspended until the armor gets equipped and some delay on top of that, maybe toggleable?
                         // Try to equip armor piece from hotbar 1 tick after stealing it
                         nextTick {
-                            val hotbarStacks = player.inventory.mainInventory.take(9)
+                            val hotbarStacks = player.inventory.items.take(9)
 
                             // Can't get index of stack instance, because it is different even from the one returned from windowClick()
                             val newIndex = hotbarStacks.indexOfFirst { it?.getIsItemStackEqual(stack) == true }
@@ -307,16 +307,16 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
                 if (isTicked(index)) return@mapIndexedNotNullTo null
 
-                val mergeableCount = mc.player.inventory.mainInventory.sumOf { otherStack ->
+                val mergeableCount = mc.player.inventory.items.sumOf { otherStack ->
                     otherStack ?: return@sumOf 0
 
                     if (otherStack.isItemEqual(stack) && ItemStack.areItemStackTagsEqual(stack, otherStack))
-                        otherStack.maxStackSize - otherStack.stackSize
+                        otherStack.maxStackSize - otherStack.size
                     else 0
                 }
 
                 val canMerge = mergeableCount > 0
-                val canFullyMerge = mergeableCount >= stack.stackSize
+                val canFullyMerge = mergeableCount >= stack.size
 
                 // Clicking this item wouldn't take it from chest or merge it
                 if (!canMerge && spaceInInventory <= 0) return@mapIndexedNotNullTo null
@@ -382,7 +382,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
  
     private fun performMissClick(screen: ChestScreen, targetSlot: InventorySlot) {
         val closestEmptySlot = screen.inventorySlots.inventorySlots
-            .filter { it.stack == null || it.stack.stackSize == 0 }
+            .filter { it.stack == null || it.stack.size == 0 }
             .minByOrNull { otherSlot ->
                 squaredDistanceOfSlots(targetSlot.slotNumber, otherSlot.slotNumber)
             } ?: return
@@ -470,7 +470,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
                 receivedId = packetWindowId
 
-                stacks = packet.itemStacks.toList()
+                stacks = packet.cursorItems.toList()
             }
         }
     }

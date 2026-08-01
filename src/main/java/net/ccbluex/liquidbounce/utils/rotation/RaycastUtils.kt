@@ -56,7 +56,7 @@ object RaycastUtils : MinecraftInstance {
 
                 val movingObjectPosition = axisAlignedBB.calculateIntercept(eyePosition, vec)
 
-                if (axisAlignedBB.isVecInside(eyePosition)) {
+                if (axisAlignedBB.contains(eyePosition)) {
                     if (blockReachDistance >= 0.0) {
                         pointedEntity = entity
                         blockReachDistance = 0.0
@@ -141,7 +141,7 @@ object RaycastUtils : MinecraftInstance {
                 for (box in boxes) {
                     val intercept = box.calculateIntercept(vec3, vec32)
 
-                    if (box.isVecInside(vec3)) {
+                    if (box.contains(vec3)) {
                         if (d2 >= 0) {
                             pointedEntity = entity1
                             vec33 = if (intercept == null) vec3 else intercept.hitVec

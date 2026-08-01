@@ -16,7 +16,7 @@ object SpectreOnGround : SpeedMode("SpectreOnGround") {
     private var speedUp = 0
     override fun onMove(event: MoveEvent) {
         mc.player?.run {
-            if (!isMoving || input.jump) return
+            if (!isMoving || input.jumping) return
 
             if (speedUp >= 10) {
                 if (onGround) {

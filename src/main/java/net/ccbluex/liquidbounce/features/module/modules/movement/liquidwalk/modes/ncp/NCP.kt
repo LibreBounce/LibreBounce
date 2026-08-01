@@ -12,7 +12,7 @@ import net.ccbluex.liquidbounce.utils.block.BlockUtils.collideBlock
 import net.minecraft.block.LiquidBlock
 import net.minecraft.block.material.Material
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
-import net.minecraft.util.math.Box.fromBounds
+import net.minecraft.util.math.Box.of
 
 object NCP : LiquidWalkMode("NCP") {
     private var nextTick = false
@@ -27,7 +27,7 @@ object NCP : LiquidWalkMode("NCP") {
     override fun onBB(event: BlockBBEvent) {
         mc.player?.run {
             if (event.block is LiquidBlock && !collideBlock(shape) { it is LiquidBlock } && !isSneaking) {
-                event.boundingBox = fromBounds(
+                event.shape = of(
                     event.x.toDouble(),
                     event.y.toDouble(),
                     event.z.toDouble(),
@@ -45,7 +45,7 @@ object NCP : LiquidWalkMode("NCP") {
                 return
 
             if (collideBlock(
-                    fromBounds(
+                    of(
                         shape.maxX,
                         shape.maxY,
                         shape.maxZ,

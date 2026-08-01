@@ -184,7 +184,7 @@ object BedDefender : Module("BedDefender", Category.WORLD) {
         var stack = player.inventorySlot(SilentHotbar.currentSlot + 36).stack ?: return
 
         if (stack.item !is BlockItem || (stack.item as BlockItem).block is PlantBlock
-            || InventoryUtils.BLOCK_BLACKLIST.contains((stack.item as BlockItem).block) || stack.stackSize <= 0
+            || InventoryUtils.BLOCK_BLACKLIST.contains((stack.item as BlockItem).block) || stack.size <= 0
         ) {
             val blockSlot = InventoryUtils.findBlockInHotbar() ?: return
 
@@ -222,17 +222,17 @@ object BedDefender : Module("BedDefender", Category.WORLD) {
     ): Boolean {
         val player = mc.player ?: return false
 
-        val prevSize = stack.stackSize
+        val prevSize = stack.size
 
         val clickedSuccessfully = player.onPlayerRightClick(clickPos, side, hitVec, stack)
 
         if (clickedSuccessfully) {
             player.swingItem(!swing)
 
-            if (stack.stackSize <= 0) {
-                player.inventory.mainInventory[SilentHotbar.currentSlot] = null
+            if (stack.size <= 0) {
+                player.inventory.items[SilentHotbar.currentSlot] = null
                 ForgeEventFactory.onPlayerDestroyItem(player, stack)
-            } else if (stack.stackSize != prevSize || mc.interactionManager.isInCreativeMode)
+            } else if (stack.size != prevSize || mc.interactionManager.isInCreativeMode)
                 mc.entityRenderer.itemRenderer.resetEquippedProgress()
 
             blockPosition = null
@@ -263,7 +263,7 @@ object BedDefender : Module("BedDefender", Category.WORLD) {
     }
 
     private fun switchBlockNextTickIfPossible(stack: ItemStack) {
-        if (autoBlock in arrayOf("Off", "Switch") || stack.stackSize > 0)
+        if (autoBlock in arrayOf("Off", "Switch") || stack.size > 0)
             return
 
         val switchSlot = InventoryUtils.findBlockInHotbar() ?: return

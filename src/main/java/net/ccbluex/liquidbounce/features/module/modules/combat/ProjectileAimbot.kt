@@ -115,7 +115,9 @@ object ProjectileAimbot : Module("ProjectileAimbot", Category.COMBAT) {
 
             is Item -> {
                 if (!otherItems && !player.displayItemInHand.isEmpty() ||
-                    (!egg && item is EggItem || !snowball && item is SnowballItem || !pearl && item is EnderPearlItem)
+                    (!egg && item is EggItem ||
+                        !snowball && item is SnowballItem ||
+                        !pearl && item is EnderPearlItem)
                 )
                     return@handler
 
@@ -167,7 +169,7 @@ object ProjectileAimbot : Module("ProjectileAimbot", Category.COMBAT) {
                 val distance = player.getDistanceToEntityBox(it)
 
                 isSelected(it, true) && distance <= range && (throughWalls ||
-                        player.canEntityBeSeen(it) && distance <= throughWallsRange)
+                        player.canSee(it) && distance <= throughWallsRange)
             }.minByOrNull { entity ->
                 return@minByOrNull when (priorityMode) {
                     "Distance" -> player.getDistanceToEntityBox(entity)
@@ -178,5 +180,5 @@ object ProjectileAimbot : Module("ProjectileAimbot", Category.COMBAT) {
             }
     }
 
-    fun hasTarget() = target != null && mc.player.canEntityBeSeen(target)
+    fun hasTarget() = target != null && mc.player.canSee(target)
 }

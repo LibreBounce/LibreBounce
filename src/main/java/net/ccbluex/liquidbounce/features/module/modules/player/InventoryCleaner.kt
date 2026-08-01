@@ -152,7 +152,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
                         // Only try to merge non-full stacks, without limiting stack counts in isStackUseful
                         .filter {
                             it.value.hasItemAgePassed(minItemAge) &&
-                                    it.value.stackSize != it.value.maxStackSize && isStackUseful(
+                                    it.value.size != it.value.maxStackSize && isStackUseful(
                                 it.value,
                                 stacks,
                                 noLimits = true
@@ -167,7 +167,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
                     sortedStacks.firstOrNull { (_, clickedStack) ->
                         sortedStacks.any { (_, stackToMerge) ->
                             clickedStack != stackToMerge
-                                    && clickedStack.stackSize + stackToMerge.stackSize <= clickedStack.maxStackSize
+                                    && clickedStack.size + stackToMerge.size <= clickedStack.maxStackSize
                                     // Check if stacks have the same NBT data and are actually mergeable
                                     && clickedStack.isItemEqual(stackToMerge)
                                     && ItemStack.areItemStackTagsEqual(clickedStack, stackToMerge)
@@ -619,7 +619,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
         } else if (maxFoodStacks == 0)
             return false
 
-        val stackSaturation = item.getSaturationModifier(stack) * stack.stackSize
+        val stackSaturation = item.getSaturationModifier(stack) * stack.size
 
         val index = stacks.indexOf(stack)
 
@@ -646,7 +646,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
             // Items dropped on ground should have index -1
             val otherIndex = if (otherIndex > stacks.lastIndex) -1 else otherIndex
 
-            val otherStackSaturation = otherItem.getSaturationModifier(otherStack) * otherStack.stackSize
+            val otherStackSaturation = otherItem.getSaturationModifier(otherStack) * otherStack.size
 
             when (otherStackSaturation.compareTo(stackSaturation)) {
                 // Other stack has bigger saturation sum
@@ -709,7 +709,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
             // Items dropped on ground should have index -1
             val otherIndex = if (otherIndex > stacks.lastIndex) -1 else otherIndex
 
-            when (otherStack!!.stackSize.compareTo(stack.stackSize)) {
+            when (otherStack!!.size.compareTo(stack.size)) {
                 // Found a stack that has higher size
                 1 -> true
                 // Both stacks are equally good
@@ -776,7 +776,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
             // Items dropped on ground should have index -1
             val otherIndex = if (otherIndex > stacks.lastIndex) -1 else otherIndex
 
-            when (otherStack.stackSize.compareTo(stack.stackSize)) {
+            when (otherStack.size.compareTo(stack.size)) {
                 // Found a stack that has higher size
                 1 -> true
                 // Both stacks are equally good

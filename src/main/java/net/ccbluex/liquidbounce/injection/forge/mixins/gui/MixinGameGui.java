@@ -76,7 +76,7 @@ public abstract class MixinGuiInGame extends GuiElement {
 
         if (mc.getRenderViewEntity() instanceof PlayerEntity) {
             PlayerEntity entityPlayer = (PlayerEntity) mc.getRenderViewEntity();
-            float slot = entityPlayer.inventory.currentItem;
+            float slot = entityPlayer.inventory.selectedSlot;
 
             if (hud.handleEvents() && hud.getCustomHotbar()) {
                 if (hud.getSmoothHotbarSlot()) {

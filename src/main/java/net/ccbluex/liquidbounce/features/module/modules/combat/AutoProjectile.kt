@@ -41,8 +41,8 @@ object AutoProjectile : Module("AutoProjectile", Category.COMBAT) {
 
         if (usingProjectile) {
             if (projectilePullTimer.hasTimePassed(switchBackDelay)) {
-                if (switchBack != -1 && player.inventory.currentItem != switchBack) {
-                    player.inventory.currentItem = switchBack
+                if (switchBack != -1 && player.inventory.selectedSlot != switchBack) {
+                    player.inventory.selectedSlot = switchBack
 
                     mc.interactionManager.syncCurrentPlayItem()
                 } else {
@@ -78,9 +78,9 @@ object AutoProjectile : Module("AutoProjectile", Category.COMBAT) {
                     if (player.displayItemInHand?.item != snowball && player.displayItemInHand?.item != egg) {
                         val projectile = InventoryUtils.findItemArray(36, 44, arrayOf(snowball, egg)) ?: return@handler
 
-                        switchBack = player.inventory.currentItem
+                        switchBack = player.inventory.selectedSlot
 
-                        player.inventory.currentItem = projectile
+                        player.inventory.selectedSlot = projectile
                         mc.interactionManager.syncCurrentPlayItem()
                     }
 
@@ -97,7 +97,7 @@ object AutoProjectile : Module("AutoProjectile", Category.COMBAT) {
         val player = mc.player ?: return
         val projectile = InventoryUtils.findItemArray(36, 44, arrayOf(snowball, egg)) ?: return
 
-        player.inventory.currentItem = projectile
+        player.inventory.selectedSlot = projectile
 
         mc.interactionManager.sendUseItem(player, mc.world, player.hotBarSlot(projectile).stack)
 

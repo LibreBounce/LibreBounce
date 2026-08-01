@@ -251,7 +251,7 @@ object Speed : Module("Speed", Category.MOVEMENT) {
             return
 
         mc.timer.tpsScale = 1f
-        mc.player.speedInAir = 0.02f
+        mc.player.flyingSpeed = 0.02f
 
         modeModule.onDisable()
     }

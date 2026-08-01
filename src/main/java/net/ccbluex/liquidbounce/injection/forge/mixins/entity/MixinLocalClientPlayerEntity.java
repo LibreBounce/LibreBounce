@@ -338,8 +338,8 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
             --timeUntilPortal;
         }
 
-        boolean flag = input.jump;
-        boolean flag1 = input.sneak;
+        boolean flag = input.jumping;
+        boolean flag1 = input.sneaking;
         float f = 0.8F;
         boolean flag2 = input.forwardSpeed >= f;
         input.updatePlayerMoveState();
@@ -353,33 +353,33 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
 
         // Recreate inputs
         modifiedInput.forwardSpeed = input.forwardSpeed;
-        modifiedInput.moveStrafe = input.moveStrafe;
+        modifiedInput.movementSideways = input.movementSideways;
 
         // Reverse the effects of sneak and apply them after the input variable calculates the input
-        if (input.sneak) {
-            modifiedInput.moveStrafe /= 0.3f;
+        if (input.sneaking) {
+            modifiedInput.movementSideways /= 0.3f;
             modifiedInput.forwardSpeed /= 0.3f;
         }
 
         // Calculate and apply the movement input based on rotation
-        float forwardSpeed = currentRotation != null ? Math.round(modifiedInput.forwardSpeed * MathHelper.cos(MathExtensionsKt.toRadians(yaw - currentRotation.getYaw())) + modifiedInput.moveStrafe * MathHelper.sin(MathExtensionsKt.toRadians(yaw - currentRotation.getYaw()))) : modifiedInput.forwardSpeed;
-        float moveStrafe = currentRotation != null ? Math.round(modifiedInput.moveStrafe * MathHelper.cos(MathExtensionsKt.toRadians(yaw - currentRotation.getYaw())) - modifiedInput.forwardSpeed * MathHelper.sin(MathExtensionsKt.toRadians(yaw - currentRotation.getYaw()))) : modifiedInput.moveStrafe;
+        float forwardSpeed = currentRotation != null ? Math.round(modifiedInput.forwardSpeed * MathHelper.cos(MathExtensionsKt.toRadians(yaw - currentRotation.getYaw())) + modifiedInput.movementSideways * MathHelper.sin(MathExtensionsKt.toRadians(yaw - currentRotation.getYaw()))) : modifiedInput.forwardSpeed;
+        float movementSideways = currentRotation != null ? Math.round(modifiedInput.movementSideways * MathHelper.cos(MathExtensionsKt.toRadians(yaw - currentRotation.getYaw())) - modifiedInput.forwardSpeed * MathHelper.sin(MathExtensionsKt.toRadians(yaw - currentRotation.getYaw()))) : modifiedInput.movementSideways;
 
         modifiedInput.forwardSpeed = forwardSpeed;
-        modifiedInput.moveStrafe = moveStrafe;
+        modifiedInput.movementSideways = movementSideways;
 
-        if (input.sneak) {
-            final SneakSlowDownEvent sneakSlowDownEvent = new SneakSlowDownEvent(input.moveStrafe, input.forwardSpeed);
+        if (input.sneaking) {
+            final SneakSlowDownEvent sneakSlowDownEvent = new SneakSlowDownEvent(input.movementSideways, input.forwardSpeed);
             EventManager.INSTANCE.call(sneakSlowDownEvent);
-            input.moveStrafe = sneakSlowDownEvent.getStrafe();
+            input.movementSideways = sneakSlowDownEvent.getStrafe();
             input.forwardSpeed = sneakSlowDownEvent.getForward();
             // Add the sneak effect back
             modifiedInput.forwardSpeed *= 0.3f;
-            modifiedInput.moveStrafe *= 0.3f;
+            modifiedInput.movementSideways *= 0.3f;
             // Call again the event but this time have the modifiedInput
-            final SneakSlowDownEvent secondSneakSlowDownEvent = new SneakSlowDownEvent(modifiedInput.moveStrafe, modifiedInput.forwardSpeed);
+            final SneakSlowDownEvent secondSneakSlowDownEvent = new SneakSlowDownEvent(modifiedInput.movementSideways, modifiedInput.forwardSpeed);
             EventManager.INSTANCE.call(secondSneakSlowDownEvent);
-            modifiedInput.moveStrafe = secondSneakSlowDownEvent.getStrafe();
+            modifiedInput.movementSideways = secondSneakSlowDownEvent.getStrafe();
             modifiedInput.forwardSpeed = secondSneakSlowDownEvent.getForward();
         }
 
@@ -391,10 +391,10 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
         if (isUsingItem && !isRiding()) {
             final SlowDownEvent slowDownEvent = new SlowDownEvent(0.2F, 0.2F);
             EventManager.INSTANCE.call(slowDownEvent);
-            input.moveStrafe *= slowDownEvent.getStrafe();
+            input.movementSideways *= slowDownEvent.getStrafe();
             input.forwardSpeed *= slowDownEvent.getForward();
             sprintToggleTimer = 0;
-            modifiedInput.moveStrafe *= slowDownEvent.getStrafe();
+            modifiedInput.movementSideways *= slowDownEvent.getStrafe();
             modifiedInput.forwardSpeed *= slowDownEvent.getForward();
         }
 
@@ -436,7 +436,7 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
                     abilities.flying = true;
                     sendPlayerAbilities();
                 }
-            } else if (!flag && input.jump) {
+            } else if (!flag && input.jumping) {
                 if (flyToggleTimer == 0) {
                     flyToggleTimer = 7;
                 } else {
@@ -448,11 +448,11 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
         }
 
         if (abilities.flying && isCurrentViewEntity()) {
-            if (input.sneak) {
+            if (input.sneaking) {
                 velocityY -= abilities.getFlySpeed() * 3f;
             }
 
-            if (input.jump) {
+            if (input.jumping) {
                 velocityY += abilities.getFlySpeed() * 3f;
             }
         }
@@ -466,10 +466,10 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
                 }
             }
 
-            if (flag && !input.jump) {
+            if (flag && !input.jumping) {
                 horseJumpPowerCounter = -10;
                 sendHorseJump();
-            } else if (!flag && input.jump) {
+            } else if (!flag && input.jumping) {
                 horseJumpPowerCounter = 0;
                 horseJumpPower = 0f;
             } else if (flag) {

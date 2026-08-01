@@ -48,15 +48,15 @@ public class MixinBlockEntityItemRenderer {
      * @author CCBlueX
      */
     @Overwrite
-    public void renderByItem(ItemStack itemStackIn) {
-        if (itemStackIn.getItem() == Items.banner) {
-            banner.setItemValues(itemStackIn);
+    public void renderByItem(ItemStack cursorItemIn) {
+        if (cursorItemIn.getItem() == Items.banner) {
+            banner.setItemValues(cursorItemIn);
             BlockEntityRenderDispatcher.instance.renderBlockEntityAt(banner, 0, 0, 0, 0f);
-        } else if (itemStackIn.getItem() == Items.skull) {
+        } else if (cursorItemIn.getItem() == Items.skull) {
             GameProfile gameprofile = null;
 
-            if (itemStackIn.hasTagCompound()) {
-                NbtCompound nbttagcompound = itemStackIn.getTagCompound();
+            if (cursorItemIn.hasTagCompound()) {
+                NbtCompound nbttagcompound = cursorItemIn.getTagCompound();
 
                 try {
                     if (nbttagcompound.hasKey("SkullOwner", 10)) {
@@ -76,19 +76,19 @@ public class MixinBlockEntityItemRenderer {
                 translate(-0.5F, 0f, -0.5F);
                 scale(2f, 2f, 2f);
                 disableCull();
-                BlockEntitySkullRenderer.instance.renderSkull(0f, 0f, 0f, Direction.UP, 0f, itemStackIn.getMetadata(), gameprofile, -1);
+                BlockEntitySkullRenderer.instance.renderSkull(0f, 0f, 0f, Direction.UP, 0f, cursorItemIn.getMetadata(), gameprofile, -1);
                 enableCull();
                 popMatrix();
             }
         } else {
-            Block block = Block.getBlockFromItem(itemStackIn.getItem());
+            Block block = Block.getBlockFromItem(cursorItemIn.getItem());
 
             if (block == Blocks.ender_chest) {
                 BlockEntityRenderDispatcher.instance.renderBlockEntityAt(enderChest, 0, 0, 0, 0f);
             } else if (block == Blocks.trapped_chest) {
                 BlockEntityRenderDispatcher.instance.renderBlockEntityAt(field_147718_c, 0, 0, 0, 0f);
             } else if (block != Blocks.chest)
-                net.minecraftforge.client.ForgeHooksClient.renderTileItem(itemStackIn.getItem(), itemStackIn.getMetadata());
+                net.minecraftforge.client.ForgeHooksClient.renderTileItem(cursorItemIn.getItem(), cursorItemIn.getMetadata());
             else {
                 BlockEntityRenderDispatcher.instance.renderBlockEntityAt(field_147717_b, 0, 0, 0, 0f);
             }

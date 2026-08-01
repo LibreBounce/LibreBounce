@@ -192,7 +192,7 @@ public abstract class MixinGameRenderer {
 
                 for (final Box axisalignedbb : boxes) {
                     HitResult movingobjectposition = axisalignedbb.calculateIntercept(vec3, vec32);
-                    if (axisalignedbb.isVecInside(vec3)) {
+                    if (axisalignedbb.contains(vec3)) {
                         if (d2 >= 0) {
                             pointedEntity = entity1;
                             vec33 = movingobjectposition == null ? vec3 : movingobjectposition.hitVec;

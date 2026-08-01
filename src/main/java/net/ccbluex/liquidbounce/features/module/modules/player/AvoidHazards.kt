@@ -36,7 +36,7 @@ object AvoidHazards : Module("AvoidHazards", Category.WORLD) {
 
             wooden_pressure_plate, stone_pressure_plate, light_weighted_pressure_plate, heavy_weighted_pressure_plate -> {
                 if (plate)
-                    e.boundingBox =
+                    e.shape =
                         Box(e.x.toDouble(), e.y.toDouble(), e.z.toDouble(), e.x + 1.0, e.y + 0.25, e.z + 1.0)
                 return@handler
             }
@@ -44,6 +44,6 @@ object AvoidHazards : Module("AvoidHazards", Category.WORLD) {
             else -> return@handler
         }
 
-        e.boundingBox = Box(e.x.toDouble(), e.y.toDouble(), e.z.toDouble(), e.x + 1.0, e.y + 1.0, e.z + 1.0)
+        e.shape = Box(e.x.toDouble(), e.y.toDouble(), e.z.toDouble(), e.x + 1.0, e.y + 1.0, e.z + 1.0)
     }
 }

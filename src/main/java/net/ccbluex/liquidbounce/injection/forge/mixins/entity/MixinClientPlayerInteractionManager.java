@@ -56,11 +56,11 @@ public class MixinClientPlayerInteractionManager {
         InventoryUtils.INSTANCE.getCLICK_TIMER().reset();
     }
 
-    @Redirect(method = "syncCurrentPlayItem", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/living/player/PlayerInventory;currentItem:I"))
+    @Redirect(method = "syncCurrentPlayItem", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/living/player/PlayerInventory;selectedSlot:I"))
     private int hookSilentHotbarA(PlayerInventory instance) {
         SilentHotbar silentHotbar = SilentHotbar.INSTANCE;
 
-        int prevSlot = instance.currentItem;
+        int prevSlot = instance.selectedSlot;
         int serverSlot = silentHotbar.getCurrentSlot();
 
         ClientSlotChangeEvent event = new ClientSlotChangeEvent(prevSlot, serverSlot);
@@ -69,7 +69,7 @@ public class MixinClientPlayerInteractionManager {
         return event.getModifiedSlot();
     }
 
-    @Redirect(method = "sendUseItem", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/living/player/PlayerInventory;currentItem:I"))
+    @Redirect(method = "sendUseItem", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/living/player/PlayerInventory;selectedSlot:I"))
     private int hookSilentHotbarB(PlayerInventory instance) {
         return SilentHotbar.INSTANCE.getCurrentSlot();
     }

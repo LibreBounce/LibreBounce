@@ -213,7 +213,7 @@ object Fly : Module("Fly", Category.MOVEMENT, Keyboard.KEY_F) {
             firePosition = null
             abilities.flying = wasFlying
             mc.timer.tpsScale = 1f
-            speedInAir = 0.02f
+            flyingSpeed = 0.02f
 
             modeModule.onDisable()
         }
@@ -302,18 +302,18 @@ object Fly : Module("Fly", Category.MOVEMENT, Keyboard.KEY_F) {
 
     // TODO: Make faster and more accurate calculations
     private fun calculateGround(): Double {
-        val boundingBox = mc.player.shape
+        val shape = mc.player.shape
         var blockHeight = 0.05
         var ground = mc.player.y
 
         while (ground > 0.0) {
-            val customBox = Box.fromBounds(
-                boundingBox.maxX,
+            val customBox = Box.of(
+                shape.maxX,
                 ground + blockHeight,
-                boundingBox.maxZ,
-                boundingBox.minX,
+                shape.maxZ,
+                shape.minX,
                 ground,
-                boundingBox.minZ
+                shape.minZ
             )
             if (mc.world.checkBlockCollision(customBox)) {
                 if (blockHeight <= 0.05) return ground + blockHeight

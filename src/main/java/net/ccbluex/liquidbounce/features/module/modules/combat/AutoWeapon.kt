@@ -53,7 +53,7 @@ object AutoWeapon : Module("AutoWeapon", Category.COMBAT, subjective = true) {
             SilentHotbar.selectSlotSilently(this, slot, spoofTicks, true, !spoof, spoof)
 
             if (!spoof) {
-                player.inventory.currentItem = slot
+                player.inventory.selectedSlot = slot
                 SilentHotbar.resetSlot(this)
             }
 

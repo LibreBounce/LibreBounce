@@ -129,7 +129,7 @@ val Entity.prevPos: Vec3d
     get() = Vec3d(prevPosX, prevPosY, prevPosZ)
 
 val Entity.currPos: Vec3d
-    get() = this.positionVector
+    get() = this.commandSourcePos
 
 val Entity.lastTickPos: Vec3d
     get() = Vec3d(prevX, prevY, prevZ)
@@ -220,7 +220,7 @@ infix fun LivingEntity.setSprintSafely(new: Boolean) {
 // Modified mc.interactionManager.onPlayerRightClick() that sends correct stack in its C08
 fun LocalClientPlayerEntity.onPlayerRightClick(
     clickPos: BlockPos, side: Direction, clickVec: Vec3d,
-    stack: ItemStack? = inventory.mainInventory[SilentHotbar.currentSlot],
+    stack: ItemStack? = inventory.items[SilentHotbar.currentSlot],
 ): Boolean {
     val controller = mc.interactionManager ?: return false
 
@@ -271,13 +271,13 @@ fun LocalClientPlayerEntity.onPlayerRightClick(
         return false
 
     val prevMetadata = stack.metadata
-    val prevSize = stack.stackSize
+    val prevSize = stack.size
 
     return stack.onItemUse(this, world, clickPos, side, facingX, facingY, facingZ).also {
         if (controller.isInCreativeMode) {
             stack.itemDamage = prevMetadata
-            stack.stackSize = prevSize
-        } else if (stack.stackSize <= 0) {
+            stack.size = prevSize
+        } else if (stack.size <= 0) {
             ForgeEventFactory.onPlayerDestroyItem(this, stack)
         }
     }
@@ -292,16 +292,16 @@ fun LocalClientPlayerEntity.sendUseItem(stack: ItemStack): Boolean {
 
     sendPacket(PlayerUseC2SPacket(stack))
 
-    val prevSize = stack.stackSize
+    val prevSize = stack.size
 
     val newStack = stack.useItemRightClick(world, this)
 
-    return if (newStack != stack || newStack.stackSize != prevSize) {
-        if (newStack.stackSize <= 0) {
-            mc.player.inventory.mainInventory[SilentHotbar.currentSlot] = null
+    return if (newStack != stack || newStack.size != prevSize) {
+        if (newStack.size <= 0) {
+            mc.player.inventory.items[SilentHotbar.currentSlot] = null
             ForgeEventFactory.onPlayerDestroyItem(mc.player, newStack)
         } else
-            mc.player.inventory.mainInventory[SilentHotbar.currentSlot] = newStack
+            mc.player.inventory.items[SilentHotbar.currentSlot] = newStack
 
         true
     } else false

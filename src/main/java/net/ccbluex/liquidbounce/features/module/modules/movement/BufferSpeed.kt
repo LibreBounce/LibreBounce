@@ -79,10 +79,10 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT) {
         }
 
         if (fastHop) {
-            player.speedInAir = 0.0211f
+            player.flyingSpeed = 0.0211f
             hadFastHop = true
         } else if (hadFastHop) {
-            player.speedInAir = 0.02f
+            player.flyingSpeed = 0.02f
             hadFastHop = false
         }
 
@@ -184,7 +184,7 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT) {
                     }
 
                     "New" ->
-                        if (isNearBlock && !player.input.jump) {
+                        if (isNearBlock && !player.input.jumping) {
                             player.tryJump()
                             player.velocityY = 0.08
                             player.velocityX *= 0.99
@@ -226,7 +226,7 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT) {
         speed = 0.0
 
         if (hadFastHop) {
-            player.speedInAir = 0.02f
+            player.flyingSpeed = 0.02f
             hadFastHop = false
         }
     }

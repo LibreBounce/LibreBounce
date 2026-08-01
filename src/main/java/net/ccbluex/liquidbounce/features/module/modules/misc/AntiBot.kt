@@ -124,8 +124,8 @@ object AntiBot : Module("AntiBot", Category.MISC) {
             return true
 
         if (armor) {
-            if (entity.inventory.armorInventory[0] == null && entity.inventory.armorInventory[1] == null &&
-                entity.inventory.armorInventory[2] == null && entity.inventory.armorInventory[3] == null
+            if (entity.inventory.armor[0] == null && entity.inventory.armor[1] == null &&
+                entity.inventory.armor[2] == null && entity.inventory.armor[3] == null
             )
                 return true
         }

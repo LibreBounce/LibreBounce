@@ -51,14 +51,14 @@ object ForwardTrack : Module("ForwardTrack", Category.COMBAT) {
                 !mc.isSingleplayer -> {
                     val iEntity = entity as IMixinEntity
 
-                    if (iEntity.truePos) iEntity.interpolatedPosition else positionVector
+                    if (iEntity.truePos) iEntity.interpolatedPosition else commandSourcePos
                 }
 
                 this is LivingEntity -> {
                     Vec3d(lerpX, lerpY, lerpZ)
                 }
 
-                else -> positionVector
+                else -> commandSourcePos
             }
         }
     }

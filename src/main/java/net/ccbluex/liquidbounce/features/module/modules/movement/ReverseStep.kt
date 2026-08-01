@@ -32,7 +32,7 @@ object ReverseStep : Module("ReverseStep", Category.MOVEMENT) {
 
             if (collideBlock(shape) { it is LiquidBlock } ||
                 collideBlock(
-                    Box.fromBounds(
+                    Box.of(
                         shape.maxX,
                         shape.maxY,
                         shape.maxZ,
@@ -44,7 +44,7 @@ object ReverseStep : Module("ReverseStep", Category.MOVEMENT) {
                     it is LiquidBlock
                 }) return@handler
 
-            if (!mc.options.jumpKey.isPressed && !onGround && !input.jump && velocityY <= 0.0 && fallDistance <= 1f && !jumped)
+            if (!mc.options.jumpKey.isPressed && !onGround && !input.jumping && velocityY <= 0.0 && fallDistance <= 1f && !jumped)
                 velocityY = -motion.toDouble()
         }
     }

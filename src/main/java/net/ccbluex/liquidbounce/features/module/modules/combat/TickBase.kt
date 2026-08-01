@@ -89,10 +89,10 @@ object TickBase : Module("TickBase", Category.COMBAT) {
 
         if (!duringTickModification && tickBuffer.isNotEmpty()) {
             val nearbyEnemy = getNearestEntityInRange() ?: return@handler
-            val currentDistance = player.positionVector.distanceTo(nearbyEnemy.positionVector)
+            val currentDistance = player.commandSourcePos.distanceTo(nearbyEnemy.commandSourcePos)
 
             val possibleTicks = tickBuffer.mapIndexedNotNull { index, tick ->
-                val tickDistance = tick.position.distanceTo(nearbyEnemy.positionVector)
+                val tickDistance = tick.position.distanceTo(nearbyEnemy.commandSourcePos)
 
                 (index to tick).takeIf {
                     tickDistance < currentDistance && tickDistance in rangeToAttack && !tick.collidingHorizontally && (!onlyGround || tick.onGround)
@@ -157,9 +157,11 @@ object TickBase : Module("TickBase", Category.COMBAT) {
         if (tickBalance <= 0) {
             reachedTheLimit = true
         }
+
         if (tickBalance > balanceMaxValue / 2) {
             reachedTheLimit = false
         }
+
         if (tickBalance <= balanceMaxValue) {
             tickBalance += balanceRecoveryIncrement
         }

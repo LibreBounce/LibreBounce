@@ -365,7 +365,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
         if (shouldPrioritize()) return false
 
         val prediction = entity.currPos.subtract(entity.prevPos).times(2 + predictEnemyPosition.toDouble())
-        val boundingBox = entity.hitBox.offset(prediction)
+        val shape = entity.hitBox.offset(prediction)
         val (currPos, oldPos) = player.currPos to player.prevPos
 
         val simPlayer = SimulatedPlayer.fromClientPlayer(RotationUtils.modifiedInput)
@@ -400,7 +400,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
         player.setPosAndPrevPos(pos)
 
         val rotation = searchCenter(
-            boundingBox,
+            shape,
             generateSpotBasedOnDistance,
             outBorder,
             randomization,

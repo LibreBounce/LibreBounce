@@ -219,7 +219,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
 
         val prediction = entity.currPos.subtract(entity.prevPos).times(2 + predictEnemyPosition.toDouble())
 
-        val boundingBox = entity.hitBox.offset(prediction)
+        val shape = entity.hitBox.offset(prediction)
         val (currPos, oldPos) = player.currPos to player.prevPos
 
         val simPlayer = SimulatedPlayer.fromClientPlayer(player.input)
@@ -231,7 +231,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
         player.setPosAndPrevPos(simPlayer.pos)
 
         val distance = searchCenter(
-            boundingBox,
+            shape,
             outborder = false,
             predict = true,
             lookRange = if (timerBoostMode == "Normal") rangeValue else randomRange,
@@ -376,7 +376,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
 
                     // Flush on explosion
                     is ExplosionS2CPacket -> {
-                        if (packet.field_149153_g != 0f || packet.field_149152_f != 0f || packet.field_149159_h != 0f) {
+                        if (packet.playerVelocityY != 0f || packet.playerVelocityX != 0f || packet.playerVelocityZ != 0f) {
                             BlinkUtils.unblink()
                             return@handler
                         }

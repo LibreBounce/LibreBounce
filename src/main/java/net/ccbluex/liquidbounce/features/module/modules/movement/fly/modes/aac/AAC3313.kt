@@ -27,7 +27,7 @@ object AAC3313 : FlyMode("AAC3.3.13") {
 
             if (Keyboard.isPressed(Keyboard.KEY_LCONTROL)) {
                 mc.timer.tpsScale = 0.2f
-                mc.rightClickDelayTimer = 0
+                mc.useKeyCooldown = 0
             }
         }
     }

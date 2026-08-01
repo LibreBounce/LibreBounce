@@ -56,7 +56,7 @@ object EnchantCommand : Command("enchant") {
             }
 
             item.addEnchantment(enchantment, level)
-            sendPacket(CreativeMenuSlotC2SPacket(36 + mc.player.inventory.currentItem, item))
+            sendPacket(CreativeMenuSlotC2SPacket(36 + mc.player.inventory.selectedSlot, item))
             chat("${enchantment.getTranslatedName(level)} added to ${item.displayName}.")
             return
         }

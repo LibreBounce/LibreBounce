@@ -16,7 +16,7 @@ object AntiCactus : Module("AntiCactus", Category.PLAYER, gameDetecting = false)
 
     val onBlockBB = handler<BlockBBEvent> { event ->
         if (event.block is BlockCactus)
-            event.boundingBox = Box(
+            event.shape = Box(
                 event.x.toDouble(), event.y.toDouble(), event.z.toDouble(),
                 event.x + 1.0, event.y + 1.0, event.z + 1.0
             )

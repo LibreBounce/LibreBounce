@@ -67,9 +67,9 @@ object AutoRod : Module("AutoRod", Category.COMBAT) {
             // player.fishEntity?.caughtEntity != null is always null
 
             if (rodPullTimer.hasTimePassed(pullbackDelay)) {
-                if (switchBack != -1 && player.inventory.currentItem != switchBack) {
+                if (switchBack != -1 && player.inventory.selectedSlot != switchBack) {
                     // Switch back to previous item
-                    player.inventory.currentItem = switchBack
+                    player.inventory.selectedSlot = switchBack
                     mc.interactionManager.syncCurrentPlayItem()
                 } else {
                     // Stop using rod
@@ -139,9 +139,9 @@ object AutoRod : Module("AutoRod", Category.COMBAT) {
                     }
 
                     // Switch to rod
-                    switchBack = player.inventory.currentItem
+                    switchBack = player.inventory.selectedSlot
 
-                    player.inventory.currentItem = rod
+                    player.inventory.selectedSlot = rod
                     mc.interactionManager.syncCurrentPlayItem()
                 }
 
@@ -153,7 +153,7 @@ object AutoRod : Module("AutoRod", Category.COMBAT) {
     private fun rod() {
         val rod = findRod(36, 45)
 
-        mc.player.inventory.currentItem = rod
+        mc.player.inventory.selectedSlot = rod
         // We do not need to send our own packet, because sendUseItem will handle it for us
         // TODO: Use SilentHotbar, instead
         mc.interactionManager.sendUseItem(mc.player, mc.world, mc.player.hotBarSlot(rod).stack)

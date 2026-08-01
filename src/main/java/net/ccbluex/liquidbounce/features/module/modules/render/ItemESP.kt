@@ -134,8 +134,8 @@ object ItemESP : Module("ItemESP", Category.RENDER) {
         val scale = ((player.getDistanceToEntity(entity) / 4F).coerceAtLeast(1F) / 150F) * scale
         glScalef(-scale, -scale, scale)
 
-        val itemStack = entity.entityItem
-        val text = itemStack.displayName + if (itemCounts) " (${itemStack.stackSize})" else ""
+        val cursorItem = entity.entityItem
+        val text = cursorItem.displayName + if (itemCounts) " (${cursorItem.size})" else ""
 
         // Draw text
         val width = fontRenderer.getWidth(text) * 0.5f

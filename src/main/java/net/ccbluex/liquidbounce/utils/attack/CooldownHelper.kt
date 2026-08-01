@@ -22,11 +22,11 @@ object CooldownHelper {
 
     private var genericAttackSpeed = 0.0
 
-    fun updateGenericAttackSpeed(itemStack: ItemStack?) {
-        genericAttackSpeed = when (itemStack?.item) {
+    fun updateGenericAttackSpeed(cursorItem: ItemStack?) {
+        genericAttackSpeed = when (cursorItem?.item) {
             is SwordItem -> 1.6
             is AxeItem -> {
-                val axe = itemStack.item as AxeItem
+                val axe = cursorItem.item as AxeItem
                 when (axe.toolMaterial) {
                     Item.ToolMaterial.IRON -> 0.9
                     Item.ToolMaterial.WOOD, Item.ToolMaterial.STONE -> 0.8
@@ -36,7 +36,7 @@ object CooldownHelper {
             is PickaxeItem -> 1.2
             is ShovelItem -> 1.0
             is ItemHoe -> {
-                val hoe = itemStack.item as ItemHoe
+                val hoe = cursorItem.item as ItemHoe
                 when (hoe.materialName) {
                     "STONE" -> 2.0
                     "IRON" -> 3.0

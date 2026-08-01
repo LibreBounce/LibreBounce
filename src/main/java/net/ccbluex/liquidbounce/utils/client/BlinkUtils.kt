@@ -55,7 +55,7 @@ object BlinkUtils : MinecraftInstance, Listenable {
                 synchronized(packets) {
                     packets += packet
                 }
-                if (packet is PlayerMoveC2SPacket && packet.isMoving) {
+                if (packet is PlayerMoveC2SPacket && packet.hasPos) {
                     val packetPos = Vec3d(packet.x, packet.y, packet.z)
                     synchronized(positions) {
                         positions += packetPos
@@ -75,7 +75,7 @@ object BlinkUtils : MinecraftInstance, Listenable {
                 synchronized(packets) {
                     sendPackets(*packets.toTypedArray(), triggerEvents = false)
                 }
-                if (packet is PlayerMoveC2SPacket && packet.isMoving) {
+                if (packet is PlayerMoveC2SPacket && packet.hasPos) {
                     val packetPos = Vec3d(packet.x, packet.y, packet.z)
                     synchronized(positions) {
                         positions += packetPos
@@ -97,7 +97,7 @@ object BlinkUtils : MinecraftInstance, Listenable {
                 synchronized(packets) {
                     packets += packet
                 }
-                if (packet is PlayerMoveC2SPacket && packet.isMoving) {
+                if (packet is PlayerMoveC2SPacket && packet.hasPos) {
                     val packetPos = Vec3d(packet.x, packet.y, packet.z)
                     synchronized(positions) {
                         positions += packetPos
@@ -210,7 +210,7 @@ object BlinkUtils : MinecraftInstance, Listenable {
         fakePlayer = faker
 
         // Add positions indicating a blink start
-        // val pos = player.positionVector
+        // val pos = player.commandSourcePos
         // positions += pos.addVector(.0, player.eyeHeight / 2.0, .0)
         // positions += pos
     }

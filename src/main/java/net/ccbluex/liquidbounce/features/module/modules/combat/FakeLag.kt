@@ -158,7 +158,7 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
             }
 
             is ExplosionS2CPacket -> {
-                if (pauseOnKnockback && packet.field_149153_g != 0f || packet.field_149152_f != 0f || packet.field_149159_h != 0f) {
+                if (pauseOnKnockback && packet.playerVelocityY != 0f || packet.playerVelocityX != 0f || packet.playerVelocityZ != 0f) {
                     blink()
                     return@handler
                 }
@@ -182,7 +182,7 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
         if (event.eventType == EventState.SEND) {
             event.cancelEvent()
 
-            if (packet is PlayerMoveC2SPacket && packet.isMoving) {
+            if (packet is PlayerMoveC2SPacket && packet.hasPos) {
                 synchronized(positions) {
                     positions += PositionData(
                         packet.pos,

@@ -146,7 +146,7 @@ object FastClimb : Module("FastClimb", Category.MOVEMENT) {
         if (mc.player != null && (event.block is LadderBlock || event.block is VineBlock) &&
             mode == "AAC3.0.5" && mc.player.isClimbing
         )
-            event.boundingBox = null
+            event.shape = null
     }
 
     override val tag

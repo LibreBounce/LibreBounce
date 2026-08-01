@@ -17,7 +17,7 @@ import net.ccbluex.liquidbounce.features.module.modules.player.nofall.modes.othe
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.collideBlock
 import net.ccbluex.liquidbounce.utils.rotation.AlwaysRotationSettings
 import net.minecraft.block.LiquidBlock
-import net.minecraft.util.math.Box.fromBounds
+import net.minecraft.util.math.Box.of
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 import kotlin.math.max
@@ -110,7 +110,7 @@ object NoFall : Module("NoFall", Category.PLAYER) {
         val player = mc.player
 
         if (collideBlock(player.shape) { it is LiquidBlock } || collideBlock(
-                fromBounds(
+                of(
                     player.shape.maxX,
                     player.shape.maxY,
                     player.shape.maxZ,
@@ -158,7 +158,7 @@ object NoFall : Module("NoFall", Category.PLAYER) {
 
         if (collideBlock(player.shape) { it is LiquidBlock }
             || collideBlock(
-                fromBounds(
+                of(
                     player.shape.maxX,
                     player.shape.maxY,
                     player.shape.maxZ,

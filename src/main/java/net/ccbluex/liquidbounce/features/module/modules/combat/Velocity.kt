@@ -169,7 +169,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
 
     override fun onDisable() {
         pauseTicks = 0
-        mc.player?.speedInAir = 0.02F
+        mc.player?.flyingSpeed = 0.02F
         timerTicks = 0
         reset()
     }
@@ -212,22 +212,22 @@ object Velocity : Module("Velocity", Category.COMBAT) {
 
                     if (hasReceivedVelocity) {
                         if (nearbyEntity == null) {
-                            speedInAir = 0.02F
+                            flyingSpeed = 0.02F
                             reverseHurt = false
                         } else {
                             if (onLook && !isLookingOnEntities(nearbyEntity, maxAngleDifference.toDouble())) {
                                 hasReceivedVelocity = false
-                                speedInAir = 0.02F
+                                flyingSpeed = 0.02F
                                 reverseHurt = false
                             } else {
                                 if (damagedTimer > 0)
                                     reverseHurt = true
 
                                 if (!onGround) {
-                                    speedInAir = if (reverseHurt) reverse2Strength else 0.02F
+                                    flyingSpeed = if (reverseHurt) reverse2Strength else 0.02F
                                 } else if (velocityTimer.hasTimePassed(80)) {
                                     hasReceivedVelocity = false
-                                    speedInAir = 0.02F
+                                    flyingSpeed = 0.02F
                                     reverseHurt = false
                                 }
                             }
@@ -448,13 +448,13 @@ object Velocity : Module("Velocity", Category.COMBAT) {
             return@handler
 
         if ((packet is EntityVelocityS2CPacket && player.networkId == packet.networkId && packet.velocityY > 0 && (packet.velocityX != 0 || packet.velocityZ != 0))
-            || (packet is ExplosionS2CPacket && (player.velocityY + packet.field_149153_g) > 0.0
-                    && ((player.velocityX + packet.field_149152_f) != 0.0 || (player.velocityZ + packet.field_149159_h) != 0.0))
+            || (packet is ExplosionS2CPacket && (player.velocityY + packet.playerVelocityY) > 0.0
+                    && ((player.velocityX + packet.playerVelocityX) != 0.0 || (player.velocityZ + packet.playerVelocityZ) != 0.0))
         ) {
             velocityTimer.reset()
 
-            if (pauseOnExplosion && packet is ExplosionS2CPacket && (player.velocityY + packet.field_149153_g) > 0.0
-                && ((player.velocityX + packet.field_149152_f) != 0.0 || (player.velocityZ + packet.field_149159_h) != 0.0)
+            if (pauseOnExplosion && packet is ExplosionS2CPacket && (player.velocityY + packet.playerVelocityY) > 0.0
+                && ((player.velocityX + packet.playerVelocityX) != 0.0 || (player.velocityZ + packet.playerVelocityZ) != 0.0)
             ) {
                 pauseTicks = ticksToPause
             }
@@ -479,8 +479,8 @@ object Velocity : Module("Velocity", Category.COMBAT) {
                         }
 
                         is ExplosionS2CPacket -> {
-                            val velocityX = player.velocityX + packet.field_149152_f
-                            val velocityZ = player.velocityZ + packet.field_149159_h
+                            val velocityX = player.velocityX + packet.playerVelocityX
+                            val velocityZ = player.velocityZ + packet.playerVelocityZ
 
                             packetDirection = atan2(velocityX, velocityZ)
                         }
@@ -716,7 +716,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
             if (player.damagedTimer in damagedTimerToAct) {
                 // Check if there is air exactly 1 level above the player's Y position
                 if (event.block is AirBlock && event.y == mc.player.y.toInt() + 1) {
-                    event.boundingBox = Box(
+                    event.shape = Box(
                         event.x.toDouble(),
                         event.y.toDouble(),
                         event.z.toDouble(),
@@ -779,34 +779,34 @@ object Velocity : Module("Velocity", Category.COMBAT) {
         } else if (packet is ExplosionS2CPacket) {
             // Don't cancel explosions, modify them, they could change blocks in the world
             if (horizontal != 0f && vertical != 0f) {
-                packet.field_149152_f = 0f
-                packet.field_149153_g = 0f
-                packet.field_149159_h = 0f
+                packet.playerVelocityX = 0f
+                packet.playerVelocityY = 0f
+                packet.playerVelocityZ = 0f
 
                 return
             }
 
             // Unlike with EntityVelocityS2CPacket explosion packet motions get added to player motion, doesn't replace it
             // Velocity might behave a bit differently, especially LimitMaxMotion
-            packet.field_149152_f *= horizontal // velocityX
-            packet.field_149153_g *= vertical // velocityY
-            packet.field_149159_h *= horizontal // velocityZ
+            packet.playerVelocityX *= horizontal // velocityX
+            packet.playerVelocityY *= vertical // velocityY
+            packet.playerVelocityZ *= horizontal // velocityZ
 
             if (limitMaxMotionValue.get()) {
                 val distXZ =
-                    sqrt(packet.field_149152_f * packet.field_149152_f + packet.field_149159_h * packet.field_149159_h)
-                val distY = packet.field_149153_g
+                    sqrt(packet.playerVelocityX * packet.playerVelocityX + packet.playerVelocityZ * packet.playerVelocityZ)
+                val distY = packet.playerVelocityY
                 val maxYMotion = maxYMotion + 0.00075f
 
                 if (distXZ > maxXZMotion) {
                     val ratioXZ = maxXZMotion / distXZ
 
-                    packet.field_149152_f *= ratioXZ
-                    packet.field_149159_h *= ratioXZ
+                    packet.playerVelocityX *= ratioXZ
+                    packet.playerVelocityZ *= ratioXZ
                 }
 
                 if (distY > maxYMotion) {
-                    packet.field_149153_g *= maxYMotion / distY
+                    packet.playerVelocityY *= maxYMotion / distY
                 }
             }
         }

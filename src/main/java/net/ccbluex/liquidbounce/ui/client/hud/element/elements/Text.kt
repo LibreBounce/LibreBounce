@@ -208,7 +208,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1f, side: Side = S
                 "sprint", "sprinting" -> return (sentSprinting || isSprinting || mc.options.keyBindSprint.isPressed)
                 "inventory", "inv" -> return mc.screen is SurvivalInventoryScreen || mc.screen is InventoryMenuScreen
                 "serverslot" -> return SilentHotbar.currentSlot
-                "clientslot" -> return inventory?.currentItem
+                "clientslot" -> return inventory?.selectedSlot
                 "bps", "blockpersecond" -> return DECIMAL_FORMAT.format(BPSUtils.getBPS())
                 "blockamount", "blockcount", "blocks", -> return InventoryUtils.blocksAmount()
                 "tbalance", "timerbalance" -> return TimerBalanceUtils.balance

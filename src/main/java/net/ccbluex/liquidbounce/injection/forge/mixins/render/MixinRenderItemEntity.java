@@ -67,10 +67,10 @@ public abstract class MixinRenderItemEntity extends Render<ItemEntity> {
     private int func_177077_a(ItemEntity itemIn, double x, double y, double z, float p_177077_8_, BakedModel ibakedmodel) {
         final ItemPhysics itemPhysics = ItemPhysics.INSTANCE;
 
-        ItemStack itemStack = itemIn.getItemEntity();
-        Item item = itemStack.getItem();
+        ItemStack cursorItem = itemIn.getItemEntity();
+        Item item = cursorItem.getItem();
 
-        if (item == null || itemStack == null) {
+        if (item == null || cursorItem == null) {
             return 0;
         }
 
@@ -78,7 +78,7 @@ public abstract class MixinRenderItemEntity extends Render<ItemEntity> {
         glCullFace(GL_BACK);
 
         boolean isGui3d = ibakedmodel.isGui3d();
-        int count = getItemCount(itemStack);
+        int count = getItemCount(cursorItem);
         float yOffset = 0.25F;
 
         float age = (float) itemIn.getAge() + p_177077_8_;
@@ -135,7 +135,7 @@ public abstract class MixinRenderItemEntity extends Render<ItemEntity> {
     }
 
     private int getItemCount(ItemStack stack) {
-        int size = stack.stackSize;
+        int size = stack.size;
 
         if (size > 48) {
             return 5;

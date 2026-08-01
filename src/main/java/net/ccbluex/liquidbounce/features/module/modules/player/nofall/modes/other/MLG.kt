@@ -265,17 +265,17 @@ object MLG : NoFallMode("MLG") {
     ): Boolean {
         val player = mc.player ?: return false
 
-        val prevSize = stack.stackSize
+        val prevSize = stack.size
 
         val clickedSuccessfully = player.onPlayerRightClick(clickPos, side, hitVec, stack)
 
         if (clickedSuccessfully) {
             player.swingItem(!swing)
 
-            if (stack.stackSize <= 0) {
-                player.inventory.mainInventory[SilentHotbar.currentSlot] = null
+            if (stack.size <= 0) {
+                player.inventory.items[SilentHotbar.currentSlot] = null
                 ForgeEventFactory.onPlayerDestroyItem(player, stack)
-            } else if (stack.stackSize != prevSize || mc.interactionManager.isInCreativeMode) {
+            } else if (stack.size != prevSize || mc.interactionManager.isInCreativeMode) {
                 mc.entityRenderer.itemRenderer.resetEquippedProgress()
             }
 
@@ -292,7 +292,7 @@ object MLG : NoFallMode("MLG") {
     }
 
     private fun switchBlockNextTickIfPossible(stack: ItemStack) {
-        if (autoMLG == "Off" || stack.stackSize > 0) return
+        if (autoMLG == "Off" || stack.size > 0) return
 
         val switchSlot = findMlgSlot() ?: return
 

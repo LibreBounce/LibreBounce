@@ -105,7 +105,7 @@ object InventoryUtils : MinecraftInstance, Listenable {
 
     fun hasSpaceInInventory() = mc.player?.inventory?.firstEmptyStack != -1
 
-    fun countSpaceInInventory() = mc.player.inventory.mainInventory.count { it.isEmpty() }
+    fun countSpaceInInventory() = mc.player.inventory.items.count { it.isEmpty() }
 
     fun findBlockInHotbar(): Int? {
         val player = mc.player ?: return null
@@ -115,7 +115,7 @@ object InventoryUtils : MinecraftInstance, Listenable {
             val stack = inventory.getSlot(it).stack ?: return@filter false
             val block = if (stack.item is BlockItem) (stack.item as BlockItem).block else return@filter false
 
-            stack.item is BlockItem && stack.stackSize > 0 && block !in BLOCK_BLACKLIST && block !is PlantBlock
+            stack.item is BlockItem && stack.size > 0 && block !in BLOCK_BLACKLIST && block !is PlantBlock
         }.minByOrNull { (inventory.getSlot(it).stack.item as BlockItem).block.isFullCube }?.minus(36)
     }
 
@@ -127,8 +127,8 @@ object InventoryUtils : MinecraftInstance, Listenable {
             val stack = inventory.getSlot(it).stack ?: return@filter false
             val block = if (stack.item is BlockItem) (stack.item as BlockItem).block else return@filter false
 
-            stack.item is BlockItem && stack.stackSize > 0 && block.isFullCube && block !in BLOCK_BLACKLIST && block !is PlantBlock
-        }.maxByOrNull { inventory.getSlot(it).stack.stackSize }?.minus(36)
+            stack.item is BlockItem && stack.size > 0 && block.isFullCube && block !in BLOCK_BLACKLIST && block !is PlantBlock
+        }.maxByOrNull { inventory.getSlot(it).stack.size }?.minus(36)
     }
 
     fun findBlockStackInHotbarGreaterThan(amount: Int): Int? {
@@ -139,7 +139,7 @@ object InventoryUtils : MinecraftInstance, Listenable {
             val stack = inventory.getSlot(it).stack ?: return@filter false
             val block = if (stack.item is BlockItem) (stack.item as BlockItem).block else return@filter false
 
-            stack.item is BlockItem && stack.stackSize > amount && block.isFullCube && block !in BLOCK_BLACKLIST && block !is PlantBlock
+            stack.item is BlockItem && stack.size > amount && block.isFullCube && block !in BLOCK_BLACKLIST && block !is PlantBlock
         }.minByOrNull { (inventory.getSlot(it).stack.item as BlockItem).block.isFullCube }?.minus(36)
     }
 
@@ -161,7 +161,7 @@ object InventoryUtils : MinecraftInstance, Listenable {
                 val block = item.block
                 val displayItemInHand = player.displayItemInHand
                 if (displayItemInHand != null && displayItemInHand == stack || block !in BLOCK_BLACKLIST && block !is PlantBlock) {
-                    amount += stack.stackSize
+                    amount += stack.size
                 }
             }
         }
@@ -214,7 +214,7 @@ object InventoryUtils : MinecraftInstance, Listenable {
                 if (NoSlotSet.handleEvents()) {
                     WaitTickUtils.conditionalSchedule {
                         if (SilentHotbar.currentSlot == packet.displayItemInHandHotbarIndex) {
-                            mc.player?.inventory?.currentItem = previousSlot
+                            mc.player?.inventory?.selectedSlot = previousSlot
 
                             return@conditionalSchedule true
                         }

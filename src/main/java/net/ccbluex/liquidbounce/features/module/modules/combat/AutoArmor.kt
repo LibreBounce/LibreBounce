@@ -98,7 +98,7 @@ object AutoArmor : Module("AutoArmor", Category.COMBAT) {
             val armorPos = getArmorPosition(stack) - 1
 
             // Check if target armor slot isn't occupied
-            if (player.inventory.armorInventory[armorPos] != null)
+            if (player.inventory.armor[armorPos] != null)
                 continue
 
             hasClickedHotbar = true
@@ -119,8 +119,8 @@ object AutoArmor : Module("AutoArmor", Category.COMBAT) {
                 sendPacket(PlayerUseC2SPacket(stack))
 
                 // Instantly update inventory on client-side to prevent repetitive clicking because of ping
-                player.inventory.armorInventory[armorPos] = stack
-                player.inventory.mainInventory[hotbarIndex] = null
+                player.inventory.armor[armorPos] = stack
+                player.inventory.items[hotbarIndex] = null
             }
 
             // Schedule hotbar click

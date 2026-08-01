@@ -34,7 +34,7 @@ object VulcanGhost : FlyMode("VulcanGhost") {
         if (!mc.options.jumpKey.isPressed && mc.options.sneakKey.isPressed) return
 
         if (!event.block.material.blocksMovement() && event.block.material != Material.carpet && event.block.material != Material.vine && event.block.material != Material.snow && event.block !is LadderBlock) {
-            event.boundingBox = Box(-2.0, -1.0, -2.0, 2.0, 1.0, 2.0).offset(event.pos)
+            event.shape = Box(-2.0, -1.0, -2.0, 2.0, 1.0, 2.0).offset(event.pos)
         }
     }
 }

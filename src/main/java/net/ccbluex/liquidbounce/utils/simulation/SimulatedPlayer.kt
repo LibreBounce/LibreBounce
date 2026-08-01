@@ -120,10 +120,10 @@ class SimulatedPlayer(
             val foodStats = createFoodStatsCopy(player)
 
             val input = Input().apply {
-                this.jump = input.jump
+                this.jump = input.jumping
                 this.forwardSpeed = input.forwardSpeed
-                this.moveStrafe = input.moveStrafe
-                this.sneak = input.sneak
+                this.movementSideways = input.movementSideways
+                this.sneak = input.sneaking
             }
 
             return SimulatedPlayer(player,
@@ -174,10 +174,10 @@ class SimulatedPlayer(
             val foodStats = createFoodStatsCopy(player)
 
             val input = Input().apply {
-                this.jump = input.jump
+                this.jump = input.jumping
                 this.forwardSpeed = input.forwardSpeed
-                this.moveStrafe = input.moveStrafe
-                this.sneak = input.sneak
+                this.movementSideways = input.movementSideways
+                this.sneak = input.sneaking
             }
 
             return SimulatedPlayer(player,
@@ -286,7 +286,7 @@ class SimulatedPlayer(
             setSprinting(true)
         }
 
-        if (input.sneak) {
+        if (input.sneaking) {
             setSprinting(false)
         }
 
@@ -298,10 +298,10 @@ class SimulatedPlayer(
             abilities.flying = true
 
         if (abilities.flying) {
-            if (input.sneak)
+            if (input.sneaking)
                 velocityY -= (abilities.flySpeed * 3.0f).toDouble()
 
-            if (input.jump)
+            if (input.jumping)
                 velocityY += (abilities.flySpeed * 3.0f).toDouble()
         }
 
@@ -886,13 +886,13 @@ class SimulatedPlayer(
         return inWater
     }
 
-    private fun handleMaterialAcceleration(boundingBox: Box, material: Material): Boolean {
-        val i = floor(boundingBox.minX)
-        val j = floor(boundingBox.maxX + 1.0)
-        val k = floor(boundingBox.minY)
-        val l = floor(boundingBox.maxY + 1.0)
-        val i1 = floor(boundingBox.minZ)
-        val j1 = floor(boundingBox.maxZ + 1.0)
+    private fun handleMaterialAcceleration(shape: Box, material: Material): Boolean {
+        val i = floor(shape.minX)
+        val j = floor(shape.maxX + 1.0)
+        val k = floor(shape.minY)
+        val l = floor(shape.maxY + 1.0)
+        val i1 = floor(shape.minZ)
+        val j1 = floor(shape.maxZ + 1.0)
 
         return if (!isAreaLoaded(i, k, i1, j, l, j1, true)) {
             false
@@ -1043,8 +1043,8 @@ class SimulatedPlayer(
 
     private fun updateLivingEntityInput() {
         forwardSpeed = input.forwardSpeed
-        sidewaysSpeed = input.moveStrafe
-        jumping = input.jump
+        sidewaysSpeed = input.movementSideways
+        jumping = input.jumping
     }
 
     private fun isServerWorld(): Boolean {
@@ -1120,15 +1120,15 @@ class SimulatedPlayer(
 
         for (size in entities.indices) {
             if (riddenByEntity !== entities && vehicle !== entities) {
-                var boundingBox = entities[size].collisionBoundingBox
+                var shape = entities[size].collisionBoundingBox
 
-                if (boundingBox != null && boundingBox.intersectsWith(box))
-                    list.add(boundingBox)
+                if (shape != null && shape.intersectsWith(box))
+                    list.add(shape)
 
-                boundingBox = getCollisionBox(player, entities[size])
+                shape = getCollisionBox(player, entities[size])
 
-                if (boundingBox != null && boundingBox.intersectsWith(box))
-                    list.add(boundingBox)
+                if (shape != null && shape.intersectsWith(box))
+                    list.add(shape)
             }
         }
         return list
@@ -1284,7 +1284,7 @@ class SimulatedPlayer(
     }
 
     fun isSneaking(): Boolean {
-        return input.sneak && !player.sleeping
+        return input.sneaking && !player.sleeping
     }
 
     private fun isRainingAt(pos: BlockPos): Boolean {

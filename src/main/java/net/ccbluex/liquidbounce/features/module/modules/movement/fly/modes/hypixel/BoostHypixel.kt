@@ -135,7 +135,7 @@ object BoostHypixel : FlyMode("BoostHypixel") {
 
     override fun onBB(event: BlockBBEvent) {
         if (event.block == air && event.y < mc.player.y)
-            event.boundingBox = Box.fromBounds(
+            event.shape = Box.of(
                 event.x.toDouble(),
                 event.y.toDouble(),
                 event.z.toDouble(),

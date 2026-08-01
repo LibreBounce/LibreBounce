@@ -79,10 +79,10 @@ object EntityUtils : MinecraftInstance {
             cos(playerYaw.toRadiansD())
         ).normalize()
 
-        val playerPos = player.positionVector.addVector(0.0, player.eyeHeight.toDouble(), 0.0)
+        val playerPos = player.commandSourcePos.addVector(0.0, player.eyeHeight.toDouble(), 0.0)
 
         val entityPos = when (entity) {
-            is Entity -> entity.positionVector.addVector(0.0, entity.eyeHeight.toDouble(), 0.0)
+            is Entity -> entity.commandSourcePos.addVector(0.0, entity.eyeHeight.toDouble(), 0.0)
             is BlockEntity -> Vec3d(
                 entity.pos.x.toDouble(),
                 entity.pos.y.toDouble(),

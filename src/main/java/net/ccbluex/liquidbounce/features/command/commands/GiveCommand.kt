@@ -30,9 +30,9 @@ object GiveCommand : Command("give", "item", "i", "get") {
             return
         }
 
-        val itemStack = ItemUtils.createItem(StringUtils.toCompleteString(args, 1))
+        val cursorItem = ItemUtils.createItem(StringUtils.toCompleteString(args, 1))
 
-        if (itemStack == null) {
+        if (cursorItem == null) {
             chatSyntaxError()
             return
         }
@@ -40,8 +40,8 @@ object GiveCommand : Command("give", "item", "i", "get") {
         val emptySlot = player.inventory.firstEmptyStack
 
         if (emptySlot != -1) {
-            sendPacket(CreativeMenuSlotC2SPacket(emptySlot, itemStack))
-            chat("§7Given [§8${itemStack.displayName}§7] * §8${itemStack.stackSize}§7 to §8${mc.session.username}§7.")
+            sendPacket(CreativeMenuSlotC2SPacket(emptySlot, cursorItem))
+            chat("§7Given [§8${cursorItem.displayName}§7] * §8${cursorItem.size}§7 to §8${mc.session.username}§7.")
         } else {
             chat("Your inventory is full.")
         }

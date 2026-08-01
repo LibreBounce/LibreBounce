@@ -196,7 +196,7 @@ object RenderUtils : MinecraftInstance {
 
         val (x, y, z) = blockPos.toVec() - renderManager.renderPos
 
-        var axisAlignedBB = Box.fromBounds(x, y, z, x + 1.0, y + 1.0, z + 1.0)
+        var axisAlignedBB = Box.of(x, y, z, x + 1.0, y + 1.0, z + 1.0)
 
         blockPos.block?.let { block ->
             val player = mc.player
@@ -229,30 +229,30 @@ object RenderUtils : MinecraftInstance {
         resetCaps()
     }
 
-    fun drawSelectionBoundingBox(boundingBox: Box) = drawWithTesselatorWorldRenderer {
+    fun drawSelectionBoundingBox(shape: Box) = drawWithTesselatorWorldRenderer {
         begin(GL_LINE_STRIP, DefaultVertexFormat.POSITION)
 
         // Lower Rectangle
-        pos(boundingBox.minX, boundingBox.minY, boundingBox.minZ).endVertex()
-        pos(boundingBox.minX, boundingBox.minY, boundingBox.maxZ).endVertex()
-        pos(boundingBox.maxX, boundingBox.minY, boundingBox.maxZ).endVertex()
-        pos(boundingBox.maxX, boundingBox.minY, boundingBox.minZ).endVertex()
-        pos(boundingBox.minX, boundingBox.minY, boundingBox.minZ).endVertex()
+        pos(shape.minX, shape.minY, shape.minZ).endVertex()
+        pos(shape.minX, shape.minY, shape.maxZ).endVertex()
+        pos(shape.maxX, shape.minY, shape.maxZ).endVertex()
+        pos(shape.maxX, shape.minY, shape.minZ).endVertex()
+        pos(shape.minX, shape.minY, shape.minZ).endVertex()
 
         // Upper Rectangle
-        pos(boundingBox.minX, boundingBox.maxY, boundingBox.minZ).endVertex()
-        pos(boundingBox.minX, boundingBox.maxY, boundingBox.maxZ).endVertex()
-        pos(boundingBox.maxX, boundingBox.maxY, boundingBox.maxZ).endVertex()
-        pos(boundingBox.maxX, boundingBox.maxY, boundingBox.minZ).endVertex()
-        pos(boundingBox.minX, boundingBox.maxY, boundingBox.minZ).endVertex()
+        pos(shape.minX, shape.maxY, shape.minZ).endVertex()
+        pos(shape.minX, shape.maxY, shape.maxZ).endVertex()
+        pos(shape.maxX, shape.maxY, shape.maxZ).endVertex()
+        pos(shape.maxX, shape.maxY, shape.minZ).endVertex()
+        pos(shape.minX, shape.maxY, shape.minZ).endVertex()
 
         // Upper Rectangle
-        pos(boundingBox.minX, boundingBox.maxY, boundingBox.maxZ).endVertex()
-        pos(boundingBox.minX, boundingBox.minY, boundingBox.maxZ).endVertex()
-        pos(boundingBox.maxX, boundingBox.minY, boundingBox.maxZ).endVertex()
-        pos(boundingBox.maxX, boundingBox.maxY, boundingBox.maxZ).endVertex()
-        pos(boundingBox.maxX, boundingBox.maxY, boundingBox.minZ).endVertex()
-        pos(boundingBox.maxX, boundingBox.minY, boundingBox.minZ).endVertex()
+        pos(shape.minX, shape.maxY, shape.maxZ).endVertex()
+        pos(shape.minX, shape.minY, shape.maxZ).endVertex()
+        pos(shape.maxX, shape.minY, shape.maxZ).endVertex()
+        pos(shape.maxX, shape.maxY, shape.maxZ).endVertex()
+        pos(shape.maxX, shape.maxY, shape.minZ).endVertex()
+        pos(shape.maxX, shape.minY, shape.minZ).endVertex()
     }
 
     fun drawCircle(
@@ -576,7 +576,7 @@ object RenderUtils : MinecraftInstance {
         val (x, y, z) = entity.interpolatedPosition(entity.lastTickPos) - mc.renderManager.renderPos
         val entityBox = entity.hitBox
 
-        val axisAlignedBB = Box.fromBounds(
+        val axisAlignedBB = Box.of(
             entityBox.minX - entity.x + x - 0.05,
             entityBox.minY - entity.y + y,
             entityBox.minZ - entity.z + z - 0.05,
@@ -602,7 +602,7 @@ object RenderUtils : MinecraftInstance {
     fun drawPosBox(x: Double, y: Double, z: Double, width: Float, height: Float, color: Color, outline: Boolean) {
         val (adjustedX, adjustedY, adjustedZ) = Vec3d(x, y, z) - mc.renderManager.renderPos
 
-        val axisAlignedBB = Box.fromBounds(
+        val axisAlignedBB = Box.of(
             adjustedX - width / 2,
             adjustedY,
             adjustedZ - width / 2,
@@ -666,7 +666,7 @@ object RenderUtils : MinecraftInstance {
 
     fun drawPlatform(y: Double, color: Color, size: Double) {
         val renderY = y - mc.renderManager.renderPosY
-        drawBox(Box.fromBounds(size, renderY + 0.02, size, -size, renderY, -size), color)
+        drawBox(Box.of(size, renderY + 0.02, size, -size, renderY, -size), color)
     }
 
     fun drawPlatform(entity: Entity, color: Color) {
@@ -674,7 +674,7 @@ object RenderUtils : MinecraftInstance {
         val axisAlignedBB = entity.shape.offset(-entity.currPos + deltaPos)
 
         drawBox(
-            Box.fromBounds(
+            Box.of(
                 axisAlignedBB.minX,
                 axisAlignedBB.maxY + 0.2,
                 axisAlignedBB.minZ,

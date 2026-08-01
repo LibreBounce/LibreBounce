@@ -20,7 +20,7 @@ object OldMatrixHop : SpeedMode("OldMatrixHop") {
             if (isMoving) {
                 if (onGround) {
                     tryJump()
-                    speedInAir = 0.02098f
+                    flyingSpeed = 0.02098f
                     mc.timer.tpsScale = 1.055f
                 } else {
                     strafe()

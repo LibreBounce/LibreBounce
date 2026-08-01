@@ -153,7 +153,7 @@ object AntiVoid : Module("AntiVoid", Category.MOVEMENT) {
     val onBlockBB = handler<BlockBBEvent> { event ->
         if (mode == "GhostBlock" && shouldSimulateBlock) {
             if (event.y < mc.player.y.toInt()) {
-                event.boundingBox = Box(
+                event.shape = Box(
                     event.x.toDouble(),
                     event.y.toDouble(),
                     event.z.toDouble(),
@@ -231,7 +231,7 @@ object AntiVoid : Module("AntiVoid", Category.MOVEMENT) {
 
         glColor(Color(255, 0, 0, 90))
         drawFilledBox(
-            Box.fromBounds(
+            Box.of(
                 x - renderManager.renderPosX,
                 y + 1 - renderManager.renderPosY,
                 z - renderManager.renderPosZ,

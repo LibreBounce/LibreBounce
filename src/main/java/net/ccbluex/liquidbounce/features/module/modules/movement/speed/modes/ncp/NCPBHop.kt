@@ -95,7 +95,7 @@ object NCPBHop : SpeedMode("NCPBHop") {
 
         // TODO: Use a proper strafe system
         var forward = player.input.forwardSpeed
-        var strafe = player.input.moveStrafe
+        var strafe = player.input.movementSideways
         var yaw = player.yaw
 
         if (forward == 0f && strafe == 0f) {

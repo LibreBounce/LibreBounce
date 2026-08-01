@@ -102,7 +102,7 @@ object MovementUtils : MinecraftInstance, Listenable {
                 forward = 0.5f
             }
 
-            yaw -= (sign(input.moveStrafe) * 90f) * forward
+            yaw -= (sign(input.movementSideways) * 90f) * forward
 
             yaw.toRadiansD()
         } ?: 0.0

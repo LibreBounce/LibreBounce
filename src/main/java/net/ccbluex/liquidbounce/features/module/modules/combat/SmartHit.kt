@@ -146,7 +146,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
             target.rotation
         )
 
-        val targetCanHit = rotDiff < 22f + (18f * combinedPingMult) && !target.hitBox.isVecInside(player.eyes) && canHit(player.damagedTimer - playerLatencyInTicks)
+        val targetCanHit = rotDiff < 22f + (18f * combinedPingMult) && !target.hitBox.contains(player.eyes) && canHit(player.damagedTimer - playerLatencyInTicks)
         val targetHitLikely = targetCanHit && !target.isUsingItem && targetDistance < 3.08f
 
         val simDistance = simulateDistance(simPlayer, target, simulateKnockback && targetHitLikely)
