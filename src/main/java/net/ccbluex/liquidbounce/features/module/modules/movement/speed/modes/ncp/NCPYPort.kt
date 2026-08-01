@@ -18,19 +18,19 @@ object NCPYPort : SpeedMode("NCPYPort") {
 
     override fun onMotion() {
         mc.player?.run {
-            if (isOnLadder || isInLiquid || inCobweb || !isMoving || inWater) return
+            if (isClimbing || isInLiquid || inCobweb || !isMoving || inWater) return
 
             if (jumps >= 4 && onGround) jumps = 0
 
             if (onGround) {
                 val f = yaw.toRadians()
 
-                motionX -= sin(f) * 0.2f
-                motionY = if (jumps <= 1) 0.42 else 0.4
-                motionZ += cos(f) * 0.2f
+                velocityX -= sin(f) * 0.2f
+                velocityY = if (jumps <= 1) 0.42 else 0.4
+                velocityZ += cos(f) * 0.2f
                 jumps++
             } else {
-                if (jumps <= 1) motionY = -5.0
+                if (jumps <= 1) velocityY = -5.0
             }
             strafe()
         }

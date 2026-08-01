@@ -19,13 +19,13 @@ object AAC3313 : FlyMode("AAC3.3.13") {
 
             if (wasDead || onGround) {
                 wasDead = false
-                motionY = aacMotion2.toDouble()
+                velocityY = aacMotion2.toDouble()
                 onGround = false
             }
 
             mc.timer.tpsScale = 1f
 
-            if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL)) {
+            if (Keyboard.isPressed(Keyboard.KEY_LCONTROL)) {
                 mc.timer.tpsScale = 0.2f
                 mc.rightClickDelayTimer = 0
             }

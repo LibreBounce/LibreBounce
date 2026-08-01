@@ -30,12 +30,12 @@ object WallClimb : Module("WallClimb", Category.MOVEMENT) {
 
     val onMove = handler<MoveEvent> { event ->
         mc.player?.run {
-            if (!collidingHorizontally || isOnLadder || isInLiquid)
+            if (!collidingHorizontally || isClimbing || isInLiquid)
                 return@handler
 
             if (mode == "Simple") {
                 event.y = 0.2
-                motionY = 0.0
+                velocityY = 0.0
             }
         }
     }
@@ -44,7 +44,7 @@ object WallClimb : Module("WallClimb", Category.MOVEMENT) {
         mc.player?.run {
             when (mode) {
                 "Clip" -> {
-                    if (motionY < 0)
+                    if (velocityY < 0)
                         glitch = true
 
                     if (collidingHorizontally) {
@@ -52,9 +52,9 @@ object WallClimb : Module("WallClimb", Category.MOVEMENT) {
                             "Jump" -> if (onGround)
                                 tryJump()
                             "Fast" -> if (onGround)
-                                motionY = 0.42
-                            else -> if (motionY < 0)
-                                motionY = -0.3
+                                velocityY = 0.42
+                            else -> if (velocityY < 0)
+                                velocityY = -0.3
                         }
                     }
                 }
@@ -67,18 +67,18 @@ object WallClimb : Module("WallClimb", Category.MOVEMENT) {
                     val motion = checkerClimbMotion
 
                     if (isInsideBlock && motion != 0f)
-                        motionY = motion.toDouble()
+                        velocityY = motion.toDouble()
                 }
 
-                "AAC3.3.12" -> if (collidingHorizontally && !isOnLadder) {
+                "AAC3.3.12" -> if (collidingHorizontally && !isClimbing) {
                     when (++waited) {
-                        1, 12, 23 -> motionY = 0.43
+                        1, 12, 23 -> velocityY = 0.43
                         29 -> setPosition(x, y + 0.5, z)
                         30 -> waited = 0
                     }
                 } else if (onGround) waited = 0
 
-                "AACGlide" -> if (collidingHorizontally && !isOnLadder) motionY = -0.19
+                "AACGlide" -> if (collidingHorizontally && !isClimbing) velocityY = -0.19
             }
         }
     }
@@ -102,7 +102,7 @@ object WallClimb : Module("WallClimb", Category.MOVEMENT) {
 
                 "Clip" ->
                     if (event.block == Blocks.air && event.y < y && collidingHorizontally
-                        && !isOnLadder && !isInLiquid
+                        && !isClimbing && !isInLiquid
                     )
                         event.boundingBox = Box.fromBounds(0.0, 0.0, 0.0, 1.0, 1.0, 1.0)
                             .offset(x, y.toInt() - 1.0, z)

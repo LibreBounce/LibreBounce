@@ -12,7 +12,7 @@ object AACv2 : LongJumpMode("AACv2") {
     override fun onUpdate() {
         mc.player?.run {
             flyingSpeed = 0.09f
-            motionY += 0.01320999999999999
+            velocityY += 0.01320999999999999
             flyingSpeed = 0.08f
             strafe()
         }

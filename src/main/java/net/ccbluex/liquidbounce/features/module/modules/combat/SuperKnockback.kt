@@ -173,7 +173,7 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
             }
 
             "Sneak" -> {
-                if (player.isSprinting && player.sentSprinting && !GameOptions.isKeyDown(mc.options.sneakKey) && !mc.options.sneakKey.pressed) {
+                if (player.isSprinting && player.sentSprinting && !GameOptions.isPressed(mc.options.sneakKey) && !mc.options.sneakKey.pressed) {
                     mc.options.sneakKey.pressed = true
                 }
             }
@@ -229,7 +229,7 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
             }
 
             "STap" -> {
-                if (mc.options.backKey.pressed && !GameOptions.isKeyDown(mc.options.backKey) &&
+                if (mc.options.backKey.pressed && !GameOptions.isPressed(mc.options.backKey) &&
                     sTapTimer.resetIfPassed()
                 )
                     mc.options.backKey.pressed = false
@@ -237,7 +237,7 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
             }
 
             "Sneak" -> {
-                if (mc.options.sneakKey.pressed && !GameOptions.isKeyDown(mc.options.sneakKey) && sneakTimer.resetIfPassed())
+                if (mc.options.sneakKey.pressed && !GameOptions.isPressed(mc.options.sneakKey) && sneakTimer.resetIfPassed())
                     mc.options.sneakKey.pressed = false
             }
         }

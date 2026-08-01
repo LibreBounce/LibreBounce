@@ -32,13 +32,13 @@ object OldNCP : FlyMode("OldNCP") {
     override fun onUpdate() {
         mc.player?.run {
             if (startY > y)
-                motionY = -0.000000000000000000000000000000001
+                velocityY = -0.000000000000000000000000000000001
 
-            if (mc.options.sneakKey.isKeyDown)
-                motionY = -0.2
+            if (mc.options.sneakKey.isPressed)
+                velocityY = -0.2
 
-            if (mc.options.jumpKey.isKeyDown && y < startY - 0.1)
-                motionY = 0.2
+            if (mc.options.jumpKey.isPressed && y < startY - 0.1)
+                velocityY = 0.2
 
             strafe()
         }

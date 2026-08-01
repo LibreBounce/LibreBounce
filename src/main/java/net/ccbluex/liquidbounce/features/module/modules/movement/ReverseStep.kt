@@ -24,7 +24,7 @@ object ReverseStep : Module("ReverseStep", Category.MOVEMENT) {
             if (onGround)
                 jumped = false
 
-            if (motionY > 0)
+            if (velocityY > 0)
                 jumped = true
 
             if (!handleEvents())
@@ -44,8 +44,8 @@ object ReverseStep : Module("ReverseStep", Category.MOVEMENT) {
                     it is LiquidBlock
                 }) return@handler
 
-            if (!mc.options.jumpKey.isKeyDown && !onGround && !input.jump && motionY <= 0.0 && fallDistance <= 1f && !jumped)
-                motionY = -motion.toDouble()
+            if (!mc.options.jumpKey.isPressed && !onGround && !input.jump && velocityY <= 0.0 && fallDistance <= 1f && !jumped)
+                velocityY = -motion.toDouble()
         }
     }
 

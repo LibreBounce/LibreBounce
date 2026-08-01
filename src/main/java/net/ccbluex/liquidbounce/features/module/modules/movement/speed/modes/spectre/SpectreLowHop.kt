@@ -16,7 +16,7 @@ object SpectreLowHop : SpeedMode("SpectreLowHop") {
 
             if (onGround) {
                 strafe(1.1f)
-                motionY = 0.15
+                velocityY = 0.15
                 return
             } else {
                 strafe()

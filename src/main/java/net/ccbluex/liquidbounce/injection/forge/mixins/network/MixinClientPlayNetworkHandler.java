@@ -69,16 +69,16 @@ public abstract class MixinClientPlayNetworkHandler {
     private void cancelExplosionMotion(ExplosionS2CPacket packetExplosion, CallbackInfo ci) {
         AntiExploit module = AntiExploit.INSTANCE;
 
-        double motionX = packetExplosion.field_149159_h;
-        double motionY = packetExplosion.func_149144_d();
-        double motionZ = packetExplosion.func_149147_e();
+        double velocityX = packetExplosion.field_149159_h;
+        double velocityY = packetExplosion.func_149144_d();
+        double velocityZ = packetExplosion.func_149147_e();
 
         if (module.handleEvents() && module.getCancelExplosionMotion()) {
-            double x = MathHelper.clamp(motionX, -50.0, 50.0);
-            double y = MathHelper.clamp(motionY, -50.0, 50.0);
-            double z = MathHelper.clamp(motionZ, -50.0, 50.0);
+            double x = MathHelper.clamp(velocityX, -50.0, 50.0);
+            double y = MathHelper.clamp(velocityY, -50.0, 50.0);
+            double z = MathHelper.clamp(velocityZ, -50.0, 50.0);
 
-            if (x != motionX || y != motionY || z != motionZ) {
+            if (x != velocityX || y != velocityY || z != velocityZ) {
                 if (module.getWarn().equals("Chat")) {
                     chat("Cancelled too strong TNT explosion motion");
                 } else if (module.getWarn().equals("Notification")) {

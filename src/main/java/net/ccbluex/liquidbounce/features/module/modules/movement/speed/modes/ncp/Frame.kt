@@ -27,16 +27,16 @@ object Frame : SpeedMode("Frame") {
                         tickTimer.reset()
 
                         if (move) {
-                            motionX = 0.0
-                            motionZ = 0.0
+                            velocityX = 0.0
+                            velocityZ = 0.0
                             move = false
                         }
 
                         motionTicks = 0
                     } else motionTicks = 1
                 } else if (!move && motionTicks == 1 && tickTimer.hasTimePassed(5)) {
-                    motionX *= speed
-                    motionZ *= speed
+                    velocityX *= speed
+                    velocityZ *= speed
                     move = true
                 }
 

@@ -19,7 +19,7 @@ object AAC3312Glide : FlyMode("AAC3.3.12-Glide") {
                 tick == 2 -> mc.timer.tpsScale = 1f
                 tick >= 12 && !onGround -> {
                     mc.timer.tpsScale = 0.1f
-                    motionY = 0.015
+                    velocityY = 0.015
                     tick = 0
                 }
             }

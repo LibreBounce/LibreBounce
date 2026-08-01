@@ -34,23 +34,23 @@ object UNCPHopNew : SpeedMode("UNCPHopNew") {
                 return
             }
 
-            if (!isMoving || isInLiquid || inCobweb || isOnLadder) return
+            if (!isMoving || isInLiquid || inCobweb || isClimbing) return
 
             if (onGround) {
-                if (Speed.lowHop) motionY = 0.4 else tryJump()
+                if (Speed.lowHop) velocityY = 0.4 else tryJump()
                 airTick = 0
                 return
             } else {
                 if (damagedTimer <= 1) {
                     if (++airTick == Speed.onTick) {
                         strafe()
-                        motionY = -0.1523351824467155
+                        velocityY = -0.1523351824467155
                     }
                 }
             }
 
-            if (Speed.onHurt && damagedTimer in 2..4 && motionY >= 0) {
-                motionY -= 0.1
+            if (Speed.onHurt && damagedTimer in 2..4 && velocityY >= 0) {
+                velocityY -= 0.1
             }
 
             if (onGround) {
@@ -72,8 +72,8 @@ object UNCPHopNew : SpeedMode("UNCPHopNew") {
             }
 
             if (Speed.shouldBoost) {
-                motionX *= 1f + boostMultiplier
-                motionZ *= 1f + boostMultiplier
+                velocityX *= 1f + boostMultiplier
+                velocityZ *= 1f + boostMultiplier
             }
 
             if (Speed.damageBoost && damagedTimer >= 1) {

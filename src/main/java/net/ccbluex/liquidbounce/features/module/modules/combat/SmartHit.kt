@@ -206,10 +206,10 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
     // Can you land a critical hit on the subject?
     private fun canCritHit(player: PlayerEntity): Boolean =
         player.fallDistance > 0 &&
-        !player.isOnLadder &&
+        !player.isClimbing &&
         !player.inWater &&
         !player.hasStatusEffect(blindness) &&
-        player.ridingEntity == null
+        player.vehicle == null
 
     // Can the subject be hit?
     private fun canHit(damagedTimer: Int): Boolean = damagedTimer <= 10 - attackDelay
@@ -244,9 +244,9 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         val knockbackZ = MathHelper.cos(fullModifier)
 
         simPlayer.apply {
-            motionX += knockbackX
-            motionY += knockbackY
-            motionZ += knockbackZ
+            velocityX += knockbackX
+            velocityY += knockbackY
+            velocityZ += knockbackZ
         }
 
         if (debug) chat("(SmartHit) Simulated knockback. X: ${knockbackX}, Y + vertical modifier: ${knockbackY}, Z: ${knockbackZ}, horizontal modifier: ${modifier}")

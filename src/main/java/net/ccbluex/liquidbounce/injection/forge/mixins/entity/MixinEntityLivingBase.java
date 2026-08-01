@@ -83,10 +83,10 @@ public abstract class MixinLivingEntity extends MixinEntity {
             if (prejumpEvent.isCancelled()) return;
         }
 
-        motionY = prejumpEvent.getMotion();
+        velocityY = prejumpEvent.getMotion();
 
         if (hasStatusEffect(Potion.jump))
-            motionY += (float) (getActivePotionEffect(Potion.jump).getAmplifier() + 1) * 0.1F;
+            velocityY += (float) (getActivePotionEffect(Potion.jump).getAmplifier() + 1) * 0.1F;
 
         if (isSprinting()) {
             float fixedYaw = this.yaw;
@@ -104,14 +104,14 @@ public abstract class MixinLivingEntity extends MixinEntity {
             }
 
             final float f = fixedYaw * 0.017453292F;
-            motionX -= MathHelper.sin(f) * 0.2F;
-            motionZ += MathHelper.cos(f) * 0.2F;
+            velocityX -= MathHelper.sin(f) * 0.2F;
+            velocityZ += MathHelper.cos(f) * 0.2F;
         }
 
         velocityDirty = true;
 
         if ((Object) this == Minecraft.getMinecraft().player) {
-            final JumpEvent postjumpEvent = new JumpEvent((float) motionY, EventState.POST);
+            final JumpEvent postjumpEvent = new JumpEvent((float) velocityY, EventState.POST);
             EventManager.INSTANCE.call(postjumpEvent);
         }
     }

@@ -15,7 +15,7 @@ import net.minecraft.util.math.Box
 
 object Collide : FlyMode("Collide") {
     override fun onBB(event: BlockBBEvent) {
-        if (!mc.options.jumpKey.isKeyDown && mc.options.sneakKey.isKeyDown) return
+        if (!mc.options.jumpKey.isPressed && mc.options.sneakKey.isPressed) return
 
         if (!event.block.material.blocksMovement() && event.block.material != Material.carpet && event.block.material != Material.vine && event.block.material != Material.snow && event.block !is LadderBlock) {
             event.boundingBox = Box(-2.0, -1.0, -2.0, 2.0, 1.0, 2.0).offset(event.pos)

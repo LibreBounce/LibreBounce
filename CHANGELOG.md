@@ -23,6 +23,7 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 ### Changed
 
 - **Breaking:** Rename the `Smart` mode in the `Sorting` value to `Distance`, in ChestStealer (thatonecoder)
+- Add a ", Silent" component to Aimbot's tag when `ApplyServerSide` is enabled (thatonecoder)
 
 ## [0.7.0-beta.2] - 2026-06-26
 

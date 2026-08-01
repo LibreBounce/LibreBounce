@@ -19,13 +19,13 @@ object MovementUtils : MinecraftInstance, Listenable {
     var affectSprintOnAttack: Boolean? = null
 
     var speed
-        get() = mc.player?.run { sqrt(motionX * motionX + motionZ * motionZ).toFloat() } ?: .0f
+        get() = mc.player?.run { sqrt(velocityX * velocityX + velocityZ * velocityZ).toFloat() } ?: .0f
         set(value) {
             strafe(value)
         }
 
     val hasMotion
-        get() = mc.player?.run { motionX != .0 || motionY != .0 || motionZ != .0 } == true
+        get() = mc.player?.run { velocityX != .0 || velocityY != .0 || velocityZ != .0 } == true
 
     var airTicks = 0
     var groundTicks = 0
@@ -45,8 +45,8 @@ object MovementUtils : MinecraftInstance, Listenable {
                 return@run
             }
 
-            val prevX = motionX * (1.0 - strength)
-            val prevZ = motionZ * (1.0 - strength)
+            val prevX = velocityX * (1.0 - strength)
+            val prevZ = velocityZ * (1.0 - strength)
             val useSpeed = speed * strength
 
             val yaw = direction
@@ -58,8 +58,8 @@ object MovementUtils : MinecraftInstance, Listenable {
                 moveEvent.z = z
             }
 
-            motionX = x
-            motionZ = z
+            velocityX = x
+            velocityZ = z
         }
 
     fun Vec3d.strafe(

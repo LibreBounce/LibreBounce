@@ -77,10 +77,10 @@ object Blink : NoFallMode("Blink") {
             simPlayer.tick()
         }
 
-        if (simPlayer.isOnLadder() || simPlayer.inWater || simPlayer.isInLava() || simPlayer.inCobweb || simPlayer.colliding)
+        if (simPlayer.isClimbing() || simPlayer.inWater || simPlayer.isInLava() || simPlayer.inCobweb || simPlayer.colliding)
             return
 
-        if (player.motionY > 0 && blinked)
+        if (player.velocityY > 0 && blinked)
             return
 
         if (simPlayer.onGround)
@@ -96,7 +96,7 @@ object Blink : NoFallMode("Blink") {
         val fallingPlayer = FallingPlayer(player)
 
         if ((checkFallDist && simPlayer.fallDistance > fallDist.start) ||
-            !checkFallDist && fallingPlayer.findCollision(60) != null && simPlayer.motionY < 0
+            !checkFallDist && fallingPlayer.findCollision(60) != null && simPlayer.velocityY < 0
         ) {
             if (player.onGround && !blinked) {
                 blinked = true

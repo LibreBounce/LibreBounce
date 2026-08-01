@@ -12,7 +12,7 @@ object Dolphin : LiquidWalkMode("Dolphin") {
         mc.player?.run {
             if (isSneaking) return
 
-            if (inWater) motionY += 0.03999999910593033
+            if (inWater) velocityY += 0.03999999910593033
         }
     }
 }

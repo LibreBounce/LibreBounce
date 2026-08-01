@@ -48,7 +48,7 @@ abstract class AbstractScreen : Screen() {
 }
 
 fun isCtrlPressed(): Boolean {
-    return Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL)
+    return Keyboard.isPressed(Keyboard.KEY_LCONTROL) || Keyboard.isPressed(Keyboard.KEY_RCONTROL)
 }
 
 fun isValidInput(typedChar: Char, text: EditableText): Boolean {

@@ -98,7 +98,7 @@ class GuiFontManager(private val prevGui: Screen) : AbstractScreen() {
             Keyboard.KEY_DOWN -> fontListView.selectedSlot++
 
             // Go up or down in account list
-            Keyboard.KEY_TAB -> fontListView.selectedSlot += if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) -1 else 1
+            Keyboard.KEY_TAB -> fontListView.selectedSlot += if (Keyboard.isPressed(Keyboard.KEY_LSHIFT)) -1 else 1
 
             // Login into account
             Keyboard.KEY_RETURN -> fontListView.elementClicked(fontListView.selectedSlot, true, 0, 0)

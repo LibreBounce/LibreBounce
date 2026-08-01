@@ -54,8 +54,8 @@ object Criticals : Module("Criticals", Category.COMBAT) {
             val player = mc.player ?: return@handler
             val entity = event.targetEntity
 
-            if (!player.onGround || player.isOnLadder || player.inCobweb || player.isInLiquid ||
-                player.ridingEntity != null || entity.damagedTimer > damagedTimer ||
+            if (!player.onGround || player.isClimbing || player.inCobweb || player.isInLiquid ||
+                player.vehicle != null || entity.damagedTimer > damagedTimer ||
                 Fly.handleEvents() || !msTimer.hasTimePassed(delay)
             )
                 return@handler
@@ -95,7 +95,7 @@ object Criticals : Module("Criticals", Category.COMBAT) {
                 }
 
                 "Hop" -> {
-                    player.motionY = 0.1
+                    player.velocityY = 0.1
                     player.fallDistance = 0.1f
                     player.onGround = false
                 }
@@ -108,9 +108,9 @@ object Criticals : Module("Criticals", Category.COMBAT) {
                     player.setPosition(x, y + 0.01, z)
                 }
 
-                "Jump" -> player.motionY = 0.42
-                "LowJump" -> player.motionY = 0.3425
-                "CustomMotion" -> player.motionY = customMotionY.toDouble()
+                "Jump" -> player.velocityY = 0.42
+                "LowJump" -> player.velocityY = 0.3425
+                "CustomMotion" -> player.velocityY = customMotionY.toDouble()
                 "Visual" -> player.addCritParticles(entity)
             }
 

@@ -337,7 +337,7 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
     }
 
     fun isUNCPBlocking() =
-        swordMode == "UpdatedNCP" && mc.options.useKey.isKeyDown && (mc.player.displayItemInHand?.item is SwordItem)
+        swordMode == "UpdatedNCP" && mc.options.useKey.isPressed && (mc.player.displayItemInHand?.item is SwordItem)
 
     fun usingItemFunc() =
         mc.player?.displayItemInHand != null && (mc.player.isUsingItem || (mc.player.displayItemInHand?.item is SwordItem && KillAura.blockStatus) || isUNCPBlocking())

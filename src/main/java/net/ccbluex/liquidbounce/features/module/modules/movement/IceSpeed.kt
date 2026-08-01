@@ -33,7 +33,7 @@ object IceSpeed : Module("IceSpeed", Category.MOVEMENT) {
 
     val onUpdate = handler<UpdateEvent> {
         mc.player?.run {
-            if (!onGround || isOnLadder || isSneaking || !isSprinting || !isMoving) {
+            if (!onGround || isClimbing || isSneaking || !isSprinting || !isMoving) {
                 return@handler
             }
 
@@ -43,8 +43,8 @@ object IceSpeed : Module("IceSpeed", Category.MOVEMENT) {
 
             when (mode) {
                 "Vanilla" -> {
-                    motionX *= speed
-                    motionZ *= speed
+                    velocityX *= speed
+                    velocityZ *= speed
                     ice.slipperiness = iceSlipperiness
                     packed_ice.slipperiness = packedIceSlipperiness
                 }
@@ -55,8 +55,8 @@ object IceSpeed : Module("IceSpeed", Category.MOVEMENT) {
                 }
 
                 "AAC" -> {
-                    motionX *= 1.342
-                    motionZ *= 1.342
+                    velocityX *= 1.342
+                    velocityZ *= 1.342
                     ice.slipperiness = 0.6f
                     packed_ice.slipperiness = 0.6f
                 }
@@ -65,11 +65,11 @@ object IceSpeed : Module("IceSpeed", Category.MOVEMENT) {
                     val upBlock = BlockPos(this).up(2).block
 
                     if (upBlock != Blocks.air) {
-                        motionX *= 1.342
-                        motionZ *= 1.342
+                        velocityX *= 1.342
+                        velocityZ *= 1.342
                     } else {
-                        motionX *= 1.18
-                        motionZ *= 1.18
+                        velocityX *= 1.18
+                        velocityZ *= 1.18
                     }
 
                     ice.slipperiness = 0.6f

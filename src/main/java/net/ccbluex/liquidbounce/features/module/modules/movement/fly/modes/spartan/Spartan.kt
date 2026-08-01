@@ -22,7 +22,7 @@ object Spartan : FlyMode("Spartan") {
 
     override fun onUpdate() {
         mc.player?.apply {
-            motionY = 0.0
+            velocityY = 0.0
 
             if (timer.resetIfPassed()) {
                 sendPackets(

@@ -24,15 +24,15 @@ object AAC1910 : FlyMode("AAC1.9.10") {
 
     override fun onUpdate() {
         mc.player?.run {
-            if (mc.options.jumpKey.isKeyDown)
+            if (mc.options.jumpKey.isPressed)
                 jump += 0.2
 
-            if (mc.options.sneakKey.isKeyDown)
+            if (mc.options.sneakKey.isPressed)
                 jump -= 0.2
 
             if (startY + jump > y) {
                 sendPacket(PlayerMoveC2SPacket(true))
-                motionY = 0.8
+                velocityY = 0.8
                 strafe(aacSpeed)
             }
 

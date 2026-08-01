@@ -22,8 +22,8 @@ object SlimeJump : Module("SlimeJump", Category.MOVEMENT) {
                 event.cancelEvent()
 
                 when (mode) {
-                    "Set" -> motionY = motion.toDouble()
-                    "Add" -> motionY += motion
+                    "Set" -> velocityY = motion.toDouble()
+                    "Add" -> velocityY += motion
                 }
             }
         }

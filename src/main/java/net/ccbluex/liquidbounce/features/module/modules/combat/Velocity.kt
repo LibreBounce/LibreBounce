@@ -184,7 +184,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
                     noClip = hasReceivedVelocity
 
                 if (damagedTimer == 7)
-                    motionY = 0.4
+                    velocityY = 0.4
 
                     hasReceivedVelocity = false
                 }
@@ -236,17 +236,17 @@ object Velocity : Module("Velocity", Category.COMBAT) {
                 }
 
                 "AAC" -> if (hasReceivedVelocity && velocityTimer.hasTimePassed(80)) {
-                    motionX *= horizontal
-                    motionZ *= horizontal
-                    //motionY *= vertical ?
+                    velocityX *= horizontal
+                    velocityZ *= horizontal
+                    //velocityY *= vertical ?
                     hasReceivedVelocity = false
                 }
 
                 "AACv4" -> if (damagedTimer > 0 && !onGround) {
                     val reduce = aacv4MotionReducer
 
-                    motionX *= reduce
-                    motionZ *= reduce                
+                    velocityX *= reduce
+                    velocityZ *= reduce                
                 }
 
                 "AACPush" -> {
@@ -254,18 +254,18 @@ object Velocity : Module("Velocity", Category.COMBAT) {
                         if (onGround)
                             jump = false
                     } else {
-                        if (damagedTimer > 0 && motionX != 0.0 && motionZ != 0.0)
+                        if (damagedTimer > 0 && velocityX != 0.0 && velocityZ != 0.0)
                             onGround = true
 
-                        if (hurtResistantTime > 0 && aacPushYReducer && !Speed.handleEvents())
-                            motionY -= 0.014999993
+                        if (invulnerableTimer > 0 && aacPushYReducer && !Speed.handleEvents())
+                            velocityY -= 0.014999993
                     }
 
-                    if (hurtResistantTime >= 19) {
+                    if (invulnerableTimer >= 19) {
                         val reduce = aacPushXZReducer
 
-                        motionX /= reduce
-                        motionZ /= reduce
+                        velocityX /= reduce
+                        velocityZ /= reduce
                     }
                 }
 
@@ -273,7 +273,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
                     if (!hasReceivedVelocity || onGround || fallDistance > 2F)
                         return@handler
 
-                    motionY -= 1.0
+                    velocityY -= 1.0
                     velocityDirty = true
                     onGround = true
                 } else {
@@ -284,16 +284,16 @@ object Velocity : Module("Velocity", Category.COMBAT) {
                     if (legitDisableInAir && !isOnGround(0.5))
                         return@handler
 
-                    if (invulnerabilityTicks != hurtResistantTime || invulnerabilityTicks == 0)
+                    if (invulnerabilityTicks != invulnerableTimer || invulnerabilityTicks == 0)
                         return@handler
 
                     if (withinChance(chance)) {
                         val horizontal = horizontal / 100f
                         val vertical = vertical / 100f
 
-                        motionX *= horizontal.toDouble()
-                        motionZ *= horizontal.toDouble()
-                        motionY *= vertical.toDouble()
+                        velocityX *= horizontal.toDouble()
+                        velocityZ *= horizontal.toDouble()
+                        velocityY *= vertical.toDouble()
                     }
                 }
 
@@ -382,8 +382,8 @@ object Velocity : Module("Velocity", Category.COMBAT) {
         if (mode != "IntaveReduce" || !hasReceivedVelocity) return@handler
 
         if (player.damagedTimer in damagedTimerToAct && System.currentTimeMillis() - lastAttackTime <= 8000) {
-            player.motionX *= reduceFactor
-            player.motionZ *= reduceFactor
+            player.velocityX *= reduceFactor
+            player.velocityZ *= reduceFactor
         }
 
         lastAttackTime = System.currentTimeMillis()
@@ -447,14 +447,14 @@ object Velocity : Module("Velocity", Category.COMBAT) {
         if (event.isCancelled)
             return@handler
 
-        if ((packet is EntityVelocityS2CPacket && player.networkId == packet.networkId && packet.motionY > 0 && (packet.motionX != 0 || packet.motionZ != 0))
-            || (packet is ExplosionS2CPacket && (player.motionY + packet.field_149153_g) > 0.0
-                    && ((player.motionX + packet.field_149152_f) != 0.0 || (player.motionZ + packet.field_149159_h) != 0.0))
+        if ((packet is EntityVelocityS2CPacket && player.networkId == packet.networkId && packet.velocityY > 0 && (packet.velocityX != 0 || packet.velocityZ != 0))
+            || (packet is ExplosionS2CPacket && (player.velocityY + packet.field_149153_g) > 0.0
+                    && ((player.velocityX + packet.field_149152_f) != 0.0 || (player.velocityZ + packet.field_149159_h) != 0.0))
         ) {
             velocityTimer.reset()
 
-            if (pauseOnExplosion && packet is ExplosionS2CPacket && (player.motionY + packet.field_149153_g) > 0.0
-                && ((player.motionX + packet.field_149152_f) != 0.0 || (player.motionZ + packet.field_149159_h) != 0.0)
+            if (pauseOnExplosion && packet is ExplosionS2CPacket && (player.velocityY + packet.field_149153_g) > 0.0
+                && ((player.velocityX + packet.field_149152_f) != 0.0 || (player.velocityZ + packet.field_149159_h) != 0.0)
             ) {
                 pauseTicks = ticksToPause
             }
@@ -472,17 +472,17 @@ object Velocity : Module("Velocity", Category.COMBAT) {
                         is EntityVelocityS2CPacket -> {
                             if (packet.networkId != player.networkId) return@handler
 
-                            val motionX = packet.motionX.toDouble()
-                            val motionZ = packet.motionZ.toDouble()
+                            val velocityX = packet.velocityX.toDouble()
+                            val velocityZ = packet.velocityZ.toDouble()
 
-                            packetDirection = atan2(motionX, motionZ)
+                            packetDirection = atan2(velocityX, velocityZ)
                         }
 
                         is ExplosionS2CPacket -> {
-                            val motionX = player.motionX + packet.field_149152_f
-                            val motionZ = player.motionZ + packet.field_149159_h
+                            val velocityX = player.velocityX + packet.field_149152_f
+                            val velocityZ = player.velocityZ + packet.field_149159_h
 
-                            packetDirection = atan2(motionX, motionZ)
+                            packetDirection = atan2(velocityX, velocityZ)
                         }
                     }
 
@@ -507,12 +507,12 @@ object Velocity : Module("Velocity", Category.COMBAT) {
                 }
 
                 "MatrixReduce" -> if (packet is EntityVelocityS2CPacket && packet.networkId == player.networkId) {
-                    packet.motionX = (packet.getMotionX() * 0.33).toInt()
-                    packet.motionZ = (packet.getMotionZ() * 0.33).toInt()
+                    packet.velocityX = (packet.getMotionX() * 0.33).toInt()
+                    packet.velocityZ = (packet.getMotionZ() * 0.33).toInt()
 
                     if (player.onGround) {
-                        packet.motionX = (packet.getMotionX() * 0.86).toInt()
-                        packet.motionZ = (packet.getMotionZ() * 0.86).toInt()
+                        packet.velocityX = (packet.getMotionX() * 0.86).toInt()
+                        packet.velocityZ = (packet.getMotionZ() * 0.86).toInt()
                     }
                 }
 
@@ -541,8 +541,8 @@ object Velocity : Module("Velocity", Category.COMBAT) {
                     }
 
                     if (packet is EntityVelocityS2CPacket && packet.networkId == player.networkId) {
-                        packet.motionX = (player.motionX * 8000).toInt()
-                        packet.motionZ = (player.motionZ * 8000).toInt()
+                        packet.velocityX = (player.velocityX * 8000).toInt()
+                        packet.velocityZ = (player.velocityZ * 8000).toInt()
                     }
                 }
 
@@ -747,34 +747,34 @@ object Velocity : Module("Velocity", Category.COMBAT) {
             if (horizontal == 0f && vertical == 0f)
                 return
 
-            // Don't modify player's motionXZ when horizontal value is 0
+            // Don't modify player's velocityXZ when horizontal value is 0
             if (horizontal != 0f) {
-                var motionX = packet.realMotionX
-                var motionZ = packet.realMotionZ
+                var velocityX = packet.realMotionX
+                var velocityZ = packet.realMotionZ
 
                 if (limitMaxMotionValue.get()) {
-                    val distXZ = sqrt(motionX * motionX + motionZ * motionZ)
+                    val distXZ = sqrt(velocityX * velocityX + velocityZ * velocityZ)
 
                     if (distXZ > maxXZMotion) {
                         val ratioXZ = maxXZMotion / distXZ
 
-                        motionX *= ratioXZ
-                        motionZ *= ratioXZ
+                        velocityX *= ratioXZ
+                        velocityZ *= ratioXZ
                     }
                 }
 
-                mc.player.motionX = motionX * horizontal
-                mc.player.motionZ = motionZ * horizontal
+                mc.player.velocityX = velocityX * horizontal
+                mc.player.velocityZ = velocityZ * horizontal
             }
 
-            // Don't modify player's motionY when vertical value is 0
+            // Don't modify player's velocityY when vertical value is 0
             if (vertical != 0f) {
-                var motionY = packet.realMotionY
+                var velocityY = packet.realMotionY
 
                 if (limitMaxMotionValue.get())
-                    motionY = motionY.coerceAtMost(maxYMotion + 0.00075)
+                    velocityY = velocityY.coerceAtMost(maxYMotion + 0.00075)
 
-                mc.player.motionY = motionY * vertical
+                mc.player.velocityY = velocityY * vertical
             }
         } else if (packet is ExplosionS2CPacket) {
             // Don't cancel explosions, modify them, they could change blocks in the world
@@ -788,9 +788,9 @@ object Velocity : Module("Velocity", Category.COMBAT) {
 
             // Unlike with EntityVelocityS2CPacket explosion packet motions get added to player motion, doesn't replace it
             // Velocity might behave a bit differently, especially LimitMaxMotion
-            packet.field_149152_f *= horizontal // motionX
-            packet.field_149153_g *= vertical // motionY
-            packet.field_149159_h *= horizontal // motionZ
+            packet.field_149152_f *= horizontal // velocityX
+            packet.field_149153_g *= vertical // velocityY
+            packet.field_149159_h *= horizontal // velocityZ
 
             if (limitMaxMotionValue.get()) {
                 val distXZ =

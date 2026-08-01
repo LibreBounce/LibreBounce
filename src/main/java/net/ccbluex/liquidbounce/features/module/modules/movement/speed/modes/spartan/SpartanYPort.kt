@@ -14,7 +14,7 @@ object SpartanYPort : SpeedMode("SpartanYPort") {
 
     override fun onMotion() {
         mc.player?.run {
-            if (mc.options.forwardKey.isKeyDown) {
+            if (mc.options.forwardKey.isPressed) {
                 if (onGround) {
                     tryJump()
                     airMoves = 0
@@ -24,7 +24,7 @@ object SpartanYPort : SpeedMode("SpartanYPort") {
                     if (airMoves >= 3) flyingSpeed = 0.0275f
 
                     if (airMoves >= 4 && airMoves % 2 == 0) {
-                        motionY = -0.32 - nextDouble(endInclusive = 0.009)
+                        velocityY = -0.32 - nextDouble(endInclusive = 0.009)
                         flyingSpeed = 0.0238f
                     }
 

@@ -18,9 +18,9 @@ object AAC316 : FlyMode("AAC3.1.6-Gomme") {
             abilities.flying = true
 
             if (tick == 2) {
-                motionY += 0.05
+                velocityY += 0.05
             } else if (tick > 2) {
-                motionY -= 0.05
+                velocityY -= 0.05
                 tick = 0
             }
 

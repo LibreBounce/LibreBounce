@@ -25,7 +25,7 @@ object NCPBHop : SpeedMode("NCPBHop") {
 
         level = if (mc.world.getCollidingBoundingBoxes(
                 mc.player,
-                mc.player.shape.offset(0.0, mc.player.motionY, 0.0)
+                mc.player.shape.offset(0.0, mc.player.velocityY, 0.0)
             ).size > 0 || mc.player.collidingVertically
         ) 1 else 4
     }
@@ -57,15 +57,15 @@ object NCPBHop : SpeedMode("NCPBHop") {
             // WTF if (player.isMoving) mc.timer.tpsScale = 32767f
             if (player.isMoving) {
                 mc.timer.tpsScale = 1.3f
-                player.motionX *= 1.0199999809265137
-                player.motionZ *= 1.0199999809265137
+                player.velocityX *= 1.0199999809265137
+                player.velocityZ *= 1.0199999809265137
             }
         }
 
         if (player.onGround && player.isMoving) level = 2
 
         if (round(player.y - player.y.toInt().toDouble()) == round(0.138)) {
-            player.motionY -= 0.08
+            player.velocityY -= 0.08
             event.y -= 0.09316090325960147
             player.y -= 0.09316090325960147
         }
@@ -75,7 +75,7 @@ object NCPBHop : SpeedMode("NCPBHop") {
             moveSpeed = 1.35 * baseMoveSpeed - 0.01
         } else if (level == 2) {
             level++
-            player.motionY = 0.399399995803833
+            player.velocityY = 0.399399995803833
             event.y = 0.399399995803833
             moveSpeed *= 2.149
         } else if (level == 3) {
@@ -85,7 +85,7 @@ object NCPBHop : SpeedMode("NCPBHop") {
         } else {
             if (mc.world.getCollidingBoundingBoxes(
                     player,
-                    player.shape.offset(0.0, player.motionY, 0.0)
+                    player.shape.offset(0.0, player.velocityY, 0.0)
                 ).isNotEmpty() || player.collidingVertically
             ) level = 1
             moveSpeed = lastDist - lastDist / 159.0

@@ -10,11 +10,11 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.longjump.modes.
 object Hycraft : LongJumpMode("Hycraft") {
     override fun onUpdate() {
         mc.player?.run {
-            if (motionY < 0) {
-                motionY *= 0.75f
+            if (velocityY < 0) {
+                velocityY *= 0.75f
                 flyingSpeed = 0.055f
             } else {
-                motionY += 0.02f
+                velocityY += 0.02f
                 flyingSpeed = 0.08f
             }
         }

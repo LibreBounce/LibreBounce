@@ -126,6 +126,6 @@ object AntiAFK : Module("AntiAFK", Category.PLAYER, gameDetecting = false) {
     private fun getRandomMoveKeyBind() = moveKeyBindings.random()
 
     override fun onDisable() {
-        mc.options.forwardKey.pressed = GameOptions.isKeyDown(mc.options.forwardKey)
+        mc.options.forwardKey.pressed = GameOptions.isPressed(mc.options.forwardKey)
     }
 }

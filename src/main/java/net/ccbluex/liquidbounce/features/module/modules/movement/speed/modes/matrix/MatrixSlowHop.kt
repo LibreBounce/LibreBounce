@@ -22,7 +22,7 @@ object MatrixSlowHop : SpeedMode("MatrixSlowHop") {
 
     override fun onUpdate() {
         mc.player?.run {
-            if (isInLiquid || inCobweb || isOnLadder) return
+            if (isInLiquid || inCobweb || isClimbing) return
 
             if (isMoving) {
                 if (fallDistance > 2) {
@@ -31,7 +31,7 @@ object MatrixSlowHop : SpeedMode("MatrixSlowHop") {
                 }
 
                 if (onGround) {
-                    motionY = 0.42 - if (matrixLowHop) 3.48E-3 else 0.0
+                    velocityY = 0.42 - if (matrixLowHop) 3.48E-3 else 0.0
                     mc.timer.tpsScale = 0.5195f
                     strafe(speed + extraGroundBoost)
                 } else {

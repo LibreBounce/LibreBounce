@@ -171,19 +171,19 @@ fun interpolatePosition(entity: IMixinEntity) = entity.run {
 }
 
 var EntityVelocityS2CPacket.realMotionX
-    get() = motionX / 8000.0
+    get() = velocityX / 8000.0
     set(value) {
-        motionX = (value * 8000.0).roundToInt()
+        velocityX = (value * 8000.0).roundToInt()
     }
 var EntityVelocityS2CPacket.realMotionY
-    get() = motionY / 8000.0
+    get() = velocityY / 8000.0
     set(value) {
-        motionX = (value * 8000.0).roundToInt()
+        velocityX = (value * 8000.0).roundToInt()
     }
 var EntityVelocityS2CPacket.realMotionZ
-    get() = motionZ / 8000.0
+    get() = velocityZ / 8000.0
     set(value) {
-        motionX = (value * 8000.0).roundToInt()
+        velocityX = (value * 8000.0).roundToInt()
     }
 
 val EntityMoveS2CPacket.realMotionX

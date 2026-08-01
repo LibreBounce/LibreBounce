@@ -162,7 +162,7 @@ class GuiContributors(private val prevGui: Screen) : AbstractScreen() {
             Keyboard.KEY_UP -> list.selectedSlot--
             Keyboard.KEY_DOWN -> list.selectedSlot++
             Keyboard.KEY_TAB ->
-                list.selectedSlot += if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) -1 else 1
+                list.selectedSlot += if (Keyboard.isPressed(Keyboard.KEY_LSHIFT)) -1 else 1
 
             else -> super.keyTyped(typedChar, keyCode)
         }

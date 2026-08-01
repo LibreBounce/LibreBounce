@@ -23,7 +23,7 @@ object BlocksMCHop : SpeedMode("BlocksMCHop") {
 
     override fun onUpdate() {
         mc.player?.run {
-            if (isInLiquid || inCobweb || isOnLadder) return
+            if (isInLiquid || inCobweb || isClimbing) return
 
             if (isMoving) {
                 if (onGround) {
@@ -36,13 +36,13 @@ object BlocksMCHop : SpeedMode("BlocksMCHop") {
                     }
 
                     if ((getActivePotionEffect(Potion.moveSpeed)?.amplifier ?: 0) > 0 && airTicks == 3) {
-                        motionX *= 1.12
-                        motionZ *= 1.12
+                        velocityX *= 1.12
+                        velocityZ *= 1.12
                     }
 
                     if (bmcLowHop && airTicks == 4) {
                         if ((safeY && y % 1.0 == 0.16610926093821377) || !safeY) {
-                            motionY = -0.09800000190734863
+                            velocityY = -0.09800000190734863
                         }
                     }
 
@@ -50,8 +50,8 @@ object BlocksMCHop : SpeedMode("BlocksMCHop") {
                         strafe(speed.coerceAtLeast(0.7F))
                     }
 
-                    if (damageLowHop && damagedTimer >= 1 && motionY > 0) {
-                        motionY -= 0.15
+                    if (damageLowHop && damagedTimer >= 1 && velocityY > 0) {
+                        velocityY -= 0.15
                     }
                 }
             }

@@ -99,8 +99,8 @@ public abstract class MixinPlayerEntity extends MixinLivingEntity {
         // Only affect motion when sprinting. Knock-back modifier factor is ignored.
         if (keepSprint && !KeepSprint.INSTANCE.handleEvents() && isSprinting()) {
             // Reverse the motion effects done by sprinting
-            motionX /= 0.6;
-            motionZ /= 0.6;
+            velocityX /= 0.6;
+            velocityZ /= 0.6;
         }
     }
 

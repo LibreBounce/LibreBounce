@@ -82,16 +82,16 @@ object KeyPearl : Module("KeyPearl", Category.PLAYER, subjective = true, gameDet
         ) return@handler
 
         val isMouseDown = Mouse.isButtonDown(mouseButtonValue.values.indexOf(mouseButtonValue.get()))
-        val isKeyDown = Keyboard.isKeyDown(Keyboard.getKeyIndex(keyName.uppercase()))
+        val isPressed = Keyboard.isPressed(Keyboard.getKeyIndex(keyName.uppercase()))
 
         if (mouse && !wasMouseDown && isMouseDown) {
             throwEnderPearl()
-        } else if (!mouse && !wasKeyDown && isKeyDown) {
+        } else if (!mouse && !wasKeyDown && isPressed) {
             throwEnderPearl()
         }
 
         wasMouseDown = isMouseDown
-        wasKeyDown = isKeyDown
+        wasKeyDown = isPressed
     }
 
     override fun onEnable() {

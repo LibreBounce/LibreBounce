@@ -27,7 +27,7 @@ object VulcanFast288 : NoFallMode("VulcanFast2.8.8") {
                         event.packet.onGround = true
 
                         stopXZ()
-                        motionY = -99.887575
+                        velocityY = -99.887575
                         isSneaking = true
                     }
                 }

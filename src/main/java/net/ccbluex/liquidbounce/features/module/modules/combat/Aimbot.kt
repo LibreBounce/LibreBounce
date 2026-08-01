@@ -210,7 +210,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
         }
 
         // Clicking delay
-        if (mc.options.attackKey.isKeyDown) clickTimer.reset()
+        if (mc.options.attackKey.isPressed) clickTimer.reset()
     }
 
     /**
@@ -315,7 +315,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
                 "Health" -> entity.health.toDouble()
                 "LivingTime" -> -entity.ticks.toDouble()
                 "Armor" -> entity.totalArmorValue.toDouble()
-                "HurtResistance" -> entity.hurtResistantTime.toDouble()
+                "HurtResistance" -> entity.invulnerableTimer.toDouble()
                 "HurtTime" -> entity.damagedTimer.toDouble()
                 "HealthAbsorption" -> (entity.health + entity.absorption).toDouble()
                 "RegenAmplifier" -> if (entity.hasStatusEffect(Potion.regeneration)) {
@@ -323,7 +323,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
                 } else -1.0
 
                 "InWeb" -> if (entity.inCobweb) -1.0 else Double.MAX_VALUE
-                "OnLadder" -> if (entity.isOnLadder) -1.0 else Double.MAX_VALUE
+                "OnLadder" -> if (entity.isClimbing) -1.0 else Double.MAX_VALUE
                 "InLiquid" -> if (entity.inWater || entity.isInLava) -1.0 else Double.MAX_VALUE
                 else -> null
             } ?: continue
@@ -353,7 +353,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
     private fun updateRotations(entity: Entity): Boolean {
         val player = mc.player ?: return false
 
-        if (clickOnly && (clickTimer.hasTimePassed(clickDelay) || !mc.options.attackKey.isKeyDown && AutoClicker.handleEvents())) {
+        if (clickOnly && (clickTimer.hasTimePassed(clickDelay) || !mc.options.attackKey.isPressed && AutoClicker.handleEvents())) {
             return false
         }
 
@@ -467,16 +467,10 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
     private val cancelRun
         inline get() = mc.player.isSpectator || !isAlive(mc.player) || (notOnConsume && isConsumingItem())
 
-    /**
-     * Check if [entity] is alive
-     */
     private fun isAlive(entity: LivingEntity) = entity.isEntityAlive && entity.health > 0
 
-    /**
-     * HUD Tag
-     */
     override val tag
-        get() = targetMode
+        get() = targetMode + if (options.applyServerSide) ", Silent" else ""
 
     val isBlockingChestAura
         get() = handleEvents() && target != null

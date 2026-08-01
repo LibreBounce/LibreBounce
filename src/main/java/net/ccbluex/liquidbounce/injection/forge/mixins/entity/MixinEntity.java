@@ -107,16 +107,16 @@ public abstract class MixinEntity implements IMixinEntity {
     public abstract Box getShape();
 
     @Shadow
-    public Entity ridingEntity;
+    public Entity vehicle;
 
     @Shadow
-    public double motionX;
+    public double velocityX;
 
     @Shadow
-    public double motionY;
+    public double velocityY;
 
     @Shadow
-    public double motionZ;
+    public double velocityZ;
 
     @Shadow
     public boolean onGround;
@@ -128,7 +128,7 @@ public abstract class MixinEntity implements IMixinEntity {
     public boolean noClip;
 
     @Shadow
-    public World worldObj;
+    public World world;
 
     @Shadow
     public void move(double x, double y, double z) {

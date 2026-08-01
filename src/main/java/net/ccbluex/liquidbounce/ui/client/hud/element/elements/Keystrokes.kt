@@ -120,7 +120,7 @@ class Keystrokes : Element("Keystrokes", 2.0, 34.0) {
                 0F to 2 * (boxSize + padding) + boxSize
             } else currentX to currentX + boxSize
 
-            val isPressed = movementKeys[key]?.isKeyDown == true
+            val isPressed = movementKeys[key]?.isPressed == true
             gridKey.updateState(isPressed)
 
             val scaledBoxSize = boxSize * if (onPressAnimation == "None") 1f else scale

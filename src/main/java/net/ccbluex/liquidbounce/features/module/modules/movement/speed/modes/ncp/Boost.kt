@@ -20,7 +20,7 @@ object Boost : SpeedMode("Boost") {
 
             if (mc.world.getCollidingBoundingBoxes(
                     mc.player,
-                    shape.offset(motionX / offset, 0.0, motionZ / offset)
+                    shape.offset(velocityX / offset, 0.0, velocityZ / offset)
                 ).isNotEmpty()
             ) {
                 shouldOffset = false
@@ -49,20 +49,20 @@ object Boost : SpeedMode("Boost") {
 
                 when (motionDelay) {
                     1 -> {
-                        motionX *= speed
-                        motionZ *= speed
+                        velocityX *= speed
+                        velocityZ *= speed
                     }
 
                     2 -> {
-                        motionX /= 1.458
-                        motionZ /= 1.458
+                        velocityX /= 1.458
+                        velocityZ /= 1.458
                     }
 
                     4 -> {
                         if (shouldOffset) setPosition(
-                            x + motionX / offset,
+                            x + velocityX / offset,
                             y,
-                            z + motionZ / offset
+                            z + velocityZ / offset
                         )
                         motionDelay = 0
                     }
@@ -73,5 +73,5 @@ object Boost : SpeedMode("Boost") {
 
 
     private fun shouldSpeedUp() =
-        mc.player.isMoving && !mc.player.isInLava && !mc.player.isOnLadder
+        mc.player.isMoving && !mc.player.isInLava && !mc.player.isClimbing
 }

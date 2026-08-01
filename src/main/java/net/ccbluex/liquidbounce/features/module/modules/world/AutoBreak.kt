@@ -24,7 +24,7 @@ object AutoBreak : Module("AutoBreak", Category.WORLD, subjective = true, gameDe
     }
 
     override fun onDisable() {
-        if (!GameOptions.isKeyDown(mc.options.attackKey))
+        if (!GameOptions.isPressed(mc.options.attackKey))
             mc.options.attackKey.pressed = false
     }
 }

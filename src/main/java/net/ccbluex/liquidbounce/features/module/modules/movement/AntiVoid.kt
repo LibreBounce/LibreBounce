@@ -87,7 +87,7 @@ object AntiVoid : Module("AntiVoid", Category.MOVEMENT) {
             shouldSimulateBlock = false
         }
 
-        if (!player.onGround && !player.isOnLadder && !player.inWater) {
+        if (!player.onGround && !player.isClimbing && !player.inWater) {
             val fallingPlayer = FallingPlayer(player)
 
             detectedLocation = fallingPlayer.findCollision(60)?.pos
@@ -103,11 +103,11 @@ object AntiVoid : Module("AntiVoid", Category.MOVEMENT) {
                     "TeleportBack" -> {
                         player.teleport(prevX, prevY, prevZ)
                         player.fallDistance = 0F
-                        player.motionY = 0.0
+                        player.velocityY = 0.0
                     }
 
                     "FlyFlag" -> {
-                        player.motionY += 0.1
+                        player.velocityY += 0.1
                         player.fallDistance = 0F
                     }
 
@@ -116,7 +116,7 @@ object AntiVoid : Module("AntiVoid", Category.MOVEMENT) {
                     "MotionTeleport-Flag" -> {
                         player.teleport(player.x, player.y + 1f, player.z)
                         sendPacket(Position(player.x, player.y, player.z, true))
-                        player.motionY = 0.1
+                        player.velocityY = 0.1
 
                         strafe()
                         player.fallDistance = 0f
@@ -134,7 +134,7 @@ object AntiVoid : Module("AntiVoid", Category.MOVEMENT) {
                 simPlayer.tick()
             }
 
-            if (simPlayer.isOnLadder() || simPlayer.inWater || simPlayer.isInLava() || simPlayer.inCobweb || simPlayer.isSneaking()) {
+            if (simPlayer.isClimbing() || simPlayer.inWater || simPlayer.isInLava() || simPlayer.inCobweb || simPlayer.isSneaking()) {
                 if (BlinkUtils.isBlinking) BlinkUtils.unblink()
                 return@handler
             }

@@ -22,20 +22,20 @@ class FallingPlayer(
     private var x: Double = mc.player.x,
     private var y: Double = mc.player.y,
     private var z: Double = mc.player.z,
-    private var motionX: Double = mc.player.motionX,
-    private var motionY: Double = mc.player.motionY,
-    private var motionZ: Double = mc.player.motionZ,
+    private var velocityX: Double = mc.player.velocityX,
+    private var velocityY: Double = mc.player.velocityY,
+    private var velocityZ: Double = mc.player.velocityZ,
     private val yaw: Float = mc.player.yaw,
     private var strafe: Float = mc.player.sidewaysSpeed,
     private var forward: Float = mc.player.forwardSpeed
 ) : MinecraftInstance {
     constructor(player: LocalClientPlayerEntity, predict: Boolean = false) : this(
-        if (predict) player.x + player.motionX else player.x,
-        if (predict) player.y + player.motionY else player.y,
-        if (predict) player.z + player.motionZ else player.z,
-        player.motionX,
-        player.motionY,
-        player.motionZ,
+        if (predict) player.x + player.velocityX else player.x,
+        if (predict) player.y + player.velocityY else player.y,
+        if (predict) player.z + player.velocityZ else player.z,
+        player.velocityX,
+        player.velocityY,
+        player.velocityZ,
         player.yaw,
         player.sidewaysSpeed,
         player.forwardSpeed
@@ -56,19 +56,19 @@ class FallingPlayer(
             val f1 = sin(yaw.toRadians())
             val f2 = cos(yaw.toRadians())
 
-            motionX += (strafe * f2 - forward * f1).toDouble()
-            motionZ += (forward * f2 + strafe * f1).toDouble()
+            velocityX += (strafe * f2 - forward * f1).toDouble()
+            velocityZ += (forward * f2 + strafe * f1).toDouble()
         }
 
-        motionY -= 0.08
-        motionX *= 0.91
-        motionY *= 0.9800000190734863
-        motionY *= 0.91
-        motionZ *= 0.91
+        velocityY -= 0.08
+        velocityX *= 0.91
+        velocityY *= 0.9800000190734863
+        velocityY *= 0.91
+        velocityZ *= 0.91
 
-        x += motionX
-        y += motionY
-        z += motionZ
+        x += velocityX
+        y += velocityY
+        z += velocityZ
     }
 
     fun findCollision(ticks: Int): CollisionResult? {

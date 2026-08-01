@@ -23,12 +23,12 @@ object AACHop350 : SpeedMode("AACHop3.5.0") {
 
                 if (onGround) {
                     tryJump()
-                    motionX *= 1.0118f
-                    motionZ *= 1.0118f
+                    velocityX *= 1.0118f
+                    velocityZ *= 1.0118f
                 } else {
-                    motionY -= 0.0147f
-                    motionX *= 1.00138f
-                    motionZ *= 1.00138f
+                    velocityY -= 0.0147f
+                    velocityX *= 1.00138f
+                    velocityZ *= 1.00138f
                 }
             }
         }
@@ -37,8 +37,8 @@ object AACHop350 : SpeedMode("AACHop3.5.0") {
     override fun onEnable() {
         mc.player?.run {
             if (onGround) {
-                motionX = 0.0
-                motionZ = 0.0
+                velocityX = 0.0
+                velocityZ = 0.0
             }
         }
     }

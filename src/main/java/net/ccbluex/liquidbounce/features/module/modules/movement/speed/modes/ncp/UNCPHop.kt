@@ -18,7 +18,7 @@ object UNCPHop : SpeedMode("UNCPHop") {
 
     override fun onUpdate() {
         mc.player?.run {
-            if (isInLiquid || inCobweb || isOnLadder) return
+            if (isInLiquid || inCobweb || isClimbing) return
 
             if (isMoving) {
                 if (onGround) {

@@ -15,7 +15,7 @@ object OldMatrixHop : SpeedMode("OldMatrixHop") {
 
     override fun onUpdate() {
         mc.player?.run {
-            if (isInLiquid || inCobweb || isOnLadder) return
+            if (isInLiquid || inCobweb || isClimbing) return
 
             if (isMoving) {
                 if (onGround) {

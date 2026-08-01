@@ -96,7 +96,7 @@ object Tower : Configurable("Tower"), MinecraftInstance, Listenable {
         isTowering = false
 
         if (towerModeValues.get() == "None" || notOnMoveValues.get() && player.isMoving ||
-            onJumpValues.get() && !mc.options.jumpKey.isKeyDown
+            onJumpValues.get() && !mc.options.jumpKey.isPressed
         ) {
             return@handler
         }
@@ -160,22 +160,22 @@ object Tower : Configurable("Tower"), MinecraftInstance, Listenable {
 
                 "Motion" -> if (onGround) {
                     fakeJump()
-                    motionY = 0.42
-                } else if (motionY < 0.1) {
-                    motionY = -0.3
+                    velocityY = 0.42
+                } else if (velocityY < 0.1) {
+                    velocityY = -0.3
                 }
 
                 // Old Name (Jump)
                 "MotionJump" -> if (onGround && tickTimer.hasTimePassed(jumpDelayValues.get())) {
                     fakeJump()
-                    motionY = jumpMotionValues.get().toDouble()
+                    velocityY = jumpMotionValues.get().toDouble()
                     tickTimer.reset()
                 }
 
                 "MotionTP" -> if (onGround) {
                     fakeJump()
-                    motionY = 0.42
-                } else if (motionY < 0.23) {
+                    velocityY = 0.42
+                } else if (velocityY < 0.23) {
                     setPosition(x, truncate(y), z)
                 }
 
@@ -201,7 +201,7 @@ object Tower : Configurable("Tower"), MinecraftInstance, Listenable {
 
                 "Teleport" -> {
                     if (teleportNoMotionValues.get()) {
-                        motionY = 0.0
+                        velocityY = 0.0
                     }
                         if ((onGround || !teleportGroundValues.get()) && tickTimer.hasTimePassed(
                             teleportDelayValues.get()
@@ -221,7 +221,7 @@ object Tower : Configurable("Tower"), MinecraftInstance, Listenable {
                             fakeJump()
                         }
                         jumpGround = y
-                        motionY = constantMotionValues.get().toDouble()
+                        velocityY = constantMotionValues.get().toDouble()
                     }
 
                     if (y > jumpGround + constantMotionJumpGroundValues.get()) {
@@ -231,14 +231,14 @@ object Tower : Configurable("Tower"), MinecraftInstance, Listenable {
                         setPosition(
                             x, truncate(y), z
                         ) // TODO: toInt() required?
-                        motionY = constantMotionValues.get().toDouble()
+                        velocityY = constantMotionValues.get().toDouble()
                         jumpGround = y
                     }
                 }
 
                 "Pulldown" -> {
-                    if (!onGround && motionY < triggerMotionValues.get()) {
-                        motionY = -dragMotionValues.get().toDouble()
+                    if (!onGround && velocityY < triggerMotionValues.get()) {
+                        velocityY = -dragMotionValues.get().toDouble()
                     } else {
                         fakeJump()
                     }
@@ -248,38 +248,38 @@ object Tower : Configurable("Tower"), MinecraftInstance, Listenable {
                 "Vulcan2.9.0" -> {
                     if (ticks % 10 == 0) {
                         // Prevent Flight Flag
-                        motionY = -0.1
+                        velocityY = -0.1
                         return
                     }
 
                     fakeJump()
 
                     if (ticks % 2 == 0) {
-                        motionY = 0.7
+                        velocityY = 0.7
                     } else {
-                        motionY = if (isMoving) 0.42 else 0.6
+                        velocityY = if (isMoving) 0.42 else 0.6
                     }
                 }
 
                 "AAC3.3.9" -> {
                     if (onGround) {
                         fakeJump()
-                        motionY = 0.4001
+                        velocityY = 0.4001
                     }
 
                     mc.timer.tpsScale = 1f
 
-                    if (motionY < 0) {
-                        motionY -= 0.00000945
+                    if (velocityY < 0) {
+                        velocityY -= 0.00000945
                         mc.timer.tpsScale = 1.6f
                     }
                 }
 
                 "AAC3.6.4" -> if (ticks % 4 == 1) {
-                    motionY = 0.4195464
+                    velocityY = 0.4195464
                     setPosition(x - 0.035, y, z)
                 } else if (ticks % 4 == 0) {
-                    motionY = -0.5
+                    velocityY = -0.5
                     setPosition(x + 0.035, y, z)
                 }
             }

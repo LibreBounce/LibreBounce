@@ -14,12 +14,12 @@ import net.ccbluex.liquidbounce.utils.movement.MovementUtils.strafe
 object VulcanLowHop : SpeedMode("VulcanLowHop") {
     override fun onUpdate() {
         mc.player?.run {
-            if (isInLiquid || inCobweb || isOnLadder) return
+            if (isInLiquid || inCobweb || isClimbing) return
 
             if (isMoving) {
                 if (!onGround && fallDistance > 1.1) {
                     mc.timer.tpsScale = 1f
-                    motionY = -0.25
+                    velocityY = -0.25
                     return
                 }
 
@@ -28,8 +28,8 @@ object VulcanLowHop : SpeedMode("VulcanLowHop") {
                     strafe(0.4815f)
                     mc.timer.tpsScale = 1.263f
                 } else if (ticks % 4 == 0) {
-                    motionY = if (ticks % 3 == 0) -0.01 / motionY
-                    else -motionY / y
+                    velocityY = if (ticks % 3 == 0) -0.01 / velocityY
+                    else -velocityY / y
 
                     mc.timer.tpsScale = 0.8985f
                 }

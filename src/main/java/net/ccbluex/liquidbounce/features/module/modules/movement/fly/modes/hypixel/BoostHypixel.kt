@@ -75,7 +75,7 @@ object BoostHypixel : FlyMode("BoostHypixel") {
                     if (tickTimer.resetIfPassed())
                         setPosition(x, y + 1.0E-5, z)
 
-                    motionY = 0.0
+                    velocityY = 0.0
                 }
 
                 EventState.POST -> {
@@ -128,8 +128,8 @@ object BoostHypixel : FlyMode("BoostHypixel") {
             event.x = -sin(yaw) * moveSpeed
             event.z = cos(yaw) * moveSpeed
 
-            motionX = event.x
-            motionZ = event.z
+            velocityX = event.x
+            velocityZ = event.z
         }
     }
 

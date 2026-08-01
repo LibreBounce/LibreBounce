@@ -18,24 +18,24 @@ object AAC : NoFallMode("AAC") {
                 sendPacket(PlayerMoveC2SPacket(true))
                 currentState = 2
             } else if (currentState == 2 && fallDistance < 2) {
-                motionY = 0.1
+                velocityY = 0.1
                 currentState = 3
                 return
             }
 
             when (currentState) {
                 3 -> {
-                    motionY = 0.1
+                    velocityY = 0.1
                     currentState = 4
                 }
 
                 4 -> {
-                    motionY = 0.1
+                    velocityY = 0.1
                     currentState = 5
                 }
 
                 5 -> {
-                    motionY = 0.1
+                    velocityY = 0.1
                     currentState = 1
                 }
             }

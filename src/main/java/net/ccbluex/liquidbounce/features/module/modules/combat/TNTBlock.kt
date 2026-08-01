@@ -62,7 +62,7 @@ object TNTBlock : Module("TNTBlock", Category.COMBAT) {
             return@handler
         }
 
-        if (blocked && !GameOptions.isKeyDown(mc.options.useKey)) {
+        if (blocked && !GameOptions.isPressed(mc.options.useKey)) {
             mc.options.useKey.pressed = false
             blocked = false
         }

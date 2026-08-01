@@ -152,7 +152,7 @@ public abstract class MixinGameRenderer {
             Vec3d vec31 = RotationUtils.INSTANCE.getRotationVector(RotationUtils.INSTANCE.getCurrentRotation() != null && OverrideRaycast.INSTANCE.shouldOverride() ? RotationUtils.INSTANCE.getCurrentRotation() : rotation);
             double p_rayTrace_1_ = (reach.handleEvents() ? reach.getBuildReach() : d0);
             Vec3d vec32 = vec3.addVector(vec31.xCoord * p_rayTrace_1_, vec31.yCoord * p_rayTrace_1_, vec31.zCoord * p_rayTrace_1_);
-            mc.objectMouseOver = entity.worldObj.rayTraceBlocks(vec3, vec32, false, false, true);
+            mc.objectMouseOver = entity.world.rayTraceBlocks(vec3, vec32, false, false, true);
             double d1 = d0;
             boolean flag = false;
             if (mc.interactionManager.extendedReach()) {
@@ -169,7 +169,7 @@ public abstract class MixinGameRenderer {
             if (reach.handleEvents()) {
                 double p_rayTrace_1_2 = reach.getBuildReach();
                 Vec3d vec322 = vec3.addVector(vec31.xCoord * p_rayTrace_1_2, vec31.yCoord * p_rayTrace_1_2, vec31.zCoord * p_rayTrace_1_2);
-                final HitResult movingObjectPosition = entity.worldObj.rayTraceBlocks(vec3, vec322, false, false, true);
+                final HitResult movingObjectPosition = entity.world.rayTraceBlocks(vec3, vec322, false, false, true);
 
                 if (movingObjectPosition != null) d1 = movingObjectPosition.hitVec.distanceTo(vec3);
             }
@@ -201,7 +201,7 @@ public abstract class MixinGameRenderer {
                     } else if (movingobjectposition != null) {
                         double d3 = vec3.distanceTo(movingobjectposition.hitVec);
                         if (d3 < d2 || d2 == 0) {
-                            if (entity1 == entity.ridingEntity && !entity.canRiderInteract()) {
+                            if (entity1 == entity.vehicle && !entity.canRiderInteract()) {
                                 if (d2 == 0) {
                                     pointedEntity = entity1;
                                     vec33 = movingobjectposition.hitVec;

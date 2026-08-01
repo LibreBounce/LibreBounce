@@ -16,11 +16,11 @@ object AAC3312 : FlyMode("AAC3.3.12") {
     override fun onUpdate() {
         mc.player?.run {
             if (y < -70)
-                motionY = aacMotion.toDouble()
+                velocityY = aacMotion.toDouble()
 
             mc.timer.tpsScale = 1f
 
-            if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL)) {
+            if (Keyboard.isPressed(Keyboard.KEY_LCONTROL)) {
                 mc.timer.tpsScale = 0.2f
                 mc.rightClickDelayTimer = 0
             }

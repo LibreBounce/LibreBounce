@@ -17,6 +17,6 @@ object AutoWalk : Module("AutoWalk", Category.MOVEMENT, subjective = true, gameD
     }
 
     override fun onDisable() {
-        mc.options.forwardKey.pressed = GameOptions.isKeyDown(mc.options.forwardKey)
+        mc.options.forwardKey.pressed = GameOptions.isPressed(mc.options.forwardKey)
     }
 }

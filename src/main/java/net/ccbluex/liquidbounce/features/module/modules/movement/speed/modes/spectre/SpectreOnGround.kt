@@ -20,20 +20,20 @@ object SpectreOnGround : SpeedMode("SpectreOnGround") {
 
             if (speedUp >= 10) {
                 if (onGround) {
-                    motionX = 0.0
-                    motionZ = 0.0
+                    velocityX = 0.0
+                    velocityZ = 0.0
                     speedUp = 0
                 }
                 return
             }
 
-            if (onGround && mc.options.forwardKey.isKeyDown) {
+            if (onGround && mc.options.forwardKey.isPressed) {
                 val f = yaw.toRadians()
-                motionX -= sin(f) * 0.145f
-                motionZ += cos(f) * 0.145f
-                event.x = motionX
+                velocityX -= sin(f) * 0.145f
+                velocityZ += cos(f) * 0.145f
+                event.x = velocityX
                 event.y = 0.005
-                event.z = motionZ
+                event.z = velocityZ
                 speedUp++
             }
         }

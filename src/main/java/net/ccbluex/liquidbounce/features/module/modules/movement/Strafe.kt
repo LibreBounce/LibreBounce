@@ -38,8 +38,8 @@ object Strafe : Module("Strafe", Category.MOVEMENT, gameDetecting = false) {
 
     val onUpdate = handler<UpdateEvent> {
         mc.player?.run {
-            if (onGround && mc.options.jumpKey.isKeyDown && allDirectionsJump && isMoving && !(isInLiquid || isOnLadder || inCobweb)) {
-                if (mc.options.jumpKey.isKeyDown) {
+            if (onGround && mc.options.jumpKey.isPressed && allDirectionsJump && isMoving && !(isInLiquid || isClimbing || inCobweb)) {
+                if (mc.options.jumpKey.isPressed) {
                     mc.options.jumpKey.pressed = false
                     wasDown = true
                 }
@@ -72,13 +72,13 @@ object Strafe : Module("Strafe", Category.MOVEMENT, gameDetecting = false) {
 
             val shotSpeed = speed
             val speed = shotSpeed * strength
-            val strafeX = motionX * (1 - strength)
-            val strafeZ = motionZ * (1 - strength)
+            val strafeX = velocityX * (1 - strength)
+            val strafeZ = velocityZ * (1 - strength)
 
             if (!onGround || onGroundStrafe) {
                 val yaw = direction
-                motionX = -sin(yaw) * speed + strafeX
-                motionZ = cos(yaw) * speed + strafeZ
+                velocityX = -sin(yaw) * speed + strafeX
+                velocityZ = cos(yaw) * speed + strafeZ
             }
         }
     }

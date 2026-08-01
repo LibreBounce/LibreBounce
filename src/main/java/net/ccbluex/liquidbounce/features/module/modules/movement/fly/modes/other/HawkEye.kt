@@ -9,6 +9,6 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.FlyMo
 
 object HawkEye : FlyMode("HawkEye") {
     override fun onUpdate() {
-        mc.player.motionY = if (mc.player.motionY <= -0.42) 0.42 else -0.42
+        mc.player.velocityY = if (mc.player.velocityY <= -0.42) 0.42 else -0.42
     }
 }

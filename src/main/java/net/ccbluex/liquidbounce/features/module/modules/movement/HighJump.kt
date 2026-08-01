@@ -28,9 +28,9 @@ object HighJump : Module("HighJump", Category.MOVEMENT) {
                 return@handler
 
             when (mode) {
-                "Damage" -> if (damagedTimer > 0 && onGround) motionY += 0.42f * height
-                "AACv3" -> if (!onGround) motionY += 0.059
-                "DAC" -> if (!onGround) motionY += 0.049999
+                "Damage" -> if (damagedTimer > 0 && onGround) velocityY += 0.42f * height
+                "AACv3" -> if (!onGround) velocityY += 0.059
+                "DAC" -> if (!onGround) velocityY += 0.049999
                 "Mineplex" -> if (!onGround) strafe(0.35f)
             }
         }
@@ -42,7 +42,7 @@ object HighJump : Module("HighJump", Category.MOVEMENT) {
                 return@handler
 
             if (mode == "Mineplex" && !onGround)
-                motionY += if (fallDistance == 0f) 0.0499 else 0.05
+                velocityY += if (fallDistance == 0f) 0.0499 else 0.05
         }
     }
 

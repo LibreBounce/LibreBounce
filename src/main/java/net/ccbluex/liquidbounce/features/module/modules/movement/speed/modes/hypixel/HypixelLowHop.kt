@@ -36,10 +36,10 @@ object HypixelLowHop : SpeedMode("HypixelLowHop") {
                         strafe()
                     }
 
-                    5 -> motionY -= 0.1905189780583944
-                    4 -> motionY -= 0.03
-                    6 -> motionY *= 1.01
-                    7 -> if (glide) motionY /= 1.5
+                    5 -> velocityY -= 0.1905189780583944
+                    4 -> velocityY -= 0.03
+                    6 -> velocityY *= 1.01
+                    7 -> if (glide) velocityY /= 1.5
                 }
 
                 if (airTicks >= 7 && glide) {
@@ -53,8 +53,8 @@ object HypixelLowHop : SpeedMode("HypixelLowHop") {
                 if ((getActivePotionEffect(Potion.moveSpeed)?.amplifier ?: 0) == 2) {
                     when (airTicks) {
                         1, 2, 5, 6, 8 -> {
-                            motionX *= 1.2
-                            motionZ *= 1.2
+                            velocityX *= 1.2
+                            velocityZ *= 1.2
                         }
                     }
                 }

@@ -16,7 +16,7 @@ object SpectreBHop : SpeedMode("SpectreBHop") {
 
             if (onGround) {
                 strafe(1.1f)
-                motionY = 0.44
+                velocityY = 0.44
                 return
             } else {
                 strafe()

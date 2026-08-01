@@ -341,7 +341,7 @@ class GuiAltManager(private val prevGui: Screen) : AbstractScreen() {
             Keyboard.KEY_DOWN -> altsList.selectedSlot++
 
             // Go up or down in account list
-            Keyboard.KEY_TAB -> altsList.selectedSlot += if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) -1 else 1
+            Keyboard.KEY_TAB -> altsList.selectedSlot += if (Keyboard.isPressed(Keyboard.KEY_LSHIFT)) -1 else 1
 
             // Login into account
             Keyboard.KEY_RETURN -> altsList.elementClicked(altsList.selectedSlot, true, 0, 0)
@@ -360,7 +360,7 @@ class GuiAltManager(private val prevGui: Screen) : AbstractScreen() {
 
             // Copy when CTRL+C gets pressed
             Keyboard.KEY_C -> {
-                if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL)) actionPerformed(copyButton)
+                if (Keyboard.isPressed(Keyboard.KEY_LCONTROL)) actionPerformed(copyButton)
                 else super.keyTyped(typedChar, keyCode)
             }
 

@@ -26,10 +26,10 @@ object IntaveHop14 : SpeedMode("IntaveHop14") {
 
     override fun onUpdate() {
         mc.player?.run {
-            if (!isMoving || isInLiquid || inCobweb || isOnLadder) return
+            if (!isMoving || isInLiquid || inCobweb || isClimbing) return
 
             if (onGround) {
-                motionY = 0.42 - if (intaveLowHop) 1.7E-14 else 0.0
+                velocityY = 0.42 - if (intaveLowHop) 1.7E-14 else 0.0
 
                 if (isSprinting) strafe(strength = strafeStrength.toDouble())
 
@@ -38,9 +38,9 @@ object IntaveHop14 : SpeedMode("IntaveHop14") {
                 mc.timer.tpsScale = airTimer
             }
 
-            if (boost && motionY > 0.003 && isSprinting) {
-                motionX *= 1f + (boostConstant * initialBoostMultiplier)
-                motionZ *= 1f + (boostConstant * initialBoostMultiplier)
+            if (boost && velocityY > 0.003 && isSprinting) {
+                velocityX *= 1f + (boostConstant * initialBoostMultiplier)
+                velocityZ *= 1f + (boostConstant * initialBoostMultiplier)
             }
         }
     }

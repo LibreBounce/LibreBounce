@@ -19,9 +19,9 @@ object MiJump : SpeedMode("MiJump") {
             if (onGround && !input.jump) {
                 val multiplier = 1.8
 
-                motionX *= multiplier
-                motionY += 0.1
-                motionZ *= multiplier
+                velocityX *= multiplier
+                velocityY += 0.1
+                velocityZ *= multiplier
 
                 val currSpeed = speed
                 val maxSpeed = 0.66
@@ -29,8 +29,8 @@ object MiJump : SpeedMode("MiJump") {
                 if (currSpeed > maxSpeed) {
                     val speedDivider = currSpeed * maxSpeed
 
-                    motionX /= speedDivider
-                    motionZ /= speedDivider
+                    velocityX /= speedDivider
+                    velocityZ /= speedDivider
                 }
             }
 

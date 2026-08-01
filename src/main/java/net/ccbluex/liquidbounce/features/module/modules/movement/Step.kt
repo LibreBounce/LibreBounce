@@ -71,16 +71,16 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
     val onUpdate = loopSequence {
         val player = mc.player ?: return@loopSequence
 
-        if (player.isOnLadder || player.isInLiquid || player.inCobweb) return@loopSequence
+        if (player.isClimbing || player.isInLiquid || player.inCobweb) return@loopSequence
 
         if (!player.isMoving) return@loopSequence
 
         // Motion steps
         when (mode) {
             "Jump" ->
-                if (player.collidingHorizontally && player.onGround && !mc.options.jumpKey.isKeyDown) {
+                if (player.collidingHorizontally && player.onGround && !mc.options.jumpKey.isPressed) {
                     fakeJump()
-                    player.motionY = jumpHeight.toDouble()
+                    player.velocityY = jumpHeight.toDouble()
                 }
 
             "BlocksMCTimer" ->
@@ -112,10 +112,10 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
                         isStep = true
 
                         fakeJump()
-                        player.motionY += 0.620000001490116
+                        player.velocityY += 0.620000001490116
 
-                        player.motionX -= sin(direction) * 0.2
-                        player.motionZ += cos(direction) * 0.2
+                        player.velocityX -= sin(direction) * 0.2
+                        player.velocityZ += cos(direction) * 0.2
                         timer.reset()
                     }
 
@@ -125,14 +125,14 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
             "AAC3.3.4" ->
                 if (player.collidingHorizontally && player.isMoving) {
                     if (player.onGround && couldStep()) {
-                        player.motionX *= 1.26
-                        player.motionZ *= 1.26
+                        player.velocityX *= 1.26
+                        player.velocityZ *= 1.26
                         player.tryJump()
                         isAACStep = true
                     }
 
                     if (isAACStep) {
-                        player.motionY -= 0.015
+                        player.velocityY -= 0.015
 
                         if (!player.isUsingItem && player.input.moveStrafe == 0F)
                             player.flyingSpeed = 0.3F
@@ -144,14 +144,14 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
     val onMove = handler<MoveEvent> { event ->
         val player = mc.player ?: return@handler
 
-        if (mode != "MotionNCP" || !player.collidingHorizontally || mc.options.jumpKey.isKeyDown)
+        if (mode != "MotionNCP" || !player.collidingHorizontally || mc.options.jumpKey.isPressed)
             return@handler
 
         // Motion steps
         when {
             player.onGround && couldStep() -> {
                 fakeJump()
-                player.motionY = 0.0
+                player.velocityY = 0.0
                 event.y = 0.41999998688698
                 ncpNextStep = 1
             }
@@ -296,7 +296,7 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
     private fun couldStep(): Boolean {
         val player = mc.player ?: return false
 
-        if (player.isSneaking || mc.options.jumpKey.isKeyDown)
+        if (player.isSneaking || mc.options.jumpKey.isPressed)
             return false
 
         val yaw = direction

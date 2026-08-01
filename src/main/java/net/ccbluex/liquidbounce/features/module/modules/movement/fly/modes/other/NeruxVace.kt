@@ -16,7 +16,7 @@ object NeruxVace : FlyMode("NeruxVace") {
             if (!onGround) {
                 if (tick >= neruxVaceTicks) {
                     tick = 0
-                    motionY = .015
+                    velocityY = .015
                 }
 
                 tick++

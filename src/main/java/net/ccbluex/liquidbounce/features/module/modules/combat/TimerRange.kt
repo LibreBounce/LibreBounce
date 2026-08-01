@@ -148,12 +148,9 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
             return@handler
         }
 
-        smartTick++
-        cooldownTick++
-
         val shouldSlowed = when (timerBoostMode) {
-            "Normal" -> cooldownTick >= cooldownTickValue && entityDistance <= rangeValue
-            "Smart" -> smartTick >= randomTickDelay && entityDistance <= randomRange
+            "Normal" -> ++cooldownTick >= cooldownTickValue && entityDistance <= rangeValue
+            "Smart" -> ++smartTick >= randomTickDelay && entityDistance <= randomRange
             else -> false
         }
 

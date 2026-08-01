@@ -32,8 +32,8 @@ object NCPHop : SpeedMode("NCPHop") {
 
                 strafe()
             } else {
-                motionX = 0.0
-                motionZ = 0.0
+                velocityX = 0.0
+                velocityZ = 0.0
             }
         }
     }

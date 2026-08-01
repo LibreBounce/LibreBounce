@@ -16,7 +16,7 @@ object Vanilla : LiquidWalkMode("Vanilla") {
     override fun onUpdate() {
         mc.player?.run {
             if (!isSneaking && collideBlock(shape) { it is LiquidBlock } && isInsideOfMaterial(Material.air))
-                motionY = 0.08
+                velocityY = 0.08
         }
     }
 

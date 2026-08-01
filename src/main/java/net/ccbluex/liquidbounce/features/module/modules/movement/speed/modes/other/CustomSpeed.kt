@@ -50,7 +50,7 @@ object CustomSpeed : SpeedMode("Custom") {
                     if (customGroundStrafe > 0) strafe(customGroundStrafe)
 
                     mc.timer.tpsScale = customGroundTimer
-                    motionY = customY.toDouble()
+                    velocityY = customY.toDouble()
                 } else {
                     if (customAirStrafe > 0) strafe(customAirStrafe)
 

@@ -78,8 +78,8 @@ object InventoryMove : Module("InventoryMove", Category.MOVEMENT, gameDetecting 
         }
 
         if (screen is SurvivalInventoryScreen || screen is ChestScreen) {
-            player.motionX *= inventoryMotion
-            player.motionZ *= inventoryMotion
+            player.velocityX *= inventoryMotion
+            player.velocityZ *= inventoryMotion
         }
 
         if (silentlyCloseAndReopen && screen is SurvivalInventoryScreen) {
@@ -158,7 +158,7 @@ object InventoryMove : Module("InventoryMove", Category.MOVEMENT, gameDetecting 
         return if (keyBinding.keyCode < 0) {
             Mouse.isButtonDown(keyBinding.keyCode + 100)
         } else {
-            GameOptions.isKeyDown(keyBinding)
+            GameOptions.isPressed(keyBinding)
         }
     }
 

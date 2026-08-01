@@ -418,7 +418,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             return@handler
         }
 
-        if (clickOnly && !mc.options.attackKey.isKeyDown) {
+        if (clickOnly && !mc.options.attackKey.isPressed) {
             clicks = 0
             return@handler
         }
@@ -792,7 +792,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
                 "Health" -> entity.health.toDouble()
                 "LivingTime" -> -entity.ticks.toDouble()
                 "Armor" -> entity.totalArmorValue.toDouble()
-                "HurtResistance" -> entity.hurtResistantTime.toDouble()
+                "HurtResistance" -> entity.invulnerableTimer.toDouble()
                 "HurtTime" -> entity.damagedTimer.toDouble()
                 "HealthAbsorption" -> (entity.health + entity.absorption).toDouble()
                 "RegenAmplifier" -> if (entity.hasStatusEffect(Potion.regeneration)) {
@@ -800,7 +800,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
                 } else -1.0
 
                 "InWeb" -> if (entity.inCobweb) -1.0 else Double.MAX_VALUE
-                "OnLadder" -> if (entity.isOnLadder) -1.0 else Double.MAX_VALUE
+                "OnLadder" -> if (entity.isClimbing) -1.0 else Double.MAX_VALUE
                 "InLiquid" -> if (entity.inWater || entity.isInLava) -1.0 else Double.MAX_VALUE
                 else -> null
             } ?: continue

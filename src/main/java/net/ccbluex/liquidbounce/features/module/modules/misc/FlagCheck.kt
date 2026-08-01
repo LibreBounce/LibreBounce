@@ -220,9 +220,9 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true) {
         if (!rubberbandCheck || (player.abilities.flying && player.abilities.invulnerable && !player.onGround))
             return@handler
 
-        val motionX = player.motionX
-        val motionY = player.motionY
-        val motionZ = player.motionZ
+        val velocityX = player.velocityX
+        val velocityY = player.velocityY
+        val velocityZ = player.velocityZ
 
         val deltaX = player.x - lastPosX
         val deltaY = player.y - lastPosY
@@ -236,7 +236,7 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true) {
             rubberbandReason.add("Invalid Position")
         }
 
-        if (abs(motionX) > rubberbandThreshold || abs(motionY) > rubberbandThreshold || abs(motionZ) > rubberbandThreshold) {
+        if (abs(velocityX) > rubberbandThreshold || abs(velocityY) > rubberbandThreshold || abs(velocityZ) > rubberbandThreshold) {
             if (!player.colliding && !player.onGround) {
                 rubberbandReason.add("Invalid Motion")
             }
@@ -254,9 +254,9 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true) {
         lastPosY = player.prevPosY
         lastPosZ = player.prevPosZ
 
-        lastMotionX = motionX
-        lastMotionY = motionY
-        lastMotionZ = motionZ
+        lastMotionX = velocityX
+        lastMotionY = velocityY
+        lastMotionZ = velocityZ
     }
 
     val onRender3D = handler<Render3DEvent> {

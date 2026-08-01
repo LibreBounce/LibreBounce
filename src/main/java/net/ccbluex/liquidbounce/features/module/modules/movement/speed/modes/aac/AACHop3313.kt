@@ -21,13 +21,13 @@ import kotlin.math.sin
 object AACHop3313 : SpeedMode("AACHop3.3.13") {
     override fun onUpdate() {
         mc.player?.run {
-            if (!isMoving || isInLiquid || isOnLadder || isRiding || damagedTimer > 0) return
+            if (!isMoving || isInLiquid || isClimbing || isRiding || damagedTimer > 0) return
 
             if (onGround && collidingVertically) {
                 val yawRad = yaw.toRadians()
-                motionX -= sin(yawRad) * 0.202f
-                motionZ += cos(yawRad) * 0.202f
-                motionY = 0.405
+                velocityX -= sin(yawRad) * 0.202f
+                velocityZ += cos(yawRad) * 0.202f
+                velocityY = 0.405
                 call(JumpEvent(0.405f, EventState.PRE))
                 strafe()
             } else if (fallDistance < 0.31f) {
@@ -36,11 +36,11 @@ object AACHop3313 : SpeedMode("AACHop3.3.13") {
 
                 // Motion XZ
                 flyingSpeed = if (sidewaysSpeed == 0f) 0.027f else 0.021f
-                motionX *= 1.001
-                motionZ *= 1.001
+                velocityX *= 1.001
+                velocityZ *= 1.001
 
                 // Motion Y
-                if (!collidingHorizontally) motionY -= 0.014999993f
+                if (!collidingHorizontally) velocityY -= 0.014999993f
             } else {
                 flyingSpeed = 0.02f
             }

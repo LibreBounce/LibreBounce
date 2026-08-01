@@ -14,7 +14,7 @@ object AACFly : LiquidWalkMode("AACFly") {
         mc.player?.run {
             if (inWater) {
                 event.y = aacFly.toDouble()
-                motionY = aacFly.toDouble()
+                velocityY = aacFly.toDouble()
             }
         }
     }

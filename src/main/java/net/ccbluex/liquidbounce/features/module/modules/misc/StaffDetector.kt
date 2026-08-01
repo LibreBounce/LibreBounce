@@ -178,7 +178,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
          */
         if (velocity) {
             if (packet is EntityVelocityS2CPacket && packet.networkId == mc.player?.networkId) {
-                if (packet.motionX == 0 && packet.motionZ == 0 && packet.motionY / 8000.0 > 0.075) {
+                if (packet.velocityX == 0 && packet.velocityZ == 0 && packet.velocityY / 8000.0 > 0.075) {
                     attemptLeave = false
                     autoLeave()
 

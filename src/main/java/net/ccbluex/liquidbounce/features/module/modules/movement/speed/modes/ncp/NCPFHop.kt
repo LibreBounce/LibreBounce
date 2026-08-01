@@ -21,16 +21,16 @@ object NCPFHop : SpeedMode("NCPFHop") {
             if (isMoving) {
                 if (onGround) {
                     tryJump()
-                    motionX *= 1.01
-                    motionZ *= 1.01
+                    velocityX *= 1.01
+                    velocityZ *= 1.01
                     speedInAir = 0.0223f
                 }
 
-                motionY -= 0.00099999
+                velocityY -= 0.00099999
                 strafe()
             } else {
-                motionX = 0.0
-                motionZ = 0.0
+                velocityX = 0.0
+                velocityZ = 0.0
             }
         }
     }

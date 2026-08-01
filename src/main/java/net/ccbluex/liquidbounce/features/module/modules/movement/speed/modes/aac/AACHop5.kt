@@ -13,7 +13,7 @@ import net.ccbluex.liquidbounce.utils.extensions.tryJump
 object AACHop5 : SpeedMode("AACHop5") {
     override fun onUpdate() {
         mc.player?.run {
-            if (!isMoving || isInLiquid || isOnLadder || isRiding)
+            if (!isMoving || isInLiquid || isClimbing || isRiding)
                 return
 
             if (onGround) {

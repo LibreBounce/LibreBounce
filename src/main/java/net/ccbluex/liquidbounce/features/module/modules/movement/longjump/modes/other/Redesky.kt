@@ -11,7 +11,7 @@ object Redesky : LongJumpMode("Redesky") {
     override fun onUpdate() {
         mc.player?.run {
             flyingSpeed = 0.15f
-            motionY += 0.05f
+            velocityY += 0.05f
         }
     }
 }

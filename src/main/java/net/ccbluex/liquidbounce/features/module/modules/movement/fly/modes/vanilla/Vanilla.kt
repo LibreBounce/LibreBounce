@@ -28,12 +28,12 @@ object Vanilla : FlyMode("Vanilla") {
             abilities.flying = false
 
             val ySpeed = when {
-                mc.options.jumpKey.isKeyDown -> vanillaSpeed.toDouble()
-                mc.options.sneakKey.isKeyDown -> -vanillaSpeed.toDouble()
+                mc.options.jumpKey.isPressed -> vanillaSpeed.toDouble()
+                mc.options.sneakKey.isPressed -> -vanillaSpeed.toDouble()
                 else -> 0.0
             }
 
-            motionY = ySpeed
+            velocityY = ySpeed
             event.y = ySpeed
 
             handleVanillaKickBypass()

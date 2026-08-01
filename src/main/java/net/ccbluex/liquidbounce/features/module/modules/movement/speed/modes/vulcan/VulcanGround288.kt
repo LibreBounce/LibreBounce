@@ -17,7 +17,7 @@ import net.minecraft.potion.Potion
 object VulcanGround288 : SpeedMode("VulcanGround2.8.8") {
     override fun onUpdate() {
         mc.player?.run {
-            if (isInLiquid || inCobweb || isOnLadder) return
+            if (isInLiquid || inCobweb || isClimbing) return
 
             if (isMoving && collidesBottom()) {
                 val speedEffect = getActivePotionEffect(Potion.moveSpeed)
@@ -31,7 +31,7 @@ object VulcanGround288 : SpeedMode("VulcanGround2.8.8") {
                 }
 
                 strafe(strafe)
-                motionY = 0.005
+                velocityY = 0.005
             }
         }
     }

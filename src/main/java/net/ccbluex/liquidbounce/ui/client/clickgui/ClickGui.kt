@@ -221,7 +221,7 @@ object ClickGui : Screen() {
     }
 
     private fun handleScroll(wheel: Int) {
-        if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL)) {
+        if (Keyboard.isPressed(Keyboard.KEY_LCONTROL)) {
             scale += wheel * 0.0001f
 
             for (panel in panels) {

@@ -56,7 +56,7 @@ fun LocalClientPlayerEntity.isNearEdge(threshold: Float): Boolean {
     for (x in -3..3) {
         for (z in -3..3) {
             val checkPos = mutable.set(blockPos, x, -1, z)
-            if (worldObj.isAirBlock(checkPos)) {
+            if (world.isAirBlock(checkPos)) {
                 val checkPosCenter = Vec3d(checkPos.x + 0.5, checkPos.y.toDouble(), checkPos.z + 0.5)
                 val distance = playerPos.distanceTo(checkPosCenter)
                 if (distance <= threshold) {
@@ -193,12 +193,12 @@ fun Entity.interpolatedPosition(start: Vec3d, extraHeight: Float? = null) =Vec3d
 )
 
 fun LocalClientPlayerEntity.stopY() {
-    motionY = 0.0
+    velocityY = 0.0
 }
 
 fun LocalClientPlayerEntity.stopXZ() {
-    motionX = 0.0
-    motionZ = 0.0
+    velocityX = 0.0
+    velocityZ = 0.0
 }
 
 fun LocalClientPlayerEntity.stop() {
@@ -226,7 +226,7 @@ fun LocalClientPlayerEntity.onPlayerRightClick(
 
     controller.syncCurrentPlayItem()
 
-    if (clickPos !in worldObj.worldBorder)
+    if (clickPos !in world.worldBorder)
         return false
 
     val (facingX, facingY, facingZ) = (clickVec - clickPos.toVec()).toFloatArray()
@@ -242,15 +242,15 @@ fun LocalClientPlayerEntity.onPlayerRightClick(
 
     val item = stack?.item
 
-    if (item?.onItemUseFirst(stack, this, worldObj, clickPos, side, facingX, facingY, facingZ) == true)
+    if (item?.onItemUseFirst(stack, this, world, clickPos, side, facingX, facingY, facingZ) == true)
         return true
 
     val blockState = clickPos.state
 
     // If click had activated a block, send click and return true
-    if ((!isSneaking || item == null || item.doesSneakBypassUse(worldObj, clickPos, this))
+    if ((!isSneaking || item == null || item.doesSneakBypassUse(world, clickPos, this))
         && blockState?.block?.onBlockActivated(
-            worldObj,
+            world,
             clickPos,
             blockState,
             this,
@@ -262,7 +262,7 @@ fun LocalClientPlayerEntity.onPlayerRightClick(
     )
         return sendClick()
 
-    if (item is BlockItem && !item.canPlaceBlockOnSide(worldObj, clickPos, side, this, stack))
+    if (item is BlockItem && !item.canPlaceBlockOnSide(world, clickPos, side, this, stack))
         return false
 
     sendClick()
@@ -273,7 +273,7 @@ fun LocalClientPlayerEntity.onPlayerRightClick(
     val prevMetadata = stack.metadata
     val prevSize = stack.stackSize
 
-    return stack.onItemUse(this, worldObj, clickPos, side, facingX, facingY, facingZ).also {
+    return stack.onItemUse(this, world, clickPos, side, facingX, facingY, facingZ).also {
         if (controller.isInCreativeMode) {
             stack.itemDamage = prevMetadata
             stack.stackSize = prevSize
@@ -294,7 +294,7 @@ fun LocalClientPlayerEntity.sendUseItem(stack: ItemStack): Boolean {
 
     val prevSize = stack.stackSize
 
-    val newStack = stack.useItemRightClick(worldObj, this)
+    val newStack = stack.useItemRightClick(world, this)
 
     return if (newStack != stack || newStack.stackSize != prevSize) {
         if (newStack.stackSize <= 0) {
@@ -308,7 +308,7 @@ fun LocalClientPlayerEntity.sendUseItem(stack: ItemStack): Boolean {
 }
 
 fun LocalClientPlayerEntity.tryJump() {
-    if (!mc.options.jumpKey.isKeyDown) {
+    if (!mc.options.jumpKey.isPressed) {
         jump()
     }
 }

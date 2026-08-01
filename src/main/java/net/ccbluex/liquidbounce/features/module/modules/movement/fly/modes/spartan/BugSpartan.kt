@@ -24,8 +24,8 @@ object BugSpartan : FlyMode("BugSpartan") {
 
             sendPacket(Position(x, y + 0.1, z, true))
 
-            motionX *= 0.1
-            motionZ *= 0.1
+            velocityX *= 0.1
+            velocityZ *= 0.1
             swingItem()
         }
     }
@@ -33,9 +33,9 @@ object BugSpartan : FlyMode("BugSpartan") {
     override fun onUpdate() {
         mc.player.abilities.flying = false
 
-        mc.player.motionY = when {
-            mc.options.jumpKey.isKeyDown -> vanillaSpeed.toDouble()
-            mc.options.sneakKey.isKeyDown -> -vanillaSpeed.toDouble()
+        mc.player.velocityY = when {
+            mc.options.jumpKey.isPressed -> vanillaSpeed.toDouble()
+            mc.options.sneakKey.isPressed -> -vanillaSpeed.toDouble()
             else -> 0.0
         }
 

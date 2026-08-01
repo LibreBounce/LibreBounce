@@ -18,7 +18,7 @@ object VerusLowHopNew : SpeedMode("VerusLowHopNew") {
 
     override fun onUpdate() {
         mc.player?.run {
-            if (isInLiquid || inCobweb || isOnLadder) return
+            if (isInLiquid || inCobweb || isClimbing) return
 
             if (isMoving) {
                 if (onGround) {
@@ -42,7 +42,7 @@ object VerusLowHopNew : SpeedMode("VerusLowHopNew") {
 
                 } else {
                     if (airTicks < 2)
-                        motionY = -0.09800000190734863
+                        velocityY = -0.09800000190734863
 
                     speed *= 0.99f
                 }

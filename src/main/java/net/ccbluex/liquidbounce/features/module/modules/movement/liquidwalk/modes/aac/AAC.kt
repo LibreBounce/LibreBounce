@@ -17,15 +17,15 @@ object AAC : LiquidWalkMode("AAC") {
             val blockPos = position.down()
 
             if (!onGround && blockPos.block == water || inWater) {
-                motionX *= 0.99999
-                motionY *= 0.0
-                motionZ *= 0.99999
+                velocityX *= 0.99999
+                velocityY *= 0.0
+                velocityZ *= 0.99999
 
-                if (collidingHorizontally) motionY =
+                if (collidingHorizontally) velocityY =
                     ((y - (y - 1).toInt()).toInt() / 8f).toDouble()
 
-                if (fallDistance >= 4) motionY =
-                    -0.004 else if (inWater) motionY = 0.09
+                if (fallDistance >= 4) velocityY =
+                    -0.004 else if (inWater) velocityY = 0.09
             }
 
             if (damagedTimer != 0) onGround = false

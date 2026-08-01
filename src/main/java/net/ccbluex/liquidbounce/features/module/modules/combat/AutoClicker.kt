@@ -79,11 +79,11 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT) {
             val time = System.currentTimeMillis()
             val doubleClick = if (simulateDoubleClicking) nextInt(-1, 1) else 0
 
-            if (block && player.attackAnimationProgress > 0 && !mc.options.useKey.isKeyDown) {
+            if (block && player.attackAnimationProgress > 0 && !mc.options.useKey.isPressed) {
                 mc.options.useKey.pressTime = 0
             }
 
-            if (right && mc.options.useKey.isKeyDown && time - rightLastSwing >= rightDelay) {
+            if (right && mc.options.useKey.isPressed && time - rightLastSwing >= rightDelay) {
                 if (!onlyBlocks || player.displayItemInHand?.item is BlockItem) {
                     handleRightClick(time, doubleClick)
                 }
@@ -95,15 +95,15 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT) {
 
                 if (left && shouldAutoClick && time - leftLastSwing >= leftDelay) {
                     handleLeftClick(time, doubleClick)
-                } else if (block && !mc.options.useKey.isKeyDown && shouldAutoClick && shouldAutoRightClick() && mc.options.attackKey.pressTime != 0) {
+                } else if (block && !mc.options.useKey.isPressed && shouldAutoClick && shouldAutoRightClick() && mc.options.attackKey.pressTime != 0) {
                     handleBlock(time)
                 }
             } else {
-                if (left && mc.options.attackKey.isKeyDown && !mc.options.useKey.isKeyDown &&
+                if (left && mc.options.attackKey.isPressed && !mc.options.useKey.isPressed &&
                     shouldAutoClick && time - leftLastSwing >= leftDelay
                 ) {
                     handleLeftClick(time, doubleClick)
-                } else if (block && mc.options.attackKey.isKeyDown && !mc.options.useKey.isKeyDown && shouldAutoClick && shouldAutoRightClick() && mc.options.attackKey.pressTime != 0) {
+                } else if (block && mc.options.attackKey.isPressed && !mc.options.useKey.isPressed && shouldAutoClick && shouldAutoRightClick() && mc.options.attackKey.pressTime != 0) {
                     handleBlock(time)
                 }
             }

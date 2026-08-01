@@ -16,13 +16,13 @@ object AAC3311 : LiquidWalkMode("AAC3.3.11") {
             if (isSneaking) return
 
             if (inWater) {
-                motionX *= 1.17
-                motionZ *= 1.17
+                velocityX *= 1.17
+                velocityZ *= 1.17
 
                 if (collidingHorizontally) {
-                    motionY = 0.24
+                    velocityY = 0.24
                 } else if (BlockPos(this).up().block != Blocks.air) {
-                    motionY += 0.04
+                    velocityY += 0.04
                 }
             }
         }

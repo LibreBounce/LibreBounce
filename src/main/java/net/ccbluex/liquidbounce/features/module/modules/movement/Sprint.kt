@@ -58,7 +58,7 @@ object Sprint : Module("Sprint", Category.MOVEMENT, gameDetecting = false) {
             return
         }
 
-        if (!handleEvents() || onlyOnSprintPress && !player.isSprinting && !mc.options.keyBindSprint.isKeyDown && !SuperKnockback.startSprint() && !isSprinting)
+        if (!handleEvents() || onlyOnSprintPress && !player.isSprinting && !mc.options.keyBindSprint.isPressed && !SuperKnockback.startSprint() && !isSprinting)
             return
 
         if (Scaffold.handleEvents()) {
@@ -79,8 +79,8 @@ object Sprint : Module("Sprint", Category.MOVEMENT, gameDetecting = false) {
 
             if (player.isSprinting && allDirections && mode != "Legit") {
                 if (!allDirectionsLimitSpeedGround || player.onGround) {
-                    player.motionX *= allDirectionsLimitSpeed
-                    player.motionZ *= allDirectionsLimitSpeed
+                    player.velocityX *= allDirectionsLimitSpeed
+                    player.velocityZ *= allDirectionsLimitSpeed
                 }
             }
         }

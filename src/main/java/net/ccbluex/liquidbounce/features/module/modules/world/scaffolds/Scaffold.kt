@@ -199,7 +199,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
     private var launchY = -999
 
     val shouldJumpOnInput
-        get() = !jumpOnUserInput || !mc.options.jumpKey.isKeyDown && mc.player.y >= launchY && !mc.player.onGround
+        get() = !jumpOnUserInput || !mc.options.jumpKey.isPressed && mc.player.y >= launchY && !mc.player.onGround
 
     private val shouldKeepLaunchPosition
         get() = sameY && shouldJumpOnInput && scaffoldMode != "GodBridge"
@@ -224,7 +224,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
         get() = eagle != "Off" && !shouldGoDown && scaffoldMode != "GodBridge"
 
     val shouldGoDown
-        get() = down && !sameY && GameOptions.isKeyDown(mc.options.sneakKey) && scaffoldMode !in arrayOf(
+        get() = down && !sameY && GameOptions.isPressed(mc.options.sneakKey) && scaffoldMode !in arrayOf(
             "GodBridge", "Telly"
         ) && blocksAmount() > 1
 
@@ -257,7 +257,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
             val isYawDiagonal = yaw % 90 != 0f
             val isMovingDiagonal = player.input.forwardSpeed != 0f && player.input.moveStrafe == 0f
-            val isStrafing = mc.options.rightKey.isKeyDown || mc.options.leftKey.isKeyDown
+            val isStrafing = mc.options.rightKey.isPressed || mc.options.leftKey.isPressed
 
             return isYawDiagonal && (isMovingDiagonal || isStrafing)
         }
@@ -296,8 +296,8 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
         if (slow) {
             if (!slowGround || slowGround && player.onGround) {
-                player.motionX *= slowSpeed
-                player.motionZ *= slowSpeed
+                player.velocityX *= slowSpeed
+                player.velocityZ *= slowSpeed
             }
         }
 
@@ -343,7 +343,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
                 }
 
                 // For better sneak support we could move this to InputEvent
-                val pressedOnKeyboard = Keyboard.isKeyDown(options.sneakKey.keyCode)
+                val pressedOnKeyboard = Keyboard.isPressed(options.sneakKey.keyCode)
 
                 var shouldEagle =
                     eagleCondition && (blockPos.isReplaceable || dif < edgeDistance) || pressedOnKeyboard
@@ -372,8 +372,8 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
                         // Adjust speed when silent sneaking
                         if (adjustedSneakSpeed && shouldEagle) {
-                            player.motionX *= eagleSpeed
-                            player.motionZ *= eagleSpeed
+                            player.velocityX *= eagleSpeed
+                            player.velocityZ *= eagleSpeed
                         }
                     }
 
@@ -404,7 +404,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
         // Still a thing?
         if (scaffoldMode == "Rewinside" && player.onGround) {
             MovementUtils.strafe(0.2F)
-            player.motionY = 0.0
+            player.velocityY = 0.0
         }
     }
 
@@ -721,7 +721,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
     override fun onDisable() {
         val player = mc.player ?: return
 
-        if (!GameOptions.isKeyDown(mc.options.sneakKey)) {
+        if (!GameOptions.isPressed(mc.options.sneakKey)) {
             mc.options.sneakKey.pressed = false
             if (eagleSneaking && player.isSneaking) {
                 //sendPacket(PlayerMovementActionC2SPacket(player, PlayerMovementActionC2SPacket.Action.STOP_SNEAKING))
@@ -733,10 +733,10 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
             }
         }
 
-        if (!GameOptions.isKeyDown(mc.options.rightKey)) {
+        if (!GameOptions.isPressed(mc.options.rightKey)) {
             mc.options.rightKey.pressed = false
         }
-        if (!GameOptions.isKeyDown(mc.options.leftKey)) {
+        if (!GameOptions.isPressed(mc.options.leftKey)) {
             mc.options.leftKey.pressed = false
         }
 
@@ -1053,8 +1053,8 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
                 delayTimer.reset()
 
                 if (player.onGround) {
-                    player.motionX *= speedModifier
-                    player.motionZ *= speedModifier
+                    player.velocityX *= speedModifier
+                    player.velocityZ *= speedModifier
                 }
             }
 
@@ -1101,10 +1101,10 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
                 val notOnGround = !player.onGround || !player.collidingVertically
 
                 if (player.onGround) {
-                    input.sneak = eagleSneaking || GameOptions.isKeyDown(mc.options.sneakKey)
+                    input.sneak = eagleSneaking || GameOptions.isPressed(mc.options.sneakKey)
                 }
 
-                if (input.jump || mc.options.jumpKey.isKeyDown || notOnGround) {
+                if (input.jump || mc.options.jumpKey.isPressed || notOnGround) {
                     zitterTimer.reset()
 
                     if (useSneakMidAir) {
@@ -1121,11 +1121,11 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
                     zitterDirection = !zitterDirection
 
                     // Recreate input in case the user was indeed pressing inputs
-                    if (mc.options.leftKey.isKeyDown) {
+                    if (mc.options.leftKey.isPressed) {
                         input.moveStrafe++
                     }
 
-                    if (mc.options.rightKey.isKeyDown) {
+                    if (mc.options.rightKey.isPressed) {
                         input.moveStrafe--
                     }
 
@@ -1142,8 +1142,8 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
             "Teleport" -> {
                 MovementUtils.strafe(zitterSpeed)
                 val yaw = (player.yaw + if (zitterDirection) 90.0 else -90.0).toRadians()
-                player.motionX -= sin(yaw) * zitterStrength
-                player.motionZ += cos(yaw) * zitterStrength
+                player.velocityX -= sin(yaw) * zitterStrength
+                player.velocityZ += cos(yaw) * zitterStrength
 
                 zitterDirection = !zitterDirection
             }

@@ -44,7 +44,7 @@ object VerusDamage : LongJumpMode("VerusDamage") {
 
     override fun onUpdate() {
         mc.player?.run {
-            if (isInLiquid || inCobweb || isOnLadder) {
+            if (isInLiquid || inCobweb || isClimbing) {
                 LongJump.state = false
                 return
             }
@@ -54,10 +54,10 @@ object VerusDamage : LongJumpMode("VerusDamage") {
              */
             if (damaged && isMoving) {
                 flyingSpeed = 0.15f
-                motionY += 0.015f
+                velocityY += 0.015f
 
-                // player onGround checks will not work due to sendPacket ground, therefore motionY is used instead
-                if (autoDisable && motionY <= -0.4330104027478734) {
+                // player onGround checks will not work due to sendPacket ground, therefore velocityY is used instead
+                if (autoDisable && velocityY <= -0.4330104027478734) {
                     stopXZ()
                     LongJump.state = false
                 }

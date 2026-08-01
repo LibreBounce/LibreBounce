@@ -29,13 +29,13 @@ object NoClip : Module("NoClip", Category.MOVEMENT) {
 
             var ySpeed = 0.0
 
-            if (mc.options.jumpKey.isKeyDown)
+            if (mc.options.jumpKey.isPressed)
                 ySpeed += speed
 
-            if (mc.options.sneakKey.isKeyDown)
+            if (mc.options.sneakKey.isPressed)
                 ySpeed -= speed
 
-            motionY = ySpeed
+            velocityY = ySpeed
             event.y = ySpeed
         }
     }

@@ -15,7 +15,7 @@ object AACHop4 : SpeedMode("AACHop4") {
         mc.player?.run {
             mc.timer.tpsScale = 1f
 
-            if (!isMoving || isInLiquid || isOnLadder || isRiding)
+            if (!isMoving || isInLiquid || isClimbing || isRiding)
                 return
 
             if (onGround) {

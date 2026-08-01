@@ -62,7 +62,7 @@ object TickBase : Module("TickBase", Category.COMBAT) {
     val onPreTick = handler<PlayerTickEvent> { event ->
         val player = mc.player ?: return@handler
 
-        if (player.ridingEntity != null || Blink.handleEvents()) {
+        if (player.vehicle != null || Blink.handleEvents()) {
             return@handler
         }
 
@@ -83,7 +83,7 @@ object TickBase : Module("TickBase", Category.COMBAT) {
     val onGameTick = handler<GameTickEvent>(dispatcher = Dispatchers.Main, priority = 1) {
         val player = mc.player ?: return@handler
 
-        if (player.ridingEntity != null || Blink.handleEvents()) {
+        if (player.vehicle != null || Blink.handleEvents()) {
             return@handler
         }
 
@@ -144,7 +144,7 @@ object TickBase : Module("TickBase", Category.COMBAT) {
     val onMove = handler<MoveEvent> {
         val player = mc.player ?: return@handler
 
-        if (player.ridingEntity != null || Blink.handleEvents()) {
+        if (player.vehicle != null || Blink.handleEvents()) {
             return@handler
         }
 
@@ -172,9 +172,9 @@ object TickBase : Module("TickBase", Category.COMBAT) {
             tickBuffer += TickData(
                 simPlayer.pos,
                 simPlayer.fallDistance,
-                simPlayer.motionX,
-                simPlayer.motionY,
-                simPlayer.motionZ,
+                simPlayer.velocityX,
+                simPlayer.velocityY,
+                simPlayer.velocityZ,
                 simPlayer.onGround,
                 simPlayer.collidingHorizontally
             )
@@ -232,9 +232,9 @@ object TickBase : Module("TickBase", Category.COMBAT) {
     private data class TickData(
         val position: Vec3d,
         val fallDistance: Float,
-        val motionX: Double,
-        val motionY: Double,
-        val motionZ: Double,
+        val velocityX: Double,
+        val velocityY: Double,
+        val velocityZ: Double,
         val onGround: Boolean,
         val collidingHorizontally: Boolean,
     )

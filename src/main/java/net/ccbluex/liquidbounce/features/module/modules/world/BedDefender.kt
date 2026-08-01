@@ -69,7 +69,7 @@ object BedDefender : Module("BedDefender", Category.WORLD) {
     override fun onDisable() {
         val player = mc.player ?: return
 
-        if (!GameOptions.isKeyDown(mc.options.sneakKey)) {
+        if (!GameOptions.isPressed(mc.options.sneakKey)) {
             mc.options.sneakKey.pressed = false
             if (player.isSneaking) player.isSneaking = false
         }
@@ -84,7 +84,7 @@ object BedDefender : Module("BedDefender", Category.WORLD) {
         val player = mc.player ?: return@handler
         val world = mc.world ?: return@handler
 
-        if (onSneakOnly && !mc.options.sneakKey.isKeyDown) {
+        if (onSneakOnly && !mc.options.sneakKey.isPressed) {
             return@handler
         }
 

@@ -17,7 +17,7 @@ object Spartan : LiquidWalkMode("Spartan") {
 
             if (inWater) {
                 if (collidingHorizontally) {
-                    motionY += 0.15
+                    velocityY += 0.15
                     return
                 }
 
@@ -25,14 +25,14 @@ object Spartan : LiquidWalkMode("Spartan") {
                 val blockUp = BlockPos(x, y + 1.1, z).block
 
                 if (blockUp is LiquidBlock) {
-                    motionY = 0.1
+                    velocityY = 0.1
                 } else if (block is LiquidBlock) {
-                    motionY = 0.0
+                    velocityY = 0.0
                 }
 
                 onGround = true
-                motionX *= 1.085
-                motionZ *= 1.085
+                velocityX *= 1.085
+                velocityZ *= 1.085
             }
         }
     }

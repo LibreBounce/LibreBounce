@@ -56,8 +56,8 @@ object LongJump : Module("LongJump", Category.MOVEMENT) {
                     jumped = false
 
                     if (mode == "NCP") {
-                        motionX = 0.0
-                        motionZ = 0.0
+                        velocityX = 0.0
+                        velocityZ = 0.0
                     }
 
                     return@handler

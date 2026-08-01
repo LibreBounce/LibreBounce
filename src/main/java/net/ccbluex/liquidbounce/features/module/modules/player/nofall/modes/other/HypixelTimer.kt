@@ -24,7 +24,7 @@ object HypixelTimer : NoFallMode("HypixelTimer") {
             val fallingPlayer = FallingPlayer()
 
             if (event.packet is PlayerMoveC2SPacket) {
-                if (fallingPlayer.findCollision(500) != null && fallDistance - motionY >= 3.3) {
+                if (fallingPlayer.findCollision(500) != null && fallDistance - velocityY >= 3.3) {
                     mc.timer.tpsScale = 0.5f
 
                     event.packet.onGround = true

@@ -14,23 +14,23 @@ object OnGround : SpeedMode("OnGround") {
 
     override fun onMotion() {
         mc.player?.run {
-            if (inWater || isOnLadder || collidingHorizontally)
+            if (inWater || isClimbing || collidingHorizontally)
                 return
 
             if (!isMoving || fallDistance > 3.994) return
 
             y -= vertical
-            motionY = -1000.0
+            velocityY = -1000.0
             tilt = 0.3f
             distanceWalkedModified = 44f
             mc.timer.tpsScale = 1f
 
             if (onGround) {
                 y += vertical
-                motionY = vertical
+                velocityY = vertical
                 distanceWalkedOnStepModified = 44f
-                motionX *= horizontal
-                motionZ *= horizontal
+                velocityX *= horizontal
+                velocityZ *= horizontal
                 tilt = 0f
                 mc.timer.tpsScale = 1.199f
             }

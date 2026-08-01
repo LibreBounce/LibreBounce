@@ -83,7 +83,7 @@ object Sneak : Module("Sneak", Category.MOVEMENT) {
         val player = mc.player ?: return
 
         if (mode == "Legit") {
-            if (!GameOptions.isKeyDown(mc.options.sneakKey)) {
+            if (!GameOptions.isPressed(mc.options.sneakKey)) {
                 mc.options.sneakKey.pressed = false
             }
         } else {

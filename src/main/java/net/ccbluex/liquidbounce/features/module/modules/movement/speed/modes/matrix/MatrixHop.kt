@@ -23,14 +23,14 @@ object MatrixHop : SpeedMode("MatrixHop") {
 
     override fun onUpdate() {
         mc.player?.run {
-            if (isInLiquid || inCobweb || isOnLadder) return
+            if (isInLiquid || inCobweb || isClimbing) return
 
             if (matrixLowHop) flyingSpeed = 0.026f
 
             if (isMoving) {
                 if (onGround) {
                     strafe(if (!Scaffold.handleEvents()) speed + extraGroundBoost else speed)
-                    motionY = 0.42 - if (matrixLowHop) 3.48E-3 else 0.0
+                    velocityY = 0.42 - if (matrixLowHop) 3.48E-3 else 0.0
                 } else {
                     if (!Scaffold.handleEvents() && speed < 0.19) {
                         strafe()

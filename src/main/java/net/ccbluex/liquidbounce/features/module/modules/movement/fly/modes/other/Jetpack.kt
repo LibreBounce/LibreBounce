@@ -11,7 +11,7 @@ import net.minecraft.entity.particle.ParticleType
 object Jetpack : FlyMode("Jetpack") {
     override fun onUpdate() {
         mc.player?.run {
-            if (!mc.options.jumpKey.isKeyDown)
+            if (!mc.options.jumpKey.isPressed)
                 return
 
             // Let's bring back the particles, this mode is useless anyway
@@ -20,15 +20,15 @@ object Jetpack : FlyMode("Jetpack") {
                 x,
                 y + 0.2,
                 z,
-                -motionX,
+                -velocityX,
                 -0.5,
-                -motionZ
+                -velocityZ
             )
 
-            motionY += 0.15
+            velocityY += 0.15
 
-            motionX *= 1.1
-            motionZ *= 1.1
+            velocityX *= 1.1
+            velocityZ *= 1.1
         }
     }
 }

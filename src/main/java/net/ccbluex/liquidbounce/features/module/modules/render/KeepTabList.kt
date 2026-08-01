@@ -20,6 +20,6 @@ object KeepTabList : Module("KeepTabList", Category.RENDER, gameDetecting = fals
     }
 
     override fun onDisable() {
-        mc.options.keyBindPlayerList.pressed = GameOptions.isKeyDown(mc.options.keyBindPlayerList)
+        mc.options.keyBindPlayerList.pressed = GameOptions.isPressed(mc.options.keyBindPlayerList)
     }
 }

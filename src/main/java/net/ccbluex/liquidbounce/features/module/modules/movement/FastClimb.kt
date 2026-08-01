@@ -36,7 +36,7 @@ object FastClimb : Module("FastClimb", Category.MOVEMENT) {
 
     private fun playerClimb() {
         mc.player?.run {
-            motionY = 0.0
+            velocityY = 0.0
             inCobweb = true
             onGround = true
 
@@ -63,11 +63,11 @@ object FastClimb : Module("FastClimb", Category.MOVEMENT) {
 
                     if (block is LadderBlock || block is VineBlock) {
                         event.y = 0.5
-                        motionY = 0.0
+                        velocityY = 0.0
                     }
                 }
 
-                mode == "AAC3.0.5" && mc.options.forwardKey.isKeyDown &&
+                mode == "AAC3.0.5" && mc.options.forwardKey.isPressed &&
                     collideBlockIntersects(shape) {
                         it is LadderBlock || it is VineBlock
                     } -> {
@@ -75,12 +75,12 @@ object FastClimb : Module("FastClimb", Category.MOVEMENT) {
                     event.y = 0.5
                     event.z = 0.0
 
-                    motionX = 0.0
-                    motionY = 0.0
-                    motionZ = 0.0
+                    velocityX = 0.0
+                    velocityY = 0.0
+                    velocityZ = 0.0
                 }
 
-                mode == "Clip" && isOnLadder && mc.options.forwardKey.isKeyDown -> {
+                mode == "Clip" && isClimbing && mc.options.forwardKey.isPressed -> {
                     for (i in y.toInt()..y.toInt() + 8) {
                         val block = BlockPos(x, i.toDouble(), z).block
 
@@ -105,11 +105,11 @@ object FastClimb : Module("FastClimb", Category.MOVEMENT) {
                 }
             }
 
-            if (collidingHorizontally && isOnLadder) {
+            if (collidingHorizontally && isClimbing) {
                 when (mode) {
                     "Vanilla" -> {
                         event.y = speed.toDouble()
-                        motionY = 0.0
+                        velocityY = 0.0
                     }
 
                     "Delay" -> {
@@ -130,12 +130,12 @@ object FastClimb : Module("FastClimb", Category.MOVEMENT) {
 
                     "SAAC3.1.2" -> {
                         event.y = 0.1649
-                        motionY = 0.0
+                        velocityY = 0.0
                     }
 
                     "AAC3.1.2" -> {
                         event.y = 0.1699
-                        motionY = 0.0
+                        velocityY = 0.0
                     }
                 }
             }
@@ -144,7 +144,7 @@ object FastClimb : Module("FastClimb", Category.MOVEMENT) {
 
     val onBlockBB = handler<BlockBBEvent> { event ->
         if (mc.player != null && (event.block is LadderBlock || event.block is VineBlock) &&
-            mode == "AAC3.0.5" && mc.player.isOnLadder
+            mode == "AAC3.0.5" && mc.player.isClimbing
         )
             event.boundingBox = null
     }

@@ -65,7 +65,7 @@ object RaycastUtils : MinecraftInstance {
                     val eyeDistance = eyePosition.distanceTo(movingObjectPosition.hitVec)
 
                     if (eyeDistance < blockReachDistance || blockReachDistance == 0.0) {
-                        if (entity == renderViewEntity.ridingEntity && !renderViewEntity.canRiderInteract()) {
+                        if (entity == renderViewEntity.vehicle && !renderViewEntity.canRiderInteract()) {
                             if (blockReachDistance == 0.0) pointedEntity = entity
                         } else {
                             pointedEntity = entity
@@ -108,7 +108,7 @@ object RaycastUtils : MinecraftInstance {
             val vec31 = getRotationVector(rotation)
             val vec32 = vec3.addVector(vec31.xCoord * buildReach, vec31.yCoord * buildReach, vec31.zCoord * buildReach)
 
-            mc.objectMouseOver = entity.worldObj.rayTraceBlocks(vec3, vec32, false, false, true)
+            mc.objectMouseOver = entity.world.rayTraceBlocks(vec3, vec32, false, false, true)
 
             var d1 = buildReach
             var flag = false
@@ -163,7 +163,7 @@ object RaycastUtils : MinecraftInstance {
                         }
 
                         if (d3 < d2 || d2 == 0.0) {
-                            if (entity1 === entity.ridingEntity && !entity.canRiderInteract()) {
+                            if (entity1 === entity.vehicle && !entity.canRiderInteract()) {
                                 if (d2 == 0.0) {
                                     pointedEntity = entity1
                                     vec33 = intercept.hitVec
