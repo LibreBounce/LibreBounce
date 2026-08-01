@@ -24,8 +24,8 @@ object BPSUtils : MinecraftInstance, Listenable {
 
         val currentTime = System.currentTimeMillis()
         val deltaTime = currentTime - lastTimestamp
-        val deltaX = player.posX - lastPosX
-        val deltaZ = player.posZ - lastPosZ
+        val deltaX = player.x - lastPosX
+        val deltaZ = player.z - lastPosZ
         val distance = sqrt(deltaX * deltaX + deltaZ * deltaZ)
 
         if (deltaTime <= 0 || distance <= 0) {
@@ -34,8 +34,8 @@ object BPSUtils : MinecraftInstance, Listenable {
 
         val bps = distance * (1000 / deltaTime.toDouble())
 
-        lastPosX = player.posX
-        lastPosZ = player.posZ
+        lastPosX = player.x
+        lastPosZ = player.z
         lastTimestamp = currentTime
 
         return bps

@@ -60,9 +60,9 @@ object Boost : SpeedMode("Boost") {
 
                     4 -> {
                         if (shouldOffset) setPosition(
-                            posX + motionX / offset,
-                            posY,
-                            posZ + motionZ / offset
+                            x + motionX / offset,
+                            y,
+                            z + motionZ / offset
                         )
                         motionDelay = 0
                     }

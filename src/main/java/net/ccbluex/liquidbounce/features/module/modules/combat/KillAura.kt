@@ -737,7 +737,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         val switchMode = targetMode == "Switch"
 
         if (!switchMode || switchTimer.hasTimePassed(switchDelay)) {
-            prevTargetEntities += currentTarget.entityId
+            prevTargetEntities += currentTarget.networkId
 
             if (switchMode) {
                 switchTimer.reset()
@@ -768,7 +768,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         for (entity in world.loadedEntityList) {
             if (entity !is LivingEntity || !isSelected(
                     entity, true
-                ) || switchMode && entity.entityId in prevTargetEntities
+                ) || switchMode && entity.networkId in prevTargetEntities
             ) continue
 
             val distance = Backtrack.runWithNearestTrackedDistance(entity) { player.getDistanceToEntityBox(entity) }
@@ -888,7 +888,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
         val simPlayer = SimulatedPlayer.fromClientPlayer(RotationUtils.modifiedInput)
 
-        simPlayer.rotationYaw = (currentRotation ?: player.rotation).yaw
+        simPlayer.yaw = (currentRotation ?: player.rotation).yaw
 
         var pos = currPos
 
@@ -1124,7 +1124,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
         if (autoBlock == "Off" || !blinkAutoBlock || !blinked) return@handler
 
-        if (player.isDead || player.ticks < 20) {
+        if (player.removed || player.ticks < 20) {
             BlinkUtils.unblink()
             return@handler
         }

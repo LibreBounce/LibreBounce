@@ -130,9 +130,9 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
     @Inject(method = "onUpdateWalkingPlayer", at = @At("HEAD"), cancellable = true)
     private void onUpdateWalkingPlayer(CallbackInfo ci) {
         MotionEvent motionEvent = new MotionEvent(
-                posX,
+                x,
                 getShape().minY,
-                posZ,
+                z,
                 onGround,
                 EventState.PRE
         );
@@ -179,8 +179,8 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
         }
 
         if (isCurrentViewEntity()) {
-            float yaw = rotationYaw;
-            float pitch = rotationPitch;
+            float yaw = yaw;
+            float pitch = pitch;
 
             final Rotation currentRotation = RotationUtils.INSTANCE.getCurrentRotation();
 
@@ -237,7 +237,7 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
             }
         }
 
-        EventManager.INSTANCE.call(new MotionEvent(posX, getShape().minY, posZ, onGround, EventState.POST));
+        EventManager.INSTANCE.call(new MotionEvent(x, getShape().minY, z, onGround, EventState.POST));
 
         EventManager.INSTANCE.call(RotationUpdateEvent.INSTANCE);
 
@@ -362,8 +362,8 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
         }
 
         // Calculate and apply the movement input based on rotation
-        float forwardSpeed = currentRotation != null ? Math.round(modifiedInput.forwardSpeed * MathHelper.cos(MathExtensionsKt.toRadians(rotationYaw - currentRotation.getYaw())) + modifiedInput.moveStrafe * MathHelper.sin(MathExtensionsKt.toRadians(rotationYaw - currentRotation.getYaw()))) : modifiedInput.forwardSpeed;
-        float moveStrafe = currentRotation != null ? Math.round(modifiedInput.moveStrafe * MathHelper.cos(MathExtensionsKt.toRadians(rotationYaw - currentRotation.getYaw())) - modifiedInput.forwardSpeed * MathHelper.sin(MathExtensionsKt.toRadians(rotationYaw - currentRotation.getYaw()))) : modifiedInput.moveStrafe;
+        float forwardSpeed = currentRotation != null ? Math.round(modifiedInput.forwardSpeed * MathHelper.cos(MathExtensionsKt.toRadians(yaw - currentRotation.getYaw())) + modifiedInput.moveStrafe * MathHelper.sin(MathExtensionsKt.toRadians(yaw - currentRotation.getYaw()))) : modifiedInput.forwardSpeed;
+        float moveStrafe = currentRotation != null ? Math.round(modifiedInput.moveStrafe * MathHelper.cos(MathExtensionsKt.toRadians(yaw - currentRotation.getYaw())) - modifiedInput.forwardSpeed * MathHelper.sin(MathExtensionsKt.toRadians(yaw - currentRotation.getYaw()))) : modifiedInput.moveStrafe;
 
         modifiedInput.forwardSpeed = forwardSpeed;
         modifiedInput.moveStrafe = moveStrafe;
@@ -402,10 +402,10 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
 
         utils.setModifiedInput(settings != null && !settings.getStrict() ? modifiedInput : input);
 
-        pushOutOfBlocks(posX - width * 0.35, getShape().minY + 0.5, posZ + width * 0.35);
-        pushOutOfBlocks(posX - width * 0.35, getShape().minY + 0.5, posZ - width * 0.35);
-        pushOutOfBlocks(posX + width * 0.35, getShape().minY + 0.5, posZ - width * 0.35);
-        pushOutOfBlocks(posX + width * 0.35, getShape().minY + 0.5, posZ + width * 0.35);
+        pushOutOfBlocks(x - width * 0.35, getShape().minY + 0.5, z + width * 0.35);
+        pushOutOfBlocks(x - width * 0.35, getShape().minY + 0.5, z - width * 0.35);
+        pushOutOfBlocks(x + width * 0.35, getShape().minY + 0.5, z - width * 0.35);
+        pushOutOfBlocks(x + width * 0.35, getShape().minY + 0.5, z + width * 0.35);
 
         final Sprint sprint = Sprint.INSTANCE;
 
@@ -506,14 +506,14 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
 
         if (noClip) {
             setShape(getShape().offset(x, y, z));
-            posX = (getShape().minX + getShape().maxX) / 2;
-            posY = getShape().minY;
-            posZ = (getShape().minZ + getShape().maxZ) / 2;
+            x = (getShape().minX + getShape().maxX) / 2;
+            y = getShape().minY;
+            z = (getShape().minZ + getShape().maxZ) / 2;
         } else {
             worldObj.theProfiler.startSection("move");
-            double d0 = posX;
-            double d1 = posY;
-            double d2 = posZ;
+            double d0 = x;
+            double d1 = y;
+            double d2 = z;
 
             if (inCobweb) {
                 inCobweb = false;
@@ -689,16 +689,16 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
 
             worldObj.theProfiler.endSection();
             worldObj.theProfiler.startSection("rest");
-            posX = (getShape().minX + getShape().maxX) / 2;
-            posY = getShape().minY;
-            posZ = (getShape().minZ + getShape().maxZ) / 2;
+            x = (getShape().minX + getShape().maxX) / 2;
+            y = getShape().minY;
+            z = (getShape().minZ + getShape().maxZ) / 2;
             collidingHorizontally = d3 != x || d5 != z;
             collidingVertically = d4 != y;
             onGround = collidingVertically && d4 < 0;
             colliding = collidingHorizontally || collidingVertically;
-            int i = MathHelper.floor(posX);
-            int j = MathHelper.floor(posY - 0.20000000298023224);
-            int k = MathHelper.floor(posZ);
+            int i = MathHelper.floor(x);
+            int j = MathHelper.floor(y - 0.20000000298023224);
+            int k = MathHelper.floor(z);
             BlockPos blockpos = new BlockPos(i, j, k);
             Block block1 = worldObj.getBlockState(blockpos).getBlock();
 
@@ -727,9 +727,9 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
             }
 
             if (canTriggerWalking() && !flag && ridingEntity == null) {
-                double d12 = posX - d0;
-                double d13 = posY - d1;
-                double d14 = posZ - d2;
+                double d12 = x - d0;
+                double d13 = y - d1;
+                double d14 = z - d2;
 
                 if (block1 != Blocks.ladder) {
                     d13 = 0;

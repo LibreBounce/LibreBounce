@@ -32,7 +32,7 @@ object Eagle : Module("Eagle", Category.PLAYER) {
         if (GameOptions.isKeyDown(mc.options.sneakKey)) return@handler
 
         if (player.onGround && BlockPos(player).down().block == air) {
-            val shouldSneak = (!onlyWhenLookingDown || player.rotationPitch >= lookDownThreshold) && (!onlyBlocks || player.displayItemInHand?.item is BlockItem) && (!notOnForward || !GameOptions.isKeyDown(mc.options.forwardKey))
+            val shouldSneak = (!onlyWhenLookingDown || player.pitch >= lookDownThreshold) && (!onlyBlocks || player.displayItemInHand?.item is BlockItem) && (!notOnForward || !GameOptions.isKeyDown(mc.options.forwardKey))
 
             mc.options.sneakKey.pressed = shouldSneak && !GameOptions.isKeyDown(mc.options.sneakKey)
         } else if (sneakTimer.resetIfPassed()) {

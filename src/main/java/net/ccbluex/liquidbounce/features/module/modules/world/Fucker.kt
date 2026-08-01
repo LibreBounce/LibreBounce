@@ -271,7 +271,7 @@ object Fucker : Module("Fucker", Category.WORLD) {
 
                 if (swing) player.swingItem()
                 currentDamage += block.getPlayerRelativeBlockHardness(player, world, currentPos)
-                world.sendBlockBreakProgress(player.entityId, currentPos, (currentDamage * 10F).toInt() - 1)
+                world.sendBlockBreakProgress(player.networkId, currentPos, (currentDamage * 10F).toInt() - 1)
 
                 if (currentDamage >= 1F) {
                     sendPacket(PlayerHandActionC2SPacket(STOP_DESTROY_BLOCK, currentPos, raytrace.sideHit))

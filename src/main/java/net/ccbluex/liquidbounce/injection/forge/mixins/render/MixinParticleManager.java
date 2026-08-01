@@ -42,7 +42,7 @@ public abstract class MixinParticleManager {
 
                 entityParticleEmitter.onUpdate();
 
-                if (entityParticleEmitter.isDead)
+                if (entityParticleEmitter.removed)
                     it.remove();
             }
         } catch(final ConcurrentModificationException ignored) {

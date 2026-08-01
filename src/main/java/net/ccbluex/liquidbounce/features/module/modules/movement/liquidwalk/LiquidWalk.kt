@@ -66,7 +66,7 @@ object LiquidWalk : Module("LiquidWalk", Category.MOVEMENT, Keyboard.KEY_J) {
 
     val onJump = handler<JumpEvent> { event ->
         mc.player?.run {
-            val block = BlockPos(posX, posY - 0.01, posZ).block
+            val block = BlockPos(x, y - 0.01, z).block
 
             if (noJump && block is LiquidBlock)
                 event.cancelEvent()

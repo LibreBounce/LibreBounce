@@ -208,9 +208,9 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
         // Detect possible step
         if (event.stepHeight > 0.6F) {
             isStep = true
-            stepX = player.posX
-            stepY = player.posY
-            stepZ = player.posZ
+            stepX = player.x
+            stepY = player.y
+            stepZ = player.z
         }
     }
 
@@ -289,7 +289,7 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
     private fun fakeJump() {
         val player = mc.player ?: return
 
-        player.isAirBorne = true
+        player.velocityDirty = true
         player.triggerAchievement(StatList.jumpStat)
     }
 

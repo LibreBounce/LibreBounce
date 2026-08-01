@@ -36,7 +36,7 @@ object Hypixel : FlyMode("Hypixel") {
                 else 1f
 
             if (tickTimer.resetIfPassed())
-                setPosition(posX, posY + 1.0E-5, posZ)
+                setPosition(x, y + 1.0E-5, z)
         }
     }
 
@@ -46,13 +46,13 @@ object Hypixel : FlyMode("Hypixel") {
     }
 
     override fun onBB(event: BlockBBEvent) {
-        if (event.block == air && event.y < mc.player.posY)
+        if (event.block == air && event.y < mc.player.y)
             event.boundingBox = Box.fromBounds(
                 event.x.toDouble(),
                 event.y.toDouble(),
                 event.z.toDouble(),
                 event.x + 1.0,
-                mc.player.posY,
+                mc.player.y,
                 event.z + 1.0
             )
     }

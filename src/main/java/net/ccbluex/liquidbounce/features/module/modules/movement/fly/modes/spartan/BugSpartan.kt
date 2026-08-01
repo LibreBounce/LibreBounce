@@ -17,12 +17,12 @@ object BugSpartan : FlyMode("BugSpartan") {
         mc.player?.run {
             repeat(65) {
                 sendPackets(
-                    Position(posX, posY + 0.049, posZ, false),
-                    Position(posX, posY, posZ, false)
+                    Position(x, y + 0.049, z, false),
+                    Position(x, y, z, false)
                 )
             }
 
-            sendPacket(Position(posX, posY + 0.1, posZ, true))
+            sendPacket(Position(x, y + 0.1, z, true))
 
             motionX *= 0.1
             motionZ *= 0.1

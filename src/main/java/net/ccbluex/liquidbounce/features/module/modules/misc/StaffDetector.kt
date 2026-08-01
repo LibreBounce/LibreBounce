@@ -177,7 +177,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
          * Check if this is a regular velocity update
          */
         if (velocity) {
-            if (packet is EntityVelocityS2CPacket && packet.entityID == mc.player?.entityId) {
+            if (packet is EntityVelocityS2CPacket && packet.networkId == mc.player?.networkId) {
                 if (packet.motionX == 0 && packet.motionZ == 0 && packet.motionY / 8000.0 > 0.075) {
                     attemptLeave = false
                     autoLeave()
@@ -348,17 +348,17 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
         }
 
         when (packet) {
-            is LoginS2CPacket -> handleStaff(mc.world.getEntityByID(packet.entityId) ?: null)
-            is AddPlayerS2CPacket -> handleStaff(mc.world.getEntityByID(packet.entityID) ?: null)
-            is EntityTeleportS2CPacket -> handleStaff(mc.world.getEntityByID(packet.entityId) ?: null)
-            is EntityDataS2CPacket -> handleStaff(mc.world.getEntityByID(packet.entityId) ?: null)
-            is EntityStatusEffectS2CPacket -> handleStaff(mc.world.getEntityByID(packet.entityId) ?: null)
-            is EntityRemoveStatusEffectS2CPacket -> handleStaff(mc.world.getEntityByID(packet.entityId) ?: null)
-            is EntityEventS2CPacket -> handleStaff(mc.world.getEntityByID(packet.entityId) ?: null)
+            is LoginS2CPacket -> handleStaff(mc.world.getEntityByID(packet.networkId) ?: null)
+            is AddPlayerS2CPacket -> handleStaff(mc.world.getEntityByID(packet.networkId) ?: null)
+            is EntityTeleportS2CPacket -> handleStaff(mc.world.getEntityByID(packet.networkId) ?: null)
+            is EntityDataS2CPacket -> handleStaff(mc.world.getEntityByID(packet.networkId) ?: null)
+            is EntityStatusEffectS2CPacket -> handleStaff(mc.world.getEntityByID(packet.networkId) ?: null)
+            is EntityRemoveStatusEffectS2CPacket -> handleStaff(mc.world.getEntityByID(packet.networkId) ?: null)
+            is EntityEventS2CPacket -> handleStaff(mc.world.getEntityByID(packet.networkId) ?: null)
             is EntityHeadAnglesS2CPacket -> handleStaff(packet.getEntity(mc.world) ?: null)
             is EntitySyncS2CPacket -> handleStaff(packet.getEntity(mc.world) ?: null)
-            is AttachEntityS2CPacket -> handleStaff(mc.world.getEntityByID(packet.entityId) ?: null)
-            is EntityEquipmentS2CPacket -> handleStaff(mc.world.getEntityByID(packet.entityID) ?: null)
+            is AttachEntityS2CPacket -> handleStaff(mc.world.getEntityByID(packet.networkId) ?: null)
+            is EntityEquipmentS2CPacket -> handleStaff(mc.world.getEntityByID(packet.networkId) ?: null)
             is PlayerInfoS2CPacket -> handlePlayerList(packet)
         }
     }

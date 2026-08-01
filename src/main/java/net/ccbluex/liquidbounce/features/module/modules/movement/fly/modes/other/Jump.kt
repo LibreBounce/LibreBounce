@@ -23,7 +23,7 @@ object Jump : FlyMode("Jump") {
             if (onGround ||
                 mc.options.jumpKey.isKeyDown && !mc.options.sneakKey.isKeyDown
             )
-                jumpY = posY
+                jumpY = y
         }
     }
 

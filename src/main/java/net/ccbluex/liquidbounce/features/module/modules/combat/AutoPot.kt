@@ -79,13 +79,13 @@ object AutoPot : Module("AutoPot", Category.COMBAT) {
 
             val collisionBlock = fallingPlayer.findCollision(20)?.pos
 
-            if (player.posY - (collisionBlock?.y ?: return@handler) - 1 > groundDistance)
+            if (player.y - (collisionBlock?.y ?: return@handler) - 1 > groundDistance)
                 return@handler
 
             potion = potionInHotbar
 
-            if (player.rotationPitch <= 80F) {
-                setTargetRotation(Rotation(player.rotationYaw, nextFloat(80F, 90F)).fixedSensitivity(), options)
+            if (player.pitch <= 80F) {
+                setTargetRotation(Rotation(player.yaw, nextFloat(80F, 90F)).fixedSensitivity(), options)
             }
 
             nextTick {

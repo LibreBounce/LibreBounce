@@ -74,14 +74,14 @@ object OutboundBacktrack : Module("OutboundBacktrack", Category.COMBAT, gameDete
         val player = mc.player ?: return@handler
         val packet = event.packet
 
-        if (!handleEvents() || player.isDead || event.isCancelled || ignoreWholeTick) {
+        if (!handleEvents() || player.removed || event.isCancelled || ignoreWholeTick) {
             return@handler
         }
 
         if (packet !is PlayerInteractEntityC2SPacket || packet.action != ATTACK)
             return@handler
 
-        if (!packet.entityID == target || target == null) return@handler
+        if (!packet.networkId == target || target == null) return@handler
 
         val modifiedInput = RotationUtils.modifiedInput
         val simPlayer = SimulatedPlayer.fromClientPlayer(modifiedInput)
@@ -157,7 +157,7 @@ object OutboundBacktrack : Module("OutboundBacktrack", Category.COMBAT, gameDete
         val player = mc.player ?: return@handler
         mc.world ?: return@handler
 
-        if (Blink.blinkingSend() || player.isDead) {
+        if (Blink.blinkingSend() || player.removed) {
             blink()
             return@handler
         }

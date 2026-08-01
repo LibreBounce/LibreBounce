@@ -16,7 +16,7 @@ object Spartan2 : FlyMode("Spartan2") {
             strafe(0.264f)
 
             if (ticks % 8 == 0)
-                sendPacket(Position(posX, posY + 10, posZ, true))
+                sendPacket(Position(x, y + 10, z, true))
         }
     }
 }

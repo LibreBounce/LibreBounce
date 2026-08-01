@@ -27,7 +27,7 @@ object AACv3 : LongJumpMode("AACv3") {
                     else -> {}
                 }
 
-                setPosition(posX + x, posY, posZ + z)
+                setPosition(x + x, y, z + z)
                 teleported = true
             }
         }

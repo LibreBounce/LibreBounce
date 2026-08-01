@@ -29,7 +29,7 @@ object BlinkUtils : MinecraftInstance, Listenable {
     fun blink(packet: Packet<*>, event: PacketEvent, sent: Boolean? = true, receive: Boolean? = true) {
         val player = mc.player ?: return
 
-        if (event.isCancelled || player.isDead || mc.currentServerData == null) return
+        if (event.isCancelled || player.removed || mc.currentServerData == null) return
 
         when (packet) {
             is HandshakeC2SPacket, is ServerStatusC2SPacket, is PingC2SPacket, is ChatMessageS2CPacket, is ChatMessageC2SPacket -> {
@@ -156,7 +156,7 @@ object BlinkUtils : MinecraftInstance, Listenable {
 
         // Remove fake player
         fakePlayer?.apply {
-            fakePlayer?.entityId?.let { mc.world?.removeEntityFromWorld(it) }
+            fakePlayer?.networkId?.let { mc.world?.removeEntityFromWorld(it) }
             fakePlayer = null
         }
     }
@@ -173,7 +173,7 @@ object BlinkUtils : MinecraftInstance, Listenable {
 
         // Remove fake player
         fakePlayer?.apply {
-            fakePlayer?.entityId?.let { mc.world?.removeEntityFromWorld(it) }
+            fakePlayer?.networkId?.let { mc.world?.removeEntityFromWorld(it) }
             fakePlayer = null
         }
     }
@@ -198,8 +198,8 @@ object BlinkUtils : MinecraftInstance, Listenable {
 
         val faker = RemoteClientPlayerEntity(world, player.gameProfile).apply {
             copyLocationAndAnglesFrom(player)
-            rotationYaw = player.rotationYaw
-            rotationPitch = player.rotationPitch
+            yaw = player.yaw
+            pitch = player.pitch
             headYaw = player.headYaw
             bodyYaw = player.bodyYaw
             inventory = player.inventory

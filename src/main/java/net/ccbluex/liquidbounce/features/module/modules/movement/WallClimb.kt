@@ -73,7 +73,7 @@ object WallClimb : Module("WallClimb", Category.MOVEMENT) {
                 "AAC3.3.12" -> if (collidingHorizontally && !isOnLadder) {
                     when (++waited) {
                         1, 12, 23 -> motionY = 0.43
-                        29 -> setPosition(posX, posY + 0.5, posZ)
+                        29 -> setPosition(x, y + 0.5, z)
                         30 -> waited = 0
                     }
                 } else if (onGround) waited = 0
@@ -98,14 +98,14 @@ object WallClimb : Module("WallClimb", Category.MOVEMENT) {
     val onBlockBB = handler<BlockBBEvent> { event ->
         mc.player?.run {
             when (mode) {
-                "CheckerClimb" -> if (event.y > posY) event.boundingBox = null
+                "CheckerClimb" -> if (event.y > y) event.boundingBox = null
 
                 "Clip" ->
-                    if (event.block == Blocks.air && event.y < posY && collidingHorizontally
+                    if (event.block == Blocks.air && event.y < y && collidingHorizontally
                         && !isOnLadder && !isInLiquid
                     )
                         event.boundingBox = Box.fromBounds(0.0, 0.0, 0.0, 1.0, 1.0, 1.0)
-                            .offset(posX, posY.toInt() - 1.0, posZ)
+                            .offset(x, y.toInt() - 1.0, z)
             }
         }
     }

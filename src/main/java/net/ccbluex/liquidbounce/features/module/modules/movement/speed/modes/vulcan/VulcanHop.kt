@@ -17,7 +17,7 @@ object VulcanHop : SpeedMode("VulcanHop") {
             if (isInLiquid || inCobweb || isOnLadder) return
 
             if (isMoving) {
-                if (isAirBorne && fallDistance > 2) {
+                if (velocityDirty && fallDistance > 2) {
                     mc.timer.tpsScale = 1f
                     return
                 }

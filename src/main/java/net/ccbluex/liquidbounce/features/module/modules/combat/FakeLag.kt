@@ -97,7 +97,7 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
         val player = mc.player ?: return@handler
         val packet = event.packet
 
-        if (!handleEvents() || player.isDead || event.isCancelled || ignoreWholeTick) {
+        if (!handleEvents() || player.removed || event.isCancelled || ignoreWholeTick) {
             return@handler
         }
 
@@ -151,7 +151,7 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
 
             // Flush on knockback
             is EntityVelocityS2CPacket -> {
-                if (pauseOnKnockback && player.entityId == packet.entityID) {
+                if (pauseOnKnockback && player.networkId == packet.networkId) {
                     blink()
                     return@handler
                 }
@@ -256,7 +256,7 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
             }
         }
 
-        if (Blink.blinkingSend() || player.isDead || player.isUsingItem) {
+        if (Blink.blinkingSend() || player.removed || player.isUsingItem) {
             blink()
             return@handler
         }

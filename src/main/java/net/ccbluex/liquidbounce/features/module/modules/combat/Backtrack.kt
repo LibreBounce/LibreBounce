@@ -133,13 +133,13 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
                 return@handler
             }
 
-            is RemoveEntitiesS2CPacket -> if (target != null && target!!.entityId in packet.entityIDs) {
+            is RemoveEntitiesS2CPacket -> if (target != null && target!!.networkId in packet.networkIds) {
                 clearPackets()
                 reset()
                 return@handler
             }
 
-            is EntityDataS2CPacket -> if (target?.entityId == packet.entityId) {
+            is EntityDataS2CPacket -> if (target?.networkId == packet.networkId) {
                 val metadata = packet.func_149376_c() ?: return@handler
 
                 metadata.forEach {
@@ -156,7 +156,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
                 return@handler
             }
 
-            is EntityEventS2CPacket -> if (packet.entityId == target?.entityId) return@handler
+            is EntityEventS2CPacket -> if (packet.networkId == target?.networkId) return@handler
         }
 
         // Cancel every received packet to avoid possible server synchronization issues from random causes.
@@ -164,13 +164,13 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
             //if (packetMode == "Sent") return@handler
 
             when (packet) {
-                is EntityMoveS2CPacket -> if (packet.entityId == target?.entityId) {
+                is EntityMoveS2CPacket -> if (packet.networkId == target?.networkId) {
                     (target as? IMixinEntity)?.run {
                         positions += Pair(Vec3d(trueX, trueY, trueZ), System.currentTimeMillis())
                     }
                 }
 
-                is EntityTeleportS2CPacket -> if (packet.entityId == target?.entityId) {
+                is EntityTeleportS2CPacket -> if (packet.networkId == target?.networkId) {
                     (target as? IMixinEntity)?.run {
                         positions += Pair(Vec3d(trueX, trueY, trueZ), System.currentTimeMillis())
                     }
@@ -189,7 +189,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
         if (shouldBacktrack() && targetMixin != null) {
             if (!Blink.blinkingReceive() && targetMixin.truePos) {
                 val trueDist = mc.player.getDistance(targetMixin.trueX, targetMixin.trueY, targetMixin.trueZ)
-                val dist = mc.player.getDistance(target.posX, target.posY, target.posZ)
+                val dist = mc.player.getDistance(target.x, target.y, target.z)
 
                 if (trueDist <= 6f && (!smart || trueDist > dist + advantageTreshold) && (style == "Smooth" || !globalTimer.hasTimePassed(
                         supposedDelay
@@ -269,7 +269,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
                             x,
                             y,
                             z,
-                            prevRotationYaw + (rotationYaw - prevRotationYaw) * event.partialTicks,
+                            lastYaw + (yaw - lastYaw) * event.partialTicks,
                             event.partialTicks,
                             true
                         )
@@ -299,7 +299,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
                             x,
                             y,
                             z,
-                            prevRotationYaw + (rotationYaw - prevRotationYaw) * event.partialTicks,
+                            lastYaw + (yaw - lastYaw) * event.partialTicks,
                             event.partialTicks,
                             true
                         )
@@ -309,7 +309,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
                             x,
                             y,
                             z,
-                            prevRotationYaw + (rotationYaw - prevRotationYaw) * event.partialTicks,
+                            lastYaw + (yaw - lastYaw) * event.partialTicks,
                             event.partialTicks,
                             true
                         )

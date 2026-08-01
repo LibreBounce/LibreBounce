@@ -17,12 +17,12 @@ object WatchCat : FlyMode("WatchCat") {
             strafe(0.15f)
             isSprinting = true
 
-            if (posY < startY + 2) {
+            if (y < startY + 2) {
                 motionY = nextDouble(endInclusive = 0.5)
                 return
             }
 
-            if (startY > posY) stopXZ()
+            if (startY > y) stopXZ()
         }
     }
 }

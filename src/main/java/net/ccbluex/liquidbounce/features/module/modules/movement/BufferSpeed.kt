@@ -166,8 +166,8 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT) {
                 return@handler
             }
 
-            if (snow && blockPos.block == snow_layer && (snowPort || player.posY - player.posY.toInt() >= 0.12500)) {
-                if (player.posY - player.posY.toInt() >= 0.12500) {
+            if (snow && blockPos.block == snow_layer && (snowPort || player.y - player.y.toInt() >= 0.12500)) {
+                if (player.y - player.y.toInt() >= 0.12500) {
                     boost(snowBoost)
                 } else {
                     player.tryJump()
@@ -245,10 +245,10 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT) {
         get() {
             val player = mc.player
             val blocks = arrayOf(
-                BlockPos(player.posX, player.posY + 1, player.posZ - 0.7),
-                BlockPos(player.posX + 0.7, player.posY + 1, player.posZ),
-                BlockPos(player.posX, player.posY + 1, player.posZ + 0.7),
-                BlockPos(player.posX - 0.7, player.posY + 1, player.posZ)
+                BlockPos(player.x, player.y + 1, player.z - 0.7),
+                BlockPos(player.x + 0.7, player.y + 1, player.z),
+                BlockPos(player.x, player.y + 1, player.z + 0.7),
+                BlockPos(player.x - 0.7, player.y + 1, player.z)
             )
 
             for (blockPos in blocks) {

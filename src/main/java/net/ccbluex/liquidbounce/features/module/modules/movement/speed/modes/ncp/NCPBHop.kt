@@ -38,8 +38,8 @@ object NCPBHop : SpeedMode("NCPBHop") {
     }
 
     override fun onMotion() {
-        val xDist = mc.player.posX - mc.player.prevPosX
-        val zDist = mc.player.posZ - mc.player.prevPosZ
+        val xDist = mc.player.x - mc.player.prevPosX
+        val zDist = mc.player.z - mc.player.prevPosZ
         lastDist = sqrt(xDist * xDist + zDist * zDist)
     }
 
@@ -64,10 +64,10 @@ object NCPBHop : SpeedMode("NCPBHop") {
 
         if (player.onGround && player.isMoving) level = 2
 
-        if (round(player.posY - player.posY.toInt().toDouble()) == round(0.138)) {
+        if (round(player.y - player.y.toInt().toDouble()) == round(0.138)) {
             player.motionY -= 0.08
             event.y -= 0.09316090325960147
-            player.posY -= 0.09316090325960147
+            player.y -= 0.09316090325960147
         }
 
         if (level == 1 && player.isMoving) {
@@ -96,7 +96,7 @@ object NCPBHop : SpeedMode("NCPBHop") {
         // TODO: Use a proper strafe system
         var forward = player.input.forwardSpeed
         var strafe = player.input.moveStrafe
-        var yaw = player.rotationYaw
+        var yaw = player.yaw
 
         if (forward == 0f && strafe == 0f) {
             event.zeroXZ()

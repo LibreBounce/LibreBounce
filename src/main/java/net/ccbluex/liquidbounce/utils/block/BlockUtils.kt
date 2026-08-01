@@ -91,7 +91,7 @@ object BlockUtils : MinecraftInstance {
                         return blocks
                     }
 
-                    mutable.set(player.posX.toInt() + x, player.posY.toInt() + y, player.posZ.toInt() + z)
+                    mutable.set(player.x.toInt() + x, player.y.toInt() + y, player.z.toInt() + z)
 
                     val block = mutable.block ?: continue
 

@@ -53,9 +53,9 @@ operator fun Vector2f.component2() = y
  * ```
  * val (x, y, z) = mc.player
  */
-operator fun Entity.component1() = posX
-operator fun Entity.component2() = posY
-operator fun Entity.component3() = posZ
+operator fun Entity.component1() = x
+operator fun Entity.component2() = y
+operator fun Entity.component3() = z
 
 /**
  * Provides:

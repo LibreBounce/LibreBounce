@@ -21,7 +21,7 @@ object CubeCraft : FlyMode("CubeCraft") {
     }
 
     override fun onMove(event: MoveEvent) {
-        val yaw = mc.player.rotationYaw.toRadiansD()
+        val yaw = mc.player.yaw.toRadiansD()
 
         if (tickTimer.hasTimePassed(2)) {
             event.x = -sin(yaw) * 2.4

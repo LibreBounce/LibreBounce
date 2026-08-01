@@ -148,7 +148,7 @@ public abstract class MixinGameRenderer {
 
             double d0 = reach.handleEvents() ? reach.getMaxRange() : mc.interactionManager.getBlockReachDistance();
             Vec3d vec3 = entity.getEyePosition(p_getMouseOver_1_);
-            Rotation rotation = new Rotation(mc.player.rotationYaw, mc.player.rotationPitch);
+            Rotation rotation = new Rotation(mc.player.yaw, mc.player.pitch);
             Vec3d vec31 = RotationUtils.INSTANCE.getRotationVector(RotationUtils.INSTANCE.getCurrentRotation() != null && OverrideRaycast.INSTANCE.shouldOverride() ? RotationUtils.INSTANCE.getCurrentRotation() : rotation);
             double p_rayTrace_1_ = (reach.handleEvents() ? reach.getBuildReach() : d0);
             Vec3d vec32 = vec3.addVector(vec31.xCoord * p_rayTrace_1_, vec31.yCoord * p_rayTrace_1_, vec31.zCoord * p_rayTrace_1_);

@@ -31,7 +31,7 @@ object UNCPHop : SpeedMode("UNCPHop") {
                     speed *= 0.98f
                 }
 
-                if (isAirBorne && fallDistance > 2) {
+                if (velocityDirty && fallDistance > 2) {
                     mc.timer.tpsScale = 1f
                     return
                 }

@@ -28,7 +28,7 @@ object SpectreOnGround : SpeedMode("SpectreOnGround") {
             }
 
             if (onGround && mc.options.forwardKey.isKeyDown) {
-                val f = rotationYaw.toRadians()
+                val f = yaw.toRadians()
                 motionX -= sin(f) * 0.145f
                 motionZ += cos(f) * 0.145f
                 event.x = motionX

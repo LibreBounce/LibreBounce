@@ -14,21 +14,21 @@ object Flag : FlyMode("Flag") {
         mc.player?.run {
             sendPackets(
                 Position(
-                    posX + motionX * 999,
-                    posY + (if (mc.options.jumpKey.isKeyDown) 1.5624 else 0.00000001) - if (mc.options.sneakKey.isKeyDown) 0.0624 else 0.00000002,
-                    posZ + motionZ * 999,
+                    x + motionX * 999,
+                    y + (if (mc.options.jumpKey.isKeyDown) 1.5624 else 0.00000001) - if (mc.options.sneakKey.isKeyDown) 0.0624 else 0.00000002,
+                    z + motionZ * 999,
                     true
                 ),
 
                 Position(
-                    posX + motionX * 999,
-                    posY - 6969,
-                    posZ + motionZ * 999,
+                    x + motionX * 999,
+                    y - 6969,
+                    z + motionZ * 999,
                     true
                 )
             )
 
-            setPosition(posX + motionX * 11, posY, posZ + motionZ * 11)
+            setPosition(x + motionX * 11, y, z + motionZ * 11)
             motionY = 0.0
         }
     }

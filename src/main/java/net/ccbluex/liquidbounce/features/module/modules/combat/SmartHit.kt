@@ -108,7 +108,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
     fun shouldHit(target: Entity): Boolean {
         val player = mc.player ?: return false
 
-        if (target.isDead) return false
+        if (target.removed) return false
 
         val playerPing = (player as PlayerEntity).getPing()
         val playerLatencyInTicks = latencyInTicks(player as PlayerEntity)
@@ -237,7 +237,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
     private fun simulateOwnKnockback(simPlayer: SimulatedPlayer, target: Entity) {
         val modifier = simulatedHorizontalKnockback.random()
-        val fullModifier = (target.rotationYaw * (PI.toFloat() / 180.0f)) * modifier * 0.5f
+        val fullModifier = (target.yaw * (PI.toFloat() / 180.0f)) * modifier * 0.5f
 
         val knockbackX = -MathHelper.sin(fullModifier)
         val knockbackY = simulatedVerticalKnockback.random()

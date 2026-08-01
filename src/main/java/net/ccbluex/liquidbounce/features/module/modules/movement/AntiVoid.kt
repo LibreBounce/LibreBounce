@@ -92,7 +92,7 @@ object AntiVoid : Module("AntiVoid", Category.MOVEMENT) {
 
             detectedLocation = fallingPlayer.findCollision(60)?.pos
 
-            if (detectedLocation != null && abs(player.posY - detectedLocation!!.y) +
+            if (detectedLocation != null && abs(player.y - detectedLocation!!.y) +
                 player.fallDistance <= maxFallDistance
             ) {
                 lastFound = player.fallDistance
@@ -114,8 +114,8 @@ object AntiVoid : Module("AntiVoid", Category.MOVEMENT) {
                     "OnGroundSpoof" -> sendPacket(PlayerMoveC2SPacket(true))
 
                     "MotionTeleport-Flag" -> {
-                        player.teleport(player.posX, player.posY + 1f, player.posZ)
-                        sendPacket(Position(player.posX, player.posY, player.posZ, true))
+                        player.teleport(player.x, player.y + 1f, player.z)
+                        sendPacket(Position(player.x, player.y, player.z, true))
                         player.motionY = 0.1
 
                         strafe()
@@ -152,7 +152,7 @@ object AntiVoid : Module("AntiVoid", Category.MOVEMENT) {
 
     val onBlockBB = handler<BlockBBEvent> { event ->
         if (mode == "GhostBlock" && shouldSimulateBlock) {
-            if (event.y < mc.player.posY.toInt()) {
+            if (event.y < mc.player.y.toInt()) {
                 event.boundingBox = Box(
                     event.x.toDouble(),
                     event.y.toDouble(),
@@ -198,7 +198,7 @@ object AntiVoid : Module("AntiVoid", Category.MOVEMENT) {
 
         if (mode != "Blink" || !shouldBlink) return@handler
 
-        if (player.isDead || player.ticks < 20) {
+        if (player.removed || player.ticks < 20) {
             BlinkUtils.unblink()
             return@handler
         }
@@ -215,7 +215,7 @@ object AntiVoid : Module("AntiVoid", Category.MOVEMENT) {
         val player = mc.player ?: return@handler
 
         if (detectedLocation == null || !indicator ||
-            player.fallDistance + (player.posY - (detectedLocation!!.y + 1)) < 3
+            player.fallDistance + (player.y - (detectedLocation!!.y + 1)) < 3
         ) return@handler
 
         val (x, y, z) = detectedLocation ?: return@handler
@@ -246,7 +246,7 @@ object AntiVoid : Module("AntiVoid", Category.MOVEMENT) {
         glDepthMask(true)
         glDisable(GL_BLEND)
 
-        val fallDist = floor(player.fallDistance + (player.posY - (y + 0.5))).toInt()
+        val fallDist = floor(player.fallDistance + (player.y - (y + 0.5))).toInt()
 
         renderNameTag("${fallDist}m (~${max(0, fallDist - 3)} damage)", x + 0.5, y + 1.7, z + 0.5)
 

@@ -20,23 +20,23 @@ public class MixinItem {
     /**
      * Rotation modification injections. Replaces actual rotation with the current rotation to synchronize placements client-side.
      */
-    @Redirect(method = "getHitResultFromPlayer", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/player/PlayerEntity;rotationYaw:F"))
+    @Redirect(method = "getHitResultFromPlayer", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/player/PlayerEntity;yaw:F"))
     private float hookCurrentRotationYaw(PlayerEntity instance) {
         Rotation rotation = RotationUtils.INSTANCE.getCurrentRotation();
 
         if (instance.getGameProfile() != Minecraft.getMinecraft().player.getGameProfile() || rotation == null) {
-            return instance.rotationYaw;
+            return instance.yaw;
         }
 
         return rotation.getYaw();
     }
 
-    @Redirect(method = "getHitResultFromPlayer", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/player/PlayerEntity;rotationPitch:F"))
+    @Redirect(method = "getHitResultFromPlayer", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/player/PlayerEntity;pitch:F"))
     private float hookCurrentRotationPitch(PlayerEntity instance) {
         Rotation rotation = RotationUtils.INSTANCE.getCurrentRotation();
 
         if (instance.getGameProfile() != Minecraft.getMinecraft().player.getGameProfile() || rotation == null) {
-            return instance.rotationPitch;
+            return instance.pitch;
         }
 
         return rotation.getPitch();

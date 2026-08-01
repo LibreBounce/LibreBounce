@@ -99,25 +99,25 @@ public abstract class MixinRenderItemEntity extends Render<ItemEntity> {
         translate(0, 0, isGui3d ? -0.08 : -0.04);
 
         if (isGui3d || this.renderManager.options != null) {
-            float rotationYaw = (age / 20.0F + hoverStart) * (180F / (float) Math.PI);
+            float yaw = (age / 20.0F + hoverStart) * (180F / (float) Math.PI);
 
-            rotationYaw *= itemPhysics.getRotationSpeed() * (1.0F + Math.min(age / 360.0F, 1.0F));
+            yaw *= itemPhysics.getRotationSpeed() * (1.0F + Math.min(age / 360.0F, 1.0F));
 
             if (isPhysicsState) {
                 if (itemIn.onGround) {
                     GL11.glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
                     if (!isRealistic) {
-                        GL11.glRotatef(itemIn.rotationYaw, 0.0f, 0.0f, 1.0f);
+                        GL11.glRotatef(itemIn.yaw, 0.0f, 0.0f, 1.0f);
                     } else {
-                        GL11.glRotatef(itemIn.rotationYaw, 0.0f, 1.0f, 0.6f);
+                        GL11.glRotatef(itemIn.yaw, 0.0f, 1.0f, 0.6f);
                     }
                 } else {
                     for (int a = 0; a < 7; ++a) {
-                        GL11.glRotatef(rotationYaw, weight, weight, 1.35f);
+                        GL11.glRotatef(yaw, weight, weight, 1.35f);
                     }
                 }
             } else {
-                rotate(rotationYaw, 0.0F, 1.0F, 0.0F);
+                rotate(yaw, 0.0F, 1.0F, 0.0F);
             }
         }
 

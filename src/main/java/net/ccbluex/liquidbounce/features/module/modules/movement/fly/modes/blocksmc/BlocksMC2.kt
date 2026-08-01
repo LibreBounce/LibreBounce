@@ -146,7 +146,7 @@ object BlocksMC2 : FlyMode("BlocksMC2"), Listenable {
     }
 
     override fun onPacket(event: PacketEvent) {
-        if (mc.player == null || mc.world == null || mc.player.isDead)
+        if (mc.player == null || mc.world == null || mc.player.removed)
             return
 
         if (event.isCancelled)
@@ -183,7 +183,7 @@ object BlocksMC2 : FlyMode("BlocksMC2"), Listenable {
     override fun onMotion(event: MotionEvent) {
         val player = mc.player ?: return
 
-        if (player.isDead || player.ticks <= 10) {
+        if (player.removed || player.ticks <= 10) {
             blink()
         }
 

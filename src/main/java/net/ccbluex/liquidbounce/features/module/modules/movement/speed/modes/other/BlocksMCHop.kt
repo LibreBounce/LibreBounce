@@ -41,7 +41,7 @@ object BlocksMCHop : SpeedMode("BlocksMCHop") {
                     }
 
                     if (bmcLowHop && airTicks == 4) {
-                        if ((safeY && posY % 1.0 == 0.16610926093821377) || !safeY) {
+                        if ((safeY && y % 1.0 == 0.16610926093821377) || !safeY) {
                             motionY = -0.09800000190734863
                         }
                     }

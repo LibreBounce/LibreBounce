@@ -107,7 +107,7 @@ object Nuker : Module("Nuker", Category.WORLD, gameDetecting = false) {
                     }
 
                     // Layer: Break all blocks above you
-                    if (layer && pos.y < player.posY) {
+                    if (layer && pos.y < player.y) {
                         return@searchBlocks false
                     }
 
@@ -177,7 +177,7 @@ object Nuker : Module("Nuker", Category.WORLD, gameDetecting = false) {
                 // Break block
                 player.swingItem()
                 currentDamage += block.getPlayerRelativeBlockHardness(player, world, blockPos)
-                world.sendBlockBreakProgress(player.entityId, blockPos, (currentDamage * 10F).toInt() - 1)
+                world.sendBlockBreakProgress(player.networkId, blockPos, (currentDamage * 10F).toInt() - 1)
 
                 // End of breaking block
                 if (currentDamage >= 1F) {
@@ -198,7 +198,7 @@ object Nuker : Module("Nuker", Category.WORLD, gameDetecting = false) {
             searchBlocks(radius.roundToInt() + 1, null) { pos, block ->
                 if (getCenterDistance(pos) <= radius && validBlock(block)) {
                     // Layer: Break all blocks above you
-                    if (layer && pos.y < player.posY) {
+                    if (layer && pos.y < player.y) {
                         return@searchBlocks false
                     }
 

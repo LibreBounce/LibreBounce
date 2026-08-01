@@ -71,7 +71,7 @@ object MLG : NoFallMode("MLG") {
 
         if (player.fallDistance >= NoFall.minFallDistance) {
             SimulatedPlayer.fromClientPlayer(RotationUtils.modifiedInput).let { sim ->
-                sim.rotationYaw = currRotation.yaw
+                sim.yaw = currRotation.yaw
 
                 var suitablePos: BlockPos? = null
 

@@ -339,7 +339,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
     private fun shouldResetTimer() {
         val nearestEntity = getNearestEntityInRange()
 
-        if (nearestEntity == null || nearestEntity.isDead) {
+        if (nearestEntity == null || nearestEntity.removed) {
             if (!shouldReset) {
                 mc.timer.tpsScale = 1f
                 shouldReset = true
@@ -361,7 +361,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
         val player = mc.player ?: return@handler
         val packet = event.packet
 
-        if (player.isDead) return@handler
+        if (player.removed) return@handler
 
         if (blink) {
             if (playerTicks > 0 && !blinked) {
@@ -414,7 +414,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
         }
 
         // Check for knockback
-        if (resetOnKnockback && packet is EntityVelocityS2CPacket && player.entityId == packet.entityID) {
+        if (resetOnKnockback && packet is EntityVelocityS2CPacket && player.networkId == packet.networkId) {
             shouldResetTimer()
 
             if (shouldReset) {

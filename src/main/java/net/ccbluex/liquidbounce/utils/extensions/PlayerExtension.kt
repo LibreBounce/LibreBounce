@@ -49,7 +49,7 @@ fun Entity.getDistanceToEntityBox(entity: Entity) = eyes.distanceTo(getNearestPo
 fun Entity.getDistanceToBox(box: Box) = eyes.distanceTo(getNearestPointBB(eyes, box))
 
 fun LocalClientPlayerEntity.isNearEdge(threshold: Float): Boolean {
-    val playerPos = Vec3d(posX, posY, posZ)
+    val playerPos = Vec3d(x, y, z)
     val blockPos = BlockPos(playerPos)
 
     val mutable = BlockPos.Mutable()
@@ -100,19 +100,19 @@ fun PlayerEntity.isClientFriend(): Boolean {
 }
 
 var Entity?.rotation
-    get() = Rotation(this?.rotationYaw ?: 0f, this?.rotationPitch ?: 0f)
+    get() = Rotation(this?.yaw ?: 0f, this?.pitch ?: 0f)
     set(value) {
         this?.run {
-            rotationYaw = value.yaw
-            rotationPitch = value.pitch
+            yaw = value.yaw
+            pitch = value.pitch
         }
     }
 var Entity?.prevRotation
-    get() = Rotation(this?.prevRotationYaw ?: 0f, this?.prevRotationPitch ?: 0f)
+    get() = Rotation(this?.lastYaw ?: 0f, this?.lastPitch ?: 0f)
     set(value) {
         this?.run {
-            prevRotationYaw = value.yaw
-            prevRotationPitch = value.pitch
+            lastYaw = value.yaw
+            lastPitch = value.pitch
         }
     }
 
@@ -132,7 +132,7 @@ val Entity.currPos: Vec3d
     get() = this.positionVector
 
 val Entity.lastTickPos: Vec3d
-    get() = Vec3d(lastTickPosX, lastTickPosY, lastTickPosZ)
+    get() = Vec3d(prevX, prevY, prevZ)
 
 val LivingEntity?.isMoving: Boolean
     get() = this?.run { forwardSpeed != 0F || sidewaysSpeed != 0F } == true
@@ -153,9 +153,9 @@ fun Entity.setPosAndPrevPos(currPos: Vec3d, prevPos:Vec3d = currPos, lastTickPos
     prevPosZ = prevPos.zCoord
 
     lastTickPos?.let {
-        this.lastTickPosX = it.xCoord
-        this.lastTickPosY = it.yCoord
-        this.lastTickPosZ = it.zCoord
+        this.prevX = it.xCoord
+        this.prevY = it.yCoord
+        this.prevZ = it.zCoord
     }
 }
 
@@ -166,15 +166,15 @@ fun LocalClientPlayerEntity.setFixedSensitivityAngles(yaw: Float? = null, pitch:
 }
 
 var LocalClientPlayerEntity.fixedSensitivityYaw
-    get() = getFixedSensitivityAngle(mc.player.rotationYaw)
+    get() = getFixedSensitivityAngle(mc.player.yaw)
     set(yaw) {
-        rotationYaw = getFixedSensitivityAngle(yaw, rotationYaw)
+        yaw = getFixedSensitivityAngle(yaw, yaw)
     }
 
 var LocalClientPlayerEntity.fixedSensitivityPitch
-    get() = getFixedSensitivityAngle(rotationPitch)
+    get() = getFixedSensitivityAngle(pitch)
     set(pitch) {
-        rotationPitch = getFixedSensitivityAngle(pitch.coerceIn(-90f, 90f), rotationPitch)
+        pitch = getFixedSensitivityAngle(pitch.coerceIn(-90f, 90f), pitch)
     }
 
 val IMixinEntity.interpolatedPosition
@@ -187,9 +187,9 @@ operator fun LocalClientPlayerEntity.plusAssign(value: Float) {
 }
 
 fun Entity.interpolatedPosition(start: Vec3d, extraHeight: Float? = null) =Vec3d(
-    start.xCoord + (posX - start.xCoord) * mc.timer.renderPartialTicks,
-    start.yCoord + (posY - start.yCoord) * mc.timer.renderPartialTicks + (extraHeight ?: 0f),
-    start.zCoord + (posZ - start.zCoord) * mc.timer.renderPartialTicks
+    start.xCoord + (x - start.xCoord) * mc.timer.renderPartialTicks,
+    start.yCoord + (y - start.yCoord) * mc.timer.renderPartialTicks + (extraHeight ?: 0f),
+    start.zCoord + (z - start.zCoord) * mc.timer.renderPartialTicks
 )
 
 fun LocalClientPlayerEntity.stopY() {

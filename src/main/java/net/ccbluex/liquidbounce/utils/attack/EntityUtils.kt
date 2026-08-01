@@ -69,7 +69,7 @@ object EntityUtils : MinecraftInstance {
         if (entity == player) return true
 
         val playerYaw = player.headYaw
-        val playerPitch = player.rotationPitch
+        val playerPitch = player.pitch
 
         val maxAngleDifferenceRadians = maxAngleDifference.toRadians()
 

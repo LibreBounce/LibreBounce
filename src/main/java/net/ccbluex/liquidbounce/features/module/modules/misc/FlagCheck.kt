@@ -108,7 +108,7 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true) {
         if (player.ticks <= 100)
             return@handler
 
-        if (player.isDead || (player.abilities.flying && player.abilities.invulnerable && !player.onGround))
+        if (player.removed || (player.abilities.flying && player.abilities.invulnerable && !player.onGround))
             return@handler
 
         when (val packet = event.packet) {
@@ -142,7 +142,7 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true) {
                 }
 
                 lastYaw = mc.player.headYaw
-                lastPitch = mc.player.rotationPitch
+                lastPitch = mc.player.pitch
             }
 
             is PlayerUseC2SPacket -> {
@@ -169,7 +169,7 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true) {
         val player = mc.player ?: return@handler
         val world = mc.world ?: return@handler
 
-        if (player.isDead || mc.screen is DeathScreen || player.ticks <= 100) {
+        if (player.removed || mc.screen is DeathScreen || player.ticks <= 100) {
             return@handler
         }
 
@@ -224,9 +224,9 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true) {
         val motionY = player.motionY
         val motionZ = player.motionZ
 
-        val deltaX = player.posX - lastPosX
-        val deltaY = player.posY - lastPosY
-        val deltaZ = player.posZ - lastPosZ
+        val deltaX = player.x - lastPosX
+        val deltaY = player.y - lastPosY
+        val deltaZ = player.z - lastPosZ
 
         val distanceTraveled = sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ)
 

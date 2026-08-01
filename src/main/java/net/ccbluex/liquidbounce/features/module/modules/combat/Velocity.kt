@@ -176,7 +176,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
 
     val onUpdate = handler<UpdateEvent> {
         mc.player?.run {
-            if (isInLiquid || inCobweb || isDead)
+            if (isInLiquid || inCobweb || removed)
                 return@handler
 
             when (mode) {
@@ -274,7 +274,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
                         return@handler
 
                     motionY -= 1.0
-                    isAirBorne = true
+                    velocityDirty = true
                     onGround = true
                 } else {
                     hasReceivedVelocity = false
@@ -411,7 +411,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
     // TODO: Recode
     private fun getDirection(): Double {
         val player = mc.player
-        var moveYaw = player.rotationYaw
+        var moveYaw = player.yaw
 
         when {
             player.forwardSpeed != 0f && player.sidewaysSpeed != 0f -> {
@@ -447,7 +447,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
         if (event.isCancelled)
             return@handler
 
-        if ((packet is EntityVelocityS2CPacket && player.entityId == packet.entityID && packet.motionY > 0 && (packet.motionX != 0 || packet.motionZ != 0))
+        if ((packet is EntityVelocityS2CPacket && player.networkId == packet.networkId && packet.motionY > 0 && (packet.motionX != 0 || packet.motionZ != 0))
             || (packet is ExplosionS2CPacket && (player.motionY + packet.field_149153_g) > 0.0
                     && ((player.motionX + packet.field_149152_f) != 0.0 || (player.motionZ + packet.field_149159_h) != 0.0))
         ) {
@@ -470,7 +470,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
 
                     when (packet) {
                         is EntityVelocityS2CPacket -> {
-                            if (packet.entityID != player.entityId) return@handler
+                            if (packet.networkId != player.networkId) return@handler
 
                             val motionX = packet.motionX.toDouble()
                             val motionZ = packet.motionZ.toDouble()
@@ -506,7 +506,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
                     event.cancelEvent()
                 }
 
-                "MatrixReduce" -> if (packet is EntityVelocityS2CPacket && packet.entityID == player.entityId) {
+                "MatrixReduce" -> if (packet is EntityVelocityS2CPacket && packet.networkId == player.networkId) {
                     packet.motionX = (packet.getMotionX() * 0.33).toInt()
                     packet.motionZ = (packet.getMotionZ() * 0.33).toInt()
 
@@ -517,7 +517,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
                 }
 
                 // Credit: @LiquidSquid / Ported from NextGen
-                "BlocksMC" -> if (packet is EntityVelocityS2CPacket && packet.entityID == player.entityId) {
+                "BlocksMC" -> if (packet is EntityVelocityS2CPacket && packet.networkId == player.networkId) {
                     hasReceivedVelocity = true
                     event.cancelEvent()
 
@@ -540,7 +540,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
                         return@handler
                     }
 
-                    if (packet is EntityVelocityS2CPacket && packet.entityID == player.entityId) {
+                    if (packet is EntityVelocityS2CPacket && packet.networkId == player.networkId) {
                         packet.motionX = (player.motionX * 8000).toInt()
                         packet.motionZ = (player.motionZ * 8000).toInt()
                     }
@@ -606,7 +606,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
         }
 
         if (hasReceivedVelocity) {
-            val pos = BlockPos(player.posX, player.posY, player.posZ)
+            val pos = BlockPos(player.x, player.y, player.z)
 
             if (checkAir(pos))
                 hasReceivedVelocity = false
@@ -715,7 +715,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
         if (hasReceivedVelocity) {
             if (player.damagedTimer in damagedTimerToAct) {
                 // Check if there is air exactly 1 level above the player's Y position
-                if (event.block is AirBlock && event.y == mc.player.posY.toInt() + 1) {
+                if (event.block is AirBlock && event.y == mc.player.y.toInt() + 1) {
                     event.boundingBox = Box(
                         event.x.toDouble(),
                         event.y.toDouble(),

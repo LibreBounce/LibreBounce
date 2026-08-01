@@ -89,7 +89,7 @@ public abstract class MixinLivingEntity extends MixinEntity {
             motionY += (float) (getActivePotionEffect(Potion.jump).getAmplifier() + 1) * 0.1F;
 
         if (isSprinting()) {
-            float fixedYaw = this.rotationYaw;
+            float fixedYaw = this.yaw;
 
             final RotationUtils rotationUtils = RotationUtils.INSTANCE;
             final Rotation currentRotation = rotationUtils.getCurrentRotation();
@@ -100,7 +100,7 @@ public abstract class MixinLivingEntity extends MixinEntity {
 
             final Sprint sprint = Sprint.INSTANCE;
             if (sprint.handleEvents() && sprint.getMode().equals("Vanilla") && sprint.getAllDirections() && sprint.getJumpDirections()) {
-                fixedYaw += MathExtensionsKt.toDegreesF(MovementUtils.INSTANCE.getDirection()) - this.rotationYaw;
+                fixedYaw += MathExtensionsKt.toDegreesF(MovementUtils.INSTANCE.getDirection()) - this.yaw;
             }
 
             final float f = fixedYaw * 0.017453292F;
@@ -108,7 +108,7 @@ public abstract class MixinLivingEntity extends MixinEntity {
             motionZ += MathHelper.cos(f) * 0.2F;
         }
 
-        isAirBorne = true;
+        velocityDirty = true;
 
         if ((Object) this == Minecraft.getMinecraft().player) {
             final JumpEvent postjumpEvent = new JumpEvent((float) motionY, EventState.POST);
@@ -134,7 +134,7 @@ public abstract class MixinLivingEntity extends MixinEntity {
     private void getRotationVec(CallbackInfoReturnable<Vec3d> callbackInfoReturnable) {
         //noinspection ConstantConditions
         if (((LivingEntity) (Object) this) instanceof LocalClientPlayerEntity)
-            callbackInfoReturnable.setReturnValue(getRotationVector(rotationPitch, rotationYaw));
+            callbackInfoReturnable.setReturnValue(getRotationVector(pitch, yaw));
     }
 
     /**
@@ -151,21 +151,21 @@ public abstract class MixinLivingEntity extends MixinEntity {
     /**
      * Inject body rotation modification
      */
-    @Redirect(method = "onUpdate", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/LivingEntity;rotationYaw:F", ordinal = 0))
+    @Redirect(method = "onUpdate", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/LivingEntity;yaw:F", ordinal = 0))
     private float hookBodyRotationsA(LivingEntity instance) {
         Rotation rotation = Rotations.INSTANCE.getRotation();
 
-        return instance instanceof LocalClientPlayerEntity && Rotations.INSTANCE.shouldUseRealisticMode() && rotation != null ? rotation.getYaw() : instance.rotationYaw;
+        return instance instanceof LocalClientPlayerEntity && Rotations.INSTANCE.shouldUseRealisticMode() && rotation != null ? rotation.getYaw() : instance.yaw;
     }
 
     /**
      * Inject body rotation modification
      */
-    @Redirect(method = "updateDistance", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/LivingEntity;rotationYaw:F"))
+    @Redirect(method = "updateDistance", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/LivingEntity;yaw:F"))
     private float hookBodyRotationsB(LivingEntity instance) {
         Rotation rotation = Rotations.INSTANCE.getRotation();
 
-        return instance instanceof LocalClientPlayerEntity && Rotations.INSTANCE.shouldUseRealisticMode() && rotation != null ? rotation.getYaw() : instance.rotationYaw;
+        return instance instanceof LocalClientPlayerEntity && Rotations.INSTANCE.shouldUseRealisticMode() && rotation != null ? rotation.getYaw() : instance.yaw;
     }
 
     /**

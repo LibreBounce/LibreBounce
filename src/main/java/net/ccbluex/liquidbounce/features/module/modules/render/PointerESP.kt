@@ -91,7 +91,7 @@ object PointerESP : Module("PointerESP", Category.RENDER) {
         glPushMatrix()
         glScaled(0.01, 0.01, 0.01)
         glRotatef(90f, 1f, 0f, 0f)
-        glRotatef(180f + player.rotationYaw, 0f, 0f, 1f)
+        glRotatef(180f + player.yaw, 0f, 0f, 1f)
 
         draw(event.partialTicks)
 
@@ -112,8 +112,8 @@ object PointerESP : Module("PointerESP", Category.RENDER) {
         val arrowRadius = -arrowRadius
         val halfAngle = arrowAngle / 2
 
-        val playerPosX = player.lastTickPosX + (player.posX - player.lastTickPosX) * ticks
-        val playerPosZ = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * ticks
+        val playerPosX = player.prevX + (player.x - player.prevX) * ticks
+        val playerPosZ = player.prevZ + (player.z - player.prevZ) * ticks
 
         glEnable(GL_BLEND)
         glDisable(GL_TEXTURE_2D)
@@ -122,13 +122,13 @@ object PointerESP : Module("PointerESP", Category.RENDER) {
         glHint(GL_LINE_SMOOTH_HINT, GL_NICEST)
 
         for (entity in entities) {
-            val interpolatedPosX = entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * ticks
-            val interpolatedPosZ = entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * ticks
+            val interpolatedPosX = entity.prevX + (entity.x - entity.prevX) * ticks
+            val interpolatedPosZ = entity.prevZ + (entity.z - entity.prevZ) * ticks
             val pos1 = (interpolatedPosX - playerPosX) * 0.2
             val pos2 = (interpolatedPosZ - playerPosZ) * 0.2
 
-            val cos = cos(player.rotationYaw * (PI / 180))
-            val sin = sin(player.rotationYaw * (PI / 180))
+            val cos = cos(player.yaw * (PI / 180))
+            val sin = sin(player.yaw * (PI / 180))
             val rotY = -(pos2 * cos - pos1 * sin)
             val rotX = -(pos1 * cos + pos2 * sin)
             val arrowAngle = (atan2(rotY, rotX) * 180 / PI).toFloat() + 90f

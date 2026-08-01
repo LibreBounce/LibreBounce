@@ -22,7 +22,7 @@ object Spartan : LiquidWalkMode("Spartan") {
                 }
 
                 val block = BlockPos(this).up().block
-                val blockUp = BlockPos(posX, posY + 1.1, posZ).block
+                val blockUp = BlockPos(x, y + 1.1, z).block
 
                 if (blockUp is LiquidBlock) {
                     motionY = 0.1

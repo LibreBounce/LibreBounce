@@ -42,13 +42,13 @@ import static net.ccbluex.liquidbounce.utils.client.MinecraftInstance.mc;
 public abstract class MixinEntity implements IMixinEntity {
 
     @Shadow
-    public double posX;
+    public double x;
 
     @Shadow
-    public double posY;
+    public double y;
 
     @Shadow
-    public double posZ;
+    public double z;
 
     private double trueX;
 
@@ -98,10 +98,10 @@ public abstract class MixinEntity implements IMixinEntity {
     public abstract boolean isSprinting();
 
     @Shadow
-    public float rotationPitch;
+    public float pitch;
 
     @Shadow
-    public float rotationYaw;
+    public float yaw;
 
     @Shadow
     public abstract Box getShape();
@@ -122,7 +122,7 @@ public abstract class MixinEntity implements IMixinEntity {
     public boolean onGround;
 
     @Shadow
-    public boolean isAirBorne;
+    public boolean velocityDirty;
 
     @Shadow
     public boolean noClip;
@@ -204,10 +204,10 @@ public abstract class MixinEntity implements IMixinEntity {
     private int fire;
 
     @Shadow
-    public float prevRotationPitch;
+    public float lastPitch;
 
     @Shadow
-    public float prevRotationYaw;
+    public float lastYaw;
 
     @Shadow
     protected abstract Vec3d getRotationVector(float pitch, float yaw);

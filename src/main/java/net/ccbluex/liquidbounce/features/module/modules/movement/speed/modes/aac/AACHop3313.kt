@@ -24,7 +24,7 @@ object AACHop3313 : SpeedMode("AACHop3.3.13") {
             if (!isMoving || isInLiquid || isOnLadder || isRiding || damagedTimer > 0) return
 
             if (onGround && collidingVertically) {
-                val yawRad = rotationYaw.toRadians()
+                val yawRad = yaw.toRadians()
                 motionX -= sin(yawRad) * 0.202f
                 motionZ += cos(yawRad) * 0.202f
                 motionY = 0.405

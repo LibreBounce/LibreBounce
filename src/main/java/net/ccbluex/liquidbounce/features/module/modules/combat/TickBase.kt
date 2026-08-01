@@ -152,7 +152,7 @@ object TickBase : Module("TickBase", Category.COMBAT) {
 
         val simPlayer = SimulatedPlayer.fromClientPlayer(RotationUtils.modifiedInput)
 
-        simPlayer.rotationYaw = RotationUtils.currentRotation?.yaw ?: player.rotationYaw
+        simPlayer.yaw = RotationUtils.currentRotation?.yaw ?: player.yaw
 
         if (tickBalance <= 0) {
             reachedTheLimit = true

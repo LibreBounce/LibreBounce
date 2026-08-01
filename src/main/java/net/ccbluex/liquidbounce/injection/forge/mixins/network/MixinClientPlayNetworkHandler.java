@@ -240,7 +240,7 @@ public abstract class MixinClientPlayNetworkHandler {
         gameController.loadWorld(clientWorldController);
         gameController.player.dimension = packetIn.getDimension();
         gameController.openScreen(new DownloadingTerrainScreen((ClientPlayNetworkHandler) (Object) this));
-        gameController.player.setEntityId(packetIn.getEntityId());
+        gameController.player.setnetworkId(packetIn.getnetworkId());
         currentServerMaxPlayers = packetIn.getMaxPlayers();
         gameController.player.setReducedDebug(packetIn.isReducedDebugInfo());
         gameController.playerController.setGameMode(packetIn.getGameMode());
@@ -287,8 +287,8 @@ public abstract class MixinClientPlayNetworkHandler {
         }
 
         // Slightly modify the client-side rotations, so they pass the rotation difference check in onUpdateWalkingPlayer, LocalClientPlayerEntity.
-        player.rotationYaw = (rotation.getYaw() + 0.000001f * sign) % 360.0F;
-        player.rotationPitch = (rotation.getPitch() + 0.000001f * sign) % 360.0F;
+        player.yaw = (rotation.getYaw() + 0.000001f * sign) % 360.0F;
+        player.pitch = (rotation.getPitch() + 0.000001f * sign) % 360.0F;
         RotationUtils.INSTANCE.syncRotations();
     }
 }

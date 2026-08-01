@@ -85,14 +85,14 @@ object MovementUtils : MinecraftInstance, Listenable {
 
     fun forward(distance: Double, vertical: Double = 0) =
         mc.player?.run {
-            val yaw = rotationYaw.toRadiansD()
+            val yaw = yaw.toRadiansD()
 
-            setPosition(posX - sin(yaw) * distance, posY + vertical, posZ + cos(yaw) * distance)
+            setPosition(x - sin(yaw) * distance, y + vertical, z + cos(yaw) * distance)
         }
 
     val direction
         get() = mc.player?.run {
-            var yaw = rotationYaw
+            var yaw = yaw
             var forward = 1f
 
             if (input.forwardSpeed < 0f) {

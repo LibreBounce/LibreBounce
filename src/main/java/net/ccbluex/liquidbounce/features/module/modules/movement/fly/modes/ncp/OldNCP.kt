@@ -19,8 +19,8 @@ object OldNCP : FlyMode("OldNCP") {
 
             repeat(4) {
                 sendPackets(
-                    Position(posX, posY + 1.01, posZ, false),
-                    Position(posX, posY, posZ, false)
+                    Position(x, y + 1.01, z, false),
+                    Position(x, y, z, false)
                 )
             }
 
@@ -31,13 +31,13 @@ object OldNCP : FlyMode("OldNCP") {
 
     override fun onUpdate() {
         mc.player?.run {
-            if (startY > posY)
+            if (startY > y)
                 motionY = -0.000000000000000000000000000000001
 
             if (mc.options.sneakKey.isKeyDown)
                 motionY = -0.2
 
-            if (mc.options.jumpKey.isKeyDown && posY < startY - 0.1)
+            if (mc.options.jumpKey.isKeyDown && y < startY - 0.1)
                 motionY = 0.2
 
             strafe()

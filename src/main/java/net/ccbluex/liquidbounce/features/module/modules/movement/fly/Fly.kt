@@ -153,7 +153,7 @@ object Fly : Module("Fly", Category.MOVEMENT, Keyboard.KEY_F) {
 
     // Fireball
     val pitchMode by choices("PitchMode", arrayOf("Custom", "Smart"), "Custom") { mode == "Fireball" }
-    val rotationPitch by float("Pitch", 90f, 0f..90f) { pitchMode != "Smart" && mode == "Fireball" }
+    val pitch by float("Pitch", 90f, 0f..90f) { pitchMode != "Smart" && mode == "Fireball" }
     val invertYaw by boolean("InvertYaw", true) { pitchMode != "Smart" && mode == "Fireball" }
 
     val autoFireball by choices(
@@ -191,8 +191,8 @@ object Fly : Module("Fly", Category.MOVEMENT, Keyboard.KEY_F) {
     override fun onEnable() {
         val player = mc.player ?: return
 
-        startY = player.posY
-        jumpY = player.posY
+        startY = player.y
+        jumpY = player.y
         wasFlying = player.abilities.flying
 
         modeModule.onEnable()
@@ -282,21 +282,21 @@ object Fly : Module("Fly", Category.MOVEMENT, Keyboard.KEY_F) {
         val player = mc.player
         val ground = calculateGround() + 0.5
 
-        var posY = player.posY
-        while (posY > ground) {
-            sendPacket(Position(player.posX, posY, player.posZ, true))
-            if (posY - 8.0 < ground) break // Prevent next step
-            posY -= 8.0
+        var y = player.y
+        while (y > ground) {
+            sendPacket(Position(player.x, y, player.z, true))
+            if (y - 8.0 < ground) break // Prevent next step
+            y -= 8.0
         }
 
-        sendPacket(Position(player.posX, ground, player.posZ, true))
-        posY = ground
-        while (posY < player.posY) {
-            sendPacket(Position(player.posX, posY, player.posZ, true))
-            if (posY + 8.0 > player.posY) break // Prevent next step
-            posY += 8.0
+        sendPacket(Position(player.x, ground, player.z, true))
+        y = ground
+        while (y < player.y) {
+            sendPacket(Position(player.x, y, player.z, true))
+            if (y + 8.0 > player.y) break // Prevent next step
+            y += 8.0
         }
-        sendPacket(Position(player.posX, player.posY, player.posZ, true))
+        sendPacket(Position(player.x, player.y, player.z, true))
         groundTimer.reset()
     }
 
@@ -304,7 +304,7 @@ object Fly : Module("Fly", Category.MOVEMENT, Keyboard.KEY_F) {
     private fun calculateGround(): Double {
         val boundingBox = mc.player.shape
         var blockHeight = 0.05
-        var ground = mc.player.posY
+        var ground = mc.player.y
 
         while (ground > 0.0) {
             val customBox = Box.fromBounds(

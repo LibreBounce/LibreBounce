@@ -15,7 +15,7 @@ import java.awt.Color
 object AAC3312 : FlyMode("AAC3.3.12") {
     override fun onUpdate() {
         mc.player?.run {
-            if (posY < -70)
+            if (y < -70)
                 motionY = aacMotion.toDouble()
 
             mc.timer.tpsScale = 1f

@@ -44,11 +44,11 @@ object Strafe : Module("Strafe", Category.MOVEMENT, gameDetecting = false) {
                     wasDown = true
                 }
 
-                val yaw = rotationYaw
+                val yaw = yaw
 
-                rotationYaw = direction.toDegreesF()
+                yaw = direction.toDegreesF()
                 tryJump()
-                rotationYaw = yaw
+                yaw = yaw
                 jump = true
 
                 if (wasDown) {

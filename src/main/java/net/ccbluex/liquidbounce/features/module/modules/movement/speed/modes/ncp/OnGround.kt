@@ -19,14 +19,14 @@ object OnGround : SpeedMode("OnGround") {
 
             if (!isMoving || fallDistance > 3.994) return
 
-            posY -= vertical
+            y -= vertical
             motionY = -1000.0
             tilt = 0.3f
             distanceWalkedModified = 44f
             mc.timer.tpsScale = 1f
 
             if (onGround) {
-                posY += vertical
+                y += vertical
                 motionY = vertical
                 distanceWalkedOnStepModified = 44f
                 motionX *= horizontal

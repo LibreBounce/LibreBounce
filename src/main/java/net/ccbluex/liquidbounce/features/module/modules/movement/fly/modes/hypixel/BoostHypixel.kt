@@ -60,7 +60,7 @@ object BoostHypixel : FlyMode("BoostHypixel") {
 
             tryJump()
 
-            posY += 0.42f // Visual
+            y += 0.42f // Visual
 
             state = 1
             moveSpeed = 0.1
@@ -73,14 +73,14 @@ object BoostHypixel : FlyMode("BoostHypixel") {
             when (event.eventState) {
                 EventState.PRE -> {
                     if (tickTimer.resetIfPassed())
-                        setPosition(posX, posY + 1.0E-5, posZ)
+                        setPosition(x, y + 1.0E-5, z)
 
                     motionY = 0.0
                 }
 
                 EventState.POST -> {
-                    val xDist = posX - prevPosX
-                    val zDist = posZ - prevPosZ
+                    val xDist = x - prevPosX
+                    val zDist = z - prevPosZ
                     lastDistance = sqrt(xDist * xDist + zDist * zDist)
                 }
 
@@ -134,13 +134,13 @@ object BoostHypixel : FlyMode("BoostHypixel") {
     }
 
     override fun onBB(event: BlockBBEvent) {
-        if (event.block == air && event.y < mc.player.posY)
+        if (event.block == air && event.y < mc.player.y)
             event.boundingBox = Box.fromBounds(
                 event.x.toDouble(),
                 event.y.toDouble(),
                 event.z.toDouble(),
                 event.x + 1.0,
-                mc.player.posY,
+                mc.player.y,
                 event.z + 1.0
             )
     }

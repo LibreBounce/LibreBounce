@@ -31,16 +31,16 @@ object MineSecure : FlyMode("MineSecure") {
                 return
 
             sendPackets(
-                Position(posX, posY + 5, posZ, false),
+                Position(x, y + 5, z, false),
                 Position(0.5, -1000.0, 0.5, false)
             )
 
-            val yaw = rotationYaw.toRadiansD()
+            val yaw = yaw.toRadiansD()
 
             setPosition(
-                posX - sin(yaw) * 0.4,
-                posY,
-                posZ + cos(yaw) * 0.4
+                x - sin(yaw) * 0.4,
+                y,
+                z + cos(yaw) * 0.4
             )
 
             timer.reset()

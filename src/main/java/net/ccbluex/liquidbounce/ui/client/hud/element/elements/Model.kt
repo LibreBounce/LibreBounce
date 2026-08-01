@@ -39,7 +39,7 @@ class Model(x: Double = 40.0, y: Double = 100.0) : Element("Model", x, y) {
      */
     override fun drawElement(): Border {
         val yaw = when (yawMode) {
-            "Player" -> mc.player.rotationYaw
+            "Player" -> mc.player.yaw
             "Animation" -> {
                 val delta = deltaTime
 
@@ -67,7 +67,7 @@ class Model(x: Double = 40.0, y: Double = 100.0) : Element("Model", x, y) {
         }
 
         var pitch = when (pitchMode) {
-            "Player" -> mc.player.rotationPitch
+            "Player" -> mc.player.pitch
             "Custom" -> customPitch
             else -> 0F
         }
@@ -91,8 +91,8 @@ class Model(x: Double = 40.0, y: Double = 100.0) : Element("Model", x, y) {
         glRotatef(180F, 0F, 0F, 1F)
 
         val bodyYaw = entityLivingBase.bodyYaw
-        val rotationYaw = entityLivingBase.rotationYaw
-        val rotationPitch = entityLivingBase.rotationPitch
+        val yaw = entityLivingBase.yaw
+        val pitch = entityLivingBase.pitch
         val lastHeadYaw = entityLivingBase.lastHeadYaw
         val headYaw = entityLivingBase.headYaw
 
@@ -102,10 +102,10 @@ class Model(x: Double = 40.0, y: Double = 100.0) : Element("Model", x, y) {
         glRotatef(-atan(pitch / 40F) * 20f, 1F, 0F, 0F)
 
         entityLivingBase.bodyYaw = atan(yaw / 40F) * 20F
-        entityLivingBase.rotationYaw = atan(yaw / 40F) * 40F
-        entityLivingBase.rotationPitch = -atan(pitch / 40F) * 20F
-        entityLivingBase.headYaw = entityLivingBase.rotationYaw
-        entityLivingBase.lastHeadYaw = entityLivingBase.rotationYaw
+        entityLivingBase.yaw = atan(yaw / 40F) * 40F
+        entityLivingBase.pitch = -atan(pitch / 40F) * 20F
+        entityLivingBase.headYaw = entityLivingBase.yaw
+        entityLivingBase.lastHeadYaw = entityLivingBase.yaw
 
         glTranslatef(0F, 0F, 0F)
 
@@ -116,8 +116,8 @@ class Model(x: Double = 40.0, y: Double = 100.0) : Element("Model", x, y) {
         renderManager.isRenderShadow = true
 
         entityLivingBase.bodyYaw = bodyYaw
-        entityLivingBase.rotationYaw = rotationYaw
-        entityLivingBase.rotationPitch = rotationPitch
+        entityLivingBase.yaw = yaw
+        entityLivingBase.pitch = pitch
         entityLivingBase.lastHeadYaw = lastHeadYaw
         entityLivingBase.headYaw = headYaw
 

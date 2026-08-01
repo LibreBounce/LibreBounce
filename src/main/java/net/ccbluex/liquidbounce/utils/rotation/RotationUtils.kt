@@ -168,13 +168,13 @@ object RotationUtils : MinecraftInstance, Listenable {
     ): Rotation {
         val player = mc.player
 
-        val posX =
-            target.posX + (if (predict) (target.posX - target.prevPosX) * predictSize else .0) - (player.posX + if (predict) player.posX - player.prevPosX else .0)
-        val posY =
-            target.shape.minY + (if (predict) (target.shape.minY - target.prevPosY) * predictSize else .0) + target.eyeHeight - 0.15 - (player.shape.minY + (if (predict) player.posY - player.prevPosY else .0)) - player.getEyeHeight()
-        val posZ =
-            target.posZ + (if (predict) (target.posZ - target.prevPosZ) * predictSize else .0) - (player.posZ + if (predict) player.posZ - player.prevPosZ else .0)
-        val posSqrt = sqrt(posX * posX + posZ * posZ)
+        val x =
+            target.x + (if (predict) (target.x - target.prevPosX) * predictSize else .0) - (player.x + if (predict) player.x - player.prevPosX else .0)
+        val y =
+            target.shape.minY + (if (predict) (target.shape.minY - target.prevPosY) * predictSize else .0) + target.eyeHeight - 0.15 - (player.shape.minY + (if (predict) player.y - player.prevPosY else .0)) - player.getEyeHeight()
+        val z =
+            target.z + (if (predict) (target.z - target.prevPosZ) * predictSize else .0) - (player.z + if (predict) player.z - player.prevPosZ else .0)
+        val posSqrt = sqrt(x * x + z * z)
 
         var finalVelocity = velocity
 
@@ -186,9 +186,9 @@ object RotationUtils : MinecraftInstance, Listenable {
         val gravityModifier = 0.12f * gravity
 
         return Rotation(
-            atan2(posZ, posX).toDegreesF() - 90f, -atan(
+            atan2(z, x).toDegreesF() - 90f, -atan(
                 (finalVelocity * finalVelocity - sqrt(
-                    finalVelocity * finalVelocity * finalVelocity * finalVelocity - gravityModifier * (gravityModifier * posSqrt * posSqrt + 2 * posY * finalVelocity * finalVelocity)
+                    finalVelocity * finalVelocity * finalVelocity * finalVelocity - gravityModifier * (gravityModifier * posSqrt * posSqrt + 2 * y * finalVelocity * finalVelocity)
                 )) / (gravityModifier * posSqrt)
             ).toDegreesF()
         )
@@ -560,8 +560,8 @@ object RotationUtils : MinecraftInstance, Listenable {
 
         if (!options.applyServerSide) {
             currentRotation?.let {
-                mc.player.rotationYaw = it.yaw
-                mc.player.rotationPitch = it.pitch
+                mc.player.yaw = it.yaw
+                mc.player.pitch = it.pitch
             }
 
             resetRotation()
@@ -582,7 +582,7 @@ object RotationUtils : MinecraftInstance, Listenable {
         resetTicks = 0
         currentRotation?.let { (yaw, _) ->
             mc.player?.let {
-                it.rotationYaw = yaw + angleDifference(it.rotationYaw, yaw)
+                it.yaw = yaw + angleDifference(it.yaw, yaw)
                 syncRotations()
             }
         }
@@ -627,12 +627,12 @@ object RotationUtils : MinecraftInstance, Listenable {
     fun syncRotations() {
         val player = mc.player ?: return
 
-        player.prevRotationYaw = player.rotationYaw
-        player.prevRotationPitch = player.rotationPitch
-        player.renderArmYaw = player.rotationYaw
-        player.renderArmPitch = player.rotationPitch
-        player.prevRenderArmYaw = player.rotationYaw
-        player.prevRotationPitch = player.rotationPitch
+        player.lastYaw = player.yaw
+        player.lastPitch = player.pitch
+        player.renderArmYaw = player.yaw
+        player.renderArmPitch = player.pitch
+        player.prevRenderArmYaw = player.yaw
+        player.lastPitch = player.pitch
     }
 
     private fun update() {
@@ -696,7 +696,7 @@ object RotationUtils : MinecraftInstance, Listenable {
     fun syncSpecialModuleRotations() {
         serverRotation.let { (yaw, _) ->
             mc.player?.let {
-                it.rotationYaw = yaw + angleDifference(it.rotationYaw, yaw)
+                it.yaw = yaw + angleDifference(it.yaw, yaw)
                 syncRotations()
             }
         }

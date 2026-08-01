@@ -30,7 +30,7 @@ object SafeWalk : Module("SafeWalk", Category.MOVEMENT) {
         ) return@handler
 
         if (!maxFallDistanceValue.isMinimal() && player.onGround && BlockPos(player).down().block !is AirBlock) {
-            lastGroundY = player.posY
+            lastGroundY = player.y
             lastCollisionY = FallingPlayer(player, true).findCollision(60)?.pos?.y
         }
 

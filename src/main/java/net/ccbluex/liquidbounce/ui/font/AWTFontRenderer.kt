@@ -186,8 +186,8 @@ class AWTFontRenderer(
                 val scale = font.size / 32.0f
                 glScalef(scale, scale, 1.0f)
 
-                mc.fontRendererObj.posY = 1.0f
-                mc.fontRendererObj.posX = (currX / rev) + fallbackWidth
+                mc.fontRendererObj.y = 1.0f
+                mc.fontRendererObj.x = (currX / rev) + fallbackWidth
 
                 val fallbackW = mc.fontRendererObj.renderUnicodeChar(char, false).coerceAtLeast(0f)
                 fallbackWidth += fallbackW

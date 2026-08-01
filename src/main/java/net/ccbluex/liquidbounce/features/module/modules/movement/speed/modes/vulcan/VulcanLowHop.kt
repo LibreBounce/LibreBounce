@@ -29,7 +29,7 @@ object VulcanLowHop : SpeedMode("VulcanLowHop") {
                     mc.timer.tpsScale = 1.263f
                 } else if (ticks % 4 == 0) {
                     motionY = if (ticks % 3 == 0) -0.01 / motionY
-                    else -motionY / posY
+                    else -motionY / y
 
                     mc.timer.tpsScale = 0.8985f
                 }

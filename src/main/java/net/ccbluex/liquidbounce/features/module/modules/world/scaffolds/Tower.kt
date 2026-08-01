@@ -136,7 +136,7 @@ object Tower : Configurable("Tower"), MinecraftInstance, Listenable {
 
     // Send jump packets, bypasses Hypixel.
     private fun fakeJump() {
-        mc.player?.isAirBorne = true
+        mc.player?.velocityDirty = true
         mc.player?.triggerAchievement(StatList.jumpStat)
     }
 
@@ -154,7 +154,7 @@ object Tower : Configurable("Tower"), MinecraftInstance, Listenable {
                     fakeJump()
                     tryJump()
                 } else if (!onGround) {
-                    isAirBorne = false
+                    velocityDirty = false
                     tickTimer.reset()
                 }
 
@@ -176,26 +176,26 @@ object Tower : Configurable("Tower"), MinecraftInstance, Listenable {
                     fakeJump()
                     motionY = 0.42
                 } else if (motionY < 0.23) {
-                    setPosition(posX, truncate(posY), posZ)
+                    setPosition(x, truncate(y), z)
                 }
 
                 "Packet" -> if (onGround && tickTimer.hasTimePassed(2)) {
                     fakeJump()
                     sendPackets(
                         Position(
-                            posX,
-                            posY + 0.42,
-                            posZ,
+                            x,
+                            y + 0.42,
+                            z,
                             false
                         ),
                         Position(
-                            posX,
-                            posY + 0.753,
-                            posZ,
+                            x,
+                            y + 0.753,
+                            z,
                             false
                         )
                     )
-                    setPosition(posX, posY + 1.0, posZ)
+                    setPosition(x, y + 1.0, z)
                     tickTimer.reset()
                 }
 
@@ -209,7 +209,7 @@ object Tower : Configurable("Tower"), MinecraftInstance, Listenable {
                     ) {
                         fakeJump()
                         teleport(
-                            posX, posY + teleportHeightValues.get(), posZ
+                            x, y + teleportHeightValues.get(), z
                         )
                         tickTimer.reset()
                     }
@@ -220,19 +220,19 @@ object Tower : Configurable("Tower"), MinecraftInstance, Listenable {
                         if (constantMotionJumpPacketValues.get()) {
                             fakeJump()
                         }
-                        jumpGround = posY
+                        jumpGround = y
                         motionY = constantMotionValues.get().toDouble()
                     }
 
-                    if (posY > jumpGround + constantMotionJumpGroundValues.get()) {
+                    if (y > jumpGround + constantMotionJumpGroundValues.get()) {
                         if (constantMotionJumpPacketValues.get())
                             fakeJump()
 
                         setPosition(
-                            posX, truncate(posY), posZ
+                            x, truncate(y), z
                         ) // TODO: toInt() required?
                         motionY = constantMotionValues.get().toDouble()
-                        jumpGround = posY
+                        jumpGround = y
                     }
                 }
 
@@ -277,10 +277,10 @@ object Tower : Configurable("Tower"), MinecraftInstance, Listenable {
 
                 "AAC3.6.4" -> if (ticks % 4 == 1) {
                     motionY = 0.4195464
-                    setPosition(posX - 0.035, posY, posZ)
+                    setPosition(x - 0.035, y, z)
                 } else if (ticks % 4 == 0) {
                     motionY = -0.5
-                    setPosition(posX + 0.035, posY, posZ)
+                    setPosition(x + 0.035, y, z)
                 }
             }
         }

@@ -44,15 +44,15 @@ object Verus : FlyMode("Verus") {
             if (damage) {
                 sendPackets(
                     Position(x, y + 3.0001, z, false),
-                    PositionAndAngles(x, y, z, player.rotationYaw, player.rotationPitch, false),
-                    PositionAndAngles(x, y, z, player.rotationYaw, player.rotationPitch, true)
+                    PositionAndAngles(x, y, z, player.yaw, player.pitch, false),
+                    PositionAndAngles(x, y, z, player.yaw, player.pitch, true)
                 )
                 damaged = true
             } else {
                 damaged = true
             }
         }
-        player.setPosition(player.posX, player.posY + yBoost.toDouble(), player.posZ)
+        player.setPosition(player.x, player.y + yBoost.toDouble(), player.z)
     }
 
     override fun onDisable() {

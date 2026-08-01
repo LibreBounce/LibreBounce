@@ -19,24 +19,24 @@ import kotlin.math.sin
 import kotlin.math.sqrt
 
 class FallingPlayer(
-    private var x: Double = mc.player.posX,
-    private var y: Double = mc.player.posY,
-    private var z: Double = mc.player.posZ,
+    private var x: Double = mc.player.x,
+    private var y: Double = mc.player.y,
+    private var z: Double = mc.player.z,
     private var motionX: Double = mc.player.motionX,
     private var motionY: Double = mc.player.motionY,
     private var motionZ: Double = mc.player.motionZ,
-    private val yaw: Float = mc.player.rotationYaw,
+    private val yaw: Float = mc.player.yaw,
     private var strafe: Float = mc.player.sidewaysSpeed,
     private var forward: Float = mc.player.forwardSpeed
 ) : MinecraftInstance {
     constructor(player: LocalClientPlayerEntity, predict: Boolean = false) : this(
-        if (predict) player.posX + player.motionX else player.posX,
-        if (predict) player.posY + player.motionY else player.posY,
-        if (predict) player.posZ + player.motionZ else player.posZ,
+        if (predict) player.x + player.motionX else player.x,
+        if (predict) player.y + player.motionY else player.y,
+        if (predict) player.z + player.motionZ else player.z,
         player.motionX,
         player.motionY,
         player.motionZ,
-        player.rotationYaw,
+        player.yaw,
         player.sidewaysSpeed,
         player.forwardSpeed
     )

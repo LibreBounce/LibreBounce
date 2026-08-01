@@ -17,8 +17,8 @@ object Spartan : NoFallMode("Spartan") {
         mc.player?.run {
             if (fallDistance > 1.5 && spartanTimer.resetIfPassed()) {
                 sendPackets(
-                    Position(posX, posY + 10, posZ, true),
-                    Position(posX, posY - 10, posZ, true)
+                    Position(x, y + 10, z, true),
+                    Position(x, y - 10, z, true)
                 )
             }
         }

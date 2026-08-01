@@ -32,7 +32,7 @@ object FastStairs : Module("FastStairs", Category.MOVEMENT) {
 
             when {
                 fallDistance > 0 && !walkingDown -> walkingDown = true
-                posY > prevChasingPosY -> walkingDown = false
+                y > prevChasingPosY -> walkingDown = false
             }
 
 
@@ -42,7 +42,7 @@ object FastStairs : Module("FastStairs", Category.MOVEMENT) {
             val blockPos = BlockPos(this)
 
             if (blockPos.block is StairsBlock && !walkingDown) {
-                setPosition(posX, posY + 0.5, posZ)
+                setPosition(x, y + 0.5, z)
 
                 val motion = when (mode) {
                     "NCP" -> 1.4

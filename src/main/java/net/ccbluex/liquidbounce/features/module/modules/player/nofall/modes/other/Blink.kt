@@ -40,7 +40,7 @@ object Blink : NoFallMode("Blink") {
         val packet = event.packet
         val player = mc.player ?: return
 
-        if (player.isDead)
+        if (player.removed)
             return
 
         val simPlayer = SimulatedPlayer.fromClientPlayer(player.input)

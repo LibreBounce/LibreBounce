@@ -264,7 +264,7 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
 
                 // Flush on kb
                 is EntityVelocityS2CPacket -> {
-                    if (player.entityId == packet.entityID) {
+                    if (player.networkId == packet.networkId) {
                         BlinkUtils.unblink()
                         return@handler
                     }

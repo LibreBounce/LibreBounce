@@ -63,7 +63,7 @@ object AttackEffects : Module("AttackEffects", Category.RENDER) {
     private fun spawnBloodParticle(particleType: ParticleType, target: LivingEntity) {
         mc.world.spawnParticle(
             particleType,
-            target.posX, target.posY + target.height - 0.75, target.posZ,
+            target.x, target.y + target.height - 0.75, target.z,
             0.0, 0.0, 0.0,
             Block.getStateId(redstone_block.defaultState)
         )
@@ -72,15 +72,15 @@ object AttackEffects : Module("AttackEffects", Category.RENDER) {
     private fun spawnEffectParticle(particleType: ParticleType, target: LivingEntity) {
         mc.effectRenderer.spawnEffectParticle(
             particleType.particleID,
-            target.posX, target.posY, target.posZ,
-            target.posX, target.posY, target.posZ
+            target.x, target.y, target.z,
+            target.x, target.y, target.z
         )
     }
 
     private fun spawnLightning(target: LivingEntity) {
         mc.networkHandler.handleSpawnGlobalEntity(
             AddGlobalEntityS2CPacket(
-                EntityLightningBolt(mc.world, target.posX, target.posY, target.posZ)
+                EntityLightningBolt(mc.world, target.x, target.y, target.z)
             )
         )
     }

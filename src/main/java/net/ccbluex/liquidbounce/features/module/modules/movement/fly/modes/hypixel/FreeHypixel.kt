@@ -22,10 +22,10 @@ object FreeHypixel : FlyMode("FreeHypixel") {
         mc.player?.run {
             timer.reset()
 
-            teleport(posX, posY + 0.42, posZ)
+            teleport(x, y + 0.42, z)
 
-            startYaw = rotationYaw
-            startPitch = rotationPitch
+            startYaw = yaw
+            startPitch = pitch
         }
     }
 
@@ -35,12 +35,12 @@ object FreeHypixel : FlyMode("FreeHypixel") {
                 abilities.flying = true
                 return
             } else {
-                rotationYaw = startYaw
-                rotationPitch = startPitch
+                yaw = startYaw
+                pitch = startPitch
                 stop()
             }
 
-            if (startY == BigDecimal(posY).setScale(3, RoundingMode.HALF_DOWN).toDouble())
+            if (startY == BigDecimal(y).setScale(3, RoundingMode.HALF_DOWN).toDouble())
                 timer.update()
         }
     }

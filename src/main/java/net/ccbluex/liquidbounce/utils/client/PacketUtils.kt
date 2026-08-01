@@ -60,11 +60,11 @@ object PacketUtils : MinecraftInstance, Listenable {
         val world = mc.world ?: return@handler
 
         when (val packet = event.packet) {
-            is AddPlayerS2CPacket -> (world.getEntityByID(packet.entityID) as? IMixinEntity)?.apply {
+            is AddPlayerS2CPacket -> (world.getEntityByID(packet.networkId) as? IMixinEntity)?.apply {
                 updateSpawnPosition(Vec3d(packet.realX, packet.realY, packet.realZ))
             }
 
-            is AddMobS2CPacket -> (world.getEntityByID(packet.entityID) as? IMixinEntity)?.apply {
+            is AddMobS2CPacket -> (world.getEntityByID(packet.networkId) as? IMixinEntity)?.apply {
                 updateSpawnPosition(Vec3d(packet.realX, packet.realY, packet.realZ))
             }
 
@@ -83,7 +83,7 @@ object PacketUtils : MinecraftInstance, Listenable {
                 }
             }
 
-            is EntityTeleportS2CPacket -> (world.getEntityByID(packet.entityId) as? IMixinEntity)?.apply {
+            is EntityTeleportS2CPacket -> (world.getEntityByID(packet.networkId) as? IMixinEntity)?.apply {
                 updateSpawnPosition(Vec3d(packet.realX, packet.realY, packet.realZ), true)
             }
         }

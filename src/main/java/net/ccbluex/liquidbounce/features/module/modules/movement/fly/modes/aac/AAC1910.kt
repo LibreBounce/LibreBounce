@@ -30,7 +30,7 @@ object AAC1910 : FlyMode("AAC1.9.10") {
             if (mc.options.sneakKey.isKeyDown)
                 jump -= 0.2
 
-            if (startY + jump > posY) {
+            if (startY + jump > y) {
                 sendPacket(PlayerMoveC2SPacket(true))
                 motionY = 0.8
                 strafe(aacSpeed)

@@ -108,8 +108,8 @@ object Tracers : Module("Tracers", Category.RENDER) {
 
         val (x, y, z) = entity.interpolatedPosition(entity.lastTickPos) - mc.renderManager.renderPos
 
-        val yaw = (player.prevRotationYaw..player.rotationYaw).lerpWith(mc.timer.renderPartialTicks)
-        val pitch = (player.prevRotationPitch..player.rotationPitch).lerpWith(mc.timer.renderPartialTicks)
+        val yaw = (player.lastYaw..player.yaw).lerpWith(mc.timer.renderPartialTicks)
+        val pitch = (player.lastPitch..player.pitch).lerpWith(mc.timer.renderPartialTicks)
 
         val eyeVector = Vec3d(0.0, 0.0, 1.0).rotatePitch(-pitch.toRadians()).rotateYaw(-yaw.toRadians())
 

@@ -47,7 +47,7 @@ object Blink : Module("Blink", Category.PLAYER, gameDetecting = false) {
     val onPacket = handler<PacketEvent> { event ->
         val packet = event.packet
 
-        if (mc.player == null || mc.player.isDead)
+        if (mc.player == null || mc.player.removed)
             return@handler
 
         when (mode) {
@@ -69,7 +69,7 @@ object Blink : Module("Blink", Category.PLAYER, gameDetecting = false) {
         if (event.eventState == EventState.POST) {
             val player = mc.player ?: return@handler
 
-            if (player.isDead || player.ticks <= 10) {
+            if (player.removed || player.ticks <= 10) {
                 BlinkUtils.unblink()
             }
 

@@ -28,10 +28,10 @@ object AAC316 : FlyMode("AAC3.1.6-Gomme") {
 
             if (!noFlag)
                 sendPacket(
-                    Position(posX, posY, posZ, onGround)
+                    Position(x, y, z, onGround)
                 )
 
-            if (posY <= 0.0) noFlag = true
+            if (y <= 0.0) noFlag = true
         }
     }
 

@@ -421,7 +421,7 @@ object RenderUtils : MinecraftInstance {
         val renderX = manager.viewerPosX
         val renderY = manager.viewerPosY
         val renderZ = manager.viewerPosZ
-        val (posX, posY, posZ) = pos
+        val (x, y, z) = pos
 
         val vStep = Math.PI / (CIRCLE_STEPS / 2)
         val hStep = 2 * Math.PI / CIRCLE_STEPS
@@ -454,10 +454,10 @@ object RenderUtils : MinecraftInstance {
                     val hAngle1 = j * hStep
                     val hAngle2 = (j + 1) * hStep
 
-                    val p1 = calculateDomeVertex(posX, posY, posZ, vAngle1, hAngle1, hRadius, vRadius)
-                    val p2 = calculateDomeVertex(posX, posY, posZ, vAngle2, hAngle1, hRadius, vRadius)
-                    val p3 = calculateDomeVertex(posX, posY, posZ, vAngle2, hAngle2, hRadius, vRadius)
-                    val p4 = calculateDomeVertex(posX, posY, posZ, vAngle1, hAngle2, hRadius, vRadius)
+                    val p1 = calculateDomeVertex(x, y, z, vAngle1, hAngle1, hRadius, vRadius)
+                    val p2 = calculateDomeVertex(x, y, z, vAngle2, hAngle1, hRadius, vRadius)
+                    val p3 = calculateDomeVertex(x, y, z, vAngle2, hAngle2, hRadius, vRadius)
+                    val p4 = calculateDomeVertex(x, y, z, vAngle1, hAngle2, hRadius, vRadius)
 
                     when (renderMode) {
                         GL_QUADS -> {
@@ -577,12 +577,12 @@ object RenderUtils : MinecraftInstance {
         val entityBox = entity.hitBox
 
         val axisAlignedBB = Box.fromBounds(
-            entityBox.minX - entity.posX + x - 0.05,
-            entityBox.minY - entity.posY + y,
-            entityBox.minZ - entity.posZ + z - 0.05,
-            entityBox.maxX - entity.posX + x + 0.05,
-            entityBox.maxY - entity.posY + y + 0.15,
-            entityBox.maxZ - entity.posZ + z + 0.05
+            entityBox.minX - entity.x + x - 0.05,
+            entityBox.minY - entity.y + y,
+            entityBox.minZ - entity.z + z - 0.05,
+            entityBox.maxX - entity.x + x + 0.05,
+            entityBox.maxY - entity.y + y + 0.15,
+            entityBox.maxZ - entity.z + z + 0.05
         )
 
         if (outline) {
@@ -1357,9 +1357,9 @@ object RenderUtils : MinecraftInstance {
 
     private fun glColor(hex: Int) = glColor(hex shr 16 and 0xFF, hex shr 8 and 0xFF, hex and 0xFF, hex shr 24 and 0xFF)
 
-    fun draw2D(entity: LivingEntity, posX: Double, posY: Double, posZ: Double, color: Int, backgroundColor: Int) {
+    fun draw2D(entity: LivingEntity, x: Double, y: Double, z: Double, color: Int, backgroundColor: Int) {
         glPushMatrix()
-        glTranslated(posX, posY, posZ)
+        glTranslated(x, y, z)
         glRotated(-mc.renderManager.playerViewY.toDouble(), 0.0, 1.0, 0.0)
         glScaled(-0.1, -0.1, 0.1)
         glDisable(GL_DEPTH_TEST)

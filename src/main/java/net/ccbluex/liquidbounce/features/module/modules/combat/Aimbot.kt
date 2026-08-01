@@ -261,7 +261,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
         val switchMode = targetMode == "Switch"
 
         if (!switchMode || switchTimer.hasTimePassed(switchDelay)) {
-            prevTargetEntities += currentTarget.entityId
+            prevTargetEntities += currentTarget.networkId
 
             if (switchMode) {
                 switchTimer.reset()
@@ -291,7 +291,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
         for (entity in world.loadedEntityList) {
             if (entity !is LivingEntity || !isSelected(
                     entity, true
-                ) || switchMode && entity.entityId in prevTargetEntities
+                ) || switchMode && entity.networkId in prevTargetEntities
             ) continue
 
             val distance = Backtrack.runWithNearestTrackedDistance(entity) { player.getDistanceToEntityBox(entity) }
@@ -370,7 +370,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
 
         val simPlayer = SimulatedPlayer.fromClientPlayer(RotationUtils.modifiedInput)
 
-        simPlayer.rotationYaw = (currentRotation ?: player.rotation).yaw
+        simPlayer.yaw = (currentRotation ?: player.rotation).yaw
 
         var pos = currPos
 

@@ -182,24 +182,24 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1f, side: Side = S
         mc.player?.run {
             when (str.lowercase()) {
                 // TODO: Add MotionX, MotionY, and MotionZ
-                "x" -> return DECIMAL_FORMAT.format(posX)
-                "y" -> return DECIMAL_FORMAT.format(posY)
-                "z" -> return DECIMAL_FORMAT.format(posZ)
-                "xint" -> return DECIMAL_FORMAT.format(posX).toInt()
-                "yint" -> return DECIMAL_FORMAT.format(posY).toInt()
-                "zint" -> return DECIMAL_FORMAT.format(posZ).toInt()
-                "xdp" -> return posX
-                "ydp" -> return posY
-                "zdp" -> return posZ
+                "x" -> return DECIMAL_FORMAT.format(x)
+                "y" -> return DECIMAL_FORMAT.format(y)
+                "z" -> return DECIMAL_FORMAT.format(z)
+                "xint" -> return DECIMAL_FORMAT.format(x).toInt()
+                "yint" -> return DECIMAL_FORMAT.format(y).toInt()
+                "zint" -> return DECIMAL_FORMAT.format(z).toInt()
+                "xdp" -> return x
+                "ydp" -> return y
+                "zdp" -> return z
                 "velocity" -> return DECIMAL_FORMAT.format(speed)
                 "ping" -> return getPing()
                 "health" -> return DECIMAL_FORMAT.format(health)
                 "maxhealth" -> return DECIMAL_FORMAT.format(maxHealth)
                 "hurttime" -> return damagedTimer
-                "yaw" -> return DECIMAL_FORMAT.format(rotationYaw)
-                "pitch" -> return DECIMAL_FORMAT.format(rotationPitch)
-                "yawint" -> return DECIMAL_FORMAT.format(rotationYaw).toInt()
-                "pitchint" -> return DECIMAL_FORMAT.format(rotationPitch).toInt()
+                "yaw" -> return DECIMAL_FORMAT.format(yaw)
+                "pitch" -> return DECIMAL_FORMAT.format(pitch)
+                "yawint" -> return DECIMAL_FORMAT.format(yaw).toInt()
+                "pitchint" -> return DECIMAL_FORMAT.format(pitch).toInt()
                 "food" -> return foodStats.foodLevel
                 "onground" -> return onGround
                 "moving" -> return isMoving

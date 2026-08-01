@@ -19,7 +19,7 @@ object VClipCommand : Command("vclip") {
 
                 val entity = if (player.isRiding) player.ridingEntity else player
 
-                entity.setPosition(entity.posX, entity.posY + y, entity.posZ)
+                entity.setPosition(entity.x, entity.y + y, entity.z)
                 chat("You were teleported.")
             } catch (ex: NumberFormatException) {
                 chatSyntaxError()

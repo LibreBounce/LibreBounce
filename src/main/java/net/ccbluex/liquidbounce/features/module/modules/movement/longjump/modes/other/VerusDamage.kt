@@ -29,9 +29,9 @@ object VerusDamage : LongJumpMode("VerusDamage") {
 
             // Note: you'll flag once for Fly G (tested on the CCBlueX Test Server)
             sendPackets(
-                Position(posX, posY + 3.0001, posZ, false),
-                PositionAndAngles(posX, posY, posX, rotationYaw, rotationPitch, false),
-                PositionAndAngles(posX, posY, posZ, rotationYaw, rotationPitch, true)
+                Position(x, y + 3.0001, z, false),
+                PositionAndAngles(x, y, x, yaw, pitch, false),
+                PositionAndAngles(x, y, z, yaw, pitch, true)
             )
 
             damaged = true

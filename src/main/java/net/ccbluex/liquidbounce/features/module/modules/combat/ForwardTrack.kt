@@ -91,7 +91,7 @@ object ForwardTrack : Module("ForwardTrack", Category.COMBAT) {
                     renderManager.doRenderEntity(
                         target,
                         x, y, z,
-                        (target.prevRotationYaw..target.rotationYaw).lerpWith(event.partialTicks),
+                        (target.lastYaw..target.yaw).lerpWith(event.partialTicks),
                         event.partialTicks,
                         true
                     )
@@ -119,7 +119,7 @@ object ForwardTrack : Module("ForwardTrack", Category.COMBAT) {
                     renderManager.doRenderEntity(
                         target,
                         x, y, z,
-                        (target.prevRotationYaw..target.rotationYaw).lerpWith(event.partialTicks),
+                        (target.lastYaw..target.yaw).lerpWith(event.partialTicks),
                         event.partialTicks,
                         true
                     )
@@ -127,7 +127,7 @@ object ForwardTrack : Module("ForwardTrack", Category.COMBAT) {
                     renderManager.doRenderEntity(
                         target,
                         x, y, z,
-                        (target.prevRotationYaw..target.rotationYaw).lerpWith(event.partialTicks),
+                        (target.lastYaw..target.yaw).lerpWith(event.partialTicks),
                         event.partialTicks,
                         true
                     )

@@ -89,11 +89,11 @@ object AntiFireball : Module("AntiFireball", Category.PLAYER) {
                 displayName = entity.name
 
                 val scaleFactor = scale
-                val entX = entity.posX
-                val entZ = entity.posZ
-                val px = player.posX
-                val pz = player.posZ
-                val pYaw = player.rotationYaw
+                val entX = entity.x
+                val entZ = entity.z
+                val px = player.x
+                val pz = player.z
+                val pYaw = player.yaw
                 val radiusFactor = radius
                 val yaw = (getRotations(entX, entZ, px, pz) - pYaw).toRadians()
                 val arrowX = t.scaledWidth / 2 + radiusFactor * sin(yaw)

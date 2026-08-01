@@ -28,7 +28,7 @@ object CameraView : Module("CameraView", Category.RENDER, gameDetecting = false)
 
     override fun onEnable() {
         mc.player?.run {
-            launchY = posY
+            launchY = y
         }
     }
 
@@ -37,7 +37,7 @@ object CameraView : Module("CameraView", Category.RENDER, gameDetecting = false)
 
         mc.player?.run {
             if (!saveLastGroundY || (onGround || ticks == 1)) {
-                launchY = posY
+                launchY = y
             }
         }
     }

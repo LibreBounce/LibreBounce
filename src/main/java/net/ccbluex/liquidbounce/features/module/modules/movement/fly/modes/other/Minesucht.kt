@@ -22,23 +22,23 @@ object Minesucht : FlyMode("Minesucht") {
 
                 if (fallDistance > 0.8) {
                     sendPackets(
-                        Position(posX, posY + 50, posZ, false),
-                        Position(posX, posY + 20, posZ, true)
+                        Position(x, y + 50, z, false),
+                        Position(x, y + 20, z, true)
                     )
                     fall(100f, 100f)
                     fallDistance = 0f
                 }
                 sendPackets(
-                    Position(vec.xCoord, posY + 50, vec.zCoord, true),
-                    Position(posX, posY, posZ, false),
-                    Position(vec.xCoord, posY, vec.zCoord, true),
-                    Position(posX, posY, posZ, false)
+                    Position(vec.xCoord, y + 50, vec.zCoord, true),
+                    Position(x, y, z, false),
+                    Position(vec.xCoord, y, vec.zCoord, true),
+                    Position(x, y, z, false)
                 )
                 minesuchtTP = System.currentTimeMillis()
             } else {
                 sendPackets(
-                    Position(posX, posY, posZ, false),
-                    Position(posX, posY, posZ, true)
+                    Position(x, y, z, false),
+                    Position(x, y, z, true)
                 )
             }
         }

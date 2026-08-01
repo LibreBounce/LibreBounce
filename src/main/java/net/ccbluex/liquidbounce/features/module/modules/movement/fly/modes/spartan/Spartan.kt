@@ -26,8 +26,8 @@ object Spartan : FlyMode("Spartan") {
 
             if (timer.resetIfPassed()) {
                 sendPackets(
-                    Position(posX, posY + 8, posZ, true),
-                    Position(posX, posY - 8, posZ, true)
+                    Position(x, y + 8, z, true),
+                    Position(x, y - 8, z, true)
                 )
             }
         }

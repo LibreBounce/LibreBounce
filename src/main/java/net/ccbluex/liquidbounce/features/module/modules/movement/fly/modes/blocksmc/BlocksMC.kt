@@ -121,17 +121,17 @@ object BlocksMC : FlyMode("BlocksMC"), Listenable {
         if (!isTeleported) {
             sendPackets(
                 Position(
-                    player.posX,
+                    player.x,
                     // Clipping is now patch in BlocksMC
-                    player.posY - 0.05,
-                    player.posZ,
+                    player.y - 0.05,
+                    player.z,
                     false
                 ),
 
                 Position(
-                    player.posX,
-                    player.posY,
-                    player.posZ,
+                    player.x,
+                    player.y,
+                    player.z,
                     false
                 )
             )

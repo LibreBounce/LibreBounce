@@ -92,7 +92,7 @@ class Radar(x: Double = 5.0, y: Double = 130.0) : Element("Radar", x, y) {
         glPushMatrix()
 
         glTranslatef(halfSize, halfSize, 0f)
-        glRotatef(renderViewEntity.rotationYaw, 0f, 0f, -1f)
+        glRotatef(renderViewEntity.yaw, 0f, 0f, -1f)
 
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
@@ -105,8 +105,8 @@ class Radar(x: Double = 5.0, y: Double = 130.0) : Element("Radar", x, y) {
             val chunkSizeOnScreen = size / viewDistance
             val chunksToRender = max(1, ceil((SQRT_OF_TWO * (viewDistance * 0.5f))).toInt())
 
-            val currX = renderViewEntity.posX / 16.0
-            val currZ = renderViewEntity.posZ / 16.0
+            val currX = renderViewEntity.x / 16.0
+            val currZ = renderViewEntity.z / 16.0
 
             for (x in -chunksToRender..chunksToRender) {
                 for (z in -chunksToRender..chunksToRender) {
@@ -170,8 +170,8 @@ class Radar(x: Double = 5.0, y: Double = 130.0) : Element("Radar", x, y) {
         for (entity in mc.world.loadedEntityList) {
             if (entity != mc.player && isSelected(entity, false)) {
                 val positionRelativeToPlayer = Vector2f(
-                    (renderViewEntity.posX - entity.posX).toFloat(),
-                    (renderViewEntity.posZ - entity.posZ).toFloat()
+                    (renderViewEntity.x - entity.x).toFloat(),
+                    (renderViewEntity.z - entity.z).toFloat()
                 )
 
                 if (maxDisplayableDistanceSquare < positionRelativeToPlayer.lengthSquared())
@@ -186,7 +186,7 @@ class Radar(x: Double = 5.0, y: Double = 130.0) : Element("Radar", x, y) {
                         (positionRelativeToPlayer.x / viewDistance) * size,
                         (positionRelativeToPlayer.y / viewDistance) * size, 0f
                     )
-                    glRotatef(entity.rotationYaw, 0f, 0f, 1f)
+                    glRotatef(entity.yaw, 0f, 0f, 1f)
                 }
 
                 if (fovSize > 0F) {

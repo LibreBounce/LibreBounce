@@ -59,7 +59,7 @@ object FastClimb : Module("FastClimb", Category.MOVEMENT) {
                         else -> {}
                     }
 
-                    val block = BlockPos(posX + x, posY, posZ + z).block
+                    val block = BlockPos(x + x, y, z + z).block
 
                     if (block is LadderBlock || block is VineBlock) {
                         event.y = 0.5
@@ -81,8 +81,8 @@ object FastClimb : Module("FastClimb", Category.MOVEMENT) {
                 }
 
                 mode == "Clip" && isOnLadder && mc.options.forwardKey.isKeyDown -> {
-                    for (i in posY.toInt()..posY.toInt() + 8) {
-                        val block = BlockPos(posX, i.toDouble(), posZ).block
+                    for (i in y.toInt()..y.toInt() + 8) {
+                        val block = BlockPos(x, i.toDouble(), z).block
 
                         if (block !is LadderBlock) {
                             var x = 0.0
@@ -96,10 +96,10 @@ object FastClimb : Module("FastClimb", Category.MOVEMENT) {
                                 else -> {}
                             }
 
-                            setPosition(posX + x, i.toDouble(), posZ + z)
+                            setPosition(x + x, i.toDouble(), z + z)
                             break
                         } else {
-                            setPosition(posX, i.toDouble(), posZ)
+                            setPosition(x, i.toDouble(), z)
                         }
                     }
                 }
@@ -117,10 +117,10 @@ object FastClimb : Module("FastClimb", Category.MOVEMENT) {
                             event.y = climbSpeed.toDouble()
                             playerClimb()
 
-                            sendPacket(Position(posX, posY, posZ, true))
+                            sendPacket(Position(x, y, z, true))
                             climbCount = 0
                         } else {
-                            posY = prevPosY
+                            y = prevPosY
 
                             playerClimb()
                             climbCount++
