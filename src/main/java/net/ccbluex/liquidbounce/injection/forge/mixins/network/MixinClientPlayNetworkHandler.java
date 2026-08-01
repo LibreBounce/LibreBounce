@@ -262,7 +262,7 @@ public abstract class MixinClientPlayNetworkHandler {
         NoRotateSet module = NoRotateSet.INSTANCE;
 
         // Save the server's requested rotation before it resets the rotations
-        module.setSavedRotation(PlayerExtensionKt.getRotation(Minecraft.getMinecraft().player));
+        module.setSavedRotation(PlayerExtensionKt.getRotation(Minecraft.getInstance().player));
     }
 
     @Redirect(method = "handlePlayerPosLook", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/Connection;sendPacket(Lnet/minecraft/network/Packet;)V"))
@@ -271,7 +271,7 @@ public abstract class MixinClientPlayNetworkHandler {
         boolean shouldTrigger = module2.blinkingSend();
         PacketUtils.sendPacket(p_sendPacket_1_, shouldTrigger);
 
-        LocalClientPlayerEntity player = Minecraft.getMinecraft().player;
+        LocalClientPlayerEntity player = Minecraft.getInstance().player;
         NoRotateSet module = NoRotateSet.INSTANCE;
 
         if (player == null || !module.shouldModify(player)) {

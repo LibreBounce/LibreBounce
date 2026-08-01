@@ -83,7 +83,7 @@ object SNCPBHop : SpeedMode("SNCPBHop") {
             moveSpeed = baseMoveSpeed
             lastDist = 0.0
         } else if (level == 89) {
-            if (mc.world.getCollidingBoundingBoxes(
+            if (mc.world.getCollisions(
                     player,
                     player.shape.offset(0.0, player.velocityY, 0.0)
                 ).isNotEmpty() || player.collidingVertically
@@ -92,7 +92,7 @@ object SNCPBHop : SpeedMode("SNCPBHop") {
             moveSpeed = baseMoveSpeed
             return
         } else {
-            if (mc.world.getCollidingBoundingBoxes(
+            if (mc.world.getCollisions(
                     player,
                     player.shape.offset(0.0, player.velocityY, 0.0)
                 ).isNotEmpty() || player.collidingVertically

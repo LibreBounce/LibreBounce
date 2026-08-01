@@ -45,7 +45,7 @@ import java.util.Objects;
 public abstract class MixinGameRenderer {
 
     @Shadow
-    private Entity pointedEntity;
+    private Entity targetEntity;
 
     @Shadow
     private Minecraft mc;
@@ -142,7 +142,7 @@ public abstract class MixinGameRenderer {
         Entity entity = mc.getRenderViewEntity();
         if (entity != null && mc.world != null) {
             mc.mcProfiler.startSection("pick");
-            mc.pointedEntity = null;
+            mc.targetEntity = null;
 
             final Reach reach = Reach.INSTANCE;
 
@@ -152,7 +152,7 @@ public abstract class MixinGameRenderer {
             Vec3d vec31 = RotationUtils.INSTANCE.getRotationVector(RotationUtils.INSTANCE.getCurrentRotation() != null && OverrideRaycast.INSTANCE.shouldOverride() ? RotationUtils.INSTANCE.getCurrentRotation() : rotation);
             double p_rayTrace_1_ = (reach.handleEvents() ? reach.getBuildReach() : d0);
             Vec3d vec32 = vec3.addVector(vec31.xCoord * p_rayTrace_1_, vec31.yCoord * p_rayTrace_1_, vec31.zCoord * p_rayTrace_1_);
-            mc.objectMouseOver = entity.world.rayTraceBlocks(vec3, vec32, false, false, true);
+            mc.crosshairTarget = entity.world.rayTraceBlocks(vec3, vec32, false, false, true);
             double d1 = d0;
             boolean flag = false;
             if (mc.interactionManager.extendedReach()) {
@@ -162,8 +162,8 @@ public abstract class MixinGameRenderer {
                 flag = true;
             }
 
-            if (mc.objectMouseOver != null) {
-                d1 = mc.objectMouseOver.hitVec.distanceTo(vec3);
+            if (mc.crosshairTarget != null) {
+                d1 = mc.crosshairTarget.hitVec.distanceTo(vec3);
             }
 
             if (reach.handleEvents()) {
@@ -174,7 +174,7 @@ public abstract class MixinGameRenderer {
                 if (movingObjectPosition != null) d1 = movingObjectPosition.hitVec.distanceTo(vec3);
             }
 
-            pointedEntity = null;
+            targetEntity = null;
             Vec3d vec33 = null;
             List<Entity> list = mc.world.getEntities(Entity.class, Predicates.and(EntityFilter.NOT_SPECTATING, p_apply_1_ -> p_apply_1_ != null && p_apply_1_.canBeCollidedWith() && p_apply_1_ != entity));
             double d2 = d1;
@@ -194,7 +194,7 @@ public abstract class MixinGameRenderer {
                     HitResult movingobjectposition = axisalignedbb.calculateIntercept(vec3, vec32);
                     if (axisalignedbb.contains(vec3)) {
                         if (d2 >= 0) {
-                            pointedEntity = entity1;
+                            targetEntity = entity1;
                             vec33 = movingobjectposition == null ? vec3 : movingobjectposition.hitVec;
                             d2 = 0;
                         }
@@ -203,11 +203,11 @@ public abstract class MixinGameRenderer {
                         if (d3 < d2 || d2 == 0) {
                             if (entity1 == entity.vehicle && !entity.canRiderInteract()) {
                                 if (d2 == 0) {
-                                    pointedEntity = entity1;
+                                    targetEntity = entity1;
                                     vec33 = movingobjectposition.hitVec;
                                 }
                             } else {
-                                pointedEntity = entity1;
+                                targetEntity = entity1;
                                 vec33 = movingobjectposition.hitVec;
                                 d2 = d3;
                             }
@@ -216,15 +216,15 @@ public abstract class MixinGameRenderer {
                 }
             }
 
-            if (pointedEntity != null && flag && vec3.distanceTo(vec33) > (reach.handleEvents() ? reach.getCombatReach() : 3)) {
-                pointedEntity = null;
-                mc.objectMouseOver = new HitResult(HitResult.Type.MISS, Objects.requireNonNull(vec33), null, new BlockPos(vec33));
+            if (targetEntity != null && flag && vec3.distanceTo(vec33) > (reach.handleEvents() ? reach.getCombatReach() : 3)) {
+                targetEntity = null;
+                mc.crosshairTarget = new HitResult(HitResult.Type.MISS, Objects.requireNonNull(vec33), null, new BlockPos(vec33));
             }
 
-            if (pointedEntity != null && (d2 < d1 || mc.objectMouseOver == null)) {
-                mc.objectMouseOver = new HitResult(pointedEntity, vec33);
-                if (pointedEntity instanceof LivingEntity || pointedEntity instanceof ItemFrameEntity) {
-                    mc.pointedEntity = pointedEntity;
+            if (targetEntity != null && (d2 < d1 || mc.crosshairTarget == null)) {
+                mc.crosshairTarget = new HitResult(targetEntity, vec33);
+                if (targetEntity instanceof LivingEntity || targetEntity instanceof ItemFrameEntity) {
+                    mc.targetEntity = targetEntity;
                 }
             }
 

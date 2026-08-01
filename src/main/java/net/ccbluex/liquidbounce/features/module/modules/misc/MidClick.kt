@@ -24,7 +24,7 @@ object MidClick : Module("MidClick", Category.MISC, subjective = true, gameDetec
             return@handler
 
         if (!wasDown && Mouse.isButtonDown(2)) {
-            val entity = mc.objectMouseOver.entityHit
+            val entity = mc.crosshairTarget.entityHit
 
             if (entity is PlayerEntity) {
                 val playerName = stripColor(entity.name)

@@ -47,10 +47,10 @@ public class MixinSignEditScreen extends Screen {
     private void initGui(final CallbackInfo callbackInfo) {
         buttonList.add(toggleButton = new ButtonWidget(1, width / 2 - 100, height / 4 + 145, enabled ? "Disable Formatting codes" : "Enable Formatting codes"));
 
-        signCommand1 = new TextFieldWidget(0, fontRendererObj, width / 2 - 100, height - 15, 200, 10);
-        signCommand2 = new TextFieldWidget(1, fontRendererObj, width / 2 - 100, height - 15 * 2, 200, 10);
-        signCommand3 = new TextFieldWidget(2, fontRendererObj, width / 2 - 100, height - 15 * 3, 200, 10);
-        signCommand4 = new TextFieldWidget(3, fontRendererObj, width / 2 - 100, height - 15 * 4, 200, 10);
+        signCommand1 = new TextFieldWidget(0, textRenderer, width / 2 - 100, height - 15, 200, 10);
+        signCommand2 = new TextFieldWidget(1, textRenderer, width / 2 - 100, height - 15 * 2, 200, 10);
+        signCommand3 = new TextFieldWidget(2, textRenderer, width / 2 - 100, height - 15 * 3, 200, 10);
+        signCommand4 = new TextFieldWidget(3, textRenderer, width / 2 - 100, height - 15 * 4, 200, 10);
 
         signCommand1.setText("");
         signCommand2.setText("");
@@ -83,7 +83,7 @@ public class MixinSignEditScreen extends Screen {
 
     @Inject(method = "drawScreen", at = @At("RETURN"))
     private void drawFields(CallbackInfo callbackInfo) {
-        fontRendererObj.draw("§c§lCommands §7(§f§l1.8§7)", width / 2 - 100, height - 15 * 5, Color.WHITE.getRGB());
+        textRenderer.draw("§c§lCommands §7(§f§l1.8§7)", width / 2 - 100, height - 15 * 5, Color.WHITE.getRGB());
 
         signCommand1.drawTextBox();
         signCommand2.drawTextBox();
@@ -127,7 +127,7 @@ public class MixinSignEditScreen extends Screen {
             s = s.substring(0, s.length() - 1);
         }
 
-        if ((ChatAllowedCharacters.isAllowedCharacter(typedChar) || (enabled && typedChar == '§')) && fontRendererObj.getWidth(s + typedChar) <= 90) {
+        if ((ChatAllowedCharacters.isAllowedCharacter(typedChar) || (enabled && typedChar == '§')) && textRenderer.getWidth(s + typedChar) <= 90) {
             s = s + typedChar;
         }
 

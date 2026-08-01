@@ -280,7 +280,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1f, side: Side = S
         // Calculate width only once
         val underscoreWidth = fontRenderer.getWidth(underscore).toFloat()
         val width = fontRenderer.getWidth(displayText) + underscoreWidth
-        val heightPadding = if (fontRenderer == mc.fontRendererObj) 1F else 0F
+        val heightPadding = if (fontRenderer == mc.textRenderer) 1F else 0F
 
         val bgScale = max(backgroundScale, 1F)
         val horizontalPadding = (if (shouldRender) 16F else 2F) + blockScale

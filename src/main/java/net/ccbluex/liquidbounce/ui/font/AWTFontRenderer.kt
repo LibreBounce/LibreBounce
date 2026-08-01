@@ -186,10 +186,10 @@ class AWTFontRenderer(
                 val scale = font.size / 32.0f
                 glScalef(scale, scale, 1.0f)
 
-                mc.fontRendererObj.y = 1.0f
-                mc.fontRendererObj.x = (currX / rev) + fallbackWidth
+                mc.textRenderer.y = 1.0f
+                mc.textRenderer.x = (currX / rev) + fallbackWidth
 
-                val fallbackW = mc.fontRendererObj.renderUnicodeChar(char, false).coerceAtLeast(0f)
+                val fallbackW = mc.textRenderer.renderUnicodeChar(char, false).coerceAtLeast(0f)
                 fallbackWidth += fallbackW
 
                 if (loadingScreen) {
@@ -228,7 +228,7 @@ class AWTFontRenderer(
         for (char in text) {
             val loc = charLocations.getOrNull(char.code)
             if (loc == null) {
-                val w = mc.fontRendererObj.getCharWidth(char)
+                val w = mc.textRenderer.getCharWidth(char)
                 fallbackWidth += ((w + 8) * fallbackScale).coerceAtLeast(0f)
             } else {
                 myWidth += (loc.width - 8)

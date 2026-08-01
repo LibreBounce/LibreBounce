@@ -23,7 +23,7 @@ import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket.PositionAndAngl
  * Ported from the VerusDamage Script by Arcane
  *
  * Notes:
- * - Going below a block (Like the Updated NCP fly), should help to temporarily bypass Speed A Checks
+ * - Going below a block (like the Updated NCP fly) should help to temporarily bypass Speed A Checks
  * - Turning off Damage should bypass Fly G Checks
  */
 object Verus : FlyMode("Verus") {
@@ -36,7 +36,7 @@ object Verus : FlyMode("Verus") {
         val (x, y, z) = player
 
         boostTicks = 0
-        if (mc.world.getCollidingBoundingBoxes(
+        if (mc.world.getCollisions(
                 player,
                 player.shape.offset(0.0, 3.0001, 0.0).expand(0.0, 0.0, 0.0)
             ).isEmpty()

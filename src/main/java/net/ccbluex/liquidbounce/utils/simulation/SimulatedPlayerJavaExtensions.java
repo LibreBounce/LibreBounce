@@ -16,7 +16,7 @@ public class SimulatedPlayerJavaExtensions {
      * This game movement code had to be kept in its original language as it gives proper results.
      */
     public Pair<Double, Double> checkForCollision(SimulatedPlayer simPlayer, double velocityX, double velocityZ) {
-        LocalClientPlayerEntity player = Minecraft.getMinecraft().player;
+        LocalClientPlayerEntity player = Minecraft.getInstance().player;
         World world = player.world;
 
         double d6;
@@ -24,7 +24,7 @@ public class SimulatedPlayerJavaExtensions {
         double d3 = velocityX;
         double d5 = velocityZ;
 
-        for (d6 = 0.05; velocityX != 0 && world.getCollidingBoundingBoxes(player, simPlayer.getBox().offset(velocityX, -1, 0)).isEmpty(); d3 = velocityX) {
+        for (d6 = 0.05; velocityX != 0 && world.getCollisions(player, simPlayer.getBox().offset(velocityX, -1, 0)).isEmpty(); d3 = velocityX) {
             if (velocityX < d6 && velocityX >= -d6) {
                 velocityX = 0;
             } else if (velocityX > 0) {
@@ -35,7 +35,7 @@ public class SimulatedPlayerJavaExtensions {
         }
 
         //noinspection ConstantConditions
-        for (; velocityZ != 0 && world.getCollidingBoundingBoxes(player, simPlayer.getBox().offset(0, -1, velocityZ)).isEmpty(); d5 = velocityZ) {
+        for (; velocityZ != 0 && world.getCollisions(player, simPlayer.getBox().offset(0, -1, velocityZ)).isEmpty(); d5 = velocityZ) {
             if (velocityZ < d6 && velocityZ >= -d6) {
                 velocityZ = 0;
             } else if (velocityZ > 0) {
@@ -46,7 +46,7 @@ public class SimulatedPlayerJavaExtensions {
         }
 
         //noinspection ConstantConditions
-        for (; velocityX != 0 && velocityZ != 0 && world.getCollidingBoundingBoxes(player, simPlayer.getBox().offset(velocityX, -1, velocityZ)).isEmpty(); d5 = velocityZ) {
+        for (; velocityX != 0 && velocityZ != 0 && world.getCollisions(player, simPlayer.getBox().offset(velocityX, -1, velocityZ)).isEmpty(); d5 = velocityZ) {
             if (velocityX < d6 && velocityX >= -d6) {
                 velocityX = 0;
             } else if (velocityX > 0) {

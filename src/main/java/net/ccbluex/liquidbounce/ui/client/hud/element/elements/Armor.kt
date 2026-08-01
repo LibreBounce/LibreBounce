@@ -51,7 +51,7 @@ class Armor(
                 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
                 turnOnGui()
                 renderItem.renderItemIntoGUI(stack, x, y)
-                renderItem.renderItemOverlays(mc.fontRendererObj, stack, x, y)
+                renderItem.renderItemOverlays(mc.textRenderer, stack, x, y)
                 turnOff()
                 glDisable(GL_BLEND)
                 glPopMatrix()

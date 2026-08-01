@@ -70,7 +70,7 @@ class GuiContributors(private val prevGui: Screen) : AbstractScreen() {
 
                 val avatar = credit.avatar
 
-                val imageSize = fontRendererObj.FONT_HEIGHT * 4
+                val imageSize = textRenderer.FONT_HEIGHT * 4
 
                 if (avatar != null) {
                     glPushAttrib(GL_ALL_ATTRIB_BITS)

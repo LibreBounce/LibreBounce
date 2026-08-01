@@ -27,7 +27,7 @@ class GuiLoginProgress(
         assumeNonVolatile {
             drawDefaultBackground()
             drawLoadingCircle(width / 2f, height / 4f + 70)
-            drawCenteredString(fontRendererObj, translationText(
+            drawCenteredString(textRenderer, translationText(
                 "Loggingintoaccount"), width / 2, height / 2 - 60, 16777215)
         }
 

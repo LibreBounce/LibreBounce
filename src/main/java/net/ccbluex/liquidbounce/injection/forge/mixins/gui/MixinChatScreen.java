@@ -129,7 +129,7 @@ public abstract class MixinChatScreen extends MixinScreen {
             String[] textArray = inputField.getText().split(" ");
             String trimmedString = latestAutoComplete[0].replaceFirst("(?i)" + textArray[textArray.length - 1], "");
 
-            mc.fontRendererObj.drawWithShadow(trimmedString, inputField.xPosition + mc.fontRendererObj.getWidth(inputField.getText()), inputField.yPosition, new Color(165, 165, 165).getRGB());
+            mc.textRenderer.drawWithShadow(trimmedString, inputField.xPosition + mc.textRenderer.getWidth(inputField.getText()), inputField.yPosition, new Color(165, 165, 165).getRGB());
         }
 
         AWTFontRenderer.Companion.setAssumeNonVolatile(false);

@@ -534,7 +534,7 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
                 double d6;
 
                 //noinspection ConstantConditions
-                for (d6 = 0.05; x != 0 && world.getCollidingBoundingBoxes((Entity) (Object) this, getShape().offset(x, -1, 0)).isEmpty(); d3 = x) {
+                for (d6 = 0.05; x != 0 && world.getCollisions((Entity) (Object) this, getShape().offset(x, -1, 0)).isEmpty(); d3 = x) {
                     if (x < d6 && x >= -d6) {
                         x = 0;
                     } else if (x > 0) {
@@ -545,7 +545,7 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
                 }
 
                 //noinspection ConstantConditions
-                for (; z != 0 && world.getCollidingBoundingBoxes((Entity) (Object) this, getShape().offset(0, -1, z)).isEmpty(); d5 = z) {
+                for (; z != 0 && world.getCollisions((Entity) (Object) this, getShape().offset(0, -1, z)).isEmpty(); d5 = z) {
                     if (z < d6 && z >= -d6) {
                         z = 0;
                     } else if (z > 0) {
@@ -556,7 +556,7 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
                 }
 
                 //noinspection ConstantConditions
-                for (; x != 0 && z != 0 && world.getCollidingBoundingBoxes((Entity) (Object) this, getShape().offset(x, -1, z)).isEmpty(); d5 = z) {
+                for (; x != 0 && z != 0 && world.getCollisions((Entity) (Object) this, getShape().offset(x, -1, z)).isEmpty(); d5 = z) {
                     if (x < d6 && x >= -d6) {
                         x = 0;
                     } else if (x > 0) {
@@ -578,7 +578,7 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
             }
 
             //noinspection ConstantConditions
-            List<Box> list1 = world.getCollidingBoundingBoxes((Entity) (Object) this, getShape().addCoord(x, y, z));
+            List<Box> list1 = world.getCollisions((Entity) (Object) this, getShape().addCoord(x, y, z));
             Box axisalignedbb = getShape();
 
             for (Box axisalignedbb1 : list1) {
@@ -610,7 +610,7 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
                 setShape(axisalignedbb);
                 y = stepEvent.getStepHeight();
                 //noinspection ConstantConditions
-                List<Box> list = world.getCollidingBoundingBoxes((Entity) (Object) this, getShape().addCoord(d3, y, d5));
+                List<Box> list = world.getCollisions((Entity) (Object) this, getShape().addCoord(d3, y, d5));
                 Box axisalignedbb4 = getShape();
                 Box axisalignedbb5 = axisalignedbb4.addCoord(d3, 0, d5);
                 double d9 = y;

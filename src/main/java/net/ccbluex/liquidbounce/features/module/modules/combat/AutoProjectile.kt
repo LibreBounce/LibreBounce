@@ -58,7 +58,7 @@ object AutoProjectile : Module("AutoProjectile", Category.COMBAT) {
             var throwProjectile = false
 
             if (facingEnemy) {
-                var facingEntity = mc.objectMouseOver?.entityHit
+                var facingEntity = mc.crosshairTarget?.entityHit
 
                 if (facingEntity == null) {
                     facingEntity = raycastEntity(range.toDouble()) { isSelected(it, true) }

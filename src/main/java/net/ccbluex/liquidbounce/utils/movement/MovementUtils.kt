@@ -109,7 +109,7 @@ object MovementUtils : MinecraftInstance, Listenable {
 
     fun isOnGround(height: Double) =
         mc.world != null && mc.player != null &&
-            mc.world.getCollidingBoundingBoxes(mc.player,
+            mc.world.getCollisions(mc.player,
                 mc.player.shape.offset(Vec3d_ZERO.withY(-height))
             ).isNotEmpty()
 

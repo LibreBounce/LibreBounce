@@ -18,7 +18,7 @@ object Boost : SpeedMode("Boost") {
             var offset = 4.69
             var shouldOffset = true
 
-            if (mc.world.getCollidingBoundingBoxes(
+            if (mc.world.getCollisions(
                     mc.player,
                     shape.offset(velocityX / offset, 0.0, velocityZ / offset)
                 ).isNotEmpty()

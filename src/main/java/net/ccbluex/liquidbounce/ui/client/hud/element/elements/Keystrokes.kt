@@ -180,7 +180,7 @@ class Keystrokes : Element("Keystrokes", 2.0, 34.0) {
             val textX = (adjustedStartX + adjustedEndX) / 2 - (font.getWidth(key) / 2)
             val textY = adjustedY + (scaledBoxSize / 2) - (fontHeight / 2)
 
-            font.draw(key, textX, textY + if (font == mc.fontRendererObj) 0 else 2, textColor.rgb, textShadow)
+            font.draw(key, textX, textY + if (font == mc.textRenderer) 0 else 2, textColor.rgb, textShadow)
         }
 
         return Border(0F, boxSize + padding, boxSize * 3 + padding * 2, boxSize * 4 + padding * 3)

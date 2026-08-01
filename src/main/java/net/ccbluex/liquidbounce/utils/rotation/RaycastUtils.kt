@@ -46,7 +46,7 @@ object RaycastUtils : MinecraftInstance {
             it != null && (it is LivingEntity || it is FireballEntity) && (it !is PlayerEntity || !it.isSpectator) && it.canBeCollidedWith() && it != renderViewEntity
         }
 
-        var pointedEntity: Entity? = null
+        var targetEntity: Entity? = null
 
         for (entity in entityList) {
             if (!entityFilter(entity)) continue
@@ -58,7 +58,7 @@ object RaycastUtils : MinecraftInstance {
 
                 if (axisAlignedBB.contains(eyePosition)) {
                     if (blockReachDistance >= 0.0) {
-                        pointedEntity = entity
+                        targetEntity = entity
                         blockReachDistance = 0.0
                     }
                 } else if (movingObjectPosition != null) {
@@ -66,9 +66,9 @@ object RaycastUtils : MinecraftInstance {
 
                     if (eyeDistance < blockReachDistance || blockReachDistance == 0.0) {
                         if (entity == renderViewEntity.vehicle && !renderViewEntity.canRiderInteract()) {
-                            if (blockReachDistance == 0.0) pointedEntity = entity
+                            if (blockReachDistance == 0.0) targetEntity = entity
                         } else {
-                            pointedEntity = entity
+                            targetEntity = entity
                             blockReachDistance = eyeDistance
                         }
                     }
@@ -81,7 +81,7 @@ object RaycastUtils : MinecraftInstance {
             checkEntity()
         }
 
-        return pointedEntity
+        return targetEntity
     }
 
     /**
@@ -96,11 +96,11 @@ object RaycastUtils : MinecraftInstance {
 
         val entity = mc.renderViewEntity
 
-        val prevPointedEntity = mc.pointedEntity
-        val prevObjectMouseOver = mc.objectMouseOver
+        val prevPointedEntity = mc.targetEntity
+        val prevObjectMouseOver = mc.crosshairTarget
 
         if (entity != null && mc.world != null) {
-            mc.pointedEntity = null
+            mc.targetEntity = null
 
             val buildReach = if (mc.interactionManager.currentGameMode.isCreative) 5.0 else 4.5
 
@@ -108,7 +108,7 @@ object RaycastUtils : MinecraftInstance {
             val vec31 = getRotationVector(rotation)
             val vec32 = vec3.addVector(vec31.xCoord * buildReach, vec31.yCoord * buildReach, vec31.zCoord * buildReach)
 
-            mc.objectMouseOver = entity.world.rayTraceBlocks(vec3, vec32, false, false, true)
+            mc.crosshairTarget = entity.world.rayTraceBlocks(vec3, vec32, false, false, true)
 
             var d1 = buildReach
             var flag = false
@@ -119,11 +119,11 @@ object RaycastUtils : MinecraftInstance {
                 flag = true
             }
 
-            if (mc.objectMouseOver != null) {
-                d1 = mc.objectMouseOver.hitVec.distanceTo(vec3)
+            if (mc.crosshairTarget != null) {
+                d1 = mc.crosshairTarget.hitVec.distanceTo(vec3)
             }
 
-            var pointedEntity: Entity? = null
+            var targetEntity: Entity? = null
             var vec33: Vec3d? = null
 
             val list = mc.world.getEntities(LivingEntity::class.java) {
@@ -143,7 +143,7 @@ object RaycastUtils : MinecraftInstance {
 
                     if (box.contains(vec3)) {
                         if (d2 >= 0) {
-                            pointedEntity = entity1
+                            targetEntity = entity1
                             vec33 = if (intercept == null) vec3 else intercept.hitVec
                             d2 = 0.0
                         }
@@ -153,7 +153,7 @@ object RaycastUtils : MinecraftInstance {
                         if (!isVisible(intercept.hitVec)) {
                             if (d3 <= wallRange) {
                                 if (d3 < d2 || d2 == 0.0) {
-                                    pointedEntity = entity1
+                                    targetEntity = entity1
                                     vec33 = intercept.hitVec
                                     d2 = d3
                                 }
@@ -165,11 +165,11 @@ object RaycastUtils : MinecraftInstance {
                         if (d3 < d2 || d2 == 0.0) {
                             if (entity1 === entity.vehicle && !entity.canRiderInteract()) {
                                 if (d2 == 0.0) {
-                                    pointedEntity = entity1
+                                    targetEntity = entity1
                                     vec33 = intercept.hitVec
                                 }
                             } else {
-                                pointedEntity = entity1
+                                targetEntity = entity1
                                 vec33 = intercept.hitVec
                                 d2 = d3
                             }
@@ -178,9 +178,9 @@ object RaycastUtils : MinecraftInstance {
                 }
             }
 
-            if (pointedEntity != null && flag && vec3.distanceTo(vec33) > range) {
-                pointedEntity = null
-                mc.objectMouseOver = HitResult(
+            if (targetEntity != null && flag && vec3.distanceTo(vec33) > range) {
+                targetEntity = null
+                mc.crosshairTarget = HitResult(
                     HitResult.Type.MISS,
                     Objects.requireNonNull(vec33),
                     null,
@@ -188,18 +188,18 @@ object RaycastUtils : MinecraftInstance {
                 )
             }
 
-            if (pointedEntity != null && (d2 < d1 || mc.objectMouseOver == null)) {
-                mc.objectMouseOver = HitResult(pointedEntity, vec33)
+            if (targetEntity != null && (d2 < d1 || mc.crosshairTarget == null)) {
+                mc.crosshairTarget = HitResult(targetEntity, vec33)
 
-                if (pointedEntity is LivingEntity || pointedEntity is ItemFrameEntity) {
-                    mc.pointedEntity = pointedEntity
+                if (targetEntity is LivingEntity || targetEntity is ItemFrameEntity) {
+                    mc.targetEntity = targetEntity
                 }
             }
 
-            action(mc.objectMouseOver)
+            action(mc.crosshairTarget)
 
-            mc.objectMouseOver = prevObjectMouseOver
-            mc.pointedEntity = prevPointedEntity
+            mc.crosshairTarget = prevObjectMouseOver
+            mc.targetEntity = prevPointedEntity
         }
     }
 }

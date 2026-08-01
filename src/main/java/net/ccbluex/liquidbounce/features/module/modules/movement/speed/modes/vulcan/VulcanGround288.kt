@@ -46,7 +46,7 @@ object VulcanGround288 : SpeedMode("VulcanGround2.8.8") {
         val player = mc.player ?: return false
         mc.world ?: return false
 
-        return mc.world.getCollidingBoundingBoxes(player, player.shape.offset(0.0, -0.005, 0.0)).isNotEmpty()
+        return mc.world.getCollisions(player, player.shape.offset(0.0, -0.005, 0.0)).isNotEmpty()
     }
 
     override fun onJump(event: JumpEvent) {

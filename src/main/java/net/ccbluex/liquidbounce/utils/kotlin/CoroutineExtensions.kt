@@ -30,7 +30,7 @@ object SharedScopes {
  * @author MukjepScarlet
  */
 private object RenderDispatcher : CoroutineDispatcher() {
-    val mc: BlockableEventLoop = Minecraft.getMinecraft()
+    val mc: BlockableEventLoop = Minecraft.getInstance()
 
     override fun dispatch(context: CoroutineContext, block: Runnable) {
         try {

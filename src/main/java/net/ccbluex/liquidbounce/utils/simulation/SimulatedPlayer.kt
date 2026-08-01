@@ -634,7 +634,7 @@ class SimulatedPlayer(
                 }
             }
 
-            val list1 = world.getCollidingBoundingBoxes(player,
+            val list1 = world.getCollisions(player,
                 getShape().addCoord(velocityX, velocityY, velocityZ)
             )
             val axisalignedbb = getShape()
@@ -667,7 +667,7 @@ class SimulatedPlayer(
                 setShape(axisalignedbb)
                 velocityY = stepHeight.toDouble()
 
-                val list = world.getCollidingBoundingBoxes(player,
+                val list = world.getCollisions(player,
                     getShape().addCoord(d3, velocityY, d5)
                 )
                 var axisalignedbb4 = getShape()
@@ -1072,10 +1072,10 @@ class SimulatedPlayer(
     }
 
     private fun isLiquidPresentInAABB(box: Box): Boolean {
-        return world.getCollidingBoundingBoxes(player, box).isEmpty() && !world.isAnyLiquid(box)
+        return world.getCollisions(player, box).isEmpty() && !world.isAnyLiquid(box)
     }
 
-    fun getCollidingBoundingBoxes(box: Box): List<Box> {
+    fun getCollisions(box: Box): List<Box> {
         val list: MutableList<Box> = Lists.newArrayList()
         val i = floor(box.minX)
         val j = floor(box.maxX + 1.0)

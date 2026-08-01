@@ -39,7 +39,7 @@ object BlockOverlay : Module("BlockOverlay", Category.RENDER, gameDetecting = fa
     val currentBlock: BlockPos?
         get() {
             mc.world ?: return null
-            val blockPos = mc.objectMouseOver?.blockPos ?: return null
+            val blockPos = mc.crosshairTarget?.blockPos ?: return null
 
             if (blockPos.block !in arrayOf(
                     air,

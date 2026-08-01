@@ -78,7 +78,7 @@ public abstract class MixinLivingEntity extends MixinEntity {
     @Overwrite
     protected void jump() {
         final JumpEvent prejumpEvent = new JumpEvent(getJumpUpwardsMotion(), EventState.PRE);
-        if ((Object) this == Minecraft.getMinecraft().player) {
+        if ((Object) this == Minecraft.getInstance().player) {
             EventManager.INSTANCE.call(prejumpEvent);
             if (prejumpEvent.isCancelled()) return;
         }
@@ -110,7 +110,7 @@ public abstract class MixinLivingEntity extends MixinEntity {
 
         velocityDirty = true;
 
-        if ((Object) this == Minecraft.getMinecraft().player) {
+        if ((Object) this == Minecraft.getInstance().player) {
             final JumpEvent postjumpEvent = new JumpEvent((float) velocityY, EventState.POST);
             EventManager.INSTANCE.call(postjumpEvent);
         }
@@ -175,7 +175,7 @@ public abstract class MixinLivingEntity extends MixinEntity {
     @ModifyConstant(method = "getArmSwingAnimationEnd", constant = @Constant(intValue = 6))
     private int injectAnimationsModule(int constant) {
         Animations module = Animations.INSTANCE;
-        int swingSpeed = module.getNormalizeSwingSpeed() ? (int) (module.getSwingSpeed() / Minecraft.getMinecraft().timer.tpsScale) : module.getSwingSpeed();
+        int swingSpeed = module.getNormalizeSwingSpeed() ? (int) (module.getSwingSpeed() / Minecraft.getInstance().timer.tpsScale) : module.getSwingSpeed();
 
         return module.handleEvents() ? (22 - swingSpeed) : constant;
     }

@@ -86,7 +86,7 @@ object AutoRod : Module("AutoRod", Category.COMBAT) {
             var rod = false
 
             if (facingEnemy && getHealth(player, healthFromScoreboard, absorption) >= playerHealthThreshold) {
-                var facingEntity = mc.objectMouseOver?.entityHit
+                var facingEntity = mc.crosshairTarget?.entityHit
                 val nearbyEnemies = getAllNearbyEnemies()
 
                 if (facingEntity == null) {

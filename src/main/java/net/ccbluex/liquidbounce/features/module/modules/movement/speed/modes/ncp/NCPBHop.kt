@@ -23,7 +23,7 @@ object NCPBHop : SpeedMode("NCPBHop") {
     override fun onEnable() {
         mc.timer.tpsScale = 1f
 
-        level = if (mc.world.getCollidingBoundingBoxes(
+        level = if (mc.world.getCollisions(
                 mc.player,
                 mc.player.shape.offset(0.0, mc.player.velocityY, 0.0)
             ).size > 0 || mc.player.collidingVertically
@@ -83,7 +83,7 @@ object NCPBHop : SpeedMode("NCPBHop") {
             val difference = 0.66 * (lastDist - baseMoveSpeed)
             moveSpeed = lastDist - difference
         } else {
-            if (mc.world.getCollidingBoundingBoxes(
+            if (mc.world.getCollisions(
                     player,
                     player.shape.offset(0.0, player.velocityY, 0.0)
                 ).isNotEmpty() || player.collidingVertically

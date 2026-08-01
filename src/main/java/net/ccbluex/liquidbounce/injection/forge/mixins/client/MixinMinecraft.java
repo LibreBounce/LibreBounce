@@ -69,7 +69,7 @@ public abstract class MixinMinecraft {
     private int leftClickCounter;
 
     @Shadow
-    public HitResult objectMouseOver;
+    public HitResult crosshairTarget;
 
     @Shadow
     public WorldClient theWorld;
@@ -195,9 +195,9 @@ public abstract class MixinMinecraft {
 
     @Inject(method = "sendClickBlockToController", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/HitResult;getBlockPos()Lnet/minecraft/util/BlockPos;"))
     private void onClickBlock(CallbackInfo callbackInfo) {
-        final BlockPos blockPos = objectMouseOver.getBlockPos();
+        final BlockPos blockPos = crosshairTarget.getBlockPos();
         if (leftClickCounter == 0 && theWorld.getBlockState(blockPos).getBlock().getMaterial() != Material.air) {
-            EventManager.INSTANCE.call(new ClickBlockEvent(blockPos, objectMouseOver.sideHit));
+            EventManager.INSTANCE.call(new ClickBlockEvent(blockPos, crosshairTarget.sideHit));
         }
     }
 
@@ -249,8 +249,8 @@ public abstract class MixinMinecraft {
         if (fastPlace.getOnlyBlocks() && (player.getDisplayItemInHand() == null || !(player.getDisplayItemInHand().getItem() instanceof BlockItem)))
             return;
 
-        if (objectMouseOver != null && objectMouseOver.typeOfHit == HitResult.Type.BLOCK) {
-            BlockPos blockPos = objectMouseOver.getBlockPos();
+        if (crosshairTarget != null && crosshairTarget.typeOfHit == HitResult.Type.BLOCK) {
+            BlockPos blockPos = crosshairTarget.getBlockPos();
             BlockState blockState = theWorld.getBlockState(blockPos);
             // Don't spam-click when interacting with a BlockEntity (chests, ...)
             // Doesn't prevent spam-clicking anvils, crafting tables, ... (couldn't figure out a non-hacky way)

@@ -55,7 +55,7 @@ object Fonts : MinecraftInstance {
 
     val minecraftFontInfo = FontInfo(name = "Minecraft Font")
     val minecraftFont: TextRenderer by lazy {
-        mc.fontRendererObj
+        mc.textRenderer
     }
 
     lateinit var font30: GameTextRenderer

@@ -51,13 +51,13 @@ class GuiFontManager(private val prevGui: Screen) : AbstractScreen() {
         val rightStartX = width - 80
 
         val textFieldWidth = (width / 8).coerceAtLeast(70)
-        textField = textField(2, mc.fontRendererObj, width - textFieldWidth - 10, 10, textFieldWidth, 20) {
+        textField = textField(2, mc.textRenderer, width - textFieldWidth - 10, 10, textFieldWidth, 20) {
             maxStringLength = Int.MAX_VALUE
         }
-        nameField = textField(3, mc.fontRendererObj, leftStartX, startPositionY + 24 * 1, textFieldWidth, 20) {
+        nameField = textField(3, mc.textRenderer, leftStartX, startPositionY + 24 * 1, textFieldWidth, 20) {
             maxStringLength = Int.MAX_VALUE
         }
-        sizeField = textField(4, mc.fontRendererObj, leftStartX, startPositionY + 24 * 2, textFieldWidth, 20) {
+        sizeField = textField(4, mc.textRenderer, leftStartX, startPositionY + 24 * 2, textFieldWidth, 20) {
             setValidator {
                 it.isNullOrBlank() || it.toIntOrNull()?.takeIf { i -> i in 1..500 } != null
             }
@@ -243,7 +243,7 @@ class GuiFontManager(private val prevGui: Screen) : AbstractScreen() {
                 get() = Fonts.minecraftFontInfo
 
             override val value: TextRenderer
-                get() = mc.fontRendererObj
+                get() = mc.textRenderer
         }
 
         val selectedEntry: Map.Entry<FontInfo, TextRenderer>

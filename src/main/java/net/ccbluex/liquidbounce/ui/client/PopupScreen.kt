@@ -269,11 +269,11 @@ class PopupScreen(
     }
 
     private fun setupScissorBox(x: Int, y: Int, width: Int, height: Int) {
-        val scaleFactor = Window(Minecraft.getMinecraft()).scaleFactor
+        val scaleFactor = Window(Minecraft.getInstance()).scaleFactor
 
         GL11.glScissor(
             x * scaleFactor,
-            Minecraft.getMinecraft().displayHeight - ((y + height) * scaleFactor),
+            Minecraft.getInstance().displayHeight - ((y + height) * scaleFactor),
             width * scaleFactor,
             height * scaleFactor
         )

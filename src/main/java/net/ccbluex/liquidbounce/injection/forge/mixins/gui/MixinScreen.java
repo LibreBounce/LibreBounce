@@ -55,7 +55,7 @@ public abstract class MixinScreen {
     public int height;
 
     @Shadow
-    protected TextRenderer fontRendererObj;
+    protected TextRenderer textRenderer;
 
     @Shadow
     public void updateScreen() {

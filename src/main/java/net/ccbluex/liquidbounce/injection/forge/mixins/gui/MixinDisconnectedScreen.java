@@ -57,14 +57,14 @@ public abstract class MixinDisconnectedScreen extends MixinScreen {
     @Inject(method = "initGui", at = @At("RETURN"))
     private void initGui(CallbackInfo callbackInfo) {
         reconnectTimer = 0;
-        buttonList.add(reconnectButton = new ButtonWidget(1, width / 2 - 100, height / 2 + field_175353_i / 2 + fontRendererObj.FONT_HEIGHT + 22, 98, 20, "Reconnect"));
+        buttonList.add(reconnectButton = new ButtonWidget(1, width / 2 - 100, height / 2 + field_175353_i / 2 + textRenderer.FONT_HEIGHT + 22, 98, 20, "Reconnect"));
 
         drawReconnectDelaySlider();
 
-        //buttonList.add(new ButtonWidget(3, width / 2 - 100, height / 2 + field_175353_i / 2 + fontRendererObj.FONT_HEIGHT + 44, 98, 20, GuiTheAltening.Companion.getApiKey().isEmpty() ? "Random alt" : "New TheAltening alt"));
-        buttonList.add(new ButtonWidget(3, width / 2 - 100, height / 2 + field_175353_i / 2 + fontRendererObj.FONT_HEIGHT + 44, 98, 20, "Random alt"));
-        buttonList.add(new ButtonWidget(4, width / 2 + 2, height / 2 + field_175353_i / 2 + fontRendererObj.FONT_HEIGHT + 44, 98, 20, "Random username"));
-        buttonList.add(forgeBypassButton = new ButtonWidget(5, width / 2 - 100, height / 2 + field_175353_i / 2 + fontRendererObj.FONT_HEIGHT + 66, "Bypass AntiForge: " + (ClientFixes.INSTANCE.getFmlFixesEnabled() ? "On" : "Off")));
+        //buttonList.add(new ButtonWidget(3, width / 2 - 100, height / 2 + field_175353_i / 2 + textRenderer.FONT_HEIGHT + 44, 98, 20, GuiTheAltening.Companion.getApiKey().isEmpty() ? "Random alt" : "New TheAltening alt"));
+        buttonList.add(new ButtonWidget(3, width / 2 - 100, height / 2 + field_175353_i / 2 + textRenderer.FONT_HEIGHT + 44, 98, 20, "Random alt"));
+        buttonList.add(new ButtonWidget(4, width / 2 + 2, height / 2 + field_175353_i / 2 + textRenderer.FONT_HEIGHT + 44, 98, 20, "Random username"));
+        buttonList.add(forgeBypassButton = new ButtonWidget(5, width / 2 - 100, height / 2 + field_175353_i / 2 + textRenderer.FONT_HEIGHT + 66, "Bypass AntiForge: " + (ClientFixes.INSTANCE.getFmlFixesEnabled() ? "On" : "Off")));
 
         updateSliderText();
     }
@@ -148,7 +148,7 @@ public abstract class MixinDisconnectedScreen extends MixinScreen {
     private void drawReconnectDelaySlider() {
         buttonList.add(autoReconnectDelaySlider =
                 new GeneratorOptionSlider(2, width / 2 + 2, height / 2 + field_175353_i / 2
-                        + fontRendererObj.FONT_HEIGHT + 22, 98, 20, "AutoReconnect: ",
+                        + textRenderer.FONT_HEIGHT + 22, 98, 20, "AutoReconnect: ",
                         "ms", AutoReconnect.MIN, AutoReconnect.MAX, AutoReconnect.INSTANCE.getDelay(), false, true,
                         guiSlider -> {
                             AutoReconnect.INSTANCE.setDelay(guiSlider.getValueInt());
