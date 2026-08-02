@@ -110,10 +110,10 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
             if (!passedPostInventoryCloseDelay)
                 return false
 
-            if (mc.interactionManager?.currentGameMode?.isSurvivalOrAdventure != true)
+            if (mc.interactionManager?.gameMode?.isSurvivalOrAdventure != true)
                 return false
 
-            if (mc.player?.openContainer?.windowId != 0)
+            if (mc.player?.openContainer?.networkId != 0)
                 return false
 
             if (invOpen && mc.screen !is SurvivalInventoryScreen)
@@ -394,7 +394,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
 
         val player = mc.player ?: return
 
-        for (index in player.openContainer.inventorySlots.indices.shuffled(randomSlot)) {
+        for (index in player.openContainer.slots.indices.shuffled(randomSlot)) {
             // Stop if player violates invopen or nomove checks
             if (!shouldOperate()) return
 

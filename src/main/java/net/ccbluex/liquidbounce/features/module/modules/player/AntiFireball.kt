@@ -55,7 +55,7 @@ object AntiFireball : Module("AntiFireball", Category.PLAYER) {
         for (entity in mc.world.entities.filterIsInstance<ProjectileEntity>()
             .sortedBy { player.getDistanceToBox(it.hitBox) }) {
             val nearestPoint = getNearestPointBB(player.eyes, entity.hitBox)
-            val entityPrediction = entity.currPos - entity.prevPos
+            val entityPrediction = entity.currPos - entity.last
             val normalDistance = player.getDistanceToBox(entity.hitBox)
             val predictedDistance = player.getDistanceToBox(entity.hitBox.offset(entityPrediction))
 

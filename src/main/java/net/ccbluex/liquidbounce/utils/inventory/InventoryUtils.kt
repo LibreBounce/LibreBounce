@@ -23,7 +23,7 @@ import net.minecraft.network.packet.c2s.play.PlayerUseC2SPacket
 import net.minecraft.network.packet.c2s.play.CloseInventoryMenuC2SPacket
 import net.minecraft.network.packet.c2s.play.InventoryMenuClickSlotC2SPacket
 import net.minecraft.network.packet.c2s.play.ClientStatusC2SPacket
-import net.minecraft.network.packet.c2s.play.ClientStatusC2SPacket.EnumState.OPEN_INVENTORY_ACHIEVEMENT
+import net.minecraft.network.packet.c2s.play.ClientStatusC2SPacket.Status.OPEN_INVENTORY_ACHIEVEMENT
 import net.minecraft.network.packet.s2c.play.SelectSlotS2CPacket
 import net.minecraft.network.packet.s2c.play.OpenInventoryMenuS2CPacket
 import net.minecraft.network.packet.s2c.play.CloseInventoryMenuS2CPacket
@@ -36,7 +36,7 @@ object InventoryUtils : MinecraftInstance, Listenable {
             if (value != _serverOpenInventory) {
                 sendPacket(
                     if (value) ClientStatusC2SPacket(OPEN_INVENTORY_ACHIEVEMENT)
-                    else CloseInventoryMenuC2SPacket(mc.player?.openContainer?.windowId ?: 0)
+                    else CloseInventoryMenuC2SPacket(mc.player?.openContainer?.networkId ?: 0)
                 )
 
                 _serverOpenInventory = value

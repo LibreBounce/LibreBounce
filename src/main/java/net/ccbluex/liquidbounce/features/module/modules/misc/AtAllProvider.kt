@@ -62,7 +62,7 @@ object AtAllProvider :
         lock.withLock {
             val selfName = mc.player.name
             for (playerInfo in mc.networkHandler.onlinePlayers) {
-                val playerName = playerInfo?.gameProfile?.name
+                val playerName = playerInfo?.profile?.name
 
                 if (playerName == selfName)
                     continue

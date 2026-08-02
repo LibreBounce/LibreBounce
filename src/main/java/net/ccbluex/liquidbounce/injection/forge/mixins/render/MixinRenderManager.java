@@ -24,13 +24,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class MixinEntityRenderDispatcher {
 
     @Shadow
-    public double renderPosX;
+    public double offsetX;
 
     @Shadow
-    public double renderPosY;
+    public double offsetY;
 
     @Shadow
-    public double renderPosZ;
+    public double offsetZ;
 
     @Redirect(method = "renderDebugBoundingBox", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;getShape()Lnet/minecraft/util/Box;", ordinal = 0), require = 1, allow = 1)
     private Box getShape(Entity entity) {

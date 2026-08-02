@@ -223,7 +223,7 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
                 return@handler
             }
 
-            val isUsingItem = packet is PlayerUseC2SPacket && packet.placedBlockDirection == 255
+            val isUsingItem = packet is PlayerUseC2SPacket && packet.face == 255
 
             if (!player.isUsingItem) {
                 shouldNoSlow = false

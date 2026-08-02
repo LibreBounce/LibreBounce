@@ -115,7 +115,7 @@ object BlocksMC2 : FlyMode("BlocksMC2"), Listenable {
         Fly.state = false
 
         // Clear packets on disconnect
-        if (event.worldClient == null) {
+        if (event.clientWorld == null) {
             packets.clear()
             packetsReceived.clear()
         }

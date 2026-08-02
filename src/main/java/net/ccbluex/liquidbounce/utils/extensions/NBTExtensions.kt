@@ -64,7 +64,7 @@ inline fun NbtList(builderAction: NbtList.() -> Unit): NbtList {
     return NbtList().apply(builderAction)
 }
 
-inline fun NbtList.appendTag(builderAction: NbtCompound.() -> Unit) {
-    appendTag(NbtCompound().apply(builderAction))
+inline fun NbtList.addElement(builderAction: NbtCompound.() -> Unit) {
+    addElement(NbtCompound().apply(builderAction))
 }
 

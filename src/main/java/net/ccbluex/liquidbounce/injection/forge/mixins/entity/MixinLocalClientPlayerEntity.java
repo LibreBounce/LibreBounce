@@ -411,14 +411,14 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
 
         boolean flag3 = (float) getFoodStats().getFoodLevel() > 6F || abilities.canFly;
         if (onGround && !flag1 && !flag2 && input.forwardSpeed >= f && !isSprinting() && flag3 && !isUsingItem() && !hasStatusEffect(Potion.blindness)) {
-            if (sprintToggleTimer <= 0 && !mc.options.keyBindSprint.isPressed()) {
+            if (sprintToggleTimer <= 0 && !mc.options.sprintKey.isPressed()) {
                 sprintToggleTimer = 7;
             } else {
                 setSprinting(true);
             }
         }
 
-        if (!isSprinting() && input.forwardSpeed >= f && flag3 && (noSlow.handleEvents() || !isUsingItem()) && !hasStatusEffect(Potion.blindness) && mc.options.keyBindSprint.isPressed()) {
+        if (!isSprinting() && input.forwardSpeed >= f && flag3 && (noSlow.handleEvents() || !isUsingItem()) && !hasStatusEffect(Potion.blindness) && mc.options.sprintKey.isPressed()) {
             setSprinting(true);
         }
 

@@ -15,8 +15,8 @@ object Jetpack : FlyMode("Jetpack") {
                 return
 
             // Let's bring back the particles, this mode is useless anyway
-            mc.effectRenderer.spawnEffectParticle(
-                ParticleType.FLAME.particleID,
+            mc.particleManager.spawnEffectParticle(
+                ParticleType.FLAME.id,
                 x,
                 y + 0.2,
                 z,

@@ -203,15 +203,15 @@ object TickBase : Module("TickBase", Category.COMBAT) {
             glBegin(GL_LINE_STRIP)
             glColor(lineColor)
 
-            val renderPosX = mc.entityRenderDispatcher.viewerPosX
-            val renderPosY = mc.entityRenderDispatcher.viewerPosY
-            val renderPosZ = mc.entityRenderDispatcher.viewerPosZ
+            val offsetX = mc.entityRenderDispatcher.cameraX
+            val offsetY = mc.entityRenderDispatcher.cameraY
+            val offsetZ = mc.entityRenderDispatcher.cameraZ
 
             for (tick in tickBuffer) {
                 glVertex3d(
-                    tick.position.xCoord - renderPosX,
-                    tick.position.yCoord - renderPosY,
-                    tick.position.zCoord - renderPosZ
+                    tick.position.xCoord - offsetX,
+                    tick.position.yCoord - offsetY,
+                    tick.position.zCoord - offsetZ
                 )
             }
 

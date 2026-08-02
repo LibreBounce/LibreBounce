@@ -40,7 +40,7 @@ object Timer : Module("Timer", Category.WORLD, gameDetecting = false) {
     }
 
     val onWorld = handler<WorldEvent> {
-        if (it.worldClient == null)
+        if (it.clientWorld == null)
             state = false
     }
 }

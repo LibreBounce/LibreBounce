@@ -16,7 +16,7 @@ object EnchantCommand : Command("enchant") {
      */
     override fun execute(args: Array<String>) {
         if (args.size > 2) {
-            if (mc.interactionManager.isNotCreative) {
+            if (mc.interactionManager.hasAttackCooldown) {
                 chat("§c§lError: §3You need to be in creative mode.")
                 return
             }
@@ -69,7 +69,7 @@ object EnchantCommand : Command("enchant") {
         return when (args.size) {
             1 -> {
                 return Enchantment.getKeys()
-                    .map { it.resourcePath.lowercase() }
+                    .map { it.path.lowercase() }
                     .filter { it.startsWith(args[0], true) }
             }
 

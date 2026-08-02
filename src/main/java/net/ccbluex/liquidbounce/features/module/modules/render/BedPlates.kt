@@ -214,9 +214,9 @@ object BedPlates : Module("BedPlates", Category.RENDER) {
         glDepthMask(false)
 
         glTranslated(
-            bedState.pos.xCoord - entityRenderDispatcher.viewerPosX,
-            bedState.pos.yCoord - entityRenderDispatcher.viewerPosY + renderYOffset + 1,
-            bedState.pos.zCoord - entityRenderDispatcher.viewerPosZ
+            bedState.pos.xCoord - entityRenderDispatcher.cameraX,
+            bedState.pos.yCoord - entityRenderDispatcher.cameraY + renderYOffset + 1,
+            bedState.pos.zCoord - entityRenderDispatcher.cameraZ
         )
 
         glRotatef(-entityRenderDispatcher.playerViewY, 0F, 1F, 0F)

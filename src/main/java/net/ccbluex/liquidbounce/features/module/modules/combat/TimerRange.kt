@@ -217,10 +217,10 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
     private fun updateDistance(entity: Entity): Boolean {
         val player = mc.player ?: return false
 
-        val prediction = entity.currPos.subtract(entity.prevPos).times(2 + predictEnemyPosition.toDouble())
+        val prediction = entity.currPos.subtract(entity.last).times(2 + predictEnemyPosition.toDouble())
 
         val shape = entity.hitBox.offset(prediction)
-        val (currPos, oldPos) = player.currPos to player.prevPos
+        val (currPos, oldPos) = player.currPos to player.last
 
         val simPlayer = SimulatedPlayer.fromClientPlayer(player.input)
 
@@ -255,7 +255,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
 
     // Clears packets when disconnecting
     val onWorld = handler<WorldEvent> { event ->
-        if (blink && event.worldClient == null) {
+        if (blink && event.clientWorld == null) {
             packets.clear()
             packetsReceived.clear()
         }

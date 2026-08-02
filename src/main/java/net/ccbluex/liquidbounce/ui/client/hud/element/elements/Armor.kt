@@ -32,7 +32,7 @@ class Armor(
      * Draw element
      */
     override fun drawElement(): Border {
-        if (mc.interactionManager.isNotCreative) {
+        if (mc.interactionManager.hasAttackCooldown) {
             glPushMatrix()
 
             val renderItem = mc.renderItem

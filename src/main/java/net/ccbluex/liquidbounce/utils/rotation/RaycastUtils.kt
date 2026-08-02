@@ -54,7 +54,7 @@ object RaycastUtils : MinecraftInstance {
             val checkEntity = {
                 val axisAlignedBB = entity.hitBox
 
-                val movingObjectPosition = axisAlignedBB.calculateIntercept(eyePosition, vec)
+                val movingObjectPosition = axisAlignedBB.clip(eyePosition, vec)
 
                 if (axisAlignedBB.contains(eyePosition)) {
                     if (blockReachDistance >= 0.0) {
@@ -102,13 +102,13 @@ object RaycastUtils : MinecraftInstance {
         if (entity != null && mc.world != null) {
             mc.targetEntity = null
 
-            val buildReach = if (mc.interactionManager.currentGameMode.isCreative) 5.0 else 4.5
+            val buildReach = if (mc.interactionManager.gameMode.isCreative) 5.0 else 4.5
 
             val vec3 = entity.eyes
             val vec31 = getRotationVector(rotation)
             val vec32 = vec3.addVector(vec31.xCoord * buildReach, vec31.yCoord * buildReach, vec31.zCoord * buildReach)
 
-            mc.crosshairTarget = entity.world.rayTraceBlocks(vec3, vec32, false, false, true)
+            mc.crosshairTarget = entity.world.rayTrace(vec3, vec32, false, false, true)
 
             var d1 = buildReach
             var flag = false
@@ -139,7 +139,7 @@ object RaycastUtils : MinecraftInstance {
                 boxes.add(entity1.shape.expand(f1.toDouble(), f1.toDouble(), f1.toDouble()))
 
                 for (box in boxes) {
-                    val intercept = box.calculateIntercept(vec3, vec32)
+                    val intercept = box.clip(vec3, vec32)
 
                     if (box.contains(vec3)) {
                         if (d2 >= 0) {

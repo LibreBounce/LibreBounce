@@ -139,7 +139,7 @@ object InventoryManager : Configurable("InventoryManager"), MinecraftInstance, L
             !canCloseInventory -> null
 
             // Prevent any other container guis from getting closed
-            mc.player?.openContainer?.windowId != 0 -> null
+            mc.player?.openContainer?.networkId != 0 -> null
 
             // Check if open inventory should be closed
             mc.screen is SurvivalInventoryScreen && invOpenValue.get() && autoCloseValue.get() ->

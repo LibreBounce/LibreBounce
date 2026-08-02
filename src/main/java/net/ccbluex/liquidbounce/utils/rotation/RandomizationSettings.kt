@@ -65,7 +65,7 @@ class RandomizationSettings(owner: Module, val generalApply: () -> Boolean = { t
         get() = randomizationPattern != "None" && generalApply()
 
     fun processNextSpot(box: Box, rotation: Rotation, eyes: Vec3d, range: Double) {
-        val intercept = box.calculateIntercept(eyes, eyes + getRotationVector(lastRotations.random()) * range)
+        val intercept = box.clip(eyes, eyes + getRotationVector(lastRotations.random()) * range)
 
         // Smooth out randomized rotation pattern using previous rotation to simulate natural movement
         val pitchMovement =

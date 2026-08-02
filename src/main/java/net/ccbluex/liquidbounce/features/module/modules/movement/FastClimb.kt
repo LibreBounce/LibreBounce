@@ -120,7 +120,7 @@ object FastClimb : Module("FastClimb", Category.MOVEMENT) {
                             sendPacket(Position(x, y, z, true))
                             climbCount = 0
                         } else {
-                            y = prevPosY
+                            y = lastY
 
                             playerClimb()
                             climbCount++

@@ -117,7 +117,7 @@ object NameTags : Module("NameTags", Category.RENDER) {
                 if (!isSelected(entity, false)) continue
             }
 
-            val name = entity.displayName.unformattedText ?: continue
+            val name = entity.displayName.string ?: continue
 
             val distanceSquared = mc.player.getSquaredDistanceToEntity(entity)
 
@@ -159,7 +159,7 @@ object NameTags : Module("NameTags", Category.RENDER) {
         val entityRenderDispatcher = mc.entityRenderDispatcher
         val rotateX = if (mc.options.perspective == 2) -1.0f else 1.0f
 
-        val (x, y, z) = entity.interpolatedPosition(entity.lastTickPos) - entityRenderDispatcher.renderPos
+        val (x, y, z) = entity.interpolatedPosition(entity.lastTickPos) - entityRenderDispatcher.offset
 
         glTranslated(x, y + entity.eyeHeight.toDouble() + 0.55, z)
 

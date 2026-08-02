@@ -275,7 +275,7 @@ object MLG : NoFallMode("MLG") {
             if (stack.size <= 0) {
                 player.inventory.items[SilentHotbar.currentSlot] = null
                 ForgeEventFactory.onPlayerDestroyItem(player, stack)
-            } else if (stack.size != prevSize || mc.interactionManager.isInCreativeMode) {
+            } else if (stack.size != prevSize || mc.interactionManager.hasCreativeInventory) {
                 mc.entityRenderer.itemRenderer.resetEquippedProgress()
             }
 
@@ -308,7 +308,7 @@ object MLG : NoFallMode("MLG") {
 
         val reach = eyes + (rotationVec * maxReach.toDouble())
 
-        return mc.world.rayTraceBlocks(eyes, reach, false, true, false)
+        return mc.world.rayTrace(eyes, reach, false, true, false)
     }
 
     private fun findMlgSlot(onlyBucket: Boolean = false): Int? {

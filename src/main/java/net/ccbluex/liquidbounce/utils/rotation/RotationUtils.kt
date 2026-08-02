@@ -109,15 +109,15 @@ object RotationUtils : MinecraftInstance, Listenable {
                     val diffXZ = sqrt(diffX * diffX + diffZ * diffZ)
 
                     val rotation = Rotation(
-                        MathHelper.wrapAngleTo180_float(atan2(diffZ, diffX).toDegreesF() - 90f),
-                        MathHelper.wrapAngleTo180_float(-atan2(diffY, diffXZ).toDegreesF())
+                        MathHelper.wrapDegrees(atan2(diffZ, diffX).toDegreesF() - 90f),
+                        MathHelper.wrapDegrees(-atan2(diffY, diffXZ).toDegreesF())
                     ).fixedSensitivity()
 
                     val rotationVector = getRotationVector(rotation)
                     val vector = eyesPos + (rotationVector * dist)
 
                     val currentVec = VecRotation(posVec, rotation)
-                    val raycast = mc.world.rayTraceBlocks(eyesPos, vector, false, true, false)
+                    val raycast = mc.world.rayTrace(eyesPos, vector, false, true, false)
 
                     val currentRotation = currentRotation ?: player.rotation
 
@@ -169,11 +169,11 @@ object RotationUtils : MinecraftInstance, Listenable {
         val player = mc.player
 
         val x =
-            target.x + (if (predict) (target.x - target.prevPosX) * predictSize else .0) - (player.x + if (predict) player.x - player.prevPosX else .0)
+            target.x + (if (predict) (target.x - target.lastX) * predictSize else .0) - (player.x + if (predict) player.x - player.lastX else .0)
         val y =
-            target.shape.minY + (if (predict) (target.shape.minY - target.prevPosY) * predictSize else .0) + target.eyeHeight - 0.15 - (player.shape.minY + (if (predict) player.y - player.prevPosY else .0)) - player.getEyeHeight()
+            target.shape.minY + (if (predict) (target.shape.minY - target.lastY) * predictSize else .0) + target.eyeHeight - 0.15 - (player.shape.minY + (if (predict) player.y - player.lastY else .0)) - player.getEyeHeight()
         val z =
-            target.z + (if (predict) (target.z - target.prevPosZ) * predictSize else .0) - (player.z + if (predict) player.z - player.prevPosZ else .0)
+            target.z + (if (predict) (target.z - target.lastZ) * predictSize else .0) - (player.z + if (predict) player.z - player.lastZ else .0)
         val posSqrt = sqrt(x * x + z * z)
 
         var finalVelocity = velocity
@@ -207,9 +207,9 @@ object RotationUtils : MinecraftInstance, Listenable {
 
         val (diffX, diffY, diffZ) = vec - eyesPos
         return Rotation(
-            MathHelper.wrapAngleTo180_float(
+            MathHelper.wrapDegrees(
                 atan2(diffZ, diffX).toDegreesF() - 90f
-            ), MathHelper.wrapAngleTo180_float(
+            ), MathHelper.wrapDegrees(
                 -atan2(diffY, sqrt(diffX * diffX + diffZ * diffZ)).toDegreesF()
             )
         )
@@ -269,7 +269,7 @@ object RotationUtils : MinecraftInstance, Listenable {
                     val rotation = toRotation(vec, predict).fixedSensitivity()
 
                     // Calculate actual hit vec after applying fixed sensitivity to rotation
-                    val gcdVec = bb.calculateIntercept(
+                    val gcdVec = bb.clip(
                         eyes, eyes + getRotationVector(rotation) * scanRange.toDouble()
                     )?.facePos ?: continue
 
@@ -471,7 +471,7 @@ object RotationUtils : MinecraftInstance, Listenable {
      * @param b angle point
      * @return difference between angle points
      */
-    fun angleDifference(a: Float, b: Float) = MathHelper.wrapAngleTo180_float(a - b)
+    fun angleDifference(a: Float, b: Float) = MathHelper.wrapDegrees(a - b)
 
     /**
      * Returns a 2-parameter vector with the calculated angle differences between [target] and [current] rotations
@@ -533,7 +533,7 @@ object RotationUtils : MinecraftInstance, Listenable {
     /**
      * Allows you to check if your enemy is behind a wall
      */
-    fun isVisible(vec3: Vec3d) = mc.world.rayTraceBlocks(mc.player.eyes, vec3) == null
+    fun isVisible(vec3: Vec3d) = mc.world.rayTrace(mc.player.eyes, vec3) == null
 
     fun isEntityHeightVisible(entity: Entity) = arrayOf(
         entity.hitBox.center.withY(entity.hitBox.maxY), entity.hitBox.center.withY(entity.hitBox.minY)

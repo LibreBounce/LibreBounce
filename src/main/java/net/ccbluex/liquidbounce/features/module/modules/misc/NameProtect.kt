@@ -67,14 +67,14 @@ object NameProtect : Module("NameProtect", Category.MISC, subjective = true, gam
         // Check for new players
         if (event.packet is LoginS2CPacket) {
             for (playerInfo in mc.networkHandler.onlinePlayers) {
-                handleNewPlayer(playerInfo.gameProfile.id)
+                handleNewPlayer(playerInfo.profile.id)
             }
         }
 
         // Check if player in game leave
         if (event.packet is DisconnectS2CPacket) {
             for (playerInfo in mc.networkHandler.onlinePlayers) {
-                handlePlayerLeave(playerInfo.gameProfile.id)
+                handlePlayerLeave(playerInfo.profile.id)
             }
         }
     }
@@ -87,7 +87,7 @@ object NameProtect : Module("NameProtect", Category.MISC, subjective = true, gam
 
         if (randomNames) {
             for (playerInfo in mc.networkHandler.onlinePlayers) {
-                val playerUUID = playerInfo.gameProfile.id
+                val playerUUID = playerInfo.profile.id
                 val randomizeName = (1..nameLength).joinToString("") { characters.random().toString() }
                 playerRandomNames[playerUUID] = randomizeName to nameLength
             }
@@ -95,7 +95,7 @@ object NameProtect : Module("NameProtect", Category.MISC, subjective = true, gam
 
         if (randomNameLength) {
             for (playerInfo in mc.networkHandler.onlinePlayers) {
-                val playerUUID = playerInfo.gameProfile.id
+                val playerUUID = playerInfo.profile.id
 
                 val randomLength = nameLengthRange.random()
                 val randomizeName = (1..randomLength).joinToString("") { characters.random().toString() }
@@ -133,7 +133,7 @@ object NameProtect : Module("NameProtect", Category.MISC, subjective = true, gam
 
         // Replace all other player names with "Protected User" or Random Characters
         for (playerInfo in mc.networkHandler.onlinePlayers) {
-            val playerUUID = playerInfo.gameProfile.id
+            val playerUUID = playerInfo.profile.id
 
             if (allPlayers) {
                 if (randomNames) {
@@ -142,7 +142,7 @@ object NameProtect : Module("NameProtect", Category.MISC, subjective = true, gam
                         randomizeName to nameLength
                     }
 
-                    val escapedName = Regex.escape(playerInfo.gameProfile.name)
+                    val escapedName = Regex.escape(playerInfo.profile.name)
                     newText = newText.replace(Regex(escapedName), protectedUsername)
 
                     // Update all other player names when nameLength & min/maxNameLength value are changed
@@ -154,7 +154,7 @@ object NameProtect : Module("NameProtect", Category.MISC, subjective = true, gam
 
                 } else {
                     // Default
-                    newText = newText.replace(playerInfo.gameProfile.name, "Protected User")
+                    newText = newText.replace(playerInfo.profile.name, "Protected User")
                 }
             }
         }

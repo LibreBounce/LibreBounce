@@ -19,14 +19,14 @@ import static net.ccbluex.liquidbounce.utils.client.MinecraftInstance.mc;
 public class MixinSkinManager {
 
     @Inject(method = "loadSkinFromCache", cancellable = true, at = @At("HEAD"))
-    private void injectSkinProtect(GameProfile gameProfile, CallbackInfoReturnable<Map<MinecraftProfileTexture.Type, MinecraftProfileTexture>> cir) {
-        if (gameProfile == null)
+    private void injectSkinProtect(GameProfile profile, CallbackInfoReturnable<Map<MinecraftProfileTexture.Type, MinecraftProfileTexture>> cir) {
+        if (profile == null)
             return;
         
         NameProtect nameProtect = NameProtect.INSTANCE;
 
         if (nameProtect.handleEvents() && nameProtect.getSkinProtect()) {
-            if (nameProtect.getAllPlayers() || Objects.equals(gameProfile.getId(), mc.getSession().getProfile().getId())) {
+            if (nameProtect.getAllPlayers() || Objects.equals(profile.getId(), mc.getSession().getProfile().getId())) {
                 cir.setReturnValue(new HashMap<>());
                 cir.cancel();
             }

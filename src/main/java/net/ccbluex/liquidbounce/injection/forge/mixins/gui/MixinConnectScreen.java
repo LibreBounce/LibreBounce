@@ -42,9 +42,9 @@ public abstract class MixinConnectScreen extends Screen {
 
         String ip = "Unknown";
 
-        final ServerListEntry serverData = mc.getCurrentServerData();
-        if (serverData != null) {
-            ip = ServerUtils.INSTANCE.hideSensitiveInformation(serverData.serverIP);
+        final ServerListEntry serverEntry = mc.getCurrentServerData();
+        if (serverEntry != null) {
+            ip = ServerUtils.INSTANCE.hideSensitiveInformation(serverEntry.ip);
         }
 
         Fonts.font40.drawCenteredString("Connecting to", scaledResolution.getScaledWidth() / 2f, scaledResolution.getScaledHeight() / 4f + 110, 0xFFFFFF, true);

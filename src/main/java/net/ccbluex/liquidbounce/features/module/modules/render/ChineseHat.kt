@@ -72,7 +72,7 @@ object ChineseHat : Module("ChineseHat", Category.RENDER) {
 
                 val (x, y, z) = entity.interpolatedPosition(
                     entity.lastTickPos, entity.eyeHeight + playerHeight
-                ) - mc.entityRenderDispatcher.renderPos
+                ) - mc.entityRenderDispatcher.offset
 
                 val coneWidth = (mc.entityRenderDispatcher.getEntityRenderObject<Entity>(entity)?.shadowSize ?: 0.5F) + coneWidth
 

@@ -103,7 +103,7 @@ object ESP : Module("ESP", Category.RENDER) {
         for (entity in entities) {
             val color = getColor(entity)
 
-            val pos = entity.interpolatedPosition(entity.lastTickPos) - mc.entityRenderDispatcher.renderPos
+            val pos = entity.interpolatedPosition(entity.lastTickPos) - mc.entityRenderDispatcher.offset
 
             when (mode) {
                 "Box", "OtherBox" -> drawEntityBox(entity, color, mode != "OtherBox")

@@ -254,7 +254,7 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT) {
             for (pos in blocks) {
                 val blockState = mc.world.getBlockState(pos)
 
-                val collisionBoundingBox = blockState.block.getCollisionBoundingBox(mc.world, pos, blockState)
+                val collisionBoundingBox = blockState.block.getCollisionShape(mc.world, pos, blockState)
 
                 if ((collisionBoundingBox == null || collisionBoundingBox.maxX ==
                             collisionBoundingBox.minY + 1) &&

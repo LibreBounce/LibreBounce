@@ -87,12 +87,12 @@ object OutboundBacktrack : Module("OutboundBacktrack", Category.COMBAT, gameDete
         val simPlayer = SimulatedPlayer.fromClientPlayer(modifiedInput)
 
         val targetBox = target.hitBox.offset(
-            target.currPos.subtract(target.prevPos).times(predictEnemyPosition.toDouble())
+            target.currPos.subtract(target.last).times(predictEnemyPosition.toDouble())
         )
 
         val distance = player.getDistanceToEntityBox(target)
 
-        val (currPos, prevPos) = player.currPos to player.prevPos
+        val (currPos, last) = player.currPos to player.last
 
         var simDist = player.getDistanceToBox(targetBox)
         var ticksUntilOutOfRange = 0
@@ -103,7 +103,7 @@ object OutboundBacktrack : Module("OutboundBacktrack", Category.COMBAT, gameDete
 
             player.setPosAndPrevPos(simPlayer.pos)
             simDist = player.getDistanceToBox(targetBox)
-            player.setPosAndPrevPos(currPos, prevPos)
+            player.setPosAndPrevPos(currPos, last)
 
             if (simDist > hittableRange) {
                 ticksUntilOutOfRange = idx
@@ -144,7 +144,7 @@ object OutboundBacktrack : Module("OutboundBacktrack", Category.COMBAT, gameDete
 
     val onWorld = handler<WorldEvent> { event ->
         // Clear packets on disconnect only
-        if (event.worldClient == null) blink(false)
+        if (event.clientWorld == null) blink(false)
     }
 
     private fun getTruePositionEyes(player: PlayerEntity): Vec3d {

@@ -188,11 +188,11 @@ object RotationUpdateEvent : Event()
 class RotationSetEvent(var yawDiff: Float, var pitchDiff: Float) : CancellableEvent()
 
 class CameraPositionEvent(
-    private val currPos: Vec3d, private val prevPos: Vec3d, private val lastTickPos: Vec3d,
+    private val currPos: Vec3d, private val last: Vec3d, private val lastTickPos: Vec3d,
     var result: FreeCam.PositionPair? = null,
 ) : Event() {
     fun withY(value: Double) {
-        result = FreeCam.PositionPair(currPos.withY(value), prevPos.withY(value), lastTickPos.withY(value))
+        result = FreeCam.PositionPair(currPos.withY(value), last.withY(value), lastTickPos.withY(value))
     }
 }
 
@@ -208,12 +208,12 @@ object UpdateEvent : Event()
 /**
  * Called when the world changes
  */
-class WorldEvent(val worldClient: WorldClient?) : Event()
+class WorldEvent(val clientWorld: ClientWorld?) : Event()
 
 /**
  * Called when window clicked
  */
-class ClickWindowEvent(val windowId: Int, val slotId: Int, val mouseButtonClicked: Int, val mode: Int) :
+class ClickWindowEvent(val networkId: Int, val slotId: Int, val mouseButtonClicked: Int, val mode: Int) :
     CancellableEvent()
 
 /**

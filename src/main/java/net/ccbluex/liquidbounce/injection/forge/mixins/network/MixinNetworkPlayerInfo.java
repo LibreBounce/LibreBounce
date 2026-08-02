@@ -20,15 +20,15 @@ import static net.ccbluex.liquidbounce.utils.client.MinecraftInstance.mc;
 public class MixinPlayerInfo {
     @Shadow
     @Final
-    private GameProfile gameProfile;
+    private GameProfile profile;
 
     @Inject(method = "getLocationSkin", cancellable = true, at = @At("HEAD"))
     private void injectSkinProtect(CallbackInfoReturnable<Identifier> cir) {
         final NameProtect nameProtect = NameProtect.INSTANCE;
 
         if (nameProtect.handleEvents() && nameProtect.getSkinProtect()) {
-            if (nameProtect.getAllPlayers() || Objects.equals(gameProfile.getId(), mc.getSession().getProfile().getId())) {
-                cir.setReturnValue(DefaultPlayerSkin.getDefaultSkin(gameProfile.getId()));
+            if (nameProtect.getAllPlayers() || Objects.equals(profile.getId(), mc.getSession().getProfile().getId())) {
+                cir.setReturnValue(DefaultPlayerSkin.getDefaultSkin(profile.getId()));
                 cir.cancel();
             }
         }

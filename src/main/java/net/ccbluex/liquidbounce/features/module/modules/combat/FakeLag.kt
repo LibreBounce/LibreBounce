@@ -201,7 +201,7 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
 
     val onWorld = handler<WorldEvent> { event ->
         // Clear packets on disconnect only
-        if (event.worldClient == null) blink(false)
+        if (event.clientWorld == null) blink(false)
     }
 
     private fun getTruePositionEyes(player: PlayerEntity): Vec3d {
@@ -219,7 +219,7 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
 
         val playerBox = player.hitBox.offset(serverPos - playerPos)
 
-        mc.world.playerEntities.forEach { otherPlayer ->
+        mc.world.players.forEach { otherPlayer ->
             if (otherPlayer == player) return@forEach
 
             val entityMixin = otherPlayer as? IMixinEntity
@@ -294,12 +294,12 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
             glBegin(GL_LINE_STRIP)
             glColor(lineColor)
 
-            val renderPosX = mc.entityRenderDispatcher.viewerPosX
-            val renderPosY = mc.entityRenderDispatcher.viewerPosY
-            val renderPosZ = mc.entityRenderDispatcher.viewerPosZ
+            val offsetX = mc.entityRenderDispatcher.cameraX
+            val offsetY = mc.entityRenderDispatcher.cameraY
+            val offsetZ = mc.entityRenderDispatcher.cameraZ
 
             for ((pos) in positions) glVertex3d(
-                pos.xCoord - renderPosX, pos.yCoord - renderPosY, pos.zCoord - renderPosZ
+                pos.xCoord - offsetX, pos.yCoord - offsetY, pos.zCoord - offsetZ
             )
 
             glColor4d(1.0, 1.0, 1.0, 1.0)
@@ -324,10 +324,10 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
 
         val (old, new) = positions.first() to positions.elementAt(min(1, positions.size - 1))
 
-        val pos = renderData.pos - manager.renderPos
+        val pos = renderData.pos - manager.offset
 
         runWithModifiedRotation(player, renderData.rotation, old.body to new.body) {
-            manager.doRenderEntity(
+            manager.render(
                 player, pos.xCoord, pos.yCoord, pos.zCoord, it.yaw, event.partialTicks, true
             )
         }

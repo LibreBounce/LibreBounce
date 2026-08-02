@@ -60,7 +60,7 @@ public abstract class MixinGuiInGame extends GuiElement {
             callbackInfo.cancel();
     }
 
-    @Redirect(method = "updateTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/living/player/PlayerInventory;getCurrentItem()Lnet/minecraft/item/ItemStack;"))
+    @Redirect(method = "updateTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/living/player/PlayerInventory;getSelectedItem()Lnet/minecraft/item/ItemStack;"))
     private ItemStack hookSilentHotbarHighlightedName(PlayerInventory instance) {
         SilentHotbarModule module = SilentHotbarModule.INSTANCE;
 

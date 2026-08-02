@@ -79,8 +79,8 @@ object BoostHypixel : FlyMode("BoostHypixel") {
                 }
 
                 EventState.POST -> {
-                    val xDist = x - prevPosX
-                    val zDist = z - prevPosZ
+                    val xDist = x - lastX
+                    val zDist = z - lastZ
                     lastDistance = sqrt(xDist * xDist + zDist * zDist)
                 }
 

@@ -54,10 +54,10 @@ object MiscUtils : MinecraftInstance {
         """.trimIndent()
 
         if (mc.currentServerEntry != null) {
-            val serverData = mc.currentServerEntry
+            val serverEntry = mc.currentServerEntry
             base += """
-                Server address: ${serverData.serverIP}
-                Server version: ${serverData.gameVersion}
+                Server address: ${serverEntry.ip}
+                Server version: ${serverEntry.gameVersion}
             """.trimIndent()
         }
 

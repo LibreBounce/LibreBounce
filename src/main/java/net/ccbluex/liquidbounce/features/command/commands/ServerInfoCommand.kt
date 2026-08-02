@@ -7,7 +7,7 @@ package net.ccbluex.liquidbounce.features.command.commands
 
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.features.command.Command
-import net.ccbluex.liquidbounce.utils.client.ServerUtils.serverData
+import net.ccbluex.liquidbounce.utils.client.ServerUtils.serverEntry
 import net.minecraft.client.network.ServerAddress
 
 object ServerInfoCommand : Command("serverinfo"), Listenable {
@@ -21,17 +21,17 @@ object ServerInfoCommand : Command("serverinfo"), Listenable {
             return
         }
 
-        val serverAddress = ServerAddress.fromString(serverData?.serverIP) ?: return
+        val serverAddress = ServerAddress.fromString(serverEntry?.ip) ?: return
         val data = mc.currentServerEntry ?: return
 
         chat("Server info:")
-        chat("§7Name: §8${data.serverName}")
+        chat("§7Name: §8${data.name}")
         chat("§7IP: §8${serverAddress.ip}:${serverAddress.port}")
-        chat("§7Players: §8${data.populationInfo}")
-        chat("§7MOTD: §8${data.serverMOTD}")
+        chat("§7Players: §8${data.status}")
+        chat("§7MOTD: §8${data.motd}")
         chat("§7ServerVersion: §8${data.gameVersion}")
-        chat("§7ProtocolVersion: §8${data.version}")
-        chat("§7Ping: §8${data.pingToServer}")
+        chat("§7ProtocolVersion: §8${data.protocol}")
+        chat("§7Ping: §8${data.ping}")
     }
 
 }

@@ -249,7 +249,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
         target?.run {
             val targetEntity = target as IMixinEntity
 
-            val (x, y, z) = targetEntity.interpolatedPosition - manager.renderPos
+            val (x, y, z) = targetEntity.interpolatedPosition - manager.offset
 
             if (targetEntity.truePos) {
                 when (espMode) {
@@ -264,7 +264,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
                         glPushAttrib(GL_ALL_ATTRIB_BITS)
 
                         color(0.6f, 0.6f, 0.6f, 1f)
-                        manager.doRenderEntity(
+                        manager.render(
                             this,
                             x,
                             y,
@@ -294,7 +294,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
                         glLineWidth(wireframeWidth)
 
                         glColor(color)
-                        manager.doRenderEntity(
+                        manager.render(
                             this,
                             x,
                             y,
@@ -304,7 +304,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
                             true
                         )
                         glColor(color)
-                        manager.doRenderEntity(
+                        manager.render(
                             this,
                             x,
                             y,
@@ -325,7 +325,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
     val onWorld = handler<WorldEvent> { event ->
         // Clear packets on disconnect only
         // Set target to null on world change
-        if (event.worldClient == null) clearPackets(false)
+        if (event.clientWorld == null) clearPackets(false)
         target = null
     }
 
@@ -409,14 +409,14 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
 
     fun <T> runWithSimulatedPosition(entity: Entity, vec3: Vec3d, f: () -> T?): T? {
         val currPos = entity.currPos
-        val prevPos = entity.prevPos
+        val last = entity.last
 
         entity.setPosAndPrevPos(vec3)
 
         val result = f()
 
         // Reset position
-        entity.setPosAndPrevPos(currPos, prevPos)
+        entity.setPosAndPrevPos(currPos, last)
 
         return result
     }
@@ -475,7 +475,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
     }
 
     private fun shouldBacktrack() =
-        mc.player != null && mc.world != null && target != null && mc.player.health > 0 && (target!!.health > 0 || target!!.health.isNaN()) && mc.interactionManager.currentGameMode != WorldSettings.GameMode.SPECTATOR && System.currentTimeMillis() >= delayForNextBacktrack && target?.let {
+        mc.player != null && mc.world != null && target != null && mc.player.health > 0 && (target!!.health > 0 || target!!.health.isNaN()) && mc.interactionManager.gameMode != WorldSettings.GameMode.SPECTATOR && System.currentTimeMillis() >= delayForNextBacktrack && target?.let {
             isSelected(it, true) && (mc.player?.ticks ?: 0) > 20 && !ignoreWholeTick && onAllowedHurtTime()
         } == true
 

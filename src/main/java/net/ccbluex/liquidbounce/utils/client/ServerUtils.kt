@@ -23,11 +23,11 @@ import java.net.InetAddress
 
 @SideOnly(Side.CLIENT)
 object ServerUtils : MinecraftInstance {
-    var serverData: ServerListEntry? = null
+    var serverEntry: ServerListEntry? = null
 
     @JvmOverloads
     fun connectToLastServer(noGLContext: Boolean = false) {
-        if (serverData == null) return
+        if (serverEntry == null) return
 
         if (noGLContext) {
             SharedScopes.IO.launch {
@@ -36,9 +36,9 @@ object ServerUtils : MinecraftInstance {
                 // You cannot do this in the normal way because of required OpenGL context in current thread.
                 // When you delay a call, it gets run in a new TimerThread.
 
-                val serverAddress = ServerAddress.fromString(serverData!!.serverIP)
+                val serverAddress = ServerAddress.fromString(serverEntry!!.ip)
                 mc.world = null
-                mc.setServerData(serverData)
+                mc.setServerData(serverEntry)
 
                 val inetAddress = InetAddress.getByName(serverAddress.ip)
                 val networkManager = Connection.createConnectionAndConnect(
@@ -56,7 +56,7 @@ object ServerUtils : MinecraftInstance {
                     HelloC2SPacket(mc.session.profile)
                 )
             }
-        } else mc.openScreen(ConnectScreen(MultiplayerScreen(TitleScreen()), mc, serverData))
+        } else mc.openScreen(ConnectScreen(MultiplayerScreen(TitleScreen()), mc, serverEntry))
     }
 
     /**
@@ -78,8 +78,8 @@ object ServerUtils : MinecraftInstance {
 
             // This can throw NPE during LB startup, if an element has server ip in it
             if (mc.world?.isRemote == true) {
-                val serverData = mc.currentServerEntry
-                if (serverData != null) serverIp = serverData.serverIP
+                val serverEntry = mc.currentServerEntry
+                if (serverEntry != null) serverIp = serverEntry.ip
             }
 
             return serverIp

@@ -49,7 +49,7 @@ object Breadcrumbs : Module("Breadcrumbs", Category.RENDER) {
         glEnable(GL_ALPHA_TEST)
         glAlphaFunc(GL_GREATER, 0.0f)
 
-        player.interpolatedPosition(player.prevPos).let { pos ->
+        player.interpolatedPosition(player.last).let { pos ->
             val data = PositionData(pos.toDoubleArray(), currentTime)
 
             val lastData = positions.lastOrNull()?.array
@@ -61,9 +61,9 @@ object Breadcrumbs : Module("Breadcrumbs", Category.RENDER) {
 
         glBegin(GL_QUADS)
 
-        val renderPosX = mc.entityRenderDispatcher.viewerPosX
-        val renderPosY = mc.entityRenderDispatcher.viewerPosY
-        val renderPosZ = mc.entityRenderDispatcher.viewerPosZ
+        val offsetX = mc.entityRenderDispatcher.cameraX
+        val offsetY = mc.entityRenderDispatcher.cameraY
+        val offsetZ = mc.entityRenderDispatcher.cameraZ
 
         positions.removeEach {
             val timestamp = System.currentTimeMillis() - it.time
@@ -77,10 +77,10 @@ object Breadcrumbs : Module("Breadcrumbs", Category.RENDER) {
 
             glColor(colors.color().withAlpha(transparency.toInt()))
 
-            glVertex3d(startPos[0] - renderPosX, startPos[1] - renderPosY, startPos[2] - renderPosZ)
-            glVertex3d(startPos[0] - renderPosX, startPos[1] - renderPosY + lineHeight, startPos[2] - renderPosZ)
-            glVertex3d(endPos[0] - renderPosX, endPos[1] - renderPosY + lineHeight, endPos[2] - renderPosZ)
-            glVertex3d(endPos[0] - renderPosX, endPos[1] - renderPosY, endPos[2] - renderPosZ)
+            glVertex3d(startPos[0] - offsetX, startPos[1] - offsetY, startPos[2] - offsetZ)
+            glVertex3d(startPos[0] - offsetX, startPos[1] - offsetY + lineHeight, startPos[2] - offsetZ)
+            glVertex3d(endPos[0] - offsetX, endPos[1] - offsetY + lineHeight, endPos[2] - offsetZ)
+            glVertex3d(endPos[0] - offsetX, endPos[1] - offsetY, endPos[2] - offsetZ)
 
             temporary && timestamp > fadeSeconds
         }

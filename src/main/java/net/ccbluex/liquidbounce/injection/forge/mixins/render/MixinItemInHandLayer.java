@@ -64,9 +64,9 @@ public class MixinItemInHandLayer {
             }
 
             final UUID uuid = entity.getUuid();
-            final PlayerEntity entityplayer = mc.world.getPlayerEntityByUUID(uuid);
+            final PlayerEntity entityplayer = mc.world.getPlayer(uuid);
 
-            if (entityplayer != null && (entityplayer.isBlocking() || entityplayer instanceof LocalClientPlayerEntity && ((itemstack.getItem() instanceof SwordItem && KillAura.INSTANCE.getRenderBlocking()) || NoSlow.INSTANCE.isUNCPBlocking()))) {
+            if (entityplayer != null && (entityplayer.isSwordBlocking() || entityplayer instanceof LocalClientPlayerEntity && ((itemstack.getItem() instanceof SwordItem && KillAura.INSTANCE.getRenderBlocking()) || NoSlow.INSTANCE.isUNCPBlocking()))) {
                 if (entity.isSneaking()) {
                     ((HumanoidModel) livingEntityRenderer.getMainModel()).postRenderArm(0.0325F);
                     translate(-0.58F, 0.3F, -0.2F);

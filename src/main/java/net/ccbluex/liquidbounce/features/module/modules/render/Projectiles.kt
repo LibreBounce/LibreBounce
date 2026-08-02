@@ -169,7 +169,7 @@ object Projectiles : Module("Projectiles", Category.RENDER, gameDetecting = fals
                 var posAfter = Vec3d(x + velocityX, y + velocityY, z + velocityZ)
 
                 // Get landing position
-                landingPosition = world.rayTraceBlocks(
+                landingPosition = world.rayTrace(
                     posBefore, posAfter, false,
                     true, false
                 )
@@ -210,7 +210,7 @@ object Projectiles : Module("Projectiles", Category.RENDER, gameDetecting = fals
                             .expand(size.toDouble(), size.toDouble(), size.toDouble())
 
                         val possibleEntityLanding = possibleEntityBoundingBox
-                            .calculateIntercept(posBefore, posAfter) ?: continue
+                            .clip(posBefore, posAfter) ?: continue
 
                         hitEntity = true
                         hasLanded = true
@@ -239,8 +239,8 @@ object Projectiles : Module("Projectiles", Category.RENDER, gameDetecting = fals
 
                 // Draw path
                 worldRenderer.pos(
-                    x - entityRenderDispatcher.renderPosX, y - entityRenderDispatcher.renderPosY,
-                    z - entityRenderDispatcher.renderPosZ
+                    x - entityRenderDispatcher.offsetX, y - entityRenderDispatcher.offsetY,
+                    z - entityRenderDispatcher.offsetZ
                 ).endVertex()
             }
 
@@ -262,9 +262,9 @@ object Projectiles : Module("Projectiles", Category.RENDER, gameDetecting = fals
             glHint(GL_LINE_SMOOTH_HINT, GL_NICEST)
 
             glTranslated(
-                x - entityRenderDispatcher.renderPosX,
-                y - entityRenderDispatcher.renderPosY,
-                z - entityRenderDispatcher.renderPosZ
+                x - entityRenderDispatcher.offsetX,
+                y - entityRenderDispatcher.offsetY,
+                z - entityRenderDispatcher.offsetZ
             )
 
             if (landingPosition != null) {
@@ -317,7 +317,7 @@ object Projectiles : Module("Projectiles", Category.RENDER, gameDetecting = fals
                 begin(GL_LINE_STRIP, DefaultVertexFormat.POSITION)
 
                 for ((_, pos, alpha) in positions) {
-                    val interpolatePos = pos - entityRenderDispatcher.renderPos
+                    val interpolatePos = pos - entityRenderDispatcher.offset
 
                     val color = when (entity) {
                         is ArrowEntity -> Color(255, 0, 0)

@@ -70,7 +70,7 @@
     "tweaks.MixinMinecraftServer",
     "world.MixinChunk",
     "world.MixinWorld",
-    "world.MixinWorldClient"
+    "world.MixinClientWorld"
   ],
   "client": [
     "block.MixinSlimeBlock",

@@ -112,7 +112,7 @@ object BlinkUtils : MinecraftInstance, Listenable {
 
     val onWorld = handler<WorldEvent> { event ->
         // Clear packets on disconnect only
-        if (event.worldClient == null) {
+        if (event.clientWorld == null) {
             clear()
         }
     }
@@ -196,7 +196,7 @@ object BlinkUtils : MinecraftInstance, Listenable {
         val player = mc.player ?: return
         val world = mc.world ?: return
 
-        val faker = RemoteClientPlayerEntity(world, player.gameProfile).apply {
+        val faker = RemoteClientPlayerEntity(world, player.profile).apply {
             copyLocationAndAnglesFrom(player)
             yaw = player.yaw
             pitch = player.pitch

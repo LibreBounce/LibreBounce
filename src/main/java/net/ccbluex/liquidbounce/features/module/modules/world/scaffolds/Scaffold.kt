@@ -253,7 +253,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
             val directionDegree = MovementUtils.direction.toDegreesF()
 
             // Round the direction rotation to the nearest multiple of 45 degrees so that way we check if the player faces diagonally
-            val yaw = round(abs(MathHelper.wrapAngleTo180_float(directionDegree)) / 45f) * 45f
+            val yaw = round(abs(MathHelper.wrapDegrees(directionDegree)) / 45f) * 45f
 
             val isYawDiagonal = yaw % 90 != 0f
             val isMovingDiagonal = player.input.forwardSpeed != 0f && player.input.movementSideways == 0f
@@ -284,7 +284,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
     val onUpdate = loopSequence {
         val player = mc.player ?: return@loopSequence
 
-        if (mc.interactionManager.currentGameMode == WorldSettings.GameMode.SPECTATOR) return@loopSequence
+        if (mc.interactionManager.gameMode == WorldSettings.GameMode.SPECTATOR) return@loopSequence
 
         mc.timer.tpsScale = timer
 
@@ -933,7 +933,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
         val distance = eyes.distanceTo(vec)
 
-        if (raycast && (distance > maxReach || world.rayTraceBlocks(eyes, vec, false, true, false) != null)) {
+        if (raycast && (distance > maxReach || world.rayTrace(eyes, vec, false, true, false) != null)) {
             return null
         }
 
@@ -996,7 +996,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
         val reach = eyes + (rotationVec * maxReach.toDouble())
 
-        return world.rayTraceBlocks(eyes, reach, false, false, true)
+        return world.rayTrace(eyes, reach, false, false, true)
     }
 
     private fun compareDifferences(
@@ -1067,7 +1067,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
             if (stack.size <= 0) {
                 player.inventory.items[SilentHotbar.currentSlot] = null
                 ForgeEventFactory.onPlayerDestroyItem(player, stack)
-            } else if (stack.size != prevSize || mc.interactionManager.isInCreativeMode) mc.entityRenderer.itemRenderer.resetEquippedProgress()
+            } else if (stack.size != prevSize || mc.interactionManager.hasCreativeInventory) mc.entityRenderer.itemRenderer.resetEquippedProgress()
 
             placeRotation = null
 
@@ -1162,7 +1162,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
         val direction = if (options.applyServerSide) {
             MovementUtils.direction.toDegreesF() + 180f
-        } else MathHelper.wrapAngleTo180_float(player.yaw)
+        } else MathHelper.wrapDegrees(player.yaw)
 
         val movingYaw = round(direction / 45) * 45
 
@@ -1223,7 +1223,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
         val direction = if (options.applyServerSide) {
             MovementUtils.direction.toDegreesF() + 180f
-        } else MathHelper.wrapAngleTo180_float(player.yaw)
+        } else MathHelper.wrapDegrees(player.yaw)
 
         val steps45 = arrayListOf(-135f, -45f, 45f, 135f)
         val movingYaw = (steps45.minByOrNull { direction - it } ?: 0f) + yawVariance

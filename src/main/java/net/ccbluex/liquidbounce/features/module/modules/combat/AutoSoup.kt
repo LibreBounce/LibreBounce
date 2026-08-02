@@ -106,7 +106,7 @@ object AutoSoup : Module("AutoSoup", Category.COMBAT) {
                 if (simulateInventory)
                     serverOpenInventory = true
 
-                mc.interactionManager.windowClick(0, bowlInHotbar, 0, 1, player)
+                mc.interactionManager.clickSlot(0, bowlInHotbar, 0, 1, player)
             }
         }
 
@@ -134,7 +134,7 @@ object AutoSoup : Module("AutoSoup", Category.COMBAT) {
             if (simulateInventory)
                 serverOpenInventory = true
 
-            mc.interactionManager.windowClick(0, soupInInventory, 0, 1, player)
+            mc.interactionManager.clickSlot(0, soupInInventory, 0, 1, player)
 
             if (simulateInventory && mc.screen !is SurvivalInventoryScreen)
                 serverOpenInventory = false

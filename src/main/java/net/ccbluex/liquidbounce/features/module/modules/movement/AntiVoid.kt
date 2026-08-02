@@ -81,9 +81,9 @@ object AntiVoid : Module("AntiVoid", Category.MOVEMENT) {
         val player = mc.player ?: return@handler
 
         if (player.onGround && BlockPos(player).down().block !is AirBlock) {
-            prevX = player.prevPosX
-            prevY = player.prevPosY
-            prevZ = player.prevPosZ
+            prevX = player.lastX
+            prevY = player.lastY
+            prevZ = player.lastZ
             shouldSimulateBlock = false
         }
 
@@ -232,12 +232,12 @@ object AntiVoid : Module("AntiVoid", Category.MOVEMENT) {
         glColor(Color(255, 0, 0, 90))
         drawFilledBox(
             Box.of(
-                x - entityRenderDispatcher.renderPosX,
-                y + 1 - entityRenderDispatcher.renderPosY,
-                z - entityRenderDispatcher.renderPosZ,
-                x - entityRenderDispatcher.renderPosX + 1.0,
-                y + 1.2 - entityRenderDispatcher.renderPosY,
-                z - entityRenderDispatcher.renderPosZ + 1.0
+                x - entityRenderDispatcher.offsetX,
+                y + 1 - entityRenderDispatcher.offsetY,
+                z - entityRenderDispatcher.offsetZ,
+                x - entityRenderDispatcher.offsetX + 1.0,
+                y + 1.2 - entityRenderDispatcher.offsetY,
+                z - entityRenderDispatcher.offsetZ + 1.0
             )
         )
 

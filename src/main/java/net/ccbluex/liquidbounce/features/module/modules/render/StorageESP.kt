@@ -270,7 +270,7 @@ object StorageESP : Module("StorageESP", Category.RENDER) {
                         if (!thruBlocks && !isEntityHeightVisible(entity))
                             continue
 
-                        val (x, y, z) = pos - entityRenderDispatcher.renderPos
+                        val (x, y, z) = pos - entityRenderDispatcher.offset
 
                         BlockEntityRenderDispatcher.instance.renderBlockEntityAt(entity, x, y, z, event.partialTicks)
                     }

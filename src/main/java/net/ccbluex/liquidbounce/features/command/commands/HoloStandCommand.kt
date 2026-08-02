@@ -13,7 +13,7 @@ import net.ccbluex.liquidbounce.utils.extensions.set
 import net.ccbluex.liquidbounce.utils.kotlin.StringUtils
 import net.minecraft.item.Items
 import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NBTTagDouble
+import net.minecraft.nbt.NbtDouble
 import net.minecraft.network.packet.c2s.play.CreativeMenuSlotC2SPacket
 
 object HoloStandCommand : Command("holostand") {
@@ -22,7 +22,7 @@ object HoloStandCommand : Command("holostand") {
      */
     override fun execute(args: Array<String>) {
         if (args.size > 4) {
-            if (mc.interactionManager.isNotCreative) {
+            if (mc.interactionManager.hasAttackCooldown) {
                 chat("§c§lError: §3You need to be in creative mode.")
                 return
             }
@@ -35,21 +35,21 @@ object HoloStandCommand : Command("holostand") {
 
                 val cursorItem = ItemStack(Items.armor_stand)
 
-                cursorItem.tagCompound = NbtCompound {
+                cursorItem.features = NbtCompound {
                     this["EntityTag"] = NbtCompound {
                         this["Invisible"] = 1
                         this["CustomName"] = message
                         this["CustomNameVisible"] = 1
                         this["NoGravity"] = 1
                         this["Pos"] = NbtList {
-                            appendTag(NBTTagDouble(x))
-                            appendTag(NBTTagDouble(y))
-                            appendTag(NBTTagDouble(z))
+                            addElement(NbtDouble(x))
+                            addElement(NbtDouble(y))
+                            addElement(NbtDouble(z))
                         }
                     }
                 }
 
-                cursorItem.setStackDisplayName("§c§lHolo§eStand")
+                cursorItem.setHoverName("§c§lHolo§eStand")
 
                 sendPacket(CreativeMenuSlotC2SPacket(36, cursorItem))
 

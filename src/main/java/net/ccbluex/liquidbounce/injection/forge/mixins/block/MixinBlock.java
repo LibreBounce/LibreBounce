@@ -46,7 +46,7 @@ public abstract class MixinBlock {
     protected BlockState blockState;
 
     @Shadow
-    public abstract Box getCollisionBoundingBox(World worldIn, BlockPos pos, BlockState state);
+    public abstract Box getCollisionShape(World worldIn, BlockPos pos, BlockState state);
 
     @Shadow
     public abstract void setBlockBounds(float minX, float minY, float minZ, float maxX, float maxY, float maxZ);
@@ -62,7 +62,7 @@ public abstract class MixinBlock {
      */
     @Overwrite
     public void addCollisionBoxesToList(World worldIn, BlockPos pos, BlockState state, Box mask, List<Box> list, Entity collidingEntity) {
-        Box axisalignedbb = getCollisionBoundingBox(worldIn, pos, state);
+        Box axisalignedbb = getCollisionShape(worldIn, pos, state);
         BlockBBEvent blockBBEvent = new BlockBBEvent(pos, blockState.getBlock(), axisalignedbb);
         EventManager.INSTANCE.call(blockBBEvent);
 

@@ -22,7 +22,7 @@ object ArmorComparator: MinecraftInstance {
 		// Consider currently equipped armor, when searching useful stuff in chests
 		// Their indices are always null to prevent any accidental impossible interactions when searching through chests
 		val equippedArmorWhenInChest =
-			if (player.openContainer.windowId != 0)
+			if (player.openContainer.networkId != 0)
 				// Filter out any non armor items player could be equipped (skull / pumpkin)
 				player.inventory.armor.asIterable().indexedArmorStacks { null }
 			else emptyList()

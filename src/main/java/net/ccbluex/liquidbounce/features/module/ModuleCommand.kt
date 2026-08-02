@@ -225,7 +225,7 @@ class ModuleCommand(val module: Module, val values: Collection<Value<*>> = modul
                 when (module[args[0]]) {
                     is BlockValue -> {
                         return Item.REGISTRY.keys.mapNotNull {
-                            it.resourcePath.lowercase().takeIf { it.startsWith(args[1], true) }
+                            it.path.lowercase().takeIf { it.startsWith(args[1], true) }
                         }
 
                     }

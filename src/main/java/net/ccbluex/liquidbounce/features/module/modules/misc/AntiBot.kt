@@ -93,7 +93,7 @@ object AntiBot : Module("AntiBot", Category.MISC) {
             return false
 
         // Anti Bot checks
-        if (color && "§" !in entity.displayName.formattedText.replace("§r", ""))
+        if (color && "§" !in entity.displayName.formattedString.replace("§r", ""))
             return true
 
         if (livingTime && entity.ticks < livingTimeTicks)
@@ -160,13 +160,13 @@ object AntiBot : Module("AntiBot", Category.MISC) {
 
         if (duplicateProfile) {
             return mc.networkHandler.onlinePlayers.count {
-                it.gameProfile.name == entity.gameProfile.name
-                        && it.gameProfile.id != entity.gameProfile.id
+                it.profile.name == entity.profile.name
+                        && it.profile.id != entity.profile.id
             } == 1
         }
 
         if (duplicateInWorld) {
-            for (player in mc.world.playerEntities.filterNotNull()) {
+            for (player in mc.world.players.filterNotNull()) {
                 val playerName = player.name
 
                 if (worldPlayerNames.contains(playerName)) {
@@ -177,7 +177,7 @@ object AntiBot : Module("AntiBot", Category.MISC) {
             }
 
             if (worldDuplicateNames.isNotEmpty()) {
-                return mc.world.playerEntities.count { it.name in worldDuplicateNames } > 1
+                return mc.world.players.count { it.name in worldDuplicateNames } > 1
             }
         }
 
@@ -199,7 +199,7 @@ object AntiBot : Module("AntiBot", Category.MISC) {
 
         if (tab) {
             val equals = tabMode == "Equals"
-            val targetName = stripColor(entity.displayName.formattedText)
+            val targetName = stripColor(entity.displayName.formattedString)
 
             val shouldReturn = mc.networkHandler.onlinePlayers.any { networkPlayerInfo ->
                 val networkName = stripColor(networkPlayerInfo.getFullName())
@@ -220,7 +220,7 @@ object AntiBot : Module("AntiBot", Category.MISC) {
 
         mc.world.entities.forEach { entity ->
             if (entity !is PlayerEntity) return@forEach
-            val profile = entity.gameProfile ?: return@forEach
+            val profile = entity.profile ?: return@forEach
 
             if (isBot(entity)) {
                 if (profile.id !in botList) {
@@ -252,7 +252,7 @@ object AntiBot : Module("AntiBot", Category.MISC) {
                     airList += entity.networkId
 
                 if (entity.onGround) {
-                    if (entity.fallDistance > 0.0 || entity.y == entity.prevPosY || !entity.collidingVertically) {
+                    if (entity.fallDistance > 0.0 || entity.y == entity.lastY || !entity.collidingVertically) {
                         invalidGroundList.putIfAbsent(
                             entity.networkId,
                             invalidGroundList.getOrDefault(entity.networkId, 0) + 1
@@ -302,8 +302,8 @@ object AntiBot : Module("AntiBot", Category.MISC) {
                 }
 
                 if (invalidSpeed) {
-                    val deltaX = entity.x - entity.prevPosX
-                    val deltaZ = entity.z - entity.prevPosZ
+                    val deltaX = entity.x - entity.lastX
+                    val deltaZ = entity.z - entity.lastZ
                     val speed = sqrt(deltaX * deltaX + deltaZ * deltaZ)
 
 
@@ -317,7 +317,7 @@ object AntiBot : Module("AntiBot", Category.MISC) {
         }
 
         if (packet is EntityAnimationS2CPacket) {
-            val entity = mc.world.getEntityByID(packet.networkId)
+            val entity = mc.world.getEntity(packet.networkId)
 
             if (entity != null && entity is LivingEntity && packet.animationType == 0
                 && entity.networkId !in swingList

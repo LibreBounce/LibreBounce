@@ -78,7 +78,7 @@ fun getNearestPointBB(eye: Vec3d, box: Box):Vec3d {
     return Vec3d(origin[0], origin[1], origin[2])
 }
 
-fun PlayerEntity.getPing() = mc.networkHandler.getOnlinePlayer(uuid)?.responseTime ?: 0
+fun PlayerEntity.getPing() = mc.networkHandler.getOnlinePlayer(uuid)?.ping ?: 0
 
 fun Entity.isAnimal() =
     this is EntityAnimal
@@ -125,8 +125,8 @@ val Entity.hitBox: Box
 val Entity.eyes: Vec3d
     get() = getEyePosition(1f)
 
-val Entity.prevPos: Vec3d
-    get() = Vec3d(prevPosX, prevPosY, prevPosZ)
+val Entity.last: Vec3d
+    get() = Vec3d(lastX, lastY, lastZ)
 
 val Entity.currPos: Vec3d
     get() = this.commandSourcePos
@@ -146,11 +146,11 @@ val LocalClientPlayerEntity.groundTicks
 val Entity.isInLiquid: Boolean
     get() = inWater || isInLava
 
-fun Entity.setPosAndPrevPos(currPos: Vec3d, prevPos:Vec3d = currPos, lastTickPosVec3dc3? = null) {
+fun Entity.setPosAndPrevPos(currPos: Vec3d, last:Vec3d = currPos, lastTickPosVec3dc3? = null) {
     setPosition(currPos.xCoord, currPos.yCoord, currPos.zCoord)
-    prevPosX = prevPos.xCoord
-    prevPosY = prevPos.yCoord
-    prevPosZ = prevPos.zCoord
+    lastX = last.xCoord
+    lastY = last.yCoord
+    lastZ = last.zCoord
 
     lastTickPos?.let {
         this.prevX = it.xCoord
@@ -274,7 +274,7 @@ fun LocalClientPlayerEntity.onPlayerRightClick(
     val prevSize = stack.size
 
     return stack.onItemUse(this, world, clickPos, side, facingX, facingY, facingZ).also {
-        if (controller.isInCreativeMode) {
+        if (controller.hasCreativeInventory) {
             stack.itemDamage = prevMetadata
             stack.size = prevSize
         } else if (stack.size <= 0) {

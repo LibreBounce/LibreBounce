@@ -60,7 +60,7 @@ object Spammer : Module("Spammer", Category.MISC, subjective = true) {
 
     private fun randomPlayer() =
         mc.networkHandler.onlinePlayers
-            .map { playerInfo -> playerInfo.gameProfile.name }
+            .map { playerInfo -> playerInfo.profile.name }
             .filter { name -> name != mc.player.name }
             .randomOrNull() ?: "none"
 

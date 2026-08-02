@@ -74,7 +74,7 @@ object Nuker : Module("Nuker", Category.WORLD, gameDetecting = false) {
 
     private val attackedBlocks = hashSetOf<BlockPos>()
     private var currentBlock: BlockPos? = null
-    private var blockHitDelay = 0
+    private var miningCooldown = 0
 
     private val nukeTimer = TickDelayTimer(nukeDelay)
     private var nukedCount = 0
@@ -83,8 +83,8 @@ object Nuker : Module("Nuker", Category.WORLD, gameDetecting = false) {
 
     val onUpdate = handler<UpdateEvent> {
         // Block hit delay
-        if (blockHitDelay > 0 && !FastBreak.handleEvents()) {
-            blockHitDelay--
+        if (miningCooldown > 0 && !FastBreak.handleEvents()) {
+            miningCooldown--
             return@handler
         }
 
@@ -99,7 +99,7 @@ object Nuker : Module("Nuker", Category.WORLD, gameDetecting = false) {
 
         val eyes = player.eyes
 
-        if (!mc.interactionManager.isInCreativeMode) {
+        if (!mc.interactionManager.hasCreativeInventory) {
             val validBlocks = searchBlocks(radius.roundToInt() + 1, null) { pos, block ->
                 if (getCenterDistance(pos) <= radius && validBlock(block)) {
                     if (!allBlocks && Block.getId(block) != blocks) {
@@ -113,7 +113,7 @@ object Nuker : Module("Nuker", Category.WORLD, gameDetecting = false) {
 
                     // Through Walls: Just break blocks in your sight
                     // Raytrace player eyes to block position (through walls check) and check if block is visible
-                    throughWalls || world.rayTraceBlocks(eyes, pos.center, false, true, false)?.pos == pos
+                    throughWalls || world.rayTrace(eyes, pos.center, false, true, false)?.pos == pos
                 } else false // Bad block
             }
 
@@ -167,7 +167,7 @@ object Nuker : Module("Nuker", Category.WORLD, gameDetecting = false) {
                         currentDamage = 0F
                         player.swingArm()
                         mc.interactionManager.onPlayerDestroyBlock(pos, Direction.DOWN)
-                        blockHitDelay = hitDelay
+                        miningCooldown = hitDelay
                         validBlocks -= pos
                         nukedCount++
                         continue // Next break
@@ -183,7 +183,7 @@ object Nuker : Module("Nuker", Category.WORLD, gameDetecting = false) {
                 if (currentDamage >= 1F) {
                     sendPacket(PlayerHandActionC2SPacket(STOP_DESTROY_BLOCK, pos, Direction.DOWN))
                     mc.interactionManager.onPlayerDestroyBlock(pos, Direction.DOWN)
-                    blockHitDelay = hitDelay
+                    miningCooldown = hitDelay
                     currentDamage = 0F
                 }
 
@@ -205,7 +205,7 @@ object Nuker : Module("Nuker", Category.WORLD, gameDetecting = false) {
                     // ThroughWalls: Only break blocks in sight
                     // Raytrace player eyes to block position (through walls check) and check if block is visible
                     val isVisible =
-                        throughWalls || world.rayTraceBlocks(eyes, pos.center, false, true, false)?.pos == pos
+                        throughWalls || world.rayTrace(eyes, pos.center, false, true, false)?.pos == pos
 
                     if (isVisible) {
                         // Instant break block

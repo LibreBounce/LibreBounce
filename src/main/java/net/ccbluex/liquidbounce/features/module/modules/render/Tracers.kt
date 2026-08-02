@@ -106,7 +106,7 @@ object Tracers : Module("Tracers", Category.RENDER) {
     private fun drawTraces(entity: Entity, color: Color) {
         val player = mc.player ?: return
 
-        val (x, y, z) = entity.interpolatedPosition(entity.lastTickPos) - mc.entityRenderDispatcher.renderPos
+        val (x, y, z) = entity.interpolatedPosition(entity.lastTickPos) - mc.entityRenderDispatcher.offset
 
         val yaw = (player.lastYaw..player.yaw).lerpWith(mc.timer.partialTick)
         val pitch = (player.lastPitch..player.pitch).lerpWith(mc.timer.partialTick)

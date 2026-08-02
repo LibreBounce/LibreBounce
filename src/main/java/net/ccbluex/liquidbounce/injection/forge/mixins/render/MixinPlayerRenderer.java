@@ -14,7 +14,7 @@ import net.minecraft.client.entity.living.player.LocalClientPlayerEntity;
 import net.minecraft.client.model.ModelPlayer;
 import net.minecraft.client.render.entity.PlayerRenderer;
 import net.minecraft.client.render.model.PlayerModelPart;
-import net.minecraft.item.EnumAction;
+import net.minecraft.item.UseAction;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.SwordItem;
 import org.spongepowered.asm.mixin.Mixin;
@@ -61,10 +61,10 @@ public abstract class MixinPlayerRenderer {
                 modelplayer.displayItemInHandRight = 1;
                 boolean isForceBlocking = entity instanceof LocalClientPlayerEntity && ((itemstack.getItem() instanceof SwordItem && KillAura.INSTANCE.getRenderBlocking()) || NoSlow.INSTANCE.isUNCPBlocking());
                 if (entity.getItemInUseCount() > 0 || isForceBlocking) {
-                    EnumAction enumaction = isForceBlocking? EnumAction.BLOCK : itemstack.getItemUseAction();
-                    if (enumaction == EnumAction.BLOCK) {
+                    UseAction enumaction = isForceBlocking? UseAction.BLOCK : itemstack.getItemUseAction();
+                    if (enumaction == UseAction.BLOCK) {
                         modelplayer.displayItemInHandRight = 3;
-                    } else if (enumaction == EnumAction.BOW) {
+                    } else if (enumaction == UseAction.BOW) {
                         modelplayer.aimedBow = true;
                     }
                 }

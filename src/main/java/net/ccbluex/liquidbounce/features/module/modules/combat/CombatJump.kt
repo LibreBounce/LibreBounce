@@ -61,12 +61,12 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
         val simPlayer = SimulatedPlayer.fromClientPlayer(modifiedInput)
     
         val targetBox = target.hitBox.offset(
-            target.currPos.subtract(target.prevPos).times(predictEnemyPosition.toDouble())
+            target.currPos.subtract(target.last).times(predictEnemyPosition.toDouble())
         )
 
         val distance = player.getDistanceToEntityBox(target)
 
-        val (currPos, prevPos) = player.currPos to player.prevPos
+        val (currPos, last) = player.currPos to player.last
 
         if (simPlayer.onGround) {
             simPlayer.jump()
@@ -80,7 +80,7 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
 
         player.setPosAndPrevPos(simPlayer.pos)
         val simDist = player.getDistanceToBox(targetBox)
-        player.setPosAndPrevPos(currPos, prevPos)
+        player.setPosAndPrevPos(currPos, last)
 
         if (debug) chat("(CombatJump) Distance: ${distance}, simulated distance: ${simDist}, simulated ground: ${simPlayer.onGround}")
 

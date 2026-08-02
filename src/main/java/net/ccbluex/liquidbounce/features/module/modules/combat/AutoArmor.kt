@@ -78,7 +78,7 @@ object AutoArmor : Module("AutoArmor", Category.COMBAT) {
         var hasClickedHotbar = false
 
         val stacks = withContext(Dispatchers.Main) {
-            player.openContainer.inventorySlots.map { it.stack }
+            player.openContainer.slots.map { it.stack }
         }
 
         val bestArmorSet = getBestArmorSet(stacks) ?: return
@@ -155,7 +155,7 @@ object AutoArmor : Module("AutoArmor", Category.COMBAT) {
             }
 
             val stacks = withContext(Dispatchers.Main) {
-                player.openContainer.inventorySlots.map { it.stack }
+                player.openContainer.slots.map { it.stack }
             }
 
             val armorSet = getBestArmorSet(stacks) ?: continue
@@ -250,11 +250,11 @@ object AutoArmor : Module("AutoArmor", Category.COMBAT) {
             if (!passedPostInventoryCloseDelay)
                 return false
 
-            if (mc.interactionManager?.currentGameMode?.isSurvivalOrAdventure != true)
+            if (mc.interactionManager?.gameMode?.isSurvivalOrAdventure != true)
                 return false
 
             // It is impossible to equip armor when a container is open; only try to equip by right-clicking from hotbar (if NotInContainers is disabled)
-            if (mc.player?.openContainer?.windowId != 0 && (!onlyHotbar || notInContainers))
+            if (mc.player?.openContainer?.networkId != 0 && (!onlyHotbar || notInContainers))
                 return false
 
             // Player doesn't need to have inventory open or not to move, when equipping from hotbar

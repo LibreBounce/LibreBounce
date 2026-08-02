@@ -39,7 +39,7 @@ object RemoteViewCommand : Command("remoteview", "rv") {
             return emptyList()
 
         return when (args.size) {
-            1 -> return mc.world.playerEntities.mapNotNull {
+            1 -> return mc.world.players.mapNotNull {
                 it.name?.takeIf { name -> name.startsWith(args[0], true) }
             }
 

@@ -185,7 +185,7 @@ object Step : Module("Step", Category.MOVEMENT, gameDetecting = false) {
                 "Hypixel",
                 "Mineplex"
             )
-            && player.inventory.getCurrentItem() == null
+            && player.inventory.getSelectedItem() == null
         ) {
             event.stepHeight = 0F
             return@handler

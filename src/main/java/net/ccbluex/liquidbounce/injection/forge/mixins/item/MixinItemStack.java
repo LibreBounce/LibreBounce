@@ -9,7 +9,7 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura;
 import net.ccbluex.liquidbounce.features.module.modules.movement.NoSlow;
 import net.ccbluex.liquidbounce.injection.implementations.IMixinItemStack;
 import net.ccbluex.liquidbounce.utils.client.ClassUtils;
-import net.minecraft.item.EnumAction;
+import net.minecraft.item.UseAction;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.SwordItem;
@@ -39,7 +39,7 @@ public class MixinItemStack implements IMixinItemStack {
     }
 
     @Inject(method = "getItemUseAction", at = @At("RETURN"), cancellable = true)
-    private void getItemUseAction(CallbackInfoReturnable<EnumAction> cir) {
+    private void getItemUseAction(CallbackInfoReturnable<UseAction> cir) {
         final KillAura killAura = KillAura.INSTANCE;
         final NoSlow noSlow = NoSlow.INSTANCE;
 
@@ -49,7 +49,7 @@ public class MixinItemStack implements IMixinItemStack {
                     || noSlow.isUNCPBlocking()) && ClassUtils.INSTANCE.hasClass("com.orangemarshall.animations.BlockhitAnimation");
 
             if (isForceBlocking) {
-                cir.setReturnValue(EnumAction.BLOCK);
+                cir.setReturnValue(UseAction.BLOCK);
             }
         }
     }

@@ -21,7 +21,7 @@ import net.minecraft.client.render.platform.Lighting;
 import net.minecraft.client.render.model.block.ModelTransformations;
 import net.minecraft.entity.living.LivingEntity;
 import net.minecraft.entity.living.player.PlayerInventory;
-import net.minecraft.item.EnumAction;
+import net.minecraft.item.UseAction;
 import net.minecraft.item.ItemMap;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.SwordItem;
@@ -124,7 +124,7 @@ public abstract class MixinItemInHandRenderer {
             if (itemToRender.getItem() instanceof ItemMap) {
                 renderItemMap(abstractclientplayer, f2, f, f1);
             } else if (abstractclientplayer.getItemInUseCount() > 0 || isForceBlocking) {
-                EnumAction enumaction = isForceBlocking ? EnumAction.BLOCK : itemToRender.getItemUseAction();
+                UseAction enumaction = isForceBlocking ? UseAction.BLOCK : itemToRender.getItemUseAction();
 
                 switch (enumaction) {
                     case NONE:
@@ -181,7 +181,7 @@ public abstract class MixinItemInHandRenderer {
         }
     }
 
-    @Redirect(method = "updateEquippedItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/living/player/PlayerInventory;getCurrentItem()Lnet/minecraft/item/ItemStack;"))
+    @Redirect(method = "updateEquippedItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/living/player/PlayerInventory;getSelectedItem()Lnet/minecraft/item/ItemStack;"))
     private ItemStack hookSilentHotbar(PlayerInventory instance) {
         SilentHotbarModule module = SilentHotbarModule.INSTANCE;
 

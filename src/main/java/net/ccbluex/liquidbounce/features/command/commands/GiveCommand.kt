@@ -25,7 +25,7 @@ object GiveCommand : Command("give", "item", "i", "get") {
             return
         }
 
-        if (mc.interactionManager.isNotCreative) {
+        if (mc.interactionManager.hasAttackCooldown) {
             chat("§c§lError: §3You need to be in creative mode.")
             return
         }
@@ -55,7 +55,7 @@ object GiveCommand : Command("give", "item", "i", "get") {
         return when (args.size) {
             1 -> {
                 return Item.REGISTRY.keys
-                    .map { it.resourcePath.lowercase() }
+                    .map { it.path.lowercase() }
                     .filter { it.startsWith(args[0], true) }
             }
 

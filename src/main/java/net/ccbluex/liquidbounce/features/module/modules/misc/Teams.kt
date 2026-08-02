@@ -31,16 +31,16 @@ object Teams : Module("Teams", Category.MISC, gameDetecting = false) {
         val displayName = player.displayName
 
         if (gommeSW && displayName != null && entity.displayName != null) {
-            val targetName = entity.displayName.formattedText.replace("§r", "")
-            val clientName = displayName.formattedText.replace("§r", "")
+            val targetName = entity.displayName.formattedString.replace("§r", "")
+            val clientName = displayName.formattedString.replace("§r", "")
             if (targetName.startsWith("T") && clientName.startsWith("T"))
                 if (targetName[1].isDigit() && clientName[1].isDigit())
                     return targetName[1] == clientName[1]
         }
 
         if (nameColor && displayName != null && entity.displayName != null) {
-            val targetName = entity.displayName.formattedText.replace("§r", "")
-            val clientName = displayName.formattedText.replace("§r", "")
+            val targetName = entity.displayName.formattedString.replace("§r", "")
+            val clientName = displayName.formattedString.replace("§r", "")
             return targetName.startsWith("§${clientName[1]}")
         }
 

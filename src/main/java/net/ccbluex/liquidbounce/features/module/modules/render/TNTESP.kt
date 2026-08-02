@@ -10,7 +10,7 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.extensions.interpolatedPosition
-import net.ccbluex.liquidbounce.utils.extensions.prevPos
+import net.ccbluex.liquidbounce.utils.extensions.last
 import net.ccbluex.liquidbounce.utils.render.ColorSettingsInteger
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawDome
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawEntityBox
@@ -37,7 +37,7 @@ object TNTESP : Module("TNTESP", Category.RENDER) {
             if (it !is PrimedTntEntity) return@forEach
 
             if (dangerZoneDome) {
-                drawDome(it.interpolatedPosition(it.prevPos), 8.0, 8.0, width, color, renderMode)
+                drawDome(it.interpolatedPosition(it.last), 8.0, 8.0, width, color, renderMode)
             }
 
             drawEntityBox(it, Color.RED, false)

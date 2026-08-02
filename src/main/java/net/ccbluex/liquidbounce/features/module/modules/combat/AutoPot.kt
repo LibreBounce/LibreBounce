@@ -58,7 +58,7 @@ object AutoPot : Module("AutoPot", Category.COMBAT) {
     private var potion = -1
 
     val onRotationUpdate = handler<RotationUpdateEvent> {
-        if (!msTimer.hasTimePassed(delay) || mc.interactionManager.isInCreativeMode)
+        if (!msTimer.hasTimePassed(delay) || mc.interactionManager.hasCreativeInventory)
             return@handler
 
         val player = mc.player ?: return@handler
@@ -119,7 +119,7 @@ object AutoPot : Module("AutoPot", Category.COMBAT) {
                 if (simulateInventory)
                     serverOpenInventory = true
 
-                mc.interactionManager.windowClick(0, potionInInventory, 0, 1, player)
+                mc.interactionManager.clickSlot(0, potionInInventory, 0, 1, player)
 
                 if (simulateInventory && mc.screen !is SurvivalInventoryScreen)
                     serverOpenInventory = false

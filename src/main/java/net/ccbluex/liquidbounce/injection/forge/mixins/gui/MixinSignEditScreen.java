@@ -122,7 +122,7 @@ public class MixinSignEditScreen extends Screen {
             editLine = editLine + 1 & 3;
         }
 
-        String s = tileSign.signText[editLine].getUnformattedText();
+        String s = tileSign.signText[editLine].getUnformattedString();
         if (keyCode == 14 && s.length() > 0) {
             s = s.substring(0, s.length() - 1);
         }

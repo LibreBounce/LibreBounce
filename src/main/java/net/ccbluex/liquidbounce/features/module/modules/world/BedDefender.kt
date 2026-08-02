@@ -232,7 +232,7 @@ object BedDefender : Module("BedDefender", Category.WORLD) {
             if (stack.size <= 0) {
                 player.inventory.items[SilentHotbar.currentSlot] = null
                 ForgeEventFactory.onPlayerDestroyItem(player, stack)
-            } else if (stack.size != prevSize || mc.interactionManager.isInCreativeMode)
+            } else if (stack.size != prevSize || mc.interactionManager.hasCreativeInventory)
                 mc.entityRenderer.itemRenderer.resetEquippedProgress()
 
             position = null
@@ -251,7 +251,7 @@ object BedDefender : Module("BedDefender", Category.WORLD) {
         return when (raycastMode) {
             "Normal" -> {
                 val eyesPos = player.eyes
-                val movingObjectPosition = world.rayTraceBlocks(eyesPos, pos.center, false, true, false)
+                val movingObjectPosition = world.rayTrace(eyesPos, pos.center, false, true, false)
 
                 movingObjectPosition != null && movingObjectPosition.pos == pos
             }
@@ -290,6 +290,6 @@ object BedDefender : Module("BedDefender", Category.WORLD) {
 
         val reach = eyes + (rotationVec * maxReach.toDouble())
 
-        return world.rayTraceBlocks(eyes, reach, false, true, false)
+        return world.rayTrace(eyes, reach, false, true, false)
     }
 }

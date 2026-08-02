@@ -65,7 +65,7 @@ object InventoryMove : Module("InventoryMove", Category.MOVEMENT, gameDetecting 
         mc.options.rightKey,
         mc.options.leftKey,
         mc.options.jumpKey,
-        mc.options.keyBindSprint
+        mc.options.sprintKey
     )
 
     val onUpdate = handler<UpdateEvent>(priority = -1) {
@@ -88,7 +88,7 @@ object InventoryMove : Module("InventoryMove", Category.MOVEMENT, gameDetecting 
 
         for (affectedBinding in affectedBindings)
             affectedBinding.pressed =
-                isButtonPressed(affectedBinding) || affectedBinding == mc.options.keyBindSprint && Sprint.handleEvents() && Sprint.mode == "Legit" && (!Sprint.onlyOnSprintPress || player.isSprinting) || affectedBinding == mc.options.forwardKey && AutoWalk.handleEvents()
+                isButtonPressed(affectedBinding) || affectedBinding == mc.options.sprintKey && Sprint.handleEvents() && Sprint.mode == "Legit" && (!Sprint.onlyOnSprintPress || player.isSprinting) || affectedBinding == mc.options.forwardKey && AutoWalk.handleEvents()
     }
 
     private fun shouldFreezeInputs(screen: Screen?): Boolean {

@@ -79,7 +79,7 @@ object Fucker : Module("Fucker", Category.WORLD) {
     private var obstructingPos: BlockPos? = null
     private var spawnLocation: Vec3d? = null
     private var oldPos: BlockPos? = null
-    private var blockHitDelay = 0
+    private var miningCooldown = 0
     private val switchTimer = MSTimer()
     var currentDamage = 0F
     var isOwnBed = false
@@ -149,7 +149,7 @@ object Fucker : Module("Fucker", Category.WORLD) {
             } else if (surroundings && obstructingPos == null) {
                 val eyes = player.eyes
                 val spotToBed = faceBlock(currentPos) ?: return@handler
-                val pos = world.rayTraceBlocks(eyes, spotToBed.vec, false, false, true)?.pos
+                val pos = world.rayTrace(eyes, spotToBed.vec, false, false, true)?.pos
                 if (pos != null && pos.block != air && pos != currentPos) {
                     obstructingPos = pos
                     currentPos = obstructingPos!!
@@ -159,7 +159,7 @@ object Fucker : Module("Fucker", Category.WORLD) {
                 if (surroundings) {
                     val eyes = player.eyes
                     val spotToObstruction = faceBlock(currentPos) ?: return@handler
-                    val rayTraceResultToObstruction = world.rayTraceBlocks(eyes, spotToObstruction.vec, false, false, true)
+                    val rayTraceResultToObstruction = world.rayTrace(eyes, spotToObstruction.vec, false, false, true)
                     // If a new block is blocking it, reset and re-evaluate next cycle.
                     if (rayTraceResultToObstruction?.pos != currentPos &&
                         rayTraceResultToObstruction?.type == net.minecraft.world.HitResult.Type.BLOCK
@@ -168,7 +168,7 @@ object Fucker : Module("Fucker", Category.WORLD) {
                         return@handler
                     }
                     val spotToBed = faceBlock(pos!!) ?: return@handler
-                    val rayTraceToBed = world.rayTraceBlocks(eyes, spotToBed.vec, false, false, true)
+                    val rayTraceToBed = world.rayTrace(eyes, spotToBed.vec, false, false, true)
                     // Target bed if it's open
                     if (rayTraceToBed?.pos == pos &&
                         rayTraceToBed.type == net.minecraft.world.HitResult.Type.BLOCK
@@ -192,8 +192,8 @@ object Fucker : Module("Fucker", Category.WORLD) {
         if (!switchTimer.hasTimePassed(switch)) return@handler
 
         // Block hit delay
-        if (blockHitDelay > 0) {
-            blockHitDelay--
+        if (miningCooldown > 0) {
+            miningCooldown--
             return@handler
         }
 
@@ -276,7 +276,7 @@ object Fucker : Module("Fucker", Category.WORLD) {
                 if (currentDamage >= 1F) {
                     sendPacket(PlayerHandActionC2SPacket(STOP_DESTROY_BLOCK, currentPos, raytrace.face))
                     controller.onPlayerDestroyBlock(currentPos, raytrace.face)
-                    blockHitDelay = 4
+                    miningCooldown = 4
                     clearTarget(currentPos)
                 }
             }
@@ -284,7 +284,7 @@ object Fucker : Module("Fucker", Category.WORLD) {
             action == "Use" -> {
                 if (player.onPlayerRightClick(currentPos, raytrace.face, raytrace.facePos, player.displayItemInHand)) {
                     player.swingArm(!swing)
-                    blockHitDelay = 4
+                    miningCooldown = 4
                     clearTarget(currentPos)
                 }
             }
@@ -292,8 +292,8 @@ object Fucker : Module("Fucker", Category.WORLD) {
     }
 
     val onRender3D = handler<Render3DEvent> {
-        val renderPos = obstructingPos ?: pos
-        val posToDraw = renderPos ?: return@handler
+        val offset = obstructingPos ?: pos
+        val posToDraw = offset ?: return@handler
 
         isOwnBed = ignoreOwnBed && isBedNearSpawn(posToDraw)
         if (mc.player == null || isOwnBed) return@handler
@@ -343,7 +343,7 @@ object Fucker : Module("Fucker", Category.WORLD) {
         return when (throughWalls) {
             "Raycast" -> {
                 val eyesPos = player.eyes
-                val movingObjectPosition = mc.world.rayTraceBlocks(eyesPos, pos.center, false, true, false)
+                val movingObjectPosition = mc.world.rayTrace(eyesPos, pos.center, false, true, false)
                 movingObjectPosition != null && movingObjectPosition.pos == pos
             }
             "Around" -> Direction.entries.any { !isBlockBBValid(pos.offset(it)) }

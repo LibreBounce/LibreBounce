@@ -77,9 +77,9 @@ object FreeCam : Module("FreeCam", Category.RENDER, gameDetecting = false) {
     fun useModifiedPosition() {
         val player = mc.player ?: return
 
-        originalPos = PositionPair(player.currPos, player.prevPos, player.lastTickPos)
+        originalPos = PositionPair(player.currPos, player.last, player.lastTickPos)
 
-        val event = CameraPositionEvent(player.currPos, player.prevPos, player.lastTickPos)
+        val event = CameraPositionEvent(player.currPos, player.last, player.lastTickPos)
         EventManager.call(event)
 
         event.result?.run {

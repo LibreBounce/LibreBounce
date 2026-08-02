@@ -124,13 +124,13 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
             if (!handleEvents())
                 return false
 
-            if (mc.interactionManager?.currentGameMode?.isSurvivalOrAdventure != true)
+            if (mc.interactionManager?.gameMode?.isSurvivalOrAdventure != true)
                 return false
 
             if (mc.screen !is ChestScreen)
                 return false
 
-            if (mc.player?.openContainer?.windowId != receivedId)
+            if (mc.player?.openContainer?.networkId != receivedId)
                 return false
 
             // Wait until NoMove check isn't violated
@@ -202,7 +202,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
                     val missClickingChance = missClickChance * if (missClickChanceDistMult) dist else 1
 
                     if (missClick && withinChance(missClickingChance)) {
-                        performMissClick(screen, screen.inventorySlots.inventorySlots[slot])
+                        performMissClick(screen, screen.slots.slots[slot])
                         delay(pauseAfterMissClickLength)
                     }
 
@@ -232,7 +232,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
                         nextTick {
                             val hotbarStacks = player.inventory.items.take(9)
 
-                            // Can't get index of stack instance, because it is different even from the one returned from windowClick()
+                            // Can't get index of stack instance, because it is different even from the one returned from clickSlot()
                             val newIndex = hotbarStacks.indexOfFirst { it?.getIsItemStackEqual(stack) == true }
 
                             if (newIndex != -1)
@@ -381,7 +381,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
     }
  
     private fun performMissClick(screen: ChestScreen, targetSlot: InventorySlot) {
-        val closestEmptySlot = screen.inventorySlots.inventorySlots
+        val closestEmptySlot = screen.slots.slots
             .filter { it.stack == null || it.stack.size == 0 }
             .minByOrNull { otherSlot ->
                 squaredDistanceOfSlots(targetSlot.slotNumber, otherSlot.slotNumber)
@@ -458,7 +458,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
             }
 
             is InventoryMenuContentS2CPacket -> {
-                // Chests never have windowId 0
+                // Chests never have networkId 0
                 val packetWindowId = packet.func_148911_c()
 
                 if (packetWindowId == 0)

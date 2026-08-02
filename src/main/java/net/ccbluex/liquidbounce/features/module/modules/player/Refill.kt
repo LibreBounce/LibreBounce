@@ -97,7 +97,7 @@ object Refill : Module("Refill", Category.PLAYER) {
 
         sendPacket(
             InventoryMenuClickSlotC2SPacket(
-                mc.player.openContainer.windowId, slot, button, mode, stack,
+                mc.player.openContainer.networkId, slot, button, mode, stack,
                 mc.player.openContainer.getNextTransactionID(mc.player.inventory)
             )
         )

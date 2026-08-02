@@ -117,7 +117,7 @@ object ItemESP : Module("ItemESP", Category.RENDER) {
         glPushMatrix()
 
         // Translate to entity position
-        val (x, y, z) = entity.interpolatedPosition(entity.lastTickPos) - entityRenderDispatcher.renderPos
+        val (x, y, z) = entity.interpolatedPosition(entity.lastTickPos) - entityRenderDispatcher.offset
 
         glTranslated(x, y, z)
 

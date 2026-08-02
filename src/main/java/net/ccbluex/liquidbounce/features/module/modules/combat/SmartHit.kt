@@ -96,7 +96,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         }
 
         lastHitCrit = canCritHit(player)
-        lastHitBlocked = targetPlayer.isBlocking
+        lastHitBlocked = targetPlayer.isSwordBlocking
     }
 
     val onGameTick = handler<GameTickEvent> { event ->
@@ -188,7 +188,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
             
         val shouldHit = when {    
             groundHit || airHit -> true
-            checkForBlockedHits && lastHitBlocked && !target.isBlocking -> true
+            checkForBlockedHits && lastHitBlocked && !target.isSwordBlocking -> true
             minTargetRotationDifference != 0f && rotDiff < minTargetRotationDifference -> true
             experimentalChecks && player.damagedTimer !in damagedTimerNoEscape..8 && targetHitLikely -> true
             experimentalChecks && targetDistance > 3.05f && targetHittable -> true
@@ -222,16 +222,16 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         val player = mc.player ?: return 0.0
 
         val targetBox = target.hitBox.offset(
-            target.currPos.subtract(target.prevPos).times(predictEnemyPosition.toDouble())
+            target.currPos.subtract(target.last).times(predictEnemyPosition.toDouble())
         )
 
         if (simulateKnockback && simHurtTime <= 10 - attackDelay)
             simulateOwnKnockback(simPlayer, target)
 
-        val (currPos, prevPos) = player.currPos to player.prevPos
+        val (currPos, last) = player.currPos to player.last
         player.setPosAndPrevPos(simPlayer.pos)
         val distance = player.getDistanceToBox(targetBox)
-        player.setPosAndPrevPos(currPos, prevPos)
+        player.setPosAndPrevPos(currPos, last)
         return distance
     }
 

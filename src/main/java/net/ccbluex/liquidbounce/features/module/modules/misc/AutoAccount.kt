@@ -130,8 +130,8 @@ object AutoAccount :
                 if (!passwordValue.isSupported() || status == Status.STOPPED) return@handler
 
                 val msg = when (packet) {
-                    is ChatMessageS2CPacket -> packet.chatComponent?.unformattedText?.lowercase()
-                    is TitlesS2CPacket -> packet.message?.unformattedText?.lowercase()
+                    is ChatMessageS2CPacket -> packet.chatComponent?.string?.lowercase()
+                    is TitlesS2CPacket -> packet.message?.string?.lowercase()
                     else -> return@handler
                 } ?: return@handler
 
@@ -163,10 +163,10 @@ object AutoAccount :
 
             is DisconnectS2CPacket -> {
                 if (relogKickedValue.isActive() && status != Status.SENT_COMMAND) {
-                    val reason = packet.reason.unformattedText
+                    val reason = packet.reason.string
                     if ("ban" in reason) return@handler
 
-                    relog(packet.reason.unformattedText)
+                    relog(packet.reason.string)
                 }
             }
         }
@@ -184,7 +184,7 @@ object AutoAccount :
 
         if (status == Status.SENT_COMMAND) {
             // Server redirected the player to a lobby, success
-            if (event.worldClient != null && mc.world != event.worldClient) success()
+            if (event.clientWorld != null && mc.world != event.clientWorld) success()
             // Login failed, possibly relog
             else fail()
         }

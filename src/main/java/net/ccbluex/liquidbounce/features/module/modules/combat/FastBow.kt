@@ -29,7 +29,7 @@ object FastBow : Module("FastBow", Category.COMBAT) {
             if (!isUsingItem)
                 return@handler
 
-            val selectedSlot = inventory.getCurrentItem()
+            val selectedSlot = inventory.getSelectedItem()
 
             if (selectedSlot != null && selectedSlot.item is BowItem) {
                 sendPacket(

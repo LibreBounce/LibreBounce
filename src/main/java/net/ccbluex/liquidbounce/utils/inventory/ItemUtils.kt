@@ -40,7 +40,7 @@ object ItemUtils : MinecraftInstance {
             if (args.size >= 4) {
                 val nbt = args.drop(3).joinToString(" ")
 
-                cursorItem.tagCompound = SnbtParser.parseNbtEntry(nbt)
+                cursorItem.features = SnbtParser.parseNbtEntry(nbt)
             }
 
             cursorItem
@@ -111,9 +111,9 @@ val ItemStack.enchantments: Map<Enchantment, Int>
             return enchantments
 
         repeat(enchantmentTagList.tagCount()) {
-            val tagCompound = enchantmentTagList.getCompoundTagAt(it)
-            if (tagCompound.hasKey("ench") || tagCompound.hasKey("id"))
-                enchantments[Enchantment.byId(tagCompound.getInteger("id"))] = tagCompound.getInteger("lvl")
+            val features = enchantmentTagList.getCompoundTagAt(it)
+            if (features.hasKey("ench") || features.hasKey("id"))
+                enchantments[Enchantment.byId(features.getInteger("id"))] = features.getInteger("lvl")
         }
 
         return enchantments

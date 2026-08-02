@@ -152,7 +152,7 @@ public abstract class MixinGameRenderer {
             Vec3d vec31 = RotationUtils.INSTANCE.getRotationVector(RotationUtils.INSTANCE.getCurrentRotation() != null && OverrideRaycast.INSTANCE.shouldOverride() ? RotationUtils.INSTANCE.getCurrentRotation() : rotation);
             double p_rayTrace_1_ = (reach.handleEvents() ? reach.getBuildReach() : d0);
             Vec3d vec32 = vec3.addVector(vec31.xCoord * p_rayTrace_1_, vec31.yCoord * p_rayTrace_1_, vec31.zCoord * p_rayTrace_1_);
-            mc.crosshairTarget = entity.world.rayTraceBlocks(vec3, vec32, false, false, true);
+            mc.crosshairTarget = entity.world.rayTrace(vec3, vec32, false, false, true);
             double d1 = d0;
             boolean flag = false;
             if (mc.interactionManager.extendedReach()) {
@@ -169,7 +169,7 @@ public abstract class MixinGameRenderer {
             if (reach.handleEvents()) {
                 double p_rayTrace_1_2 = reach.getBuildReach();
                 Vec3d vec322 = vec3.addVector(vec31.xCoord * p_rayTrace_1_2, vec31.yCoord * p_rayTrace_1_2, vec31.zCoord * p_rayTrace_1_2);
-                final HitResult movingObjectPosition = entity.world.rayTraceBlocks(vec3, vec322, false, false, true);
+                final HitResult movingObjectPosition = entity.world.rayTrace(vec3, vec322, false, false, true);
 
                 if (movingObjectPosition != null) d1 = movingObjectPosition.facePos.distanceTo(vec3);
             }
@@ -191,7 +191,7 @@ public abstract class MixinGameRenderer {
                 });
 
                 for (final Box axisalignedbb : boxes) {
-                    HitResult movingobjectposition = axisalignedbb.calculateIntercept(vec3, vec32);
+                    HitResult movingobjectposition = axisalignedbb.clip(vec3, vec32);
                     if (axisalignedbb.contains(vec3)) {
                         if (d2 >= 0) {
                             targetEntity = entity1;

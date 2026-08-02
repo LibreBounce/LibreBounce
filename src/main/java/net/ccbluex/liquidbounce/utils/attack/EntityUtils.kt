@@ -120,7 +120,7 @@ object EntityUtils : MinecraftInstance {
     }
 
     fun Entity.colorFromDisplayName(): Color? {
-        val chars = (this.displayName ?: return null).formattedText.toCharArray()
+        val chars = (this.displayName ?: return null).formattedString.toCharArray()
         var color = Int.MAX_VALUE
 
         for (i in 0 until chars.lastIndex) {

@@ -43,8 +43,8 @@ public class MixinClientPlayerInteractionManager {
     }
 
     @Inject(method = "clickSlot", at = @At("HEAD"), cancellable = true)
-    private void clickSlot(int windowId, int slotId, int mouseButtonClicked, int mode, PlayerEntity playerIn, CallbackInfoReturnable<ItemStack> callbackInfo) {
-        final ClickWindowEvent event = new ClickWindowEvent(windowId, slotId, mouseButtonClicked, mode);
+    private void clickSlot(int networkId, int slotId, int mouseButtonClicked, int mode, PlayerEntity playerIn, CallbackInfoReturnable<ItemStack> callbackInfo) {
+        final ClickWindowEvent event = new ClickWindowEvent(networkId, slotId, mouseButtonClicked, mode);
         EventManager.INSTANCE.call(event);
 
         if (event.isCancelled()) {

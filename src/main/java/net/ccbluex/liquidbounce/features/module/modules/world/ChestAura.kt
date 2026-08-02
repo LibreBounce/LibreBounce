@@ -141,7 +141,7 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
                 if (throughWalls && wallsRange >= range)
                     return@firstOrNull true
 
-                val result = mc.world.rayTraceBlocks(eyes, vec) ?: return@firstOrNull false
+                val result = mc.world.rayTrace(eyes, vec) ?: return@firstOrNull false
                 val distanceSq = result.facePos.squareDistanceTo(eyes)
 
                 // If chest is behind a wall, check if through walls is enabled and its range
@@ -203,7 +203,7 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
 
                     // If chest is not last clicked chest, find a player that might have opened it
                     if (packetBlockPos != tileTarget?.entity?.pos) {
-                        val nearPlayers = (mc.world.playerEntities ?: return@handler)
+                        val nearPlayers = (mc.world.players ?: return@handler)
                             .mapNotNull {
                                 val distanceSq = it.getSquaredDistanceToToCenter(packetBlockPos)
 
@@ -247,7 +247,7 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
                 if (!detectRefill)
                     return@handler
 
-                if (refillSubstrings in packet.message?.unformattedText)
+                if (refillSubstrings in packet.message?.string)
                     clickedTileEntities.clear()
             }
 

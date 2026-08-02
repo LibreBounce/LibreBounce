@@ -46,8 +46,8 @@ class SpeedGraph(
             if (lastTick != player.ticks) {
                 lastTick = player.ticks
 
-                val xDelta = player.x - player.prevPosX
-                val zDelta = player.z - player.prevPosZ
+                val xDelta = player.x - player.lastX
+                val zDelta = player.z - player.lastZ
 
                 var speed = sqrt(xDelta * xDelta + zDelta * zDelta)
 

@@ -104,8 +104,8 @@ fun Vec3d.withY(value: Double, useCurrentY: Boolean = false): Vec3d {
 val Vec3d_ZERO: Vec3d
     get() = Vec3d(0.0, 0.0, 0.0)
 
-val EntityRenderDispatcher.renderPos
-    get() = Vec3d(renderPosX, renderPosY, renderPosZ)
+val EntityRenderDispatcher.offset
+    get() = Vec3d(offsetX, offsetY, offsetZ)
 
 fun Vec3d.toFloatArray() = floatArrayOf(xCoord.toFloat(), yCoord.toFloat(), zCoord.toFloat())
 fun Vec3d.toDoubleArray() = doubleArrayOf(xCoord, yCoord, zCoord)
@@ -206,9 +206,9 @@ fun Box.getPointSequence(step: Double): Sequence<Vec3d> {
 }
 
 fun Block.lerpWith(x: Double, y: Double, z: Double) = Vec3d(
-    blockBoundsMinX + (blockBoundsMaxX - blockBoundsMinX) * x,
-    blockBoundsMinY + (blockBoundsMaxY - blockBoundsMinY) * y,
-    blockBoundsMinZ + (blockBoundsMaxZ - blockBoundsMinZ) * z
+    minX + (maxX - minX) * x,
+    minY + (maxY - minY) * y,
+    minZ + (maxZ - minZ) * z
 )
 
 fun Vec3d.lerpWith(other:Vec3d, tickDelta: Double) = Vec3d(

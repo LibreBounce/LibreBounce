@@ -364,9 +364,9 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
 
         if (shouldPrioritize()) return false
 
-        val prediction = entity.currPos.subtract(entity.prevPos).times(2 + predictEnemyPosition.toDouble())
+        val prediction = entity.currPos.subtract(entity.last).times(2 + predictEnemyPosition.toDouble())
         val shape = entity.hitBox.offset(prediction)
-        val (currPos, oldPos) = player.currPos to player.prevPos
+        val (currPos, oldPos) = player.currPos to player.last
 
         val simPlayer = SimulatedPlayer.fromClientPlayer(RotationUtils.modifiedInput)
 
@@ -448,13 +448,13 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
 
         val entityRenderDispatcher = mc.entityRenderDispatcher
 
-        runWithSimulatedPosition(player, player.interpolatedPosition(player.prevPos)) {
-            runWithSimulatedPosition(target, target.interpolatedPosition(target.prevPos)) {
+        runWithSimulatedPosition(player, player.interpolatedPosition(player.last)) {
+            runWithSimulatedPosition(target, target.interpolatedPosition(target.last)) {
                 val rotationVec = player.eyes + getRotationVector(
                     serverRotation.lerpWith(currentRotation ?: player.rotation, mc.timer.partialTick)
                 ) * player.getDistanceToEntityBox(target).coerceAtMost(attackRange.toDouble())
 
-                val offSetBox = box.offset(rotationVec - entityRenderDispatcher.renderPos)
+                val offSetBox = box.offset(rotationVec - entityRenderDispatcher.offset)
 
                 drawBox(offSetBox, aimPointBoxColor)
             }

@@ -70,8 +70,8 @@ object AttackEffects : Module("AttackEffects", Category.RENDER) {
     }
 
     private fun spawnEffectParticle(particleType: ParticleType, target: LivingEntity) {
-        mc.effectRenderer.spawnEffectParticle(
-            particleType.particleID,
+        mc.particleManager.spawnEffectParticle(
+            particleType.id,
             target.x, target.y, target.z,
             target.x, target.y, target.z
         )

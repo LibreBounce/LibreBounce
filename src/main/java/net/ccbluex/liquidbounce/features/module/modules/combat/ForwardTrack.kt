@@ -74,7 +74,7 @@ object ForwardTrack : Module("ForwardTrack", Category.COMBAT) {
 
             val vec = usePosition(target)
 
-            val (x, y, z) = vec - entityRenderDispatcher.renderPos
+            val (x, y, z) = vec - entityRenderDispatcher.offset
 
             when (espMode) {
                 "Box" -> {
@@ -88,7 +88,7 @@ object ForwardTrack : Module("ForwardTrack", Category.COMBAT) {
                     glPushAttrib(GL_ALL_ATTRIB_BITS)
 
                     color(0.6f, 0.6f, 0.6f, 1f)
-                    entityRenderDispatcher.doRenderEntity(
+                    entityRenderDispatcher.render(
                         target,
                         x, y, z,
                         (target.lastYaw..target.yaw).lerpWith(event.partialTicks),
@@ -116,7 +116,7 @@ object ForwardTrack : Module("ForwardTrack", Category.COMBAT) {
                     glLineWidth(wireframeWidth)
 
                     glColor(color)
-                    entityRenderDispatcher.doRenderEntity(
+                    entityRenderDispatcher.render(
                         target,
                         x, y, z,
                         (target.lastYaw..target.yaw).lerpWith(event.partialTicks),
@@ -124,7 +124,7 @@ object ForwardTrack : Module("ForwardTrack", Category.COMBAT) {
                         true
                     )
                     glColor(color)
-                    entityRenderDispatcher.doRenderEntity(
+                    entityRenderDispatcher.render(
                         target,
                         x, y, z,
                         (target.lastYaw..target.yaw).lerpWith(event.partialTicks),

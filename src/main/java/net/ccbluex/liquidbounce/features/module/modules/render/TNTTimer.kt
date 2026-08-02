@@ -61,7 +61,7 @@ object TNTTimer : Module("TNTTimer", Category.RENDER) {
         glPushAttrib(GL_ENABLE_BIT)
         glPushMatrix()
 
-        val (x, y, z) = tnt.interpolatedPosition(tnt.lastTickPos) - entityRenderDispatcher.renderPos
+        val (x, y, z) = tnt.interpolatedPosition(tnt.lastTickPos) - entityRenderDispatcher.offset
 
         // Translate to TNT position
         glTranslated(x, y + 1.5f, z)

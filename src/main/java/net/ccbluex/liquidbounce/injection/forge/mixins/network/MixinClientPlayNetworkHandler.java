@@ -63,7 +63,7 @@ public abstract class MixinClientPlayNetworkHandler {
     @Shadow
     private Minecraft gameController;
     @Shadow
-    private WorldClient clientWorldController;
+    private ClientWorld clientWorldController;
 
     @Inject(method = "handleExplosion", at = @At("HEAD"), cancellable = true)
     private void cancelExplosionMotion(ExplosionS2CPacket packetExplosion, CallbackInfo ci) {
@@ -235,7 +235,7 @@ public abstract class MixinClientPlayNetworkHandler {
 
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, (ClientPlayNetworkHandler) (Object) this, gameController);
         gameController.playerController = new ClientPlayerInteractionManager(gameController, (ClientPlayNetworkHandler) (Object) this);
-        clientWorldController = new WorldClient((ClientPlayNetworkHandler) (Object) this, new WorldSettings(0L, packetIn.getGameMode(), false, packetIn.isHardcoreMode(), packetIn.getWorldType()), packetIn.getDimension(), packetIn.getDifficulty(), gameController.mcProfiler);
+        clientWorldController = new ClientWorld((ClientPlayNetworkHandler) (Object) this, new WorldSettings(0L, packetIn.getGameMode(), false, packetIn.isHardcoreMode(), packetIn.getWorldType()), packetIn.getDimension(), packetIn.getDifficulty(), gameController.mcProfiler);
         gameController.gameOptions.difficulty = packetIn.getDifficulty();
         gameController.loadWorld(clientWorldController);
         gameController.player.dimension = packetIn.getDimension();

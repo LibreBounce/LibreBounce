@@ -42,8 +42,8 @@ object Notifier : Module("Notifier", Category.MISC) {
 
         val currentTime = System.currentTimeMillis()
 
-        for (entity in mc.world.playerEntities) {
-            if (entity.gameProfile.id == player.uuid || isBot(entity)) continue
+        for (entity in mc.world.players) {
+            if (entity.profile.id == player.uuid || isBot(entity)) continue
             val entityDistance = player.getDistanceToEntity(entity).roundToInt()
 
             val lastNotified = recentlyWarned[entity.uuid.toString()] ?: 0L
@@ -95,7 +95,7 @@ object Notifier : Module("Notifier", Category.MISC) {
                 if (onPlayerLeft && packet.action == REMOVE_PLAYER) {
                     for (playerData in packet.entries) {
                         // Different val players? Why?
-                        val players = mc.world.getPlayerEntityByUUID(playerData?.profile?.id)?.gameProfile ?: continue
+                        val players = mc.world.getPlayer(playerData?.profile?.id)?.profile ?: continue
                         if (players.id == player.uuid || players.id in AntiBot.botList) continue
 
                         chat("§7${players.name} §cleft the game.")

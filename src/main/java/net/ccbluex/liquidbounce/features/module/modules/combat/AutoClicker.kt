@@ -24,7 +24,7 @@ import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomClickDelay
 import net.minecraft.client.options.KeyBinding
 import net.minecraft.entity.Entity
 import net.minecraft.entity.living.LivingEntity
-import net.minecraft.item.EnumAction
+import net.minecraft.item.UseAction
 import net.minecraft.item.BlockItem
 import kotlin.random.Random.Default.nextBoolean
 
@@ -118,7 +118,7 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT) {
         return entities.minByOrNull { mc.player.getDistanceToEntityBox(it) }
     }
 
-    private fun shouldAutoRightClick() = mc.player.displayItemInHand?.itemUseAction in arrayOf(EnumAction.BLOCK)
+    private fun shouldAutoRightClick() = mc.player.displayItemInHand?.itemUseAction in arrayOf(UseAction.BLOCK)
 
     private fun handleLeftClick(time: Long, doubleClick: Int) {
         val shouldHit = target == null || if (SmartHit.handleEvents()) SmartHit.shouldHit(target!!) else target!!.damagedTimer <= damagedTimer

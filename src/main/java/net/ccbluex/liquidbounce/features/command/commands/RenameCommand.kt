@@ -17,7 +17,7 @@ object RenameCommand : Command("rename") {
      */
     override fun execute(args: Array<String>) {
         if (args.size > 1) {
-            if (mc.interactionManager.isNotCreative) {
+            if (mc.interactionManager.hasAttackCooldown) {
                 chat("§c§lError: §3You need to be in creative mode.")
                 return
             }
@@ -29,7 +29,7 @@ object RenameCommand : Command("rename") {
                 return
             }
 
-            item.setStackDisplayName(translateAlternateColorCodes(toCompleteString(args, 1)))
+            item.setHoverName(translateAlternateColorCodes(toCompleteString(args, 1)))
             sendPacket(CreativeMenuSlotC2SPacket(36 + mc.player.inventory.selectedSlot, item))
             chat("§3Item renamed to '${item.displayName}§3'")
             return

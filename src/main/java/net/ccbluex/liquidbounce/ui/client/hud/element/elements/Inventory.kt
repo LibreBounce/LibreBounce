@@ -56,7 +56,7 @@ class Inventory : Element("Inventory", 300.0, 50.0) {
         resetColor()
         glColor4f(1F, 1F, 1F, 1F)
 
-        val invDisplayName = mc.player.inventory.displayName.formattedText
+        val invDisplayName = mc.player.inventory.displayName.formattedString
 
         val textLocation = when (title) {
             "Left" -> padding

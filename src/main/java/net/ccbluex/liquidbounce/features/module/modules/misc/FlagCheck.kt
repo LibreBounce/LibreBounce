@@ -250,9 +250,9 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true) {
         }
 
         // Update last position and motion
-        lastPosX = player.prevPosX
-        lastPosY = player.prevPosY
-        lastPosZ = player.prevPosZ
+        lastPosX = player.lastX
+        lastPosY = player.lastY
+        lastPosZ = player.lastZ
 
         lastMotionX = velocityX
         lastMotionY = velocityY
@@ -273,7 +273,7 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true) {
         glPushAttrib(GL_ENABLE_BIT)
         glPushMatrix()
 
-        val (x, y, z) = pos - entityRenderDispatcher.renderPos
+        val (x, y, z) = pos - entityRenderDispatcher.offset
 
         // Translate to block position
         glTranslated(x, y + 2.5, z)

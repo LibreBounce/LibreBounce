@@ -17,7 +17,7 @@ import static net.ccbluex.liquidbounce.utils.client.MinecraftInstance.mc;
 @Mixin(PlayerInventory.class)
 public class MixinPlayerInventory {
 
-    @Redirect(method = {"getCurrentItem", "decrementAnimations", "getStrVsBlock", "canHeldItemHarvest"}, at = @At(value = "FIELD", target = "Lnet/minecraft/entity/living/player/PlayerInventory;selectedSlot:I", opcode = Opcodes.GETFIELD))
+    @Redirect(method = {"getSelectedItem", "decrementAnimations", "getStrVsBlock", "canHeldItemHarvest"}, at = @At(value = "FIELD", target = "Lnet/minecraft/entity/living/player/PlayerInventory;selectedSlot:I", opcode = Opcodes.GETFIELD))
     private int hookSilentHotbar(PlayerInventory instance) {
         if (instance == null || instance.player == null || mc.player == null)
             return instance != null ? instance.selectedSlot : 0;

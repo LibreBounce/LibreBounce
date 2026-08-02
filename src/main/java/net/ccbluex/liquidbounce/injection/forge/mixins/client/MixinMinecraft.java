@@ -72,7 +72,7 @@ public abstract class MixinMinecraft {
     public HitResult crosshairTarget;
 
     @Shadow
-    public WorldClient theWorld;
+    public ClientWorld world;
 
     @Shadow
     public LocalClientPlayerEntity player;
@@ -193,10 +193,10 @@ public abstract class MixinMinecraft {
             EventManager.INSTANCE.call(new KeyEvent(Keyboard.getEventKey() == 0 ? Keyboard.getEventCharacter() + 256 : Keyboard.getEventKey()));
     }
 
-    @Inject(method = "sendClickBlockToController", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/HitResult;getBlockPos()Lnet/minecraft/util/BlockPos;"))
+    @Inject(method = "handleMouseDown", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/HitResult;getBlockPos()Lnet/minecraft/util/BlockPos;"))
     private void onClickBlock(CallbackInfo callbackInfo) {
         final BlockPos pos = crosshairTarget.getBlockPos();
-        if (attackCooldown == 0 && theWorld.getBlockState(pos).getBlock().getMaterial() != Material.air) {
+        if (attackCooldown == 0 && world.getBlockState(pos).getBlock().getMaterial() != Material.air) {
             EventManager.INSTANCE.call(new ClickBlockEvent(pos, crosshairTarget.face));
         }
     }
@@ -251,7 +251,7 @@ public abstract class MixinMinecraft {
 
         if (crosshairTarget != null && crosshairTarget.type == HitResult.Type.BLOCK) {
             BlockPos pos = crosshairTarget.getBlockPos();
-            BlockState blockState = theWorld.getBlockState(pos);
+            BlockState blockState = world.getBlockState(pos);
             // Don't spam-click when interacting with a BlockEntity (chests, ...)
             // Doesn't prevent spam-clicking anvils, crafting tables, ... (couldn't figure out a non-hacky way)
             if (blockState.getBlock().hasBlockEntity(blockState)) return;
@@ -261,9 +261,9 @@ public abstract class MixinMinecraft {
         useKeyCooldown = fastPlace.getSpeed();
     }
 
-    @Inject(method = "loadWorld(Lnet/minecraft/client/multiplayer/WorldClient;Ljava/lang/String;)V", at = @At("HEAD"))
-    private void loadWorld(WorldClient p_loadWorld_1_, String p_loadWorld_2_, final CallbackInfo callbackInfo) {
-        if (theWorld != null) {
+    @Inject(method = "loadWorld(Lnet/minecraft/client/world/ClientWorld;Ljava/lang/String;)V", at = @At("HEAD"))
+    private void loadWorld(ClientWorld p_loadWorld_1_, String p_loadWorld_2_, final CallbackInfo callbackInfo) {
+        if (world != null) {
             MiniMapRegister.INSTANCE.unloadAllChunks();
         }
 
@@ -271,7 +271,7 @@ public abstract class MixinMinecraft {
     }
 
 
-    @Redirect(method = "sendClickBlockToController", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/entity/LocalClientPlayerEntity;isUsingItem()Z"))
+    @Redirect(method = "handleMouseDown", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/entity/LocalClientPlayerEntity;isUsingItem()Z"))
     private boolean injectMultiActions(LocalClientPlayerEntity instance) {
         ItemStack cursorItem = instance.itemInUse;
 
@@ -280,7 +280,7 @@ public abstract class MixinMinecraft {
         return cursorItem != null;
     }
 
-    @Redirect(method = "sendClickBlockToController", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/ClientPlayerInteractionManager;resetBlockRemoving()V"))
+    @Redirect(method = "handleMouseDown", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/ClientPlayerInteractionManager;resetBlockRemoving()V"))
     private void injectAbortBreaking(ClientPlayerInteractionManager instance) {
         if (!AbortBreaking.INSTANCE.handleEvents()) {
             instance.resetBlockRemoving();

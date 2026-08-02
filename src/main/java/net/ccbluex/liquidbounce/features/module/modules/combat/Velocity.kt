@@ -348,7 +348,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
 
         mc.world ?: return@handler
 
-        if (mode != "Click" || !(player.damagedTimer in damagedTimerToAct) || ignoreBlocking && (player.isBlocking || KillAura.blockStatus))
+        if (mode != "Click" || !(player.damagedTimer in damagedTimerToAct) || ignoreBlocking && (player.isSwordBlocking || KillAura.blockStatus))
             return@handler
 
         var entity = mc.crosshairTarget?.entityHit

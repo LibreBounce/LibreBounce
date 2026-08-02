@@ -682,14 +682,14 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
                          * but only if you were releasing the click button immediately after pressing. Does not seem legit
                          * in the long term, right? This is why we are going to set it to [true], so it can send the animation packet.
                          */
-                        mc.sendClickBlockToController(true)
+                        mc.handleMouseDown(true)
                         /**
                          * Since we want to simulate proper clicking behavior, we schedule the block break progress stop
                          * in the next tick, since that is a doable action by the average player.
                          */
                         // TODO: Could this be done for longer, in a randomized manner?
                         nextTick {
-                            mc.sendClickBlockToController(false)
+                            mc.handleMouseDown(false)
 
                             // Swings are sent a tick after stopping the block break progress.
                             clicks = 0
@@ -832,7 +832,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
         if (shouldPrioritize()) return
 
-        if (player.isBlocking && (autoBlock == "Off" && blockStatus || autoBlock == "Packet" && releaseAutoBlock && blockTicks.hasTimePassed(blockLength))) {
+        if (player.isSwordBlocking && (autoBlock == "Off" && blockStatus || autoBlock == "Packet" && releaseAutoBlock && blockTicks.hasTimePassed(blockLength))) {
             stopBlocking()
 
             if (!ignoreTickRule || autoBlock == "Off") {
@@ -860,7 +860,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         }
 
         // Start blocking after attack
-        if (autoBlock != "Off" && (player.isBlocking || canBlock) && (!blinkAutoBlock && isLastClick || blinkAutoBlock && (!blinked || !BlinkUtils.isBlinking))) {
+        if (autoBlock != "Off" && (player.isSwordBlocking || canBlock) && (!blinkAutoBlock && isLastClick || blinkAutoBlock && (!blinked || !BlinkUtils.isBlinking))) {
             startBlocking(entity, interactAutoBlock, autoBlock == "Fake")
         }
 
@@ -882,9 +882,9 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             return player.getDistanceToEntityBox(entity) <= range
         }
 
-        val prediction = entity.currPos.subtract(entity.prevPos).times(2 + predictEnemyPosition.toDouble())
+        val prediction = entity.currPos.subtract(entity.last).times(2 + predictEnemyPosition.toDouble())
         val shape = entity.hitBox.offset(prediction)
-        val (currPos, oldPos) = player.currPos to player.prevPos
+        val (currPos, oldPos) = player.currPos to player.last
 
         val simPlayer = SimulatedPlayer.fromClientPlayer(RotationUtils.modifiedInput)
 
@@ -1012,7 +1012,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         }
 
         // Recreate raycast logic
-        val intercept = targetToCheck.hitBox.calculateIntercept(
+        val intercept = targetToCheck.hitBox.clip(
             eyes, eyes + getRotationVector(currentRotation) * range.toDouble()
         )
 
@@ -1029,7 +1029,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
         if (blockStatus && (!uncpAutoBlock || !blinkAutoBlock) || shouldPrioritize()) return
 
-        if (player.isBlocking) {
+        if (player.isSwordBlocking) {
             blockStatus = true
             renderBlocking = true
             return
@@ -1053,7 +1053,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
                 val lookAt = positionEye.add(vec * maxRange.toDouble())
 
-                val movingObject = shape.calculateIntercept(positionEye, lookAt) ?: return
+                val movingObject = shape.clip(positionEye, lookAt) ?: return
                 val facePos = movingObject.facePos
 
                 sendPackets(
@@ -1083,7 +1083,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         val player = mc.player ?: return
 
         if (!forceStop) {
-            if (blockStatus && !player.isBlocking) {
+            if (blockStatus && !player.isSwordBlocking) {
                 when (unblockMode) {
                     "Stop" -> {
                         sendPacket(PlayerHandActionC2SPacket(RELEASE_USE_ITEM, BlockPos.ORIGIN, Direction.DOWN))
@@ -1163,7 +1163,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         }
 
         // Recreate raycast logic
-        val intercept = targetToCheck.hitBox.calculateIntercept(
+        val intercept = targetToCheck.hitBox.clip(
             eyes, eyes + getRotationVector(currentRotation) * range.toDouble()
         )
 
@@ -1211,7 +1211,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
                 val timestamp = System.currentTimeMillis() - it.startTime
                 val transparency = (0f..255f).lerpWith(1 - (timestamp / fadeSeconds).coerceAtMost(1.0F))
 
-                val offsetBox = box.offset(it.vec3 - entityRenderDispatcher.renderPos)
+                val offsetBox = box.offset(it.vec3 - entityRenderDispatcher.offset)
 
                 RenderUtils.drawBox(offsetBox, colorSettings.color(a = transparency.roundToInt()))
 
@@ -1234,13 +1234,13 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
         val entityRenderDispatcher = mc.entityRenderDispatcher
 
-        runWithSimulatedPosition(player, player.interpolatedPosition(player.prevPos)) {
-            runWithSimulatedPosition(target, target.interpolatedPosition(target.prevPos)) {
+        runWithSimulatedPosition(player, player.interpolatedPosition(player.last)) {
+            runWithSimulatedPosition(target, target.interpolatedPosition(target.last)) {
                 val rotationVec = player.eyes + getRotationVector(
                     serverRotation.lerpWith(currentRotation ?: player.rotation, mc.timer.partialTick)
                 ) * player.getDistanceToEntityBox(target).coerceAtMost(range.toDouble())
 
-                val offSetBox = box.offset(rotationVec - entityRenderDispatcher.renderPos)
+                val offSetBox = box.offset(rotationVec - entityRenderDispatcher.offset)
 
                 RenderUtils.drawBox(offSetBox, aimPointBoxColor)
             }

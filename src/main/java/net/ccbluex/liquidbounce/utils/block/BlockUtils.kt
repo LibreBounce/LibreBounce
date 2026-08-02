@@ -37,7 +37,7 @@ object BlockUtils : MinecraftInstance {
     ): Boolean {
         val state = blockState ?: pos.state ?: return false
 
-        val box = state.block.getCollisionBoundingBox(mc.world, pos, state) ?: return false
+        val box = state.block.getCollisionShape(mc.world, pos, state) ?: return false
 
         // Support blocks like stairs, slab (1x), dragon-eggs, glass-panes, fences, etc
         if (supportPartialBlocks && (box.maxY - box.minY < 1.0 || box.maxX - box.minX < 1.0 || box.maxZ - box.minZ < 1.0)) {
@@ -59,7 +59,7 @@ object BlockUtils : MinecraftInstance {
 
         // Many translucent or non-full blocks have blockBounds set to 1.0
         return block.isFullBlock && block.isBlockNormalCube &&
-                block.blockBoundsMaxX == 1.0 && block.blockBoundsMaxY == 1.0 && block.blockBoundsMaxZ == 1.0
+                block.maxX == 1.0 && block.maxY == 1.0 && block.maxZ == 1.0
     }
 
     /**
@@ -143,7 +143,7 @@ object BlockUtils : MinecraftInstance {
                 val block = pos.block
 
                 if (collide(block)) {
-                    val shape = pos.state?.let { block?.getCollisionBoundingBox(mc.world, pos, it) }
+                    val shape = pos.state?.let { block?.getCollisionShape(mc.world, pos, it) }
                         ?: continue
 
                     if (player.shape.intersectsWith(shape))

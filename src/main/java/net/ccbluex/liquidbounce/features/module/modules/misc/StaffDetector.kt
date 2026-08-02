@@ -98,8 +98,8 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
         alertClearVanish = false
     }
 
-    private fun loadStaffData(serverName: String) {
-        val ip = serverIpMap[serverName] ?: return
+    private fun loadStaffData(name: String) {
+        val ip = serverIpMap[name] ?: return
 
         moduleJobs += SharedScopes.IO.launch {
             loadStaffList(ip)
@@ -107,7 +107,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
     }
 
     private fun checkedStaffRemoved() {
-        mc.networkHandler?.onlinePlayers?.mapNotNullTo(hashSetOf()) { it?.gameProfile?.name }?.let(checkedStaff::retainAll)
+        mc.networkHandler?.onlinePlayers?.mapNotNullTo(hashSetOf()) { it?.profile?.name }?.let(checkedStaff::retainAll)
     }
 
     val onPacket = handler<PacketEvent> { event ->
@@ -229,18 +229,18 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
 
         val playerInfos = synchronized(onlinePlayers) {
             onlinePlayers.mapNotNull { playerInfo ->
-                playerInfo?.gameProfile?.name?.let { playerName ->
-                    playerName to playerInfo.responseTime
+                playerInfo?.profile?.name?.let { playerName ->
+                    playerName to playerInfo.ping
                 }
             }
         }
 
-        playerInfos.forEach { (player, responseTime) ->
+        playerInfos.forEach { (player, ping) ->
             val isStaff = isStaff(player)
 
             val condition = when {
-                responseTime > 0 -> "§e(${responseTime}ms)"
-                responseTime == 0 -> "§a(Joined)"
+                ping > 0 -> "§e(${ping}ms)"
+                ping == 0 -> "§a(Joined)"
                 else -> "§c(Ping error)"
             }
 
@@ -269,14 +269,14 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
             return
         }
 
-        val isStaff = staff is PlayerEntity && isStaff(staff.gameProfile.name)
+        val isStaff = staff is PlayerEntity && isStaff(staff.profile.name)
 
         val condition = when (staff) {
             is PlayerEntity -> {
-                val responseTime = mc.networkHandler?.getOnlinePlayer(staff.uuid)?.responseTime ?: 0
+                val ping = mc.networkHandler?.getOnlinePlayer(staff.uuid)?.ping ?: 0
                 when {
-                    responseTime > 0 -> "§e(${responseTime}ms)"
-                    responseTime == 0 -> "§a(Joined)"
+                    ping > 0 -> "§e(${ping}ms)"
+                    ping == 0 -> "§a(Joined)"
                     else -> "§c(Ping error)"
                 }
             }
@@ -284,7 +284,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
             else -> ""
         }
 
-        val playerName = if (staff is PlayerEntity) staff.gameProfile.name else ""
+        val playerName = if (staff is PlayerEntity) staff.profile.name else ""
 
         val warnings = "§c[STAFF] §d${playerName} §3is a staff §b(Packet) $condition"
 
@@ -348,17 +348,17 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
         }
 
         when (packet) {
-            is LoginS2CPacket -> handleStaff(mc.world.getEntityByID(packet.networkId) ?: null)
-            is AddPlayerS2CPacket -> handleStaff(mc.world.getEntityByID(packet.networkId) ?: null)
-            is EntityTeleportS2CPacket -> handleStaff(mc.world.getEntityByID(packet.networkId) ?: null)
-            is EntityDataS2CPacket -> handleStaff(mc.world.getEntityByID(packet.networkId) ?: null)
-            is EntityStatusEffectS2CPacket -> handleStaff(mc.world.getEntityByID(packet.networkId) ?: null)
-            is EntityRemoveStatusEffectS2CPacket -> handleStaff(mc.world.getEntityByID(packet.networkId) ?: null)
-            is EntityEventS2CPacket -> handleStaff(mc.world.getEntityByID(packet.networkId) ?: null)
+            is LoginS2CPacket -> handleStaff(mc.world.getEntity(packet.networkId) ?: null)
+            is AddPlayerS2CPacket -> handleStaff(mc.world.getEntity(packet.networkId) ?: null)
+            is EntityTeleportS2CPacket -> handleStaff(mc.world.getEntity(packet.networkId) ?: null)
+            is EntityDataS2CPacket -> handleStaff(mc.world.getEntity(packet.networkId) ?: null)
+            is EntityStatusEffectS2CPacket -> handleStaff(mc.world.getEntity(packet.networkId) ?: null)
+            is EntityRemoveStatusEffectS2CPacket -> handleStaff(mc.world.getEntity(packet.networkId) ?: null)
+            is EntityEventS2CPacket -> handleStaff(mc.world.getEntity(packet.networkId) ?: null)
             is EntityHeadAnglesS2CPacket -> handleStaff(packet.getEntity(mc.world) ?: null)
             is EntitySyncS2CPacket -> handleStaff(packet.getEntity(mc.world) ?: null)
-            is AttachEntityS2CPacket -> handleStaff(mc.world.getEntityByID(packet.networkId) ?: null)
-            is EntityEquipmentS2CPacket -> handleStaff(mc.world.getEntityByID(packet.networkId) ?: null)
+            is AttachEntityS2CPacket -> handleStaff(mc.world.getEntity(packet.networkId) ?: null)
+            is EntityEquipmentS2CPacket -> handleStaff(mc.world.getEntity(packet.networkId) ?: null)
             is PlayerInfoS2CPacket -> handlePlayerList(packet)
         }
     }
