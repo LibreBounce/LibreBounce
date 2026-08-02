@@ -53,8 +53,8 @@ object MiscUtils : MinecraftInstance {
             Java: ${System.getProperty("java.version")} (Vendor: ${System.getProperty("java.vendor")})
         """.trimIndent()
 
-        if (mc.currentServerData != null) {
-            val serverData = mc.currentServerData
+        if (mc.currentServerEntry != null) {
+            val serverData = mc.currentServerEntry
             base += """
                 Server address: ${serverData.serverIP}
                 Server version: ${serverData.gameVersion}

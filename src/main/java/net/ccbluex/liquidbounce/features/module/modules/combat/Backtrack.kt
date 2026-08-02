@@ -29,7 +29,7 @@ import net.minecraft.client.render.platform.GlStateManager.color
 import net.minecraft.entity.Entity
 import net.minecraft.entity.living.LivingEntity
 import net.minecraft.entity.living.player.PlayerEntity
-import net.minecraft.network.Packet
+import net.minecraft.network.packet.Packet
 import net.minecraft.network.packet.c2s.handshake.HandshakeC2SPacket
 import net.minecraft.network.packet.s2c.play.*
 import net.minecraft.network.packet.c2s.query.ServerStatusC2SPacket
@@ -111,7 +111,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
 
         if (Blink.blinkingReceive() || event.isCancelled) return@handler
 
-        if (mc.isSingleplayer || mc.currentServerData == null) {
+        if (mc.isSingleplayer || mc.currentServerEntry == null) {
             clearPackets()
             return@handler
         }
@@ -140,10 +140,10 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
             }
 
             is EntityDataS2CPacket -> if (target?.networkId == packet.networkId) {
-                val metadata = packet.func_149376_c() ?: return@handler
+                val metadata = packet.dataEntries() ?: return@handler
 
                 metadata.forEach {
-                    if (it.dataValueId == 6) {
+                    if (it.id == 6) {
                         val objectValue = it.getObject().toString().toDoubleOrNull()
                         if (objectValue != null && !objectValue.isNaN() && objectValue <= 0.0) {
                             clearPackets()
@@ -242,7 +242,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
     }
 
     val onRender3D = handler<Render3DEvent> { event ->
-        val manager = mc.renderManager ?: return@handler
+        val manager = mc.entityRenderDispatcher ?: return@handler
 
         if (!shouldBacktrack() || !shouldRender) return@handler
 

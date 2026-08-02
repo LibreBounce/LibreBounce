@@ -41,7 +41,7 @@ object Regen : Module("Regen", Category.PLAYER) {
                 !mc.interactionManager.gameIsSurvivalOrAdventure()
                 || noAir && !serverOnGround
                 || foodStats.foodLevel <= food
-                || !isEntityAlive
+                || !isAlive
                 || health >= healthToRegen
                 || (potionEffect && !hasStatusEffect(Potion.regeneration))
                 || !timer.hasTimePassed(delay)

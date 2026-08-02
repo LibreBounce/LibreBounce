@@ -252,8 +252,8 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
         return content;
     }
 
-    @Inject(method = "swingItem", at = @At("HEAD"), cancellable = true)
-    private void swingItem(CallbackInfo callbackInfo) {
+    @Inject(method = "swingArm", at = @At("HEAD"), cancellable = true)
+    private void swingArm(CallbackInfo callbackInfo) {
         final NoSwing noSwing = NoSwing.INSTANCE;
 
         if (noSwing.handleEvents()) {
@@ -318,7 +318,7 @@ public abstract class MixinLocalClientPlayerEntity extends MixinClientPlayerEnti
             }
 
             inPortal = false;
-        } else if (hasStatusEffect(Potion.confusion) && getActivePotionEffect(Potion.confusion).getDuration() > 60) {
+        } else if (hasStatusEffect(Potion.confusion) && getEffectInstance(Potion.confusion).getDuration() > 60) {
             timeInPortal += 0.006666667F;
 
             if (timeInPortal > 1f) {

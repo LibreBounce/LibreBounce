@@ -25,7 +25,7 @@ object OldNCP : FlyMode("OldNCP") {
             }
 
             tryJump()
-            swingItem()
+            swingArm()
         }
     }
 

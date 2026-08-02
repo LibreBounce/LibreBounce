@@ -82,7 +82,7 @@ public abstract class MixinBlock {
     private void isCollidable(CallbackInfoReturnable<Boolean> callbackInfoReturnable) {
         final GhostHand ghostHand = GhostHand.INSTANCE;
 
-        if (ghostHand.handleEvents() && !(ghostHand.getBlock() == Block.getIdFromBlock((Block) (Object) this))) {
+        if (ghostHand.handleEvents() && !(ghostHand.getBlock() == Block.getId((Block) (Object) this))) {
             callbackInfoReturnable.setReturnValue(false);
         }
     }

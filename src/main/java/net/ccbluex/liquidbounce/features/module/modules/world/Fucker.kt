@@ -18,7 +18,7 @@ import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.extensions.eyes
 import net.ccbluex.liquidbounce.utils.extensions.onPlayerRightClick
 import net.ccbluex.liquidbounce.utils.extensions.rotation
-import net.ccbluex.liquidbounce.utils.extensions.swingItem
+import net.ccbluex.liquidbounce.utils.extensions.swingArm
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBlockBox
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBlockDamageText
 import net.ccbluex.liquidbounce.utils.rotation.RotationSettings
@@ -149,9 +149,9 @@ object Fucker : Module("Fucker", Category.WORLD) {
             } else if (surroundings && obstructingPos == null) {
                 val eyes = player.eyes
                 val spotToBed = faceBlock(currentPos) ?: return@handler
-                val blockPos = world.rayTraceBlocks(eyes, spotToBed.vec, false, false, true)?.blockPos
-                if (blockPos != null && blockPos.block != air && blockPos != currentPos) {
-                    obstructingPos = blockPos
+                val pos = world.rayTraceBlocks(eyes, spotToBed.vec, false, false, true)?.pos
+                if (pos != null && pos.block != air && pos != currentPos) {
+                    obstructingPos = pos
                     currentPos = obstructingPos!!
                 }
             } else if (obstructingPos != null) {
@@ -161,8 +161,8 @@ object Fucker : Module("Fucker", Category.WORLD) {
                     val spotToObstruction = faceBlock(currentPos) ?: return@handler
                     val rayTraceResultToObstruction = world.rayTraceBlocks(eyes, spotToObstruction.vec, false, false, true)
                     // If a new block is blocking it, reset and re-evaluate next cycle.
-                    if (rayTraceResultToObstruction?.blockPos != currentPos &&
-                        rayTraceResultToObstruction?.typeOfHit == net.minecraft.world.HitResult.Type.BLOCK
+                    if (rayTraceResultToObstruction?.pos != currentPos &&
+                        rayTraceResultToObstruction?.type == net.minecraft.world.HitResult.Type.BLOCK
                     ) {
                         obstructingPos = null
                         return@handler
@@ -170,8 +170,8 @@ object Fucker : Module("Fucker", Category.WORLD) {
                     val spotToBed = faceBlock(pos!!) ?: return@handler
                     val rayTraceToBed = world.rayTraceBlocks(eyes, spotToBed.vec, false, false, true)
                     // Target bed if it's open
-                    if (rayTraceToBed?.blockPos == pos &&
-                        rayTraceToBed.typeOfHit == net.minecraft.world.HitResult.Type.BLOCK
+                    if (rayTraceToBed?.pos == pos &&
+                        rayTraceToBed.type == net.minecraft.world.HitResult.Type.BLOCK
                     ) {
                         obstructingPos = null
                         currentPos = pos!!
@@ -207,7 +207,7 @@ object Fucker : Module("Fucker", Category.WORLD) {
      * Check if the bed at the given position is near the spawn location
      */
     private fun isBedNearSpawn(currentPos: BlockPos): Boolean {
-        if (currentPos.block != Block.getBlockById(block) || spawnLocation == null) {
+        if (currentPos.block != Block.byId(block) || spawnLocation == null) {
             return false
         }
         return spawnLocation!!.squareDistanceTo(currentPos.center) < ownBedDist * ownBedDist
@@ -240,13 +240,13 @@ object Fucker : Module("Fucker", Category.WORLD) {
                     return@handler
                 }
 
-                EventManager.call(ClickBlockEvent(currentPos, raytrace.sideHit))
+                EventManager.call(ClickBlockEvent(currentPos, raytrace.face))
 
                 if (instant && !hypixel) {
                     // CivBreak style block breaking
-                    sendPacket(PlayerHandActionC2SPacket(START_DESTROY_BLOCK, currentPos, raytrace.sideHit))
-                    if (swing) player.swingItem()
-                    sendPacket(PlayerHandActionC2SPacket(STOP_DESTROY_BLOCK, currentPos, raytrace.sideHit))
+                    sendPacket(PlayerHandActionC2SPacket(START_DESTROY_BLOCK, currentPos, raytrace.face))
+                    if (swing) player.swingArm()
+                    sendPacket(PlayerHandActionC2SPacket(STOP_DESTROY_BLOCK, currentPos, raytrace.face))
                     clearTarget(currentPos)
                     return@handler
                 }
@@ -255,35 +255,35 @@ object Fucker : Module("Fucker", Category.WORLD) {
 
                 if (currentDamage == 0F) {
                     // Prevent flagging FastBreak
-                    sendPacket(PlayerHandActionC2SPacket(STOP_DESTROY_BLOCK, currentPos, raytrace.sideHit))
+                    sendPacket(PlayerHandActionC2SPacket(STOP_DESTROY_BLOCK, currentPos, raytrace.face))
                     nextTick {
-                        sendPacket(PlayerHandActionC2SPacket(START_DESTROY_BLOCK, currentPos, raytrace.sideHit))
+                        sendPacket(PlayerHandActionC2SPacket(START_DESTROY_BLOCK, currentPos, raytrace.face))
                     }
                     if (player.abilities.creativeMode ||
                         block.getPlayerRelativeBlockHardness(player, world, currentPos) >= 1f
                     ) {
-                        if (swing) player.swingItem()
-                        controller.onPlayerDestroyBlock(currentPos, raytrace.sideHit)
+                        if (swing) player.swingArm()
+                        controller.onPlayerDestroyBlock(currentPos, raytrace.face)
                         clearTarget(currentPos)
                         return@handler
                     }
                 }
 
-                if (swing) player.swingItem()
+                if (swing) player.swingArm()
                 currentDamage += block.getPlayerRelativeBlockHardness(player, world, currentPos)
                 world.sendBlockBreakProgress(player.networkId, currentPos, (currentDamage * 10F).toInt() - 1)
 
                 if (currentDamage >= 1F) {
-                    sendPacket(PlayerHandActionC2SPacket(STOP_DESTROY_BLOCK, currentPos, raytrace.sideHit))
-                    controller.onPlayerDestroyBlock(currentPos, raytrace.sideHit)
+                    sendPacket(PlayerHandActionC2SPacket(STOP_DESTROY_BLOCK, currentPos, raytrace.face))
+                    controller.onPlayerDestroyBlock(currentPos, raytrace.face)
                     blockHitDelay = 4
                     clearTarget(currentPos)
                 }
             }
             // Use block
             action == "Use" -> {
-                if (player.onPlayerRightClick(currentPos, raytrace.sideHit, raytrace.hitVec, player.displayItemInHand)) {
-                    player.swingItem(!swing)
+                if (player.onPlayerRightClick(currentPos, raytrace.face, raytrace.facePos, player.displayItemInHand)) {
+                    player.swingArm(!swing)
                     blockHitDelay = 4
                     clearTarget(currentPos)
                 }
@@ -338,15 +338,15 @@ object Fucker : Module("Fucker", Category.WORLD) {
     /**
      * Checks if the block is hittable (or allowed to be hit through walls)
      */
-    private fun isHittable(blockPos: BlockPos): Boolean {
+    private fun isHittable(pos: BlockPos): Boolean {
         val player = mc.player ?: return false
         return when (throughWalls) {
             "Raycast" -> {
                 val eyesPos = player.eyes
-                val movingObjectPosition = mc.world.rayTraceBlocks(eyesPos, blockPos.center, false, true, false)
-                movingObjectPosition != null && movingObjectPosition.blockPos == blockPos
+                val movingObjectPosition = mc.world.rayTraceBlocks(eyesPos, pos.center, false, true, false)
+                movingObjectPosition != null && movingObjectPosition.pos == pos
             }
-            "Around" -> Direction.entries.any { !isBlockBBValid(blockPos.offset(it)) }
+            "Around" -> Direction.entries.any { !isBlockBBValid(pos.offset(it)) }
             else -> true
         }
     }

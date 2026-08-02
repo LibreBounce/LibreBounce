@@ -102,7 +102,7 @@ object Nuker : Module("Nuker", Category.WORLD, gameDetecting = false) {
         if (!mc.interactionManager.isInCreativeMode) {
             val validBlocks = searchBlocks(radius.roundToInt() + 1, null) { pos, block ->
                 if (getCenterDistance(pos) <= radius && validBlock(block)) {
-                    if (!allBlocks && Block.getIdFromBlock(block) != blocks) {
+                    if (!allBlocks && Block.getId(block) != blocks) {
                         return@searchBlocks false
                     }
 
@@ -113,7 +113,7 @@ object Nuker : Module("Nuker", Category.WORLD, gameDetecting = false) {
 
                     // Through Walls: Just break blocks in your sight
                     // Raytrace player eyes to block position (through walls check) and check if block is visible
-                    throughWalls || world.rayTraceBlocks(eyes, pos.center, false, true, false)?.blockPos == pos
+                    throughWalls || world.rayTraceBlocks(eyes, pos.center, false, true, false)?.pos == pos
                 } else false // Bad block
             }
 
@@ -141,48 +141,48 @@ object Nuker : Module("Nuker", Category.WORLD, gameDetecting = false) {
                 else -> return@handler // Handle invalid priority
             }
 
-            for ((blockPos, block) in sortedBlocks) {
+            for ((pos, block) in sortedBlocks) {
                 // Reset current damage in case of block switch
-                if (blockPos != currentBlock) currentDamage = 0F
+                if (pos != currentBlock) currentDamage = 0F
 
                 // Change head rotations to next block
                 if (options.rotationsActive) {
-                    val rotation = faceBlock(blockPos) ?: return@handler // In case of a mistake. Prevent flag.
+                    val rotation = faceBlock(pos) ?: return@handler // In case of a mistake. Prevent flag.
 
                     setTargetRotation(rotation.rotation, options = options)
                 }
 
                 // Set next target block
-                currentBlock = blockPos
-                attackedBlocks += blockPos
+                currentBlock = pos
+                attackedBlocks += pos
 
-                EventManager.call(ClickBlockEvent(blockPos, Direction.DOWN))
+                EventManager.call(ClickBlockEvent(pos, Direction.DOWN))
 
                 // Start block breaking
                 if (currentDamage == 0F) {
-                    sendPacket(PlayerHandActionC2SPacket(START_DESTROY_BLOCK, blockPos, Direction.DOWN))
+                    sendPacket(PlayerHandActionC2SPacket(START_DESTROY_BLOCK, pos, Direction.DOWN))
 
                     // End block break if able to break instant
-                    if (block.getPlayerRelativeBlockHardness(player, world, blockPos) >= 1F) {
+                    if (block.getPlayerRelativeBlockHardness(player, world, pos) >= 1F) {
                         currentDamage = 0F
-                        player.swingItem()
-                        mc.interactionManager.onPlayerDestroyBlock(blockPos, Direction.DOWN)
+                        player.swingArm()
+                        mc.interactionManager.onPlayerDestroyBlock(pos, Direction.DOWN)
                         blockHitDelay = hitDelay
-                        validBlocks -= blockPos
+                        validBlocks -= pos
                         nukedCount++
                         continue // Next break
                     }
                 }
 
                 // Break block
-                player.swingItem()
-                currentDamage += block.getPlayerRelativeBlockHardness(player, world, blockPos)
-                world.sendBlockBreakProgress(player.networkId, blockPos, (currentDamage * 10F).toInt() - 1)
+                player.swingArm()
+                currentDamage += block.getPlayerRelativeBlockHardness(player, world, pos)
+                world.sendBlockBreakProgress(player.networkId, pos, (currentDamage * 10F).toInt() - 1)
 
                 // End of breaking block
                 if (currentDamage >= 1F) {
-                    sendPacket(PlayerHandActionC2SPacket(STOP_DESTROY_BLOCK, blockPos, Direction.DOWN))
-                    mc.interactionManager.onPlayerDestroyBlock(blockPos, Direction.DOWN)
+                    sendPacket(PlayerHandActionC2SPacket(STOP_DESTROY_BLOCK, pos, Direction.DOWN))
+                    mc.interactionManager.onPlayerDestroyBlock(pos, Direction.DOWN)
                     blockHitDelay = hitDelay
                     currentDamage = 0F
                 }
@@ -205,12 +205,12 @@ object Nuker : Module("Nuker", Category.WORLD, gameDetecting = false) {
                     // ThroughWalls: Only break blocks in sight
                     // Raytrace player eyes to block position (through walls check) and check if block is visible
                     val isVisible =
-                        throughWalls || world.rayTraceBlocks(eyes, pos.center, false, true, false)?.blockPos == pos
+                        throughWalls || world.rayTraceBlocks(eyes, pos.center, false, true, false)?.pos == pos
 
                     if (isVisible) {
                         // Instant break block
                         sendPacket(PlayerHandActionC2SPacket(START_DESTROY_BLOCK, pos, Direction.DOWN))
-                        player.swingItem()
+                        player.swingArm()
                         sendPacket(PlayerHandActionC2SPacket(STOP_DESTROY_BLOCK, pos, Direction.DOWN))
                         attackedBlocks += pos
                     }

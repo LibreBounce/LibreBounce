@@ -63,10 +63,10 @@ object TeleportCommand : Command("tp", "teleport") {
         // TODO: Should try to check for collisions by offsetting player's collision box instead
         val rayTrace = mc.player.rayTrace(500.0, 1f)
 
-        if (rayTrace == null || rayTrace.typeOfHit != BLOCK)
+        if (rayTrace == null || rayTrace.type != BLOCK)
             return emptyList()
 
-        val (x, y, z) = rayTrace.blockPos ?: return emptyList()
+        val (x, y, z) = rayTrace.pos ?: return emptyList()
 
         val suggestion = when (args.size) {
             1 -> x

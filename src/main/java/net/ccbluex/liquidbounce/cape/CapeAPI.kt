@@ -7,8 +7,8 @@ package net.ccbluex.liquidbounce.cape
 
 import net.ccbluex.liquidbounce.file.FileManager.dir
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
-import net.minecraft.client.renderer.IImageBuffer
-import net.minecraft.client.renderer.ThreadDownloadImageData
+import net.minecraft.client.render.texture.HttpImageProcessor
+import net.minecraft.client.render.texture.HttpTexture
 import net.minecraft.resource.Identifier
 import java.awt.image.BufferedImage
 import java.io.File
@@ -37,7 +37,7 @@ object CapeAPI : MinecraftInstance {
                 val resourceLocation = Identifier("capes/$name.png")
                 val cacheFile = File(capesCache, "$name.png")
                 val capeInfo = CapeInfo(resourceLocation)
-                val threadDownloadImageData = ThreadDownloadImageData(cacheFile, url, null, object : IImageBuffer {
+                val httpTexture = HttpTexture(cacheFile, url, null, object : HttpImageProcessor {
 
                     override fun parseUserSkin(image: BufferedImage?) = image
 
@@ -46,7 +46,7 @@ object CapeAPI : MinecraftInstance {
                     }
                 })
 
-                mc.textureManager.loadTexture(resourceLocation, threadDownloadImageData)
+                mc.textureManager.load(resourceLocation, httpTexture)
 
                 success(capeInfo)
             }.onFailure {

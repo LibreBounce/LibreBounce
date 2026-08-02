@@ -133,7 +133,7 @@ object PointerESP : Module("PointerESP", Category.RENDER) {
             val rotX = -(pos1 * cos + pos2 * sin)
             val arrowAngle = (atan2(rotY, rotX) * 180 / PI).toFloat() + 90f
 
-            if (player.getSquaredDistanceToToEntity(entity) > maxRenderDistanceSq) continue
+            if (player.getSquaredDistanceToEntity(entity) > maxRenderDistanceSq) continue
 
             val colorAlpha = colors.color().alpha
 

@@ -94,7 +94,7 @@ object AutoSoup : Module("AutoSoup", Category.COMBAT) {
             var bowlMovable = false
 
             for (i in 9..36) {
-                val cursorItem = player.inventory.getStackInSlot(i)
+                val cursorItem = player.inventory.getItem(i)
 
                 if (cursorItem == null || (cursorItem.item == Items.bowl && cursorItem.size < 64)) {
                     bowlMovable = true

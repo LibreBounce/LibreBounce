@@ -86,7 +86,7 @@ object AutoAccount :
 
     private fun relog(info: String = "") {
         // Disconnect from server
-        if (mc.currentServerData != null && mc.world != null)
+        if (mc.currentServerEntry != null && mc.world != null)
             mc.networkHandler.networkManager.closeChannel(
                 LiteralText("$info\n\nReconnecting with a random account in ${reconnectDelay}ms")
             )
@@ -224,7 +224,7 @@ object AutoAccount :
                 .randomOrNull() ?: return
             mc.session = Session(
                 account.session.username, account.session.uuid,
-                account.session.token, account.session.type
+                account.session.accessToken, account.session.type
             )
             call(SessionUpdateEvent)
             return

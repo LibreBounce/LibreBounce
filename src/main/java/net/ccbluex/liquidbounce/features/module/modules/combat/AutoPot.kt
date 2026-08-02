@@ -143,7 +143,7 @@ object AutoPot : Module("AutoPot", Category.COMBAT) {
             val effects = (stack.item as PotionItem).getEffects(stack)
             if (effects.isEmpty()) continue
 
-            fun hasPotionEffect(id: Int) = effects.any { it.potionID == id }
+            fun hasPotionEffect(id: Int) = effects.any { it.id == id }
 
             when {
                 player.health <= health && healPotion && hasPotionEffect(heal.id) -> return i

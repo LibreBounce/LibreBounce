@@ -30,7 +30,7 @@ object NCP : FlyMode("NCP") {
 
             velocityX *= 0.1
             velocityZ *= 0.1
-            swingItem()
+            swingArm()
         }
     }
 

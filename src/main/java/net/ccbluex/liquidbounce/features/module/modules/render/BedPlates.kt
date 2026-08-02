@@ -104,7 +104,7 @@ object BedPlates : Module("BedPlates", Category.RENDER) {
 
         override fun compareTo(other: SurroundingBlock): Int = compareValuesBy(
             this, other,
-            { it.layer }, { -it.count }, { it.block.unlocalizedName })
+            { it.layer }, { -it.count }, { it.block.key })
     }
 
     private data class BedState(
@@ -190,7 +190,7 @@ object BedPlates : Module("BedPlates", Category.RENDER) {
 
     private fun drawPlate(bedState: BedState) {
         val player = mc.player ?: return
-        val renderManager = mc.renderManager ?: return
+        val entityRenderDispatcher = mc.entityRenderDispatcher ?: return
         val rotateX = if (mc.options.perspective == 2) -1.0f else 1.0f
 
         val rainbowOffset = System.currentTimeMillis() % 10000 / 10000F
@@ -214,13 +214,13 @@ object BedPlates : Module("BedPlates", Category.RENDER) {
         glDepthMask(false)
 
         glTranslated(
-            bedState.pos.xCoord - renderManager.viewerPosX,
-            bedState.pos.yCoord - renderManager.viewerPosY + renderYOffset + 1,
-            bedState.pos.zCoord - renderManager.viewerPosZ
+            bedState.pos.xCoord - entityRenderDispatcher.viewerPosX,
+            bedState.pos.yCoord - entityRenderDispatcher.viewerPosY + renderYOffset + 1,
+            bedState.pos.zCoord - entityRenderDispatcher.viewerPosZ
         )
 
-        glRotatef(-renderManager.playerViewY, 0F, 1F, 0F)
-        glRotatef(renderManager.playerViewX * rotateX, 1F, 0F, 0F)
+        glRotatef(-entityRenderDispatcher.playerViewY, 0F, 1F, 0F)
+        glRotatef(entityRenderDispatcher.playerViewX * rotateX, 1F, 0F, 0F)
         glScalef(-scale.toFloat(), -scale.toFloat(), scale.toFloat())
 
         // TODO: replace with layer blocks

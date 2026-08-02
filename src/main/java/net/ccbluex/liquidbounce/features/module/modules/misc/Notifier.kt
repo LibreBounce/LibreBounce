@@ -52,7 +52,7 @@ object Notifier : Module("Notifier", Category.MISC) {
             val displayItemInHand = entity.displayItemInHand?.item ?: continue
 
             when {
-                onPlayerDeath && (entity.removed || !entity.isEntityAlive) -> {
+                onPlayerDeath && (entity.removed || !entity.isAlive) -> {
                     chat("§7${entity.name} has §cdied §a(${entityDistance}m)")
                     recentlyWarned[entity.uuid.toString()] = currentTime
                 }

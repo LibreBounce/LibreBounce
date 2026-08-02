@@ -87,7 +87,7 @@ class FallingPlayer(
     private fun rayTrace(start: Vec3d, end:Vec3d): BlockPos? {
         val result = mc.world.rayTraceBlocks(start, end, true) ?: return null
 
-        return if (result.typeOfHit == BLOCK && result.sideHit == Direction.UP) result.blockPos
+        return if (result.type == BLOCK && result.face == Direction.UP) result.pos
         else null
     }
 

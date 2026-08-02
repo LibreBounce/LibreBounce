@@ -220,7 +220,7 @@ object AntiVoid : Module("AntiVoid", Category.MOVEMENT) {
 
         val (x, y, z) = detectedLocation ?: return@handler
 
-        val renderManager = mc.renderManager
+        val entityRenderDispatcher = mc.entityRenderDispatcher
 
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         glEnable(GL_BLEND)
@@ -232,12 +232,12 @@ object AntiVoid : Module("AntiVoid", Category.MOVEMENT) {
         glColor(Color(255, 0, 0, 90))
         drawFilledBox(
             Box.of(
-                x - renderManager.renderPosX,
-                y + 1 - renderManager.renderPosY,
-                z - renderManager.renderPosZ,
-                x - renderManager.renderPosX + 1.0,
-                y + 1.2 - renderManager.renderPosY,
-                z - renderManager.renderPosZ + 1.0
+                x - entityRenderDispatcher.renderPosX,
+                y + 1 - entityRenderDispatcher.renderPosY,
+                z - entityRenderDispatcher.renderPosZ,
+                x - entityRenderDispatcher.renderPosX + 1.0,
+                y + 1.2 - entityRenderDispatcher.renderPosY,
+                z - entityRenderDispatcher.renderPosZ + 1.0
             )
         )
 

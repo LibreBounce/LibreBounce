@@ -111,7 +111,7 @@ public class OutlineUtils {
         // Adds the depth and stencil extension
         // Args: Target (GL_RENDERBUFFER_EXT), Extension (GL_DEPTH_STENCIL_EXT),
         // Width, Height
-        glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, EXTPackedDepthStencil.GL_DEPTH_STENCIL_EXT, mc.displayWidth, mc.displayHeight);
+        glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, EXTPackedDepthStencil.GL_DEPTH_STENCIL_EXT, mc.width, mc.height);
         // Adds the stencil attachment
         // Args: Target (GL_FRAMEBUFFER_EXT), Attachment
         // (GL_STENCIL_ATTACHMENT_EXT), Target (GL_RENDERBUFFER_EXT), ID

@@ -39,7 +39,7 @@ object AutoWeapon : Module("AutoWeapon", Category.COMBAT, subjective = true) {
 
             // Find the best weapon in hotbar (#Kotlin Style)
             val (slot, _) = (0..8)
-                .map { it to player.inventory.getStackInSlot(it) }
+                .map { it to player.inventory.getItem(it) }
                 .filter {
                     it.second != null && ((onlySword && it.second.item is SwordItem)
                             || (!onlySword && (it.second.item is SwordItem || it.second.item is ToolItem)))

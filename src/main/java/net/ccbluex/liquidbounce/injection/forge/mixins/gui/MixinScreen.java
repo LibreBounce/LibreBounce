@@ -75,7 +75,7 @@ public abstract class MixinScreen {
             final Window scaledResolution = new Window(mc);
             final int width = scaledResolution.getScaledWidth();
             final int height = scaledResolution.getScaledHeight();
-            ParticleUtils.INSTANCE.drawParticles(Mouse.getX() * width / mc.displayWidth, height - Mouse.getY() * height / mc.displayHeight - 1);
+            ParticleUtils.INSTANCE.drawParticles(Mouse.getX() * width / mc.width, height - Mouse.getY() * height / mc.height - 1);
         }
     }
 
@@ -119,7 +119,7 @@ public abstract class MixinScreen {
             }
 
             if (ClientConfiguration.INSTANCE.getParticles()) {
-                ParticleUtils.INSTANCE.drawParticles(Mouse.getX() * width / mc.displayWidth, height - Mouse.getY() * height / mc.displayHeight - 1);
+                ParticleUtils.INSTANCE.drawParticles(Mouse.getX() * width / mc.width, height - Mouse.getY() * height / mc.height - 1);
             }
 
             callbackInfo.cancel();
@@ -129,7 +129,7 @@ public abstract class MixinScreen {
     @Inject(method = "drawBackground", at = @At("RETURN"))
     private void drawParticles(final CallbackInfo callbackInfo) {
         if (ClientConfiguration.INSTANCE.getParticles())
-            ParticleUtils.INSTANCE.drawParticles(Mouse.getX() * width / mc.displayWidth, height - Mouse.getY() * height / mc.displayHeight - 1);
+            ParticleUtils.INSTANCE.drawParticles(Mouse.getX() * width / mc.width, height - Mouse.getY() * height / mc.height - 1);
     }
 
     @Inject(method = "sendMessage(Ljava/lang/String;Z)V", at = @At("HEAD"), cancellable = true)

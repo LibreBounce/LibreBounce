@@ -39,9 +39,9 @@ object FastStairs : Module("FastStairs", Category.MOVEMENT) {
             if (!onGround)
                 return@handler
 
-            val blockPos = BlockPos(this)
+            val pos = BlockPos(this)
 
-            if (blockPos.block is StairsBlock && !walkingDown) {
+            if (pos.block is StairsBlock && !walkingDown) {
                 setPosition(x, y + 0.5, z)
 
                 val motion = when (mode) {
@@ -55,7 +55,7 @@ object FastStairs : Module("FastStairs", Category.MOVEMENT) {
                 velocityZ *= motion
             }
 
-            if (blockPos.down().block is StairsBlock) {
+            if (pos.down().block is StairsBlock) {
                 if (walkingDown) {
                     when (mode) {
                         "NCP" -> velocityY = -1.0

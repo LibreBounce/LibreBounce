@@ -31,17 +31,17 @@ object EnchantCommand : Command("enchant") {
             val enchantID = try {
                 args[1].toInt()
             } catch (e: NumberFormatException) {
-                val enchantment = Enchantment.getEnchantmentByLocation(args[1])
+                val enchantment = Enchantment.byKey(args[1])
 
                 if (enchantment == null) {
                     chat("There is no enchantment with the name '${args[1]}'")
                     return
                 }
 
-                enchantment.effectId
+                enchantment.id
             }
 
-            val enchantment = Enchantment.getEnchantmentById(enchantID)
+            val enchantment = Enchantment.byId(enchantID)
 
             if (enchantment == null) {
                 chat("There is no enchantment with the ID '$enchantID'")
@@ -57,7 +57,7 @@ object EnchantCommand : Command("enchant") {
 
             item.addEnchantment(enchantment, level)
             sendPacket(CreativeMenuSlotC2SPacket(36 + mc.player.inventory.selectedSlot, item))
-            chat("${enchantment.getTranslatedName(level)} added to ${item.displayName}.")
+            chat("${enchantment.getName(level)} added to ${item.displayName}.")
             return
         }
         chatSyntax("enchant <type> [level]")
@@ -68,7 +68,7 @@ object EnchantCommand : Command("enchant") {
 
         return when (args.size) {
             1 -> {
-                return Enchantment.func_181077_c()
+                return Enchantment.getKeys()
                     .map { it.resourcePath.lowercase() }
                     .filter { it.startsWith(args[0], true) }
             }

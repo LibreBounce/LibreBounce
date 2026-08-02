@@ -51,7 +51,7 @@ public class MixinItemInHandLayer {
 
         int slot = SilentHotbar.INSTANCE.renderSlot(module.handleEvents() && module.getKeepItemInHandInThirdPerson());
 
-        ItemStack itemstack = entity instanceof LocalClientPlayerEntity ? ((LocalClientPlayerEntity) entity).inventory.getStackInSlot(slot) : entity.getDisplayItemInHand();
+        ItemStack itemstack = entity instanceof LocalClientPlayerEntity ? ((LocalClientPlayerEntity) entity).inventory.getItem(slot) : entity.getDisplayItemInHand();
 
         if (itemstack != null) {
             pushMatrix();

@@ -34,7 +34,7 @@ object AutoTool : Module("AutoTool", Category.PLAYER, subjective = true, gameDet
             var fastest = 1f
 
             val slot = (0..8).maxByOrNull {
-                val item = inventory.getStackInSlot(it) ?: return@maxByOrNull 1f
+                val item = inventory.getItem(it) ?: return@maxByOrNull 1f
 
                 item.getStrVsBlock(block).also { speed -> fastest = fastest.coerceAtLeast(speed) }
             } ?: return@handler

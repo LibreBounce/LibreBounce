@@ -66,7 +66,7 @@ public abstract class MixinGuiInGame extends GuiElement {
 
         int slot = SilentHotbar.INSTANCE.renderSlot(module.handleEvents() && module.getKeepHighlightedName());
 
-        return instance.getStackInSlot(slot);
+        return instance.getItem(slot);
     }
 
     @Inject(method = "renderTooltip", at = @At("HEAD"), cancellable = true)

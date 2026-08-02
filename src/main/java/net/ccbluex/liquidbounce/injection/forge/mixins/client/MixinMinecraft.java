@@ -29,7 +29,7 @@ import net.minecraft.client.entity.living.player.LocalClientPlayerEntity;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.render.Window;
 import net.minecraft.client.ClientPlayerInteractionManager;
-import net.minecraft.client.multiplayer.WorldClient;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.client.options.GameOptions;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.entity.living.player.PlayerInventory;
@@ -66,7 +66,7 @@ public abstract class MixinMinecraft {
     public boolean skipRenderWorld;
 
     @Shadow
-    private int leftClickCounter;
+    private int attackCooldown;
 
     @Shadow
     public HitResult crosshairTarget;
@@ -81,10 +81,10 @@ public abstract class MixinMinecraft {
     public ClientPlayerInteractionManager playerController;
 
     @Shadow
-    public int displayWidth;
+    public int width;
 
     @Shadow
-    public int displayHeight;
+    public int height;
 
     @Shadow
     public int useKeyCooldown;
@@ -100,9 +100,9 @@ public abstract class MixinMinecraft {
 
     @Inject(method = "run", at = @At("HEAD"))
     private void init(CallbackInfo callbackInfo) {
-        if (displayWidth < 1067) displayWidth = 1067;
+        if (width < 1067) width = 1067;
 
-        if (displayHeight < 622) displayHeight = 622;
+        if (height < 622) height = 622;
 
         liquidBounce$preloadFuture = LiquidBounce.INSTANCE.preload();
     }
@@ -195,9 +195,9 @@ public abstract class MixinMinecraft {
 
     @Inject(method = "sendClickBlockToController", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/HitResult;getBlockPos()Lnet/minecraft/util/BlockPos;"))
     private void onClickBlock(CallbackInfo callbackInfo) {
-        final BlockPos blockPos = crosshairTarget.getBlockPos();
-        if (leftClickCounter == 0 && theWorld.getBlockState(blockPos).getBlock().getMaterial() != Material.air) {
-            EventManager.INSTANCE.call(new ClickBlockEvent(blockPos, crosshairTarget.sideHit));
+        final BlockPos pos = crosshairTarget.getBlockPos();
+        if (attackCooldown == 0 && theWorld.getBlockState(pos).getBlock().getMaterial() != Material.air) {
+            EventManager.INSTANCE.call(new ClickBlockEvent(pos, crosshairTarget.face));
         }
     }
 
@@ -222,24 +222,24 @@ public abstract class MixinMinecraft {
         MiscUtils.showErrorPopup(crashReport.getCrashCause(), "Game crashed! ", MiscUtils.generateCrashInfo());
     }
 
-    @Inject(method = "clickMouse", at = @At("HEAD"))
-    private void clickMouse(CallbackInfo callbackInfo) {
+    @Inject(method = "doAttack", at = @At("HEAD"))
+    private void doAttack(CallbackInfo callbackInfo) {
         if (AutoClicker.INSTANCE.handleEvents()) {
-            leftClickCounter = 0;
+            attackCooldown = 0;
         }
 
-        if (leftClickCounter <= 0) {
+        if (attackCooldown <= 0) {
             CPSCounter.INSTANCE.registerClick(CPSCounter.MouseButton.LEFT);
         }
     }
 
-    @Inject(method = "middleClickMouse", at = @At("HEAD"))
-    private void middleClickMouse(CallbackInfo ci) {
+    @Inject(method = "doPick", at = @At("HEAD"))
+    private void doPick(CallbackInfo ci) {
         CPSCounter.INSTANCE.registerClick(CPSCounter.MouseButton.MIDDLE);
     }
 
-    @Inject(method = "rightClickMouse", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;useKeyCooldown:I", shift = At.Shift.AFTER))
-    private void rightClickMouse(final CallbackInfo callbackInfo) {
+    @Inject(method = "doUse", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;useKeyCooldown:I", shift = At.Shift.AFTER))
+    private void doUse(final CallbackInfo callbackInfo) {
         CPSCounter.INSTANCE.registerClick(CPSCounter.MouseButton.RIGHT);
 
         final FastPlace fastPlace = FastPlace.INSTANCE;
@@ -249,9 +249,9 @@ public abstract class MixinMinecraft {
         if (fastPlace.getOnlyBlocks() && (player.getDisplayItemInHand() == null || !(player.getDisplayItemInHand().getItem() instanceof BlockItem)))
             return;
 
-        if (crosshairTarget != null && crosshairTarget.typeOfHit == HitResult.Type.BLOCK) {
-            BlockPos blockPos = crosshairTarget.getBlockPos();
-            BlockState blockState = theWorld.getBlockState(blockPos);
+        if (crosshairTarget != null && crosshairTarget.type == HitResult.Type.BLOCK) {
+            BlockPos pos = crosshairTarget.getBlockPos();
+            BlockState blockState = theWorld.getBlockState(pos);
             // Don't spam-click when interacting with a BlockEntity (chests, ...)
             // Doesn't prevent spam-clicking anvils, crafting tables, ... (couldn't figure out a non-hacky way)
             if (blockState.getBlock().hasBlockEntity(blockState)) return;
@@ -292,7 +292,7 @@ public abstract class MixinMinecraft {
         return TickBase.INSTANCE.getDuringTickModification() || instance.isEmpty();
     }
 
-    @Redirect(method = {"middleClickMouse", "rightClickMouse"}, at = @At(value = "FIELD", target = "Lnet/minecraft/entity/living/player/PlayerInventory;selectedSlot:I"))
+    @Redirect(method = {"doPick", "doUse"}, at = @At(value = "FIELD", target = "Lnet/minecraft/entity/living/player/PlayerInventory;selectedSlot:I"))
     private int injectSilentHotbar(PlayerInventory instance) {
         return SilentHotbar.INSTANCE.getCurrentSlot();
     }

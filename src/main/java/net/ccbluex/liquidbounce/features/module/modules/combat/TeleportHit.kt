@@ -34,7 +34,7 @@ object TeleportHit : Module("TeleportHit", Category.COMBAT) {
         val player = mc.player ?: return@handler
 
         if (mc.options.attackKey.isPressed && isSelected(facedEntity, true)) {
-            if (facedEntity?.getSquaredDistanceToToEntity(player)!! >= 1) targetEntity = facedEntity as LivingEntity
+            if (facedEntity?.getSquaredDistanceToEntity(player)!! >= 1) targetEntity = facedEntity as LivingEntity
         }
 
         targetEntity?.let {

@@ -50,9 +50,9 @@ object Projectiles : Module("Projectiles", Category.RENDER, gameDetecting = fals
 
     val onRender3D = handler<Render3DEvent> {
         val world = mc.world ?: return@handler
-        val renderManager = mc.renderManager
+        val entityRenderDispatcher = mc.entityRenderDispatcher
 
-        for (entity in world.loadedEntityList) {
+        for (entity in world.entities) {
             if (entity !is LivingEntity) continue
             val heldStack = entity.displayItemInHand ?: continue
             
@@ -181,7 +181,7 @@ object Projectiles : Module("Projectiles", Category.RENDER, gameDetecting = fals
                 // Check if arrow is landing
                 if (landingPosition != null) {
                     hasLanded = true
-                    posAfter = landingPosition.hitVec.copy()
+                    posAfter = landingPosition.facePos.copy()
                 }
 
                 // Set arrow box
@@ -239,8 +239,8 @@ object Projectiles : Module("Projectiles", Category.RENDER, gameDetecting = fals
 
                 // Draw path
                 worldRenderer.pos(
-                    x - renderManager.renderPosX, y - renderManager.renderPosY,
-                    z - renderManager.renderPosZ
+                    x - entityRenderDispatcher.renderPosX, y - entityRenderDispatcher.renderPosY,
+                    z - entityRenderDispatcher.renderPosZ
                 ).endVertex()
             }
 
@@ -262,14 +262,14 @@ object Projectiles : Module("Projectiles", Category.RENDER, gameDetecting = fals
             glHint(GL_LINE_SMOOTH_HINT, GL_NICEST)
 
             glTranslated(
-                x - renderManager.renderPosX,
-                y - renderManager.renderPosY,
-                z - renderManager.renderPosZ
+                x - entityRenderDispatcher.renderPosX,
+                y - entityRenderDispatcher.renderPosY,
+                z - entityRenderDispatcher.renderPosZ
             )
 
             if (landingPosition != null) {
                 // Accurate landing position checking
-                when (landingPosition.sideHit!!) {
+                when (landingPosition.face!!) {
                     Direction.DOWN -> glRotatef(90F, 0F, 1F, 0F)
                     Direction.UP -> glRotatef(-90F, 0F, 1F, 0F)
                     Direction.NORTH -> glRotatef(-90F, 1F, 0F, 0F)
@@ -317,7 +317,7 @@ object Projectiles : Module("Projectiles", Category.RENDER, gameDetecting = fals
                 begin(GL_LINE_STRIP, DefaultVertexFormat.POSITION)
 
                 for ((_, pos, alpha) in positions) {
-                    val interpolatePos = pos - renderManager.renderPos
+                    val interpolatePos = pos - entityRenderDispatcher.renderPos
 
                     val color = when (entity) {
                         is ArrowEntity -> Color(255, 0, 0)
@@ -350,7 +350,7 @@ object Projectiles : Module("Projectiles", Category.RENDER, gameDetecting = fals
 
         val currentTime = System.currentTimeMillis()
 
-        for (entity in world.loadedEntityList) {
+        for (entity in world.entities) {
             if (entity == null) {
                 trailPositions.clear()
                 continue
@@ -383,7 +383,7 @@ object Projectiles : Module("Projectiles", Category.RENDER, gameDetecting = fals
         }
 
         // Remove entities that are no longer in the world
-        val worldEntities = world.loadedEntityList.toHashSet()
+        val worldEntities = world.entities.toHashSet()
         trailPositions.keys.removeIf { it !in worldEntities && trailPositions[it]?.all { (_, _, alpha) -> alpha <= 0 } == true }
     }
 

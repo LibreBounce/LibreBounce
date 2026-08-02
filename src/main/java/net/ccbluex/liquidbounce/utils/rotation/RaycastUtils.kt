@@ -62,7 +62,7 @@ object RaycastUtils : MinecraftInstance {
                         blockReachDistance = 0.0
                     }
                 } else if (movingObjectPosition != null) {
-                    val eyeDistance = eyePosition.distanceTo(movingObjectPosition.hitVec)
+                    val eyeDistance = eyePosition.distanceTo(movingObjectPosition.facePos)
 
                     if (eyeDistance < blockReachDistance || blockReachDistance == 0.0) {
                         if (entity == renderViewEntity.vehicle && !renderViewEntity.canRiderInteract()) {
@@ -120,7 +120,7 @@ object RaycastUtils : MinecraftInstance {
             }
 
             if (mc.crosshairTarget != null) {
-                d1 = mc.crosshairTarget.hitVec.distanceTo(vec3)
+                d1 = mc.crosshairTarget.facePos.distanceTo(vec3)
             }
 
             var targetEntity: Entity? = null
@@ -144,17 +144,17 @@ object RaycastUtils : MinecraftInstance {
                     if (box.contains(vec3)) {
                         if (d2 >= 0) {
                             targetEntity = entity1
-                            vec33 = if (intercept == null) vec3 else intercept.hitVec
+                            vec33 = if (intercept == null) vec3 else intercept.facePos
                             d2 = 0.0
                         }
                     } else if (intercept != null) {
-                        val d3 = vec3.distanceTo(intercept.hitVec)
+                        val d3 = vec3.distanceTo(intercept.facePos)
 
-                        if (!isVisible(intercept.hitVec)) {
+                        if (!isVisible(intercept.facePos)) {
                             if (d3 <= wallRange) {
                                 if (d3 < d2 || d2 == 0.0) {
                                     targetEntity = entity1
-                                    vec33 = intercept.hitVec
+                                    vec33 = intercept.facePos
                                     d2 = d3
                                 }
                             }
@@ -166,11 +166,11 @@ object RaycastUtils : MinecraftInstance {
                             if (entity1 === entity.vehicle && !entity.canRiderInteract()) {
                                 if (d2 == 0.0) {
                                     targetEntity = entity1
-                                    vec33 = intercept.hitVec
+                                    vec33 = intercept.facePos
                                 }
                             } else {
                                 targetEntity = entity1
-                                vec33 = intercept.hitVec
+                                vec33 = intercept.facePos
                                 d2 = d3
                             }
                         }

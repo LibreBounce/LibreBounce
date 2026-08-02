@@ -189,7 +189,7 @@ object LiquidChat : Module(
 
                 when {
                     jwt -> client.loginJWT(jwtToken)
-                    UserUtils.isValidTokenOffline(mc.session.token) -> client.loginMojang()
+                    UserUtils.isValidTokenOffline(mc.session.accessToken) -> client.loginMojang()
                 }
             }
         } catch (cause: Exception) {

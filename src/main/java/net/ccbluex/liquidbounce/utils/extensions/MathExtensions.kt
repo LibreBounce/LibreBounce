@@ -25,7 +25,7 @@ import kotlin.math.roundToInt
 /**
  * Provides:
  * ```
- * val (x, y, z) = blockPos
+ * val (x, y, z) = pos
  */
 operator fun Vec3i.component1() = x
 operator fun Vec3i.component2() = y

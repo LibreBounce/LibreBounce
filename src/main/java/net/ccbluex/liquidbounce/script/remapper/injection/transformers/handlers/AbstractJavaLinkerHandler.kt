@@ -21,7 +21,7 @@ object AbstractJavaLinkerHandler {
      * Handle member set name to hashmap of AbstractJavaLinkerHandler
      *
      * Name will be remapped from srgs
-     * Example: swingItem to func_71038_i
+     * Example: swingArm to func_71038_i
      *
      * @class jdk/internal/dynalink/beans/AbstractJavaLinker
      * @method addMember(Ljava/lang/String;Ljava/lang/reflect/AccessibleObject;Ljava/util/Map;)V

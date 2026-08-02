@@ -51,10 +51,10 @@ object ProphuntESP : Module("ProphuntESP", Category.RENDER, gameDetecting = fals
     private val entities by EntityLookup<FallingBlockEntity>()
         .filter { !onLook || isLookingOnEntities(it, maxAngleDifference.toDouble()) }
         .filter { thruBlocks || isEntityHeightVisible(it) }
-        .filter { mc.player.getSquaredDistanceToToEntity(it) <= maxRenderDistanceSq }
+        .filter { mc.player.getSquaredDistanceToEntity(it) <= maxRenderDistanceSq }
 
-    fun recordBlock(blockPos: BlockPos) {
-        blocks[blockPos] = System.currentTimeMillis()
+    fun recordBlock(pos: BlockPos) {
+        blocks[pos] = System.currentTimeMillis()
     }
 
     override fun onDisable() {
@@ -93,7 +93,7 @@ object ProphuntESP : Module("ProphuntESP", Category.RENDER, gameDetecting = fals
 
         for (entity in entities) {
             try {
-                mc.renderManager.renderEntityStatic(entity, mc.timer.renderPartialTicks, true)
+                mc.entityRenderDispatcher.renderEntityStatic(entity, mc.timer.partialTick, true)
             } catch (ex: Exception) {
                 LOGGER.error("An error occurred while rendering all entities for shader esp", ex)
             }

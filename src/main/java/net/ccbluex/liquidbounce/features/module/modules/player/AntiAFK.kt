@@ -65,7 +65,7 @@ object AntiAFK : Module("AntiAFK", Category.PLAYER, gameDetecting = false) {
                     }
 
                     1 -> {
-                        if (!player.armSwinging) player.swingItem()
+                        if (!player.armSwinging) player.swingArm()
                         delayTimer.reset()
                     }
 
@@ -77,7 +77,7 @@ object AntiAFK : Module("AntiAFK", Category.PLAYER, gameDetecting = false) {
 
                     3 -> {
                         player.inventory.selectedSlot = nextInt(0, 9)
-                        mc.interactionManager.syncCurrentPlayItem()
+                        mc.interactionManager.updateSelectedHotbarSlot()
                         delayTimer.reset()
                     }
 
@@ -108,7 +108,7 @@ object AntiAFK : Module("AntiAFK", Category.PLAYER, gameDetecting = false) {
                 }
 
                 if (swing && !player.armSwinging && swingDelayTimer.hasTimePassed(swingDelay)) {
-                    player.swingItem()
+                    player.swingArm()
                     swingDelayTimer.reset()
                 }
             }

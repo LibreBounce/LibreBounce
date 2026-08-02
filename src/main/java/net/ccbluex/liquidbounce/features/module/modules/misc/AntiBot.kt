@@ -218,7 +218,7 @@ object AntiBot : Module("AntiBot", Category.MISC) {
     val onUpdate = handler<UpdateEvent>(always = true) {
         mc.world ?: return@handler
 
-        mc.world.loadedEntityList.forEach { entity ->
+        mc.world.entities.forEach { entity ->
             if (entity !is PlayerEntity) return@forEach
             val profile = entity.gameProfile ?: return@forEach
 
@@ -308,7 +308,7 @@ object AntiBot : Module("AntiBot", Category.MISC) {
 
 
                     if (speed in 0.45..0.46 && (!entity.isSprinting || !entity.isMoving ||
-                                entity.getActivePotionEffect(Potion.moveSpeed) == null)
+                                entity.getEffectInstance(Potion.moveSpeed) == null)
                     ) {
                         invalidSpeedList += entity.networkId
                     }

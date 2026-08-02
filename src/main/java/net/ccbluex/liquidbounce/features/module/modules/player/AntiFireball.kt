@@ -52,7 +52,7 @@ object AntiFireball : Module("AntiFireball", Category.PLAYER) {
 
         target = null
 
-        for (entity in mc.world.loadedEntityList.filterIsInstance<ProjectileEntity>()
+        for (entity in mc.world.entities.filterIsInstance<ProjectileEntity>()
             .sortedBy { player.getDistanceToBox(it.hitBox) }) {
             val nearestPoint = getNearestPointBB(player.eyes, entity.hitBox)
             val entityPrediction = entity.currPos - entity.prevPos
@@ -83,7 +83,7 @@ object AntiFireball : Module("AntiFireball", Category.PLAYER) {
         val player = mc.player ?: return@handler
         val t = Window(mc)
 
-        for (entity in mc.world.loadedEntityList) {
+        for (entity in mc.world.entities) {
             if (entity.name == "Fireball") {
                 distance = floor(player.getDistanceToEntity(entity))
                 displayName = entity.name
@@ -167,7 +167,7 @@ object AntiFireball : Module("AntiFireball", Category.PLAYER) {
             || isRotationFaced(entity, range.toDouble(), rotation)
         ) {
             player.attackEntityWithModifiedSprint(entity) {
-                if (swing != "Off") player.swingItem(swing == "Packet")
+                if (swing != "Off") player.swingArm(swing == "Packet")
             }
             target = null
         }

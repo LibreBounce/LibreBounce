@@ -70,7 +70,7 @@ object AutoRod : Module("AutoRod", Category.COMBAT) {
                 if (switchBack != -1 && player.inventory.selectedSlot != switchBack) {
                     // Switch back to previous item
                     player.inventory.selectedSlot = switchBack
-                    mc.interactionManager.syncCurrentPlayItem()
+                    mc.interactionManager.updateSelectedHotbarSlot()
                 } else {
                     // Stop using rod
                     player.stopUsingItem()
@@ -142,7 +142,7 @@ object AutoRod : Module("AutoRod", Category.COMBAT) {
                     switchBack = player.inventory.selectedSlot
 
                     player.inventory.selectedSlot = rod
-                    mc.interactionManager.syncCurrentPlayItem()
+                    mc.interactionManager.updateSelectedHotbarSlot()
                 }
 
                 rod()
@@ -175,7 +175,7 @@ object AutoRod : Module("AutoRod", Category.COMBAT) {
     private fun getAllNearbyEnemies(): List<Entity> {
         val player = mc.player ?: return emptyList()
 
-        return mc.world.loadedEntityList.filter {
+        return mc.world.entities.filter {
             isSelected(it, true) && player.getDistanceToEntityBox(it) < activationDistance
         }
     }

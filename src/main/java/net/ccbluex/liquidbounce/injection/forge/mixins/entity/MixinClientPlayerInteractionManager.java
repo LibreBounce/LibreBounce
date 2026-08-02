@@ -31,7 +31,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @SideOnly(Side.CLIENT)
 public class MixinClientPlayerInteractionManager {
 
-    @Inject(method = "attackEntity", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/ClientPlayerInteractionManager;syncCurrentPlayItem()V"))
+    @Inject(method = "attackEntity", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/ClientPlayerInteractionManager;updateSelectedHotbarSlot()V"))
     private void attackEntity(PlayerEntity entityPlayer, Entity targetEntity, CallbackInfo callbackInfo) {
         EventManager.INSTANCE.call(new AttackEvent(targetEntity));
         CooldownHelper.INSTANCE.resetLastAttackedTicks();
@@ -56,7 +56,7 @@ public class MixinClientPlayerInteractionManager {
         InventoryUtils.INSTANCE.getCLICK_TIMER().reset();
     }
 
-    @Redirect(method = "syncCurrentPlayItem", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/living/player/PlayerInventory;selectedSlot:I"))
+    @Redirect(method = "updateSelectedHotbarSlot", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/living/player/PlayerInventory;selectedSlot:I"))
     private int hookSilentHotbarA(PlayerInventory instance) {
         SilentHotbar silentHotbar = SilentHotbar.INSTANCE;
 

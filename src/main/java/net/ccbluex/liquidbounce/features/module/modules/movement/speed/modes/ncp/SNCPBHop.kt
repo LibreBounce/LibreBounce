@@ -137,7 +137,7 @@ object SNCPBHop : SpeedMode("SNCPBHop") {
     private val baseMoveSpeed: Double
         get() {
             var baseSpeed = 0.2873
-            if (mc.player.hasStatusEffect(Potion.moveSpeed)) baseSpeed *= 1.0 + 0.2 * (mc.player.getActivePotionEffect(
+            if (mc.player.hasStatusEffect(Potion.moveSpeed)) baseSpeed *= 1.0 + 0.2 * (mc.player.getEffectInstance(
                 Potion.moveSpeed
             ).amplifier + 1)
             return baseSpeed

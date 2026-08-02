@@ -24,7 +24,7 @@ object RemoteViewCommand : Command("remoteview", "rv") {
 
         val targetName = args[1]
 
-        for (entity in mc.world.loadedEntityList) {
+        for (entity in mc.world.entities) {
             if (targetName == entity.name) {
                 mc.renderViewEntity = entity
                 chat("Now viewing perspective of §8${entity.name}§3.")

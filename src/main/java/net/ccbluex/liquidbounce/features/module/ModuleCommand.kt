@@ -151,7 +151,7 @@ class ModuleCommand(val module: Module, val values: Collection<Value<*>> = modul
                             val id = try {
                                 args[2].toInt()
                             } catch (exception: NumberFormatException) {
-                                val tmpId = Block.getBlockFromName(args[2])?.let { Block.getIdFromBlock(it) }
+                                val tmpId = Block.byKey(args[2])?.let { Block.getId(it) }
 
                                 if (tmpId == null || tmpId <= 0) {
                                     chat("§7Block §8${args[2]}§7 does not exist!")
@@ -224,7 +224,7 @@ class ModuleCommand(val module: Module, val values: Collection<Value<*>> = modul
             2 -> {
                 when (module[args[0]]) {
                     is BlockValue -> {
-                        return Item.itemRegistry.keys.mapNotNull {
+                        return Item.REGISTRY.keys.mapNotNull {
                             it.resourcePath.lowercase().takeIf { it.startsWith(args[1], true) }
                         }
 

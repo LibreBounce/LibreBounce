@@ -152,7 +152,7 @@ class ScoreboardElement(
                         try {
                             val nameWithoutFormatting = name?.replace(Formatting.RESET.toString(), "")
                                 ?.replace(Regex("[\u00a7&][0-9a-fk-or]"), "")?.trim()
-                            val trimmedServerIP = mc.currentServerData?.serverIP?.trim()?.lowercase() ?: ""
+                            val trimmedServerIP = mc.currentServerEntry?.serverIP?.trim()?.lowercase() ?: ""
 
                             val domainRegex =
                                 Regex("\\b(?:[a-zA-Z0-9](?:[a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])?\\.)+[a-zA-Z]{2,63}\\b")
@@ -199,7 +199,7 @@ class ScoreboardElement(
                             try {
                                 val nameWithoutFormatting = title.replace(Formatting.RESET.toString(), "")
                                     .replace(Regex("[\u00a7&][0-9a-fk-or]"), "").trim()
-                                val trimmedServerIP = mc.currentServerData?.serverIP?.trim()?.lowercase() ?: ""
+                                val trimmedServerIP = mc.currentServerEntry?.serverIP?.trim()?.lowercase() ?: ""
 
                                 val domainRegex =
                                     Regex("\\b(?:[a-zA-Z0-9](?:[a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])?\\.)+[a-zA-Z]{2,63}\\b")

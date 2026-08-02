@@ -50,12 +50,12 @@ fun Entity.getDistanceToBox(box: Box) = eyes.distanceTo(getNearestPointBB(eyes, 
 
 fun LocalClientPlayerEntity.isNearEdge(threshold: Float): Boolean {
     val playerPos = Vec3d(x, y, z)
-    val blockPos = BlockPos(playerPos)
+    val pos = BlockPos(playerPos)
 
     val mutable = BlockPos.Mutable()
     for (x in -3..3) {
         for (z in -3..3) {
-            val checkPos = mutable.set(blockPos, x, -1, z)
+            val checkPos = mutable.set(pos, x, -1, z)
             if (world.isAirBlock(checkPos)) {
                 val checkPosCenter = Vec3d(checkPos.x + 0.5, checkPos.y.toDouble(), checkPos.z + 0.5)
                 val distance = playerPos.distanceTo(checkPosCenter)
@@ -187,9 +187,9 @@ operator fun LocalClientPlayerEntity.plusAssign(value: Float) {
 }
 
 fun Entity.interpolatedPosition(start: Vec3d, extraHeight: Float? = null) =Vec3d(
-    start.xCoord + (x - start.xCoord) * mc.timer.renderPartialTicks,
-    start.yCoord + (y - start.yCoord) * mc.timer.renderPartialTicks + (extraHeight ?: 0f),
-    start.zCoord + (z - start.zCoord) * mc.timer.renderPartialTicks
+    start.xCoord + (x - start.xCoord) * mc.timer.partialTick,
+    start.yCoord + (y - start.yCoord) * mc.timer.partialTick + (extraHeight ?: 0f),
+    start.zCoord + (z - start.zCoord) * mc.timer.partialTick
 )
 
 fun LocalClientPlayerEntity.stopY() {
@@ -224,7 +224,7 @@ fun LocalClientPlayerEntity.onPlayerRightClick(
 ): Boolean {
     val controller = mc.interactionManager ?: return false
 
-    controller.syncCurrentPlayItem()
+    controller.updateSelectedHotbarSlot()
 
     if (clickPos !in world.worldBorder)
         return false
@@ -288,7 +288,7 @@ fun LocalClientPlayerEntity.sendUseItem(stack: ItemStack): Boolean {
     if (mc.interactionManager.isSpectator)
         return false
 
-    mc.interactionManager?.syncCurrentPlayItem()
+    mc.interactionManager?.updateSelectedHotbarSlot()
 
     sendPacket(PlayerUseC2SPacket(stack))
 
@@ -313,8 +313,8 @@ fun LocalClientPlayerEntity.tryJump() {
     }
 }
 
-fun LocalClientPlayerEntity.swingItem(silent: Boolean) {
-    if (silent) sendPacket(ArmSwingC2SPacket()) else swingItem()
+fun LocalClientPlayerEntity.swingArm(silent: Boolean) {
+    if (silent) sendPacket(ArmSwingC2SPacket()) else swingArm()
 }
 
 inline fun LocalClientPlayerEntity.attackEntityWithModifiedSprint(

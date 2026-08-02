@@ -96,10 +96,10 @@ class Particle {
         y = (y + ySpeed);
         x = (x + xSpeed);
 
-        if (y > mc.displayHeight)
+        if (y > mc.height)
             y = 1;
 
-        if (x > mc.displayWidth)
+        if (x > mc.width)
             x = 1;
 
         if (x < 1)

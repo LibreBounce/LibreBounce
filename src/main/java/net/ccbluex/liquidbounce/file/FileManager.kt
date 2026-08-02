@@ -25,7 +25,7 @@ private val FILE_CONFIGS = ArrayList<FileConfig>()
 @SideOnly(Side.CLIENT)
 object FileManager : MinecraftInstance, Iterable<FileConfig> by FILE_CONFIGS {
 
-    val dir = File(mc.mcDataDir, "$CLIENT_NAME-$MINECRAFT_VERSION")
+    val dir = File(mc.gameDir, "$CLIENT_NAME-$MINECRAFT_VERSION")
     val fontsDir = File(dir, "fonts")
     val settingsDir = File(dir, "settings")
     val themesDir = File(dir, "themes")

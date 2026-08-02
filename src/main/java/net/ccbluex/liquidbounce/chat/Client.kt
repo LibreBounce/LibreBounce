@@ -144,7 +144,7 @@ abstract class Client : ClientListener, MinecraftInstance {
             try {
                 val sessionHash = packet.sessionHash
 
-                mc.sessionService.joinServer(mc.session.profile, mc.session.token, sessionHash)
+                mc.sessionService.joinServer(mc.session.profile, mc.session.accessToken, sessionHash)
                 username = mc.session.username
                 jwt = false
 

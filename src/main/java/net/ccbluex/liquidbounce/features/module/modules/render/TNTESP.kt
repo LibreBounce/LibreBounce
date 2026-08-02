@@ -33,7 +33,7 @@ object TNTESP : Module("TNTESP", Category.RENDER) {
 
         val width = lineWidth.takeIf { mode == "Lines" }
 
-        mc.world.loadedEntityList.forEach {
+        mc.world.entities.forEach {
             if (it !is PrimedTntEntity) return@forEach
 
             if (dangerZoneDome) {

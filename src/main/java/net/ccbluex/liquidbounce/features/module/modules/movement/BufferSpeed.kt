@@ -70,7 +70,7 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT) {
             return@handler
         }
 
-        val blockPos = BlockPos(player)
+        val pos = BlockPos(player)
 
         if (forceDown || down && player.velocityY == 0.0) {
             player.velocityY = -1.0
@@ -94,7 +94,7 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT) {
         if (player.onGround) {
             fastHop = false
 
-            if (slime && (blockPos.down().block is SlimeBlock || blockPos.block is SlimeBlock)) {
+            if (slime && (pos.down().block is SlimeBlock || pos.block is SlimeBlock)) {
                 player.tryJump()
 
                 player.velocityX = player.velocityY * 1.132
@@ -104,7 +104,7 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT) {
                 down = true
                 return@handler
             }
-            if (slabs && blockPos.block is SlabBlock) {
+            if (slabs && pos.block is SlabBlock) {
                 when (slabsMode) {
                     "Old" -> {
                         boost(slabsBoost)
@@ -129,7 +129,7 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT) {
                     }
                 }
             }
-            if (stairs && (blockPos.down().block is StairsBlock || blockPos.block is StairsBlock)) {
+            if (stairs && (pos.down().block is StairsBlock || pos.block is StairsBlock)) {
                 when (stairsMode) {
                     "Old" -> {
                         boost(stairsBoost)
@@ -156,17 +156,17 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT) {
             }
             legitHop = true
 
-            if (headBlock && blockPos.up(2).block != air) {
+            if (headBlock && pos.up(2).block != air) {
                 boost(headBlockBoost)
                 return@handler
             }
 
-            if (doIce && blockPos.down().block.let { it == ice || it == packed_ice }) {
+            if (doIce && pos.down().block.let { it == ice || it == packed_ice }) {
                 boost(iceBoost)
                 return@handler
             }
 
-            if (snow && blockPos.block == snow_layer && (snowPort || player.y - player.y.toInt() >= 0.12500)) {
+            if (snow && pos.block == snow_layer && (snowPort || player.y - player.y.toInt() >= 0.12500)) {
                 if (player.y - player.y.toInt() >= 0.12500) {
                     boost(snowBoost)
                 } else {
@@ -251,10 +251,10 @@ object BufferSpeed : Module("BufferSpeed", Category.MOVEMENT) {
                 BlockPos(player.x - 0.7, player.y + 1, player.z)
             )
 
-            for (blockPos in blocks) {
-                val blockState = mc.world.getBlockState(blockPos)
+            for (pos in blocks) {
+                val blockState = mc.world.getBlockState(pos)
 
-                val collisionBoundingBox = blockState.block.getCollisionBoundingBox(mc.world, blockPos, blockState)
+                val collisionBoundingBox = blockState.block.getCollisionBoundingBox(mc.world, pos, blockState)
 
                 if ((collisionBoundingBox == null || collisionBoundingBox.maxX ==
                             collisionBoundingBox.minY + 1) &&

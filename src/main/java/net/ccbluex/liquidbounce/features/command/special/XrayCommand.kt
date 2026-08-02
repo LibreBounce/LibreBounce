@@ -17,11 +17,11 @@ object XrayCommand : Command("xray") {
                 if (args.size > 2) {
                     try {
                         val block = try {
-                            Block.getBlockById(args[2].toInt())
+                            Block.byId(args[2].toInt())
                         } catch (exception: NumberFormatException) {
-                            val tmpBlock = Block.getBlockFromName(args[2])
+                            val tmpBlock = Block.byKey(args[2])
 
-                            if (tmpBlock == null || Block.getIdFromBlock(tmpBlock) <= 0) {
+                            if (tmpBlock == null || Block.getId(tmpBlock) <= 0) {
                                 chat("§7Block §8${args[2]}§7 does not exist!")
                                 return
                             }
@@ -36,7 +36,7 @@ object XrayCommand : Command("xray") {
 
                         XRay.xrayBlocks += block
                         saveConfig(xrayConfig)
-                        chat("§7Added block §8${block.localizedName}§7.")
+                        chat("§7Added block §8${block.name}§7.")
                         playEdit()
                     } catch (exception: NumberFormatException) {
                         chatSyntaxError()
@@ -53,11 +53,11 @@ object XrayCommand : Command("xray") {
                 if (args.size > 2) {
                     try {
                         val block = try {
-                            Block.getBlockById(args[2].toInt())
+                            Block.byId(args[2].toInt())
                         } catch (exception: NumberFormatException) {
-                            val tmpBlock = Block.getBlockFromName(args[2])
+                            val tmpBlock = Block.byKey(args[2])
 
-                            if (tmpBlock == null || Block.getIdFromBlock(tmpBlock) <= 0) {
+                            if (tmpBlock == null || Block.getId(tmpBlock) <= 0) {
                                 chat("§7Block §8${args[2]}§7 does not exist!")
                                 return
                             }
@@ -72,7 +72,7 @@ object XrayCommand : Command("xray") {
 
                         XRay.xrayBlocks.remove(block)
                         saveConfig(xrayConfig)
-                        chat("§7Removed block §8${block.localizedName}§7.")
+                        chat("§7Removed block §8${block.name}§7.")
                         playEdit()
                     } catch (exception: NumberFormatException) {
                         chatSyntaxError()
@@ -86,7 +86,7 @@ object XrayCommand : Command("xray") {
 
             if (args[1].equals("list", ignoreCase = true)) {
                 chat("§8Xray blocks:")
-                XRay.xrayBlocks.forEach { chat("§8${it.localizedName} §7-§c ${Block.getIdFromBlock(it)}") }
+                XRay.xrayBlocks.forEach { chat("§8${it.name} §7-§c ${Block.getId(it)}") }
                 return
             }
         }
@@ -107,17 +107,17 @@ object XrayCommand : Command("xray") {
             2 -> {
                 when (args[0].lowercase()) {
                     "add" -> {
-                        return Block.blockRegistry.keys
+                        return Block.REGISTRY.keys
                             .map { it.resourcePath.lowercase() }
-                            .filter { Block.getBlockFromName(it.lowercase()) != null }
-                            .filter { Block.getBlockFromName(it.lowercase()) !in XRay.xrayBlocks }
+                            .filter { Block.byKey(it.lowercase()) != null }
+                            .filter { Block.byKey(it.lowercase()) !in XRay.xrayBlocks }
                             .filter { it.startsWith(args[1], true) }
                     }
 
                     "remove" -> {
-                        return Block.blockRegistry.keys
+                        return Block.REGISTRY.keys
                             .map { it.resourcePath.lowercase() }
-                            .filter { Block.getBlockFromName(it) in XRay.xrayBlocks }
+                            .filter { Block.byKey(it) in XRay.xrayBlocks }
                             .filter { it.startsWith(args[1], true) }
                     }
 

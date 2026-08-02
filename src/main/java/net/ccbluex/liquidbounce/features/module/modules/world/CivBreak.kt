@@ -12,7 +12,7 @@ import net.ccbluex.liquidbounce.utils.block.BlockUtils.getCenterDistance
 import net.ccbluex.liquidbounce.utils.block.block
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPackets
-import net.ccbluex.liquidbounce.utils.extensions.swingItem
+import net.ccbluex.liquidbounce.utils.extensions.swingArm
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBlockBox
 import net.ccbluex.liquidbounce.utils.rotation.RotationSettings
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.faceBlock
@@ -33,26 +33,26 @@ object CivBreak : Module("CivBreak", Category.WORLD) {
 
     private val options = RotationSettings(this).withoutKeepRotation()
 
-    private var blockPos: BlockPos? = null
+    private var pos: BlockPos? = null
     private var enumFacing: Direction? = null
 
     val onBlockClick = handler<ClickBlockEvent> { event ->
-        blockPos = event.clickedBlock?.takeIf { it.block != bedrock } ?: return@handler
+        pos = event.clickedBlock?.takeIf { it.block != bedrock } ?: return@handler
         enumFacing = event.enumFacing ?: return@handler
 
         // Break
         sendPackets(
-            PlayerHandActionC2SPacket(START_DESTROY_BLOCK, blockPos, enumFacing),
-            PlayerHandActionC2SPacket(STOP_DESTROY_BLOCK, blockPos, enumFacing)
+            PlayerHandActionC2SPacket(START_DESTROY_BLOCK, pos, enumFacing),
+            PlayerHandActionC2SPacket(STOP_DESTROY_BLOCK, pos, enumFacing)
         )
     }
 
     val onRotationUpdate = handler<RotationUpdateEvent> {
-        val pos = blockPos ?: return@handler
+        val pos = pos ?: return@handler
         val isAirBlock = pos.block == air
 
         if (isAirBlock || getCenterDistance(pos) > range) {
-            blockPos = null
+            pos = null
             return@handler
         }
 
@@ -64,21 +64,21 @@ object CivBreak : Module("CivBreak", Category.WORLD) {
     }
 
     val onTick = handler<GameTickEvent> {
-        blockPos ?: return@handler
+        pos ?: return@handler
         enumFacing ?: return@handler
 
-        mc.player.swingItem(!swing)
+        mc.player.swingArm(!swing)
 
         // Break
         sendPackets(
-            PlayerHandActionC2SPacket(START_DESTROY_BLOCK, blockPos, enumFacing),
-            PlayerHandActionC2SPacket(STOP_DESTROY_BLOCK, blockPos, enumFacing)
+            PlayerHandActionC2SPacket(START_DESTROY_BLOCK, pos, enumFacing),
+            PlayerHandActionC2SPacket(STOP_DESTROY_BLOCK, pos, enumFacing)
         )
 
-        mc.interactionManager.clickBlock(blockPos, enumFacing)
+        mc.interactionManager.clickBlock(pos, enumFacing)
     }
 
     val onRender3D = handler<Render3DEvent> {
-        drawBlockBox(blockPos ?: return@handler, Color.RED, true)
+        drawBlockBox(pos ?: return@handler, Color.RED, true)
     }
 }

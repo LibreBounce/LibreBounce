@@ -64,17 +64,17 @@ object ForwardTrack : Module("ForwardTrack", Category.COMBAT) {
     }
 
     val onRender3D = handler<Render3DEvent> { event ->
-        val renderManager = mc.renderManager
+        val entityRenderDispatcher = mc.entityRenderDispatcher
         mc.world ?: return@handler
 
-        for (target in mc.world.loadedEntityList) {
+        for (target in mc.world.entities) {
             if (!isSelected(target, true)) {
                 return@handler
             }
 
             val vec = usePosition(target)
 
-            val (x, y, z) = vec - renderManager.renderPos
+            val (x, y, z) = vec - entityRenderDispatcher.renderPos
 
             when (espMode) {
                 "Box" -> {
@@ -88,7 +88,7 @@ object ForwardTrack : Module("ForwardTrack", Category.COMBAT) {
                     glPushAttrib(GL_ALL_ATTRIB_BITS)
 
                     color(0.6f, 0.6f, 0.6f, 1f)
-                    renderManager.doRenderEntity(
+                    entityRenderDispatcher.doRenderEntity(
                         target,
                         x, y, z,
                         (target.lastYaw..target.yaw).lerpWith(event.partialTicks),
@@ -116,7 +116,7 @@ object ForwardTrack : Module("ForwardTrack", Category.COMBAT) {
                     glLineWidth(wireframeWidth)
 
                     glColor(color)
-                    renderManager.doRenderEntity(
+                    entityRenderDispatcher.doRenderEntity(
                         target,
                         x, y, z,
                         (target.lastYaw..target.yaw).lerpWith(event.partialTicks),
@@ -124,7 +124,7 @@ object ForwardTrack : Module("ForwardTrack", Category.COMBAT) {
                         true
                     )
                     glColor(color)
-                    renderManager.doRenderEntity(
+                    entityRenderDispatcher.doRenderEntity(
                         target,
                         x, y, z,
                         (target.lastYaw..target.yaw).lerpWith(event.partialTicks),

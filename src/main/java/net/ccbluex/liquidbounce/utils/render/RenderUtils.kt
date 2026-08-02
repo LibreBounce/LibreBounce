@@ -156,7 +156,7 @@ object RenderUtils : MinecraftInstance {
     ) {
         require(currentDamage in 0f..1f)
 
-        val renderManager = mc.renderManager
+        val entityRenderDispatcher = mc.entityRenderDispatcher
 
         val progress = (currentDamage * 100).coerceIn(0f, 100f).toInt()
         val progressText = "$progress%"
@@ -164,13 +164,13 @@ object RenderUtils : MinecraftInstance {
         glPushAttrib(GL_ENABLE_BIT)
         glPushMatrix()
 
-        val (x, y, z) = this.center - renderManager.renderPos
+        val (x, y, z) = this.center - entityRenderDispatcher.renderPos
 
         // Translate to block position
         glTranslated(x, y, z)
 
-        glRotatef(-renderManager.playerViewY, 0F, 1F, 0F)
-        glRotatef(renderManager.playerViewX, 1F, 0F, 0F)
+        glRotatef(-entityRenderDispatcher.playerViewY, 0F, 1F, 0F)
+        glRotatef(entityRenderDispatcher.playerViewX, 1F, 0F, 0F)
 
         disableGlCap(GL_LIGHTING, GL_DEPTH_TEST)
         enableGlCap(GL_BLEND)
@@ -191,23 +191,23 @@ object RenderUtils : MinecraftInstance {
         glPopAttrib()
     }
 
-    fun drawBlockBox(blockPos: BlockPos, color: Color, outline: Boolean) {
-        val renderManager = mc.renderManager
+    fun drawBlockBox(pos: BlockPos, color: Color, outline: Boolean) {
+        val entityRenderDispatcher = mc.entityRenderDispatcher
 
-        val (x, y, z) = blockPos.toVec() - renderManager.renderPos
+        val (x, y, z) = pos.toVec() - entityRenderDispatcher.renderPos
 
         var axisAlignedBB = Box.of(x, y, z, x + 1.0, y + 1.0, z + 1.0)
 
-        blockPos.block?.let { block ->
+        pos.block?.let { block ->
             val player = mc.player
 
             val pos = -player.interpolatedPosition(player.lastTickPos)
 
             val f = 0.002F.toDouble()
 
-            block.setBlockBoundsBasedOnState(mc.world, blockPos)
+            block.setBlockBoundsBasedOnState(mc.world, pos)
 
-            axisAlignedBB = block.getSelectedBoundingBox(mc.world, blockPos).expand(f, f, f).offset(pos)
+            axisAlignedBB = block.getSelectedBoundingBox(mc.world, pos).expand(f, f, f).offset(pos)
         }
 
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
@@ -266,7 +266,7 @@ object RenderUtils : MinecraftInstance {
         startColor: Int,
         endColor: Int
     ) {
-        val manager = mc.renderManager
+        val manager = mc.entityRenderDispatcher
         val positions = mutableListOf<DoubleArray>()
 
         val renderX = manager.viewerPosX
@@ -299,7 +299,7 @@ object RenderUtils : MinecraftInstance {
         val breathingT = AnimationUtil.breathe(speed)
         val entityHeight = (entity.hitBox.maxY - entity.hitBox.minY).toFloat()
 
-        val width = (mc.renderManager.getEntityRenderObject<Entity>(entity)?.shadowSize ?: 0.5F) + size
+        val width = (mc.entityRenderDispatcher.getEntityRenderObject<Entity>(entity)?.shadowSize ?: 0.5F) + size
         val animatedHeight = (0F..entityHeight).lerpWith((height.endInclusive..height.start).lerpWith(breathingT))
         val animatedCircleY = (0F..entityHeight).lerpWith(circleY?.lerpWith(breathingT) ?: 0F)
 
@@ -351,7 +351,7 @@ object RenderUtils : MinecraftInstance {
     }
 
     fun drawHueCircle(position: Vec3d, radius: Float, innerColor: Color, outerColor: Color) {
-        val manager = mc.renderManager
+        val manager = mc.entityRenderDispatcher
 
         val renderX = manager.viewerPosX
         val renderY = manager.viewerPosY
@@ -416,7 +416,7 @@ object RenderUtils : MinecraftInstance {
     fun drawDome(pos: Vec3d, hRadius: Double, vRadius: Double, lineWidth: Float? = null, color: Color, renderMode: Int) {
         require(renderMode in arrayOf(GL_LINES, GL_TRIANGLES, GL_QUADS))
 
-        val manager = mc.renderManager ?: return
+        val manager = mc.entityRenderDispatcher ?: return
 
         val renderX = manager.viewerPosX
         val renderY = manager.viewerPosY
@@ -573,7 +573,7 @@ object RenderUtils : MinecraftInstance {
         disableGlCap(GL_TEXTURE_2D, GL_DEPTH_TEST)
         glDepthMask(false)
 
-        val (x, y, z) = entity.interpolatedPosition(entity.lastTickPos) - mc.renderManager.renderPos
+        val (x, y, z) = entity.interpolatedPosition(entity.lastTickPos) - mc.entityRenderDispatcher.renderPos
         val entityBox = entity.hitBox
 
         val axisAlignedBB = Box.of(
@@ -600,7 +600,7 @@ object RenderUtils : MinecraftInstance {
     }
 
     fun drawPosBox(x: Double, y: Double, z: Double, width: Float, height: Float, color: Color, outline: Boolean) {
-        val (adjustedX, adjustedY, adjustedZ) = Vec3d(x, y, z) - mc.renderManager.renderPos
+        val (adjustedX, adjustedY, adjustedZ) = Vec3d(x, y, z) - mc.entityRenderDispatcher.renderPos
 
         val axisAlignedBB = Box.of(
             adjustedX - width / 2,
@@ -665,12 +665,12 @@ object RenderUtils : MinecraftInstance {
     }
 
     fun drawPlatform(y: Double, color: Color, size: Double) {
-        val renderY = y - mc.renderManager.renderPosY
+        val renderY = y - mc.entityRenderDispatcher.renderPosY
         drawBox(Box.of(size, renderY + 0.02, size, -size, renderY, -size), color)
     }
 
     fun drawPlatform(entity: Entity, color: Color) {
-        val deltaPos = entity.interpolatedPosition(entity.lastTickPos) - mc.renderManager.renderPos
+        val deltaPos = entity.interpolatedPosition(entity.lastTickPos) - mc.entityRenderDispatcher.renderPos
         val axisAlignedBB = entity.shape.offset(-entity.currPos + deltaPos)
 
         drawBox(
@@ -1360,7 +1360,7 @@ object RenderUtils : MinecraftInstance {
     fun draw2D(entity: LivingEntity, x: Double, y: Double, z: Double, color: Int, backgroundColor: Int) {
         glPushMatrix()
         glTranslated(x, y, z)
-        glRotated(-mc.renderManager.playerViewY.toDouble(), 0.0, 1.0, 0.0)
+        glRotated(-mc.entityRenderDispatcher.playerViewY.toDouble(), 0.0, 1.0, 0.0)
         glScaled(-0.1, -0.1, 0.1)
         glDisable(GL_DEPTH_TEST)
         glEnable(GL_BLEND)
@@ -1385,12 +1385,12 @@ object RenderUtils : MinecraftInstance {
         glPopMatrix()
     }
 
-    fun draw2D(blockPos: BlockPos, color: Int, backgroundColor: Int) {
-        val renderManager = mc.renderManager
-        val (x, y, z) = blockPos.center.offset(Direction.DOWN, 0.5) - renderManager.renderPos
+    fun draw2D(pos: BlockPos, color: Int, backgroundColor: Int) {
+        val entityRenderDispatcher = mc.entityRenderDispatcher
+        val (x, y, z) = pos.center.offset(Direction.DOWN, 0.5) - entityRenderDispatcher.renderPos
         glPushMatrix()
         glTranslated(x, y, z)
-        glRotated(-renderManager.playerViewY.toDouble(), 0.0, 1.0, 0.0)
+        glRotated(-entityRenderDispatcher.playerViewY.toDouble(), 0.0, 1.0, 0.0)
         glScaled(-0.1, -0.1, 0.1)
         glDisable(GL_DEPTH_TEST)
         glEnable(GL_BLEND)
@@ -1436,14 +1436,14 @@ object RenderUtils : MinecraftInstance {
     }
 
     fun renderNameTag(string: String, x: Double, y: Double, z: Double) {
-        val renderManager = mc.renderManager
-        val (x1, y1, z1) = Vec3d(x, y, z) - renderManager.renderPos
+        val entityRenderDispatcher = mc.entityRenderDispatcher
+        val (x1, y1, z1) = Vec3d(x, y, z) - entityRenderDispatcher.renderPos
 
         glPushMatrix()
         glTranslated(x1, y1, z1)
         glNormal3f(0f, 1f, 0f)
-        glRotatef(-renderManager.playerViewY, 0f, 1f, 0f)
-        glRotatef(renderManager.playerViewX, 1f, 0f, 0f)
+        glRotatef(-entityRenderDispatcher.playerViewY, 0f, 1f, 0f)
+        glRotatef(entityRenderDispatcher.playerViewX, 1f, 0f, 0f)
         glScalef(-0.05f, -0.05f, 0.05f)
         setGlCap(GL_LIGHTING, false)
         setGlCap(GL_DEPTH_TEST, false)

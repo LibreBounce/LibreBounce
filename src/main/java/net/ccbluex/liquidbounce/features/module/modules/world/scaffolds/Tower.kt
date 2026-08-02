@@ -110,10 +110,10 @@ object Tower : Configurable("Tower"), MinecraftInstance, Listenable {
                 move()
             }
 
-            val blockPos = BlockPos(player).down()
+            val pos = BlockPos(player).down()
 
-            if (blockPos.block == air) {
-                Scaffold.search(blockPos, !shouldGoDown, searchMode == "Area")
+            if (pos.block == air) {
+                Scaffold.search(pos, !shouldGoDown, searchMode == "Area")
             }
         }
     }

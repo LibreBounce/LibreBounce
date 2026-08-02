@@ -7,7 +7,7 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.kotlin.StringUtils.contains
 import net.minecraft.entity.boss.IBossDisplayData
-import net.minecraft.entity.item.EntityArmorStand
+import net.minecraft.entity.living.ArmorStandEntity
 import net.minecraft.item.Items
 import net.minecraft.item.ItemStack
 import net.minecraft.potion.Potion
@@ -59,7 +59,7 @@ object GameDetector : Module("GameDetector", Category.MISC, gameDetecting = fals
         val abilities = player.abilities
 
         val slots = slot - 1
-        val itemSlot = player.inventory.getStackInSlot(slots)
+        val itemSlot = player.inventory.getItem(slots)
 
         if (gameMode && !mc.interactionManager.gameIsSurvivalOrAdventure())
             return@handler
@@ -75,7 +75,7 @@ object GameDetector : Module("GameDetector", Category.MISC, gameDetecting = fals
         if (teams && player.team?.allowFriendlyFire == false && world.scoreboard.teams.size == 1)
             return@handler
 
-        if (invisibility && player.getActivePotionEffect(Potion.invisibility)?.isPotionDurationMax == true)
+        if (invisibility && player.getEffectInstance(Potion.invisibility)?.isPotionDurationMax == true)
             return@handler
 
         if (compass) {
@@ -98,8 +98,8 @@ object GameDetector : Module("GameDetector", Category.MISC, gameDetecting = fals
         }
 
         if (entity) {
-            for (entity in world.loadedEntityList) {
-                if (entity !is IBossDisplayData && entity !is EntityArmorStand)
+            for (entity in world.entities) {
+                if (entity !is IBossDisplayData && entity !is ArmorStandEntity)
                     continue
 
                 val name = entity.customNameTag ?: continue

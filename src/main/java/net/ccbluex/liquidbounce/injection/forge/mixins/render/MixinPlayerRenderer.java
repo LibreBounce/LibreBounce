@@ -43,7 +43,7 @@ public abstract class MixinPlayerRenderer {
 
             int slot = SilentHotbar.INSTANCE.renderSlot(module.handleEvents() && module.getKeepItemInHandInThirdPerson());
 
-            ItemStack itemstack = entity instanceof LocalClientPlayerEntity ? entity.inventory.getStackInSlot(slot) : entity.getDisplayItemInHand();
+            ItemStack itemstack = entity instanceof LocalClientPlayerEntity ? entity.inventory.getItem(slot) : entity.getDisplayItemInHand();
 
             modelplayer.setInvisible(true);
             modelplayer.bipedHeadwear.showModel = entity.isWearing(PlayerModelPart.HAT);

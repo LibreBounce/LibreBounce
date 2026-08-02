@@ -16,7 +16,7 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.rotation.Rotation
 import net.minecraft.entity.living.LivingEntity
 import net.minecraft.network.Connection
-import net.minecraft.network.Packet
+import net.minecraft.network.packet.Packet
 import net.minecraft.client.network.handler.ClientPlayPacketHandler
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 import net.minecraft.network.packet.s2c.play.*
@@ -45,7 +45,7 @@ object PacketUtils : MinecraftInstance, Listenable {
     }
 
     val onTick = handler<GameTickEvent>(priority = 2) {
-        for (entity in mc.world.loadedEntityList) {
+        for (entity in mc.world.entities) {
             if (entity is LivingEntity) {
                 (entity as? IMixinEntity)?.apply {
                     if (!truePos) {

@@ -17,7 +17,7 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBorderedRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawFilledBox
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawSelectionBoundingBox
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
-import net.minecraft.block.Block.getIdFromBlock
+import net.minecraft.block.Block.getId
 import net.minecraft.client.render.Window
 import net.minecraft.client.render.platform.GlStateManager.resetColor
 import net.minecraft.init.Blocks.air
@@ -39,23 +39,23 @@ object BlockOverlay : Module("BlockOverlay", Category.RENDER, gameDetecting = fa
     val currentBlock: BlockPos?
         get() {
             mc.world ?: return null
-            val blockPos = mc.crosshairTarget?.blockPos ?: return null
+            val pos = mc.crosshairTarget?.pos ?: return null
 
-            if (blockPos.block !in arrayOf(
+            if (pos.block !in arrayOf(
                     air,
                     water,
                     lava
-                ) && mc.world.worldBorder.contains(blockPos)
+                ) && mc.world.worldBorder.contains(pos)
             )
-                return blockPos
+                return pos
 
             return null
         }
 
     val onRender3D = handler<Render3DEvent> {
-        val blockPos = currentBlock ?: return@handler
+        val pos = currentBlock ?: return@handler
 
-        val block = blockPos?.block ?: return@handler
+        val block = pos?.block ?: return@handler
 
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
@@ -67,7 +67,7 @@ object BlockOverlay : Module("BlockOverlay", Category.RENDER, gameDetecting = fa
         if (depth3D) glDisable(GL_DEPTH_TEST)
         glDepthMask(false)
 
-        block.setBlockBoundsBasedOnState(mc.world, blockPos)
+        block.setBlockBoundsBasedOnState(mc.world, pos)
 
         val player = mc.player ?: return@handler
 
@@ -75,7 +75,7 @@ object BlockOverlay : Module("BlockOverlay", Category.RENDER, gameDetecting = fa
 
         val f = 0.002F.toDouble()
 
-        val axisAlignedBB = block.getSelectedBoundingBox(mc.world, blockPos).expand(f, f, f).offset(-pos)
+        val axisAlignedBB = block.getSelectedBoundingBox(mc.world, pos).expand(f, f, f).offset(-pos)
 
         if (mode in arrayOf("Box", "OtherBox"))
             drawFilledBox(axisAlignedBB)
@@ -95,7 +95,7 @@ object BlockOverlay : Module("BlockOverlay", Category.RENDER, gameDetecting = fa
 
         val block = currentBlock?.block ?: return@handler
 
-        val info = "${block.localizedName} §7ID: ${getIdFromBlock(block)}"
+        val info = "${block.name} §7ID: ${getId(block)}"
         val (width, height) = Window(mc)
 
         // TODO: Customizable font

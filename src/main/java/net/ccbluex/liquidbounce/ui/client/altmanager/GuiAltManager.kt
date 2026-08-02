@@ -231,7 +231,7 @@ class GuiAltManager(private val prevGui: Screen) : AbstractScreen() {
                     val accounts = accountsConfig.accounts.joinToString(separator = "\n") { account ->
                         when (account) {
                             is MojangAccount -> "${account.email}:${account.password}" // EMAIL:PASSWORD
-                            is MicrosoftAccount -> "${account.name}:${account.session.token}" // NAME:SESSION
+                            is MicrosoftAccount -> "${account.name}:${account.session.accessToken}" // NAME:SESSION
                             else -> account.name
                         }
                     }
@@ -255,7 +255,7 @@ class GuiAltManager(private val prevGui: Screen) : AbstractScreen() {
                     // Format data for other tools
                     val formattedData = when (currentAccount) {
                         is MojangAccount -> "${currentAccount.email}:${currentAccount.password}" // EMAIL:PASSWORD
-                        is MicrosoftAccount -> "${currentAccount.name}:${currentAccount.session.token}" // NAME:SESSION
+                        is MicrosoftAccount -> "${currentAccount.name}:${currentAccount.session.accessToken}" // NAME:SESSION
                         else -> currentAccount.name
                     }
 
@@ -495,7 +495,7 @@ class GuiAltManager(private val prevGui: Screen) : AbstractScreen() {
                 mc.session = Session(
                     minecraftAccount.session.username,
                     minecraftAccount.session.uuid,
-                    minecraftAccount.session.token,
+                    minecraftAccount.session.accessToken,
                     "microsoft"
                 )
                 call(SessionUpdateEvent)

@@ -79,11 +79,11 @@ object BedProtectionESP : Module("BedProtectionESP", Category.RENDER) {
                         blocksAround.add(currBlock.down())
                     }
 
-                    blocksAround.filterTo(nextLayerAirBlocks) { blockPos -> blockPos.block == air }
+                    blocksAround.filterTo(nextLayerAirBlocks) { pos -> pos.block == air }
 
-                    blocksAround.filterTo(nextLayerBlocks) { blockPos ->
-                        (allLayers || blockPos.block != air) && !cachedBlocks.contains(
-                            blockPos
+                    blocksAround.filterTo(nextLayerBlocks) { pos ->
+                        (allLayers || pos.block != air) && !cachedBlocks.contains(
+                            pos
                         )
                     }
                 }
@@ -131,13 +131,13 @@ object BedProtectionESP : Module("BedProtectionESP", Category.RENDER) {
 
     val onRender3D = handler<Render3DEvent> {
         if (renderTargetBlocks) {
-            for (blockPos in targetBlocks) {
-                drawBlockBox(blockPos, Color.RED, true)
+            for (pos in targetBlocks) {
+                drawBlockBox(pos, Color.RED, true)
             }
         }
 
-        for (blockPos in blocksToRender) {
-            drawBlockBox(blockPos, color, true)
+        for (pos in blocksToRender) {
+            drawBlockBox(pos, color, true)
         }
     }
 

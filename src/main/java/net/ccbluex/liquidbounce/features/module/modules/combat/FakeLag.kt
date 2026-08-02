@@ -174,7 +174,7 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
 
         if (!resetTimer.hasTimePassed(recoilTime)) return@handler
 
-        if (mc.isSingleplayer || mc.currentServerData == null) {
+        if (mc.isSingleplayer || mc.currentServerEntry == null) {
             blink()
             return@handler
         }
@@ -294,9 +294,9 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
             glBegin(GL_LINE_STRIP)
             glColor(lineColor)
 
-            val renderPosX = mc.renderManager.viewerPosX
-            val renderPosY = mc.renderManager.viewerPosY
-            val renderPosZ = mc.renderManager.viewerPosZ
+            val renderPosX = mc.entityRenderDispatcher.viewerPosX
+            val renderPosY = mc.entityRenderDispatcher.viewerPosY
+            val renderPosZ = mc.entityRenderDispatcher.viewerPosZ
 
             for ((pos) in positions) glVertex3d(
                 pos.xCoord - renderPosX, pos.yCoord - renderPosY, pos.zCoord - renderPosZ
@@ -315,7 +315,7 @@ object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
         // This can be smarter by adding sneak checks, more timed hand swing/body movement, etc.
         if (mc.options.perspective == 0 || !renderModel) return@handler
 
-        val manager = mc.renderManager
+        val manager = mc.entityRenderDispatcher
 
         glPushMatrix()
         glPushAttrib(GL_ALL_ATTRIB_BITS)

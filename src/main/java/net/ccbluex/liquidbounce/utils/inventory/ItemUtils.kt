@@ -33,7 +33,7 @@ object ItemUtils : MinecraftInstance {
             val meta = args.getOrNull(2)?.toIntOrNull() ?: 0
 
             val resourceLocation = Identifier(args[0])
-            val item = Item.itemRegistry.getObject(resourceLocation) ?: return null
+            val item = Item.REGISTRY.getObject(resourceLocation) ?: return null
 
             val cursorItem = ItemStack(item, amount, meta)
 
@@ -113,7 +113,7 @@ val ItemStack.enchantments: Map<Enchantment, Int>
         repeat(enchantmentTagList.tagCount()) {
             val tagCompound = enchantmentTagList.getCompoundTagAt(it)
             if (tagCompound.hasKey("ench") || tagCompound.hasKey("id"))
-                enchantments[Enchantment.getEnchantmentById(tagCompound.getInteger("id"))] = tagCompound.getInteger("lvl")
+                enchantments[Enchantment.byId(tagCompound.getInteger("id"))] = tagCompound.getInteger("lvl")
         }
 
         return enchantments

@@ -9,9 +9,9 @@ import net.ccbluex.liquidbounce.features.module.modules.render.FreeCam
 import net.ccbluex.liquidbounce.utils.extensions.withY
 import net.minecraft.block.Block
 import net.minecraft.client.gui.screen.Screen
-import net.minecraft.client.multiplayer.WorldClient
+import net.minecraft.client.world.ClientWorld
 import net.minecraft.entity.Entity
-import net.minecraft.network.Packet
+import net.minecraft.network.packet.Packet
 import net.minecraft.util.*
 
 /**
@@ -24,14 +24,14 @@ class AttackEvent(val targetEntity: Entity?) : Event()
 /**
  * Called when minecraft get bounding box of block
  *
- * @param blockPos block position of block
+ * @param pos block position of block
  * @param block block itself
  * @param shape vanilla bounding box
  */
-class BlockBBEvent(blockPos: BlockPos, val block: Block, var shape: Box?) : Event() {
-    val x = blockPos.x
-    val y = blockPos.y
-    val z = blockPos.z
+class BlockBBEvent(pos: BlockPos, val block: Block, var shape: Box?) : Event() {
+    val x = pos.x
+    val y = pos.y
+    val z = pos.z
 }
 
 /**

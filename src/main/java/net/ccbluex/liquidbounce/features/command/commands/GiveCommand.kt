@@ -54,7 +54,7 @@ object GiveCommand : Command("give", "item", "i", "get") {
 
         return when (args.size) {
             1 -> {
-                return Item.itemRegistry.keys
+                return Item.REGISTRY.keys
                     .map { it.resourcePath.lowercase() }
                     .filter { it.startsWith(args[0], true) }
             }

@@ -163,7 +163,7 @@ public abstract class MixinGameRenderer {
             }
 
             if (mc.crosshairTarget != null) {
-                d1 = mc.crosshairTarget.hitVec.distanceTo(vec3);
+                d1 = mc.crosshairTarget.facePos.distanceTo(vec3);
             }
 
             if (reach.handleEvents()) {
@@ -171,7 +171,7 @@ public abstract class MixinGameRenderer {
                 Vec3d vec322 = vec3.addVector(vec31.xCoord * p_rayTrace_1_2, vec31.yCoord * p_rayTrace_1_2, vec31.zCoord * p_rayTrace_1_2);
                 final HitResult movingObjectPosition = entity.world.rayTraceBlocks(vec3, vec322, false, false, true);
 
-                if (movingObjectPosition != null) d1 = movingObjectPosition.hitVec.distanceTo(vec3);
+                if (movingObjectPosition != null) d1 = movingObjectPosition.facePos.distanceTo(vec3);
             }
 
             targetEntity = null;
@@ -195,20 +195,20 @@ public abstract class MixinGameRenderer {
                     if (axisalignedbb.contains(vec3)) {
                         if (d2 >= 0) {
                             targetEntity = entity1;
-                            vec33 = movingobjectposition == null ? vec3 : movingobjectposition.hitVec;
+                            vec33 = movingobjectposition == null ? vec3 : movingobjectposition.facePos;
                             d2 = 0;
                         }
                     } else if (movingobjectposition != null) {
-                        double d3 = vec3.distanceTo(movingobjectposition.hitVec);
+                        double d3 = vec3.distanceTo(movingobjectposition.facePos);
                         if (d3 < d2 || d2 == 0) {
                             if (entity1 == entity.vehicle && !entity.canRiderInteract()) {
                                 if (d2 == 0) {
                                     targetEntity = entity1;
-                                    vec33 = movingobjectposition.hitVec;
+                                    vec33 = movingobjectposition.facePos;
                                 }
                             } else {
                                 targetEntity = entity1;
-                                vec33 = movingobjectposition.hitVec;
+                                vec33 = movingobjectposition.facePos;
                                 d2 = d3;
                             }
                         }

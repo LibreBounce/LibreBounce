@@ -426,27 +426,27 @@ class SimulatedPlayer(
         return if (noClip) {
             false
         } else {
-            val blockPos = BlockPos(x, y, z)
-            val d0 = x - blockPos.x.toDouble()
-            val d1 = z - blockPos.z.toDouble()
+            val pos = BlockPos(x, y, z)
+            val d0 = x - pos.x.toDouble()
+            val d1 = z - pos.z.toDouble()
             val entHeight = ceil(height.toDouble()).toInt().coerceAtLeast(1)
-            val inTranslucentBlock: Boolean = !this.isHeadspaceFree(blockPos, entHeight)
+            val inTranslucentBlock: Boolean = !this.isHeadspaceFree(pos, entHeight)
             if (inTranslucentBlock) {
                 var i = -1
                 var d2 = 9999.0
-                if (this.isHeadspaceFree(blockPos.west(), entHeight) && d0 < d2) {
+                if (this.isHeadspaceFree(pos.west(), entHeight) && d0 < d2) {
                     d2 = d0
                     i = 0
                 }
-                if (this.isHeadspaceFree(blockPos.east(), entHeight) && 1.0 - d0 < d2) {
+                if (this.isHeadspaceFree(pos.east(), entHeight) && 1.0 - d0 < d2) {
                     d2 = 1.0 - d0
                     i = 1
                 }
-                if (this.isHeadspaceFree(blockPos.north(), entHeight) && d1 < d2) {
+                if (this.isHeadspaceFree(pos.north(), entHeight) && d1 < d2) {
                     d2 = d1
                     i = 4
                 }
-                if (this.isHeadspaceFree(blockPos.south(), entHeight) && 1.0 - d1 < d2) {
+                if (this.isHeadspaceFree(pos.south(), entHeight) && 1.0 - d1 < d2) {
                     i = 5
                 }
 
@@ -752,11 +752,11 @@ class SimulatedPlayer(
             val i = floor(x)
             val j = floor(y - 0.20000000298023224)
             val k = floor(z)
-            val blockPos = BlockPos(i, j, k)
-            var block1 = world.getBlockState(blockPos).block
+            val pos = BlockPos(i, j, k)
+            var block1 = world.getBlockState(pos).block
 
             if (block1.material === Material.air) {
-                val block = world.getBlockState(blockPos.down()).block
+                val block = world.getBlockState(pos.down()).block
                 if (block is FenceBlock || block is BlockWall || block is FenceGateBlock) {
                     block1 = block
                 }
@@ -899,15 +899,15 @@ class SimulatedPlayer(
         } else {
             var flag = false
             var vec3 = Vec3d(0.0, 0.0, 0.0)
-            val blockPos = Mutable()
+            val pos = Mutable()
             for (k1 in i until j) {
                 for (l1 in k until l) {
                     for (i2 in i1 until j1) {
-                        blockPos[k1, l1] = i2
-                        val state = getBlockState(blockPos) ?: continue
+                        pos[k1, l1] = i2
+                        val state = getBlockState(pos) ?: continue
                         val block = state.block ?: continue
                         // val result = null
-                        // ^^ block.isEntityInsideMaterial(world, blockPos, state, player, l.toDouble(), material, false) always null
+                        // ^^ block.isEntityInsideMaterial(world, pos, state, player, l.toDouble(), material, false) always null
                         if (block.material === material) {
                             val d0 = ((l1 + 1).toFloat() - LiquidBlock.getLiquidHeightPercent((state.getValue(
                                 LiquidBlock.LEVEL
@@ -916,7 +916,7 @@ class SimulatedPlayer(
 
                             if (l.toDouble() >= d0) {
                                 flag = true
-                                vec3 = block.modifyAcceleration(world, blockPos, player, vec3)
+                                vec3 = block.modifyAcceleration(world, pos, player, vec3)
                             }
                         }
                     }
@@ -1009,7 +1009,7 @@ class SimulatedPlayer(
         velocityY = getJumpUpwardsMotion().toDouble()
 
         if (hasStatusEffect(Potion.jump))
-            velocityY += ((getActivePotionEffect(Potion.jump).amplifier + 1).toFloat() * 0.1f).toDouble()
+            velocityY += ((getEffectInstance(Potion.jump).amplifier + 1).toFloat() * 0.1f).toDouble()
 
         if (isSprinting()) {
             val f = yaw.toRadians()
@@ -1026,11 +1026,11 @@ class SimulatedPlayer(
     }
 
     fun hasStatusEffect(potion: Potion): Boolean {
-        return player.getActivePotionEffect(potion) != null
+        return player.getEffectInstance(potion) != null
     }
 
-    fun getActivePotionEffect(potion: Potion): StatusEffectInstance {
-        return player.getActivePotionEffect(potion)
+    fun getEffectInstance(potion: Potion): StatusEffectInstance {
+        return player.getEffectInstance(potion)
     }
 
     private fun getJumpUpwardsMotion(): Float {
@@ -1087,24 +1087,24 @@ class SimulatedPlayer(
         val flag = this.isOutsideBorder
         val flag1 = isInsideBorder(worldborder, flag)
         val iblockstate = stone.defaultState
-        val blockPos = Mutable()
+        val pos = Mutable()
 
         for (k1 in i until j) {
             for (l1 in i1 until j1) {
-                if (this.isBlockLoaded(blockPos.set(k1, 64, l1))) {
+                if (this.isBlockLoaded(pos.set(k1, 64, l1))) {
                     for (i2 in k - 1 until l) {
-                        blockPos[k1, i2] = l1
+                        pos[k1, i2] = l1
 
                         if (flag && flag1) isOutsideBorder = false
                         else if (!flag && !flag1) isOutsideBorder = true
 
                         var state = iblockstate
 
-                        if (worldborder.contains(blockPos) || !flag1)
-                            state = this.getBlockState(blockPos)
+                        if (worldborder.contains(pos) || !flag1)
+                            state = this.getBlockState(pos)
 
                         state.block.addCollisionBoxesToList(world,
-                            blockPos,
+                            pos,
                             state,
                             box,
                             list,
@@ -1134,12 +1134,12 @@ class SimulatedPlayer(
         return list
     }
 
-    fun getBlockState(blockPos: BlockPos): BlockState? {
-        return world.getBlockState(blockPos)
+    fun getBlockState(pos: BlockPos): BlockState? {
+        return world.getBlockState(pos)
     }
 
-    private fun getChunkFromBlockCoords(blockPos: BlockPos): Chunk {
-        return this.getChunkFromChunkCoords(blockPos.x shr 4, blockPos.z shr 4)
+    private fun getChunkFromBlockCoords(pos: BlockPos): Chunk {
+        return this.getChunkFromChunkCoords(pos.x shr 4, pos.z shr 4)
     }
 
     private fun getChunkFromChunkCoords(x: Int, z: Int): Chunk {

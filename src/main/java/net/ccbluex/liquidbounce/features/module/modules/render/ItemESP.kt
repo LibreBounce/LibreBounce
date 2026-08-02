@@ -59,7 +59,7 @@ object ItemESP : Module("ItemESP", Category.RENDER) {
     private val thruBlocks by boolean("ThruBlocks", true)
 
     private val itemEntities by EntityLookup<ItemEntity>()
-        .filter { mc.player.getSquaredDistanceToToEntity(it) <= maxRenderDistanceSq }
+        .filter { mc.player.getSquaredDistanceToEntity(it) <= maxRenderDistanceSq }
         .filter { !onLook || isLookingOnEntities(it, maxAngleDifference.toDouble()) }
         .filter { thruBlocks || isEntityHeightVisible(it) }
 
@@ -101,7 +101,7 @@ object ItemESP : Module("ItemESP", Category.RENDER) {
 
             GlowShader.startDraw(event.partialTicks, glowRenderScale)
 
-            mc.renderManager.renderEntityStatic(entityItem, event.partialTicks, true)
+            mc.entityRenderDispatcher.renderEntityStatic(entityItem, event.partialTicks, true)
 
             // Only render green boxes on useful items, if ItemESP is enabled, render boxes of ItemESP.color on useless items as well
             GlowShader.stopDraw(if (isUseful) Color.green else color, glowRadius, glowFade, glowTargetAlpha)
@@ -110,19 +110,19 @@ object ItemESP : Module("ItemESP", Category.RENDER) {
 
     private fun renderEntityText(entity: ItemEntity, color: Color) {
         val player = mc.player ?: return
-        val renderManager = mc.renderManager
+        val entityRenderDispatcher = mc.entityRenderDispatcher
         val rotateX = if (mc.options.perspective == 2) -1.0f else 1.0f
 
         glPushAttrib(GL_ENABLE_BIT)
         glPushMatrix()
 
         // Translate to entity position
-        val (x, y, z) = entity.interpolatedPosition(entity.lastTickPos) - renderManager.renderPos
+        val (x, y, z) = entity.interpolatedPosition(entity.lastTickPos) - entityRenderDispatcher.renderPos
 
         glTranslated(x, y, z)
 
-        glRotatef(-renderManager.playerViewY, 0F, 1F, 0F)
-        glRotatef(renderManager.playerViewX * rotateX, 1F, 0F, 0F)
+        glRotatef(-entityRenderDispatcher.playerViewY, 0F, 1F, 0F)
+        glRotatef(entityRenderDispatcher.playerViewX * rotateX, 1F, 0F, 0F)
 
         disableGlCap(GL_LIGHTING, GL_DEPTH_TEST)
         enableGlCap(GL_BLEND)

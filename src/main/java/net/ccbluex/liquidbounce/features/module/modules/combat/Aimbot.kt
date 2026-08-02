@@ -288,7 +288,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
         var bestTarget: LivingEntity? = null
         var bestValue: Double? = null
 
-        for (entity in world.loadedEntityList) {
+        for (entity in world.entities) {
             if (entity !is LivingEntity || !isSelected(
                     entity, true
                 ) || switchMode && entity.networkId in prevTargetEntities
@@ -319,7 +319,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
                 "HurtTime" -> entity.damagedTimer.toDouble()
                 "HealthAbsorption" -> (entity.health + entity.absorption).toDouble()
                 "RegenAmplifier" -> if (entity.hasStatusEffect(Potion.regeneration)) {
-                    entity.getActivePotionEffect(Potion.regeneration).amplifier.toDouble()
+                    entity.getEffectInstance(Potion.regeneration).amplifier.toDouble()
                 } else -1.0
 
                 "InWeb" -> if (entity.inCobweb) -1.0 else Double.MAX_VALUE
@@ -446,15 +446,15 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
 
         val box = Box(0.0, 0.0, 0.0, f, f, f)
 
-        val renderManager = mc.renderManager
+        val entityRenderDispatcher = mc.entityRenderDispatcher
 
         runWithSimulatedPosition(player, player.interpolatedPosition(player.prevPos)) {
             runWithSimulatedPosition(target, target.interpolatedPosition(target.prevPos)) {
                 val rotationVec = player.eyes + getRotationVector(
-                    serverRotation.lerpWith(currentRotation ?: player.rotation, mc.timer.renderPartialTicks)
+                    serverRotation.lerpWith(currentRotation ?: player.rotation, mc.timer.partialTick)
                 ) * player.getDistanceToEntityBox(target).coerceAtMost(attackRange.toDouble())
 
-                val offSetBox = box.offset(rotationVec - renderManager.renderPos)
+                val offSetBox = box.offset(rotationVec - entityRenderDispatcher.renderPos)
 
                 drawBox(offSetBox, aimPointBoxColor)
             }
@@ -467,7 +467,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
     private val cancelRun
         inline get() = mc.player.isSpectator || !isAlive(mc.player) || (notOnConsume && isConsumingItem())
 
-    private fun isAlive(entity: LivingEntity) = entity.isEntityAlive && entity.health > 0
+    private fun isAlive(entity: LivingEntity) = entity.isAlive && entity.health > 0
 
     override val tag
         get() = targetMode + if (options.applyServerSide) ", Silent" else ""

@@ -28,8 +28,8 @@ object WorldToScreen : MinecraftInstance {
         pointInWorld: Vector3f,
         viewMatrix: Matrix4f = getMatrix(GL11.GL_MODELVIEW_MATRIX),
         projectionMatrix: Matrix4f = getMatrix(GL11.GL_PROJECTION_MATRIX),
-        screenWidth: Int = mc.displayWidth,
-        screenHeight: Int = mc.displayHeight
+        screenWidth: Int = mc.width,
+        screenHeight: Int = mc.height
     ): Vector2f? {
         val clipSpacePos = Vector4f(pointInWorld.x, pointInWorld.y, pointInWorld.z, 1f) * viewMatrix * projectionMatrix
 

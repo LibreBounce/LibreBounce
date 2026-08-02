@@ -199,12 +199,12 @@ object CapeService : Listenable, MinecraftInstance {
         // Check if donator cape is actually enabled and has a transfer code, also make sure the account used is premium.
         val capeUser = clientCapeUser ?: return@handler
 
-        if (!UserUtils.isValidTokenOffline(mc.session.token))
+        if (!UserUtils.isValidTokenOffline(mc.session.accessToken))
             return@handler
 
         try {
             // Apply cape to new account
-            val uuid = mc.session.playerID
+            val uuid = mc.session.uuid
             val username = mc.session.username
 
             val requestBody = "{\"uuid\":${uuid}}".toRequestBody("application/json".toMediaType())

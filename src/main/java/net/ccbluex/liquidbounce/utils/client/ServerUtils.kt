@@ -78,7 +78,7 @@ object ServerUtils : MinecraftInstance {
 
             // This can throw NPE during LB startup, if an element has server ip in it
             if (mc.world?.isRemote == true) {
-                val serverData = mc.currentServerData
+                val serverData = mc.currentServerEntry
                 if (serverData != null) serverIp = serverData.serverIP
             }
 

@@ -54,11 +54,11 @@ object Ignite : Module("Ignite", Category.COMBAT) {
 
         val fireInHotbar = lighterInHotbar ?: lavaInHotbar ?: return@handler
 
-        for (entity in mc.world.loadedEntityList) {
+        for (entity in mc.world.entities) {
             if (isSelected(entity, true) && !entity.isOnFire) {
-                val blockPos = entity.position
+                val pos = entity.position
 
-                if (player.getSquaredDistanceTo(blockPos) >= 22.3 || !blockPos.isReplaceable || blockPos.block !is AirBlock)
+                if (player.getSquaredDistanceTo(pos) >= 22.3 || !pos.isReplaceable || pos.block !is AirBlock)
                     continue
 
                 resetTicks++
@@ -68,9 +68,9 @@ object Ignite : Module("Ignite", Category.COMBAT) {
                 val cursorItem = player.hotBarSlot(fireInHotbar).stack
 
                 if (cursorItem.item is BucketItem) {
-                    val diffX = blockPos.x + 0.5 - player.x
-                    val diffY = blockPos.y + 0.5 - (player.shape.minY + player.eyeHeight)
-                    val diffZ = blockPos.z + 0.5 - player.z
+                    val diffX = pos.x + 0.5 - player.x
+                    val diffY = pos.y + 0.5 - (player.shape.minY + player.eyeHeight)
+                    val diffZ = pos.z + 0.5 - player.z
                     val sqrt = sqrt(diffX * diffX + diffZ * diffZ)
                     val yaw = (atan2(diffZ, diffX)).toDegreesF() - 90F
                     val pitch = -(atan2(diffY, sqrt)).toDegreesF()
@@ -88,7 +88,7 @@ object Ignite : Module("Ignite", Category.COMBAT) {
                     player.sendUseItem(cursorItem)
                 } else {
                     for (side in Direction.entries) {
-                        val neighbor = blockPos.offset(side)
+                        val neighbor = pos.offset(side)
 
                         if (!neighbor.canBeClicked())
                             continue
@@ -111,7 +111,7 @@ object Ignite : Module("Ignite", Category.COMBAT) {
                         )
 
                         if (player.onPlayerRightClick(neighbor, side.opposite, Vec3d(side.directionVec), cursorItem)) {
-                            player.swingItem()
+                            player.swingArm()
                             break
                         }
                     }

@@ -26,7 +26,7 @@ object VerusLowHopNew : SpeedMode("VerusLowHopNew") {
 
                     // Checks the presence of Speed potion effect 1 & 2+
                     if (hasStatusEffect(Potion.moveSpeed)) {
-                        val amplifier = getActivePotionEffect(Potion.moveSpeed).amplifier
+                        val amplifier = getEffectInstance(Potion.moveSpeed).amplifier
 
                         speed = when {
                             amplifier == 1 -> 0.55f
@@ -37,7 +37,7 @@ object VerusLowHopNew : SpeedMode("VerusLowHopNew") {
 
                     // Checks the presence of Slowness potion effect.
                     speed = if (hasStatusEffect(Potion.moveSlowdown)
-                        && getActivePotionEffect(Potion.moveSlowdown).amplifier == 1
+                        && getEffectInstance(Potion.moveSlowdown).amplifier == 1
                     ) 0.3f else 0.33f
 
                 } else {

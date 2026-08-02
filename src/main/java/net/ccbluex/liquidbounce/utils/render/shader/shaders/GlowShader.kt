@@ -22,8 +22,8 @@ object GlowShader : FramebufferShader("glow.frag") {
     override fun updateUniforms() {
         glUniform1i(getUniform("texture"), 0)
         glUniform2f(getUniform("texelSize"),
-            1f / mc.displayWidth * renderScale,
-            1f / mc.displayHeight * renderScale
+            1f / mc.width * renderScale,
+            1f / mc.height * renderScale
         )
         glUniform3f(getUniform("color"), red, green, blue)
         glUniform1f(getUniform("fade"), fade.toFloat())

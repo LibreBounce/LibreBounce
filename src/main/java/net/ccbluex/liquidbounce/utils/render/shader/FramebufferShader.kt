@@ -85,7 +85,7 @@ abstract class FramebufferShader(fragmentShader: String) : Shader(fragmentShader
     fun setupFrameBuffer(frameBuffer: RenderTarget?, renderScale: Float): Framebuffer {
         frameBuffer?.deleteFramebuffer()
         
-        return RenderTarget((mc.displayWidth * renderScale).roundToInt(), (mc.displayHeight * renderScale).roundToInt(), true)
+        return RenderTarget((mc.width * renderScale).roundToInt(), (mc.height * renderScale).roundToInt(), true)
     }
 
     /**

@@ -30,7 +30,7 @@ public abstract class MixinGameMenuScreen extends MixinScreen {
     @Inject(method = "actionPerformed", at = @At("HEAD"))
     private void actionPerformed(ButtonWidget button, CallbackInfo callbackInfo) {
         if (button.id == 1337) {
-            mc.world.sendQuittingDisconnectingPacket();
+            mc.world.disconnect();
             ServerUtils.INSTANCE.connectToLastServer();
         }
     }

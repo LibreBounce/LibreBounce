@@ -14,9 +14,9 @@ object AAC : LiquidWalkMode("AAC") {
         mc.player?.run {
             if (isSneaking) return
 
-            val blockPos = position.down()
+            val pos = position.down()
 
-            if (!onGround && blockPos.block == water || inWater) {
+            if (!onGround && pos.block == water || inWater) {
                 velocityX *= 0.99999
                 velocityY *= 0.0
                 velocityZ *= 0.99999

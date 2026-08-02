@@ -25,7 +25,7 @@ object AutoFish : Module("AutoFish", Category.PLAYER, subjective = true, gameDet
         val fishEntity = player.fishEntity
 
         if (rodOutTimer.hasTimePassed(500) && fishEntity == null || (fishEntity != null && fishEntity.velocityX == 0.0 && fishEntity.velocityZ == 0.0 && fishEntity.velocityY != 0.0)) {
-            mc.rightClickMouse()
+            mc.doUse()
             rodOutTimer.reset()
         }
     }

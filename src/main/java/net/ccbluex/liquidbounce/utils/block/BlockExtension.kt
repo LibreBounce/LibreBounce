@@ -45,20 +45,20 @@ fun BlockPos.canBeClicked(): Boolean {
         block.material.isReplaceable -> false
         block.hasBlockEntity(state) -> false
         !isBlockBBValid(this, state, supportSlabs = true, supportPartialBlocks = true) -> false
-        world.loadedEntityList.any { it is FallingBlockEntity && it.position == this } -> false
+        world.entities.any { it is FallingBlockEntity && it.position == this } -> false
         block is BlockWithBlockEntity || block is CraftingTableBlock -> false
         else -> true
     }
 }
 
 val Block.id: Int
-    get() = Block.getIdFromBlock(this)
+    get() = Block.getId(this)
 
 val Int.blockById: Block
-    get() = Block.getBlockById(this)
+    get() = Block.byId(this)
 
 val String.blockByName: Block?
-    get() = Block.getBlockFromName(this)
+    get() = Block.byKey(this)
 
 fun BlockPos.Mutable.set(vec3i: Vec3i, xOffset: Int = 0, yOffset: Int = 0, zOffset: Int = 0): BlockPos.Mutable =
     set(vec3i.x + xOffset, vec3i.y + yOffset, vec3i.z + zOffset)

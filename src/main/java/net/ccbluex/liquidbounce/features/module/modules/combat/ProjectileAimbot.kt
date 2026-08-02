@@ -162,7 +162,7 @@ object ProjectileAimbot : Module("ProjectileAimbot", Category.COMBAT) {
     private fun getTarget(throughWalls: Boolean, priorityMode: String): Entity? {
         val player = mc.player ?: return null
 
-        return mc.world.loadedEntityList
+        return mc.world.entities
             .asSequence()
             .filterIsInstance<LivingEntity>()
             .filter {

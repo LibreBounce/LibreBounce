@@ -43,7 +43,7 @@ object TNTTimer : Module("TNTTimer", Category.RENDER) {
 
     private val tntEntities by EntityLookup<PrimedTntEntity>()
         .filter { it.fuse > 0 }
-        .filter { mc.player.getSquaredDistanceToToEntity(it) <= maxRenderDistanceSq }
+        .filter { mc.player.getSquaredDistanceToEntity(it) <= maxRenderDistanceSq }
         .filter { !onLook || isLookingOnEntities(it, maxAngleDifference.toDouble()) }
 
     val onRender3D = handler<Render3DEvent> {
@@ -55,19 +55,19 @@ object TNTTimer : Module("TNTTimer", Category.RENDER) {
     private fun renderTNTTimer(tnt: PrimedTntEntity, timeRemaining: Int) {
         val player = mc.player ?: return
 
-        val renderManager = mc.renderManager
+        val entityRenderDispatcher = mc.entityRenderDispatcher
         val rotateX = if (mc.options.perspective == 2) -1.0f else 1.0f
 
         glPushAttrib(GL_ENABLE_BIT)
         glPushMatrix()
 
-        val (x, y, z) = tnt.interpolatedPosition(tnt.lastTickPos) - renderManager.renderPos
+        val (x, y, z) = tnt.interpolatedPosition(tnt.lastTickPos) - entityRenderDispatcher.renderPos
 
         // Translate to TNT position
         glTranslated(x, y + 1.5f, z)
 
-        glRotatef(-renderManager.playerViewY, 0F, 1F, 0F)
-        glRotatef(renderManager.playerViewX * rotateX, 1F, 0F, 0F)
+        glRotatef(-entityRenderDispatcher.playerViewY, 0F, 1F, 0F)
+        glRotatef(entityRenderDispatcher.playerViewX * rotateX, 1F, 0F, 0F)
 
         disableGlCap(GL_LIGHTING, GL_DEPTH_TEST)
 

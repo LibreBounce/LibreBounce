@@ -47,7 +47,7 @@ object RandomUtils {
         if (changeSession) {
             mc.session = Session(
                 crackedAccount.session.username, crackedAccount.session.uuid,
-                crackedAccount.session.token, crackedAccount.session.type
+                crackedAccount.session.accessToken, crackedAccount.session.type
             )
 
             call(SessionUpdateEvent)

@@ -42,7 +42,7 @@ class Effects(
 
         assumeNonVolatile {
             for (effect in mc.player.activePotionEffects) {
-                val potion = Potion.potionTypes[effect.potionID]
+                val potion = Potion.potionTypes[effect.effect]
                 val amplifier = effect.amplifier + 1
 
                 val number = if (!romanNumerals) amplifier else when (amplifier) {

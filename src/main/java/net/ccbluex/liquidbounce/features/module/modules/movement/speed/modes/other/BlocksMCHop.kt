@@ -35,7 +35,7 @@ object BlocksMCHop : SpeedMode("BlocksMCHop") {
                         strafe()
                     }
 
-                    if ((getActivePotionEffect(Potion.moveSpeed)?.amplifier ?: 0) > 0 && airTicks == 3) {
+                    if ((getEffectInstance(Potion.moveSpeed)?.amplifier ?: 0) > 0 && airTicks == 3) {
                         velocityX *= 1.12
                         velocityZ *= 1.12
                     }

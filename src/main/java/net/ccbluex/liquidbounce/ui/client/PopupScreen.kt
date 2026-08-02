@@ -273,7 +273,7 @@ class PopupScreen(
 
         GL11.glScissor(
             x * scaleFactor,
-            Minecraft.getInstance().displayHeight - ((y + height) * scaleFactor),
+            Minecraft.getInstance().height - ((y + height) * scaleFactor),
             width * scaleFactor,
             height * scaleFactor
         )

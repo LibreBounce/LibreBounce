@@ -44,7 +44,7 @@ object AutoProjectile : Module("AutoProjectile", Category.COMBAT) {
                 if (switchBack != -1 && player.inventory.selectedSlot != switchBack) {
                     player.inventory.selectedSlot = switchBack
 
-                    mc.interactionManager.syncCurrentPlayItem()
+                    mc.interactionManager.updateSelectedHotbarSlot()
                 } else {
                     player.stopUsingItem()
                 }
@@ -81,7 +81,7 @@ object AutoProjectile : Module("AutoProjectile", Category.COMBAT) {
                         switchBack = player.inventory.selectedSlot
 
                         player.inventory.selectedSlot = projectile
-                        mc.interactionManager.syncCurrentPlayItem()
+                        mc.interactionManager.updateSelectedHotbarSlot()
                     }
 
                     throwProjectile()

@@ -16,7 +16,7 @@ import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.extensions.isMoving
 import net.ccbluex.liquidbounce.utils.extensions.isNearEdge
 import net.ccbluex.liquidbounce.utils.extensions.sendUseItem
-import net.ccbluex.liquidbounce.utils.extensions.swingItem
+import net.ccbluex.liquidbounce.utils.extensions.swingArm
 import net.ccbluex.liquidbounce.utils.extensions.tryJump
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.findItem
 import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar
@@ -87,7 +87,7 @@ object Fireball : FlyMode("Fireball") {
 
         if (player.isMoving) {
             Fly.nextTick {
-                player.swingItem(!Fly.swing)
+                player.swingArm(!Fly.swing)
 
                 // NOTE: You may increase max try to `2` if a fireball doesn't work. (Ex: BlocksMC)
                 repeat(Fly.fireballTry) {

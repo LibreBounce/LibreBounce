@@ -128,7 +128,7 @@ object OutboundBacktrack : Module("OutboundBacktrack", Category.COMBAT, gameDete
 
         if (!resetTimer.hasTimePassed(recoilTime)) return@handler
 
-        if (mc.isSingleplayer || mc.currentServerData == null) {
+        if (mc.isSingleplayer || mc.currentServerEntry == null) {
             blink()
             return@handler
         }

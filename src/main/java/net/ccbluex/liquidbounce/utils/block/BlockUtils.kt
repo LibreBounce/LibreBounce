@@ -24,20 +24,20 @@ object BlockUtils : MinecraftInstance {
     /**
      * Get block name by [id]
      */
-    fun getBlockName(id: Int): String = Block.getBlockById(id).localizedName
+    fun getBlockName(id: Int): String = Block.byId(id).name
 
     /**
      * Check if block bounding box is full or partial (non-full)
      */
     fun isBlockBBValid(
-        blockPos: BlockPos,
+        pos: BlockPos,
         blockState: BlockState? = null,
         supportSlabs: Boolean = false,
         supportPartialBlocks: Boolean = false
     ): Boolean {
-        val state = blockState ?: blockPos.state ?: return false
+        val state = blockState ?: pos.state ?: return false
 
-        val box = state.block.getCollisionBoundingBox(mc.world, blockPos, state) ?: return false
+        val box = state.block.getCollisionBoundingBox(mc.world, pos, state) ?: return false
 
         // Support blocks like stairs, slab (1x), dragon-eggs, glass-panes, fences, etc
         if (supportPartialBlocks && (box.maxY - box.minY < 1.0 || box.maxX - box.minX < 1.0 || box.maxZ - box.minZ < 1.0)) {
@@ -63,10 +63,10 @@ object BlockUtils : MinecraftInstance {
     }
 
     /**
-     * Get distance to center of [blockPos]
+     * Get distance to center of [pos]
      */
-    fun getCenterDistance(blockPos: BlockPos) =
-        mc.player.getDistance(blockPos.x + 0.5, blockPos.y + 0.5, blockPos.z + 0.5)
+    fun getCenterDistance(pos: BlockPos) =
+        mc.player.getDistance(pos.x + 0.5, pos.y + 0.5, pos.z + 0.5)
 
     /**
      * Search a limited amount [maxBlocksLimit] of specific blocks [targetBlocks] around the player in a specific [radius].
@@ -118,8 +118,8 @@ object BlockUtils : MinecraftInstance {
         val mutable = BlockPos.Mutable(0, 0, 0)
         for (x in player.shape.minX.toInt() until player.shape.maxX.toInt() + 1) {
             for (z in player.shape.minZ.toInt() until player.shape.maxZ.toInt() + 1) {
-                val blockPos = mutable.set(x, y, z)
-                val block = blockPos.block
+                val pos = mutable.set(x, y, z)
+                val block = pos.block
 
                 if (!collide(block))
                     return false
@@ -139,11 +139,11 @@ object BlockUtils : MinecraftInstance {
         val mutable = BlockPos.Mutable(0, 0, 0)
         for (x in player.shape.minX.toInt() until player.shape.maxX.toInt() + 1) {
             for (z in player.shape.minZ.toInt() until player.shape.maxZ.toInt() + 1) {
-                val blockPos = mutable.set(x, y, z)
-                val block = blockPos.block
+                val pos = mutable.set(x, y, z)
+                val block = pos.block
 
                 if (collide(block)) {
-                    val shape = blockPos.state?.let { block?.getCollisionBoundingBox(mc.world, blockPos, it) }
+                    val shape = pos.state?.let { block?.getCollisionBoundingBox(mc.world, pos, it) }
                         ?: continue
 
                     if (player.shape.intersectsWith(shape))

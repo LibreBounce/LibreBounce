@@ -18,7 +18,7 @@ object AutoBreak : Module("AutoBreak", Category.WORLD, subjective = true, gameDe
     val onUpdate = handler<UpdateEvent> {
         mc.world ?: return@handler
 
-        val target = mc.crosshairTarget?.blockPos ?: return@handler
+        val target = mc.crosshairTarget?.pos ?: return@handler
 
         mc.options.attackKey.pressed = target.block != air
     }

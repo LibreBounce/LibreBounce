@@ -48,17 +48,17 @@ object CooldownHelper {
         }
         
         if (mc.player.hasStatusEffect(Potion.digSlowdown)) {
-            genericAttackSpeed *= 1.0 - min(1.0, 0.1 * (mc.player.getActivePotionEffect(Potion.digSlowdown).amplifier + 1))
+            genericAttackSpeed *= 1.0 - min(1.0, 0.1 * (mc.player.getEffectInstance(Potion.digSlowdown).amplifier + 1))
         }
         
         if (mc.player.hasStatusEffect(Potion.digSpeed)) {
-            genericAttackSpeed *= 1.0 + 0.1 * (mc.player.getActivePotionEffect(Potion.digSpeed).amplifier + 1)
+            genericAttackSpeed *= 1.0 + 0.1 * (mc.player.getEffectInstance(Potion.digSpeed).amplifier + 1)
         } 
     }
 
     fun getAttackCooldownProgressPerTick() = 1.0 / genericAttackSpeed * 20.0
 
-    fun getAttackCooldownProgress() = MathHelper.clamp((lastAttackedTicks + mc.timer.renderPartialTicks) / getAttackCooldownProgressPerTick(), 0.0, 1.0)
+    fun getAttackCooldownProgress() = MathHelper.clamp((lastAttackedTicks + mc.timer.partialTick) / getAttackCooldownProgressPerTick(), 0.0, 1.0)
 
     fun resetLastAttackedTicks() {
         lastAttackedTicks = 0

@@ -22,7 +22,7 @@ object BungeeCordSpoof : MinecraftInstance, Listenable {
         if (packet is HandshakeC2SPacket && packet.requestedState == NetworkProtocol.LOGIN) {
             packet.ip = packet.ip + "\u0000" + String.format(
                 "{0}.{1}.{2}.{3}", getRandomIpPart(), getRandomIpPart(), getRandomIpPart(), getRandomIpPart()
-            ) + "\u0000" + mc.session.playerID.replace("-", "")
+            ) + "\u0000" + mc.session.uuid.replace("-", "")
         }
     }
 

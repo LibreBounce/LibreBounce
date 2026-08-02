@@ -153,7 +153,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
         if (screen !is ChestScreen)
             return
 
-        isCustomGUI = chestTitle && chest.localizedName !in (screen.lowerChestInventory ?: return).name
+        isCustomGUI = chestTitle && chest.name !in (screen.lowerChestInventory ?: return).name
 
         // Check if chest isn't a custom GUI or shouldn't operate for another reason
         if (isCustomGUI || !shouldOperate())

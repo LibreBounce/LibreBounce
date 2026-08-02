@@ -125,7 +125,7 @@ object Blink : NoFallMode("Blink") {
             val targetEntity = player as IMixinEntity
 
             if (targetEntity.truePos) {
-                val pos = simPlayer.pos - mc.renderManager.renderPos
+                val pos = simPlayer.pos - mc.entityRenderDispatcher.renderPos
 
                 val axisAlignedBB = shape.offset(-currPos + pos)
 

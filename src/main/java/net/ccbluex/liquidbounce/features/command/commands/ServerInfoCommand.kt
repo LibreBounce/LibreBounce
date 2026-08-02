@@ -16,13 +16,13 @@ object ServerInfoCommand : Command("serverinfo"), Listenable {
      * Execute commands with provided [args]
      */
     override fun execute(args: Array<String>) {
-        if (mc.currentServerData == null || mc.isSingleplayer) {
+        if (mc.currentServerEntry == null || mc.isSingleplayer) {
             chat("This command does not work in single player.")
             return
         }
 
         val serverAddress = ServerAddress.fromString(serverData?.serverIP) ?: return
-        val data = mc.currentServerData ?: return
+        val data = mc.currentServerEntry ?: return
 
         chat("Server info:")
         chat("§7Name: §8${data.serverName}")

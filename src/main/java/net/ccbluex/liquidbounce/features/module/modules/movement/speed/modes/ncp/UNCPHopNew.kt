@@ -85,7 +85,7 @@ object UNCPHopNew : SpeedMode("UNCPHopNew") {
     private fun calculateSpeed(baseValue: Double): Double {
         val player = mc.player ?: return 0.0
 
-        val speedAmplifier = player.getActivePotionEffect(Potion.moveSpeed)?.amplifier ?: 0
+        val speedAmplifier = player.getEffectInstance(Potion.moveSpeed)?.amplifier ?: 0
         return baseValue + speedValue * speedAmplifier
     }
 

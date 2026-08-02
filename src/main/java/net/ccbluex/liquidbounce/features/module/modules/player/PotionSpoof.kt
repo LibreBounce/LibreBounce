@@ -60,15 +60,15 @@ object PotionSpoof : Module("PotionSpoof", Category.PLAYER) {
         val player = mc.player ?: return
 
         player.activePotionEffects
-            .filter { it.duration == 0 && potionMap[it.potionID]?.get() == true }
-            .forEach { player.removePotionEffect(it.potionID) }
+            .filter { it.duration == 0 && potionMap[it.effect]?.get() == true }
+            .forEach { player.removePotionEffect(it.effect) }
     }
 
     val onUpdate = handler<UpdateEvent> {
         potionMap.forEach { (potionId, value) ->
             if (value.get())
                 mc.player.addPotionEffect(PotionEffect(potionId, 0, level - 1, false, false))
-            else if (mc.player.activePotionEffects.any { it.duration == 0 && it.potionID == potionId })
+            else if (mc.player.activePotionEffects.any { it.duration == 0 && it.id == potionId })
                 mc.player.removePotionEffect(potionId)
         }
     }

@@ -10,12 +10,12 @@ import net.minecraft.util.math.Direction
 import net.minecraft.util.math.Vec3d
 
 
-class PlaceInfo(val blockPos: BlockPos, val enumFacing: Direction, var vec3: Vec3 = blockPos.center) {
+class PlaceInfo(val pos: BlockPos, val enumFacing: Direction, var vec3: Vec3 = pos.center) {
 
     companion object {
 
         /**
-         * Allows you to find a specific place info for your [blockPos]
+         * Allows you to find a specific place info for your [pos]
          */
         fun get(pos: BlockPos) = Direction.entries.find {
             it != Direction.UP && pos.offset(it).canBeClicked()

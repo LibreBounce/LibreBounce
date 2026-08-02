@@ -9,11 +9,11 @@ import net.minecraft.client.Minecraft
 import kotlin.math.*
 
 object AnimationUtil {
-    val debugFPS: Float
+    val currentFps: Float
         get() = max(Minecraft.getDebugFPS().toFloat(), 60f)
 
     fun base(current: Double, target: Double, speed: Double): Double {
-        return ((current + (target - current) * (speed / (debugFPS / 60.0))) * 1000).toInt() / 1000.0
+        return ((current + (target - current) * (speed / (currentFps / 60.0))) * 1000).toInt() / 1000.0
     }
 
     fun linear(startTime: Long, duration: Long, start: Double, end: Double): Double {

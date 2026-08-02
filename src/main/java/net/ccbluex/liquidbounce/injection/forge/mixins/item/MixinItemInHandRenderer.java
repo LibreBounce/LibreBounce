@@ -187,7 +187,7 @@ public abstract class MixinItemInHandRenderer {
 
         int slot = SilentHotbar.INSTANCE.renderSlot(module.handleEvents() && module.getKeepItemInHandInFirstPerson());
 
-        return instance.getStackInSlot(slot);
+        return instance.getItem(slot);
     }
 
 

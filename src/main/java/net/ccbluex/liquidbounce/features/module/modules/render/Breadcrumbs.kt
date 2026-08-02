@@ -61,9 +61,9 @@ object Breadcrumbs : Module("Breadcrumbs", Category.RENDER) {
 
         glBegin(GL_QUADS)
 
-        val renderPosX = mc.renderManager.viewerPosX
-        val renderPosY = mc.renderManager.viewerPosY
-        val renderPosZ = mc.renderManager.viewerPosZ
+        val renderPosX = mc.entityRenderDispatcher.viewerPosX
+        val renderPosY = mc.entityRenderDispatcher.viewerPosY
+        val renderPosZ = mc.entityRenderDispatcher.viewerPosZ
 
         positions.removeEach {
             val timestamp = System.currentTimeMillis() - it.time

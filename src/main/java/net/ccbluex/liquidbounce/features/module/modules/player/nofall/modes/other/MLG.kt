@@ -94,7 +94,7 @@ object MLG : NoFallMode("MLG") {
                                     performBlockRaytrace(toRotation(center), reach)
                                 }
 
-                                if (raytrace?.let { it.blockPos == neighbor && it.sideHit == Direction.UP } == true) {
+                                if (raytrace?.let { it.pos == neighbor && it.face == Direction.UP } == true) {
                                     val distance = BlockPos(sim.pos).distanceSq(neighbor)
 
                                     if (distance <= minDistance) {
@@ -163,11 +163,11 @@ object MLG : NoFallMode("MLG") {
 
         if (wasWaterBucket || (item as? BlockItem)?.block == web) {
             performBlockRaytrace(currRotation, reach)?.let {
-                if (it.blockPos != target || it.sideHit != Direction.UP) {
+                if (it.pos != target || it.face != Direction.UP) {
                     return@let
                 }
 
-                placeBlock(it.blockPos, it.sideHit, it.hitVec, stack, !wasWaterBucket) {
+                placeBlock(it.pos, it.face, it.facePos, stack, !wasWaterBucket) {
                     if (!wasWaterBucket) {
                         currentMlgBlock = null
                         retrievingPos = null
@@ -210,7 +210,7 @@ object MLG : NoFallMode("MLG") {
                         if (player.fallDistance == 0F) {
                             val raytrace = performBlockRaytrace(currRotation, reach)
                             // Did the user decide to look somewhere else?
-                            if (raytrace == null || raytrace.blockPos != target || raytrace.sideHit != Direction.UP) {
+                            if (raytrace == null || raytrace.pos != target || raytrace.face != Direction.UP) {
                                 // Reset the rotation if it took more than the max retrieval waiting time to retrieve
                                 reset(elapsedTicks >= maxRetrievalWaitingTime)
                                 return@conditionalSchedule null
@@ -220,7 +220,7 @@ object MLG : NoFallMode("MLG") {
                             if (elapsedTicks < retrieveDelay) return@conditionalSchedule false
 
                             // Time to retrieve
-                            placeBlock(it.blockPos, it.sideHit, it.hitVec, newStack)
+                            placeBlock(it.pos, it.face, it.facePos, newStack)
 
                             reset()
 
@@ -246,14 +246,14 @@ object MLG : NoFallMode("MLG") {
     }
 
     private inline fun placeBlock(
-        blockPos: BlockPos,
+        pos: BlockPos,
         side: Direction,
-        hitVec: Vec3d,
+        facePos: Vec3d,
         stack: ItemStack,
         finalStage: Boolean = true,
         onSuccess: () -> Unit = { }
     ) {
-        tryToPlaceBlock(stack, blockPos, side, hitVec, onSuccess)
+        tryToPlaceBlock(stack, pos, side, facePos, onSuccess)
 
         if (finalStage) {
             switchBlockNextTickIfPossible(stack)
@@ -261,16 +261,16 @@ object MLG : NoFallMode("MLG") {
     }
 
     private inline fun tryToPlaceBlock(
-        stack: ItemStack, clickPos: BlockPos, side: Direction, hitVec: Vec3d, onSuccess: () -> Unit
+        stack: ItemStack, clickPos: BlockPos, side: Direction, facePos: Vec3d, onSuccess: () -> Unit
     ): Boolean {
         val player = mc.player ?: return false
 
         val prevSize = stack.size
 
-        val clickedSuccessfully = player.onPlayerRightClick(clickPos, side, hitVec, stack)
+        val clickedSuccessfully = player.onPlayerRightClick(clickPos, side, facePos, stack)
 
         if (clickedSuccessfully) {
-            player.swingItem(!swing)
+            player.swingArm(!swing)
 
             if (stack.size <= 0) {
                 player.inventory.items[SilentHotbar.currentSlot] = null

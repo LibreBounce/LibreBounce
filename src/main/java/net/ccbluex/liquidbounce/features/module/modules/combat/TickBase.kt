@@ -203,9 +203,9 @@ object TickBase : Module("TickBase", Category.COMBAT) {
             glBegin(GL_LINE_STRIP)
             glColor(lineColor)
 
-            val renderPosX = mc.renderManager.viewerPosX
-            val renderPosY = mc.renderManager.viewerPosY
-            val renderPosZ = mc.renderManager.viewerPosZ
+            val renderPosX = mc.entityRenderDispatcher.viewerPosX
+            val renderPosY = mc.entityRenderDispatcher.viewerPosY
+            val renderPosZ = mc.entityRenderDispatcher.viewerPosZ
 
             for (tick in tickBuffer) {
                 glVertex3d(
@@ -243,7 +243,7 @@ object TickBase : Module("TickBase", Category.COMBAT) {
 
     private fun getNearestEntityInRange(): LivingEntity? {
         mc.player ?: return null
-        val entities = mc.world.loadedEntityList ?: return null
+        val entities = mc.world.entities ?: return null
 
         return entities.asSequence().filterIsInstance<LivingEntity>()
             .filter { EntityUtils.isSelected(it, true) }.minByOrNull { mc.player.getDistanceToEntity(it) }

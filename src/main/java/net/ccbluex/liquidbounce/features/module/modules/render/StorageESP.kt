@@ -173,7 +173,7 @@ object StorageESP : Module("StorageESP", Category.RENDER) {
                 }
             }
 
-            for (entity in mc.world.loadedEntityList) {
+            for (entity in mc.world.entities) {
                 val entityPos = entity.position
 
                 val distanceSquared = mc.player.getSquaredDistanceTo(
@@ -199,13 +199,13 @@ object StorageESP : Module("StorageESP", Category.RENDER) {
                                 mc.options.entityShadows = false
                                 glColor(Color(0, 66, 255))
                                 OutlineUtils.renderOne(3f)
-                                mc.renderManager.renderEntityStatic(entity, mc.timer.renderPartialTicks, true)
+                                mc.entityRenderDispatcher.renderEntityStatic(entity, mc.timer.partialTick, true)
                                 OutlineUtils.renderTwo()
-                                mc.renderManager.renderEntityStatic(entity, mc.timer.renderPartialTicks, true)
+                                mc.entityRenderDispatcher.renderEntityStatic(entity, mc.timer.partialTick, true)
                                 OutlineUtils.renderThree()
-                                mc.renderManager.renderEntityStatic(entity, mc.timer.renderPartialTicks, true)
+                                mc.entityRenderDispatcher.renderEntityStatic(entity, mc.timer.partialTick, true)
                                 OutlineUtils.renderFour(Color(0, 66, 255))
-                                mc.renderManager.renderEntityStatic(entity, mc.timer.renderPartialTicks, true)
+                                mc.entityRenderDispatcher.renderEntityStatic(entity, mc.timer.partialTick, true)
                                 OutlineUtils.renderFive()
                                 OutlineUtils.setColor(Color.WHITE)
                                 mc.options.entityShadows = entityShadow
@@ -224,10 +224,10 @@ object StorageESP : Module("StorageESP", Category.RENDER) {
                                 glEnable(GL_BLEND)
                                 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
                                 glColor(Color(0, 66, 255))
-                                mc.renderManager.renderEntityStatic(entity, mc.timer.renderPartialTicks, true)
+                                mc.entityRenderDispatcher.renderEntityStatic(entity, mc.timer.partialTick, true)
                                 glColor(Color(0, 66, 255))
                                 glLineWidth(1.5f)
-                                mc.renderManager.renderEntityStatic(entity, mc.timer.renderPartialTicks, true)
+                                mc.entityRenderDispatcher.renderEntityStatic(entity, mc.timer.partialTick, true)
                                 glPopAttrib()
                                 glPopMatrix()
                                 mc.options.entityShadows = entityShadow
@@ -247,7 +247,7 @@ object StorageESP : Module("StorageESP", Category.RENDER) {
         if (mc.world == null || mode != "Glow")
             return@handler
 
-        val renderManager = mc.renderManager
+        val entityRenderDispatcher = mc.entityRenderDispatcher
 
         try {
             mc.world.loadedBlockEntityList
@@ -270,7 +270,7 @@ object StorageESP : Module("StorageESP", Category.RENDER) {
                         if (!thruBlocks && !isEntityHeightVisible(entity))
                             continue
 
-                        val (x, y, z) = pos - renderManager.renderPos
+                        val (x, y, z) = pos - entityRenderDispatcher.renderPos
 
                         BlockEntityRenderDispatcher.instance.renderBlockEntityAt(entity, x, y, z, event.partialTicks)
                     }

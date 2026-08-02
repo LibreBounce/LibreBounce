@@ -24,7 +24,7 @@ object AutoLeave : Module("AutoLeave", Category.COMBAT, subjective = true) {
 
         if (player.health <= health && !player.abilities.creativeMode && !mc.isIntegratedServerRunning) {
             when (mode) {
-                "Quit" -> mc.world.sendQuittingDisconnectingPacket()
+                "Quit" -> mc.world.disconnect()
                 "InvalidPacket" -> sendPacket(
                     Position(
                         Double.NaN,

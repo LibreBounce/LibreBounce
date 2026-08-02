@@ -40,7 +40,7 @@ object EntityUtils : MinecraftInstance {
     private val healthSubstrings = arrayOf("hp", "health", "❤", "lives")
 
     fun isSelected(entity: Entity?, canAttackCheck: Boolean): Boolean {
-        if (entity is LivingEntity && (Targets.dead || entity.isEntityAlive) && entity != mc.player) {
+        if (entity is LivingEntity && (Targets.dead || entity.isAlive) && entity != mc.player) {
             if (Targets.invisible || !entity.isInvisible) {
                 if (Targets.player && entity is PlayerEntity) {
                     if (canAttackCheck) {

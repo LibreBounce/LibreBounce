@@ -146,9 +146,9 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true) {
             }
 
             is PlayerUseC2SPacket -> {
-                val blockPos = packet.position
-                blockPlacementAttempts[blockPos] = System.currentTimeMillis()
-                successfulPlacements.add(blockPos)
+                val pos = packet.position
+                blockPlacementAttempts[pos] = System.currentTimeMillis()
+                successfulPlacements.add(pos)
             }
         }
     }
@@ -185,13 +185,13 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true) {
             if (currentTime - lastCheckTime > 2000) {
                 lastCheckTime = currentTime
 
-                blockPlacementAttempts.entries.removeIf { (blockPos, timestamp) ->
+                blockPlacementAttempts.entries.removeIf { (pos, timestamp) ->
                     if (currentTime - timestamp > ghostBlockDelay) {
                         // Returns if blockpos is < 0
-                        if (blockPos < BlockPos.ORIGIN) return@removeIf false
-                        val block = world.getBlockState(blockPos).block
+                        if (pos < BlockPos.ORIGIN) return@removeIf false
+                        val block = world.getBlockState(pos).block
 
-                        if (block == air && successfulPlacements.contains(blockPos)) {
+                        if (block == air && successfulPlacements.contains(pos)) {
                             flagCount++
                             chat("§dDetected §3GhostBlock §b(§c${flagCount}x§b)")
                             successfulPlacements.clear()
@@ -261,7 +261,7 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true) {
 
     val onRender3D = handler<Render3DEvent> {
         val player = mc.player ?: return@handler
-        val renderManager = mc.renderManager
+        val entityRenderDispatcher = mc.entityRenderDispatcher
         val pos = lastServerPos ?: return@handler
 
         if (renderServerPos != "Box") return@handler
@@ -273,13 +273,13 @@ object FlagCheck : Module("FlagCheck", Category.MISC, gameDetecting = true) {
         glPushAttrib(GL_ENABLE_BIT)
         glPushMatrix()
 
-        val (x, y, z) = pos - renderManager.renderPos
+        val (x, y, z) = pos - entityRenderDispatcher.renderPos
 
         // Translate to block position
         glTranslated(x, y + 2.5, z)
 
-        glRotatef(-renderManager.playerViewY, 0F, 1F, 0F)
-        glRotatef(renderManager.playerViewX, 1F, 0F, 0F)
+        glRotatef(-entityRenderDispatcher.playerViewY, 0F, 1F, 0F)
+        glRotatef(entityRenderDispatcher.playerViewX, 1F, 0F, 0F)
 
         disableGlCap(GL_LIGHTING, GL_DEPTH_TEST)
         enableGlCap(GL_BLEND)

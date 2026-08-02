@@ -51,7 +51,7 @@ object Tracers : Module("Tracers", Category.RENDER) {
 
     private val entities by EntityLookup<LivingEntity>()
         .filter { isSelected(it, false) }
-        .filter { mc.player.getSquaredDistanceToToEntity(it) <= maxRenderDistanceSq }
+        .filter { mc.player.getSquaredDistanceToEntity(it) <= maxRenderDistanceSq }
         .filter { bot || !isBot(it) }
         .filter { !onLook || isLookingOnEntities(it, maxAngleDifference.toDouble()) }
         .filter { thruBlocks || isEntityHeightVisible(it) }
@@ -65,7 +65,7 @@ object Tracers : Module("Tracers", Category.RENDER) {
 
         // Temporarily disable view bobbing and re-apply camera transformation
         mc.options.viewBobbing = false
-        mc.entityRenderer.setupCameraTransform(mc.timer.renderPartialTicks, 0)
+        mc.entityRenderer.setupCameraTransform(mc.timer.partialTick, 0)
 
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         glEnable(GL_BLEND)
@@ -78,7 +78,7 @@ object Tracers : Module("Tracers", Category.RENDER) {
         glBegin(GL_LINES)
 
         for (entity in entities) {
-            val dist = mc.player.getSquaredDistanceToToEntity(entity).coerceAtMost(255.0).toInt()
+            val dist = mc.player.getSquaredDistanceToEntity(entity).coerceAtMost(255.0).toInt()
 
             val color = when {
                 entity is PlayerEntity && entity.isClientFriend() -> Color(0, 0, 255, 150)
@@ -106,10 +106,10 @@ object Tracers : Module("Tracers", Category.RENDER) {
     private fun drawTraces(entity: Entity, color: Color) {
         val player = mc.player ?: return
 
-        val (x, y, z) = entity.interpolatedPosition(entity.lastTickPos) - mc.renderManager.renderPos
+        val (x, y, z) = entity.interpolatedPosition(entity.lastTickPos) - mc.entityRenderDispatcher.renderPos
 
-        val yaw = (player.lastYaw..player.yaw).lerpWith(mc.timer.renderPartialTicks)
-        val pitch = (player.lastPitch..player.pitch).lerpWith(mc.timer.renderPartialTicks)
+        val yaw = (player.lastYaw..player.yaw).lerpWith(mc.timer.partialTick)
+        val pitch = (player.lastPitch..player.pitch).lerpWith(mc.timer.partialTick)
 
         val eyeVector = Vec3d(0.0, 0.0, 1.0).rotatePitch(-pitch.toRadians()).rotateYaw(-yaw.toRadians())
 

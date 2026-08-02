@@ -117,7 +117,7 @@ object SettingsCommand : Command("autosettings", "autosetting", "settings", "set
             val settingsScript = SettingsUtils.generateScript(values, binds, states)
             chat("§9Uploading settings...")
 
-            val serverData = mc.currentServerData ?: error("You need to be on a server to upload settings.")
+            val serverData = mc.currentServerEntry ?: error("You need to be on a server to upload settings.")
 
             val name = "${LiquidBounce.clientCommit}-${serverData.serverIP.replace(".", "_")}"
             val response = runBlocking {

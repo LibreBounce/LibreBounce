@@ -31,7 +31,7 @@ public abstract class MixinDownloadingTerrainScreen extends MixinScreen {
             boolean flag = mc.isIntegratedServerRunning();
             boolean flag1 = mc.isConnectedToRealms();
             button.enabled = false;
-            mc.world.sendQuittingDisconnectingPacket();
+            mc.world.disconnect();
             mc.loadWorld(null);
 
             if (flag) {

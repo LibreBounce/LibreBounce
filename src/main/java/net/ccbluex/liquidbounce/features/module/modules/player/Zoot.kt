@@ -27,7 +27,7 @@ object Zoot : Module("Zoot", Category.PLAYER) {
 
         if (badEffects) {
             val effect = player.activePotionEffects
-                .filter { it.potionID in NEGATIVE_EFFECT_IDS }
+                .filter { it.id in NEGATIVE_EFFECT_IDS }
                 .maxByOrNull { it.duration }
 
             if (effect != null) {

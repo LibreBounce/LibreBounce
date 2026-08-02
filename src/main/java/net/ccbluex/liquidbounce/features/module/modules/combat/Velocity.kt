@@ -25,7 +25,7 @@ import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.currentRotation
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.minecraft.block.AirBlock
 import net.minecraft.entity.Entity
-import net.minecraft.network.Packet
+import net.minecraft.network.packet.Packet
 import net.minecraft.network.packet.c2s.play.*
 import net.minecraft.network.packet.c2s.play.PlayerHandActionC2SPacket.Action.STOP_DESTROY_BLOCK
 import net.minecraft.network.packet.c2s.play.PlayerMovementActionC2SPacket.Action.*
@@ -372,7 +372,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
         entity ?: return@handler
 
         repeat(clicks.random()) {
-            player.attackEntityWithModifiedSprint(entity, true) { if (swing != "Off") player.swingItem(swing == "Packet") }
+            player.attackEntityWithModifiedSprint(entity, true) { if (swing != "Off") player.swingArm(swing == "Packet") }
         }
     }
 
@@ -389,10 +389,10 @@ object Velocity : Module("Velocity", Category.COMBAT) {
         lastAttackTime = System.currentTimeMillis()
     }
 
-    private fun checkAir(blockPos: BlockPos): Boolean {
+    private fun checkAir(pos: BlockPos): Boolean {
         val world = mc.world ?: return false
 
-        if (!world.isAirBlock(blockPos)) {
+        if (!world.isAirBlock(pos)) {
             return false
         }
 
@@ -400,10 +400,10 @@ object Velocity : Module("Velocity", Category.COMBAT) {
 
         sendPackets(
             PlayerMoveC2SPacket(true),
-            PlayerHandActionC2SPacket(STOP_DESTROY_BLOCK, blockPos, DOWN)
+            PlayerHandActionC2SPacket(STOP_DESTROY_BLOCK, pos, DOWN)
         )
 
-        world.setBlockToAir(blockPos)
+        world.setBlockToAir(pos)
 
         return true
     }
@@ -815,7 +815,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
     private fun getNearestEntityInRange(range: Float = this.range): Entity? {
         val player = mc.player ?: return null
 
-        return mc.world.loadedEntityList.filter {
+        return mc.world.entities.filter {
             isSelected(it, true) && player.getDistanceToEntityBox(it) <= range
         }.minByOrNull { player.getDistanceToEntityBox(it) }
     }

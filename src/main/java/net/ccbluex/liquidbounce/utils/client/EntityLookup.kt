@@ -35,7 +35,7 @@ class EntityLookup<T : Entity>(
             return@handler
 
         @Suppress("UNCHECKED_CAST")
-        entities = mc.world?.loadedEntityList
+        entities = mc.world?.entities
             ?.filter { entity ->
                 entityClass.isAssignableFrom(entity.javaClass)
                         && predicates.all { it.test(entity as T) }

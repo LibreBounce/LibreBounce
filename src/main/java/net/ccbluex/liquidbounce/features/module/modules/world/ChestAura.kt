@@ -108,8 +108,8 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
         val player = mc.player ?: return@handler
 
         // Check if there is an opponent in range
-        if (mc.world.loadedEntityList.any {
-                isSelected(it, true) && player.getSquaredDistanceToToEntity(it) < minDistanceFromOpponentSq
+        if (mc.world.entities.any {
+                isSelected(it, true) && player.getSquaredDistanceToEntity(it) < minDistanceFromOpponentSq
             }) return@handler
 
         if (serverOpenContainer && tileTarget != null) {
@@ -142,10 +142,10 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
                     return@firstOrNull true
 
                 val result = mc.world.rayTraceBlocks(eyes, vec) ?: return@firstOrNull false
-                val distanceSq = result.hitVec.squareDistanceTo(eyes)
+                val distanceSq = result.facePos.squareDistanceTo(eyes)
 
                 // If chest is behind a wall, check if through walls is enabled and its range
-                if (result.blockPos != entity.pos) {
+                if (result.pos != entity.pos) {
                     throughWalls && distanceSq <= wallsRangeSq
                 } else distanceSq <= rangeSq
             }?.let {
@@ -183,7 +183,7 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
                 if (!ignoreLooted || (packet.blockType !is ChestBlock && packet.blockType !is EnderChestBlock))
                     return@handler
 
-                val packetBlockPos = packet.blockPosition
+                val packetBlockPos = packet.position
 
                 clickedTileEntities += mc.world.getBlockEntity(packetBlockPos)
 
@@ -213,7 +213,7 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
 
                         // Find the closest player that is looking at the chest or else just the closest
                         player = (nearPlayers.firstOrNull { (player) ->
-                            player.rayTrace(5.0, 1f)?.blockPos == packetBlockPos
+                            player.rayTrace(5.0, 1f)?.pos == packetBlockPos
                         } ?: nearPlayers.first()).first
 
                         val entity = mc.world.getBlockEntity(packetBlockPos)
@@ -283,12 +283,12 @@ object ChestAura : Module("ChestAura", Category.WORLD) {
 
             val rotationVec = getRotationVector(rotationToUse) * mc.interactionManager.blockReachDistance.toDouble()
 
-            val visibleResult = performRayTrace(pos, rotationVec)?.takeIf { it.blockPos == pos }
-            val invisibleResult = performRaytrace(pos, rotationToUse)?.takeIf { it.blockPos == pos }
+            val visibleResult = performRayTrace(pos, rotationVec)?.takeIf { it.pos == pos }
+            val invisibleResult = performRaytrace(pos, rotationToUse)?.takeIf { it.pos == pos }
 
             (visibleResult ?: invisibleResult)?.run {
-                if (player.onPlayerRightClick(blockPos, sideHit, hitVec)) {
-                    player.swingItem(!swing)
+                if (player.onPlayerRightClick(pos, face, facePos)) {
+                    player.swingArm(!swing)
 
                     timer.reset()
                 }

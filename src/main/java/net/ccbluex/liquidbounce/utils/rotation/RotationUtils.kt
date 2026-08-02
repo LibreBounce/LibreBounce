@@ -75,10 +75,10 @@ object RotationUtils : MinecraftInstance, Listenable {
     /**
      * Face block
      *
-     * @param blockPos target block
+     * @param pos target block
      */
     fun faceBlock(
-        blockPos: BlockPos?,
+        pos: BlockPos?,
         throughWalls: Boolean = true,
         targetUpperFace: Boolean = false,
         hRange: ClosedFloatingPointRange<Double> = 0.0..1.0
@@ -86,12 +86,12 @@ object RotationUtils : MinecraftInstance, Listenable {
         val player = mc.player ?: return null
         mc.world ?: return null
 
-        if (blockPos == null) return null
+        if (pos == null) return null
 
-        val block = blockPos.block ?: return null
+        val block = pos.block ?: return null
 
         val eyesPos = player.eyes
-        val startPos = Vec3d(blockPos)
+        val startPos = Vec3d(pos)
 
         var visibleVec: VecRotation? = null
         var invisibleVec: VecRotation? = null
@@ -121,7 +121,7 @@ object RotationUtils : MinecraftInstance, Listenable {
 
                     val currentRotation = currentRotation ?: player.rotation
 
-                    if (raycast != null && raycast.blockPos == blockPos && (!targetUpperFace || raycast.sideHit == Direction.UP)) {
+                    if (raycast != null && raycast.pos == pos && (!targetUpperFace || raycast.face == Direction.UP)) {
                         if (visibleVec == null || rotationDifference(
                                 currentVec.rotation, currentRotation
                             ) < rotationDifference(visibleVec.rotation, currentRotation)
@@ -129,9 +129,9 @@ object RotationUtils : MinecraftInstance, Listenable {
                             visibleVec = currentVec
                         }
                     } else if (throughWalls) {
-                        val invisibleRaycast = performRaytrace(blockPos, rotation) ?: continue
+                        val invisibleRaycast = performRaytrace(pos, rotation) ?: continue
 
-                        if (invisibleRaycast.blockPos != blockPos) {
+                        if (invisibleRaycast.pos != pos) {
                             continue
                         }
 
@@ -271,7 +271,7 @@ object RotationUtils : MinecraftInstance, Listenable {
                     // Calculate actual hit vec after applying fixed sensitivity to rotation
                     val gcdVec = bb.calculateIntercept(
                         eyes, eyes + getRotationVector(rotation) * scanRange.toDouble()
-                    )?.hitVec ?: continue
+                    )?.facePos ?: continue
 
                     val distance = eyes.distanceTo(gcdVec)
 
@@ -604,10 +604,10 @@ object RotationUtils : MinecraftInstance, Listenable {
         startAngle + ((targetAngle - startAngle) / gcd).roundToInt() * gcd
 
     /**
-     * Creates a raytrace even when the target [blockPos] is not visible
+     * Creates a raytrace even when the target [pos] is not visible
      */
     fun performRaytrace(
-        blockPos: BlockPos,
+        pos: BlockPos,
         rotation: Rotation,
         reach: Float = mc.interactionManager.blockReachDistance,
     ): HitResult? {
@@ -616,13 +616,13 @@ object RotationUtils : MinecraftInstance, Listenable {
 
         val eyes = player.eyes
 
-        return blockPos.block?.collisionRayTrace(
-            world, blockPos, eyes, eyes + (getRotationVector(rotation) * reach.toDouble())
+        return pos.block?.collisionRayTrace(
+            world, pos, eyes, eyes + (getRotationVector(rotation) * reach.toDouble())
         )
     }
 
-    fun performRayTrace(blockPos: BlockPos, vec: Vec3d, eyes:Vec3d = mc.player.eyes) =
-        mc.world?.let { blockPos.block?.collisionRayTrace(it, blockPos, eyes, vec) }
+    fun performRayTrace(pos: BlockPos, vec: Vec3d, eyes:Vec3d = mc.player.eyes) =
+        mc.world?.let { pos.block?.collisionRayTrace(it, pos, eyes, vec) }
 
     fun syncRotations() {
         val player = mc.player ?: return

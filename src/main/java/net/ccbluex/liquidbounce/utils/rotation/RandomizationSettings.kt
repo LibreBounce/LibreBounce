@@ -91,7 +91,7 @@ class RandomizationSettings(owner: Module, val generalApply: () -> Boolean = { t
             }
         } else 0f
 
-        if (isZigZagActive || intercept?.hitVec == null) {
+        if (isZigZagActive || intercept?.facePos == null) {
             rotation.yaw += yawIncrease
             rotation.pitch += pitchIncrease
 

@@ -119,7 +119,7 @@ object NameTags : Module("NameTags", Category.RENDER) {
 
             val name = entity.displayName.unformattedText ?: continue
 
-            val distanceSquared = mc.player.getSquaredDistanceToToEntity(entity)
+            val distanceSquared = mc.player.getSquaredDistanceToEntity(entity)
 
             // In case user has FreeCam enabled, we restore the position back to normal,
             // so it renders the name-tag at the player's body position instead of the FreeCam position.
@@ -156,15 +156,15 @@ object NameTags : Module("NameTags", Category.RENDER) {
         glPushMatrix()
 
         // Translate to player position
-        val renderManager = mc.renderManager
+        val entityRenderDispatcher = mc.entityRenderDispatcher
         val rotateX = if (mc.options.perspective == 2) -1.0f else 1.0f
 
-        val (x, y, z) = entity.interpolatedPosition(entity.lastTickPos) - renderManager.renderPos
+        val (x, y, z) = entity.interpolatedPosition(entity.lastTickPos) - entityRenderDispatcher.renderPos
 
         glTranslated(x, y + entity.eyeHeight.toDouble() + 0.55, z)
 
-        glRotatef(-renderManager.playerViewY, 0F, 1F, 0F)
-        glRotatef(renderManager.playerViewX * rotateX, 1F, 0F, 0F)
+        glRotatef(-entityRenderDispatcher.playerViewY, 0F, 1F, 0F)
+        glRotatef(entityRenderDispatcher.playerViewX * rotateX, 1F, 0F, 0F)
 
         // Disable lightning and depth test
         disableGlCap(GL_LIGHTING, GL_DEPTH_TEST)
@@ -261,7 +261,7 @@ object NameTags : Module("NameTags", Category.RENDER) {
 
         if (potion && entity is PlayerEntity) {
             val potions =
-                entity.activePotionEffects.map { Potion.potionTypes[it.potionID] }.filter { it.hasStatusIcon() }
+                entity.activePotionEffects.map { Potion.potionTypes[it.effect] }.filter { it.hasStatusIcon() }
             if (potions.isNotEmpty()) {
                 foundPotion = true
 

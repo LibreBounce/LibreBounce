@@ -24,7 +24,7 @@ object TNTBlock : Module("TNTBlock", Category.COMBAT) {
 
     private val entities by EntityLookup<PrimedTntEntity>()
         .filter { it.fuse <= fuse }
-        .filter { mc.player.getSquaredDistanceToToEntity(it) <= range * range }
+        .filter { mc.player.getSquaredDistanceToEntity(it) <= range * range }
 
     val onMotion = handler<MotionEvent> {
         val player = mc.player ?: return@handler
@@ -36,7 +36,7 @@ object TNTBlock : Module("TNTBlock", Category.COMBAT) {
                 var bestDamage = 1f
 
                 for (i in 0..8) {
-                    val cursorItem = player.inventory.getStackInSlot(i)
+                    val cursorItem = player.inventory.getItem(i)
 
                     if (cursorItem?.item is SwordItem) {
                         val itemDamage = (cursorItem.item as SwordItem).damageVsEntity + 4F
@@ -50,7 +50,7 @@ object TNTBlock : Module("TNTBlock", Category.COMBAT) {
 
                 if (slot != -1 && slot != player.inventory.selectedSlot) {
                     player.inventory.selectedSlot = slot
-                    mc.interactionManager.syncCurrentPlayItem()
+                    mc.interactionManager.updateSelectedHotbarSlot()
                 }
             }
 

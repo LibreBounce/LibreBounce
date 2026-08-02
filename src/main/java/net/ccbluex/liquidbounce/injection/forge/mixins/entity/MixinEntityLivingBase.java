@@ -51,7 +51,7 @@ public abstract class MixinLivingEntity extends MixinEntity {
     protected abstract float getJumpUpwardsMotion();
 
     @Shadow
-    public abstract StatusEffectInstance getActivePotionEffect(Potion potionIn);
+    public abstract StatusEffectInstance getEffectInstance(Potion potionIn);
 
     @Shadow
     public abstract boolean hasStatusEffect(Potion potionIn);
@@ -86,7 +86,7 @@ public abstract class MixinLivingEntity extends MixinEntity {
         velocityY = prejumpEvent.getMotion();
 
         if (hasStatusEffect(Potion.jump))
-            velocityY += (float) (getActivePotionEffect(Potion.jump).getAmplifier() + 1) * 0.1F;
+            velocityY += (float) (getEffectInstance(Potion.jump).getAmplifier() + 1) * 0.1F;
 
         if (isSprinting()) {
             float fixedYaw = this.yaw;

@@ -304,14 +304,14 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
         // Eagle
         if (isEagleEnabled) {
             var dif = 0.5
-            val blockPos = BlockPos(player).down()
+            val pos = BlockPos(player).down()
 
             for (side in Direction.entries) {
                 if (side.axis == Direction.Axis.Y) {
                     continue
                 }
 
-                val neighbor = blockPos.offset(side)
+                val neighbor = pos.offset(side)
 
                 if (neighbor.isReplaceable) {
                     val calcDif = (if (side.axis == Direction.Axis.Z) {
@@ -346,7 +346,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
                 val pressedOnKeyboard = Keyboard.isPressed(options.sneakKey.keyCode)
 
                 var shouldEagle =
-                    eagleCondition && (blockPos.isReplaceable || dif < edgeDistance) || pressedOnKeyboard
+                    eagleCondition && (pos.isReplaceable || dif < edgeDistance) || pressedOnKeyboard
 
                 val shouldSchedule = !requestedStopSneak
 
@@ -494,9 +494,9 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
         }
 
         raycast.let {
-            if (!options.rotationsActive || it != null && it.blockPos == target.blockPos && (!raycastProperly || it.sideHit == target.enumFacing)) {
+            if (!options.rotationsActive || it != null && it.pos == target.pos && (!raycastProperly || it.face == target.enumFacing)) {
                 val result = if (raycastProperly && it != null) {
-                    PlaceInfo(it.blockPos, it.sideHit, it.hitVec)
+                    PlaceInfo(it.pos, it.face, it.facePos)
                 } else {
                     target
                 }
@@ -573,7 +573,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
         if (!shouldKeepLaunchPosition) launchY = player.y.roundToInt()
 
-        val blockPosition = if (shouldGoDown) {
+        val position = if (shouldGoDown) {
             if (player.y == player.y.roundToInt() + 0.5) {
                 BlockPos(player.x, player.y - 0.6, player.z)
             } else {
@@ -587,8 +587,8 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
             BlockPos(player).down()
         }
 
-        if (!expand && (!blockPosition.isReplaceable || search(
-                blockPosition, !shouldGoDown, area, shouldPlaceHorizontally
+        if (!expand && (!position.isReplaceable || search(
+                position, !shouldGoDown, area, shouldPlaceHorizontally
             ))
         ) {
             return
@@ -600,7 +600,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
             val z = if (omniDirectionalExpand) cos(yaw).roundToInt() else player.horizontalFacing.directionVec.z
 
             repeat(expandLength) {
-                if (search(blockPosition.add(x * it, 0, z * it), false, area)) return
+                if (search(position.add(x * it, 0, z * it), false, area)) return
             }
 
             return
@@ -613,7 +613,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
         else 1 to 1
 
         BlockPos.getAllInBox(
-            blockPosition.add(-horizontal, 0, -horizontal), blockPosition.add(horizontal, -vertical, horizontal)
+            position.add(-horizontal, 0, -horizontal), position.add(horizontal, -vertical, horizontal)
         ).sortedBy {
             BlockUtils.getCenterDistance(it)
         }.forEach {
@@ -648,7 +648,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
             // Check if block is placeable on target side before switching slots
             if ((stack.item as? BlockItem)?.canPlaceBlockOnSide(
-                    world, placeInfo.blockPos, placeInfo.enumFacing, player, stack
+                    world, placeInfo.pos, placeInfo.enumFacing, player, stack
                 ) == false
             ) {
                 return
@@ -659,7 +659,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
             }
         }
 
-        tryToPlaceBlock(stack, placeInfo.blockPos, placeInfo.enumFacing, placeInfo.vec3)
+        tryToPlaceBlock(stack, placeInfo.pos, placeInfo.enumFacing, placeInfo.vec3)
 
         if (autoBlock == "Switch") SilentHotbar.resetSlot(this, true)
 
@@ -686,26 +686,26 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
         val block = stack.item as BlockItem
 
         val canPlaceOnUpperFace = block.canPlaceBlockOnSide(
-            world, raytrace.blockPos, Direction.UP, player, stack
+            world, raytrace.pos, Direction.UP, player, stack
         )
 
         val shouldPlace = if (placementAttempt == "Fail") {
-            !block.canPlaceBlockOnSide(world, raytrace.blockPos, raytrace.sideHit, player, stack)
+            !block.canPlaceBlockOnSide(world, raytrace.pos, raytrace.face, player, stack)
         } else {
             if (shouldKeepLaunchPosition) {
-                raytrace.blockPos.y == launchY - 1 && !canPlaceOnUpperFace
+                raytrace.pos.y == launchY - 1 && !canPlaceOnUpperFace
             } else if (shouldPlaceHorizontally) {
                 !canPlaceOnUpperFace
             } else {
-                raytrace.blockPos.y <= player.y.toInt() - 1 && !(raytrace.blockPos.y == player.y.toInt() - 1 && canPlaceOnUpperFace && raytrace.sideHit == Direction.UP)
+                raytrace.pos.y <= player.y.toInt() - 1 && !(raytrace.pos.y == player.y.toInt() - 1 && canPlaceOnUpperFace && raytrace.face == Direction.UP)
             }
         }
 
-        if (!raytrace.typeOfHit.isBlock || !shouldPlace) {
+        if (!raytrace.type.isBlock || !shouldPlace) {
             return
         }
 
-        tryToPlaceBlock(stack, raytrace.blockPos, raytrace.sideHit, raytrace.hitVec, attempt = true) { onSuccess() }
+        tryToPlaceBlock(stack, raytrace.pos, raytrace.face, raytrace.facePos, attempt = true) { onSuccess() }
 
         // Since we violate vanilla slot switch logic if we send the packets now, we arrange them for the next tick
         if (lastClick) {
@@ -783,7 +783,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
                 performBlockRaytrace(it, mc.interactionManager.blockReachDistance)?.let { raytrace ->
                     val timePassed = System.currentTimeMillis() - extraClick.lastClick >= extraClick.delay
 
-                    if (raytrace.typeOfHit.isBlock && timePassed) {
+                    if (raytrace.type.isBlock && timePassed) {
                         extraClick = ExtraClickInfo(
                             TimeUtils.randomClickDelay(extraClickCPS),
                             System.currentTimeMillis(),
@@ -800,15 +800,15 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
             val yaw = player.yaw.toRadiansD()
             val x = if (omniDirectionalExpand) -sin(yaw).roundToInt() else player.horizontalFacing.directionVec.x
             val z = if (omniDirectionalExpand) cos(yaw).roundToInt() else player.horizontalFacing.directionVec.z
-            val blockPos = BlockPos(
+            val pos = BlockPos(
                 player.x + x * it,
                 if (shouldKeepLaunchPosition && launchY <= player.y) launchY - 1.0 else player.y - 1.0 - if (shouldGoDown) 1.0 else 0.0,
                 player.z + z * it
             )
-            val placeInfo = PlaceInfo.get(blockPos)
+            val placeInfo = PlaceInfo.get(pos)
 
-            if (blockPos.isReplaceable && placeInfo != null) {
-                RenderUtils.drawBlockBox(blockPos, Color(68, 117, 255, 100), false)
+            if (pos.isReplaceable && placeInfo != null) {
+                RenderUtils.drawBlockBox(pos, Color(68, 117, 255, 100), false)
                 return@handler
             }
         }
@@ -817,14 +817,14 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
     /**
      * Search for placeable block
      *
-     * @param blockPosition pos
+     * @param position pos
      * @param raycast visible
      * @param area spot
      * @return
      */
 
     fun search(
-        blockPosition: BlockPos,
+        position: BlockPos,
         raycast: Boolean,
         area: Boolean,
         horizontalOnly: Boolean = false,
@@ -833,7 +833,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
         options.instant = false
 
-        if (!blockPosition.isReplaceable) {
+        if (!position.isReplaceable) {
             if (autoF5) mc.options.perspective = 0
             return false
         } else {
@@ -852,7 +852,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
                 continue
             }
 
-            val neighbor = blockPosition.offset(side)
+            val neighbor = position.offset(side)
 
             if (!neighbor.canBeClicked()) {
                 continue
@@ -860,7 +860,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
             if (!area || isGodBridgeEnabled) {
                 currPlaceRotation =
-                    findTargetPlace(blockPosition, neighbor, Vec3d(0.5, 0.5, 0.5), side, eyes, maxReach, raycast)
+                    findTargetPlace(position, neighbor, Vec3d(0.5, 0.5, 0.5), side, eyes, maxReach, raycast)
                         ?: continue
 
                 placeRotation = compareDifferences(currPlaceRotation, placeRotation)
@@ -869,7 +869,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
                     for (y in 0.1..0.9) {
                         for (z in 0.1..0.9) {
                             currPlaceRotation =
-                                findTargetPlace(blockPosition, neighbor, Vec3d(x, y, z), side, eyes, maxReach, raycast)
+                                findTargetPlace(position, neighbor, Vec3d(x, y, z), side, eyes, maxReach, raycast)
                                     ?: continue
 
                             placeRotation = compareDifferences(currPlaceRotation, placeRotation)
@@ -960,10 +960,10 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
         // If the current rotation already looks at the target block and side, then return right here
         performBlockRaytrace(currRotation, maxReach)?.let { raytrace ->
-            if (raytrace.blockPos == offsetPos && (!raycast || raytrace.sideHit == side.opposite)) {
+            if (raytrace.pos == offsetPos && (!raycast || raytrace.face == side.opposite)) {
                 return PlaceRotation(
                     PlaceInfo(
-                        raytrace.blockPos, side.opposite, modifyVec(raytrace.hitVec, side, Vec3d(offsetPos), !raycast)
+                        raytrace.pos, side.opposite, modifyVec(raytrace.facePos, side, Vec3d(offsetPos), !raycast)
                     ), currRotation
                 )
             }
@@ -973,13 +973,13 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
         val multiplier = if (options.legitimize) 3 else 1
 
-        if (raytrace.blockPos == offsetPos && (!raycast || raytrace.sideHit == side.opposite) && canUpdateRotation(
+        if (raytrace.pos == offsetPos && (!raycast || raytrace.face == side.opposite) && canUpdateRotation(
                 currRotation, rotation, multiplier
             )
         ) {
             return PlaceRotation(
                 PlaceInfo(
-                    raytrace.blockPos, side.opposite, modifyVec(raytrace.hitVec, side, Vec3d(offsetPos), !raycast)
+                    raytrace.pos, side.opposite, modifyVec(raytrace.facePos, side, Vec3d(offsetPos), !raycast)
                 ), rotation
             )
         }
@@ -1039,14 +1039,14 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
     }
 
     private fun tryToPlaceBlock(
-        stack: ItemStack, clickPos: BlockPos, side: Direction, hitVec: Vec3d, attempt: Boolean = false,
+        stack: ItemStack, clickPos: BlockPos, side: Direction, facePos: Vec3d, attempt: Boolean = false,
         onSuccess: () -> Unit = { }
     ): Boolean {
         val player = mc.player ?: return false
 
         val prevSize = stack.size
 
-        val clickedSuccessfully = player.onPlayerRightClick(clickPos, side, hitVec, stack)
+        val clickedSuccessfully = player.onPlayerRightClick(clickPos, side, facePos, stack)
 
         if (clickedSuccessfully) {
             if (!attempt) {
@@ -1058,7 +1058,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
                 }
             }
 
-            player.swingItem(!swing)
+            player.swingArm(!swing)
 
             if (isManualJumpOptionActive) blocksPlacedUntilJump++
 

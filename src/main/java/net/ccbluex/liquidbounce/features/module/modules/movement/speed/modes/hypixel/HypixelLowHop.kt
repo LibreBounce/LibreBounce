@@ -50,7 +50,7 @@ object HypixelLowHop : SpeedMode("HypixelLowHop") {
                     strafe()
                 }
 
-                if ((getActivePotionEffect(Potion.moveSpeed)?.amplifier ?: 0) == 2) {
+                if ((getEffectInstance(Potion.moveSpeed)?.amplifier ?: 0) == 2) {
                     when (airTicks) {
                         1, 2, 5, 6, 8 -> {
                             velocityX *= 1.2
@@ -65,7 +65,7 @@ object HypixelLowHop : SpeedMode("HypixelLowHop") {
     override fun onJump(event: JumpEvent) {
         mc.player?.run {
             if (!isMoving) return
-            val atLeast = 0.281F + 0.13F * (getActivePotionEffect(Potion.moveSpeed)?.amplifier ?: 0)
+            val atLeast = 0.281F + 0.13F * (getEffectInstance(Potion.moveSpeed)?.amplifier ?: 0)
 
             strafe(speed = speed.coerceAtLeast(atLeast))
         }

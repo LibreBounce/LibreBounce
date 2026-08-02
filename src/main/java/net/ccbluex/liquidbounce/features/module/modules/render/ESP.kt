@@ -89,7 +89,7 @@ object ESP : Module("ESP", Category.RENDER) {
             glMatrixMode(GL_PROJECTION)
             glPushMatrix()
             glLoadIdentity()
-            glOrtho(0.0, mc.displayWidth.toDouble(), mc.displayHeight.toDouble(), 0.0, -1.0, 1.0)
+            glOrtho(0.0, mc.width.toDouble(), mc.height.toDouble(), 0.0, -1.0, 1.0)
             glMatrixMode(GL_MODELVIEW)
             glPushMatrix()
             glLoadIdentity()
@@ -103,7 +103,7 @@ object ESP : Module("ESP", Category.RENDER) {
         for (entity in entities) {
             val color = getColor(entity)
 
-            val pos = entity.interpolatedPosition(entity.lastTickPos) - mc.renderManager.renderPos
+            val pos = entity.interpolatedPosition(entity.lastTickPos) - mc.entityRenderDispatcher.renderPos
 
             when (mode) {
                 "Box", "OtherBox" -> drawEntityBox(entity, color, mode != "OtherBox")
@@ -134,7 +134,7 @@ object ESP : Module("ESP", Category.RENDER) {
                                 boxVertex[0].toFloat(),
                                 boxVertex[1].toFloat(),
                                 boxVertex[2].toFloat()
-                            ), mvMatrix, projectionMatrix, mc.displayWidth, mc.displayHeight
+                            ), mvMatrix, projectionMatrix, mc.width, mc.height
                         )
                             ?: continue
                         minX = min(screenPos.x, minX)
@@ -142,7 +142,7 @@ object ESP : Module("ESP", Category.RENDER) {
                         maxX = max(screenPos.x, maxX)
                         maxY = max(screenPos.y, maxY)
                     }
-                    if (minX > 0 || minY > 0 || maxX <= mc.displayWidth || maxY <= mc.displayWidth) {
+                    if (minX > 0 || minY > 0 || maxX <= mc.width || maxY <= mc.width) {
                         glColor4f(color.red / 255f, color.green / 255f, color.blue / 255f, 1f)
                         glBegin(GL_LINE_LOOP)
                         glVertex2f(minX, minY)
@@ -177,7 +177,7 @@ object ESP : Module("ESP", Category.RENDER) {
                 GlowShader.startDraw(event.partialTicks, glowRenderScale)
 
                 for (entity in entities) {
-                    mc.renderManager.renderEntitySimple(entity, event.partialTicks)
+                    mc.entityRenderDispatcher.renderEntitySimple(entity, event.partialTicks)
                 }
 
                 GlowShader.stopDraw(color, glowRadius, glowFade, glowTargetAlpha)
@@ -213,7 +213,7 @@ object ESP : Module("ESP", Category.RENDER) {
     fun shouldRender(entity: LivingEntity): Boolean {
         val player = mc.player ?: return false
 
-        return (player.getSquaredDistanceToToEntity(entity) <= maxRenderDistanceSq
+        return (player.getSquaredDistanceToEntity(entity) <= maxRenderDistanceSq
                 && (thruBlocks || isEntityHeightVisible(entity))
                 && (!onLook || isLookingOnEntities(entity, maxAngleDifference.toDouble()))
                 && isSelected(entity, false)

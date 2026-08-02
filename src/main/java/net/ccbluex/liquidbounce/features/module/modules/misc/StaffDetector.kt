@@ -22,7 +22,7 @@ import net.ccbluex.liquidbounce.utils.kotlin.SharedScopes
 import net.minecraft.entity.Entity
 import net.minecraft.entity.living.player.PlayerEntity
 import net.minecraft.item.Items
-import net.minecraft.network.Packet
+import net.minecraft.network.packet.Packet
 import net.minecraft.network.packet.s2c.play.*
 import net.minecraft.network.packet.s2c.play.PlayerInfoS2CPacket.Action.UPDATE_LATENCY
 import java.util.concurrent.ConcurrentHashMap
@@ -310,7 +310,7 @@ object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = fa
             when (autoLeave) {
                 "Leave" -> mc.player.sendMessage("/leave")
                 "Lobby" -> mc.player.sendMessage("/lobby")
-                "Quit" -> mc.world.sendQuittingDisconnectingPacket()
+                "Quit" -> mc.world.disconnect()
             }
             attemptLeave = true
         }

@@ -107,9 +107,9 @@ object Blink : Module("Blink", Category.PLAYER, gameDetecting = false) {
             glBegin(GL_LINE_STRIP)
             glColor(lineColor)
 
-            val renderPosX = mc.renderManager.viewerPosX
-            val renderPosY = mc.renderManager.viewerPosY
-            val renderPosZ = mc.renderManager.viewerPosZ
+            val renderPosX = mc.entityRenderDispatcher.viewerPosX
+            val renderPosY = mc.entityRenderDispatcher.viewerPosY
+            val renderPosZ = mc.entityRenderDispatcher.viewerPosZ
 
             for (pos in BlinkUtils.positions)
                 glVertex3d(pos.xCoord - renderPosX, pos.yCoord - renderPosY, pos.zCoord - renderPosZ)

@@ -5,7 +5,7 @@ import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPackets
 import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils
 import net.minecraft.client.entity.living.player.RemoteClientPlayerEntity
-import net.minecraft.network.Packet
+import net.minecraft.network.packet.Packet
 import net.minecraft.network.packet.c2s.handshake.HandshakeC2SPacket
 import net.minecraft.network.packet.c2s.play.ChatMessageC2SPacket
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
@@ -29,7 +29,7 @@ object BlinkUtils : MinecraftInstance, Listenable {
     fun blink(packet: Packet<*>, event: PacketEvent, sent: Boolean? = true, receive: Boolean? = true) {
         val player = mc.player ?: return
 
-        if (event.isCancelled || player.removed || mc.currentServerData == null) return
+        if (event.isCancelled || player.removed || mc.currentServerEntry == null) return
 
         when (packet) {
             is HandshakeC2SPacket, is ServerStatusC2SPacket, is PingC2SPacket, is ChatMessageS2CPacket, is ChatMessageC2SPacket -> {
