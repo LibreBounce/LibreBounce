@@ -1,42 +1,42 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-
 plugins {
+    java
     `maven-publish`
     id("org.jetbrains.kotlin.jvm") version "2.4.0"
-    id("fabric-loom")
-    id("ploceus") version "1.17.4"
+    id("net.fabricmc.fabric-loom-remap") version("1.17.+")
+    id("ploceus") version("1.17.+")
 }
 
-version = "${providers.gradleProperty("version").get()}+mc${providers.gradleProperty("minecraft_version").get()}"
-group = providers.gradleProperty("maven_group").get()
+group = "dev.rdh"
+version = "0.1"
 
-repositories {
-    // Add repositories to retrieve artifacts from in here.
-    // You should only use this when depending on other mods because
-    // Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
-    // See https://docs.gradle.org/current/userguide/declaring_repositories.html
-    // for more information about repositories.
-    mavenLocal()
-    mavenCentral()
-    maven { url = uri("https://repo.spongepowered.org/repository/maven-public/") }
-    maven { url = uri("https://jitpack.io/") }
+java.toolchain {
+    languageVersion = JavaLanguageVersion.of(25)
+}
+
+@Suppress("MayBeConstant")
+object Versions {
+    val minecraft = "1.8.9"
+    val feather = "1"
+    val osl = "0.20.3"
+    val fabric = "0.19.3"
 }
 
 ploceus {
-	setIntermediaryGeneration(2)
+    setIntermediaryGeneration(2)
+}
+
+repositories {
+    maven("https://maven.taumc.org/releases")
+    maven("https://repo.spongepowered.org/repository/maven-public/")
+    maven("https://jitpack.io/")
 }
 
 dependencies {
-    // To change the versions see the gradle.properties file
-    minecraft("com.mojang:minecraft:${providers.gradleProperty("minecraft_version").get()}")
-    modImplementation("net.fabricmc:fabric-loader:${providers.gradleProperty("loader_version").get()}")
+    minecraft("com.mojang:minecraft:${Versions.minecraft}")
+    mappings(ploceus.featherMappings(Versions.feather))
+
+    modImplementation("net.fabricmc:fabric-loader:${Versions.fabric}")
     modImplementation("net.fabricmc:fabric-language-kotlin:${providers.gradleProperty("fabric_kotlin_version").get()}")
-
-    mappings(ploceus.featherMappings(providers.gradleProperty("feather_build").get()))
-
-    //modImplementation("com.terraformersmc:modmenu:${providers.gradleProperty("mod_menu_version").get()}")
-
-    ploceus.dependOsl(providers.gradleProperty("osl_version").get())
 
     implementation("com.jagrosh:DiscordIPC:0.4")
 
@@ -61,45 +61,11 @@ dependencies {
     // Swing theme
     implementation("com.formdev:flatlaf:3.6.1")
 
-    //implementation fileTree(include: ["*.jar"], dir: "libs")
+    ploceus.dependOsl(Versions.osl)
 }
 
-/*minecraft {
-    clientJvmArgs += ["-Dfml.coreMods.load=net.ccbluex.liquidbounce.injection.forge.MixinLoader", "-Xmx4096m", "-Xms1024m", "-Ddev-mode"]
-}*/
-
-tasks.processResources {
-    val version = version
-    inputs.property("version", version)
-
-    filesMatching("fabric.mod.json") {
-        expand("version" to version)
-    }
-}
-
-tasks.withType<JavaCompile>().configureEach {
-    options.encoding = "UTF-8"
-    options.release = 8
-}
-
-kotlin {
-    compilerOptions {
-        jvmTarget = JvmTarget.JVM_1_8
-    }
-}
-
-java {
-    // Still required by IDEs such as Eclipse and Visual Studio Code
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
-
-    // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task if it is present.
-    // If you remove this line, sources will not be generated.
-    withSourcesJar()
-
-    // If this mod is going to be a library, then it should also generate Javadocs in order to aid with development.
-    // Uncomment this line to generate them.
-    // withJavadocJar()
+tasks.assemble {
+    dependsOn("remapJar")
 }
 
 tasks.jar {
@@ -111,19 +77,11 @@ tasks.jar {
     }
 }
 
-// configure the maven publication
-publishing {
-    publications {
-        register<MavenPublication>("mavenJava") {
-            from(components["java"])
-        }
-    }
+tasks.processResources {
+    val v = project.version
+    inputs.property("version", v)
 
-    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
-    repositories {
-        // Add repositories to publish to here.
-        // Notice: This block does NOT have the same function as the block in the top level.
-        // The repositories here will be used for publishing your artifact, not for
-        // retrieving dependencies.
+    filesMatching("fabric.mod.json") {
+        expand("version" to v)
     }
 }
