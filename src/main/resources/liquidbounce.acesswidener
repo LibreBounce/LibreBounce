@@ -1,156 +1,156 @@
 accessWidener v1 named
 
 # Minecraft
-accessible field net/minecraft/client/Minecraft timer # timer
-accessible field net/minecraft/client/Minecraft session # session
-accessible method net/minecraft/client/Minecraft rightClickDelayTimer # rightClickDelayTimer
-accessible method net/minecraft/client/Minecraft clickMouse()V # clickMouse
-accessible method net/minecraft/client/Minecraft rightClickMouse()V # rightClickMouse
-accessible method net/minecraft/client/Minecraft setWindowTitle()V # setWindowTitle
+
+accessible field net/minecraft/client/Minecraft timer Lnet/minecraft/util/Timer;
+accessible field net/minecraft/client/Minecraft session Lnet/minecraft/util/Session;
+accessible field net/minecraft/client/Minecraft rightClickDelayTimer I
+accessible method net/minecraft/client/Minecraft clickMouse ()V # clickMouse
+accessible method net/minecraft/client/Minecraft rightClickMouse ()V # rightClickMouse
+accessible method net/minecraft/client/Minecraft setWindowTitle ()V # setWindowTitle
 
 # C00Handshake
-accessible field net/minecraft/network/handshake/client/C00Handshake ip # ip
-accessible field net/minecraft/network/handshake/client/C00Handshake port # port
+accessible field net/minecraft/network/handshake/client/C00Handshake ip Ljava/lang/String;
+accessible field net/minecraft/network/handshake/client/C00Handshake port I
 
 # C01PacketChatMessage
-accessible field net/minecraft/network/play/client/C01PacketChatMessage message # message
+accessible field net/minecraft/network/play/client/C01PacketChatMessage message Ljava/lang/String;
 
 # C03PacketPlayer
-accessible field net/minecraft/network/play/client/C03PacketPlayer x # x
-accessible field net/minecraft/network/play/client/C03PacketPlayer y # y
-accessible field net/minecraft/network/play/client/C03PacketPlayer y # z
-accessible field net/minecraft/network/play/client/C03PacketPlayer yaw # yaw
-accessible field net/minecraft/network/play/client/C03PacketPlayer pitch # pitch
-accessible field net/minecraft/network/play/client/C03PacketPlayer onGround # onGround
-accessible field net/minecraft/network/play/client/C03PacketPlayer rotating # rotating
+accessible field net/minecraft/network/play/client/C03PacketPlayer x D
+accessible field net/minecraft/network/play/client/C03PacketPlayer y D
+accessible field net/minecraft/network/play/client/C03PacketPlayer z D
+accessible field net/minecraft/network/play/client/C03PacketPlayer yaw F
+accessible field net/minecraft/network/play/client/C03PacketPlayer pitch F
+accessible field net/minecraft/network/play/client/C03PacketPlayer onGround Z
+accessible field net/minecraft/network/play/client/C03PacketPlayer rotating Z
 
 # C17PacketCustomPayload
-accessible field net/minecraft/network/play/client/C17PacketCustomPayload data # data
+accessible field net/minecraft/network/play/client/C17PacketCustomPayload data Lnet/minecraft/network/PacketBuffer; # data
 
 # Entity
-accessible field net/minecraft/entity/Entity isInWeb # isInWeb
+accessible field net/minecraft/entity/Entity isInWeb Z
 
 # EntityPlayer
-accessible field net/minecraft/entity/player/EntityPlayer itemInUseCount # itemInUseCount
-accessible field net/minecraft/entity/player/EntityPlayer sleeping # sleeping
-accessible field net/minecraft/entity/player/EntityPlayer sleepTimer # sleepTimer
-accessible field net/minecraft/entity/player/EntityPlayer speedInAir # speedInAir
+accessible field net/minecraft/entity/player/EntityPlayer itemInUseCount I
+accessible field net/minecraft/entity/player/EntityPlayer sleeping Z #
+accessible field net/minecraft/entity/player/EntityPlayer sleepTimer I
+accessible field net/minecraft/entity/player/EntityPlayer speedInAir F
 
 # EntityPlayerSP
-accessible field net/minecraft/client/entity/EntityPlayerSP horseJumpPower # horseJumpPower
-accessible field net/minecraft/client/entity/EntityPlayerSP horseJumpPowerCounter # horseJumpPowerCounter
-accessible field net/minecraft/client/entity/EntityPlayerSP serverSprintState # serverSprintState
+accessible field net/minecraft/client/entity/EntityPlayerSP horseJumpPower F # horseJumpPower
+accessible field net/minecraft/client/entity/EntityPlayerSP horseJumpPowerCounter I # horseJumpPowerCounter
+accessible field net/minecraft/client/entity/EntityPlayerSP serverSprintState Z # serverSprintState
 
 # EntityRenderer
-accessible method net/minecraft/client/renderer/EntityRenderer loadShader(Lnet/minecraft/util/ResourceLocation;)V # loadShader
-accessible method net/minecraft/client/renderer/EntityRenderer setupCameraTransform(FI)V # setupCameraTransform
+accessible method net/minecraft/client/renderer/EntityRenderer loadShader (Lnet/minecraft/util/ResourceLocation;)V # loadShader
+accessible method net/minecraft/client/renderer/EntityRenderer setupCameraTransform (FI)V
 
 # GuiChest
-accessible field net/minecraft/client/gui/inventory/GuiChest inventoryRows # inventoryRows
-accessible field net/minecraft/client/gui/inventory/GuiChest lowerChestInventory # lowerChestInventory
+accessible field net/minecraft/client/gui/inventory/GuiChest inventoryRows I # inventoryRows
+accessible field net/minecraft/client/gui/inventory/GuiChest lowerChestInventory Lnet/minecraft/inventory/IInventory; # lowerChestInventory
 
 # GuiContainer
-accessible method net/minecraft/client/gui/inventory/GuiContainer handleMouseClick(Lnet/minecraft/inventory/Slot;III)V # handleMouseClick
-accessible method net/minecraft/client/gui/inventory/GuiContainerCreative handleMouseClick(Lnet/minecraft/inventory/Slot;III)V # handleMouseClick
+accessible method net/minecraft/client/gui/inventory/GuiContainer handleMouseClick (Lnet/minecraft/inventory/Slot;III)V # handleMouseClick
+accessible method net/minecraft/client/gui/inventory/GuiContainerCreative handleMouseClick (Lnet/minecraft/inventory/Slot;III)V # handleMouseClick
 
 # GuiGameOver
-accessible field net/minecraft/client/gui/GuiGameOver enableButtonsTimer # enableButtonsTimer
+accessible field net/minecraft/client/gui/GuiGameOver enableButtonsTimer I # enableButtonsTimer
 
 # GuiScreen
-accessible field net/minecraft/client/gui/GuiScreen fontRendererObj # fontRendererObj
-accessible field net/minecraft/client/gui/GuiScreen buttonList # buttonList
-accessible method net/minecraft/client/gui/GuiScreen handleComponentHover(Lnet/minecraft/util/IChatComponent;II)V # handleComponentHover
+accessible field net/minecraft/client/gui/GuiScreen fontRendererObj Lnet/minecraft/client/gui/FontRenderer; # fontRendererObj
+accessible field net/minecraft/client/gui/GuiScreen buttonList Ljava/util/List; # buttonList
+accessible method net/minecraft/client/gui/GuiScreen handleComponentHover (Lnet/minecraft/util/IChatComponent;II)V # handleComponentHover
 
 # GuiSlot
 # Causes Issues with the MC-Code
 # public net/minecraft/client/gui/GuiSlot elementClicked(IZII)V # elementClicked
 
 # ItemBucket
-accessible field net/minecraft/item/ItemBucket isFull # isFull
+accessible field net/minecraft/item/ItemBucket isFull Lnet/minecraft/block/Block; # isFull
 
 # KeyBinding
-accessible field net/minecraft/client/settings/KeyBinding isFull # pressed
+accessible field net/minecraft/client/settings/KeyBinding pressed Z # pressed
 
 # PlayerControllerMP
-accessible field net/minecraft/client/multiplayer/PlayerControllerMP curBlockDamageMP # curBlockDamageMP
-accessible field net/minecraft/client/multiplayer/PlayerControllerMP blockHitDelay # blockHitDelay
+accessible field net/minecraft/client/multiplayer/PlayerControllerMP curBlockDamageMP F # curBlockDamageMP
+accessible field net/minecraft/client/multiplayer/PlayerControllerMP blockHitDelay I # blockHitDelay
 
 # RenderMananger
-accessible field net/minecraft/client/renderer/entity/RenderManager renderPosX # renderPosX
-accessible field net/minecraft/client/renderer/entity/RenderManager renderPosY # renderPosY
-accessible field net/minecraft/client/renderer/entity/RenderManager renderPosZ # renderPosZ
+accessible field net/minecraft/client/renderer/entity/RenderManager renderPosX D # renderPosX
+accessible field net/minecraft/client/renderer/entity/RenderManager renderPosY D # renderPosY
+accessible field net/minecraft/client/renderer/entity/RenderManager renderPosZ D # renderPosZ
 
 # S2EPacketCloseWindow
-accessible field net/minecraft/network/play/server/S2EPacketCloseWindow windowId # windowId
+accessible field net/minecraft/network/play/server/S2EPacketCloseWindow windowId I # windowId
 
 # S08PacketPlayerPosLook
-accessible field net/minecraft/network/play/server/S08PacketPlayerPosLook yaw # yaw
-accessible field net/minecraft/network/play/server/S08PacketPlayerPosLook pitch # pitch
+accessible field net/minecraft/network/play/server/S08PacketPlayerPosLook yaw F # yaw
+accessible field net/minecraft/network/play/server/S08PacketPlayerPosLook pitch F # pitch
 
 # S12PacketEntityVelocity
-accessible field net/minecraft/network/play/server/S12PacketEntityVelocity motionX # motionX
-accessible field net/minecraft/network/play/server/S12PacketEntityVelocity motionY # motionY
-accessible field net/minecraft/network/play/server/S12PacketEntityVelocity motionZ # motionZ
+accessible field net/minecraft/network/play/server/S12PacketEntityVelocity motionX I # motionX
+accessible field net/minecraft/network/play/server/S12PacketEntityVelocity motionY I # motionY
+accessible field net/minecraft/network/play/server/S12PacketEntityVelocity motionZ I # motionZ
 
 # PacketUtils
-accessible method net/minecraft/network/NetworkManager flushOutboundQueue()V # flushOutboundQueue
-accessible method net/minecraft/network/NetworkManager dispatchPacket(Lnet/minecraft/network/Packet;[Lio/netty/util/concurrent/GenericFutureListener;)V # dispatchPacket
-accessible field net/minecraft/network/NetworkManager readWriteLock # readWriteLock
-accessible field net/minecraft/network/NetworkManager outboundPacketsQueue # outboundPacketsQueue
+accessible method net/minecraft/network/NetworkManager flushOutboundQueue ()V # flushOutboundQueue
+accessible method net/minecraft/network/NetworkManager dispatchPacket (Lnet/minecraft/network/Packet;[Lio/netty/util/concurrent/GenericFutureListener;)V # dispatchPacket
+accessible field net/minecraft/network/NetworkManager readWriteLock Ljava/util/concurrent/locks/ReentrantReadWriteLock; # readWriteLock
+accessible field net/minecraft/network/NetworkManager outboundPacketsQueue Ljava/util/Queue; # outboundPacketsQueue
 accessible class net/minecraft/network/NetworkManager$InboundHandlerTuplePacketListener
 
-accessible field net.minecraft/client/multiplayer/PlayerControllerMP currentPlayerItem # currentPlayerItem
+accessible field net/minecraft/client/multiplayer/PlayerControllerMP currentPlayerItem I # currentPlayerItem
 
-accessible field net.minecraft/client/settings/KeyBinding pressTime # pressTime
+accessible field net/minecraft/client/settings/KeyBinding pressTime I # pressTime
 
 # FontRenderer
-accessible method net/minecraft/client/gui/FontRenderer drawUnicodeChar(CZ)F # drawUnicodeChar
-accessible field net/minecraft/client/gui/FontRenderer posX # posX
-accessible field net/minecraft/client/gui/FontRenderer posY # posY
+accessible method net/minecraft/client/gui/FontRenderer drawUnicodeChar (CZ)F # drawUnicodeChar
+accessible field net/minecraft/client/gui/FontRenderer posX F # posX
+accessible field net/minecraft/client/gui/FontRenderer posY F # posY
 
 # S27PacketExplosion
-accessible field net/minecraft/network/play/server/S27PacketExplosion motionX # motionX
-accessible field net/minecraft/network/play/server/S27PacketExplosion motionY # motionY
-accessible field net/minecraft/network/play/server/S27PacketExplosion motionZ # motionZ
+accessible field net/minecraft/network/play/server/S27PacketExplosion field_149152_f F # motionX
+accessible field net/minecraft/network/play/server/S27PacketExplosion field_149153_g F # motionY
+accessible field net/minecraft/network/play/server/S27PacketExplosion field_149159_h F # motionZ
 
 # S19PacketEntityStatus
-accessible field net/minecraft/network/play/server/S19PacketEntityStatus entityId # entityId
+accessible field net/minecraft/network/play/server/S19PacketEntityStatus entityId I # entityId
 
 # S14PacketEntity
-accessible field net/minecraft/network/play/server/S14PacketEntity entityId # entityId
+accessible field net/minecraft/network/play/server/S14PacketEntity entityId I # entityId
 
-accessible field net/minecraft/entity/EntityLivingBase isJumping # isJumping
+accessible field net/minecraft/entity/EntityLivingBase isJumping Z # isJumping
 
-accessible method net/minecraft/client/Minecraft sendClickBlockToController(Z)V # sendClickBlockToController
+accessible method net/minecraft/client/Minecraft sendClickBlockToController (Z)V # sendClickBlockToController
 
-accessible field net/minecraft/entity/Entity nextStepDistance # nextStepDistance
+accessible field net/minecraft/entity/Entity nextStepDistance I # nextStepDistance
+accessible field net/minecraft/entity/Entity fire I # fire
 
-accessible field net/minecraft/entity/Entity fire # fire
+accessible field net/minecraft/entity/EntityLivingBase jumpTicks I # jumpTicks
 
-accessible field net/minecraft/entity/EntityLivingBase jumpTicks # jumpTicks
+accessible field net/minecraft/util/Vec3 xCoord D # xCoord
+accessible field net/minecraft/util/Vec3 yCoord D # yCoord
+accessible field net/minecraft/util/Vec3 zCoord D # zCoord
 
-accessible field net/minecraft/util/Vec3 xCoord # xCoord
-accessible field net/minecraft/util/Vec3 yCoord # yCoord
-accessible field net/minecraft/util/Vec3 zCoord # zCoord
-
-accessible field net/minecraft/entity/EntityLivingBase newPosX # newPosX
-accessible field net/minecraft/entity/EntityLivingBase newPosY # newPosY
-accessible field net/minecraft/entity/EntityLivingBase newPosZ # newPosZ
+accessible field net/minecraft/entity/EntityLivingBase newPosX D # newPosX
+accessible field net/minecraft/entity/EntityLivingBase newPosY D # newPosY
+accessible field net/minecraft/entity/EntityLivingBase newPosZ D # newPosZ
 
 accessible class net/minecraft/client/gui/GuiScreenOptionsSounds$Button
 
-accessible field net/minecraft/client/gui/GuiOptionSlider sliderValue # sliderValue
+accessible field net/minecraft/client/gui/GuiOptionSlider sliderValue F # sliderValue
 
-accessible method net/minecraft/client/multiplayer/PlayerControllerMP syncCurrentPlayItem()V # syncCurrentPlayItem
+accessible method net/minecraft/client/multiplayer/PlayerControllerMP syncCurrentPlayItem ()V # syncCurrentPlayItem
 
-accessible field net/minecraft/entity/player/EntityPlayer itemInUse # itemInUse
+accessible field net/minecraft/entity/player/EntityPlayer itemInUse Lnet/minecraft/item/ItemStack; # itemInUse
 
-accessible method net/minecraft/client/gui/GuiSlot isSelected(I)Z # isSelected
+accessible method net/minecraft/client/gui/GuiSlot isSelected (I)Z # isSelected
 
-accessible field net/minecraft/client/renderer/entity/Render shadowSize # shadowSize
+accessible field net/minecraft/client/renderer/entity/Render shadowSize F # shadowSize
 
-accessible field net/minecraft/client/Minecraft leftClickCounter # leftClickCounter
+accessible field net/minecraft/client/Minecraft leftClickCounter I # leftClickCounter
 
-accessible field net/minecraft/client/renderer/ItemRenderer itemToRender # itemToRender
+accessible field net/minecraft/client/renderer/ItemRenderer itemToRender Lnet/minecraft/item/ItemStack; # itemToRender
 
-accessible method net/minecraft/client/renderer/entity/Render getEntityTexture(Lnet/minecraft/entity/Entity;)Lnet/minecraft/util/ResourceLocation; # getEntityTexture
+accessible method net/minecraft/client/renderer/entity/Render getEntityTexture (Lnet/minecraft/entity/Entity;)Lnet/minecraft/util/ResourceLocation; # getEntityTexture
