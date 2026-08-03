@@ -68,6 +68,10 @@ dependencies {
     clientJvmArgs += ["-Dfml.coreMods.load=net.ccbluex.liquidbounce.injection.forge.MixinLoader", "-Xmx4096m", "-Xms1024m", "-Ddev-mode"]
 }*/
 
+loom {
+    accessWidenerPath.set(file("src/main/resources/liquidbounce.accesswidener"))
+}
+
 tasks.processResources {
     val version = version
     inputs.property("version", version)
