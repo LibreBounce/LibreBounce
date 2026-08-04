@@ -38,8 +38,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Util;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+/*import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;*/
 import org.lwjgl.Sys;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.Display;
@@ -56,7 +56,6 @@ import java.util.concurrent.Future;
 import static net.ccbluex.liquidbounce.utils.client.MinecraftInstance.mc;
 
 @Mixin(Minecraft.class)
-@SideOnly(Side.CLIENT)
 public abstract class MixinMinecraft {
 
     @Shadow
@@ -217,10 +216,10 @@ public abstract class MixinMinecraft {
         LiquidBounce.INSTANCE.stopClient();
     }
 
-    @Inject(method = "displayCrashReport", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/FMLCommonHandler;instance()Lnet/minecraftforge/fml/common/FMLCommonHandler;"))
+    /*@Inject(method = "displayCrashReport", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/FMLCommonHandler;instance()Lnet/minecraftforge/fml/common/FMLCommonHandler;"))
     private void injectDisplayCrashReport(CrashReport crashReport, CallbackInfo callbackInfo) {
         MiscUtils.showErrorPopup(crashReport.getCrashCause(), "Game crashed! ", MiscUtils.generateCrashInfo());
-    }
+    }*/
 
     @Inject(method = "clickMouse", at = @At("HEAD"))
     private void clickMouse(CallbackInfo callbackInfo) {

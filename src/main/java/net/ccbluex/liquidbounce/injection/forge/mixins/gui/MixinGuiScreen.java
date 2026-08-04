@@ -22,8 +22,6 @@ import net.minecraft.event.ClickEvent;
 import net.minecraft.event.HoverEvent;
 import net.minecraft.util.ChatStyle;
 import net.minecraft.util.IChatComponent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Mixin;
@@ -40,7 +38,6 @@ import static net.minecraft.client.renderer.GlStateManager.disableFog;
 import static net.minecraft.client.renderer.GlStateManager.disableLighting;
 
 @Mixin(GuiScreen.class)
-@SideOnly(Side.CLIENT)
 public abstract class MixinGuiScreen {
     @Shadow
     public Minecraft mc;

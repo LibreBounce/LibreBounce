@@ -5,10 +5,6 @@
  */
 package net.ccbluex.liquidbounce.utils.kotlin
 
-import net.minecraftforge.fml.relauncher.Side
-import net.minecraftforge.fml.relauncher.SideOnly
-
-@SideOnly(Side.CLIENT)
 object StringUtils {
     fun toCompleteString(args: Array<String>, start: Int) =
         if (args.size <= start) ""

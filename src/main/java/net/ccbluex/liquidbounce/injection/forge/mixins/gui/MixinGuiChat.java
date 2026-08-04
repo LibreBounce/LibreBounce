@@ -14,8 +14,6 @@ import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.util.IChatComponent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Mouse;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -30,7 +28,6 @@ import java.util.Comparator;
 import java.util.List;
 
 @Mixin(GuiChat.class)
-@SideOnly(Side.CLIENT)
 public abstract class MixinGuiChat extends MixinGuiScreen {
     @Shadow
     protected GuiTextField inputField;

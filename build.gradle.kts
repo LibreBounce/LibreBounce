@@ -45,9 +45,6 @@ dependencies {
         exclude(module = "authlib")
     }
 
-    /*implementation("com.github.TheAltening:TheAltening4j:d0771f42d3")
-    implementation("com.github.TheAltening:API-Java-AuthLib:63a9702615")*/
-
     implementation("org.knowm.xchart:xchart:3.8.8")
 
     // HTTP Client

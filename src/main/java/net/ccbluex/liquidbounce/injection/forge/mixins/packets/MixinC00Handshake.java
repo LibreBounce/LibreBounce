@@ -15,7 +15,6 @@ import org.spongepowered.asm.mixin.injection.ModifyConstant;
 
 import static net.ccbluex.liquidbounce.utils.client.MinecraftInstance.mc;
 
-@SideOnly(Side.CLIENT)
 @Mixin(C00Handshake.class)
 public class MixinC00Handshake {
 

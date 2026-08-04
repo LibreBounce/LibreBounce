@@ -1,8 +1,5 @@
 package net.vitox;
 
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -16,7 +13,6 @@ import static net.vitox.particle.util.RenderUtils.drawCircle;
  * @author Vitox
  * @version 3.0
  */
-@SideOnly(Side.CLIENT)
 public class ParticleGenerator {
 
     private final List<Particle> particles = new ArrayList<>();

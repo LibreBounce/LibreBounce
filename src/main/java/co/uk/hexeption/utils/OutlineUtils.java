@@ -2,8 +2,6 @@ package co.uk.hexeption.utils;
 
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.shader.Framebuffer;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.EXTPackedDepthStencil;
 
 import java.awt.*;
@@ -17,7 +15,6 @@ import static org.lwjgl.opengl.GL11.*;
  *
  * @author Hexeption
  */
-@SideOnly(Side.CLIENT)
 public class OutlineUtils {
 
     public static void renderOne(final float lineWidth) {

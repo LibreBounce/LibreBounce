@@ -12,8 +12,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import org.spongepowered.asm.mixin.*;
 
 import java.awt.*;
@@ -21,7 +19,6 @@ import java.awt.*;
 import static net.minecraft.client.renderer.GlStateManager.resetColor;
 
 @Mixin(GuiButton.class)
-@SideOnly(Side.CLIENT)
 public abstract class MixinGuiButton extends Gui {
 
     @Shadow

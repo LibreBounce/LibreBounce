@@ -8,8 +8,6 @@ package net.ccbluex.liquidbounce.utils.render
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME
 import net.ccbluex.liquidbounce.utils.client.ClientUtils
 import net.ccbluex.liquidbounce.utils.io.flipSafely
-import net.minecraftforge.fml.relauncher.Side
-import net.minecraftforge.fml.relauncher.SideOnly
 import org.lwjgl.opengl.Display
 import java.io.IOException
 import java.io.InputStream
@@ -17,7 +15,6 @@ import java.nio.ByteBuffer
 import java.util.*
 import javax.imageio.ImageIO
 
-@SideOnly(Side.CLIENT)
 object IconUtils {
 
     @JvmStatic

@@ -9,8 +9,6 @@ import net.ccbluex.liquidbounce.features.module.modules.misc.NameProtect;
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.GradientFontShader;
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowFontShader;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import org.spongepowered.asm.mixin.Debug;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -23,7 +21,6 @@ import static org.lwjgl.opengl.GL20.glUseProgram;
 
 @Mixin(FontRenderer.class)
 @Debug(export = true, print = true)
-@SideOnly(Side.CLIENT)
 public class MixinFontRenderer {
     // Local Variables
     private boolean rainbowEnabled0 = false;

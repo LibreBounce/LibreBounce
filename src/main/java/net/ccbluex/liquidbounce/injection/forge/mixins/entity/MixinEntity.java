@@ -22,8 +22,6 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -38,7 +36,6 @@ import java.util.UUID;
 import static net.ccbluex.liquidbounce.utils.client.MinecraftInstance.mc;
 
 @Mixin(Entity.class)
-@SideOnly(Side.CLIENT)
 public abstract class MixinEntity implements IMixinEntity {
 
     @Shadow

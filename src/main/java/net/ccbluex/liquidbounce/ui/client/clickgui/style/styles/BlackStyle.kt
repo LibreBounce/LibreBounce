@@ -33,13 +33,10 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.updateTextureCache
 import net.ccbluex.liquidbounce.utils.ui.EditableText
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.util.StringUtils
-import net.minecraftforge.fml.relauncher.Side
-import net.minecraftforge.fml.relauncher.SideOnly
 import java.awt.Color
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
-@SideOnly(Side.CLIENT)
 object BlackStyle : Style() {
     override fun drawPanel(mouseX: Int, mouseY: Int, panel: Panel) {
         drawBorderedRect(

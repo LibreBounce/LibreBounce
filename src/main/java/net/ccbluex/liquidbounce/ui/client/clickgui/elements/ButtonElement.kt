@@ -7,10 +7,7 @@ package net.ccbluex.liquidbounce.ui.client.clickgui.elements
 
 import net.ccbluex.liquidbounce.LiquidBounce.clickGui
 import net.ccbluex.liquidbounce.ui.client.clickgui.ClickGui
-import net.minecraftforge.fml.relauncher.Side
-import net.minecraftforge.fml.relauncher.SideOnly
 
-@SideOnly(Side.CLIENT)
 open class ButtonElement(
     open val displayName: String,
     val stateDependingColor: () -> Int = { Int.MAX_VALUE },

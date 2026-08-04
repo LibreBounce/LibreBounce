@@ -15,13 +15,10 @@ import net.ccbluex.liquidbounce.ui.client.clickgui.elements.Element
 import net.ccbluex.liquidbounce.ui.client.clickgui.elements.ModuleElement
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.minecraft.client.gui.ScaledResolution
-import net.minecraftforge.fml.relauncher.Side
-import net.minecraftforge.fml.relauncher.SideOnly
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
 
-@SideOnly(Side.CLIENT)
 class Panel(
     val name: String,
     var x: Int,

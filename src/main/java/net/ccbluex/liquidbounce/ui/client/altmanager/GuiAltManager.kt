@@ -5,7 +5,6 @@
  */
 package net.ccbluex.liquidbounce.ui.client.altmanager
 
-import com.thealtening.AltService
 import kotlinx.coroutines.launch
 import me.liuli.elixir.account.CrackedAccount
 import me.liuli.elixir.account.MicrosoftAccount
@@ -22,7 +21,6 @@ import net.ccbluex.liquidbounce.lang.translationText
 import net.ccbluex.liquidbounce.ui.client.altmanager.menus.GuiDonatorCape
 import net.ccbluex.liquidbounce.ui.client.altmanager.menus.GuiLoginIntoAccount
 import net.ccbluex.liquidbounce.ui.client.altmanager.menus.GuiSessionLogin
-import net.ccbluex.liquidbounce.ui.client.altmanager.menus.altgenerator.GuiTheAltening
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
@@ -87,10 +85,6 @@ class GuiAltManager(private val prevGui: GuiScreen) : AbstractScreen() {
         +GuiButton(6, 5, startPositionY + 24 * 4, 90, 20, translationButton("altManager.directLogin"))
         +GuiButton(10, 5, startPositionY + 24 * 5, 90, 20, translationButton("altManager.sessionLogin"))
 
-        if (activeGenerators.getOrDefault("thealtening", true)) {
-            +GuiButton(9, 5, startPositionY + 24 * 6, 90, 20, translationButton("altManager.theAltening"))
-        }
-
         +GuiButton(11, 5, startPositionY + 24 * 7, 90, 20, translationButton("altManager.cape"))
     }
 
@@ -111,10 +105,7 @@ class GuiAltManager(private val prevGui: GuiScreen) : AbstractScreen() {
             )
             Fonts.font35.drawStringWithShadow(
                 "§7Type: §a${
-                    if (altService.currentService == AltService.EnumAltService.THEALTENING) "TheAltening" else if (isValidTokenOffline(
-                            mc.getSession().token
-                        )
-                    ) "Premium" else "Cracked"
+                    if (isValidTokenOffline(mc.getSession().token)) "Premium" else "Cracked"
                 }", 6f, 15f, 0xffffff
             )
             searchField.drawTextBox()
@@ -263,10 +254,6 @@ class GuiAltManager(private val prevGui: GuiScreen) : AbstractScreen() {
                 } catch (any: Exception) {
                     any.printStackTrace()
                 }
-            }
-
-            9 -> { // Altening Button
-                mc.displayGuiScreen(GuiTheAltening(this))
             }
 
             10 -> { // Session Login Button
@@ -476,16 +463,7 @@ class GuiAltManager(private val prevGui: GuiScreen) : AbstractScreen() {
         fun login(
             minecraftAccount: MinecraftAccount, success: () -> Unit, error: (Exception) -> Unit, done: () -> Unit
         ) = SharedScopes.IO.launch {
-            if (altService.currentService != AltService.EnumAltService.MOJANG) {
-                try {
-                    altService.switchService(AltService.EnumAltService.MOJANG)
-                } catch (e: NoSuchFieldException) {
-                    error(e)
-                    LOGGER.error("Something went wrong while trying to switch alt service.", e)
-                } catch (e: IllegalAccessException) {
-                    error(e)
-                    LOGGER.error("Something went wrong while trying to switch alt service.", e)
-                }
+                altService.switchService(AltService.EnumAltService.MOJANG)
             }
 
             try {

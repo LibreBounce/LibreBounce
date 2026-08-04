@@ -33,15 +33,12 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.updateTextureCache
 import net.ccbluex.liquidbounce.utils.ui.EditableText
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.util.StringUtils
-import net.minecraftforge.fml.relauncher.Side
-import net.minecraftforge.fml.relauncher.SideOnly
 import java.awt.Color
 import kotlin.math.abs
 import kotlin.math.roundToInt
 import net.ccbluex.liquidbounce.utils.extensions.component1
 import net.ccbluex.liquidbounce.utils.extensions.component2
 
-@SideOnly(Side.CLIENT)
 object NullStyle : Style() {
     
     private fun getTextColor(): Int {

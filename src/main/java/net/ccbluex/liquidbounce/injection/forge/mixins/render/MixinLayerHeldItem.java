@@ -22,8 +22,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -35,7 +33,6 @@ import static net.ccbluex.liquidbounce.utils.client.MinecraftInstance.mc;
 import static net.minecraft.client.renderer.GlStateManager.*;
 
 @Mixin(LayerHeldItem.class)
-@SideOnly(Side.CLIENT)
 public class MixinLayerHeldItem {
 
     @Shadow

@@ -26,8 +26,6 @@ import net.minecraft.entity.item.EntityItemFrame;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.*;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -40,7 +38,6 @@ import java.util.List;
 import java.util.Objects;
 
 @Mixin(EntityRenderer.class)
-@SideOnly(Side.CLIENT)
 public abstract class MixinEntityRenderer {
 
     @Shadow

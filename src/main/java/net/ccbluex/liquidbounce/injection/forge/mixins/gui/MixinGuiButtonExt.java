@@ -4,7 +4,7 @@
  * https://github.com/CCBlueX/LiquidBounce/
  */
 
-package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
+/*package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 
 import net.ccbluex.liquidbounce.ui.font.Fonts;
 import net.ccbluex.liquidbounce.utils.render.RenderUtils;
@@ -47,7 +47,7 @@ public abstract class MixinGuiButtonExt extends GuiButton {
     /**
      * @author CCBlueX
      */
-    @Overwrite
+    /*@Overwrite
     public void drawButton(Minecraft mc, int mouseX, int mouseY) {
         final FontRenderer fontRenderer = mc.getLanguageManager().isCurrentLocaleUnicode() ? mc.fontRendererObj : Fonts.font35;
 
@@ -93,4 +93,4 @@ public abstract class MixinGuiButtonExt extends GuiButton {
         fontRenderer.drawStringWithShadow(displayString, (float) (xPosition + width / 2 - fontRenderer.getStringWidth(displayString) / 2), yPosition + (height - 5) / 2F, 14737632);
         resetColor();
     }
-}
+}*/

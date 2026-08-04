@@ -1,8 +1,6 @@
 package net.vitox;
 
 import net.minecraft.client.gui.ScaledResolution;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.Random;
 
@@ -17,7 +15,6 @@ import static net.vitox.particle.util.RenderUtils.connectPoints;
  * @author Vitox
  * @version 3.0
  */
-@SideOnly(Side.CLIENT)
 class Particle {
 
     public float x;

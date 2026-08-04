@@ -8,9 +8,6 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 import com.mojang.authlib.Agent;
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import com.mojang.authlib.yggdrasil.YggdrasilUserAuthentication;
-import com.thealtening.AltService;
-import com.thealtening.api.TheAltening;
-import com.thealtening.api.data.AccountData;
 import me.liuli.elixir.account.MinecraftAccount;
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.SessionUpdateEvent;
@@ -19,7 +16,6 @@ import net.ccbluex.liquidbounce.features.special.ClientFixes;
 import net.ccbluex.liquidbounce.file.FileManager;
 import net.ccbluex.liquidbounce.ui.client.altmanager.GuiAltManager;
 import net.ccbluex.liquidbounce.ui.client.altmanager.menus.GuiLoginProgress;
-import net.ccbluex.liquidbounce.ui.client.altmanager.menus.altgenerator.GuiTheAltening;
 import net.ccbluex.liquidbounce.utils.client.ClientUtils;
 import net.ccbluex.liquidbounce.utils.client.ServerUtils;
 import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils;
@@ -61,7 +57,7 @@ public abstract class MixinGuiDisconnected extends MixinGuiScreen {
 
         drawReconnectDelaySlider();
 
-        buttonList.add(new GuiButton(3, width / 2 - 100, height / 2 + field_175353_i / 2 + fontRendererObj.FONT_HEIGHT + 44, 98, 20, GuiTheAltening.Companion.getApiKey().isEmpty() ? "Random alt" : "New TheAltening alt"));
+        buttonList.add(new GuiButton(3, width / 2 - 100, height / 2 + field_175353_i / 2 + fontRendererObj.FONT_HEIGHT + 44, 98, 20, "Random alt"));
         buttonList.add(new GuiButton(4, width / 2 + 2, height / 2 + field_175353_i / 2 + fontRendererObj.FONT_HEIGHT + 44, 98, 20, "Random username"));
         buttonList.add(forgeBypassButton = new GuiButton(5, width / 2 - 100, height / 2 + field_175353_i / 2 + fontRendererObj.FONT_HEIGHT + 66, "Bypass AntiForge: " + (ClientFixes.INSTANCE.getFmlFixesEnabled() ? "On" : "Off")));
 
@@ -75,28 +71,6 @@ public abstract class MixinGuiDisconnected extends MixinGuiScreen {
                 ServerUtils.INSTANCE.connectToLastServer();
                 break;
             case 3:
-                if (!GuiTheAltening.Companion.getApiKey().isEmpty()) {
-                    final String apiKey = GuiTheAltening.Companion.getApiKey();
-                    final TheAltening theAltening = new TheAltening(apiKey);
-
-                    try {
-                        final AccountData account = theAltening.getAccountData();
-                        GuiAltManager.Companion.getAltService().switchService(AltService.EnumAltService.THEALTENING);
-
-                        final YggdrasilUserAuthentication yggdrasilUserAuthentication = new YggdrasilUserAuthentication(new YggdrasilAuthenticationService(Proxy.NO_PROXY, ""), Agent.MINECRAFT);
-                        yggdrasilUserAuthentication.setUsername(account.getToken());
-                        yggdrasilUserAuthentication.setPassword(CLIENT_NAME);
-                        yggdrasilUserAuthentication.logIn();
-
-                        mc.session = new Session(yggdrasilUserAuthentication.getSelectedProfile().getName(), yggdrasilUserAuthentication.getSelectedProfile().getId().toString(), yggdrasilUserAuthentication.getAuthenticatedToken(), "microsoft");
-                        EventManager.INSTANCE.call(SessionUpdateEvent.INSTANCE);
-                        ServerUtils.INSTANCE.connectToLastServer();
-                        break;
-                    } catch (final Throwable throwable) {
-                        ClientUtils.INSTANCE.getLOGGER().error("Failed to login into random account from TheAltening.", throwable);
-                    }
-                }
-
                 final List<MinecraftAccount> accounts = FileManager.INSTANCE.getAccountsConfig().getAccounts();
                 if (accounts.isEmpty())
                     break;

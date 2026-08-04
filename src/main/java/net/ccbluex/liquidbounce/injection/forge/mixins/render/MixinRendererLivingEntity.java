@@ -13,8 +13,6 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.renderer.entity.RendererLivingEntity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -29,7 +27,6 @@ import static net.minecraft.client.renderer.GlStateManager.*;
 import static org.lwjgl.opengl.GL11.*;
 
 @Mixin(RendererLivingEntity.class)
-@SideOnly(Side.CLIENT)
 public abstract class MixinRendererLivingEntity extends MixinRender {
 
     @Shadow

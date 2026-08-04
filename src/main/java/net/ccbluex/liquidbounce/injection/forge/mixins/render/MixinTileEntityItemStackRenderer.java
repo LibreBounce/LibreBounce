@@ -20,8 +20,6 @@ import net.minecraft.tileentity.TileEntityChest;
 import net.minecraft.tileentity.TileEntityEnderChest;
 import net.minecraft.tileentity.TileEntitySkull;
 import net.minecraft.util.EnumFacing;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
@@ -29,7 +27,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import static net.minecraft.client.renderer.GlStateManager.*;
 
 @Mixin(TileEntityItemStackRenderer.class)
-@SideOnly(Side.CLIENT)
 public class MixinTileEntityItemStackRenderer {
 
     @Shadow

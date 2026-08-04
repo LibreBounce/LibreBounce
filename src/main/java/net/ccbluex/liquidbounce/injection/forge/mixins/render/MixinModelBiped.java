@@ -10,8 +10,6 @@ import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -21,7 +19,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import static net.ccbluex.liquidbounce.utils.client.MinecraftInstance.mc;
 
 @Mixin(ModelBiped.class)
-@SideOnly(Side.CLIENT)
 public class MixinModelBiped {
 
     @Shadow

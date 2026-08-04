@@ -14,8 +14,6 @@ import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.GlStateManager.bindTexture
 import net.minecraft.client.renderer.texture.TextureUtil
-import net.minecraftforge.fml.relauncher.Side
-import net.minecraftforge.fml.relauncher.SideOnly
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 import java.awt.Font
@@ -29,7 +27,6 @@ import kotlin.math.roundToInt
  *
  * @author opZywl
  */
-@SideOnly(Side.CLIENT)
 class AWTFontRenderer(
     val font: Font,
     startChar: Int = 0,

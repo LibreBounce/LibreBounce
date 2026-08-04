@@ -16,13 +16,10 @@ import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.io.zipFilesTo
 import net.ccbluex.liquidbounce.utils.render.shader.Background
-import net.minecraftforge.fml.relauncher.Side
-import net.minecraftforge.fml.relauncher.SideOnly
 import java.io.File
 
 private val FILE_CONFIGS = ArrayList<FileConfig>()
 
-@SideOnly(Side.CLIENT)
 object FileManager : MinecraftInstance, Iterable<FileConfig> by FILE_CONFIGS {
 
     val dir = File(mc.mcDataDir, "$CLIENT_NAME-$MINECRAFT_VERSION")
