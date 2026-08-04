@@ -25,7 +25,7 @@ import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.gui.GuiMultiplayer;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.Session;
-import net.minecraftforge.fml.client.config.GuiSlider;
+//import net.minecraftforge.fml.client.config.GuiSlider;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -55,7 +55,7 @@ public abstract class MixinGuiDisconnected extends MixinGuiScreen {
         reconnectTimer = 0;
         buttonList.add(reconnectButton = new GuiButton(1, width / 2 - 100, height / 2 + field_175353_i / 2 + fontRendererObj.FONT_HEIGHT + 22, 98, 20, "Reconnect"));
 
-        drawReconnectDelaySlider();
+        //drawReconnectDelaySlider();
 
         buttonList.add(new GuiButton(3, width / 2 - 100, height / 2 + field_175353_i / 2 + fontRendererObj.FONT_HEIGHT + 44, 98, 20, "Random alt"));
         buttonList.add(new GuiButton(4, width / 2 + 2, height / 2 + field_175353_i / 2 + fontRendererObj.FONT_HEIGHT + 44, 98, 20, "Random username"));
@@ -118,7 +118,7 @@ public abstract class MixinGuiDisconnected extends MixinGuiScreen {
         }
     }
 
-    private void drawReconnectDelaySlider() {
+    /*private void drawReconnectDelaySlider() {
         buttonList.add(autoReconnectDelaySlider =
                 new GuiSlider(2, width / 2 + 2, height / 2 + field_175353_i / 2
                         + fontRendererObj.FONT_HEIGHT + 22, 98, 20, "AutoReconnect: ",
@@ -130,7 +130,7 @@ public abstract class MixinGuiDisconnected extends MixinGuiScreen {
                             updateReconnectButton();
                             updateSliderText();
                         }));
-    }
+    }*/
 
     private void updateSliderText() {
         if (autoReconnectDelaySlider == null)

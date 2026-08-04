@@ -53,10 +53,10 @@ object ClientFixes : Configurable("Features"), MinecraftInstance, Listenable {
             }
 
             when {
-                blockProxyPacket && packet.javaClass.name == "net.minecraftforge.fml.common.network.internal.FMLProxyPacket" -> {
+                /*blockProxyPacket && packet.javaClass.name == "net.minecraftforge.fml.common.network.internal.FMLProxyPacket" -> {
                     event.cancelEvent()
                     return@runCatching
-                }
+                }*/
 
                 packet is C17PacketCustomPayload -> when {
                     blockPayloadPackets && !packet.channelName.startsWith("MC|") -> {
