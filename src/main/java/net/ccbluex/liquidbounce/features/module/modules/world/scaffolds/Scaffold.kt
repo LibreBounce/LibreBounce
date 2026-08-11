@@ -153,7 +153,10 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
         resetTicksValue.setSupport { it && scaffoldMode != "Telly" }
     }
 
+
     private val tellyYawVariance by floatRange("TellyYawVariance", -0.4f..0.4f, -5f..5f) { options.rotationMode == "Telly" }
+    private val tellyPitchBase by float("TellyPitchBase", 58f, 0f..90f) { options.rotationMode == "Telly" }
+    private val tellyPitchTicksMult by float("TellyPitchTicksMult", 4f, 0f..90f) { options.rotationMode == "Telly" }
 
     // Search options
     val searchMode by choices("SearchMode", arrayOf("Area", "Center"), "Area") { scaffoldMode != "GodBridge" }
@@ -1227,8 +1230,8 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
         val steps45 = arrayListOf(-135f, -45f, 45f, 135f)
         val movingYaw = (steps45.minByOrNull { direction - it } ?: 0f) + yawVariance
-        val pitchMult = tellyTicks.get() * 4f
-        val movingPitch = (58f + pitchMult).coerceAtMost(90f)
+        val pitchMult = tellyTicks.get() * tellyPitchTicksMult
+        val movingPitch = (tellyPitchBase + pitchMult).coerceAtMost(90f)
 
         val tellyTargetRotation = Rotation(movingYaw, movingPitch).fixedSensitivity()
 
