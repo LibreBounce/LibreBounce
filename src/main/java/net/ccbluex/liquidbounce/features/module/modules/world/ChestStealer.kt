@@ -121,11 +121,16 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
     private suspend fun shouldOperate(): Boolean {
         while (true) {
-            if (!handleEvents() ||
-                mc.playerController?.currentGameType?.isSurvivalOrAdventure != true ||
-                mc.currentScreen !is GuiChest ||
-                mc.thePlayer?.openContainer?.windowId != receivedId
-            )
+            if (!handleEvents())
+                return false
+
+            if (mc.playerController?.currentGameType?.isSurvivalOrAdventure != true)
+                return false
+
+            if (mc.currentScreen !is GuiChest)
+                return false
+
+            if (mc.thePlayer?.openContainer?.windowId != receivedId)
                 return false
 
             // Wait until NoMove check isn't violated
@@ -145,7 +150,13 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
         val player = mc.thePlayer ?: return
         val screen = mc.currentScreen ?: return
 
-        if (!shouldOperate() || (chestTitle && chest.localizedName !in (screen.lowerChestInventory ?: return).name))
+        if (screen !is GuiChest)
+            return
+
+        isCustomGUI = chestTitle && chest.localizedName !in (screen.lowerChestInventory ?: return).name
+
+        // Check if chest isn't a custom GUI or shouldn't operate for another reason
+        if (isCustomGUI || !shouldOperate())
             return
 
         progress = 0f
@@ -156,10 +167,14 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
         // Go through the chest multiple times, until there are no useful items
         while (true) {
-            if (!shouldOperate() || !hasSpaceInInventory())
+            if (!shouldOperate())
+                return
+
+            if (!hasSpaceInInventory())
                 return
 
             var hasTaken = false
+
             val itemsToSteal = getItemsToSteal()
 
             run scheduler@{
