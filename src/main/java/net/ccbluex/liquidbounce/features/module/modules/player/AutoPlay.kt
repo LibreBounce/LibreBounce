@@ -46,8 +46,7 @@ object AutoPlay : Module("AutoPlay", Category.PLAYER, gameDetecting = false) {
         val player = mc.thePlayer ?: return@handler
 
         if (!playerInGame() || !player.inventory.hasItemStack(ItemStack(paper))) {
-            if (delayTick > 0)
-                delayTick = 0
+            delayTick.coerceAtMost(0)
 
             return@handler
         } else {

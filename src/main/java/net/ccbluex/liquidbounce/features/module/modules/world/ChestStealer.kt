@@ -124,8 +124,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
             if (!handleEvents() ||
                 mc.playerController?.currentGameType?.isSurvivalOrAdventure != true ||
                 mc.currentScreen !is GuiChest ||
-                mc.thePlayer?.openContainer?.windowId != receivedId ||
-                chestTitle && chest.localizedName !in (screen.lowerChestInventory ?: return).name
+                mc.thePlayer?.openContainer?.windowId != receivedId
             )
                 return false
 
@@ -146,7 +145,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
         val player = mc.thePlayer ?: return
         val screen = mc.currentScreen ?: return
 
-        if (!shouldOperate())
+        if (!shouldOperate() || (chestTitle && chest.localizedName !in (screen.lowerChestInventory ?: return).name))
             return
 
         progress = 0f
