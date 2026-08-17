@@ -38,6 +38,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
     private val checkForCriticalHits by boolean("CheckForCriticalHits", true)
     private val improveCritHandling by boolean("ImproveCritHandling", false) { checkForCriticalHits }
+    private val minTicksUntilFallingToCancel by int("MinTicksUntilFallingToCancel", 3, 0..10) { checkForCriticalHits && improveCritHandling }
 
     private val checkForBlockedHits by boolean("CheckForBlockedHits", true)
 
@@ -119,11 +120,13 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         val targetDistance = target.getDistanceToEntityBox(player)
     
         val simPlayer = SimulatedPlayer.fromClientPlayer(RotationUtils.modifiedInput)
+        var ticksUntilFalling = 0
         simHurtTime = player.hurtTime
 
         repeat(predictClientMovement + 1) {
             simPlayer.tick()
 
+            if (simPlayer.motionY >= 0) ++ticksUntilFalling
             if (simHurtTime > 0) --simHurtTime
         }
 
@@ -177,7 +180,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
             !hitOnTheWay
     
         val airHit =
-            (!hitOnTheWay && (!checkForCriticalHits || !improveCritHandling)) ||
+            (!hitOnTheWay && (!checkForCriticalHits || !improveCritHandling || ticksUntilFalling < minTicksUntilFallingToCancel)) ||
             (checkForCriticalHits && canCritHit(player) && (!lastHitCrit || !hitOnTheWay))
 
         val baseHurtTime = 3f / (1f + sqrt(dist) - (rotDiff / 180f))

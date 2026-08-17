@@ -244,17 +244,12 @@ object AutoArmor : Module("AutoArmor", Category.COMBAT) {
 
     private suspend fun shouldOperate(onlyHotbar: Boolean = false): Boolean {
         while (true) {
-            if (!handleEvents())
-                return false
-
-            if (!passedPostInventoryCloseDelay)
-                return false
-
-            if (mc.playerController?.currentGameType?.isSurvivalOrAdventure != true)
-                return false
-
-            // It is impossible to equip armor when a container is open; only try to equip by right-clicking from hotbar (if NotInContainers is disabled)
-            if (mc.thePlayer?.openContainer?.windowId != 0 && (!onlyHotbar || notInContainers))
+            if (!handleEvents() ||
+                !passedPostInventoryCloseDelay ||
+                mc.playerController?.currentGameType?.isSurvivalOrAdventure != true ||
+                // It is impossible to equip armor when a container is open; only try to equip by right-clicking from hotbar (if NotInContainers is disabled)
+                mc.thePlayer?.openContainer?.windowId != 0 && (!onlyHotbar || notInContainers)
+            )
                 return false
 
             // Player doesn't need to have inventory open or not to move, when equipping from hotbar

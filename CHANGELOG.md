@@ -13,6 +13,7 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 - `PreferCriticalHits` option to TickBase; previously hard-coded (thatonecoder)
 - `MissClickBackgroundColor` value to ChestStealer; previously the same as `BackgroundColor` (thatonecoder)
 - Highly experimental `Telly` rotation mode to Scaffold; meant to be used with the `Telly` mode (thatonecoder)
+- `MaxTicksUntilFallingToCancel` value to SmartHit; should help with fights (thatonecoder)
 - `moving` tag to the Text element (thatonecoder)
 
 ### Fixed
