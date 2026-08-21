@@ -3,10 +3,15 @@ plugins {
     id "idea"
     id "org.jetbrains.kotlin.jvm"
     id "com.github.johnrengelman.shadow" version "6.1.0"
-    id "net.minecraftforge.gradle.forge"
-    id "org.spongepowered.mixin"
+    //id "net.minecraftforge.gradle.forge"
+    //id "org.spongepowered.mixin"
     id "com.gorylenko.gradle-git-properties" version "2.5.3"
+    id "xyz.wagyourtail.unimined" version "1.4.2-SNAPSHOT"
 }
+
+archivesBaseName = project.archives_base_name
+version = project.mod_version
+group = project.maven_group
 
 repositories {
     mavenLocal()
@@ -15,32 +20,76 @@ repositories {
     maven { url = "https://jitpack.io/" }
 }
 
-archivesBaseName = project.archives_base_name
-version = project.mod_version
-group = project.maven_group
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(8)
+    }
+    sourceCompatibility = JavaVersion.VERSION_1_8
+}
 
-sourceCompatibility = targetCompatibility = 1.8
-compileJava.options.encoding = "UTF-8"
+tasks.withType(JavaCompile).configureEach {
+    options.release = 8
+}
+//sourceCompatibility = targetCompatibility = 1.8
+//compileJava.options.encoding = "UTF-8"
 
-compileKotlin {
+/*compileKotlin {
     kotlinOptions {
         jvmTarget = "1.8"
     }
-}
+}*/
 
-minecraft {
-    version = "1.8.9-11.15.1.2318-1.8.9"
-    runDir = "run"
-    mappings = "stable_22"
-    makeObfSourceJar = false
-    clientJvmArgs += ["-Dfml.coreMods.load=net.ccbluex.liquidbounce.injection.forge.MixinLoader", "-Xmx4096m", "-Xms1024m", "-Ddev-mode"]
+unimined.minecraft {
+    version project.minecraft_version
+    side "combined" // default value
+
+    mappings {
+        mcp("stable", "22-1.8.9")
+        searge()
+    }
+
+    minecraftForge {
+        loader project.forge_version
+        accessTransformer "src/main/resources/liquidbounce_at.cfg"
+        mixinConfig "liquidbounce.forge.mixins.json"
+    }
+
+    remap(configurations.modCompileOnly) {
+    }
+
+    add sourceSets.main, "liquidbounce.mixins.refmap.json"
+
+    runs {
+        //off = true // disable all run configurations
+        config("client") {
+            //disabled = true // disable the runClient task
+
+            javaVersion = JavaVersion.VERSION_1_8 // change the java version
+            args += ["-Dfml.coreMods.load=net.ccbluex.liquidbounce.injection.forge.MixinLoader", "-Xmx4096m", "-Xms1024m", "-Ddev-mode"] // add an argument to the runClient task
+        }
+    }
+
+    defaultRemapJar = true
 }
 
 configurations {
-    runtimeOnly.canBeResolved = true
+    mainImplementation
 }
 
+sourceSets {
+    main {
+        compileClasspath += configurations.mainImplementation
+        runtimeClasspath += configurations.mainImplementation
+    }
+}
+
+/*configurations {
+    runtimeOnly.canBeResolved = true
+}*/
+
 dependencies {
+    //implementation("com.github.CCBlueX:ForgeGradle:FG_2.1-SNAPSHOT")
+
     implementation("org.spongepowered:mixin:0.7.11-SNAPSHOT") {
         transitive = false
         exclude module: "guava"
@@ -100,7 +149,7 @@ shadowJar {
 
 processResources {
     inputs.property "version", project.version
-    inputs.property "mcversion", project.minecraft.version
+    inputs.property "mcversion", project.minecraft_version
 
     filesMatching("mcmod.info") {
         expand "version": project.version, "mcversion": project.minecraft.version
@@ -139,7 +188,7 @@ jar {
     dependsOn("shadowJar")
 }
 
-mixin {
+/*mixin {
     disableRefMapWarning = true
     defaultObfuscationEnv searge
     add sourceSets.main, "liquidbounce.mixins.refmap.json"
@@ -152,7 +201,19 @@ reobf {
 }
 
 tasks.reobfShadowJar.mustRunAfter("shadowJar")
-tasks.reobfJar.dependsOn("shadowJar")
+tasks.reobfJar.dependsOn("shadowJar")*/
+
+/*processForgeResources {
+    inputs.property "version", project.version
+
+    filesMatching("META-INF/mods.toml") {
+        expand "version": project.version
+    }
+
+    filesMatching("mcmod.info") {
+        expand "version": project.version
+    }
+}*/
 
 tasks.register('copyZipInclude', Copy) {
     from 'zip_include/'

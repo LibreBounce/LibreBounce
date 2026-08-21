@@ -2,7 +2,7 @@
   {
     "modid": "librebounce",
     "name": "LibreBounce",
-    "description": "A libre, mixin-based, injection hacked client",
+    "description": "A libre, mixin-based injection hacked client",
     "version": "${version}",
     "mcversion": "1.8.9",
     "url": "https://github.com/LibreBounce/LibreBounce",
