@@ -14,7 +14,8 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 - `MissClickBackgroundColor` value to ChestStealer; previously the same as `BackgroundColor` (thatonecoder)
 - Highly experimental `Telly` rotation mode to Scaffold; meant to be used with the `Telly` mode (thatonecoder)
 - `MaxTicksUntilFallingToCancel` value to SmartHit; should help with fights (thatonecoder)
-- `EdgeLimit` value to Scaffold's `WaitForRotations` option; previously hardcoded (thatonecoder)
+- `EdgeLimit` value to Scaffold's `SneakWhileRotating` option; previously hardcoded (thatonecoder)
+- `Clutch` option to the Godbridge mode in Scaffold; uses fallback rotations when `hurtTime` is above 0 (thatonecoder)
 - `GodBridgeNormalPitch` and `GodBridgeDiagonalPitch` values to Scaffold; previously hardcoded (thatonecoder)
 - `moving` tag to the Text element (thatonecoder)
 
@@ -26,7 +27,13 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 ### Changed
 
 - **Breaking:** Rename the `Smart` mode in the `Sorting` value to `Distance`, in ChestStealer (thatonecoder)
+- **Breaking:** Rename the `WaitForRotations` option to `SneakWhileRotation` in Scaffold (thatonecoder)
 - **Breaking:** Rename `GodBridgePitch` to `GodBridgeStraightPitch` in Scaffold (thatonecoder)
+- Change the `EagleEdgeDistance` minimum value from 0 to -0.5, in Scaffold (thatonecoder)
+
+### Removed
+
+- `OptimizedPitch` option in the Godbridge Scaffold mode (thatonecoder)
 
 ## [0.7.0-beta.2] - 2026-06-26
 

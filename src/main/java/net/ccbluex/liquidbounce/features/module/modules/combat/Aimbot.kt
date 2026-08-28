@@ -419,11 +419,6 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
         return rotation != null
     }
 
-    private fun switchToSlot(slot: Int) {
-        SilentHotbar.selectSlotSilently(this, slot, immediate = true)
-        SilentHotbar.resetSlot(this, true)
-    }
-
     private fun shouldPrioritize(): Boolean = when {
         !onScaffold && (Scaffold.handleEvents() && (Scaffold.placeRotation != null || currentRotation != null) || Tower.handleEvents() && Tower.isTowering) -> true
 

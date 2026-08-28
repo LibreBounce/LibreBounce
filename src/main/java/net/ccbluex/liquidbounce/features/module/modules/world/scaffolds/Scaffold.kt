@@ -22,7 +22,7 @@ import net.ccbluex.liquidbounce.utils.movement.MovementUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.rotation.PlaceRotation
 import net.ccbluex.liquidbounce.utils.rotation.Rotation
-import net.ccbluex.liquidbounce.utils.rotation.RotationSettingsWithRotationModes
+import net.ccbluex.liquidbounce.utils.rotation.RotationSettingsWithModes
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.canUpdateRotation
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.getFixedAngleDelta
@@ -99,7 +99,8 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
     }
 
     // GodBridge mode sub-values
-    private val waitForRots by boolean("WaitForRotations", false) { isGodBridgeEnabled }
+    private val sneakWhileRotating by boolean("SneakWhileRotating", true) { isGodBridgeEnabled }
+    private val clutch by boolean("Clutch", true) { isGodBridgeEnabled }
     private val edgeLimit by float("EdgeLimit", 2.5f, 0f..5f) { isGodBridgeEnabled && waitForRots }
     private val godBridgeNormalPitch by float(
         "GodBridgeNormalPitch", 75f, 0f..90f
@@ -143,10 +144,10 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
     private val eagleSpeed by float("EagleSpeed", 0.3f, 0.3f..1.0f) { eagle != "Off" }
     val eagleSprint by boolean("EagleSprint", false) { eagle == "Normal" }
     private val blocksToEagle by intRange("BlocksToEagle", 0..0, 0..10) { eagle != "Off" }
-    private val edgeDistance by float("EagleEdgeDistance", 0f, 0f..0.5f)
+    private val edgeDistance by float("EagleEdgeDistance", 0f, -0.5f..0.5f)
     { eagle != "Off" }
     private val useMaxSneakTime by boolean("UseMaxSneakTime", true) { eagle != "Off" }
-    private val maxSneakTicks by intRange("MaxSneakTicks", 3..3, 0..10) { useMaxSneakTime }
+    private val maxSneakTicks by intRange("MaxSneakTicks", 1..3, 0..10) { useMaxSneakTime }
     private val blockSneakingAgainUntilOnGround by boolean("BlockSneakingAgainUntilOnGround", true)
     { useMaxSneakTime && eagleMode != "OnGround" }
 
@@ -154,11 +155,10 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
     private val modeList =
         choices("Rotations", arrayOf("Off", "Normal", "Stabilized", "ReverseYaw", "GodBridge", "Telly"), "Normal")
 
-    private val options = RotationSettingsWithRotationModes(this, modeList).apply {
+    private val options = RotationSettingsWithModes(this, modeList).apply {
         strictValue.excludeWithState()
         resetTicksValue.setSupport { it && scaffoldMode != "Telly" }
     }
-
 
     private val tellyYawVariance by floatRange("TellyYawVariance", -0.4f..0.4f, -5f..5f) { options.rotationMode == "Telly" }
     private val tellyPitchBase by float("TellyPitchBase", 58f, 0f..90f) { options.rotationMode == "Telly" }
@@ -386,11 +386,12 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
                         }
                     }
 
-                    eagleSneaking = shouldEagle
                 } else {
                     options.keyBindSneak.pressed = shouldEagle
-                    eagleSneaking = shouldEagle
                 }
+
+                eagleSneaking = shouldEagle
+
 
                 if (eagleSneaking && shouldSchedule) {
                     if (useMaxSneakTime) {
@@ -445,7 +446,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
             if (isGodBridgeEnabled) options.resetTicks else RotationUtils.resetTicks
         }
 
-        if (!Tower.isTowering && isGodBridgeEnabled && options.rotationsActive) {
+        if (!Tower.isTowering && isGodBridgeEnabled && options.rotationsActive && (!clutch || player.hurtTime == 0)) {
             generateGodBridgeRotations(ticks)
 
             return@handler
@@ -529,7 +530,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
         if (!isGodBridgeEnabled || !player.onGround) return@handler
 
-        if (waitForRots && player.isNearEdge(edgeLimit)) {
+        if (sneakWhileRotating && player.isNearEdge(edgeLimit)) {
             godBridgeTargetRotation?.run {
                 event.originalInput.sneak =
                     event.originalInput.sneak || rotationDifference(this, currRotation) > getFixedAngleDelta()

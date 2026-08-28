@@ -161,7 +161,7 @@ open class RotationSettings(owner: Module, generalApply: () -> Boolean = { true 
     }
 }
 
-class RotationSettingsWithRotationModes(
+class RotationSettingsWithModes(
     owner: Module, listValue: ListValue, generalApply: () -> Boolean = { true },
 ) : RotationSettings(owner, generalApply) {
 
