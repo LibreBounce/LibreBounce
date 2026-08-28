@@ -11,6 +11,7 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.attack.CPSCounter
 import net.ccbluex.liquidbounce.utils.block.*
+import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils
@@ -102,7 +103,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
     // GodBridge mode sub-values
     private val clutch by boolean("Clutch", true) { isGodBridgeEnabled }
-    private val maxHurtTime by int("MaxHurtTime", 25, 0..30) { isGodBridgeEnabled && clutch }
+    private val maxHurtTime by int("MaxHurtTime", 25, 0..60) { isGodBridgeEnabled && clutch }
     private val onlyOnAir by boolean("OnlyOnAir", true) { isGodBridgeEnabled && clutch } 
 
     private val sneakWhileRotating by boolean("SneakWhileRotating", true) { isGodBridgeEnabled }
@@ -374,6 +375,8 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
                 }
 
                 if (debug) chat("(Scaffold Eagle) Sim player stats (fallDistance: ${simPlayer.fallDistance}, on ground: ${simPlayer.onGround})")
+                if (debug) chat("(Scaffold Eagle) Edge distance: $dif")
+
                 var shouldEagle =
                     (eagleCondition && (blockPos.isReplaceable || dif < edgeDistance) &&
                     (!onlyWhenPredictedFalling || simPlayer.fallDistance > 0f || !simPlayer.onGround)) || pressedOnKeyboard
@@ -478,6 +481,8 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
         }
 
         val shouldClutch = clutch && (!onlyOnAir || !player.onGround) && lastDamageTime.hasTimePassed(maxHurtTime)
+
+        if (debug) chat("(Scaffold Clutch) Should clutch: ${shouldClutch}, time currently passed, ${lastDamageTime.get()}, has time passed: ${lastDamageTime.hasTimePassed(maxHurtTime)}")
 
         if (!Tower.isTowering && isGodBridgeEnabled && options.rotationsActive && !shouldClutch) {
             generateGodBridgeRotations(ticks)
