@@ -39,6 +39,8 @@ import net.minecraft.init.Blocks.air
 import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemStack
 import net.minecraft.network.play.client.C0BPacketEntityAction
+import net.minecraft.network.play.server.S12PacketEntityVelocity
+import net.minecraft.network.play.server.S27PacketExplosion
 import net.minecraft.util.*
 import net.minecraft.world.WorldSettings
 import net.minecraftforge.event.ForgeEventFactory
@@ -99,9 +101,13 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
     }
 
     // GodBridge mode sub-values
-    private val sneakWhileRotating by boolean("SneakWhileRotating", true) { isGodBridgeEnabled }
     private val clutch by boolean("Clutch", true) { isGodBridgeEnabled }
+    private val maxHurtTime by int("MaxHurtTime", 25, 0..30) { isGodBridgeEnabled && clutch }
+    private val onlyOnAir by boolean("OnlyOnAir", true) { isGodBridgeEnabled && clutch } 
+
+    private val sneakWhileRotating by boolean("SneakWhileRotating", true) { isGodBridgeEnabled }
     private val edgeLimit by float("EdgeLimit", 2.5f, 0f..5f) { isGodBridgeEnabled && sneakWhileRotating }
+
     private val godBridgeNormalPitch by float(
         "GodBridgeNormalPitch", 75f, 0f..90f
     ) { isGodBridgeEnabled }
@@ -146,16 +152,18 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
     private val blocksToEagle by intRange("BlocksToEagle", 0..0, 0..10) { eagle != "Off" }
     private val edgeDistance by float("EagleEdgeDistance", 0f, -0.5f..0.5f)
     { eagle != "Off" }
+    private val onlyWhenPredictedFalling by boolean("OnlyWhenPredictedFalling", false) { eagle != "Off" }
+    private val predictTicks by int("PredictTicks", 1, 1..5) { eagle != "Off" && onlyWhenPredictedFalling }
     private val useMaxSneakTime by boolean("UseMaxSneakTime", true) { eagle != "Off" }
     private val maxSneakTicks by intRange("MaxSneakTicks", 1..3, 0..10) { useMaxSneakTime }
     private val blockSneakingAgainUntilOnGround by boolean("BlockSneakingAgainUntilOnGround", true)
     { useMaxSneakTime && eagleMode != "OnGround" }
 
     // Rotation Options
-    private val modeList =
+    private val modes =
         choices("Rotations", arrayOf("Off", "Normal", "Stabilized", "ReverseYaw", "GodBridge", "Telly"), "Normal")
 
-    private val options = RotationSettingsWithModes(this, modeList).apply {
+    private val options = RotationSettingsWithModes(this, modes).apply {
         strictValue.excludeWithState()
         resetTicksValue.setSupport { it && scaffoldMode != "Telly" }
     }
@@ -172,15 +180,14 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
     private val zitterMode by choices("Zitter", arrayOf("Off", "Teleport", "Smooth"), "Off")
     private val zitterSpeed by float("ZitterSpeed", 0.13f, 0.1f..0.3f) { zitterMode == "Teleport" }
     private val zitterStrength by float("ZitterStrength", 0.05f, 0f..0.2f) { zitterMode == "Teleport" }
-    private val zitterTicks by intRange("ZitterTicks", 2..3, 0..6) { zitterMode == "Smooth" }
-
+    private val zitterTicks by intRange("ZitterTicks", 2..3, 0..10) { zitterMode == "Smooth" }
     private val useSneakMidAir by boolean("UseSneakMidAir", false) { zitterMode == "Smooth" }
 
     // Game
     val timer by float("Timer", 1f, 0.1f..10f)
     private val speedModifier by float("SpeedModifier", 1f, 0f..2f)
     private val speedLimiter by boolean("SpeedLimiter", false) { !slow }
-    private val speedLimit by float("SpeedLimit", 0.11f, 0.01f..0.12f) { !slow && speedLimiter }
+    private val speedLimit by float("SpeedLimit", 0.11f, 0.01f..0.18f) { !slow && speedLimiter }
     private val slow by boolean("Slow", false)
     private val slowGround by boolean("SlowOnlyGround", false) { slow }
     private val slowSpeed by float("SlowSpeed", 0.6f, 0.2f..0.8f) { slow }
@@ -254,6 +261,8 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
         get() = scaffoldMode == "GodBridge" || scaffoldMode == "Normal" && options.rotationMode == "GodBridge"
 
     private var godBridgeTargetRotation: Rotation? = null
+
+    private val lastDamageTime = TickTimer()
 
     private val isLookingDiagonally: Boolean
         get() {
@@ -354,8 +363,17 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
                 // For better sneak support we could move this to MovementInputEvent
                 val pressedOnKeyboard = Keyboard.isKeyDown(options.keyBindSneak.keyCode)
 
+                val simPlayer = SimulatedPlayer.fromClientPlayer(RotationUtils.modifiedInput)
+
+                simPlayer.yaw = currRotation.yaw ?: player.yaw
+
+                repeat(predictTicks) {
+                    simPlayer.tick()
+                }
+
                 var shouldEagle =
-                    eagleCondition && (blockPos.isReplaceable || dif < edgeDistance) || pressedOnKeyboard
+                    (eagleCondition && (blockPos.isReplaceable || dif < edgeDistance) &&
+                    (!onlyWhenPredictedFalling || simPlayer.fallDistance > 0f)) || pressedOnKeyboard
 
                 val shouldSchedule = !requestedStopSneak
 
@@ -430,6 +448,15 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
         }
     }
 
+    val onPacket = handler<PacketEvent> { event ->
+        mc.thePlayer ?: return@handler
+        val packet = event.packet
+
+        if (packet is S12PacketEntityVelocity || packet is S27PacketExplosion) {
+            lastDamageTime.reset()
+        }
+    }
+
     val onRotationUpdate = handler<RotationUpdateEvent> {
         val player = mc.thePlayer ?: return@handler
 
@@ -446,7 +473,8 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
             if (isGodBridgeEnabled) options.resetTicks else RotationUtils.resetTicks
         }
 
-        if (!Tower.isTowering && isGodBridgeEnabled && options.rotationsActive && (!clutch || player.hurtTime == 0)) {
+        if (!Tower.isTowering && isGodBridgeEnabled && options.rotationsActive &&
+            (!clutch || (onlyOnAir && player.onGround) || lastDamageTime.hasTimePassed(maxHurtTime)) {
             generateGodBridgeRotations(ticks)
 
             return@handler

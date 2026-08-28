@@ -15,7 +15,8 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 - Highly experimental `Telly` rotation mode to Scaffold; meant to be used with the `Telly` mode (thatonecoder)
 - `MaxTicksUntilFallingToCancel` value to SmartHit; should help with fights (thatonecoder)
 - `EdgeLimit` value to Scaffold's `SneakWhileRotating` option; previously hardcoded (thatonecoder)
-- `Clutch` option to the Godbridge mode in Scaffold; uses fallback rotations when `hurtTime` is above 0 (thatonecoder)
+- `Clutch` option to the Godbridge mode in Scaffold; uses fallback rotations when the last damage time is above `MaxHurtTime` and on air or `OnlyOnAir` is off (thatonecoder)
+- `OnlyWhenPredictedFalling` option and `PredictTicks` value to the Eagle option in Scaffold (thatonecoder)
 - `GodBridgeNormalPitch` and `GodBridgeDiagonalPitch` values to Scaffold; previously hardcoded (thatonecoder)
 - `moving` tag to the Text element (thatonecoder)
 
@@ -29,6 +30,8 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 - **Breaking:** Rename the `Smart` mode in the `Sorting` value to `Distance`, in ChestStealer (thatonecoder)
 - **Breaking:** Rename the `WaitForRotations` option to `SneakWhileRotation` in Scaffold (thatonecoder)
 - **Breaking:** Rename `GodBridgePitch` to `GodBridgeStraightPitch` in Scaffold (thatonecoder)
+- Increase the `ZitterTicks` maximum value from 6 to 10, in Scaffold (thatonecoder)
+- Increase the `SpeedLimit` maximum value from 0.12 to 0.18, in Scaffold (thatonecoder)
 - Change the `EagleEdgeDistance` minimum value from 0 to -0.5, in Scaffold (thatonecoder)
 
 ### Removed
