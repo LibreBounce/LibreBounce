@@ -101,7 +101,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
     // GodBridge mode sub-values
     private val sneakWhileRotating by boolean("SneakWhileRotating", true) { isGodBridgeEnabled }
     private val clutch by boolean("Clutch", true) { isGodBridgeEnabled }
-    private val edgeLimit by float("EdgeLimit", 2.5f, 0f..5f) { isGodBridgeEnabled && waitForRots }
+    private val edgeLimit by float("EdgeLimit", 2.5f, 0f..5f) { isGodBridgeEnabled && sneakWhileRotating }
     private val godBridgeNormalPitch by float(
         "GodBridgeNormalPitch", 75f, 0f..90f
     ) { isGodBridgeEnabled }
