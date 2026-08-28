@@ -85,6 +85,7 @@ class FallingPlayer(
 
     fun findNonCollision(ticks: Int): Int {
         var ticksUntil = 0
+        var nullCollisions = 0
 
         repeat(ticks) { i ->
             val start = Vec3(x, y, z)
@@ -93,9 +94,11 @@ class FallingPlayer(
 
             for (offset in offsets) {
                 rayTrace(start + offset, end)?.let { 
-                    if (it.null) return ticksUntil else ticksUntil++
+                    if (it == null) nullCollisions++
                 }
             }
+
+            if (nullCollisions == 9) return ticksUntil else ++ticksUntil
         }
 
         return ticksUntil

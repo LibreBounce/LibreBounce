@@ -379,7 +379,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
                 var shouldEagle =
                     (eagleCondition && (blockPos.isReplaceable || dif < edgeDistance) &&
-                    (!onlyWhenPredictedFalling || ticksUntilFall < ticksTreshold) || pressedOnKeyboard
+                    (!onlyWhenPredictedFalling || ticksUntilFall < ticksTreshold) || pressedOnKeyboard)
 
 
                 if (debug) chat("(Scaffold Eagle) Should eagle: $shouldEagle")
