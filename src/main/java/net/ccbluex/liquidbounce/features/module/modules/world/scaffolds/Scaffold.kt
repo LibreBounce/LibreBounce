@@ -100,10 +100,16 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
     // GodBridge mode sub-values
     private val waitForRots by boolean("WaitForRotations", false) { isGodBridgeEnabled }
-    private val useOptimizedPitch by boolean("UseOptimizedPitch", false) { isGodBridgeEnabled }
-    private val customGodPitch by float(
-        "GodBridgePitch", 73.5f, 0f..90f
-    ) { isGodBridgeEnabled && !useOptimizedPitch }
+    private val edgeLimit by float("EdgeLimit", 2.5f, 0f..5f) { isGodBridgeEnabled && waitForRots }
+    private val godBridgeNormalPitch by float(
+        "GodBridgeNormalPitch", 75f, 0f..90f
+    ) { isGodBridgeEnabled }
+    private val godBridgeStraightPitch by float(
+        "GodBridgeStraightPitch", 73.5f, 0f..90f
+    ) { isGodBridgeEnabled }
+    private val godBridgeDiagonalPitch by float(
+        "GodBridgeDiagonalPitch", 75.6f, 0f..90f
+    ) { isGodBridgeEnabled }
 
     val jumpAutomatically by boolean("JumpAutomatically", true) { scaffoldMode == "GodBridge" }
     private val blocksToJumpRange by intRange("BlocksToJumpRange", 4..4, 1..8) {  scaffoldMode == "GodBridge" && !jumpAutomatically }
@@ -523,7 +529,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
         if (!isGodBridgeEnabled || !player.onGround) return@handler
 
-        if (waitForRots && player.isNearEdge(2.5f)) {
+        if (waitForRots && player.isNearEdge(edgeLimit)) {
             godBridgeTargetRotation?.run {
                 event.originalInput.sneak =
                     event.originalInput.sneak || rotationDifference(this, currRotation) > getFixedAngleDelta()
@@ -1182,9 +1188,8 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
                 val axisMovement = floor(this.rotation.yaw / 90) * 90
 
                 val yaw = axisMovement + 45f
-                val pitch = 75f
 
-                setRotation(Rotation(yaw, pitch), ticks)
+                setRotation(Rotation(yaw, godBridgeNormalPitch), ticks)
                 return
             }
 
@@ -1211,9 +1216,9 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
                 if (isOnRightSide) 45f else -45f
             } else 0f
 
-            Rotation(movingYaw + side, if (useOptimizedPitch) 73.5f else customGodPitch)
+            Rotation(movingYaw + side, godBridgeStraightPitch)
         } else {
-            Rotation(movingYaw, 75.6f)
+            Rotation(movingYaw, godBridgeDiagonalPitch)
         }.fixedSensitivity()
 
         godBridgeTargetRotation = rotation
