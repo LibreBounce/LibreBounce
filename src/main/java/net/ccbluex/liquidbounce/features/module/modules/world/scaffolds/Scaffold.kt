@@ -373,6 +373,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
                     simPlayer.tick()
                 }
 
+                if (debug) chat("(Scaffold Eagle) Sim player stats (fallDistance: ${simPlayer.fallDistance}, on ground: ${simPlayer.onGround})")
                 var shouldEagle =
                     (eagleCondition && (blockPos.isReplaceable || dif < edgeDistance) &&
                     (!onlyWhenPredictedFalling || simPlayer.fallDistance > 0f || !simPlayer.onGround)) || pressedOnKeyboard
@@ -456,6 +457,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
         if (packet is S12PacketEntityVelocity || packet is S27PacketExplosion) {
             lastDamageTime.reset()
+            if (debug) chat("Reset damage time due to knockback")
         }
     }
 
