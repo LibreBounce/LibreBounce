@@ -365,7 +365,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
                 val simPlayer = SimulatedPlayer.fromClientPlayer(RotationUtils.modifiedInput)
 
-                simPlayer.yaw = currRotation.yaw ?: player.yaw
+                simPlayer.rotationYaw = currRotation.yaw
 
                 repeat(predictTicks) {
                     simPlayer.tick()
@@ -474,7 +474,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
         }
 
         if (!Tower.isTowering && isGodBridgeEnabled && options.rotationsActive &&
-            (!clutch || (onlyOnAir && player.onGround) || lastDamageTime.hasTimePassed(maxHurtTime)) {
+            (!clutch || (onlyOnAir && player.onGround) || lastDamageTime.hasTimePassed(maxHurtTime))) {
             generateGodBridgeRotations(ticks)
 
             return@handler
