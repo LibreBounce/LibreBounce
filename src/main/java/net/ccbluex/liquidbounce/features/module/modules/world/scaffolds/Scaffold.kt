@@ -208,6 +208,8 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
     private val mark by boolean("Mark", false).subjective()
     private val trackCPS by boolean("TrackCPS", false).subjective()
 
+    private val debug by boolean("Debug", false).subjective()
+
     // Target placement
     var placeRotation: PlaceRotation? = null
 
@@ -373,7 +375,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
                 var shouldEagle =
                     (eagleCondition && (blockPos.isReplaceable || dif < edgeDistance) &&
-                    (!onlyWhenPredictedFalling || simPlayer.fallDistance > 0f)) || pressedOnKeyboard
+                    (!onlyWhenPredictedFalling || simPlayer.fallDistance > 0f || !simPlayer.onGround)) || pressedOnKeyboard
 
                 val shouldSchedule = !requestedStopSneak
 
@@ -473,8 +475,9 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
             if (isGodBridgeEnabled) options.resetTicks else RotationUtils.resetTicks
         }
 
-        if (!Tower.isTowering && isGodBridgeEnabled && options.rotationsActive &&
-            (!clutch || (onlyOnAir && player.onGround) || lastDamageTime.hasTimePassed(maxHurtTime))) {
+        val shouldClutch = clutch && (!onlyOnAir || !player.onGround) && lastDamageTime.hasTimePassed(maxHurtTime)
+
+        if (!Tower.isTowering && isGodBridgeEnabled && options.rotationsActive && !shouldClutch) {
             generateGodBridgeRotations(ticks)
 
             return@handler
