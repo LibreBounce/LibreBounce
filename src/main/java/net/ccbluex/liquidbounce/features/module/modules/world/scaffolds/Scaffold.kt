@@ -19,6 +19,7 @@ import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.blocksAmount
 import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar
 import net.ccbluex.liquidbounce.utils.inventory.hotBarSlot
 import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils
+import net.ccbluex.liquidbounce.utils.movement.FallingPlayer
 import net.ccbluex.liquidbounce.utils.movement.MovementUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.rotation.PlaceRotation
@@ -155,6 +156,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
     { eagle != "Off" }
     private val onlyWhenPredictedFalling by boolean("OnlyWhenPredictedFalling", false) { eagle != "Off" }
     private val predictTicks by int("PredictTicks", 1, 1..5) { eagle != "Off" && onlyWhenPredictedFalling }
+    private val ticksTreshold by int("TicksTreshold", 2, 0..5) { eagle != "Off" && onlyWhenPredictedFalling }
     private val useMaxSneakTime by boolean("UseMaxSneakTime", true) { eagle != "Off" }
     private val maxSneakTicks by intRange("MaxSneakTicks", 1..3, 0..10) { useMaxSneakTime }
     private val blockSneakingAgainUntilOnGround by boolean("BlockSneakingAgainUntilOnGround", true)
@@ -265,7 +267,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
     private var godBridgeTargetRotation: Rotation? = null
 
-    private val lastDamageTime = TickTimer()
+    private var lastDamageTime = 0
 
     private val isLookingDiagonally: Boolean
         get() {
@@ -366,21 +368,21 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
                 // For better sneak support we could move this to MovementInputEvent
                 val pressedOnKeyboard = Keyboard.isKeyDown(options.keyBindSneak.keyCode)
 
-                val simPlayer = SimulatedPlayer.fromClientPlayer(RotationUtils.modifiedInput)
+                val fallingPlayer = FallingPlayer(player, true)
 
-                simPlayer.rotationYaw = currRotation.yaw
+                fallingPlayer.yaw = currRotation.yaw
 
-                repeat(predictTicks) {
-                    simPlayer.tick()
-                }
+                val ticksUntilFall = fallingPlayer.findNonCollision(predictTicks)
 
-                if (debug) chat("(Scaffold Eagle) Sim player stats (fallDistance: ${simPlayer.fallDistance}, on ground: ${simPlayer.onGround})")
+                if (debug) chat("(Scaffold Eagle) Falling stats (ticksUntilFall: ${ticksUntilFall})")
                 if (debug) chat("(Scaffold Eagle) Edge distance: $dif")
 
                 var shouldEagle =
                     (eagleCondition && (blockPos.isReplaceable || dif < edgeDistance) &&
-                    (!onlyWhenPredictedFalling || simPlayer.fallDistance > 0f || !simPlayer.onGround)) || pressedOnKeyboard
+                    (!onlyWhenPredictedFalling || ticksUntilFall < ticksTreshold) || pressedOnKeyboard
 
+
+                if (debug) chat("(Scaffold Eagle) Should eagle: $shouldEagle")
                 val shouldSchedule = !requestedStopSneak
 
                 if (requestedStopSneak) {
@@ -459,7 +461,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
         val packet = event.packet
 
         if (packet is S12PacketEntityVelocity || packet is S27PacketExplosion) {
-            lastDamageTime.reset()
+            lastDamageTime = 0
             if (debug) chat("Reset damage time due to knockback")
         }
     }
@@ -480,9 +482,9 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
             if (isGodBridgeEnabled) options.resetTicks else RotationUtils.resetTicks
         }
 
-        val shouldClutch = clutch && (!onlyOnAir || !player.onGround) && lastDamageTime.hasTimePassed(maxHurtTime)
+        val shouldClutch = clutch && (!onlyOnAir || !player.onGround) && lastDamageTime < maxHurtTime
 
-        if (debug) chat("(Scaffold Clutch) Should clutch: ${shouldClutch}, time currently passed, ${lastDamageTime.get()}, has time passed: ${lastDamageTime.hasTimePassed(maxHurtTime)}")
+        if (debug) chat("(Scaffold Clutch) Should clutch: ${shouldClutch}, time currently passed, ${lastDamageTime}, has time passed: ${lastDamageTime >= maxHurtTime}")
 
         if (!Tower.isTowering && isGodBridgeEnabled && options.rotationsActive && !shouldClutch) {
             generateGodBridgeRotations(ticks)
@@ -507,6 +509,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
     val onTick = handler<GameTickEvent> {
         val target = placeRotation?.placeInfo
+        lastDamageTime++
 
         val raycastProperly = !(scaffoldMode == "Expand" && expandLength > 1 || shouldGoDown) && options.rotationsActive
 

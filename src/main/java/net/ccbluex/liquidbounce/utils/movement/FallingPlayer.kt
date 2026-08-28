@@ -25,7 +25,7 @@ class FallingPlayer(
     private var motionX: Double = mc.thePlayer.motionX,
     private var motionY: Double = mc.thePlayer.motionY,
     private var motionZ: Double = mc.thePlayer.motionZ,
-    private val yaw: Float = mc.thePlayer.rotationYaw,
+    var yaw: Float = mc.thePlayer.rotationYaw,
     private var strafe: Float = mc.thePlayer.moveStrafing,
     private var forward: Float = mc.thePlayer.moveForward
 ) : MinecraftInstance {
@@ -81,6 +81,24 @@ class FallingPlayer(
             }
         }
         return null
+    }
+
+    fun findNonCollision(ticks: Int): Int {
+        var ticksUntil = 0
+
+        repeat(ticks) { i ->
+            val start = Vec3(x, y, z)
+            calculateForTick()
+            val end = Vec3(x, y, z)
+
+            for (offset in offsets) {
+                rayTrace(start + offset, end)?.let { 
+                    if (it.null) return ticksUntil else ticksUntil++
+                }
+            }
+        }
+
+        return ticksUntil
     }
 
     private fun rayTrace(start: Vec3, end: Vec3): BlockPos? {
