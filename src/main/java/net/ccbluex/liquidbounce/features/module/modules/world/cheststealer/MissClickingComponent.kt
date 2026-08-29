@@ -37,7 +37,7 @@ open class MissClickingComponent(owner: Module): Configurable(owner.name) {
                     squaredDistanceOfSlots(targetSlot.slotNumber, otherSlot.slotNumber)
                 } ?: return 0
 
-            val slotId = closestEmptySlot.slotNumber
+            val slotId: Int = closestEmptySlot.slotNumber ?: return 0
             pauseTime = pauseAfterMissClick.random().toLong()
             chance = missClickChance * if (missClickChanceDistMult) distance else 1
             lastMiss.reset()
