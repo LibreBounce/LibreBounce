@@ -110,8 +110,6 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
     private var receivedId: Int? = null
     private var stacks = emptyList<ItemStack?>()
 
-    var pauseAfterMissClickLength = pauseAfterMissClick.random().toLong()
-
     var lastClickIsMissClick = false
 
     var isCustomGUI = false

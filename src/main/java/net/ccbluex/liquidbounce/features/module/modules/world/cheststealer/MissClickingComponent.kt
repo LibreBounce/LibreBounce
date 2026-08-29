@@ -3,6 +3,7 @@ package net.ccbluex.liquidbounce.features.module.modules.world.cheststealer
 import net.ccbluex.liquidbounce.config.Configurable
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.world.ChestStealer.lastClickIsMissClick
+import net.ccbluex.liquidbounce.features.module.modules.world.ChestStealer.squaredDistanceOfSlots
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.chestStealerCurrentSlot
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.utils.timing.TickedActions.clickNextTick
@@ -18,16 +19,14 @@ open class MissClickingComponent(owner: Module): Configurable(owner.name) {
     private val missClickChanceDistMult by boolean("MissClickChanceDistanceMultiply", true) { missClick }
     private val pauseAfterMissClick by intRange("PauseAfterMissClick", 350..650, 0..1000, suffix = "ms") { missClick }
 
-    private val cps by intRange(prefix + "CPS", 8..12, 0..50) { shouldApply }
-    private val clicksAtATime by intRange(prefix + "ClicksAtATime", 1..1, 0..5) { shouldApply }
-
     init {
         owner.addValues(this.values)
     }
 
-    private var delay = missClickDelay.random()
+    private var delay = missClickDelay
+    private var pauseTime = pauseAfterMissClick.random().toLong()
     private var lastMiss = MSTimer()
-    private var chance = missClickChance * if (missClickChanceDistMult) dist else 1
+    private var chance = missClickChance
 
     // Returns the delay to use
     fun tryMissClick(screen: GuiChest, targetSlot: Slot, distance: Int): Long {
@@ -36,23 +35,23 @@ open class MissClickingComponent(owner: Module): Configurable(owner.name) {
                 .filter { it.stack == null || it.stack.stackSize == 0 }
                 .minByOrNull { otherSlot ->
                     squaredDistanceOfSlots(targetSlot.slotNumber, otherSlot.slotNumber)
-                } ?: return
+                } ?: return 0
 
             val slotId = closestEmptySlot.slotNumber
-            delay = pauseAfterMissClick.random().toLong()
-            chance = missClickChance * if (missClickChanceDistMult) dist else 1
+            pauseTime = pauseAfterMissClick.random().toLong()
+            chance = missClickChance * if (missClickChanceDistMult) distance else 1
             lastMiss.reset()
 
             clickNextTick(slotId, 0, 1)
 
             /*if (itemStolenDebug)
-                debug("Miss-clicked on slot $slotId. Delay until next click: ${delay}ms")*/
+                debug("Miss-clicked on slot $slotId. Delay until next click: ${pauseTime}ms")*/
 
             chestStealerCurrentSlot = slotId
 
             lastClickIsMissClick = true
 
-            return delay
+            return pauseTime
         }
 
         return 0
