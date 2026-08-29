@@ -18,6 +18,7 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.AutoArmor
 import net.ccbluex.liquidbounce.features.module.modules.player.InventoryCleaner
 import net.ccbluex.liquidbounce.features.module.modules.player.InventoryCleaner.canBeSortedTo
 import net.ccbluex.liquidbounce.features.module.modules.player.InventoryCleaner.isStackUseful
+import net.ccbluex.liquidbounce.features.module.modules.world.cheststealer.MissClickingComponent
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.extensions.component1
@@ -69,11 +70,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
     private val shortStopChance by int("ShortStopChance", 75, 0..100, suffix = "%") { simulateShortStop }
     private val shortStopLength by intRange("ShortStopLength", 350..650, 0..1000, suffix = "ms") { simulateShortStop }
 
-    // TODO: Add an option to not miss-click consecutively
-    private val missClick by boolean("MissClick", false)
-    private val missClickChance by int("MissClickChance", 4, 0..100, suffix = "%") { missClick }
-    private val missClickChanceDistMult by boolean("MissClickChanceDistanceMultiply", true) { missClick }
-    private val pauseAfterMissClick by intRange("PauseAfterMissClick", 350..650, 0..1000, suffix = "ms") { missClick }
+    private val missClicking = MissClickingComponent(this)
 
     private val noMove by +InventoryManager.noMoveValue
     private val noMoveAir by +InventoryManager.noMoveAirValue
@@ -199,12 +196,9 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
                         squaredDistanceOfSlots(slot, itemsToSteal[index + 1].index)
                     else 1
 
-                    val missClickingChance = missClickChance * if (missClickChanceDistMult) dist else 1
+                    val missClickPause = missClicking.tryMissClick(screen, screen.inventorySlots.inventorySlots[slot], dist)
 
-                    if (missClick && withinChance(missClickingChance)) {
-                        performMissClick(screen, screen.inventorySlots.inventorySlots[slot])
-                        delay(pauseAfterMissClickLength)
-                    }
+                    delay(missClickPause)
 
                     // Set current slot being stolen for highlighting
                     chestStealerCurrentSlot = slot
@@ -278,7 +272,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
         awaitTicked()
     }
 
-    private fun squaredDistanceOfSlots(from: Int, to: Int): Int {
+    fun squaredDistanceOfSlots(from: Int, to: Int): Int {
         fun getCoords(slot: Int): IntArray {
             val x = slot % 9
             val y = slot / 9
@@ -379,26 +373,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
         return itemsToSteal
     }
- 
-    private fun performMissClick(screen: GuiChest, targetSlot: Slot) {
-        val closestEmptySlot = screen.inventorySlots.inventorySlots
-            .filter { it.stack == null || it.stack.stackSize == 0 }
-            .minByOrNull { otherSlot ->
-                squaredDistanceOfSlots(targetSlot.slotNumber, otherSlot.slotNumber)
-            } ?: return
 
-        val slotId = closestEmptySlot.slotNumber
-        pauseAfterMissClickLength = pauseAfterMissClick.random().toLong()
-
-        clickNextTick(slotId, 0, 1)
-
-        if (itemStolenDebug)
-            debug("Miss-clicked on slot $slotId. Delay until next click: ${pauseAfterMissClickLength}ms")
-
-        chestStealerCurrentSlot = slotId
-
-        lastClickIsMissClick = true
-    }
 
     private fun sortBasedOnOptimumPath(itemsToSteal: MutableList<ItemTakeRecord>) {
         for (i in itemsToSteal.indices) {
