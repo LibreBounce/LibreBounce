@@ -505,7 +505,6 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
     val onTick = handler<GameTickEvent> {
         val target = placeRotation?.placeInfo
-        lastDamageTime++
 
         val raycastProperly = !(scaffoldMode == "Expand" && expandLength > 1 || shouldGoDown) && options.rotationsActive
 
