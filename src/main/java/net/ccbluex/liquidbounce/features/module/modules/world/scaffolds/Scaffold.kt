@@ -104,8 +104,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
     // GodBridge mode sub-values
     private val clutch by boolean("Clutch", true) { isGodBridgeEnabled }
-    private val maxHurtTime by int("MaxHurtTime", 25, 0..60) { isGodBridgeEnabled && clutch }
-    private val onlyOnAir by boolean("OnlyOnAir", true) { isGodBridgeEnabled && clutch } 
+    private val minAirTicks by int("MinAirTicks", 25, 0..60) { isGodBridgeEnabled && clutch }
 
     private val sneakWhileRotating by boolean("SneakWhileRotating", true) { isGodBridgeEnabled }
     private val edgeLimit by float("EdgeLimit", 2.5f, 0f..5f) { isGodBridgeEnabled && sneakWhileRotating }
@@ -267,8 +266,6 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
     private var godBridgeTargetRotation: Rotation? = null
 
-    private var lastDamageTime = 0
-
     private val isLookingDiagonally: Boolean
         get() {
             val player = mc.thePlayer ?: return false
@@ -370,7 +367,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
                 var ticksUntilFall = 0
 
-                if (onlyWhenPredictedFalling)
+                if (onlyWhenPredictedFalling) {
                     val simPlayer = SimulatedPlayer.fromClientPlayer(RotationUtils.modifiedInput)
 
                     simPlayer.rotationYaw = currRotation.yaw
@@ -465,16 +462,6 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
         }
     }
 
-    val onPacket = handler<PacketEvent> { event ->
-        mc.thePlayer ?: return@handler
-        val packet = event.packet
-
-        if (packet is S12PacketEntityVelocity || packet is S27PacketExplosion) {
-            lastDamageTime = 0
-            if (debug) chat("Reset damage time due to knockback")
-        }
-    }
-
     val onRotationUpdate = handler<RotationUpdateEvent> {
         val player = mc.thePlayer ?: return@handler
 
@@ -491,9 +478,9 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
             if (isGodBridgeEnabled) options.resetTicks else RotationUtils.resetTicks
         }
 
-        val shouldClutch = clutch && (!onlyOnAir || !player.onGround) && lastDamageTime < maxHurtTime
+        val shouldClutch = clutch && (player.hurtTime != 0 || player.airTicks >= minAirTicks)
 
-        if (debug) chat("(Scaffold Clutch) Should clutch: ${shouldClutch}, time currently passed, ${lastDamageTime}, has time passed: ${lastDamageTime >= maxHurtTime}")
+        if (debug) chat("(Scaffold Clutch) Should clutch: ${shouldClutch}, air ticks: ${player.airTicks}")
 
         if (!Tower.isTowering && isGodBridgeEnabled && options.rotationsActive && !shouldClutch) {
             generateGodBridgeRotations(ticks)
