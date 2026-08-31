@@ -316,9 +316,7 @@ class SimulatedPlayer(
     }
 
     private fun livingEntityUpdate() {
-        --this.jumpTicks
-
-        this.jumpTicks.coerceAtLeast(0)
+        jumpTicks = (--jumpTicks).coerceAtLeast(0)
 
         if (abs(this.motionX) < 0.005)
             this.motionX = 0.0
@@ -372,9 +370,7 @@ class SimulatedPlayer(
             fire = 0
         } else if (fire > 0) {
             /*if (this.isImmuneToFire()) {
-                fire -= 4
-
-                fire.coerceAtLeast(0)
+                fire = (fire - 4).coerceAtLeast(0)
             } else {*/
             --fire
             //}
@@ -446,13 +442,11 @@ class SimulatedPlayer(
                     i = 5
                 }
 
-                val f = 0.1f
-
                 when (i) {
-                    0 -> motionX = (-f).toDouble()
-                    1 -> motionX = f.toDouble()
-                    4 -> motionZ = (-f).toDouble()
-                    5 -> motionZ = f.toDouble()
+                    0 -> motionX = (-0.1f).toDouble()
+                    1 -> motionX = (0.1f).toDouble()
+                    4 -> motionZ = (-0.1f).toDouble()
+                    5 -> motionZ = (0.1f).toDouble()
                 }
             }
 
@@ -540,7 +534,7 @@ class SimulatedPlayer(
 
                         fallDistance = 0.0f
 
-                        motionY.coerceAtLeast(if (isSneaking()) 0.0 else -0.15)
+                        motionY = motionY.coerceAtLeast(if (isSneaking()) 0.0 else -0.15)
                     }
 
                     moveEntity(motionX, motionY, motionZ)
@@ -785,17 +779,17 @@ class SimulatedPlayer(
                 var52.printStackTrace()
             }
 
-            val flag2 = isWet()
+            val wet = isWet()
 
             if (worldObj.isFlammableWithin(this.getEntityBoundingBox().contract(0.001, 0.001, 0.001))) {
                 //this.dealFireDamage(1)
-                if (!flag2 && ++fire == 0)
+                if (!wet && ++fire == 0)
                     setOnFire(8)
             } else if (fire <= 0) {
                 fire = -fireResistance
             }
 
-            if (flag2 && fire > 0) {
+            if (wet && fire > 0) {
                 fire = -fireResistance
             }
         }
@@ -812,7 +806,7 @@ class SimulatedPlayer(
     private fun setOnFire(seconds: Int = 15) {
         val ticks = EnchantmentProtection.getFireTimeForEntity(player, seconds * 20)
 
-        fire.coerceAtLeast(ticks)
+        fire = fire.coerceAtLeast(ticks)
     }
 
     private fun isWet(): Boolean {
@@ -862,7 +856,7 @@ class SimulatedPlayer(
             this.handleWaterMovement()
 
         if (onGround) {
-            fallDistance.coerceAtMost(0.0f)
+            fallDistance = fallDistance.coerceAtMost(0.0f)
         } else if (motionY < 0.0) {
             fallDistance = (fallDistance.toDouble() - motionY).toFloat()
         }

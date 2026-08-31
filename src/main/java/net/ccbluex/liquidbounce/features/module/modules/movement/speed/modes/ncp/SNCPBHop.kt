@@ -105,7 +105,7 @@ object SNCPBHop : SpeedMode("SNCPBHop") {
             moveSpeed = lastDist - lastDist / 159.0
         }
 
-        moveSpeed.coerceAtLeast(baseMoveSpeed)
+        moveSpeed = moveSpeed.coerceAtLeast(baseMoveSpeed)
 
         var forward = player.movementInput.moveForward
         var strafe = player.movementInput.moveStrafe

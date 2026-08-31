@@ -91,7 +91,7 @@ object NCPBHop : SpeedMode("NCPBHop") {
             moveSpeed = lastDist - lastDist / 159.0
         }
 
-        moveSpeed.coerceAtLeast(baseMoveSpeed)
+        moveSpeed = moveSpeed.coerceAtLeast(baseMoveSpeed)
 
         // TODO: Use a proper strafe system
         var forward = player.movementInput.moveForward

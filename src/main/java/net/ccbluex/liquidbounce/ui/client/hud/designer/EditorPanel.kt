@@ -90,8 +90,7 @@ class EditorPanel(private val hudDesigner: GuiHudDesigner, var x: Int, var y: In
                 if (wheel < 0 && -scroll + 205 <= realHeight) {
                     scroll -= 12
                 } else if (wheel > 0) {
-                    scroll += 12
-                    scroll.coerceAtMost(0)
+                    scroll = (scroll + 12).coerceAtMost(0)
                 }
             }
         }
