@@ -368,13 +368,22 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
                 // For better sneak support we could move this to MovementInputEvent
                 val pressedOnKeyboard = Keyboard.isKeyDown(options.keyBindSneak.keyCode)
 
-                val fallingPlayer = FallingPlayer(player, true)
+                var ticksUntilFall = 0
 
-                fallingPlayer.yaw = currRotation.yaw
+                if (onlyWhenPredictedFalling)
+                    val simPlayer = SimulatedPlayer.fromClientPlayer(RotationUtils.modifiedInput)
 
-                val ticksUntilFall = fallingPlayer.findNonCollision(predictTicks)
+                    simPlayer.rotationYaw = currRotation.yaw
 
-                if (debug) chat("(Scaffold Eagle) Falling stats (ticksUntilFall: ${ticksUntilFall})")
+                    repeat(predictTicks) {
+                        simPlayer.tick()
+
+                        if (simPlayer.fallDistance >= 0) ++ticksUntilFall
+                    }
+
+                    if (debug) chat("(Scaffold Eagle) Falling stats (ticksUntilFall: ${ticksUntilFall})")
+                }
+        
                 if (debug) chat("(Scaffold Eagle) Edge distance: $dif")
 
                 var shouldEagle =
