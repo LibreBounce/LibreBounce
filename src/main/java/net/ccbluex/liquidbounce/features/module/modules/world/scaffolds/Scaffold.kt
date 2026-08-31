@@ -61,7 +61,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
     // Scaffold
     val scaffoldMode by choices(
-        "ScaffoldMode", arrayOf("Normal", "Rewinside", "Expand", "Telly", "GodBridge"), "Normal"
+        "ScaffoldMode", arrayOf("Normal", "GodBridge", "Telly", "Expand"), "Normal"
     )
 
     // Expand
@@ -141,9 +141,8 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
     private val blockSafe by boolean("BlockSafe", false) { !isGodBridgeEnabled }
 
     // Eagle
-    private val eagleValue =
+    val eagle by
         choices("Eagle", arrayOf("Normal", "Silent", "Off"), "Normal")
-    val eagle by eagleValue
     private val eagleMode by choices("EagleMode", arrayOf("Both", "OnGround", "InAir"), "Both")
     { eagle != "Off" }
     private val adjustedSneakSpeed by boolean("AdjustedSneakSpeed", true)
@@ -340,9 +339,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
                         abs(neighbor.x + 0.5 - player.posX)
                     }) - 0.5
 
-                    if (calcDif < dif) {
-                        dif = calcDif
-                    }
+                    dif = dif.coerceAtMost(calcDif)
                 }
             }
 
@@ -352,7 +349,9 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
             val options = mc.gameSettings
 
             run {
-                if (placedBlocksWithoutEagle < blocksToEagle.random() && !alreadySneaking && !blockSneaking && !eagleSneaking && !requestedStopSneak) {
+                if (placedBlocksWithoutEagle < blocksToEagle.random() &&
+                    !alreadySneaking && !blockSneaking && !eagleSneaking && !requestedStopSneak
+                ) {
                     return@run
                 }
 
@@ -375,17 +374,17 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
                     repeat(predictTicks) {
                         simPlayer.tick()
 
-                        if (simPlayer.fallDistance >= 0) ++ticksUntilFall
+                        if (simPlayer.fallDistance >= 0 || simPlayer.motionY > 0) ++ticksUntilFall
                     }
 
-                    if (debug) chat("(Scaffold Eagle) Falling stats (ticksUntilFall: ${ticksUntilFall})")
+                    if (debug) chat("(Scaffold Eagle) Falling stats (predict ticks: $]predictTicks}, ticks until fall: ${ticksUntilFall})")
                 }
         
                 if (debug) chat("(Scaffold Eagle) Edge distance: $dif")
 
                 var shouldEagle =
                     (eagleCondition && (blockPos.isReplaceable || dif < edgeDistance) &&
-                    (!onlyWhenPredictedFalling || ticksUntilFall < ticksTreshold) || pressedOnKeyboard)
+                    (!onlyWhenPredictedFalling || ticksUntilFall <= ticksTreshold) || pressedOnKeyboard)
 
 
                 if (debug) chat("(Scaffold Eagle) Should eagle: $shouldEagle")
@@ -441,12 +440,6 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
                 placedBlocksWithoutEagle = 0
             }
-        }
-
-        // Still a thing?
-        if (scaffoldMode == "Rewinside" && player.onGround) {
-            MovementUtils.strafe(0.2F)
-            player.motionY = 0.0
         }
     }
 
@@ -1281,7 +1274,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
     }
 
     override val tag
-        get() = if (towerMode != "None") "${scaffoldMode}, $towerMode" else scaffoldMode
+        get() = "$scaffoldMode" + if (towerMode != "None") ", $towerMode" else ""
 
     data class ExtraClickInfo(val delay: Int, val lastClick: Long, var clicks: Int)
 }

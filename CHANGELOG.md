@@ -37,6 +37,7 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 ### Removed
 
 - `OptimizedPitch` option in the Godbridge Scaffold mode (thatonecoder)
+- `Rewinside` Scaffold mode (thatonecoder)
 
 ## [0.7.0-beta.2] - 2026-06-26
 

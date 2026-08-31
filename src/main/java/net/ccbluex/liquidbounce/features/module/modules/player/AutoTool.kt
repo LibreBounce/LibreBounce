@@ -25,25 +25,24 @@ object AutoTool : Module("AutoTool", Category.PLAYER, subjective = true, gameDet
     }
 
     val onClick = handler<ClickBlockEvent> { event ->
-        mc.thePlayer?.run {
-            val block = mc.theWorld.getBlockState(event.clickedBlock ?: return@handler).block
+        val player = mc.thePlayer ?: return@handler
 
-            if (onlySneaking && !isSneaking || block.getBlockHardness(mc.theWorld, event.clickedBlock) == 0f)
-                return@handler
+        val block = mc.theWorld.getBlockState(event.clickedBlock ?: return@handler).block
 
-            var fastest = 1f
+        if (onlySneaking && !player.isSneaking || block.getBlockHardness(mc.theWorld, event.clickedBlock) == 0f)
+            return@handler
 
-            val slot = (0..8).maxByOrNull {
-                val item = inventory.getStackInSlot(it) ?: return@maxByOrNull 1f
+        var fastest = 1f
 
-                item.getStrVsBlock(block).also { speed -> fastest = fastest.coerceAtLeast(speed) }
-            } ?: return@handler
+        val slot = (0..8).maxByOrNull {
+            val item = player.inventory.getStackInSlot(it) ?: return@maxByOrNull 1f
 
-            if (fastest == (currentEquippedItem?.getStrVsBlock(block) ?: 1f))
-                return@handler
+            item.getStrVsBlock(block).also { speed -> fastest = fastest.coerceAtLeast(speed) }
+        } ?: return@handler
 
-            SilentHotbar.selectSlotSilently(this, slot, render = false, resetManually = true)
-        }
+        if (fastest == (player.currentEquippedItem?.getStrVsBlock(block) ?: 1f))
+            return@handler
+
+        SilentHotbar.selectSlotSilently(this, slot, render = false, resetManually = true)
     }
-
 }
