@@ -102,7 +102,7 @@ object TickBase : Module("TickBase", Category.COMBAT) {
             val criticalTick =
                 possibleTicks.filter { (_, tick) -> tick.fallDistance > 0.0f }.minByOrNull { (index, _) -> index }
 
-            val (bestTick, _) = if (preferCriticalTicks && criticalTick != null) criticalTick else possibleTicks.minByOrNull { (index, _) -> index } ?: return@handler
+            val (bestTick, _) = criticalTick ?: possibleTicks.minByOrNull { (index, _) -> index } ?: return@handler
 
             if (bestTick == 0) return@handler
 
