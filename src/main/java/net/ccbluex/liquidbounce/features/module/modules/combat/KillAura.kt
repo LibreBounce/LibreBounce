@@ -29,6 +29,7 @@ import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverOpenInvento
 import net.ccbluex.liquidbounce.utils.inventory.ItemUtils.isConsumingItem
 import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar
 import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.nextInt
+import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.withinChance
 import net.ccbluex.liquidbounce.utils.render.ColorSettingsInteger
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.withAlpha
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
@@ -1040,7 +1041,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         }
 
         if (!fake) {
-            if (!(blockRate > 0 && nextInt(endExclusive = 100) <= blockRate)) return
+            if (!withinChance(blockRate)) return
 
             if (interact) {
                 val positionEye = player.eyes

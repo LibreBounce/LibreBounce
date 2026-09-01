@@ -139,10 +139,10 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
             confirmAttack = true
         }
 
-        val targetEntity = event.targetEntity ?: return@handler
-        val entityDistance = targetEntity.let { player.getDistanceToEntityBox(it) }
+        val target = event.targetEntity ?: return@handler
+        val distance = player.getDistanceToEntityBox(target)
         val randomTickDelay = tickDelay.random()
-        val shouldReturn = Backtrack.runWithNearestTrackedDistance(targetEntity) { !updateDistance(targetEntity) }
+        val shouldReturn = Backtrack.runWithNearestTrackedDistance(target) { !updateDistance(target) }
 
         if (shouldReturn || (player.isInWeb && !onWeb) || (player.isInLiquid && !onLiquid)) {
             return@handler
@@ -152,18 +152,16 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
         cooldownTick++
 
         val shouldSlowed = when (timerBoostMode) {
-            "Normal" -> cooldownTick >= cooldownTickValue && entityDistance <= rangeValue
-            "Smart" -> smartTick >= randomTickDelay && entityDistance <= randomRange
+            "Normal" -> cooldownTick >= cooldownTickValue && distance <= rangeValue
+            "Smart" -> smartTick >= randomTickDelay && distance <= randomRange
             else -> false
         }
 
-        if (shouldSlowed && confirmAttack) {
-            if (updateDistance(targetEntity)) {
-                confirmAttack = false
-                playerTicks = ticksValue
-                cooldownTick = 0
-                smartTick = 0
-            }
+        if (shouldSlowed && confirmAttack && updateDistance(target)) {
+            confirmAttack = false
+            playerTicks = ticksValue
+            cooldownTick = 0
+            smartTick = 0
         } else {
             shouldResetTimer()
         }
