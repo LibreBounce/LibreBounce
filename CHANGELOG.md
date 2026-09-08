@@ -6,6 +6,8 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 ## [Unreleased]
 
+## [0.7.0-beta.3] - 2026-09-08
+
 ### Added
 
 - `ModuleCase` and `ValueCase` options to the ClickGUI and Arraylist (thatonecoder)
@@ -13,9 +15,9 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 - `PreferCriticalHits` option to TickBase; previously hard-coded (thatonecoder)
 - `MissClickBackgroundColor` value to ChestStealer; previously the same as `BackgroundColor` (thatonecoder)
 - Highly experimental `Telly` rotation mode to Scaffold; meant to be used with the `Telly` mode (thatonecoder)
-- `MaxTicksUntilFallingToCancel` value to SmartHit; should help with fights (thatonecoder)
+- `MinTicksUntilFallingToCancel` value to SmartHit; should help with fights (thatonecoder)
 - `EdgeLimit` value to Scaffold's `SneakWhileRotating` option; previously hardcoded (thatonecoder)
-- `Clutch` option to the Godbridge mode in Scaffold; uses fallback rotations when the last damage time is above `MaxHurtTime` and on air or `OnlyOnAir` is off (thatonecoder)
+- `Clutch` option to the Godbridge mode in Scaffold; uses fallback rotations when hurtTime is above zero or when air ticks >= `MinAirTicks` (thatonecoder)
 - `OnlyWhenPredictedFalling` option and `PredictTicks` value to the Eagle option in Scaffold (thatonecoder)
 - `GodBridgeNormalPitch` and `GodBridgeDiagonalPitch` values to Scaffold; previously hardcoded (thatonecoder)
 - `moving` tag to the Text element (thatonecoder)
@@ -45,7 +47,7 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 - **Breaking:** Aimbot recode, now having more maintainable code, along with more features (thatonecoder)
 - **Breaking:** `TargetHurtTimeHandling`, `TargetHurtTime`, `OwnHurtTimeHandling`, and `OwnHurtTime` values to KillAura's Smart AutoBlock; replaces `MaxOwnHurtTime` (thatonecoder)
-- **Breaking:** ` ClientDistanceHandling`, `ClientDistance`, `ServerDistanceHandling`, and `ServerDistance` values to FakeLag; replaces `MinAllowedDistToEnemy`, `OnlyWhenNearEnemy`, and `DistanceToLag` (thatonecoder)
+- **Breaking:** `ClientDistanceHandling`, `ClientDistance`, `ServerDistanceHandling`, and `ServerDistance` values to FakeLag; replaces `MinAllowedDistToEnemy`, `OnlyWhenNearEnemy`, and `DistanceToLag` (thatonecoder)
 - **Breaking:** `DistanceHandling`, `Distance`, `PredictedDistanceHandling`, and `PredictedDistance` values to SmartHit; replaces `NotAboveRange` and  `NotAbovePredictedRange` (thatonecoder)
 - CombatJump module; jumps at the right time to gain higher momentum in fights (thatonecoder)
 - CheatDetector module; attempts to detect cheats other players are using (thatonecoder)
@@ -316,7 +318,8 @@ _Initial release, forked from LiquidBounce Legacy._
 
 - Warning to upgrade from `LiquidBounce` legacy to nextgen (thatonecoder)
 
-[Unreleased]: https://github.com/LibreBounce/LibreBounce/compare/v0.7.0-beta.2...HEAD
+[Unreleased]: https://github.com/LibreBounce/LibreBounce/compare/v0.7.0-beta.3...HEAD
+[0.7.0-beta.3]: https://github.com/LibreBounce/LibreBounce/compare/v0.7.0-beta.2...v0.7.0-beta.3
 [0.7.0-beta.2]: https://github.com/LibreBounce/LibreBounce/compare/v0.7.0-beta.1...v0.7.0-beta.2
 [0.7.0-beta.1]: https://github.com/LibreBounce/LibreBounce/compare/v0.7.0-alpha.2...v0.7.0-beta.1
 [0.7.0-alpha.2]: https://github.com/LibreBounce/LibreBounce/compare/v0.7.0-alpha.1...v0.7.0-alpha.2
