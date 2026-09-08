@@ -374,7 +374,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
                     repeat(predictTicks) {
                         simPlayer.tick()
 
-                        if (simPlayer.fallDistance == 0 || simPlayer.motionY > 0) ++ticksUntilFall
+                        if (simPlayer.fallDistance <= 0 || simPlayer.motionY > 0) ++ticksUntilFall
                     }
 
                     if (debug) chat("(Scaffold Eagle) Falling stats (predict ticks: $]predictTicks}, ticks until fall: ${ticksUntilFall})")
