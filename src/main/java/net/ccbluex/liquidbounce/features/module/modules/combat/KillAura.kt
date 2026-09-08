@@ -921,7 +921,7 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
         val rotation = searchCenter(
             boundingBox,
             generateSpotBasedOnDistance,
-            outBorder && !attackTimer.hasTimePassed(attackDelay / 2),
+            outBorder/* && !attackTimer.hasTimePassed(attackDelay / 2)*/,
             randomization,
             predict = false,
             lookRange = range + randomizedScanRange,

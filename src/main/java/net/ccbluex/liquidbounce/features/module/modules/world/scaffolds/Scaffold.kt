@@ -371,7 +371,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
                     simPlayer.rotationYaw = currRotation.yaw
 
-                    simPlayer.movementInput.isSneaking = false
+                    simPlayer.movementInput.sneak = false
 
                     repeat(predictTicks) {
                         simPlayer.tick()
