@@ -11,14 +11,15 @@ import net.ccbluex.liquidbounce.features.module.base.Category
 import net.ccbluex.liquidbounce.features.module.base.Module
 import net.ccbluex.liquidbounce.features.module.base.settings.ClickingSettings
 import net.ccbluex.liquidbounce.features.module.modules.combat.SmartHit
-import net.librebounce.utils.attack.CombatUtils.lastTarget
-import net.librebounce.utils.attack.CombatUtils.timeUntilHit
+import net.ccbluex.liquidbounce.utils.attack.CombatUtils.lastTarget
+import net.ccbluex.liquidbounce.utils.attack.CombatUtils.timeUntilHit
 import net.ccbluex.liquidbounce.utils.attack.EntityUtils.isLookingOnEntities
 import net.ccbluex.liquidbounce.utils.attack.EntityUtils.isSelected
 import net.ccbluex.liquidbounce.utils.client.EntityLookup
 import net.ccbluex.liquidbounce.utils.extensions.getDistanceToEntityBox
 import net.ccbluex.liquidbounce.utils.extensions.isBlock
 import net.minecraft.entity.EntityLivingBase
+import net.minecraft.item.ItemSword
 import net.minecraft.item.ItemBlock
 
 object AutoClicker : Module("AutoClicker", Category.COMBAT) {
@@ -43,10 +44,10 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT) {
     val onRender3D = handler<Render3DEvent> {
         mc.thePlayer?.let { player ->
             val shouldLeftClick = if (requiresNoInput) lookingAtAnEntity() else mc.gameSettings.keyBindAttack.isKeyDown
-            val heldItem = player.heldItem?.item
+            val item = player.heldItem?.item
 
             if (left && shouldLeftClick &&
-                (lastTarget == null || if (SmartHit.handleEvents()) SmartHit.shouldHit(lastTarget!!) else lastTarget!!.damagedTimer <= hurtTime) &&
+                (lastTarget == null || if (SmartHit.handleEvents()) SmartHit.shouldHit(lastTarget!!) else lastTarget!!.hurtTime <= hurtTime) &&
                 (mc.thePlayer.capabilities.isCreativeMode || (onDestroyBlock || !mc.objectMouseOver.typeOfHit.isBlock))) {
                 leftSettings.requestClick(1)
             }
