@@ -13,6 +13,7 @@ import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.potion.Potion.blindness
 import kotlin.math.abs
 
 object CombatUtils : MinecraftInstance, Listenable {

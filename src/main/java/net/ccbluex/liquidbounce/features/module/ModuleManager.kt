@@ -131,6 +131,7 @@ object ModuleManager : Listenable, Collection<Module> by MODULE_REGISTRY {
             HUD,
             HighJump,
             HitBox,
+            HitDetector,
             IceSpeed,
             Ignite,
             InventoryCleaner,

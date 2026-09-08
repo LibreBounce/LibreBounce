@@ -104,11 +104,11 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         lastHitBlocked = targetPlayer.isBlocking
     }*/
 
-    val onGameTick = handler<GameTickEvent> { event ->
+    /*val onGameTick = handler<GameTickEvent> { event ->
         if (simTargetHurtTime > 0) simTargetHurtTime--
 
         ticksSinceHit++
-    }
+    }*/
 
     fun shouldHit(target: Entity): Boolean {
         val player = mc.thePlayer ?: return false
@@ -181,7 +181,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
             hittable
     
         val airHit =
-            (!hitOnTheWay && (!checkForCriticalHits || !improveCritHandling || ticksUntilFalling < minTicksUntilFallingToCancel)) ||
+            (hittable && (!checkForCriticalHits || !improveCritHandling || ticksUntilFalling < minTicksUntilFallingToCancel)) ||
             (checkForCriticalHits && canCritHit(player) && (hittable || !lastAttackCrit))
 
         val baseHurtTime = 3f / (1f + sqrt(dist) - (rotDiff / 180f))
@@ -199,7 +199,8 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
             else -> playerHurtTimeAllowed || targetHurtTimeAllowed || distanceAllowed || predictedDistanceAllowed
         }
 
-        if (debug) chat("(SmartHit) Will hit: ${shouldHit}, hit on the way: ${!hittable}, last hit blocked: ${lastAttackBlocked}, current distance: ${dist}, current distance (target POV): ${targetDistance}, predicted distance: ${simDistance}, combined ping: ${combinedPing}, combined ping multiplier: ${combinedPingMult}, rotation difference: ${rotDiff}, target hit likely: ${targetHitLikely}, own hurttime: ${player.hurtTime}, simulated own hurttime: ${simHurtTime}, target hurttime: ${target.hurtTime}, simulated target hurt time: ${simTargetHurtTime}, on ground: ${player.onGround}, predicted ground: ${simPlayer.onGround}, can critical hit: ${canCritHit(player)}")
+        if (debug) chat("(SmartHit) Will hit: ${shouldHit}, hit on the way: ${!hittable}, last hit blocked: ${lastAttackBlocked}, current distance: ${dist}, current distance (target POV): ${targetDistance}, predicted distance: ${simDistance}, combined ping: ${combinedPing}, combined ping multiplier: ${combinedPingMult}, rotation difference: ${rotDiff}, target hit likely: ${targetHitLikely}, own hurttime: ${player.hurtTime}, simulated own hurttime: ${simHurtTime}, target hurttime: ${target.hurtTime}, on ground: ${player.onGround}, predicted ground: ${simPlayer.onGround}, can critical hit: ${canCritHit(player)}")
+        //if (debug) chat("(SmartHit) Will hit: ${shouldHit}, hit on the way: ${!hittable}, last hit blocked: ${lastAttackBlocked}, current distance: ${dist}, current distance (target POV): ${targetDistance}, predicted distance: ${simDistance}, combined ping: ${combinedPing}, combined ping multiplier: ${combinedPingMult}, rotation difference: ${rotDiff}, target hit likely: ${targetHitLikely}, own hurttime: ${player.hurtTime}, simulated own hurttime: ${simHurtTime}, target hurttime: ${target.hurtTime}, simulated target hurt time: ${simTargetHurtTime}, on ground: ${player.onGround}, predicted ground: ${simPlayer.onGround}, can critical hit: ${canCritHit(player)}")
 
         return shouldHit
     }
