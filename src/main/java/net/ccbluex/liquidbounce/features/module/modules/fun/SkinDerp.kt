@@ -7,8 +7,8 @@ package net.ccbluex.liquidbounce.features.module.modules.`fun`
 
 import kotlinx.coroutines.delay
 import net.ccbluex.liquidbounce.event.async.loopSequence
-import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.base.Category
+import net.ccbluex.liquidbounce.features.module.base.Module
 import net.minecraft.entity.player.EnumPlayerModelParts
 import net.minecraft.entity.player.EnumPlayerModelParts.*
 import kotlin.random.Random.Default.nextBoolean

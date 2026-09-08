@@ -6,8 +6,8 @@
 package net.ccbluex.liquidbounce.features.module.modules.player.nofall
 
 import net.ccbluex.liquidbounce.event.*
-import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.base.Category
+import net.ccbluex.liquidbounce.features.module.base.Module
 import net.ccbluex.liquidbounce.features.module.modules.player.nofall.modes.aac.AAC
 import net.ccbluex.liquidbounce.features.module.modules.player.nofall.modes.aac.AAC3311
 import net.ccbluex.liquidbounce.features.module.modules.player.nofall.modes.aac.AAC3315

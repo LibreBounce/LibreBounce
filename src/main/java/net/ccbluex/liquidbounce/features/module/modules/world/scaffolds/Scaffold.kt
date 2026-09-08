@@ -7,8 +7,8 @@ package net.ccbluex.liquidbounce.features.module.modules.world.scaffolds
 
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.event.async.loopSequence
-import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.base.Category
+import net.ccbluex.liquidbounce.features.module.base.Module
 import net.ccbluex.liquidbounce.utils.attack.CPSCounter
 import net.ccbluex.liquidbounce.utils.block.*
 import net.ccbluex.liquidbounce.utils.client.chat

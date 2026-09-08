@@ -7,8 +7,8 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.noweb
 
 import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.base.Category
+import net.ccbluex.liquidbounce.features.module.base.Module
 import net.ccbluex.liquidbounce.features.module.modules.movement.noweb.modes.aac.AAC
 import net.ccbluex.liquidbounce.features.module.modules.movement.noweb.modes.aac.LAAC
 import net.ccbluex.liquidbounce.features.module.modules.movement.noweb.modes.intave.IntaveNew

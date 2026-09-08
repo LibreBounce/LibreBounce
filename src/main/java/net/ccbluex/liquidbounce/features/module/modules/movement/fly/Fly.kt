@@ -8,8 +8,8 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.fly
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.event.async.loopSequence
 import net.ccbluex.liquidbounce.event.async.waitTicks
-import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.base.Category
+import net.ccbluex.liquidbounce.features.module.base.Module
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.aac.*
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.blocksmc.BlocksMC
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.blocksmc.BlocksMC2

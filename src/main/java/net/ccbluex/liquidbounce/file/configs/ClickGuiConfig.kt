@@ -9,7 +9,7 @@ import com.google.gson.JsonObject
 import net.ccbluex.liquidbounce.LiquidBounce.clickGui
 import net.ccbluex.liquidbounce.file.FileConfig
 import net.ccbluex.liquidbounce.file.FileManager.PRETTY_GSON
-import net.ccbluex.liquidbounce.features.module.Category
+import net.ccbluex.liquidbounce.features.module.base.Category
 import net.ccbluex.liquidbounce.ui.client.clickgui.ClickGui
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel.PanelStyle.selectedCategory
 import net.ccbluex.liquidbounce.ui.client.clickgui.elements.ModuleElement

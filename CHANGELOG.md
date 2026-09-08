@@ -6,6 +6,11 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 ## [Unreleased]
 
+### Changed
+
+- **Breaking:** Replace `SimulateDoubleClicking` with `ClicksAtATime` in many modules (thatonecoder)
+- **Breaking:** Rename `AutoBlock` to `Block`, along with `BlockDelay` now being `BlockCPS` and using clicking settings, in AutoClicker (thatonecoder)
+
 ## [0.7.0-beta.3] - 2026-09-08
 
 ### Added

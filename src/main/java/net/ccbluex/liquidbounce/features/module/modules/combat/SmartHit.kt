@@ -8,8 +8,12 @@ package net.ccbluex.liquidbounce.features.module.modules.combat
 import net.ccbluex.liquidbounce.event.AttackEvent
 import net.ccbluex.liquidbounce.event.GameTickEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.base.Category
+import net.ccbluex.liquidbounce.features.module.base.Module
+import net.ccbluex.liquidbounce.utils.attack.CombatUtils.canCritHit
+import net.ccbluex.liquidbounce.utils.attack.CombatUtils.canHit
+import net.ccbluex.liquidbounce.utils.attack.CombatUtils.lastAttackBlocked
+import net.ccbluex.liquidbounce.utils.attack.CombatUtils.lastAttackCrit
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils
@@ -67,7 +71,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
     private val debug by boolean("Debug", false).subjective()
 
     private var simHurtTime = 0
-    private var simTargetHurtTime = 0
+    /*private var simTargetHurtTime = 0
 
     private var ticksSinceHit = 0
     private var hitOnTheWay = false
@@ -81,7 +85,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
         val targetPlayer = target as EntityPlayer
 
-        val hittable = canHit(simTargetHurtTime)
+        val hittable = canHit()
         val latency = latencyInTicks(player as EntityPlayer)
 
         simTargetHurtTime = targetPlayer.hurtTime - latency
@@ -98,7 +102,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
         lastHitCrit = canCritHit(player)
         lastHitBlocked = targetPlayer.isBlocking
-    }
+    }*/
 
     val onGameTick = handler<GameTickEvent> { event ->
         if (simTargetHurtTime > 0) simTargetHurtTime--
@@ -108,6 +112,8 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
     fun shouldHit(target: Entity): Boolean {
         val player = mc.thePlayer ?: return false
+
+        if (target.isDead) return false
 
         val playerPing = (player as EntityPlayer).getPing()
         val playerLatencyInTicks = latencyInTicks(player as EntityPlayer)
@@ -130,16 +136,11 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
             if (simHurtTime > 0) --simHurtTime
         }
 
-        var targetHittable = canHit(simTargetHurtTime) || ticksSinceHit >= attackDelay
+        val hittable = canHit()
 
-        if (failsafe && ticksSinceHit > playerLatencyInTicks + 1) {
+        /*if (failsafe && ticksSinceHit > playerLatencyInTicks + 1) {
             ticksSinceHit = attackDelay + 1
-        }
-
-        if (targetHittable) {
-            lastHitCrit = false
-            hitOnTheWay = false
-        }
+        }*/
 
         val rotDiff = rotationDifference(
             toRotation(player.hitBox.center, true, target!!),
@@ -177,36 +178,34 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
     
         val groundHit =
             player.onGround && player.groundTicks > 1 && simPlayer.onGround &&
-            !hitOnTheWay
+            hittable
     
         val airHit =
             (!hitOnTheWay && (!checkForCriticalHits || !improveCritHandling || ticksUntilFalling < minTicksUntilFallingToCancel)) ||
-            (checkForCriticalHits && canCritHit(player) && (!lastHitCrit || !hitOnTheWay))
+            (checkForCriticalHits && canCritHit(player) && (hittable || !lastAttackCrit))
 
         val baseHurtTime = 3f / (1f + sqrt(dist) - (rotDiff / 180f))
         val hurtTimeNoEscape = (2 * dist * 8).toInt() / 10
             
-        val shouldHit = when {
-            target.isDead -> false
-    
+        val shouldHit = when {    
             groundHit || airHit -> true
-            checkForBlockedHits && lastHitBlocked && !target.isBlocking -> true
+            checkForBlockedHits && lastAttackBlocked && !target.isBlocking -> true
             minTargetRotationDifference != 0f && rotDiff < minTargetRotationDifference -> true
             experimentalChecks && player.hurtTime !in hurtTimeNoEscape..8 && targetHitLikely -> true
-            experimentalChecks && targetDistance > 3.05f && targetHittable -> true
+            experimentalChecks && targetDistance > 3.05f && hittable -> true
             player.health < notBelowOwnHealth || target.health < notBelowTargetHealth -> true
             notOnEdge && player.isNearEdge(notOnEdgeLimit) -> true
 
             else -> playerHurtTimeAllowed || targetHurtTimeAllowed || distanceAllowed || predictedDistanceAllowed
         }
 
-        if (debug) chat("(SmartHit) Will hit: ${shouldHit}, hit on the way: ${hitOnTheWay}, last hit blocked: ${lastHitBlocked}, current distance: ${dist}, current distance (target POV): ${targetDistance}, predicted distance: ${simDistance}, combined ping: ${combinedPing}, combined ping multiplier: ${combinedPingMult}, rotation difference: ${rotDiff}, target hit likely: ${targetHitLikely}, own hurttime: ${player.hurtTime}, simulated own hurttime: ${simHurtTime}, target hurttime: ${target.hurtTime}, simulated target hurt time: ${simTargetHurtTime}, on ground: ${player.onGround}, predicted ground: ${simPlayer.onGround}, can critical hit: ${canCritHit(player)}")
+        if (debug) chat("(SmartHit) Will hit: ${shouldHit}, hit on the way: ${!hittable}, last hit blocked: ${lastAttackBlocked}, current distance: ${dist}, current distance (target POV): ${targetDistance}, predicted distance: ${simDistance}, combined ping: ${combinedPing}, combined ping multiplier: ${combinedPingMult}, rotation difference: ${rotDiff}, target hit likely: ${targetHitLikely}, own hurttime: ${player.hurtTime}, simulated own hurttime: ${simHurtTime}, target hurttime: ${target.hurtTime}, simulated target hurt time: ${simTargetHurtTime}, on ground: ${player.onGround}, predicted ground: ${simPlayer.onGround}, can critical hit: ${canCritHit(player)}")
 
         return shouldHit
     }
 
     // Can you land a critical hit on the subject?
-    private fun canCritHit(player: EntityPlayer): Boolean =
+    /*private fun canCritHit(player: EntityPlayer): Boolean =
         player.fallDistance > 0 &&
         !player.isOnLadder &&
         !player.isInWater &&
@@ -215,7 +214,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
     // Can the subject be hit?
     private fun canHit(hurtTime: Int): Boolean = hurtTime <= 10 - attackDelay
-    private fun canHit(player: EntityPlayer): Boolean = canHit(player.hurtTime)
+    private fun canHit(player: EntityPlayer): Boolean = canHit(player.hurtTime)*/
 
     private fun latencyInTicks(player: EntityPlayer): Int =
         player.getPing().ceilDiv(2).ceilDiv(20)

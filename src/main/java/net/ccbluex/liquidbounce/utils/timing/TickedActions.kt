@@ -7,7 +7,7 @@ package net.ccbluex.liquidbounce.utils.timing
 
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.event.async.waitUntil
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.base.Module
 import net.minecraft.item.ItemStack
 import java.util.concurrent.ConcurrentLinkedQueue
 

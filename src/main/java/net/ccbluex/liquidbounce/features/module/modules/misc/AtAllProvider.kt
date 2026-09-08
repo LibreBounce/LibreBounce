@@ -9,8 +9,8 @@ import kotlinx.coroutines.delay
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.async.loopSequence
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.base.Category
+import net.ccbluex.liquidbounce.features.module.base.Module
 import net.minecraft.network.play.client.C01PacketChatMessage
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
