@@ -11,10 +11,7 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.base.Category
 import net.ccbluex.liquidbounce.features.module.base.Module
 import net.ccbluex.liquidbounce.features.module.modules.combat.HitDetector.hitDelay
-import net.ccbluex.liquidbounce.utils.attack.CombatUtils.canCritHit
-import net.ccbluex.liquidbounce.utils.attack.CombatUtils.canHit
-import net.ccbluex.liquidbounce.utils.attack.CombatUtils.lastAttackBlocked
-import net.ccbluex.liquidbounce.utils.attack.CombatUtils.lastAttackCrit
+import net.ccbluex.liquidbounce.utils.attack.CombatUtils.*
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils
@@ -143,8 +140,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         val burstHit = burstClick && dist in allowedBurstDistance && (timeUntilHit < burstTime || lastValidAttack.get() < burstTime)
 
         val groundHit =
-            player.onGround && player.groundTicks > 1 && simPlayer.onGround &&
-            (hittable || burstHit)
+            player.onGround && player.groundTicks > 1 && simPlayer.onGround && (hittable || burstHit)
     
         val airHit =
             (hittable && (!checkForCriticalHits || !improveCritHandling || ticksUntilFalling < minTicksUntilFallingToCancel)) ||
@@ -219,6 +215,6 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
         if (debug) chat("(SmartHit) Simulated knockback. X: ${knockbackX}, Y + vertical modifier: ${knockbackY}, Z: ${knockbackZ}, horizontal modifier: ${modifier}")
 
-        simHurtTime = attackDelay
+        simHurtTime = hitDelay / 50
     }
 }
