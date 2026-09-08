@@ -152,9 +152,12 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
     private val blocksToEagle by intRange("BlocksToEagle", 0..0, 0..10) { eagle != "Off" }
     private val edgeDistance by float("EagleEdgeDistance", 0f, -0.5f..0.5f)
     { eagle != "Off" }
+
     private val onlyWhenPredictedFalling by boolean("OnlyWhenPredictedFalling", false) { eagle != "Off" }
     private val predictTicks by int("PredictTicks", 1, 1..5) { eagle != "Off" && onlyWhenPredictedFalling }
     private val ticksTreshold by int("TicksTreshold", 2, 0..5) { eagle != "Off" && onlyWhenPredictedFalling }
+    private val forceStopPredictedSneak by boolean("ForceStopPredictedSneak", false) { eagle != "Off" && onlyWhenPredictedFalling }
+
     private val useMaxSneakTime by boolean("UseMaxSneakTime", true) { eagle != "Off" }
     private val maxSneakTicks by intRange("MaxSneakTicks", 1..3, 0..10) { useMaxSneakTime }
     private val blockSneakingAgainUntilOnGround by boolean("BlockSneakingAgainUntilOnGround", true)
@@ -371,7 +374,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
                     simPlayer.rotationYaw = currRotation.yaw
 
-                    simPlayer.movementInput.sneak = false
+                    if (forceStopPredictedSneak) simPlayer.movementInput.sneak = false
 
                     repeat(predictTicks) {
                         simPlayer.tick()
@@ -379,7 +382,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
                         if (simPlayer.fallDistance <= 0 || simPlayer.motionY > 0) ++ticksUntilFall
                     }
 
-                    if (debug) chat("(Scaffold Eagle) Falling stats (predict ticks: $]predictTicks}, ticks until fall: ${ticksUntilFall})")
+                    if (debug) chat("(Scaffold Eagle) Falling stats (predict ticks: ${predictTicks}, ticks until fall: ${ticksUntilFall})")
                 }
         
                 if (debug) chat("(Scaffold Eagle) Edge distance: $dif")
