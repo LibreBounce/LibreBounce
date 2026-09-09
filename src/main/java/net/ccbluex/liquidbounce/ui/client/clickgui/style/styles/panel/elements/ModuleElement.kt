@@ -6,7 +6,7 @@
 package net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel.elements
 
 import net.ccbluex.liquidbounce.config.*
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.base.Module
 import net.ccbluex.liquidbounce.features.module.modules.render.ClickGUI.moduleName
 import net.ccbluex.liquidbounce.features.module.modules.render.ClickGUI.valueName
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel.PanelStyle.accentColor

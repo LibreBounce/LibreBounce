@@ -7,7 +7,7 @@ package net.ccbluex.liquidbounce.features.command.commands
 
 import net.ccbluex.liquidbounce.LiquidBounce.moduleManager
 import net.ccbluex.liquidbounce.features.command.Command
-import net.ccbluex.liquidbounce.features.module.Category
+import net.ccbluex.liquidbounce.features.module.base.Category
 
 object PanicCommand : Command("panic") {
     /**

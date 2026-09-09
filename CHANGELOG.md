@@ -6,6 +6,21 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 ## [Unreleased]
 
+### Added
+
+- HitDetector module; serves part of SmartHit's former function, along with allowing more client-wide integration (thatonecoder)
+- `BurstClick`, `BurstTime`, and `AllowedBurstDistance` to SmartHit (thatonecoder)
+- `ForceStopPredictedSneak` option to the Scaffold eagle (thatonecoder)
+
+### Changed
+
+- **Breaking:** Replace `SimulateDoubleClicking` with `ClicksAtATime` in many modules (thatonecoder)
+- **Breaking:** Rename `AutoBlock` to `Block`, along with `BlockDelay` now being `BlockCPS` and using clicking settings, in AutoClicker (thatonecoder)
+
+### Removed
+
+- `UsePredictedTargetHurtTime` and `AttackDelay` in SmartHit; replaced by HitDetector (thatonecoder)
+
 ## [0.7.0-beta.3] - 2026-09-08
 
 ### Added

@@ -8,6 +8,10 @@ package net.ccbluex.liquidbounce.utils.timing
 class MSTimer {
     private var time = -1L
 
+    fun getTime(): Long {
+        return time - System.currentTimeMillis()
+    }
+
     fun hasTimePassed(ms: Number) = System.currentTimeMillis() >= time + ms.toLong()
 
     fun hasTimeLeft(ms: Number) = ms.toLong() + time - System.currentTimeMillis()

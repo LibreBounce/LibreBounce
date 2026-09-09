@@ -6,8 +6,8 @@
 package net.ccbluex.liquidbounce.features.module.modules.movement.speed
 
 import net.ccbluex.liquidbounce.event.*
-import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.base.Category
+import net.ccbluex.liquidbounce.features.module.base.Module
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.aac.AACHop3313
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.aac.AACHop350
 import net.ccbluex.liquidbounce.features.module.modules.movement.speed.modes.aac.AACHop4

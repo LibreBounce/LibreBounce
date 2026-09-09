@@ -5,8 +5,8 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category
+import net.ccbluex.liquidbounce.features.module.base.Module
+import net.ccbluex.liquidbounce.features.module.base.Category
 import net.ccbluex.liquidbounce.ui.font.Fonts.font40
 
 object Chat : Module("Chat", Category.RENDER, gameDetecting = false, subjective = true) {

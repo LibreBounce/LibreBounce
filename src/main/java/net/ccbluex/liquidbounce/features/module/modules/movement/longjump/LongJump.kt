@@ -9,8 +9,8 @@ import net.ccbluex.liquidbounce.event.JumpEvent
 import net.ccbluex.liquidbounce.event.MoveEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.base.Category
+import net.ccbluex.liquidbounce.features.module.base.Module
 import net.ccbluex.liquidbounce.features.module.modules.movement.longjump.modes.aac.AACv1
 import net.ccbluex.liquidbounce.features.module.modules.movement.longjump.modes.aac.AACv2
 import net.ccbluex.liquidbounce.features.module.modules.movement.longjump.modes.aac.AACv3

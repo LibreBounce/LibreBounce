@@ -8,8 +8,8 @@ package net.ccbluex.liquidbounce.features.module.modules.misc.cheatdetector
 import net.ccbluex.liquidbounce.event.AttackEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.base.Category
+import net.ccbluex.liquidbounce.features.module.base.Module
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
 import net.ccbluex.liquidbounce.features.module.modules.misc.cheatdetector.checks.lag.FakeLagA
 import net.ccbluex.liquidbounce.features.module.modules.misc.cheatdetector.checks.reach.ReachA

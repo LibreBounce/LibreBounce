@@ -6,8 +6,8 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import net.ccbluex.liquidbounce.event.*
-import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.base.Category
+import net.ccbluex.liquidbounce.features.module.base.Module
 import net.ccbluex.liquidbounce.features.module.modules.combat.AutoClicker
 import net.ccbluex.liquidbounce.features.module.modules.combat.Backtrack.runWithSimulatedPosition
 import net.ccbluex.liquidbounce.features.module.modules.world.Fucker
