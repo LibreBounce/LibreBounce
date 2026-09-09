@@ -35,6 +35,7 @@ import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemStack
 import net.minecraft.network.play.client.C0APacketAnimation
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
+import net.minecraft.potion.Potion
 import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing
@@ -315,6 +316,16 @@ fun EntityPlayerSP.tryJump() {
 
 fun EntityPlayerSP.swingItem(silent: Boolean) {
     if (silent) sendPacket(C0APacketAnimation()) else swingItem()
+}
+
+fun EntityPlayerSP.visualSwing() {
+    val armSwingEnd = isPotionActive(Potion.digSpeed) 6 - (1 + getActivePotionEffect(Potion.digSpeed).amplifier)
+        else (if isPotionActive(Potion.digSlowdown) 6 + (1 + getActivePotionEffect(Potion.digSlowdown).amplifier) * 2 else 6)
+
+    if (!isSwingInProgress || swingProgressInt >= armSwingEnd / 2 || swingProgressInt < 0) {
+        swingProgressInt = -1
+        isSwingInProgress = true
+    }
 }
 
 inline fun EntityPlayerSP.attackEntityWithModifiedSprint(
