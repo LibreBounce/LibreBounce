@@ -173,7 +173,8 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         if (debug) chat("(SmartHit) Will hit: ${shouldHit}, hit on the way: ${!hittable}, last hit blocked: ${lastAttackBlocked}, current distance: ${dist}, current distance (target POV): ${targetDistance}, predicted distance: ${simDistance}, combined ping: ${combinedPing}, combined ping multiplier: ${combinedPingMult}, rotation difference: ${rotDiff}, target hit likely: ${targetHitLikely}, own hurttime: ${player.hurtTime}, simulated own hurttime: ${simHurtTime}, target hurttime: ${target.hurtTime}, on ground: ${player.onGround}, predicted ground: ${simPlayer.onGround}, can critical hit: ${canCritHit(player)}")
         //if (debug) chat("(SmartHit) Will hit: ${shouldHit}, hit on the way: ${!hittable}, last hit blocked: ${lastAttackBlocked}, current distance: ${dist}, current distance (target POV): ${targetDistance}, predicted distance: ${simDistance}, combined ping: ${combinedPing}, combined ping multiplier: ${combinedPingMult}, rotation difference: ${rotDiff}, target hit likely: ${targetHitLikely}, own hurttime: ${player.hurtTime}, simulated own hurttime: ${simHurtTime}, target hurttime: ${target.hurtTime}, simulated target hurt time: ${simTargetHurtTime}, on ground: ${player.onGround}, predicted ground: ${simPlayer.onGround}, can critical hit: ${canCritHit(player)}")
 
-        if (!shouldHit && visualSwing) player.visualSwing
+        if (!shouldHit && visualSwing) player.visualSwing()
+
         return shouldHit
     }
 

@@ -319,8 +319,8 @@ fun EntityPlayerSP.swingItem(silent: Boolean) {
 }
 
 fun EntityPlayerSP.visualSwing() {
-    val armSwingEnd = isPotionActive(Potion.digSpeed) 6 - (1 + getActivePotionEffect(Potion.digSpeed).amplifier)
-        else (if isPotionActive(Potion.digSlowdown) 6 + (1 + getActivePotionEffect(Potion.digSlowdown).amplifier) * 2 else 6)
+    val armSwingEnd = if (isPotionActive(Potion.digSpeed)) 6 - (1 + getActivePotionEffect(Potion.digSpeed).amplifier)
+        else (if (isPotionActive(Potion.digSlowdown)) 6 + (1 + getActivePotionEffect(Potion.digSlowdown).amplifier) * 2 else 6)
 
     if (!isSwingInProgress || swingProgressInt >= armSwingEnd / 2 || swingProgressInt < 0) {
         swingProgressInt = -1
