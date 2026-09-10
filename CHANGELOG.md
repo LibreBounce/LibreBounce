@@ -8,9 +8,11 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 ### Added
 
-- HitDetector module; serves part of SmartHit's former function, along with allowing more client-wide integration (thatonecoder)
+- HitDetector module; serves part of SmartHit's former function, along with allowing more client-wide integration through CombatUtils (thatonecoder)
 - `BurstClick`, `BurstTime`, and `AllowedBurstDistance` to SmartHit (thatonecoder)
 - `ForceStopPredictedSneak` option to the Scaffold eagle (thatonecoder)
+- `Smart` option to Reach; only changes the combat reach when CombatUtils says you can hit (thatonecoder)
+- `VisualSwing` option to SmartHit; visually swings when you shouldn't hit, making it more appealing (thatonecoder)
 
 ### Changed
 
@@ -20,6 +22,7 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 ### Removed
 
 - `UsePredictedTargetHurtTime` and `AttackDelay` in SmartHit; replaced by HitDetector (thatonecoder)
+- `Failsafe` option in SmartHit; was not useful enough (thatonecoder)
 
 ## [0.7.0-beta.3] - 2026-09-08
 
