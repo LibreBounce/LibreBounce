@@ -5,6 +5,7 @@
  */
 package net.ccbluex.liquidbounce.utils.extensions
 
+import net.ccbluex.liquidbounce.features.module.modules.render.Animations
 import net.ccbluex.liquidbounce.file.FileManager.friendsConfig
 import net.ccbluex.liquidbounce.injection.implementations.IMixinEntity
 import net.ccbluex.liquidbounce.utils.attack.CPSCounter
@@ -319,8 +320,10 @@ fun EntityPlayerSP.swingItem(silent: Boolean) {
 }
 
 fun EntityPlayerSP.visualSwing() {
-    val armSwingEnd = if (isPotionActive(Potion.digSpeed)) 6 - (1 + getActivePotionEffect(Potion.digSpeed).amplifier)
-        else (if (isPotionActive(Potion.digSlowdown)) 6 + (1 + getActivePotionEffect(Potion.digSlowdown).amplifier) * 2 else 6)
+    val swingSpeed = if (Animations.handleEvents()) Animations.swingSpeed else 6
+ 
+    val armSwingEnd = if (isPotionActive(Potion.digSpeed)) swingSpeed - (1 + getActivePotionEffect(Potion.digSpeed).amplifier)
+        else if (isPotionActive(Potion.digSlowdown)) swingSpeed + (1 + getActivePotionEffect(Potion.digSlowdown).amplifier) * 2 else swingSpeed
 
     if (!isSwingInProgress || swingProgressInt >= armSwingEnd / 2 || swingProgressInt < 0) {
         swingProgressInt = -1
