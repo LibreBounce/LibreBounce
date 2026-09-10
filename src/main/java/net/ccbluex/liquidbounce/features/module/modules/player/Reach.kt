@@ -7,12 +7,16 @@ package net.ccbluex.liquidbounce.features.module.modules.player
 
 import net.ccbluex.liquidbounce.features.module.base.Category
 import net.ccbluex.liquidbounce.features.module.base.Module
+import net.ccbluex.liquidbounce.utils.attack.CombatUtils.canHit
 import kotlin.math.max
 
 object Reach : Module("Reach", Category.PLAYER) {
 
     val combatReach by float("CombatReach", 3.5f, 3f..7f, suffix = "blocks")
+    val smart by boolean("Smart", false)
     val buildReach by float("BuildReach", 5f, 4.5f..7f, suffix = "blocks")
+
+    val smartReach = if (!smart || canHit) combatReach else 3f
 
     val maxRange
         get() = max(combatReach, buildReach)

@@ -236,7 +236,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
             outborder = false,
             predict = true,
             lookRange = if (timerBoostMode == "Normal") rangeValue else randomRange,
-            attackRange = if (Reach.handleEvents()) Reach.combatReach else 3f,
+            attackRange = if (Reach.handleEvents()) Reach.smartReach else 3f,
         )
 
         player.setPosAndPrevPos(currPos, oldPos)

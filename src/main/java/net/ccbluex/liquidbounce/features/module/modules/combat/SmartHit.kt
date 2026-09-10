@@ -51,7 +51,6 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
     private val checkForBlockedHits by boolean("CheckForBlockedHits", true)
 
     private val experimentalChecks by boolean("ExperimentalChecks", true)
-    private val failsafe by boolean("Failsafe", true)
 
     private val notBelowOwnHealth by float("NotBelowOwnHealth", 5f, 0f..20f)
     private val notBelowTargetHealth by float("NotBelowTargetHealth", 5f, 0f..20f)
@@ -107,10 +106,6 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         }
 
         val hittable = canHit()
-
-        /*if (failsafe && ticksSinceHit > playerLatencyInTicks + 1) {
-            ticksSinceHit = attackDelay + 1
-        }*/
 
         val rotDiff = rotationDifference(
             toRotation(player.hitBox.center, true, target!!),
@@ -177,18 +172,6 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
 
         return shouldHit
     }
-
-    // Can you land a critical hit on the subject?
-    /*private fun canCritHit(player: EntityPlayer): Boolean =
-        player.fallDistance > 0 &&
-        !player.isOnLadder &&
-        !player.isInWater &&
-        !player.isPotionActive(blindness) &&
-        player.ridingEntity == null
-
-    // Can the subject be hit?
-    private fun canHit(hurtTime: Int): Boolean = hurtTime <= 10 - attackDelay
-    private fun canHit(player: EntityPlayer): Boolean = canHit(player.hurtTime)*/
 
     private fun latencyInTicks(player: EntityPlayer): Int =
         player.getPing().ceilDiv(2).ceilDiv(20)
