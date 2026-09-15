@@ -19,5 +19,5 @@ object Reach : Module("Reach", Category.PLAYER) {
     val smartReach = if (!smart || canHit()) combatReach else 3f
 
     val maxRange
-        get() = max(combatReach, buildReach)
+        get() = max(smartReach, buildReach)
 }
