@@ -5,18 +5,16 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
-import net.ccbluex.liquidbounce.event.AttackEvent
 import net.ccbluex.liquidbounce.event.StrafeEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.base.Category
 import net.ccbluex.liquidbounce.features.module.base.Module
-import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
+import net.ccbluex.liquidbounce.utils.attack.CombatUtils.target
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.extensions.*
-import net.ccbluex.liquidbounce.utils.rotation.RotationUtils
+import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.modifiedInput
 import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
 import net.minecraft.entity.Entity
-import net.minecraft.entity.EntityLivingBase
 
 object CombatJump : Module("CombatJump", Category.COMBAT) {
 
@@ -29,26 +27,18 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
     private val predictEnemyPosition by float("PredictEnemyPosition", 1.5f, 0f..10f)
 
     private val debug by boolean("Debug", false).subjective()
-
-    var target: Entity? = null
-    
-    val onAttack = handler<AttackEvent> { event ->
-        target = event.targetEntity ?: return@handler
-    }
     
     // Anti-cheats such as Grim flag when you don't jump on this event
     val onStrafe = handler<StrafeEvent> { event ->
         val player = mc.thePlayer ?: return@handler
 
-        val fixedTarget: Entity? = KillAura.target ?: target
-
-        if (fixedTarget == null) return@handler
+        if (target == null) return@handler
 
         if ((onlyMove && (!player.isMoving || (onlySprint && !player.isSprinting))) ||
-            player.getDistanceToEntityBox(fixedTarget) !in allowedJumpDistance
+            player.getDistanceToEntityBox(target) !in allowedJumpDistance
         ) return@handler
 
-        if (player.onGround && shouldJump(fixedTarget)) {
+        if (player.onGround && shouldJump(target)) {
             player.tryJump()
 
             if (debug) chat("(CombatJump) Jumped to the target")
@@ -57,7 +47,6 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
 
     private fun shouldJump(target: Entity): Boolean {
         val player = mc.thePlayer ?: return false
-        val modifiedInput = RotationUtils.modifiedInput
         val simPlayer = SimulatedPlayer.fromClientPlayer(modifiedInput)
     
         val targetBox = target.hitBox.offset(
@@ -74,7 +63,7 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
             if (debug) chat("(CombatJump) Simulated a jump")
         }
 
-        repeat(predictClientMovement + 1) {
+        repeat(predictClientMovement) {
             simPlayer.tick()
         }
 
