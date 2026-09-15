@@ -9,7 +9,7 @@ import net.ccbluex.liquidbounce.event.StrafeEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.base.Category
 import net.ccbluex.liquidbounce.features.module.base.Module
-import net.ccbluex.liquidbounce.utils.attack.CombatUtils.target
+import net.ccbluex.liquidbounce.utils.attack.CombatUtils.lastTarget
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.modifiedInput
