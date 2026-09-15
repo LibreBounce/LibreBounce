@@ -28,17 +28,16 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
 
     private val debug by boolean("Debug", false).subjective()
     
-    // Anti-cheats such as Grim flag when you don't jump on this event
     val onStrafe = handler<StrafeEvent> { event ->
         val player = mc.thePlayer ?: return@handler
 
-        if (target == null) return@handler
+        if (lastTarget == null) return@handler
 
         if ((onlyMove && (!player.isMoving || (onlySprint && !player.isSprinting))) ||
-            player.getDistanceToEntityBox(target) !in allowedJumpDistance
+            player.getDistanceToEntityBox(lastTarget) !in allowedJumpDistance
         ) return@handler
 
-        if (player.onGround && shouldJump(target)) {
+        if (player.onGround && shouldJump(lastTarget)) {
             player.tryJump()
 
             if (debug) chat("(CombatJump) Jumped to the target")
