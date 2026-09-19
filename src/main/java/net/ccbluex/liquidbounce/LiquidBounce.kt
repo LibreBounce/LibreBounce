@@ -40,6 +40,7 @@ import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.panel.PanelStyle
 import net.ccbluex.liquidbounce.ui.client.hud.HUD
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.attack.CombatUtils
+import net.ccbluex.liquidbounce.utils.block.ScaffoldUtils
 import net.ccbluex.liquidbounce.utils.client.BlinkUtils
 import net.ccbluex.liquidbounce.utils.client.ClassUtils.hasForge
 import net.ccbluex.liquidbounce.utils.client.ClientUtils.LOGGER
@@ -179,6 +180,7 @@ object LiquidBounce {
             SilentHotbar
             CombatUtils
             BlinkUtils
+            ScaffoldUtils
 
             // Load settings
             loadSettings(false) {

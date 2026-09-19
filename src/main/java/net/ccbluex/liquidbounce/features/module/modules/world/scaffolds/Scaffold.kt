@@ -11,6 +11,7 @@ import net.ccbluex.liquidbounce.features.module.base.Category
 import net.ccbluex.liquidbounce.features.module.base.Module
 import net.ccbluex.liquidbounce.utils.attack.CPSCounter
 import net.ccbluex.liquidbounce.utils.block.*
+import net.ccbluex.liquidbounce.utils.block.ScaffoldUtils.lastDamageTicks
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.extensions.*
@@ -104,6 +105,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
     // GodBridge mode sub-values
     private val clutch by boolean("Clutch", true) { isGodBridgeEnabled }
+    private val softMaxLastDamagedTicks by int("SoftMaxLastDamagedTicks", 35, 0..100) { isGodBridgeEnabled && clutch }
     private val minAirTicks by int("MinAirTicks", 25, 0..60) { isGodBridgeEnabled && clutch }
 
     private val sneakWhileRotating by boolean("SneakWhileRotating", true) { isGodBridgeEnabled }
@@ -476,7 +478,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
             if (isGodBridgeEnabled) options.resetTicks else RotationUtils.resetTicks
         }
 
-        val shouldClutch = clutch && (player.hurtTime != 0 || player.airTicks >= minAirTicks)
+        val shouldClutch = clutch && (lastDamageTicks <= softMaxLastDamagedTicks || player.airTicks >= minAirTicks)
 
         if (debug) chat("(Scaffold Clutch) Should clutch: ${shouldClutch}, air ticks: ${player.airTicks}")
 

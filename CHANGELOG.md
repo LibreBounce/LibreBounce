@@ -12,7 +12,8 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 - `BurstClick`, `BurstTime`, and `AllowedBurstDistance` to SmartHit (thatonecoder)
 - `ForceStopPredictedSneak` option to the Scaffold eagle (thatonecoder)
 - `Smart` option to Reach; only changes the combat reach when CombatUtils says you can hit (thatonecoder)
-- `VisualSwing` option to SmartHit; visually swings when you shouldn't hit, making it more appealing (thatonecoder)
+- `VisualSwing` option to SmartHit; visually swings when you shouldn't hit, making it more visually appealing (thatonecoder)
+- `SoftMaxLastDamagedTicks` value to the Scaffold clutch option (thatonecoder)
 
 ### Changed
 
