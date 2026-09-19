@@ -478,7 +478,7 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
             if (isGodBridgeEnabled) options.resetTicks else RotationUtils.resetTicks
         }
 
-        val shouldClutch = clutch && (lastDamageTicks <= softMaxLastDamagedTicks || player.airTicks >= minAirTicks)
+        val shouldClutch = clutch && (!lastDamageTicks.hasTimePassed(softMaxLastDamagedTicks) || player.airTicks >= minAirTicks)
 
         if (debug) chat("(Scaffold Clutch) Should clutch: ${shouldClutch}, air ticks: ${player.airTicks}")
 

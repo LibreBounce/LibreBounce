@@ -5,6 +5,8 @@ import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.timing.TickTimer
+import net.minecraft.network.play.server.S12PacketEntityVelocity
+import net.minecraft.network.play.server.S27PacketExplosion
 
 object ScaffoldUtils : MinecraftInstance, Listenable {
     var lastDamageTicks = TickTimer()
