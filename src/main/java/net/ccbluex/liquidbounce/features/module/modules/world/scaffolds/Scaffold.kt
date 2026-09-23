@@ -378,6 +378,11 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
 
                     if (forceStopPredictedSneak) simPlayer.movementInput.sneak = false
 
+                    if (forceStopPredictedSneak && player.movementInput.sneak) {
+                        simPlayer.motionX /= 0.3f
+                        simPlayer.motionZ /= 0.3f
+                    }
+
                     repeat(predictTicks) {
                         simPlayer.tick()
 
@@ -1153,27 +1158,18 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
                 if (input.jump || mc.gameSettings.keyBindJump.isKeyDown || notOnGround) {
                     zitterTimer.reset()
 
-                    if (useSneakMidAir) {
-                        input.sneak = true
-                    }
+                    if (useSneakMidAir) input.sneak = true
 
-                    if (!notOnGround && !input.jump) {
+                    input.moveStrafe = if (!notOnGround && !input.jump) {
                         // Attempt to move against the direction
-                        input.moveStrafe = if (zitterDirection) 1f else -1f
-                    } else {
-                        input.moveStrafe = 0f
-                    }
+                        if (zitterDirection) 1f else -1f
+                    } else 0f
 
                     zitterDirection = !zitterDirection
 
                     // Recreate input in case the user was indeed pressing inputs
-                    if (mc.gameSettings.keyBindLeft.isKeyDown) {
-                        input.moveStrafe++
-                    }
-
-                    if (mc.gameSettings.keyBindRight.isKeyDown) {
-                        input.moveStrafe--
-                    }
+                    if (mc.gameSettings.keyBindLeft.isKeyDown) input.moveStrafe++
+                    if (mc.gameSettings.keyBindRight.isKeyDown) input.moveStrafe--
 
                     return
                 }
