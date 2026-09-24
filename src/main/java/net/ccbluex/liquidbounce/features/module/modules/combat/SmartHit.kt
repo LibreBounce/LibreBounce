@@ -141,7 +141,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
             else -> false
         }
 
-        val burstHit = burstClick && dist in allowedBurstDistance && (timeUntilHit < burstTime || lastValidAttack.getTime() < burstTime)
+        val burstHit = burstClick && dist in allowedBurstDistance && (timeUntilHit < burstTime || !lastValidAttack.hasTimePassed(burstTime))
 
         val groundHit =
             player.onGround && player.groundTicks > 1 && simPlayer.onGround && (hittable || burstHit)
