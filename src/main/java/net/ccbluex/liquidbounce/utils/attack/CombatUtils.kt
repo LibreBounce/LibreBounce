@@ -26,7 +26,7 @@ object CombatUtils : MinecraftInstance, Listenable {
     var lastTarget: EntityLivingBase? = null
     var combo = 0
 
-    val onAttack = handler<AttackEvent> { event ->
+    val onAttack = handler<AttackEvent>(priority = 4) { event ->
         if (lastTarget != event.targetEntity) {
             lastTarget = event.targetEntity!! as EntityLivingBase?
             lastValidAttack.reset()
@@ -57,6 +57,7 @@ object CombatUtils : MinecraftInstance, Listenable {
         }
     }
 
+    // Credits to EvergreenHUD for this code!
     val onPacket = handler<PacketEvent> { event ->
         if (event.packet is S19PacketEntityStatus) {
             val packet = event.packet as S19PacketEntityStatus
@@ -66,23 +67,8 @@ object CombatUtils : MinecraftInstance, Listenable {
 
             val target = packet.getEntity(mc.theWorld) ?: return@handler
 
-            if (/*sentAttack != -1 && */target.entityId == lastTarget?.entityId) {
-                //sentAttack = -1
-
-                /*if (System.currentTimeMillis() - sentAttackTime > 2000L) {
-                    sentAttackTime = 0L
-                    currentCombo = 0
-                    return
-                }*/
-
-                //if (target.entityId) {
+            if (target.entityId == lastTarget?.entityId) {
                 combo++
-                /*} else {
-                    combo = 1
-                }*/
-
-                //lastHitTime = System.currentTimeMillis()
-                //lastAttackId = target.entityId
             } else if (target.entityId == mc.thePlayer.entityId) {
                 combo = 0
             }

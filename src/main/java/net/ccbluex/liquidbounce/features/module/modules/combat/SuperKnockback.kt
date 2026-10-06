@@ -9,6 +9,7 @@ import net.ccbluex.liquidbounce.config.Value
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.base.Category
 import net.ccbluex.liquidbounce.features.module.base.Module
+import net.ccbluex.liquidbounce.utils.attack.CombatUtils
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPackets
 import net.ccbluex.liquidbounce.utils.extensions.*
@@ -26,9 +27,9 @@ import kotlin.math.abs
 
 object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
 
-    private val chance by int("Chance", 100, 0..100, suffix = "%")
-    private val delay by int("Delay", 0, 0..500, suffix = "ms")
-    private val hurtTime by intRange("HurtTime", 0..10, 0..10)
+    private val chance by int("Chance", 100, 0..100, suffix = "%") { !(mode == "WTap" && wtapMode == "Dynamic") }
+    private val delay by int("Delay", 0, 0..500, suffix = "ms") { !(mode == "WTap" && wtapMode == "Dynamic") }
+    private val hurtTime by intRange("HurtTime", 0..10, 0..10) { !(mode == "WTap" && wtapMode == "Dynamic") }
 
     // TODO: Fix SprintTap flagging on prediction anti-cheats
     // TODO: Fix STap mode
@@ -38,26 +39,32 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
         "Old"
     )
 
-    private val ticksUntilBlock by intRange("TicksUntilBlock", 0..2, 0..5) { mode == "WTap" }
-    private val reSprintTicks by intRange("ReSprintTicks", 1..2, 1..5) { mode == "WTap" }
+    private val wtapMode by choices(
+        "WTapMode",
+        arrayOf("Normal", "Dynamic"),
+        "Normal"
+    ) { mode == "WTap" }
 
-    private val targetDistance by int("TargetDistance", 3, 1..5, suffix = "blocks") { mode == "WTap" }
+    private val ticksUntilBlock by intRange("TicksUntilBlock", 0..2, 0..5) { mode == "WTap" && wtapMode == "Normal" }
+    private val reSprintTicks by intRange("ReSprintTicks", 1..2, 1..5) { mode == "WTap" && wtapMode == "Normal" }
 
-    private val useDelayMultiplier by boolean("UseDelayMultiplier", true) { mode == "WTap" }
+    private val targetDistance by int("TargetDistance", 3, 1..5, suffix = "blocks") { mode == "WTap" && wtapMode == "Normal" }
+
+    private val useDelayMultiplier by boolean("UseDelayMultiplier", true) { mode == "WTap" && wtapMode == "Normal" }
 
     private val sTapTicks by intRange("STapTicks", 1..2, 1..5) { mode == "STap" }
 
     private val sneakTicks by intRange("SneakTicks", 1..2, 1..5) { mode == "Sneak" }
 
-    private val minEnemyRotDiffToIgnore by float("MinRotationDiffFromEnemyToIgnore", 180f, 0f..180f, suffix = "º")
+    private val minEnemyRotDiffToIgnore by float("MinRotationDiffFromEnemyToIgnore", 180f, 0f..180f, suffix = "º") { !(mode == "WTap" && wtapMode == "Dynamic") }
 
     // TODO: Add an OnSword or OnBlocking option, in case someone is using legit AutoBlock
-    private val onlyGround by boolean("OnlyGround", false)
-    val onlyMove by boolean("OnlyMove", true)
-    val onlyMoveForward by boolean("OnlyMoveForward", true) { onlyMove }
-    private val onlyWhenTargetGoesBack by boolean("OnlyWhenTargetGoesBack", false)
-    private val onWeb by boolean("OnWeb", false)
-    private val onLiquid by boolean("OnLiquid", false)
+    private val onlyGround by boolean("OnlyGround", false) { !(mode == "WTap" && wtapMode == "Dynamic") }
+    val onlyMove by boolean("OnlyMove", true) { !(mode == "WTap" && wtapMode == "Dynamic") }
+    val onlyMoveForward by boolean("OnlyMoveForward", true) { onlyMove && !(mode == "WTap" && wtapMode == "Dynamic") }
+    private val onlyWhenTargetGoesBack by boolean("OnlyWhenTargetGoesBack", false) { !(mode == "WTap" && wtapMode == "Dynamic") }
+    private val onWeb by boolean("OnWeb", false) { !(mode == "WTap" && wtapMode == "Dynamic") }
+    private val onLiquid by boolean("OnLiquid", false) { !(mode == "WTap" && wtapMode == "Dynamic") }
 
     private var ticks = 0
     private var forceSprintState = 0
@@ -91,6 +98,12 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
     val onAttack = handler<AttackEvent> { event ->
         val player = mc.thePlayer ?: return@handler
         val target = event.targetEntity as? EntityLivingBase ?: return@handler
+
+        if (mode == "WTap" && wtapMode == "Dynamic") {
+            handleDynamicWTap(target)
+            return@handler
+        }
+
         val distance = player.getDistanceToEntityBox(target)
 
         val rotationToPlayer = toRotation(player.hitBox.center, false, target).fixedSensitivity().yaw
@@ -182,6 +195,33 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
         timer.reset()
     }
 
+    private fun handleDynamicWTap(target: EntityLivingBase) {
+        val distance = player.getDistanceToEntityBox(target)
+
+        val rotationToPlayer = toRotation(player.hitBox.center, false, target).fixedSensitivity().yaw
+        val angleDifferenceToPlayer = abs(angleDifference(rotationToPlayer, target.rotationYaw))
+
+        val pos = target.currPos - target.lastTickPos
+        val distanceBasedOnMotion = player.getDistanceToBox(target.hitBox.offset(pos))
+        val distanceDifference = distance + distanceBasedOnMotion
+        
+        if (angleDifferenceToPlayer > 80f || CombatUtils.lastValidAttack.hasTimePassed(10)) return
+
+        // We want the player to be sprinting before we block inputs
+        if (player.isSprinting && player.serverSprintState && !blockInput && !startWaiting) {
+            val multiplier = if (CombatUtils.combo > 1) if (distanceDifference > 0f) 1.5f / distanceDifference + 0.8f else 1.8f * -distanceDifference + 1f else 1f
+
+            blockInputTicks = (1 * multiplier).toInt()
+            blockInput = blockInputTicks == 0
+    
+            if (!blockInput) {
+                startWaiting = true
+            }
+
+            allowInputTicks = (1 * multiplier).toInt()
+        }
+    }
+
     val onPostSprintUpdate = handler<PostSprintUpdateEvent> {
         val player = mc.thePlayer ?: return@handler
 
@@ -211,11 +251,9 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
     val onUpdate = handler<UpdateEvent> {
         when (mode) {
             "WTap" -> {
-                if (blockInput) {
-                    if (ticksElapsed++ >= allowInputTicks) {
-                        blockInput = false
-                        ticksElapsed = 0
-                    }
+                if (blockInput && ticksElapsed++ >= allowInputTicks) {
+                    blockInput = false
+                    ticksElapsed = 0
                 } else {
                     if (startWaiting) {
                         blockInput = blockTicksElapsed++ >= blockInputTicks
