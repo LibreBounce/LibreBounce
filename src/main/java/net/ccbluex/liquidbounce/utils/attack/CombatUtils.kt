@@ -2,6 +2,7 @@ package net.ccbluex.liquidbounce.utils.attack
 
 import net.ccbluex.liquidbounce.event.AttackEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
+import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.combat.HitDetector.debug
@@ -14,6 +15,7 @@ import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.potion.Potion.blindness
+import net.minecraft.network.play.server.S19PacketEntityStatus
 import kotlin.math.abs
 
 object CombatUtils : MinecraftInstance, Listenable {
@@ -22,6 +24,7 @@ object CombatUtils : MinecraftInstance, Listenable {
     var lastAttackCrit = false
     var lastAttackBlocked = false
     var lastTarget: EntityLivingBase? = null
+    var combo = 0
 
     val onAttack = handler<AttackEvent> { event ->
         if (lastTarget != event.targetEntity) {
@@ -43,13 +46,46 @@ object CombatUtils : MinecraftInstance, Listenable {
     }
 
     val onUpdate = handler<UpdateEvent> { event ->
-        if (lastValidAttack.hasTimePassed(resetTargetAfter * 1000)) {
+        if (lastValidAttack.resetOnPassed(resetTargetAfter * 1000)) {
             lastTarget = null
             lastAttackCrit = false
             lastAttackBlocked = false
+            combo = 0
 
             val seconds = if (resetTargetAfter == 1) "second" else "seconds"
             if (debug) chat("Reset due to $resetTargetAfter $seconds passing")
+        }
+    }
+
+    val onPacket = handler<PacketEvent> { event ->
+        if (event.packet is S19PacketEntityStatus) {
+            val packet = event.packet as S19PacketEntityStatus
+
+            if (packet.opCode.toInt() != 2)
+                return
+
+            val target = packet.getEntity(mc.theWorld) ?: return
+
+            if (/*sentAttack != -1 && */target.entityId == lastTarget.entityId) {
+                //sentAttack = -1
+
+                /*if (System.currentTimeMillis() - sentAttackTime > 2000L) {
+                    sentAttackTime = 0L
+                    currentCombo = 0
+                    return
+                }*/
+
+                if (lastAttackId == target.entityId) {
+                    combo++
+                } else {
+                    combo = 1
+                }
+
+                //lastHitTime = System.currentTimeMillis()
+                //lastAttackId = target.entityId
+            } else if (target.entityId == mc.thePlayer.entityId) {
+                combo = 0
+            }
         }
     }
 

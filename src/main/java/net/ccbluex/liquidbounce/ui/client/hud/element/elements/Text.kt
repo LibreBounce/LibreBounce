@@ -23,6 +23,7 @@ import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolat
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.ui.font.GameFontRenderer
 import net.ccbluex.liquidbounce.utils.attack.CPSCounter
+import net.ccbluex.liquidbounce.utils.attack.CombatUtils
 import net.ccbluex.liquidbounce.utils.client.PPSCounter
 import net.ccbluex.liquidbounce.utils.client.ServerUtils
 import net.ccbluex.liquidbounce.utils.extensions.getPing
@@ -192,6 +193,8 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1f, side: Side = S
                 "ydp" -> return posY
                 "zdp" -> return posZ
                 "velocity" -> return DECIMAL_FORMAT.format(speed)
+                "lastTarget" -> return CombatUtils.lastTarget
+                "combo" -> return CombatUtils.combo
                 "ping" -> return getPing()
                 "health" -> return DECIMAL_FORMAT.format(health)
                 "maxhealth" -> return DECIMAL_FORMAT.format(maxHealth)
