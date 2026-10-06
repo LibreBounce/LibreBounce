@@ -24,6 +24,8 @@ object CombatUtils : MinecraftInstance, Listenable {
     var lastAttackCrit = false
     var lastAttackBlocked = false
     var lastTarget: EntityLivingBase? = null
+    var theoreticalHitDelay = MSTimer()
+    var predictedHurtDelay = 0
     var combo = 0
 
     val onAttack = handler<AttackEvent>(priority = 4) { event ->
@@ -47,13 +49,16 @@ object CombatUtils : MinecraftInstance, Listenable {
 
     val onUpdate = handler<UpdateEvent> { event ->
         if (lastValidAttack.hasTimePassed(resetTargetAfter * 1000)) {
+            val targetNull = lastTarget == null
+
             lastTarget = null
             lastAttackCrit = false
             lastAttackBlocked = false
             combo = 0
 
             val seconds = if (resetTargetAfter == 1) "second" else "seconds"
-            if (debug) chat("Reset due to $resetTargetAfter $seconds passing")
+
+            if (debug && targetNull) chat("Reset due to $resetTargetAfter $seconds passing")
         }
     }
 
@@ -69,6 +74,12 @@ object CombatUtils : MinecraftInstance, Listenable {
 
             if (target.entityId == lastTarget?.entityId) {
                 combo++
+
+                if (debug) chat("Theoretical hit delay: ${theoreticalHitDelay.getTime()}")
+
+                predictedHurtDelay = theoreticalHitDelay.getTime()
+
+                theoreticalHitDelay.reset()
             } else if (target.entityId == mc.thePlayer.entityId) {
                 combo = 0
             }
