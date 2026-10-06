@@ -196,6 +196,7 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
     }
 
     private fun handleDynamicWTap(target: EntityLivingBase) {
+        val player = mc.thePlayer ?: return
         val distance = player.getDistanceToEntityBox(target)
 
         val rotationToPlayer = toRotation(player.hitBox.center, false, target).fixedSensitivity().yaw
