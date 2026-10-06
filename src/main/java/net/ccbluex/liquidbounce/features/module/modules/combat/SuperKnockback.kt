@@ -212,14 +212,14 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
         if (player.isSprinting && player.serverSprintState && !blockInput && !startWaiting) {
             val multiplier = if (CombatUtils.combo > 1) if (distanceDifference > 0f) 1.5f / distanceDifference + 0.8f else 1.8f * -distanceDifference + 1f else 1f
 
-            blockInputTicks = (1 * multiplier).toInt()
+            blockInputTicks = (1f * multiplier).toInt()
             blockInput = blockInputTicks == 0
     
             if (!blockInput) {
                 startWaiting = true
             }
 
-            allowInputTicks = (1 * multiplier).toInt()
+            allowInputTicks = (1f * multiplier).toInt()
         }
     }
 
