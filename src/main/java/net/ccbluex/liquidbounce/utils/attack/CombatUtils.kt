@@ -77,7 +77,7 @@ object CombatUtils : MinecraftInstance, Listenable {
 
                 if (debug) chat("Theoretical hit delay: ${theoreticalHitDelay.getTime()}")
 
-                predictedHurtDelay = theoreticalHitDelay.getTime()
+                predictedHurtDelay = theoreticalHitDelay.getTime().toInt()
 
                 theoreticalHitDelay.reset()
             } else if (target.entityId == mc.thePlayer.entityId) {
