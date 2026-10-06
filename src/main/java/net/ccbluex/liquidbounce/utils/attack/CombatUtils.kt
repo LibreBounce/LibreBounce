@@ -62,11 +62,11 @@ object CombatUtils : MinecraftInstance, Listenable {
             val packet = event.packet as S19PacketEntityStatus
 
             if (packet.opCode.toInt() != 2)
-                return
+                return@handler
 
-            val target = packet.getEntity(mc.theWorld) ?: return
+            val target = packet.getEntity(mc.theWorld) ?: return@handler
 
-            if (/*sentAttack != -1 && */target.entityId == lastTarget.entityId) {
+            if (/*sentAttack != -1 && */target.entityId == lastTarget?.entityId) {
                 //sentAttack = -1
 
                 /*if (System.currentTimeMillis() - sentAttackTime > 2000L) {
@@ -75,11 +75,11 @@ object CombatUtils : MinecraftInstance, Listenable {
                     return
                 }*/
 
-                if (lastAttackId == target.entityId) {
-                    combo++
-                } else {
+                //if (target.entityId) {
+                combo++
+                /*} else {
                     combo = 1
-                }
+                }*/
 
                 //lastHitTime = System.currentTimeMillis()
                 //lastAttackId = target.entityId
