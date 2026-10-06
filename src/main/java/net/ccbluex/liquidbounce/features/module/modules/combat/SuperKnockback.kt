@@ -210,18 +210,14 @@ object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
 
         // We want the player to be sprinting before we block inputs
         if (player.isSprinting && player.serverSprintState && !blockInput && !startWaiting) {
-            val multiplier = if (CombatUtils.combo > 1)
-                if (distanceDifference > 0f) (1.5f / distanceDifference) + 0.8f else (1.8f * -distanceDifference) + 1f
-            else 1f
+            val time = if (CombatUtils.combo > 1) 1f * if (distanceDifference > 0f) (1.5f / distanceDifference) + 0.8f else (1.8f * -distanceDifference) + 1f else 1f
 
-            blockInputTicks = (1f * multiplier).toInt()
+            blockInputTicks = time.toInt()
             blockInput = blockInputTicks == 0
     
-            if (!blockInput) {
-                startWaiting = true
-            }
+            if (!blockInput) startWaiting = true
 
-            allowInputTicks = (1f * multiplier).toInt()
+            allowInputTicks = time.toInt()
         }
     }
 
