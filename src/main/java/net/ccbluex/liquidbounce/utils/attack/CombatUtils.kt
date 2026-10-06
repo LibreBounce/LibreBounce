@@ -46,7 +46,7 @@ object CombatUtils : MinecraftInstance, Listenable {
     }
 
     val onUpdate = handler<UpdateEvent> { event ->
-        if (lastValidAttack.resetOnPassed(resetTargetAfter * 1000)) {
+        if (lastValidAttack.hasTimePassed(resetTargetAfter * 1000)) {
             lastTarget = null
             lastAttackCrit = false
             lastAttackBlocked = false
