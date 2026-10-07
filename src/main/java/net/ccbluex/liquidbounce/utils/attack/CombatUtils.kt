@@ -24,7 +24,9 @@ object CombatUtils : MinecraftInstance, Listenable {
     var lastAttackCrit = false
     var lastAttackBlocked = false
     var lastTarget: EntityLivingBase? = null
-    var theoreticalHitDelay = MSTimer()
+
+    var lastAttackGap = 0
+    var lastServerHitDelay = MSTimer()
     var predictedHurtDelay = 0
     var combo = 0
 
@@ -35,6 +37,8 @@ object CombatUtils : MinecraftInstance, Listenable {
             
             if (debug) chat("Reset target stats due to target changing!")
         }
+
+        lastAttackGap = lastValidAttack.get().toInt()
 
         if (lastValidAttack.hasTimePassed(hitDelay)) {
             lastValidAttack.reset()
@@ -56,15 +60,15 @@ object CombatUtils : MinecraftInstance, Listenable {
             lastAttackBlocked = false
             combo = 0
 
-            theoreticalHitDelay.reset()
+            lastServerHitDelay.reset()
 
             val seconds = if (resetTargetAfter == 1) "second" else "seconds"
 
-            if (debug && targetNull) chat("Reset due to $resetTargetAfter $seconds passing")
+            if (debug && !targetNull) chat("Reset due to $resetTargetAfter $seconds passing")
         }
     }
 
-    // Credits to EvergreenHUD for this code!
+    // Credits to EvergreenHUD for the packet-based hit detecting code!
     val onPacket = handler<PacketEvent> { event ->
         if (event.packet is S19PacketEntityStatus) {
             val packet = event.packet as S19PacketEntityStatus
@@ -78,12 +82,16 @@ object CombatUtils : MinecraftInstance, Listenable {
                 combo++
 
                 val shouldDivide = predictedHurtDelay != 0
-                predictedHurtDelay += abs(theoreticalHitDelay.getTime().toInt())
-                if (shouldDivide) predictedHurtDelay /= 2
 
-                if (debug) chat("Theoretical hit delay: ${theoreticalHitDelay.getTime()}, mean hit delay: $predictedHurtDelay")
+                if (lastServerHitDelay.getTime().getInt() > predictedHurtDelay *= 1.5 || lastAttackGap > predictedHurtDelay *= 1.1) {
+                    predictedHurtDelay += abs(lastServerHitDelay.getTime().toInt() + 30)
 
-                theoreticalHitDelay.reset()
+                    if (shouldDivide) predictedHurtDelay /= 2
+                }
+
+                if (debug) chat("Theoretical hit delay: ${lastServerHitDelay.getTime() + 30}, mean hit delay: $predictedHurtDelay, last attack gap: $lastAttackGap")
+
+                lastServerHitDelay.reset()
             } else if (target.entityId == mc.thePlayer.entityId) {
                 combo = 0
             }

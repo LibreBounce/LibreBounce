@@ -14,7 +14,7 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 - `Smart` option to Reach; only changes the combat reach when CombatUtils says you can hit (thatonecoder)
 - `VisualSwing` option to SmartHit; visually swings when you shouldn't hit, making it more visually appealing (thatonecoder)
 - `SoftMaxLastDamagedTicks` value to the Scaffold clutch option (thatonecoder)
-- `lastTarget` and `combo` tags to the Text element (thatonecoder)
+- `lastTarget`, `predictedHurtDelay`, and `combo` tags to the Text element (thatonecoder)
 
 ### Changed
 
