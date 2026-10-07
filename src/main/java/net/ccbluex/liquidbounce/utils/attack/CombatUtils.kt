@@ -56,6 +56,8 @@ object CombatUtils : MinecraftInstance, Listenable {
             lastAttackBlocked = false
             combo = 0
 
+            theoreticalHitDelay.reset()
+
             val seconds = if (resetTargetAfter == 1) "second" else "seconds"
 
             if (debug && targetNull) chat("Reset due to $resetTargetAfter $seconds passing")
