@@ -38,7 +38,7 @@ object CombatUtils : MinecraftInstance, Listenable {
             if (debug) chat("Reset target stats due to target changing!")
         }
 
-        lastAttackGap = lastValidAttack.get().toInt()
+        lastAttackGap = lastValidAttack.getTime().toInt()
 
         if (lastValidAttack.hasTimePassed(hitDelay)) {
             lastValidAttack.reset()
@@ -83,7 +83,7 @@ object CombatUtils : MinecraftInstance, Listenable {
 
                 val shouldDivide = predictedHurtDelay != 0
 
-                if (lastServerHitDelay.getTime().getInt() > predictedHurtDelay *= 1.5 || lastAttackGap > predictedHurtDelay *= 1.1) {
+                if (lastServerHitDelay.getTime().toInt() > predictedHurtDelay * 1.5 || lastAttackGap > predictedHurtDelay * 1.1) {
                     predictedHurtDelay += abs(lastServerHitDelay.getTime().toInt() + 30)
 
                     if (shouldDivide) predictedHurtDelay /= 2
