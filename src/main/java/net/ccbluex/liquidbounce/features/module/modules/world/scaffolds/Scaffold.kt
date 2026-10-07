@@ -379,11 +379,16 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
                     if (forceStopPredictedSneak) simPlayer.movementInput.sneak = false
 
                     if (forceStopPredictedSneak && player.movementInput.sneak) {
-                        simPlayer.motionX /= 0.3f
-                        simPlayer.motionZ /= 0.3f
+                        simPlayer.motionX /= 0.2f
+                        simPlayer.motionZ /= 0.2f
                     }
 
                     repeat(predictTicks) {
+                        if (forceStopPredictedSneak) {
+                            simPlayer.motionX *= 1.1f
+                            simPlayer.motionZ *= 1.1f
+                        }
+
                         simPlayer.tick()
 
                         if (simPlayer.fallDistance <= 0 || simPlayer.motionY > 0) ++ticksUntilFall
