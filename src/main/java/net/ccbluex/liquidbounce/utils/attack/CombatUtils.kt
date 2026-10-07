@@ -83,7 +83,7 @@ object CombatUtils : MinecraftInstance, Listenable {
 
                 val shouldDivide = predictedHurtDelay != 0
 
-                if (lastServerHitDelay.getTime().toInt() > predictedHurtDelay * 1.5 || lastAttackGap > predictedHurtDelay * 1.1) {
+                if ((lastServerHitDelay.getTime().toInt() < predictedHurtDelay * 1.5 || predictedHurtDelay == 0) && lastAttackGap < predictedHurtDelay * 1.1)) {
                     predictedHurtDelay += abs(lastServerHitDelay.getTime().toInt() + 30)
 
                     if (shouldDivide) predictedHurtDelay /= 2
