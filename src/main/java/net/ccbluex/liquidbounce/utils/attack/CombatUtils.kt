@@ -75,9 +75,11 @@ object CombatUtils : MinecraftInstance, Listenable {
             if (target.entityId == lastTarget?.entityId) {
                 combo++
 
-                if (debug) chat("Theoretical hit delay: ${theoreticalHitDelay.getTime()}")
+                val shouldDivide = predictedHurtDelay != 0
+                predictedHurtDelay += abs(theoreticalHitDelay.getTime().toInt())
+                if (shouldDivide) predictedHurtDelay /= 2
 
-                predictedHurtDelay = theoreticalHitDelay.getTime().toInt()
+                if (debug) chat("Theoretical hit delay: ${theoreticalHitDelay.getTime()}, mean hit delay: $predictedHurtDelay")
 
                 theoreticalHitDelay.reset()
             } else if (target.entityId == mc.thePlayer.entityId) {

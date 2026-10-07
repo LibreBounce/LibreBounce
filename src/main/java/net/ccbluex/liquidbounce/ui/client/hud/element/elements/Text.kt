@@ -193,7 +193,8 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1f, side: Side = S
                 "ydp" -> return posY
                 "zdp" -> return posZ
                 "velocity" -> return DECIMAL_FORMAT.format(speed)
-                "lastTarget" -> return CombatUtils.lastTarget
+                "lasttarget" -> return CombatUtils.lastTarget
+                "predictedhurtdelay" -> return CombatUtils.predictedHurtDelay
                 "combo" -> return CombatUtils.combo
                 "ping" -> return getPing()
                 "health" -> return DECIMAL_FORMAT.format(health)
