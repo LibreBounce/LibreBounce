@@ -9,6 +9,7 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 ### Added
 
 - HitDetector module; serves part of SmartHit's former function, along with allowing more client-wide integration through CombatUtils (thatonecoder)
+- Automatic hit delay checking
 - `BurstClick`, `BurstTime`, and `AllowedBurstDistance` to SmartHit (thatonecoder)
 - `ForceStopPredictedSneak` option to the Scaffold eagle (thatonecoder)
 - `Smart` option to Reach; only changes the combat reach when CombatUtils says you can hit (thatonecoder)
