@@ -11,6 +11,7 @@ import net.ccbluex.liquidbounce.features.module.base.Category
 import net.ccbluex.liquidbounce.features.module.base.Module
 import net.ccbluex.liquidbounce.features.module.modules.player.Blink
 import net.ccbluex.liquidbounce.injection.implementations.IMixinEntity
+import net.ccbluex.liquidbounce.utils.attack.CombatUtils.lastValidAttack
 import net.ccbluex.liquidbounce.utils.attack.EntityUtils.isSelected
 import net.ccbluex.liquidbounce.utils.client.PacketUtils
 import net.ccbluex.liquidbounce.utils.client.chat
@@ -73,7 +74,6 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
         ColorSettingsInteger(this, "ESPColor") { espMode != "Model" }.with(0, 255, 0)
 
     private val debug by boolean("Debug", false).subjective()
-    private val targetHurtTimeToDebug by intRange("TargetHurtTimeToDebug", 0..1, 0..10) { debug }
 
     private val packetQueue = ConcurrentLinkedQueue<QueueData>()
     private val positions = ConcurrentLinkedQueue<Pair<Vec3, Long>>()
@@ -200,7 +200,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
                     if (mc.thePlayer.getDistanceToEntityBox(target) in distance) {
                         handlePackets()
 
-                        if (debug && target.hurtTime in targetHurtTimeToDebug) chat("(Backtrack) Lag distance: ${dist}, true distance: ${trueDist}")
+                        if (debug && !lastValidAttack.hasTimePassed(5)) chat("(Backtrack) Lag distance: ${dist}, true distance: ${trueDist}")
                     } else {
                         handlePacketsRange()
                     }

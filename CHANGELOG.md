@@ -26,6 +26,7 @@ The format is based on [Common Changelog](https://common-changelog.org), which i
 
 - `UsePredictedTargetHurtTime` and `AttackDelay` in SmartHit; replaced by HitDetector (thatonecoder)
 - `Failsafe` option in SmartHit; was not useful enough (thatonecoder)
+- `TargetHurtTimeToDebug` value in Backtrack (thatonecoder)
 
 ## [0.7.0-beta.3] - 2026-09-08
 
