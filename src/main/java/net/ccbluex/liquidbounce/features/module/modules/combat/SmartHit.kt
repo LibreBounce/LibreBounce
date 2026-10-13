@@ -23,6 +23,7 @@ import net.ccbluex.liquidbounce.utils.rotation.RotationUtils
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.rotationDifference
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.toRotation
 import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
+import net.ccbluex.liquidbounce.utils.simulation.getDistanceToBox
 import net.minecraft.entity.Entity
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.potion.Potion.blindness
@@ -186,11 +187,7 @@ object SmartHit : Module("SmartHit", Category.COMBAT) {
         if (simulateKnockback && simHurtTime <= 10 - (hitDelay / 50))
             simulateOwnKnockback(simPlayer, target)
 
-        val (currPos, prevPos) = player.currPos to player.prevPos
-        player.setPosAndPrevPos(simPlayer.pos)
-        val distance = player.getDistanceToBox(targetBox)
-        player.setPosAndPrevPos(currPos, prevPos)
-        return distance
+        return simPlayer.getDistanceToBox(targetBox)
     }
 
     private fun simulateOwnKnockback(simPlayer: SimulatedPlayer, target: Entity) {
