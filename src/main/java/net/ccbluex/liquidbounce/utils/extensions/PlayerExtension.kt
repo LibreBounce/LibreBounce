@@ -83,17 +83,17 @@ fun getNearestPointBB(eye: Vec3, box: AxisAlignedBB): Vec3 {
 fun EntityPlayer.getPing() = mc.netHandler.getPlayerInfo(uniqueID)?.responseTime ?: 0
 
 fun Entity.isAnimal() =
-    this is EntityAnimal
-            || this is EntitySquid
-            || this is EntityGolem
-            || this is EntityBat
+    this is EntityAnimal ||
+    this is EntitySquid ||
+    this is EntityGolem ||
+    this is EntityBat
 
 fun Entity.isMob() =
-    this is EntityMob
-            || this is EntityVillager
-            || this is EntitySlime
-            || this is EntityGhast
-            || this is EntityDragon
+    this is EntityMob ||
+    this is EntityVillager ||
+    this is EntitySlime ||
+    this is EntityGhast ||
+    this is EntityDragon
 
 fun EntityPlayer.isClientFriend(): Boolean {
     val entityName = name ?: return false
@@ -109,6 +109,7 @@ var Entity?.rotation
             rotationPitch = value.pitch
         }
     }
+
 var Entity?.prevRotation
     get() = Rotation(this?.prevRotationYaw ?: 0f, this?.prevRotationPitch ?: 0f)
     set(value) {

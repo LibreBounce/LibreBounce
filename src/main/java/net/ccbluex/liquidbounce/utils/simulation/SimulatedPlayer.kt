@@ -87,7 +87,7 @@ class SimulatedPlayer(
     private var distanceWalkedModified: Float,
     private var distanceWalkedOnStepModified: Float,
     private var nextStepDistance: Int,
-    private val height: Float,
+    val height: Float,
     private val width: Float,
     private val fireResistance: Int,
     var isInWeb: Boolean,
