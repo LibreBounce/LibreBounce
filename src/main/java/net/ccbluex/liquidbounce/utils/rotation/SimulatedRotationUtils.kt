@@ -17,7 +17,12 @@ import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils
 import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.nextDouble
 import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.nextFloat
-import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.*
+import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.getNearestPointBB
+import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.currentRotation
+import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.rotationDifference
+import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.getVectorForRotation
+import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.isVisible
+import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.toRotation
 import net.ccbluex.liquidbounce.utils.rotation.RaycastUtils.raycastEntity
 import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
 import net.ccbluex.liquidbounce.utils.timing.WaitTickUtils
