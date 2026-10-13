@@ -47,11 +47,12 @@ import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.getVectorForRotatio
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.isRotationFaced
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.isVisible
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.rotationDifference
-import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.searchCenter
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.serverRotation
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.setTargetRotation
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.toRotation
+import net.ccbluex.liquidbounce.utils.rotation.SimulatedRotationUtils.simulationSearchCenter
 import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
+import net.ccbluex.liquidbounce.utils.simulation.getDistanceToEntityBox
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.utils.timing.TickTimer
 import net.ccbluex.liquidbounce.utils.timing.TickedActions.nextTick
@@ -885,40 +886,23 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
 
         val prediction = entity.currPos.subtract(entity.prevPos).times(2 + predictEnemyPosition.toDouble())
         val boundingBox = entity.hitBox.offset(prediction)
-        val (currPos, oldPos) = player.currPos to player.prevPos
 
         val simPlayer = SimulatedPlayer.fromClientPlayer(RotationUtils.modifiedInput)
 
         simPlayer.rotationYaw = (currentRotation ?: player.rotation).yaw
 
-        var pos = currPos
-
         repeat(predictClientMovement) {
-            val previousPos = simPlayer.pos
-
             simPlayer.tick()
 
-            player.setPosAndPrevPos(simPlayer.pos)
-
-            val simDist = player.getDistanceToEntityBox(entity)
-
-            player.setPosAndPrevPos(previousPos)
-
+            val simDist = simPlayer.getDistanceToEntityBox(entity)
             val prevDist = player.getDistanceToEntityBox(entity)
-
-            player.setPosAndPrevPos(currPos, oldPos)
-            pos = simPlayer.pos
 
             if (predictOnlyWhenOutOfRange && simDist <= range && simDist <= prevDist) {
                 return@repeat
             }
-
-            pos = previousPos
         }
 
-        player.setPosAndPrevPos(pos)
-
-        val rotation = searchCenter(
+        val rotation = simulationSearchCenter(
             boundingBox,
             generateSpotBasedOnDistance,
             outBorder/* && !attackTimer.hasTimePassed(attackDelay / 2)*/,
@@ -928,12 +912,11 @@ object KillAura : Module("KillAura", Category.COMBAT, Keyboard.KEY_R) {
             attackRange = range,
             throughWallsRange = throughWallsRange,
             bodyPoints = listOf(highestBodyPointToTarget, lowestBodyPointToTarget),
-            horizontalSearch = horizontalBodySearchRange
+            horizontalSearch = horizontalBodySearchRange,
+            simPlayer = simPlayer
         )
 
         if (rotation != null) setTargetRotation(rotation, options = options)
-
-        player.setPosAndPrevPos(currPos, oldPos)
 
         return rotation != null
     }
