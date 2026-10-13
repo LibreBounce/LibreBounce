@@ -19,7 +19,7 @@ fun SimulatedPlayer.getDistanceToEntityBox(entity: Entity) = eyes.distanceTo(get
 
 fun SimulatedPlayer.getDistanceToBox(box: AxisAlignedBB) = eyes.distanceTo(getNearestPointBB(eyes, box))
 
-fun SimulatedPlayer.getEyes(): Vec3 = Vec3(posX, posY + (height * 0.85f).toDouble(), posZ)
+fun SimulatedPlayer.getEyePosition(): Vec3 = Vec3(posX, posY + (height * 0.85f).toDouble(), posZ)
 
 val SimulatedPlayer.eyes: Vec3
-    get() = getEyes()
+    get() = getEyePosition()
