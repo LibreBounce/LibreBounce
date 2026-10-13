@@ -19,6 +19,7 @@ import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.nextDouble
 import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.nextFloat
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.*
 import net.ccbluex.liquidbounce.utils.rotation.RaycastUtils.raycastEntity
+import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
 import net.ccbluex.liquidbounce.utils.timing.WaitTickUtils
 import net.minecraft.entity.Entity
 import net.minecraft.network.play.client.C03PacketPlayer
@@ -144,6 +145,6 @@ object SimulatedRotationUtils : MinecraftInstance, Listenable {
      * @param entity your entity
      * @return difference between rotation
      */
-    fun simulationRotationDifference(entity: Entity) =
+    fun simulationRotationDifference(entity: Entity, simPlayer: SimulatedPlayer) =
         rotationDifference(toRotation(entity.hitBox.center, true), simPlayer.rotation)
 }

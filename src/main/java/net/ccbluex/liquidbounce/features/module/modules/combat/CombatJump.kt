@@ -13,6 +13,7 @@ import net.ccbluex.liquidbounce.utils.attack.CombatUtils.lastTarget
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.modifiedInput
+import net.ccbluex.liquidbounce.utils.simulation.getDistanceToBox
 import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
 import net.minecraft.entity.Entity
 
