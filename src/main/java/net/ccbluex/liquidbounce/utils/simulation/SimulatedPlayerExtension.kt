@@ -6,8 +6,8 @@
 package net.ccbluex.liquidbounce.utils.simulation
 
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance.Companion.mc
-import net.ccbluex.liquidbounce.utils.extensions.PlayerExtension.getNearestPointBB
-import net.ccbluex.liquidbounce.utils.extensions.PlayerExtension.hitBox
+import net.ccbluex.liquidbounce.utils.extensions.getNearestPointBB
+import net.ccbluex.liquidbounce.utils.extensions.hitBox
 import net.minecraft.entity.Entity
 import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.Vec3
@@ -19,4 +19,4 @@ fun SimulatedPlayer.getDistanceToEntityBox(entity: Entity) = eyes.distanceTo(get
 
 fun SimulatedPlayer.getDistanceToBox(box: AxisAlignedBB) = eyes.distanceTo(getNearestPointBB(eyes, box))
 
-val SimulatedPlayer.eyes: Vec3 = Vec3(posX, posY + (height * 0.85f).toDouble(), posZ)
+val SimulatedPlayer.eyes: Vec3 = Vec3(it.posX, it.posY + (it.height * 0.85f).toDouble(), it.posZ)
