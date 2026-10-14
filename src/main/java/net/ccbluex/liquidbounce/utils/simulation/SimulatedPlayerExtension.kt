@@ -8,6 +8,7 @@ package net.ccbluex.liquidbounce.utils.simulation
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance.Companion.mc
 import net.ccbluex.liquidbounce.utils.extensions.getNearestPointBB
 import net.ccbluex.liquidbounce.utils.extensions.hitBox
+import net.ccbluex.liquidbounce.utils.rotation.Rotation
 import net.minecraft.entity.Entity
 import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.Vec3
@@ -23,3 +24,6 @@ fun SimulatedPlayer.getEyePosition(): Vec3 = Vec3(posX, posY + (height * 0.85f).
 
 val SimulatedPlayer.eyes: Vec3
     get() = getEyePosition()
+
+var SimulatedPlayer.rotation: Rotation
+    get() = Rotation(this.rotationYaw, this.rotationPitch)

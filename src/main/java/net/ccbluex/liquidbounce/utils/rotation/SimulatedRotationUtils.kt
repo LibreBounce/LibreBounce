@@ -25,6 +25,8 @@ import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.toRotation
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.BodyPoint
 import net.ccbluex.liquidbounce.utils.rotation.RaycastUtils.raycastEntity
 import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
+import net.ccbluex.liquidbounce.utils.simulation.eyes
+import net.ccbluex.liquidbounce.utils.simulation.rotation
 import net.ccbluex.liquidbounce.utils.timing.WaitTickUtils
 import net.minecraft.entity.Entity
 import net.minecraft.network.play.client.C03PacketPlayer
@@ -43,6 +45,7 @@ object SimulatedRotationUtils : MinecraftInstance, Listenable {
      */
     fun simulationToRotation(vec: Vec3, predict: Boolean = false, simPlayer: SimulatedPlayer): Rotation {
         val eyesPos = simPlayer.eyes
+
         if (predict) eyesPos.addVector(simPlayer.motionX, simPlayer.motionY, simPlayer.motionZ)
 
         val (diffX, diffY, diffZ) = vec - eyesPos
