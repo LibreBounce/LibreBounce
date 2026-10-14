@@ -92,8 +92,6 @@ object OutboundBacktrack : Module("OutboundBacktrack", Category.COMBAT, gameDete
 
         val distance = player.getDistanceToEntityBox(target)
 
-        val (currPos, prevPos) = player.currPos to player.prevPos
-
         var simDist = player.getDistanceToBox(targetBox)
         var ticksUntilOutOfRange = 0
         var idx = 0
@@ -101,9 +99,7 @@ object OutboundBacktrack : Module("OutboundBacktrack", Category.COMBAT, gameDete
         for (idx in 0 until 8) {
             simPlayer.tick()
 
-            player.setPosAndPrevPos(simPlayer.pos)
-            simDist = player.getDistanceToBox(targetBox)
-            player.setPosAndPrevPos(currPos, prevPos)
+            simDist = simPlayer.getDistanceToBox(targetBox)
 
             if (simDist > hittableRange) {
                 ticksUntilOutOfRange = idx

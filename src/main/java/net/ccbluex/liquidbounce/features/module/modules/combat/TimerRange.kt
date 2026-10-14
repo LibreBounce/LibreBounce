@@ -20,7 +20,7 @@ import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawEntityBox
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawPlatform
-import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.searchCenter
+import net.ccbluex.liquidbounce.utils.rotation.SimulatedRotationUtils.simulationSearchCenter
 import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
@@ -201,9 +201,7 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
         val player = mc.thePlayer ?: return false
 
         val prediction = entity.currPos.subtract(entity.prevPos).times(2 + predictEnemyPosition.toDouble())
-
         val boundingBox = entity.hitBox.offset(prediction)
-        val (currPos, oldPos) = player.currPos to player.prevPos
 
         val simPlayer = SimulatedPlayer.fromClientPlayer(player.movementInput)
 
@@ -211,17 +209,14 @@ object TimerRange : Module("TimerRange", Category.COMBAT) {
             simPlayer.tick()
         }
 
-        player.setPosAndPrevPos(simPlayer.pos)
-
-        val distance = searchCenter(
+        val distance = simulationSearchCenter(
             boundingBox,
             outborder = false,
             predict = true,
             lookRange = if (timerBoostMode == "Normal") rangeValue else randomRange,
             attackRange = if (Reach.handleEvents()) Reach.smartReach else 3f,
+            simPlayer = simPlayer
         )
-
-        player.setPosAndPrevPos(currPos, oldPos)
 
         return distance != null
     }

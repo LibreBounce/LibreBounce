@@ -33,10 +33,11 @@ import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.currentRotation
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.getVectorForRotation
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.isFaced
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.rotationDifference
-import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.searchCenter
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.serverRotation
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.setTargetRotation
+import net.ccbluex.liquidbounce.utils.rotation.SimulatedRotationUtils.simulationSearchCenter
 import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
+import net.ccbluex.liquidbounce.utils.simulation.getDistanceToEntityBox
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.utils.timing.TickedActions.nextTick
 import net.minecraft.entity.Entity
@@ -366,40 +367,23 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
 
         val prediction = entity.currPos.subtract(entity.prevPos).times(2 + predictEnemyPosition.toDouble())
         val boundingBox = entity.hitBox.offset(prediction)
-        val (currPos, oldPos) = player.currPos to player.prevPos
 
         val simPlayer = SimulatedPlayer.fromClientPlayer(RotationUtils.modifiedInput)
 
         simPlayer.rotationYaw = (currentRotation ?: player.rotation).yaw
 
-        var pos = currPos
-
         repeat(predictClientMovement) {
-            val previousPos = simPlayer.pos
-
             simPlayer.tick()
 
-            player.setPosAndPrevPos(simPlayer.pos)
-
             val simDist = player.getDistanceToEntityBox(entity)
-
-            player.setPosAndPrevPos(previousPos)
-
             val prevDist = player.getDistanceToEntityBox(entity)
-
-            player.setPosAndPrevPos(currPos, oldPos)
-            pos = simPlayer.pos
 
             if (predictOnlyWhenOutOfRange && simDist !in range && simDist <= prevDist) {
                 return@repeat
             }
-
-            pos = previousPos
         }
 
-        player.setPosAndPrevPos(pos)
-
-        val rotation = searchCenter(
+        val rotation = simulationSearchCenter(
             boundingBox,
             generateSpotBasedOnDistance,
             outBorder,
@@ -409,12 +393,11 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
             attackRange = attackRange,
             throughWallsRange = throughWallsRange.endInclusive,
             bodyPoints = listOf(highestBodyPointToTarget, lowestBodyPointToTarget),
-            horizontalSearch = horizontalBodySearchRange
+            horizontalSearch = horizontalBodySearchRange,
+            simPlayer = simPlayer
         )
 
         if (rotation != null) setTargetRotation(rotation, options = options)
-
-        player.setPosAndPrevPos(currPos, oldPos)
 
         return rotation != null
     }

@@ -231,7 +231,7 @@ object RotationUtils : MinecraftInstance, Listenable {
         bb: AxisAlignedBB, distanceBasedSpot: Boolean = false, outborder: Boolean,
         randomization: RandomizationSettings? = null, predict: Boolean,
         lookRange: Float, attackRange: Float, throughWallsRange: Float = 0f,
-        bodyPoints: List<String> = listOf("Head", "Feet"), horizontalSearch: ClosedFloatingPointRange<Float> = 0f..1f,
+        bodyPoints: List<String> = listOf("Head", "Feet"), horizontalSearch: ClosedFloatingPointRange<Float> = 0f..1f
     ): Rotation? {
         val scanRange = lookRange.coerceAtLeast(attackRange)
 

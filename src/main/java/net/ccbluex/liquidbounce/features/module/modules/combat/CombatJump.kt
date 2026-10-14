@@ -13,6 +13,7 @@ import net.ccbluex.liquidbounce.utils.attack.CombatUtils.lastTarget
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils.modifiedInput
+import net.ccbluex.liquidbounce.utils.simulation.getDistanceToBox
 import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
 import net.minecraft.entity.Entity
 
@@ -54,8 +55,6 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
 
         val distance = player.getDistanceToEntityBox(target)
 
-        val (currPos, prevPos) = player.currPos to player.prevPos
-
         if (simPlayer.onGround) {
             simPlayer.jump()
 
@@ -66,9 +65,7 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
             simPlayer.tick()
         }
 
-        player.setPosAndPrevPos(simPlayer.pos)
-        val simDist = player.getDistanceToBox(targetBox)
-        player.setPosAndPrevPos(currPos, prevPos)
+        val simDist = simPlayer.getDistanceToBox(targetBox)
 
         if (debug) chat("(CombatJump) Distance: ${distance}, simulated distance: ${simDist}, simulated ground: ${simPlayer.onGround}")
 
