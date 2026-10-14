@@ -25,5 +25,5 @@ fun SimulatedPlayer.getEyePosition(): Vec3 = Vec3(posX, posY + (height * 0.85f).
 val SimulatedPlayer.eyes: Vec3
     get() = getEyePosition()
 
-var SimulatedPlayer.rotation: Rotation
+val SimulatedPlayer.rotation: Rotation
     get() = Rotation(this.rotationYaw, this.rotationPitch)
