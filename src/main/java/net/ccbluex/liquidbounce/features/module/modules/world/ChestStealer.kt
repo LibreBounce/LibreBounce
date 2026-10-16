@@ -38,7 +38,6 @@ import net.ccbluex.liquidbounce.utils.timing.TickedActions.nextTick
 import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomDelay
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.gui.inventory.GuiChest
-import net.minecraft.inventory.Container.getSlot
 import net.minecraft.inventory.Slot
 import net.minecraft.entity.EntityLiving.getArmorPosition
 import net.minecraft.init.Blocks.chest
@@ -437,15 +436,17 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
         if (mc.currentScreen !is GuiChest)
             return@handler
 
+        val screen = mc.currentScreen
+
         if (showPath) {
             var lastItemInfo: ClickData? = null
 
             for (itemInfo in clickHistory.indices) {
                 if (lastItemInfo != null) {
-                    val fromSlotX = getSlot(lastItemInfo).xDisplayPosition
-                    val fromSlotY = getSlot(lastItemInfo).yDisplayPosition
-                    val toSlotX = getSlot(itemInfo).xDisplayPosition
-                    val toSlotY = getSlot(itemInfo).yDisplayPosition
+                    val fromSlotX = screen.getSlot(lastItemInfo).xDisplayPosition
+                    val fromSlotY = screen.getSlot(lastItemInfo).yDisplayPosition
+                    val toSlotX = screen.getSlot(itemInfo).xDisplayPosition
+                    val toSlotY = screen.getSlot(itemInfo).yDisplayPosition
                     
                     val lineColor = if (itemInfo.clickType == ClickType.TAKE) Color(0, 255, 0).rgb else Color(255, 0, 0).rgb
 
