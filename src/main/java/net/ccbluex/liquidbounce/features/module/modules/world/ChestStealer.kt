@@ -47,6 +47,7 @@ import net.minecraft.network.play.client.C0DPacketCloseWindow
 import net.minecraft.network.play.server.S2DPacketOpenWindow
 import net.minecraft.network.play.server.S2EPacketCloseWindow
 import net.minecraft.network.play.server.S30PacketWindowItems
+import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 import kotlin.math.sqrt
 
@@ -450,7 +451,21 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
                     val lineColor = if (itemInfo.clickType == ClickType.TAKE) Color(0, 255, 0).rgb else Color(255, 0, 0).rgb
 
-                    drawRect(fromSlotX + 8, fromSlotY + 8, toSlotX + 8, toSlotY + 8, lineColor)
+                    glPushMatrix()
+                    glEnable(GL_LINE_SMOOTH)
+                    //glEnable(GL_BLEND)
+                    glDisable(GL_DEPTH_TEST)
+
+                    glVertex2i(fromSlotX + 8, fromSlotY + 8)
+                    glVertex2i(toSlotX + 8, toSlotY + 8)
+
+                    glColor(lineColor)
+
+                    glEnd()
+                    glEnable(GL_DEPTH_TEST)
+                    glDisable(GL_LINE_SMOOTH)
+                    //glDisable(GL_BLEND)
+                    glPopMatrix()
                 }
 
                 lastItemInfo = itemInfo
