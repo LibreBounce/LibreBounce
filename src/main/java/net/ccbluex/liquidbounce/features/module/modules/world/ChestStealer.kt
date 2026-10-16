@@ -92,7 +92,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
     // TODO: Add an option to show the ChestStealer route
     val showPath by boolean("ShowPath", false) { !silentGUI }.subjective()
-    val pathWidth by float("PathWidth", 0.5, 0.1..2.0) { showPath && !silentGUI }.subjective()
+    val pathWidth by float("PathWidth", 0.5f, 0.1f..2.0f) { showPath && !silentGUI }.subjective()
 
     val highlightSlot by boolean("HighlightSlot", false) { !silentGUI }.subjective()
     val backgroundColor =
