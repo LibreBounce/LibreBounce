@@ -436,7 +436,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
         if (mc.currentScreen !is GuiChest)
             return@handler
 
-        val container = mc.player.openContainer
+        val container = mc.thePlayer.openContainer
 
         if (showPath) {
             var lastItemInfo: ClickData? = null
