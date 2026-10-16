@@ -47,13 +47,10 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
 
     private fun shouldJump(target: Entity): Boolean {
         val player = mc.thePlayer ?: return false
-        val simPlayer = SimulatedPlayer.fromClientPlayer(modifiedInput)
-    
-        val targetBox = target.hitBox.offset(
-            target.currPos.subtract(target.prevPos).times(predictEnemyPosition.toDouble())
-        )
 
         val distance = player.getDistanceToEntityBox(target)
+
+        val simPlayer = SimulatedPlayer.fromClientPlayer(modifiedInput)
 
         if (simPlayer.onGround) {
             simPlayer.jump()
@@ -64,6 +61,10 @@ object CombatJump : Module("CombatJump", Category.COMBAT) {
         repeat(predictClientMovement) {
             simPlayer.tick()
         }
+
+        val targetBox = target.hitBox.offset(
+            target.currPos.subtract(target.prevPos).times(predictEnemyPosition.toDouble())
+        )
 
         val simDist = simPlayer.getDistanceToBox(targetBox)
 

@@ -212,7 +212,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
      * Render event
      */
     val onRender3D = handler<Render3DEvent> {
-        drawAimPointBox()
+        if (renderAimPointBox) drawAimPointBox()
 
         if (cancelRun) {
             target = null
@@ -395,21 +395,14 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
 
     private fun shouldPrioritize(): Boolean = when {
         !onScaffold && (Scaffold.handleEvents() && (Scaffold.placeRotation != null || currentRotation != null) || Tower.handleEvents() && Tower.isTowering) -> true
-
         !onDestroyBlock && (Fucker.handleEvents() && !Fucker.noHit && Fucker.pos != null && !Fucker.isOwnBed || Nuker.handleEvents()) -> true
-
         activationSlot && SilentHotbar.currentSlot != preferredSlot - 1 -> true
-
         else -> false
     }
 
     private fun drawAimPointBox() {
         val player = mc.thePlayer ?: return
         val target = this.target ?: return
-
-        if (!renderAimPointBox) {
-            return
-        }
 
         val size = aimPointBoxSize.toDouble()
 
