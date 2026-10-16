@@ -78,8 +78,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
             "InWeb"
         ), "Distance"
     )
-    private val targetMode by choices("TargetMode", arrayOf("Single", "Switch", "Multi"), "Switch")
-    private val limitedMultiTargets by int("LimitedMultiTargets", 0, 0..50) { targetMode == "Multi" }
+    private val targetMode by choices("TargetMode", arrayOf("Single", "Switch"), "Switch")
 
     private val maxSwitchFOV by float("MaxSwitchFOV", 90f, 30f..180f, suffix = "º") { targetMode == "Switch" }
     private val switchDelay by int("SwitchDelay", 15, 1..1000, suffix = "ms") { targetMode == "Switch" }
@@ -200,12 +199,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
     val onTick = handler<GameTickEvent>(priority = 2) {
         val player = mc.thePlayer ?: return@handler
 
-        if (shouldPrioritize()) {
-            target = null
-            return@handler
-        }
-
-        if (cancelRun) {
+        if (shouldPrioritize() || cancelRun) {
             target = null
             return@handler
         }
@@ -229,23 +223,21 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
 
         val color = if ((target as EntityLivingBase).hurtTime == 0) markHittableColor else markColor
 
-        if (targetMode != "Multi") {
-            when (mark) {
-                "None" -> return@handler
-                "Platform" -> drawPlatform(target!!, color)
-                "Box" -> drawEntityBox(target!!, color, boxOutline)
-                "Circle" -> drawCircle(
-                    target!!,
-                    duration * 1000F,
-                    heightRange.takeIf { animateHeight } ?: heightRange.endInclusive..heightRange.endInclusive,
-                    extraWidth,
-                    fillInnerCircle,
-                    withHeight,
-                    circleYRange.takeIf { animateCircleY },
-                    circleStartColor.rgb,
-                    circleEndColor.rgb
-                )
-            }
+        when (mark) {
+            "None" -> return@handler
+            "Platform" -> drawPlatform(target!!, color)
+            "Box" -> drawEntityBox(target!!, color, boxOutline)
+            "Circle" -> drawCircle(
+                target!!,
+                duration * 1000F,
+                heightRange.takeIf { animateHeight } ?: heightRange.endInclusive..heightRange.endInclusive,
+                extraWidth,
+                fillInnerCircle,
+                withHeight,
+                circleYRange.takeIf { animateCircleY },
+                circleStartColor.rgb,
+                circleEndColor.rgb
+            )
         }
     }
 
@@ -253,7 +245,6 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
      * Attack event
      */
     val attackEvent = handler<AttackEvent> {
-        // TODO: Use target, instead
         val currentTarget = this.target ?: return@handler
 
         val player = mc.thePlayer ?: return@handler
@@ -375,7 +366,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
         repeat(predictClientMovement) {
             simPlayer.tick()
 
-            val simDist = player.getDistanceToEntityBox(entity)
+            val simDist = simPlayer.getDistanceToEntityBox(entity)
             val prevDist = player.getDistanceToEntityBox(entity)
 
             if (predictOnlyWhenOutOfRange && simDist !in range && simDist <= prevDist) {
@@ -420,11 +411,9 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
             return
         }
 
-        val f = aimPointBoxSize.toDouble()
+        val size = aimPointBoxSize.toDouble()
 
-        val box = AxisAlignedBB(0.0, 0.0, 0.0, f, f, f)
-
-        val renderManager = mc.renderManager
+        val box = AxisAlignedBB(0.0, 0.0, 0.0, size, size, size)
 
         runWithSimulatedPosition(player, player.interpolatedPosition(player.prevPos)) {
             runWithSimulatedPosition(target, target.interpolatedPosition(target.prevPos)) {
@@ -432,30 +421,18 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
                     serverRotation.lerpWith(currentRotation ?: player.rotation, mc.timer.renderPartialTicks)
                 ) * player.getDistanceToEntityBox(target).coerceAtMost(attackRange.toDouble())
 
-                val offSetBox = box.offset(rotationVec - renderManager.renderPos)
+                val offSetBox = box.offset(rotationVec - mc.renderManager.renderPos)
 
                 drawAxisAlignedBB(offSetBox, aimPointBoxColor)
             }
         }
     }
 
-    /**
-     * Check if run should be cancelled
-     */
     private val cancelRun
         inline get() = mc.thePlayer.isSpectator || !isAlive(mc.thePlayer) || (notOnConsume && isConsumingItem())
 
-    /**
-     * Check if [entity] is alive
-     */
     private fun isAlive(entity: EntityLivingBase) = entity.isEntityAlive && entity.health > 0
 
-    /**
-     * HUD Tag
-     */
     override val tag
         get() = targetMode
-
-    val isBlockingChestAura
-        get() = handleEvents() && target != null
 }
