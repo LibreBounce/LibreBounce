@@ -92,6 +92,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
     // TODO: Add an option to show the ChestStealer route
     val showPath by boolean("ShowPath", false) { !silentGUI }.subjective()
+    val pathWidth by float("PathWidth", 0.5, 0.1..2.0) { showPath && !silentGUI }.subjective()
 
     val highlightSlot by boolean("HighlightSlot", false) { !silentGUI }.subjective()
     val backgroundColor =
@@ -450,12 +451,14 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
                     val toSlotX = container.getSlot(itemInfo.slot).xDisplayPosition
                     val toSlotY = container.getSlot(itemInfo.slot).yDisplayPosition
 
-                    val lineColor = if (itemInfo.clickType == ClickType.TAKE) Color(0, 255, 0).rgb else Color(255, 0, 0).rgb
+                    val lineColor = if (itemInfo.clickType == ClickType.TAKE) Color(0, 255, 0) else Color(255, 0, 0)
 
                     glPushMatrix()
                     glEnable(GL_LINE_SMOOTH)
                     //glEnable(GL_BLEND)
                     glDisable(GL_DEPTH_TEST)
+
+                    glLineWidth(pathWidth)
 
                     glVertex2i(fromSlotX + 8, fromSlotY + 8)
                     glVertex2i(toSlotX + 8, toSlotY + 8)
