@@ -89,6 +89,8 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
     val silentGUI by boolean("SilentGUI", false).subjective()
 
     // TODO: Add an option to show the ChestStealer route
+    val showPath by boolean("ShowPath", false) { !silentGUI }.subjective()
+
     val highlightSlot by boolean("HighlightSlot", false) { !silentGUI }.subjective()
     val backgroundColor =
         color("BackgroundColor", Color(128, 128, 128)) { highlightSlot && !silentGUI }.subjective()
@@ -112,6 +114,8 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
     private var easingProgress = 0f
     private var receivedId: Int? = null
     private var stacks = emptyList<ItemStack?>()
+
+    private val clickHistory = mutableListOf<ClickData>()
 
     var pauseAfterMissClickLength = pauseAfterMissClick.random().toLong()
 
@@ -218,6 +222,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
                     // If target is sortable to a hotbar slot, steal and sort it at the same time, else shift + left-click
                     clickNextTick(slot, sortableTo ?: 0, if (sortableTo != null) 2 else 1) {
                         progress = (index + 1) / itemsToSteal.size.toFloat()
+                        clickHistory += ClickData(ClickType.TALE, slot)
 
                         if (!AutoArmor.canEquipFromChest())
                             return@clickNextTick
@@ -271,6 +276,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
             chestStealerLastSlot = -1
             player.closeScreen()
             progress = null
+            clickHistory.clear()
 
             debug("Chest closed")
         }
@@ -392,6 +398,8 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
         clickNextTick(slotId, 0, 1)
 
+        clickHistory += ClickData(ClickType.MISS, slotId)
+
         if (itemStolenDebug)
             debug("Miss-clicked on slot $slotId. Delay until next click: ${pauseAfterMissClickLength}ms")
 
@@ -425,34 +433,45 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
     // Progress bar
     val onRender2D = handler<Render2DEvent> { event ->
-        if (!progressBar || mc.currentScreen !is GuiChest)
+        if (mc.currentScreen !is GuiChest)
             return@handler
 
-        val progress = progress ?: return@handler
+        /*if (showPath) {
+            for (i in clickHistory.indices) {
+                if (i -1 != null) {
+                    drawRect(minX - 2, minY - 2, maxX + 2, maxY + 2, Color(200, 200, 200).rgb)
+                }
+            }
+        }*/
 
-        val (scaledWidth, scaledHeight) = ScaledResolution(mc)
+        if (progressBar) {
+            val progress = progress ?: return@handler
 
-        val minX = scaledWidth * 0.3f
-        val maxX = scaledWidth * 0.7f
-        val minY = scaledHeight * 0.75f
-        val maxY = minY + 10f
+            val (scaledWidth, scaledHeight) = ScaledResolution(mc)
 
-        easingProgress += (progress - easingProgress) / 6f * event.partialTicks
+            val minX = scaledWidth * 0.3f
+            val maxX = scaledWidth * 0.7f
+            val minY = scaledHeight * 0.75f
+            val maxY = minY + 10f
 
-        drawRect(minX - 2, minY - 2, maxX + 2, maxY + 2, Color(200, 200, 200).rgb)
-        drawRect(minX, minY, maxX, maxY, Color(50, 50, 50).rgb)
-        drawRect(
-            minX,
-            minY,
-            minX + (maxX - minX) * easingProgress,
-            maxY,
-            Color.HSBtoRGB(easingProgress / 5, 1f, 1f) or 0xFF0000
-        )
+            easingProgress += (progress - easingProgress) / 6f * event.partialTicks
+
+            drawRect(minX - 2, minY - 2, maxX + 2, maxY + 2, Color(200, 200, 200).rgb)
+            drawRect(minX, minY, maxX, maxY, Color(50, 50, 50).rgb)
+            drawRect(
+                minX,
+                minY,
+                minX + (maxX - minX) * easingProgress,
+                maxY,
+                Color.HSBtoRGB(easingProgress / 5, 1f, 1f) or 0xFF0000
+            )
+        }
     }
 
     val onPacket = handler<PacketEvent> { event ->
         when (val packet = event.packet) {
             is C0DPacketCloseWindow, is S2DPacketOpenWindow, is S2EPacketCloseWindow -> {
+                clickHistory.clear()
                 receivedId = null
                 progress = null
             }
@@ -479,5 +498,15 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
         "Text" -> chat(message)
         "Notification" -> hud.addNotification(Notification(message, 500L))
         else -> null
+    }
+
+    private data class ClickData(
+        val clickType: ClickType,
+        val slot: Int
+    )
+
+    private enum class ClickType() {
+        TAKE,
+        MISS
     }
 }
