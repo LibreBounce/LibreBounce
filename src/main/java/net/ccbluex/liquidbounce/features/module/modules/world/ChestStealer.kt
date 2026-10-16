@@ -38,6 +38,7 @@ import net.ccbluex.liquidbounce.utils.timing.TickedActions.nextTick
 import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomDelay
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.gui.inventory.GuiChest
+import net.minecraft.inventory.Container.getSlot
 import net.minecraft.inventory.Slot
 import net.minecraft.entity.EntityLiving.getArmorPosition
 import net.minecraft.init.Blocks.chest
@@ -222,7 +223,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
                     // If target is sortable to a hotbar slot, steal and sort it at the same time, else shift + left-click
                     clickNextTick(slot, sortableTo ?: 0, if (sortableTo != null) 2 else 1) {
                         progress = (index + 1) / itemsToSteal.size.toFloat()
-                        clickHistory += ClickData(ClickType.TALE, slot)
+                        clickHistory += ClickData(ClickType.TAKE, slot)
 
                         if (!AutoArmor.canEquipFromChest())
                             return@clickNextTick
@@ -436,13 +437,24 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
         if (mc.currentScreen !is GuiChest)
             return@handler
 
-        /*if (showPath) {
-            for (i in clickHistory.indices) {
-                if (i -1 != null) {
-                    drawRect(minX - 2, minY - 2, maxX + 2, maxY + 2, Color(200, 200, 200).rgb)
+        if (showPath) {
+            var lastItemInfo: ClickData? = null
+
+            for (itemInfo in clickHistory.indices) {
+                if (lastItemInfo != null) {
+                    val fromSlotX = getSlot(lastItemInfo).xDisplayPosition
+                    val fromSlotY = getSlot(lastItemInfo).yDisplayPosition
+                    val toSlotX = getSlot(itemInfo).xDisplayPosition
+                    val toSlotY = getSlot(itemInfo).yDisplayPosition
+                    
+                    val lineColor = if (itemInfo.clickType == ClickType.TAKE) Color(0, 255, 0).rgb else Color(255, 0, 0).rgb
+
+                    drawRect(fromSlotX + 8, fromSlotY + 8, toSlotX + 8, toSlotY + 8, lineColor)
                 }
+
+                lastItemInfo = i
             }
-        }*/
+        }
 
         if (progressBar) {
             val progress = progress ?: return@handler
