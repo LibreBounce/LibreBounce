@@ -436,18 +436,18 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
         if (mc.currentScreen !is GuiChest)
             return@handler
 
-        val screen = mc.currentScreen
+        val container = player.openContainer
 
         if (showPath) {
             var lastItemInfo: ClickData? = null
 
             for (itemInfo in clickHistory.indices) {
                 if (lastItemInfo != null) {
-                    val fromSlotX = screen.getSlot(lastItemInfo).xDisplayPosition
-                    val fromSlotY = screen.getSlot(lastItemInfo).yDisplayPosition
-                    val toSlotX = screen.getSlot(itemInfo).xDisplayPosition
-                    val toSlotY = screen.getSlot(itemInfo).yDisplayPosition
-                    
+                    val fromSlotX = container.getSlot(lastItemInfo).xDisplayPosition
+                    val fromSlotY = container.getSlot(lastItemInfo).yDisplayPosition
+                    val toSlotX = container.getSlot(itemInfo).xDisplayPosition
+                    val toSlotY = container.getSlot(itemInfo).yDisplayPosition
+
                     val lineColor = if (itemInfo.clickType == ClickType.TAKE) Color(0, 255, 0).rgb else Color(255, 0, 0).rgb
 
                     drawRect(fromSlotX + 8, fromSlotY + 8, toSlotX + 8, toSlotY + 8, lineColor)
