@@ -31,6 +31,7 @@ import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.countSpaceInInven
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.hasSpaceInInventory
 import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
+import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
 import net.ccbluex.liquidbounce.utils.timing.TickedActions.awaitTicked
 import net.ccbluex.liquidbounce.utils.timing.TickedActions.clickNextTick
 import net.ccbluex.liquidbounce.utils.timing.TickedActions.isTicked
