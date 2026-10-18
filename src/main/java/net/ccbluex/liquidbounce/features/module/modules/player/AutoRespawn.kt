@@ -21,7 +21,8 @@ object AutoRespawn : Module("AutoRespawn", Category.PLAYER, gameDetecting = fals
             if (Ghost.handleEvents())
                 return@handler
 
-            if (if (instant) health == 0F || isDead else mc.currentScreen is GuiGameOver && (mc.currentScreen as GuiGameOver).enableButtonsTimer >= 20) {
+            if (if (instant) health == 0F || isDead else mc.currentScreen is GuiGameOver &&
+                (mc.currentScreen as GuiGameOver).enableButtonsTimer >= 20) {
                 respawnPlayer()
                 mc.displayGuiScreen(null)
             }

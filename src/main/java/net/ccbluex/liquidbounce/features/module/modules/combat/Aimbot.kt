@@ -177,11 +177,7 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
     }
 
     val onRotationUpdate = handler<RotationUpdateEvent> {
-        update()
-    }
-
-    fun update() {
-        if (cancelRun) return
+        if (cancelRun) return@handler
 
         // Update target
         updateTarget()
@@ -193,9 +189,6 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
         }
     }
 
-    /**
-     * Tick event
-     */
     val onTick = handler<GameTickEvent>(priority = 2) {
         val player = mc.thePlayer ?: return@handler
 
@@ -208,9 +201,6 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
         if (mc.gameSettings.keyBindAttack.isKeyDown) clickTimer.reset()
     }
 
-    /**
-     * Render event
-     */
     val onRender3D = handler<Render3DEvent> {
         if (renderAimPointBox) drawAimPointBox()
 
@@ -241,21 +231,16 @@ object Aimbot : Module("Aimbot", Category.COMBAT) {
         }
     }
 
-    /**
-     * Attack event
-     */
     val attackEvent = handler<AttackEvent> {
         val currentTarget = this.target ?: return@handler
 
         val player = mc.thePlayer ?: return@handler
         val world = mc.theWorld ?: return@handler
 
-        val switchMode = targetMode == "Switch"
-
-        if (!switchMode || switchTimer.hasTimePassed(switchDelay)) {
+        if (targetMode != "Switch" || switchTimer.hasTimePassed(switchDelay)) {
             prevTargetEntities += currentTarget.entityId
 
-            if (switchMode) {
+            if (targetMode == "Switch") {
                 switchTimer.reset()
             }
         }

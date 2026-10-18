@@ -20,7 +20,7 @@ object Eagle : Module("Eagle", Category.PLAYER) {
 
     private val maxSneakTime by intRange("MaxSneakTime", 1..5, 0..20, suffix = "ticks")
     private val onlyWhenLookingDown by boolean("OnlyWhenLookingDown", false)
-    private val lookDownThreshold by float("LookDownThreshold", 45f, 0f..90f, suffix = "º") { onlyWhenLookingDown }
+    private val allowedPitch by floatRange("AllowedPitch", 55f..85f, 0f..90f, suffix = "º") { onlyWhenLookingDown }
     private val onlyBlocks by boolean("OnlyBlocks", false)
     private val notOnForward by boolean("NotOnForward", false)
 
@@ -32,12 +32,22 @@ object Eagle : Module("Eagle", Category.PLAYER) {
         if (GameSettings.isKeyDown(mc.gameSettings.keyBindSneak)) return@handler
 
         if (player.onGround && BlockPos(player).down().block == air) {
-            val shouldSneak = (!onlyWhenLookingDown || player.rotationPitch >= lookDownThreshold) && (!onlyBlocks || player.heldItem?.item is ItemBlock) && (!notOnForward || !GameSettings.isKeyDown(mc.gameSettings.keyBindForward))
-
-            mc.gameSettings.keyBindSneak.pressed = shouldSneak && !GameSettings.isKeyDown(mc.gameSettings.keyBindSneak)
+            mc.gameSettings.keyBindSneak.pressed = shouldSneak() && !GameSettings.isKeyDown(mc.gameSettings.keyBindSneak)
         } else if (sneakTimer.resetIfPassed()) {
             mc.gameSettings.keyBindSneak.pressed = false
         }
+    }
+
+    private fun shouldSneak(): Boolean {
+        val player = mc.thePlayer
+
+        when {
+            onlyWhenLookingDown && player.rotationPitch !in allowedPitch -> return false
+            onlyBlocks && player.heldItem?.item !is ItemBlock -> return false
+            notOnForward && GameSettings.isKeyDown(mc.gameSettings.keyBindForward) -> return false
+        }
+
+        return true
     }
 
     override fun onDisable() {
