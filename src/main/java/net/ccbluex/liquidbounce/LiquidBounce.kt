@@ -183,6 +183,7 @@ object LiquidBounce {
             CombatUtils
             BlinkUtils
             ScaffoldUtils
+            InputManager
 
             // Load settings
             loadSettings(false) {

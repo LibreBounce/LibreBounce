@@ -5,8 +5,11 @@
  */
 package net.ccbluex.liquidbounce.injection.forge.mixins.client;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.MovementInputEvent;
+import net.ccbluex.liquidbounce.LiquidBounce;
 import net.ccbluex.liquidbounce.features.module.modules.combat.SuperKnockback;
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffolds.Scaffold;
 import net.minecraft.util.MovementInput;
@@ -19,7 +22,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(MovementInputFromOptions.class)
 public class MixinMovementInputFromOptions extends MixinMovementInput {
 
-    @Inject(method = "updatePlayerMoveState", at = @At(value = "FIELD", target = "Lnet/minecraft/util/MovementInputFromOptions;jump:Z"))
+    /*@Inject(method = "updatePlayerMoveState", at = @At(value = "FIELD", target = "Lnet/minecraft/util/MovementInputFromOptions;jump:Z"))
     private void hookSuperKnockbackInputBlock(CallbackInfo ci) {
         SuperKnockback module = SuperKnockback.INSTANCE;
 
@@ -34,10 +37,20 @@ public class MixinMovementInputFromOptions extends MixinMovementInput {
         }
 
         Scaffold.INSTANCE.handleMovementOptions(((MovementInput) (Object) this));
-    }
+    }*/
 
     @Inject(method = "updatePlayerMoveState", at = @At(value = "FIELD", target = "Lnet/minecraft/util/MovementInputFromOptions;sneak:Z", ordinal = 1))
     private void injectMovementInputEvent(CallbackInfo ci) {
         EventManager.INSTANCE.call(new MovementInputEvent((MovementInput) (Object) this));
     }
+
+    @Inject(method = "updatePlayerMoveState", at = @At("HEAD"))
+	private void libreBounce$updateInput(CallbackInfo ci) {
+		LiquidBounce.INSTANCE.INPUT.update();
+	}
+
+    @WrapOperation(method = "updatePlayerMoveState", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/settings/KeyBinding;isKeyDown()Z"))
+	private boolean libreBounce$clientInput(KeyBinding key, Operation<Boolean> original) {
+		return LiquidBounce.INSTANCE.INPUT.resolve(key, original.call(key));
+	}
 }
