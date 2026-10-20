@@ -92,7 +92,7 @@ class SneakSlowDownEvent(var strafe: Float, var forward: Float) : Event()
  *
  * @param originalInput the movement input after the update
  */
-class MovementInputEvent(var originalInput: MovementInput) : Event()
+class MovementInputEvent() : Event()
 
 /**
  * Called in "onLivingUpdate" after when the player's sprint states are updated

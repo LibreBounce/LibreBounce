@@ -29,7 +29,7 @@ object InputManager : MinecraftInstance {
 		player.jump = held(options.keyBindJump)
 		player.sneak = held(options.keyBindSneak)
 		client.copy(player)
-		EventManager.call(MovementInputEvent((MovementInput) (Object) this))
+		EventManager.call(MovementInputEvent)
 	}
 
 	fun resolve(KeyBinding key, boolean pressed): Boolean {
