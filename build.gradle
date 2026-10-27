@@ -133,6 +133,10 @@ dependencies {
     implementation fileTree(include: ["*.jar"], dir: "libs")
 }
 
+mixin {
+    add sourceSets.main, "liquidbounce.mixins.refmap.json"
+}
+
 shadowJar {
     archiveClassifier.set("")
     duplicatesStrategy DuplicatesStrategy.EXCLUDE
@@ -188,9 +192,6 @@ jar {
     dependsOn("shadowJar")
 }
 
-mixin {
-    add sourceSets.main, "liquidbounce.mixins.refmap.json"
-}
 /*mixin {
     disableRefMapWarning = true
     defaultObfuscationEnv searge
