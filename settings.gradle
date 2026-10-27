@@ -9,23 +9,10 @@ pluginManagement {
         maven { url = "https://maven.wagyourtail.xyz/snapshots" }
     }
 
-    resolutionStrategy {
-        eachPlugin {
-            switch (requested.id.id) {
-                case "net.minecraftforge.gradle.forge":
-                    //useModule("com.github.ccbluex:ForgeGradle:${forgegradle_version}")
-                    useModule("com.github.CCBlueX:ForgeGradle:${forgegradle_version}")
-                    break
-                case "org.spongepowered.mixin":
-                    useModule("com.github.xcfrg:mixingradle:${mixingradle_version}")
-                    break
-            }
-        }
-    }
     plugins {
         id "org.jetbrains.kotlin.jvm" version kotlin_version
         id("org.gradle.toolchains.foojay-resolver-convention") version "0.8.0"
     }
 }
 
-rootProject.name = 'LibreBounce'
+rootProject.name = "LibreBounce"
