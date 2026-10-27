@@ -54,8 +54,8 @@ unimined.minecraft {
         mixinConfig "liquidbounce.forge.mixins.json"
     }
 
-    remap(configurations.modCompileOnly) {
-    }
+    /*remap(configurations.modCompileOnly) {
+    }*/
 
     add sourceSets.main, "liquidbounce.mixins.refmap.json"
 
