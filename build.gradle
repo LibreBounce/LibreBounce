@@ -3,8 +3,6 @@ plugins {
     id "idea"
     id "org.jetbrains.kotlin.jvm"
     id "com.github.johnrengelman.shadow" version "6.1.0"
-    //id "net.minecraftforge.gradle.forge"
-    id "org.spongepowered.mixin"
     id "com.gorylenko.gradle-git-properties" version "2.5.3"
     id "xyz.wagyourtail.unimined" version "1.4.2-SNAPSHOT"
 }
@@ -30,18 +28,10 @@ java {
 tasks.withType(JavaCompile).configureEach {
     options.release = 8
 }
-//sourceCompatibility = targetCompatibility = 1.8
-//compileJava.options.encoding = "UTF-8"
-
-/*compileKotlin {
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
-}*/
 
 unimined.minecraft {
     version project.minecraft_version
-    side "combined" // default value
+    side "combined"
 
     mappings {
         mcp("stable", "22-1.8.9")
@@ -54,18 +44,15 @@ unimined.minecraft {
         mixinConfig "liquidbounce.forge.mixins.json"
     }
 
-    /*remap(configurations.modCompileOnly) {
-    }*/
-
-    //sourceSets.main.add("liquidbounce.mixins.refmap.json")
-
     runs {
-        //off = true // disable all run configurations
         config("client") {
-            //disabled = true // disable the runClient task
-
-            javaVersion = JavaVersion.VERSION_1_8 // change the java version
-            args += ["-Dfml.coreMods.load=net.ccbluex.liquidbounce.injection.forge.MixinLoader", "-Xmx4096m", "-Xms1024m", "-Ddev-mode"] // add an argument to the runClient task
+            javaVersion = JavaVersion.VERSION_1_8
+            args += [
+                "-Dfml.coreMods.load=net.ccbluex.liquidbounce.injection.forge.MixinLoader",
+                "-Xmx4096m",
+                "-Xms1024m",
+                "-Ddev-mode"
+            ]
         }
     }
 
@@ -83,13 +70,7 @@ sourceSets {
     }
 }
 
-/*configurations {
-    runtimeOnly.canBeResolved = true
-}*/
-
 dependencies {
-    //implementation("com.github.CCBlueX:ForgeGradle:FG_2.1-SNAPSHOT")
-
     implementation("org.spongepowered:mixin:0.7.11-SNAPSHOT") {
         transitive = false
         exclude module: "guava"
@@ -114,27 +95,18 @@ dependencies {
 
     implementation("org.knowm.xchart:xchart:3.8.8")
 
-    // HTTP Client
     implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.16") {
         exclude module: "kotlin-stdlib"
     }
 
-    // Kotlin
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlin_coroutines_version")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlin_coroutines_version")
 
-    // Update Checker - Semver Implementation
     implementation("org.semver4j:semver4j:5.8.0")
-
-    // Swing theme
     implementation("com.formdev:flatlaf:3.6.1")
 
     implementation fileTree(include: ["*.jar"], dir: "libs")
-}
-
-mixin {
-    add sourceSets.main, "liquidbounce.mixins.refmap.json"
 }
 
 shadowJar {
@@ -142,10 +114,8 @@ shadowJar {
     duplicatesStrategy DuplicatesStrategy.EXCLUDE
 
     exclude "LICENSE.txt"
-
     exclude "META-INF/maven/**"
     exclude "META-INF/versions/**"
-
     exclude "org/apache/log4j/**"
     exclude "org/apache/commons/**"
     exclude "org/junit/**"
@@ -156,7 +126,7 @@ processResources {
     inputs.property "mcversion", project.minecraft_version
 
     filesMatching("mcmod.info") {
-        expand "version": project.version, "mcversion": project.minecraft.version
+        expand "version": project.version, "mcversion": project.minecraft_version
     }
 
     rename "(.+_at.cfg)", "META-INF/\$1"
@@ -176,48 +146,20 @@ classes.dependsOn(moveResources)
 
 jar {
     manifest.attributes(
-            "FMLCorePlugin": "net.ccbluex.liquidbounce.injection.forge.MixinLoader",
-            "FMLCorePluginContainsFMLMod": true,
-            "ForceLoadAsMod": true,
-            "MixinConfigs": "liquidbounce.forge.mixins.json",
-            "ModSide": "CLIENT",
-            "TweakClass": "org.spongepowered.asm.launch.MixinTweaker",
-            "TweakOrder": "0",
-            "FMLAT": "liquidbounce_at.cfg",
-            "Main-Class": "net.ccbluex.liquidinstruction.LiquidInstructionKt",
+        "FMLCorePlugin": "net.ccbluex.liquidbounce.injection.forge.MixinLoader",
+        "FMLCorePluginContainsFMLMod": true,
+        "ForceLoadAsMod": true,
+        "MixinConfigs": "liquidbounce.forge.mixins.json",
+        "ModSide": "CLIENT",
+        "TweakClass": "org.spongepowered.asm.launch.MixinTweaker",
+        "TweakOrder": "0",
+        "FMLAT": "liquidbounce_at.cfg",
+        "Main-Class": "net.ccbluex.liquidinstruction.LiquidInstructionKt"
     )
 
     enabled = false
-
     dependsOn("shadowJar")
 }
-
-/*mixin {
-    disableRefMapWarning = true
-    defaultObfuscationEnv searge
-    add sourceSets.main, "liquidbounce.mixins.refmap.json"
-}
-
-reobf {
-    shadowJar {
-        mappingType = "SEARGE"
-    }
-}
-
-tasks.reobfShadowJar.mustRunAfter("shadowJar")
-tasks.reobfJar.dependsOn("shadowJar")*/
-
-/*processForgeResources {
-    inputs.property "version", project.version
-
-    filesMatching("META-INF/mods.toml") {
-        expand "version": project.version
-    }
-
-    filesMatching("mcmod.info") {
-        expand "version": project.version
-    }
-}*/
 
 tasks.register('copyZipInclude', Copy) {
     from 'zip_include/'
