@@ -57,7 +57,7 @@ unimined.minecraft {
     /*remap(configurations.modCompileOnly) {
     }*/
 
-    sourceSets.main.add("liquidbounce.mixins.refmap.json")
+    //sourceSets.main.add("liquidbounce.mixins.refmap.json")
 
     runs {
         //off = true // disable all run configurations
@@ -188,6 +188,9 @@ jar {
     dependsOn("shadowJar")
 }
 
+mixin {
+    add sourceSets.main, "liquidbounce.mixins.refmap.json"
+}
 /*mixin {
     disableRefMapWarning = true
     defaultObfuscationEnv searge
