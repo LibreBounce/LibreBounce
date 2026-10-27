@@ -1,6 +1,5 @@
 pluginManagement {
     repositories {
-        maven { url = forgeGradleRepo }
         mavenCentral()
         gradlePluginPortal()
         maven { url = "https://maven.minecraftforge.net/" }
