@@ -57,7 +57,7 @@ unimined.minecraft {
     /*remap(configurations.modCompileOnly) {
     }*/
 
-//    add sourceSets.main, "liquidbounce.mixins.refmap.json"
+    sourceSets.main.add("liquidbounce.mixins.refmap.json")
 
     runs {
         //off = true // disable all run configurations
