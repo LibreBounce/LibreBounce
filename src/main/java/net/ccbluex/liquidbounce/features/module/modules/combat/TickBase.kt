@@ -118,8 +118,14 @@ object TickBase : Module("TickBase", Category.COMBAT) {
             val skipTicks = (bestTick + pauseAfterTick).coerceAtMost(maxTicksAtATime + pauseAfterTick)
 
             fun tick() {
+                val simPlayer = SimulatedPlayer.fromClientPlayer(RotationUtils.modifiedInput)
+
+                simPlayer.rotationYaw = RotationUtils.currentRotation?.yaw ?: player.rotationYaw
+
                 repeat(skipTicks) {
-                    player.onUpdate()
+                    simPlayer.tick()
+
+                    player.setPosAndPrevPos(simPlayer.pos)
                     tickBalance--
                 }
             }
@@ -246,4 +252,3 @@ object TickBase : Module("TickBase", Category.COMBAT) {
         return entities.asSequence().filterIsInstance<EntityLivingBase>()
             .filter { EntityUtils.isSelected(it, true) }.minByOrNull { mc.thePlayer.getDistanceToEntity(it) }
     }
-}
