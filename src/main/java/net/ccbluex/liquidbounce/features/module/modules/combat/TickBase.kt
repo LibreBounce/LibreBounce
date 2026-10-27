@@ -17,6 +17,7 @@ import net.ccbluex.liquidbounce.utils.kotlin.RandomUtils.withinChance
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
 import net.ccbluex.liquidbounce.utils.rotation.RotationUtils
 import net.ccbluex.liquidbounce.utils.simulation.SimulatedPlayer
+import net.ccbluex.liquidbounce.utils.extensions.setPosAndPrevPos
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.network.play.server.S08PacketPlayerPosLook
 import net.minecraft.util.Vec3
@@ -118,8 +119,14 @@ object TickBase : Module("TickBase", Category.COMBAT) {
             val skipTicks = (bestTick + pauseAfterTick).coerceAtMost(maxTicksAtATime + pauseAfterTick)
 
             fun tick() {
+                val simPlayer = SimulatedPlayer.fromClientPlayer(RotationUtils.modifiedInput)
+
+                simPlayer.rotationYaw = RotationUtils.currentRotation?.yaw ?: player.rotationYaw
+
                 repeat(skipTicks) {
-                    player.onUpdate()
+                    simPlayer.tick()
+
+                    player.setPositionAndUpdate(simPlayer.pos)
                     tickBalance--
                 }
             }
