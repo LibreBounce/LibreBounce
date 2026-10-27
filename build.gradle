@@ -4,7 +4,7 @@ plugins {
     id "org.jetbrains.kotlin.jvm"
     id "com.github.johnrengelman.shadow" version "6.1.0"
     //id "net.minecraftforge.gradle.forge"
-    //id "org.spongepowered.mixin"
+    id "org.spongepowered.mixin"
     id "com.gorylenko.gradle-git-properties" version "2.5.3"
     id "xyz.wagyourtail.unimined" version "1.4.2-SNAPSHOT"
 }
