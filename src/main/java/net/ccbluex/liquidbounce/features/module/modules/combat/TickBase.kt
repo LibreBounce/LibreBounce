@@ -126,7 +126,7 @@ object TickBase : Module("TickBase", Category.COMBAT) {
                 repeat(skipTicks) {
                     simPlayer.tick()
 
-                    player.setPosAndPrevPos(simPlayer.pos)
+                    player.setPositionAndUpdate(simPlayer.pos)
                     tickBalance--
                 }
             }
